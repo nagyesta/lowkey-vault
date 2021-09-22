@@ -1,0 +1,3 @@
+rootProject.name = 'lowkey-vault'
+include 'lowkey-vault-app'
+include 'lowkey-vault-docker'

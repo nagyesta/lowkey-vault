@@ -1,0 +1,181 @@
+plugins {
+    id 'io.toolebox.git-versioner' version '1.6.5'
+}
+
+group = 'com.github.nagyesta.lowkey-vault'
+
+project.ext {
+    gitToken = project.hasProperty('githubToken') ? (project.property('githubToken') as String) : ''
+    gitUser = project.hasProperty('githubUser') ? (project.property('githubUser') as String) : ''
+    ossrhUser = project.hasProperty('ossrhUsername') ? (project.property('ossrhUsername') as String) : ''
+    ossrhPass = project.hasProperty('ossrhPassword') ? (project.property('ossrhPassword') as String) : ''
+    repoUrl = 'https://github.com/nagyesta/lowkey-vault'
+    licenseName = 'MIT License'
+    licenseUrl = 'https://raw.githubusercontent.com/nagyesta/lowkey-vault/main/LICENSE'
+    maintainerId = 'nagyesta'
+    maintainerName = 'Istvan Zoltan Nagy'
+    maintainerUrl = 'https://github.com/nagyesta/'
+    scmConnection = 'scm:git:https://github.com/nagyesta/lowkey-vault.git'
+    scmProjectUrl = 'https://github.com/nagyesta/lowkey-vault/'
+
+    // dependency versions
+
+    // internal build versions
+    jupiterVersion = '5.7.0'
+    mockitoCoreVersion = '3.6.0'
+    springBootVersion = '2.5.4'
+    springVersion = '5.3.10'
+    lombokVersion = '1.18.12'
+}
+
+versioner {
+    startFrom {
+        major = 0
+        minor = 0
+        patch = 1
+    }
+    match {
+        major = '{major}'
+        minor = '{minor}'
+        patch = '{patch}'
+    }
+    pattern {
+        pattern = "%M.%m.%p"
+    }
+    git {
+        authentication {
+            https {
+                token = project.ext.gitToken
+            }
+        }
+    }
+    tag {
+        prefix = 'v'
+        useCommitMessage = true
+    }
+}
+
+configure(subprojects.findAll({
+    !'lowkey-vault-docker'.equalsIgnoreCase(it.name)
+})) {
+    apply plugin: 'java'
+    apply plugin: 'checkstyle'
+    apply plugin: 'jacoco'
+    apply plugin: 'maven-publish'
+    apply plugin: 'signing'
+
+    versioner.apply()
+
+    version = rootProject.version
+    //noinspection GroovyUnusedAssignment
+    sourceCompatibility = '11'
+    repositories {
+        mavenCentral()
+    }
+
+    java {
+        withJavadocJar()
+        withSourcesJar()
+    }
+
+    jacocoTestReport {
+        reports {
+            xml.required.set(true)
+            xml.destination file("$buildDir/reports/jacoco/report.xml")
+            csv.required.set(false)
+            html.required.set(true)
+        }
+    }
+
+    test.finalizedBy jacocoTestReport
+    jacocoTestReport.finalizedBy jacocoTestCoverageVerification
+
+    jacoco {
+        toolVersion = "0.8.2"
+    }
+
+    jacocoTestCoverageVerification {
+        inputs.file(file("${buildDir}/reports/jacoco/report.xml") as String)
+        outputs.file(file("${buildDir}/reports/jacoco/jacocoTestCoverageVerification") as String)
+
+        violationRules {
+            rule {
+                limit {
+                    counter = 'LINE'
+                    value = 'COVEREDRATIO'
+                    minimum = 0.8
+                }
+                limit {
+                    counter = 'BRANCH'
+                    value = 'COVEREDRATIO'
+                    minimum = 0.8
+                }
+                excludes = [
+                        "testkit",
+                        "booster-junit4"
+                ]
+            }
+            rule {
+                element = 'CLASS'
+                limit {
+                    counter = 'LINE'
+                    value = 'COVEREDRATIO'
+                    minimum = 0.5
+                }
+                limit {
+                    counter = 'BRANCH'
+                    value = 'COVEREDRATIO'
+                    minimum = 0.5
+                }
+                excludes = [
+                        "com.github.nagyesta.lowkeyvault.LowkeyVaultApp"
+                ]
+            }
+        }
+        doLast {
+            file("${buildDir}/reports/jacoco/jacocoTestCoverageVerification").write("Passed")
+        }
+    }
+    jar.dependsOn check
+
+    tasks.withType(Checkstyle) {
+        configProperties = [base_dir: rootDir.toString(), cache_file: file("${buildDir}/checkstyle/cacheFile")]
+        reports {
+            xml.required.set(false)
+            html.required.set(true)
+            html.stylesheet resources.text
+                    .fromFile(rootProject.file('config/checkstyle/checkstyle-stylesheet.xsl') as String)
+        }
+    }
+
+    publishing {
+        repositories {
+            maven {
+                name = "GitHubPackages"
+                url = uri("https://maven.pkg.github.com/nagyesta/lowkey-vault")
+                credentials {
+                    username = rootProject.ext.gitUser
+                    password = rootProject.ext.gitToken
+                }
+            }
+            maven {
+                name = "ossrh"
+                url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2")
+                credentials {
+                    username = rootProject.ext.ossrhUser
+                    password = rootProject.ext.ossrhPass
+                }
+            }
+        }
+    }
+
+    //Disable metadata publishing and rely on Maven only
+    tasks.withType(GenerateModuleMetadata) {
+        enabled = false
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+

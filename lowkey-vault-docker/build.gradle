@@ -1,0 +1,23 @@
+plugins {
+    id 'java'
+    id "org.sonatype.gradle.plugins.scan" version "2.0.4"
+}
+
+version = rootProject.version
+//noinspection GroovyUnusedAssignment
+sourceCompatibility = '11'
+repositories {
+    mavenCentral()
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+group = "${rootProject.group}"
+
+dependencies {
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.jupiterVersion}"
+    testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.ext.jupiterVersion}"
+}

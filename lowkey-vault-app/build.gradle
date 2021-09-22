@@ -1,0 +1,71 @@
+plugins {
+    id 'org.springframework.boot' version '2.5.4'
+    id 'java'
+    //noinspection SpellCheckingInspection
+    id "io.freefair.lombok" version "6.2.0"
+    id "org.sonatype.gradle.plugins.scan" version "2.0.4"
+}
+
+group = "${rootProject.group}"
+
+project.ext {
+    artifactDisplayName = "Lowkey Vault - App"
+    artifactDescription = "Assembled application of Lowkey Vault."
+}
+
+dependencies {
+    implementation "org.springframework.boot:spring-boot-starter:${rootProject.ext.springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-json:${rootProject.ext.springBootVersion}"
+    annotationProcessor "org.projectlombok:lombok:${rootProject.ext.lombokVersion}"
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:${rootProject.ext.springBootVersion}"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:${rootProject.ext.springBootVersion}"
+    testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.ext.jupiterVersion}"
+}
+
+test {
+    useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact bootJar
+            artifactId = "${project.name}"
+            pom {
+                name = "${project.artifactDisplayName}"
+                description = "${project.artifactDescription}"
+                url = rootProject.ext.repoUrl
+                packaging = "jar"
+                licenses {
+                    license {
+                        name = rootProject.ext.licenseName
+                        url = rootProject.ext.licenseUrl
+                    }
+                }
+                developers {
+                    developer {
+                        id = rootProject.ext.maintainerId
+                        name = rootProject.ext.maintainerName
+                        url = rootProject.ext.maintainerUrl
+                    }
+                }
+                scm {
+                    connection = rootProject.ext.scmConnection
+                    developerConnection = rootProject.ext.scmConnection
+                    url = rootProject.ext.scmProjectUrl
+                }
+                withXml {
+                    asNode().dependencies.findAll() {
+                        def parent = it.parent()
+                        parent.remove(it)
+                    }
+                }
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}

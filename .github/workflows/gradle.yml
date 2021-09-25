@@ -16,7 +16,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -36,19 +35,22 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-wrapper-
       - name: Build with Gradle
-        #          ./gradlew tagVersion build
         run: >
-               ./gradlew printVersion build
-               -PgithubUser=${{ secrets.PUBLISH_USER_NAME }}
-               -PgithubToken=${{ secrets.PUBLISH_KEY }}
+          ./gradlew tagVersion build
+          -PgithubUser=${{ secrets.PUBLISH_USER_NAME }}
+          -PgithubToken=${{ secrets.PUBLISH_KEY }}
       - name: Decode key
         run: |
           mkdir -p ~/.gnupg/
           echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}" | base64 --decode > ~/.gnupg/secring.gpg
+      - name: Docker Login
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9 # v1.10.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Publish with Gradle
-        #          ./gradlew publish
         run: >
-               ./gradlew signMavenJavaPublication
+          ./gradlew publish
                -PgithubUser=${{ secrets.PUBLISH_USER_NAME }}
                -PgithubToken=${{ secrets.PUBLISH_KEY }}
                -PossrhUsername=${{ secrets.OSSRH_USER }}
@@ -61,4 +63,4 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./lowkey-vault-app/build/reports/jacoco/report.xml
-
+          fail_ci_if_error: false

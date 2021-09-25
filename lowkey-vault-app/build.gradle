@@ -1,9 +1,9 @@
 plugins {
-    id 'org.springframework.boot' version '2.5.4'
+    id 'org.springframework.boot' version '2.5.5'
     id 'java'
     //noinspection SpellCheckingInspection
-    id "io.freefair.lombok" version "6.2.0"
-    id "org.sonatype.gradle.plugins.scan" version "2.0.4"
+    id "io.freefair.lombok" version '6.2.0'
+    id 'org.sonatype.gradle.plugins.scan' version '2.2.0'
 }
 
 group = "${rootProject.group}"
@@ -16,6 +16,11 @@ project.ext {
 dependencies {
     implementation "org.springframework.boot:spring-boot-starter:${rootProject.ext.springBootVersion}"
     implementation "org.springframework.boot:spring-boot-starter-json:${rootProject.ext.springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-web:${rootProject.ext.springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-tomcat:${rootProject.ext.springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-validation:${rootProject.ext.springBootVersion}"
+    implementation "org.hibernate:hibernate-validator:${rootProject.ext.hibernateVersion}"
+    implementation "com.google.code.findbugs:jsr305:${rootProject.ext.findBugsVersion}"
     annotationProcessor "org.projectlombok:lombok:${rootProject.ext.lombokVersion}"
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:${rootProject.ext.springBootVersion}"
     testImplementation "org.springframework.boot:spring-boot-starter-test:${rootProject.ext.springBootVersion}"
@@ -26,6 +31,27 @@ test {
     useJUnitPlatform()
 }
 
+task regenerateCert(type:Exec) {
+    outputs.file("${project.projectDir}/src/main/resources/cert/keystore.p12")
+    workingDir file("${project.projectDir}/src/main/resources/cert")
+
+    //on windows:
+    commandLine 'keytool',
+            '-genkeypair',
+            '-alias', 'lowkey-vault.local',
+            '-keyalg', 'RSA',
+            '-keysize', '4096',
+            '-validity', '3650',
+            '-dname', 'CN=lowkey-vault.local',
+            '-keypass', 'changeit',
+            '-keystore', 'keystore.p12',
+            '-storeType', 'PKCS12',
+            '-storepass', 'changeit',
+            '-ext', 'SAN=dns:default.lowkey-vault.local,dns:default.lowkey-vault,dns:lowkey-vault.local,dns:lowkey-vault,dns:localhost'
+
+    logging.captureStandardOutput LogLevel.INFO
+    logging.captureStandardError  LogLevel.ERROR
+}
 publishing {
     publications {
         mavenJava(MavenPublication) {

@@ -16,10 +16,7 @@ on:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        os: [ ubuntu-latest, windows-latest ]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     steps:
       # Set up build environment
@@ -45,3 +42,4 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./lowkey-vault-app/build/reports/jacoco/report.xml
+          fail_ci_if_error: false

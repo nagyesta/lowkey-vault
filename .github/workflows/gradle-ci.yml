@@ -34,9 +34,16 @@ jobs:
           key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-wrapper-
+      - name: Decode key
+        run: |
+          mkdir -p ~/.gnupg/
+          echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}" | base64 --decode > ~/.gnupg/secring.gpg
       - name: Build with Gradle
         run: >
-          ./gradlew printVersion build
+          ./gradlew printVersion build sign
+          -Psigning.keyId=${{ secrets.SIGNING_KEY_ID }}
+          -Psigning.password=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
+          -Psigning.secretKeyRingFile=$(echo ~/.gnupg/secring.gpg)
       - name: Upload coverage to Codecov - App
         uses: codecov/codecov-action@11d69070bf0bb19a473235e011c7890707db52de # v2.1
         with:

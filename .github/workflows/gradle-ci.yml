@@ -13,15 +13,6 @@ on:
       - 'LICENSE'
       - '.github/ISSUE_TEMPLATE/**'
       - '.github/assets/**'
-  push:
-    branches: [ bugfix/** ]
-    paths-ignore:
-      - 'README.md'
-      - '**/README.md'
-      - 'SECURITY.md'
-      - 'LICENSE'
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/assets/**'
 
 jobs:
   build:

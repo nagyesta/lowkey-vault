@@ -21,11 +21,16 @@ project.ext {
     // dependency versions
 
     // internal build versions
-    jupiterVersion = '5.7.0'
+    httpClientVersion = '4.5.13'
+    azureKeyVaultClientVersion = '4.3.3'
+    abortMissionVersion = '2.6.1'
+    jupiterVersion = '5.8.0'
     mockitoCoreVersion = '3.6.0'
-    springBootVersion = '2.5.4'
+    springBootVersion = '2.5.5'
+    hibernateVersion = '6.2.0.Final'
     springVersion = '5.3.10'
     lombokVersion = '1.18.12'
+    findBugsVersion = '3.0.2'
 }
 
 versioner {
@@ -84,6 +89,7 @@ configure(subprojects.findAll({
             xml.destination file("$buildDir/reports/jacoco/report.xml")
             csv.required.set(false)
             html.required.set(true)
+            html.destination file("$buildDir/reports/jacoco/html")
         }
     }
 
@@ -128,7 +134,11 @@ configure(subprojects.findAll({
                     minimum = 0.5
                 }
                 excludes = [
-                        "com.github.nagyesta.lowkeyvault.LowkeyVaultApp"
+                        'com.github.nagyesta.lowkeyvault.LowkeyVaultApp',
+                        'com.github.nagyesta.lowkeyvault.AppConfiguration',
+                        'com.github.nagyesta.lowkeyvault.service.exception.NotFoundException',
+                        'com.github.nagyesta.lowkeyvault.service.exception.CryptoException',
+                        'com.github.nagyesta.lowkeyvault.model.common.ApiConstants',
                 ]
             }
         }

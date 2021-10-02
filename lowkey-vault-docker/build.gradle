@@ -1,6 +1,8 @@
 plugins {
     id 'java'
-    id "org.sonatype.gradle.plugins.scan" version "2.0.4"
+    id 'com.github.nagyesta.abort-mission-gradle-plugin' version '2.0.2'
+    id 'com.palantir.docker' version '0.30.0'
+    id 'com.palantir.docker-run' version '0.30.0'
 }
 
 version = rootProject.version
@@ -18,6 +20,65 @@ java {
 group = "${rootProject.group}"
 
 dependencies {
+    testImplementation "org.apache.httpcomponents:httpclient:${rootProject.ext.httpClientVersion}"
+    testImplementation "com.azure:azure-security-keyvault-keys:${rootProject.ext.azureKeyVaultClientVersion}"
     testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.jupiterVersion}"
     testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.ext.jupiterVersion}"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:${rootProject.ext.springBootVersion}"
+    testImplementation "com.github.nagyesta.abort-mission.boosters:abort.booster-junit-jupiter:${rootProject.ext.abortMissionVersion}"
+}
+
+task copyAppJar(type: Copy) {
+    inputs.file(rootProject.project(":lowkey-vault-app").tasks.getByPath("bootJar").outputs.files.singleFile)
+    outputs.file("${buildDir}/app/lowkey-vault.jar")
+    from rootProject.project(":lowkey-vault-app").tasks.getByPath("bootJar").outputs.files.singleFile
+    into file("${buildDir}/app/")
+    rename {
+        'lowkey-vault.jar'
+    }
+    dependsOn(":lowkey-vault-app:bootJar")
+}
+
+docker {
+    name "lowkey-vault:${rootProject.version}"
+    tag 'dockerNagyesta', "nagyesta/lowkey-vault:${rootProject.version}"
+    dockerfile file('src/docker/Dockerfile')
+    files file("${buildDir}/app/lowkey-vault.jar")
+    pull true
+    noCache true
+}
+tasks.dockerPrepare.inputs.file("${buildDir}/app/lowkey-vault.jar")
+tasks.dockerPrepare.dependsOn copyAppJar
+clean.mustRunAfter dockerClean
+
+dockerRun {
+    name "lowkey-vault"
+    image "lowkey-vault:${rootProject.version}"
+    ports "8443:8443"
+    daemonize true
+    arguments '--rm'
+}
+tasks.dockerRun.dependsOn tasks.docker
+
+task waitForStartup {
+    doLast {
+        Thread.sleep(5000)
+    }
+    dependsOn tasks.dockerRun
+}
+
+test {
+    useJUnitPlatform()
+}
+test.outputs.upToDateWhen {false}
+test.dependsOn tasks.waitForStartup
+test.finalizedBy tasks.dockerStop
+
+abortMission {
+    toolVersion rootProject.ext.abortMissionVersion
+}
+
+task publish {
+    dependsOn(build)
+    dependsOn("dockerPushDockerNagyesta")
 }

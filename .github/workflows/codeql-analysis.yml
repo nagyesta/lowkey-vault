@@ -14,7 +14,7 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ ignore-main ]
+    branches: [ main ]
     paths-ignore:
       - 'README.md'
       - '**/README.md'

@@ -83,6 +83,10 @@ configure(subprojects.findAll({
         withSourcesJar()
     }
 
+    jar {
+        enabled = false
+    }
+
     jacocoTestReport {
         reports {
             xml.required.set(true)

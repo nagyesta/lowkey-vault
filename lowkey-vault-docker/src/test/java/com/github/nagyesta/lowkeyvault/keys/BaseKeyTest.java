@@ -31,6 +31,7 @@ public class BaseKeyTest {
 
     public static Stream<Arguments> keyTypeProvider() {
         return KeyType.values().stream()
+                .filter(k -> k != KeyType.OCT)
                 .map(Arguments::of);
     }
 

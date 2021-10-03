@@ -1,23 +1,22 @@
 package com.github.nagyesta.lowkeyvault.service.key.impl;
 
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.EncryptionAlgorithm;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.service.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.exception.CryptoException;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyEcKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.lang.NonNull;
 
-import javax.crypto.Cipher;
-import javax.crypto.KeyAgreement;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.security.*;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.ECPublicKey;
 
 public class EcKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, KeyCurveName> implements ReadOnlyEcKeyVaultKeyEntity {
-
-    private SecretKeySpec secretKey;
 
     public EcKeyVaultKeyEntity(@NonNull final VersionedKeyEntityId id,
                                @NonNull final VaultStub vault,
@@ -28,7 +27,7 @@ public class EcKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, KeyCurveName
 
     private static KeyPair generate(@lombok.NonNull final KeyCurveName keyCurveName) {
         try {
-            final KeyPairGenerator keyGen = KeyPairGenerator.getInstance(KeyType.EC.getAlgorithmName());
+            final KeyPairGenerator keyGen = KeyPairGenerator.getInstance(KeyType.EC.getAlgorithmName(), new BouncyCastleProvider());
             keyGen.initialize(keyCurveName.getAlgSpec());
             return keyGen.generateKeyPair();
         } catch (final InvalidAlgorithmParameterException | NoSuchAlgorithmException e) {
@@ -61,36 +60,16 @@ public class EcKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, KeyCurveName
     }
 
     @Override
-    public byte[] encrypt(@NonNull final byte[] clear) {
-        try {
-            final Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
-            cipher.init(Cipher.ENCRYPT_MODE, getKeyViaECDH());
-            return cipher.doFinal(clear);
-        } catch (final Exception e) {
-            throw new CryptoException("Cannot encrypt message.", e);
-        }
+    public byte[] encryptBytes(
+            final byte[] clear, final EncryptionAlgorithm encryptionAlgorithm,
+            final byte[] iv, final byte[] aad, final byte[] tag) {
+        throw new UnsupportedOperationException("Encrypt is not supported for EC keys.");
     }
 
     @Override
-    public byte[] decrypt(@NonNull final byte[] encoded) {
-        try {
-            final Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
-            cipher.init(Cipher.DECRYPT_MODE, getKeyViaECDH());
-            return cipher.doFinal(encoded);
-        } catch (final Exception e) {
-            throw new CryptoException("Cannot decrypt message.", e);
-        }
+    public byte[] decryptToBytes(final byte[] encrypted, final EncryptionAlgorithm encryptionAlgorithm,
+                                 final byte[] iv, final byte[] aad, final byte[] tag) {
+        throw new UnsupportedOperationException("Decrypt is not supported for EC keys.");
     }
 
-    private SecretKey getKeyViaECDH() throws Exception {
-        if (secretKey == null) {
-            final KeyAgreement keyAgreement = KeyAgreement.getInstance("ECDH");
-            keyAgreement.init(getKey().getPrivate());
-            keyAgreement.doPhase(getKey().getPublic(), true);
-            final byte[] sharedSecret = keyAgreement.generateSecret();
-            final byte[] key = MessageDigest.getInstance("SHA-256").digest(sharedSecret);
-            secretKey = new SecretKeySpec(key, "AES");
-        }
-        return secretKey;
-    }
 }

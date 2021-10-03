@@ -2,6 +2,7 @@ package com.github.nagyesta.lowkeyvault.mapper.v7_2.key;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyPropertiesModel;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.EncryptionAlgorithm;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.service.key.KeyVaultStub;
 import com.github.nagyesta.lowkeyvault.service.key.impl.KeyVaultKeyEntity;
@@ -104,12 +105,14 @@ class KeyEntityToV72PropertiesModelConverterTest {
         }
 
         @Override
-        public byte[] encrypt(final byte[] clear) {
+        public byte[] encryptBytes(final byte[] clear, final EncryptionAlgorithm encryptionAlgorithm,
+                                   final byte[] iv, final byte[] aad, final byte[] tag) {
             return new byte[0];
         }
 
         @Override
-        public byte[] decrypt(final byte[] encoded) {
+        public byte[] decryptToBytes(final byte[] encrypted, final EncryptionAlgorithm encryptionAlgorithm,
+                                     final byte[] iv, final byte[] aad, final byte[] tag) {
             return new byte[0];
         }
     }

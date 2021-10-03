@@ -36,12 +36,13 @@ public class KeyGetTest extends BaseKeyTest {
 
     public static Stream<Arguments> iterationProvider() {
         return KeyType.values().stream()
+                .filter(k -> k != KeyType.OCT)
                 .flatMap(keyType -> IntStream.of(1, 2, 3, 42, 64)
                         .mapToObj(i -> Arguments.of(i, keyType)));
     }
 
     @ParameterizedTest
-    @Timeout(10)
+    @Timeout(30)
     @MethodSource("iterationProvider")
     @Tags({@Tag("create"), @Tag("get"), @Tag("version")})
     void testKeyVersionsShouldBeReturnedWhenTheyExistSync(final int count, final KeyType keyType) {
@@ -64,7 +65,7 @@ public class KeyGetTest extends BaseKeyTest {
     }
 
     @ParameterizedTest
-    @Timeout(10)
+    @Timeout(30)
     @MethodSource("iterationProvider")
     @Tags({@Tag("create"), @Tag("get"), @Tag("version")})
     void testKeyVersionsShouldBeReturnedWhenTheyExistAsync(final int count, final KeyType keyType) {

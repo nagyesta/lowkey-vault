@@ -4,9 +4,11 @@ import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ItemModelCo
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ModelConverter;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.*;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.EncryptionAlgorithm;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.CreateKeyRequest;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeyOperationsParameters;
 import com.github.nagyesta.lowkeyvault.service.KeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
@@ -24,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -32,11 +35,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -50,6 +51,8 @@ import static org.mockito.Mockito.*;
 
 class KeyControllerTest {
 
+    private static final Base64.Encoder ENCODER = Base64.getUrlEncoder().withoutPadding();
+    private static final Base64.Decoder DECODER = Base64.getUrlDecoder();
     private static final KeyVaultKeyModel RESPONSE = new KeyVaultKeyModel(new KeyPropertiesModel(), new JsonWebKeyModel(), Map.of());
     @Mock
     private KeyEntityToV72ModelConverter keyEntityToV72ModelConverter;
@@ -274,6 +277,54 @@ class KeyControllerTest {
         verify(keyVaultStub, never()).getLatestVersionOfEntity(eq(baseUri));
         verify(keyVaultStub).getEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3));
         verify(keyEntityToV72ModelConverter).convert(same(entity));
+    }
+
+
+    @SuppressWarnings("checkstyle:MagicNumber")
+    @ParameterizedTest
+    @ValueSource(strings = {BLANK, DEFAULT_VAULT, LOCALHOST, LOWKEY_VAULT})
+    void testEncryptAndDecryptShouldGetBackOriginalInputWhenKeyAndVersionIsFound(final String clearText) {
+        //given
+        final KeyEntityId baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
+        final List<KeyOperation> operations = List.of(
+                KeyOperation.ENCRYPT, KeyOperation.DECRYPT, KeyOperation.WRAP_KEY, KeyOperation.UNWRAP_KEY);
+        final CreateKeyRequest request = createRequest(operations, null, null, null, null);
+        final RsaKeyVaultKeyEntity entity = (RsaKeyVaultKeyEntity) createEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, request);
+        entity.setEnabled(true);
+        entity.setOperations(operations);
+        when(keyVaultStub.getEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3)))
+                .thenReturn(entity);
+        when(keyEntityToV72ModelConverter.convert(same(entity)))
+                .thenReturn(RESPONSE);
+        final KeyOperationsParameters encryptParameters = new KeyOperationsParameters();
+        encryptParameters.setAlgorithm(EncryptionAlgorithm.RSA_OAEP_256);
+        encryptParameters.setValue(ENCODER.encodeToString(clearText.getBytes(StandardCharsets.UTF_8)));
+
+        //when
+        final ResponseEntity<KeyOperationsResult> encrypted = underTest
+                .encrypt(KEY_NAME_1, KEY_VERSION_3, HTTPS_LOCALHOST_8443, encryptParameters);
+        Assertions.assertNotNull(encrypted);
+        Assertions.assertEquals(HttpStatus.OK, encrypted.getStatusCode());
+        Assertions.assertNotNull(encrypted.getBody());
+        Assertions.assertNotEquals(clearText, encrypted.getBody().getValue());
+
+        final KeyOperationsParameters decryptParameters = new KeyOperationsParameters();
+        decryptParameters.setAlgorithm(EncryptionAlgorithm.RSA_OAEP_256);
+        decryptParameters.setValue(encrypted.getBody().getValue());
+        final ResponseEntity<KeyOperationsResult> actual = underTest
+                .decrypt(KEY_NAME_1, KEY_VERSION_3, HTTPS_LOCALHOST_8443, decryptParameters);
+
+        //then
+        Assertions.assertNotNull(actual);
+        Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
+        Assertions.assertNotNull(actual.getBody());
+        final String decoded = new String(DECODER.decode(actual.getBody().getValue()), StandardCharsets.UTF_8);
+        Assertions.assertEquals(clearText, decoded);
+
+        verify(vaultService, times(2)).findByUri(eq(HTTPS_LOCALHOST_8443));
+        verify(vaultStub, times(2)).keyVaultStub();
+        verify(keyVaultStub, never()).getLatestVersionOfEntity(eq(baseUri));
+        verify(keyVaultStub, times(2)).getEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3));
     }
 
     @NonNull

@@ -25,12 +25,14 @@ project.ext {
     azureKeyVaultClientVersion = '4.3.3'
     abortMissionVersion = '2.6.1'
     jupiterVersion = '5.8.0'
-    mockitoCoreVersion = '3.6.0'
+    mockitoCoreVersion = '3.9.0'
     springBootVersion = '2.5.5'
+    bouncyCastleVersion = '1.69'
     hibernateVersion = '6.2.0.Final'
     springVersion = '5.3.10'
     lombokVersion = '1.18.12'
     findBugsVersion = '3.0.2'
+    logbackVersion = '1.2.6'
 }
 
 versioner {
@@ -83,10 +85,6 @@ configure(subprojects.findAll({
         withSourcesJar()
     }
 
-    jar {
-        enabled = false
-    }
-
     jacocoTestReport {
         reports {
             xml.required.set(true)
@@ -120,10 +118,7 @@ configure(subprojects.findAll({
                     value = 'COVEREDRATIO'
                     minimum = 0.8
                 }
-                excludes = [
-                        "testkit",
-                        "booster-junit4"
-                ]
+                excludes = []
             }
             rule {
                 element = 'CLASS'

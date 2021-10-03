@@ -5,14 +5,14 @@ import com.github.nagyesta.lowkeyvault.service.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
 import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultStubImpl;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
-import static com.github.nagyesta.lowkeyvault.TestConstants.*;
+import static com.github.nagyesta.lowkeyvault.TestConstants.DEFAULT_VAULT;
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOWKEY_VAULT;
 import static org.mockito.Mockito.mock;
@@ -31,16 +31,6 @@ class EcKeyVaultKeyEntityTest {
                 .build();
     }
 
-    public static Stream<Arguments> stringSource() {
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(EMPTY))
-                .add(Arguments.of(BLANK))
-                .add(Arguments.of(DEFAULT_VAULT))
-                .add(Arguments.of(LOCALHOST))
-                .add(Arguments.of(LOWKEY_VAULT))
-                .build();
-    }
-
     @ParameterizedTest
     @MethodSource("invalidValueProvider")
     void testConstructorShouldThrowExceptionWhenCalledWithNull(
@@ -53,20 +43,19 @@ class EcKeyVaultKeyEntityTest {
         //then + exception
     }
 
-    @ParameterizedTest
-    @MethodSource("stringSource")
-    void testEncryptThenDecryptShouldReturnOriginalTextWhenCalled(final String clear) {
+    @Test
+    void testEncryptThenDecryptShouldBothThrowExceptionsWhenCalled() {
         //given
         final VaultStub vaultStub = new VaultStubImpl(HTTPS_LOWKEY_VAULT);
         final EcKeyVaultKeyEntity underTest = new EcKeyVaultKeyEntity(
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultStub, KeyCurveName.P_521, false);
 
         //when
-        final byte[] encrypted = underTest.encrypt(clear.getBytes(StandardCharsets.UTF_8));
-        final byte[] decrypted = underTest.decrypt(encrypted);
-        final String actual = new String(decrypted, StandardCharsets.UTF_8);
+        Assertions.assertThrows(UnsupportedOperationException.class,
+                () -> underTest.encrypt(DEFAULT_VAULT, null, null, null, null));
+        Assertions.assertThrows(UnsupportedOperationException.class,
+                () -> underTest.decrypt(null, null, null, null, null));
 
-        //then
-        Assertions.assertEquals(clear, actual);
+        //then + exception
     }
 }

@@ -20,6 +20,7 @@ java {
 group = "${rootProject.group}"
 
 dependencies {
+    testImplementation project(":lowkey-vault-client")
     testImplementation "org.apache.httpcomponents:httpclient:${rootProject.ext.httpClientVersion}"
     testImplementation "com.azure:azure-security-keyvault-keys:${rootProject.ext.azureKeyVaultClientVersion}"
     testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.jupiterVersion}"

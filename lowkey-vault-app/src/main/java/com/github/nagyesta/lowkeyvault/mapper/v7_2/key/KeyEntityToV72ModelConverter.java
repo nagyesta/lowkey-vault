@@ -27,7 +27,7 @@ public class KeyEntityToV72ModelConverter implements Converter<ReadOnlyKeyVaultK
 
     @Override
     @org.springframework.lang.NonNull
-    public KeyVaultKeyModel convert(final ReadOnlyKeyVaultKeyEntity source) {
+    public KeyVaultKeyModel convert(@org.springframework.lang.NonNull final ReadOnlyKeyVaultKeyEntity source) {
         final JsonWebKeyModel key = mapJsonWebKey(source);
         final KeyPropertiesModel attributes = keyEntityToV72PropertiesModelConverter.convert(source);
         final Map<String, String> tags = source.getTags();
@@ -63,9 +63,7 @@ public class KeyEntityToV72ModelConverter implements Converter<ReadOnlyKeyVaultK
     }
 
     private JsonWebKeyModel mapOctFields(final ReadOnlyAesKeyVaultKeyEntity entity) {
-        final JsonWebKeyModel jsonWebKeyModel = mapCommonKeyProperties(entity);
-        jsonWebKeyModel.setK(entity.getK());
-        return jsonWebKeyModel;
+        return mapCommonKeyProperties(entity);
     }
 
     private JsonWebKeyModel mapCommonKeyProperties(final ReadOnlyKeyVaultKeyEntity entity) {

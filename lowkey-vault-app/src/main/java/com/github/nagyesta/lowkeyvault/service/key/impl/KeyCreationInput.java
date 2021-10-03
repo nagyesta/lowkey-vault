@@ -7,7 +7,6 @@ import lombok.NonNull;
 @Data
 public class KeyCreationInput<T> {
 
-    @NonNull
     private KeyType keyType;
 
     private T keyParameter;

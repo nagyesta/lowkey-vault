@@ -10,10 +10,16 @@ import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyRsaKeyVaultKeyEntity;
 import org.springframework.util.Assert;
 
 import java.util.Arrays;
+import java.util.Objects;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Defines values for KeyType.
  */
+@SuppressWarnings("checkstyle:MagicNumber")
 public enum KeyType {
 
     /**
@@ -23,6 +29,14 @@ public enum KeyType {
         @Override
         public boolean isEc() {
             return true;
+        }
+
+        @Override
+        public <E> SortedSet<E> getValidKeyParameters(final Class<E> itemType) {
+            Assert.isTrue(KeyCurveName.class.equals(itemType), "Key parameter is KeyCurveName for EC.");
+            return Arrays.stream(KeyCurveName.values())
+                    .map(itemType::cast)
+                    .collect(Collectors.toCollection(TreeSet::new));
         }
     },
 
@@ -39,6 +53,11 @@ public enum KeyType {
         public boolean isHsm() {
             return true;
         }
+
+        @Override
+        public <E> SortedSet<E> getValidKeyParameters(final Class<E> itemType) {
+            return EC.getValidKeyParameters(itemType);
+        }
     },
 
     /**
@@ -48,6 +67,14 @@ public enum KeyType {
         @Override
         public boolean isRsa() {
             return true;
+        }
+
+        @Override
+        public <E> SortedSet<E> getValidKeyParameters(final Class<E> itemType) {
+            Assert.isTrue(Integer.class.equals(itemType), "Key parameter is Integer for RSA.");
+            return Stream.of(2048, 3072, 4096)
+                    .map(itemType::cast)
+                    .collect(Collectors.toCollection(TreeSet::new));
         }
     },
 
@@ -64,6 +91,11 @@ public enum KeyType {
         public boolean isHsm() {
             return true;
         }
+
+        @Override
+        public <E> SortedSet<E> getValidKeyParameters(final Class<E> itemType) {
+            return RSA.getValidKeyParameters(itemType);
+        }
     },
 
     /**
@@ -73,6 +105,14 @@ public enum KeyType {
         @Override
         public boolean isOct() {
             return true;
+        }
+
+        @Override
+        public <E> SortedSet<E> getValidKeyParameters(final Class<E> itemType) {
+            Assert.isTrue(Integer.class.equals(itemType), "Key parameter is Integer for OCT.");
+            return Stream.of(128, 192, 256)
+                    .map(itemType::cast)
+                    .collect(Collectors.toCollection(TreeSet::new));
         }
     },
 
@@ -89,11 +129,13 @@ public enum KeyType {
         public boolean isHsm() {
             return true;
         }
+
+        @Override
+        public <E> SortedSet<E> getValidKeyParameters(final Class<E> itemType) {
+            return OCT.getValidKeyParameters(itemType);
+        }
     };
 
-    private static final int DEFAULT_EC_SIZE = 256;
-    private static final int DEFAULT_RSA_SIZE = 1024;
-    private static final int DEFAULT_SYMMETRIC_SIZE = 128;
     private final String value;
 
     KeyType(final String value) {
@@ -143,16 +185,7 @@ public enum KeyType {
     }
 
     @JsonIgnore
-    public int getDefaultKeySize() {
-        if (isEc()) {
-            return DEFAULT_EC_SIZE;
-        } else if (isRsa()) {
-            return DEFAULT_RSA_SIZE;
-        } else {
-            Assert.isTrue(isOct(), "Unknown key type found: " + this);
-            return DEFAULT_SYMMETRIC_SIZE;
-        }
-    }
+    public abstract <E> SortedSet<E> getValidKeyParameters(Class<E> itemType);
 
     @JsonIgnore
     public Class<? extends ReadOnlyKeyVaultKeyEntity> entityClass() {
@@ -166,4 +199,14 @@ public enum KeyType {
         }
     }
 
+    public <E> void validate(final E value, final Class<E> type) {
+        final SortedSet<E> validKeyParameters = getValidKeyParameters(type);
+        Assert.isTrue(value == null || validKeyParameters.contains(value),
+                "Invalid value provided: " + value + " valid values are: " + validKeyParameters);
+    }
+
+    public <E> E validateOrDefault(final E value, final Class<E> type) {
+        validate(value, type);
+        return Objects.requireNonNullElse(value, getValidKeyParameters(type).first());
+    }
 }

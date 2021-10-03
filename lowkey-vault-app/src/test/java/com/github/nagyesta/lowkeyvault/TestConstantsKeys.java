@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault;
 
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.service.VersionedKeyEntityId;
 
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
@@ -13,8 +14,8 @@ public final class TestConstantsKeys {
     }
 
     //<editor-fold defaultstate="collapsed" desc="Crypto">
-    public static final int MIN_RSA_KEY_SIZE = 1024;
-    public static final int MIN_AES_KEY_SIZE = 128;
+    public static final int MIN_RSA_KEY_SIZE = KeyType.RSA.validateOrDefault(null, Integer.class);
+    public static final int MIN_AES_KEY_SIZE = KeyType.OCT.validateOrDefault(null, Integer.class);
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Keys">

@@ -3,11 +3,9 @@ package com.github.nagyesta.lowkeyvault.controller.v7_2;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ItemModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ModelConverter;
 import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyPropertiesModel;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyItemListModel;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyItemModel;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyModel;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.*;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.CreateKeyRequest;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeyOperationsParameters;
 import com.github.nagyesta.lowkeyvault.service.KeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.KeyVaultStub;
@@ -140,13 +138,53 @@ public class KeyController {
         log.info("Received request to {} get key: {} with version: {} using API version: {}",
                 baseUri.toString(), keyName, keyVersion, V_7_2);
 
+        final ReadOnlyKeyVaultKeyEntity keyVaultKeyEntity = getKeyByNameAndVersion(keyName, keyVersion, baseUri);
+
+        return ResponseEntity.ok(keyEntityToV72ModelConverter.convert(keyVaultKeyEntity));
+    }
+
+    @PostMapping(value = {"/keys/{keyName}/{keyVersion}/encrypt", "/keys/{keyName}/{keyVersion}/wrap"},
+            params = API_VERSION_7_2,
+            consumes = APPLICATION_JSON_VALUE,
+            produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<KeyOperationsResult> encrypt(
+            @PathVariable @Valid @Pattern(regexp = KEY_NAME_PATTERN) final String keyName,
+            @PathVariable @Valid @Pattern(regexp = VERSION_NAME_PATTERN) final String keyVersion,
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
+            @Valid @RequestBody final KeyOperationsParameters request) {
+        log.info("Received request to {} encrypt using key: {} with version: {} using API version: {}",
+                baseUri.toString(), keyName, keyVersion, V_7_2);
+
+        final ReadOnlyKeyVaultKeyEntity keyVaultKeyEntity = getKeyByNameAndVersion(keyName, keyVersion, baseUri);
+        final byte[] encrypted = keyVaultKeyEntity.encryptBytes(request.getValueAsBase64DecodedBytes(), request.getAlgorithm(),
+                request.getInitializationVector(), request.getAdditionalAuthData(), request.getAuthenticationTag());
+        return ResponseEntity.ok(KeyOperationsResult.forBytes(keyVaultKeyEntity.getId(), encrypted, request));
+    }
+
+    @PostMapping(value = {"/keys/{keyName}/{keyVersion}/decrypt", "/keys/{keyName}/{keyVersion}/unwrap"},
+            params = API_VERSION_7_2,
+            consumes = APPLICATION_JSON_VALUE,
+            produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<KeyOperationsResult> decrypt(
+            @PathVariable @Valid @Pattern(regexp = KEY_NAME_PATTERN) final String keyName,
+            @PathVariable @Valid @Pattern(regexp = VERSION_NAME_PATTERN) final String keyVersion,
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
+            @Valid @RequestBody final KeyOperationsParameters request) {
+        log.info("Received request to {} decrypt using key: {} with version: {} using API version: {}",
+                baseUri.toString(), keyName, keyVersion, V_7_2);
+
+        final ReadOnlyKeyVaultKeyEntity keyVaultKeyEntity = getKeyByNameAndVersion(keyName, keyVersion, baseUri);
+        final byte[] decrypted = keyVaultKeyEntity.decryptToBytes(request.getValueAsBase64DecodedBytes(), request.getAlgorithm(),
+                request.getInitializationVector(), request.getAdditionalAuthData(), request.getAuthenticationTag());
+        return ResponseEntity.ok(KeyOperationsResult.forBytes(keyVaultKeyEntity.getId(), decrypted, request));
+    }
+
+    private ReadOnlyKeyVaultKeyEntity getKeyByNameAndVersion(final String keyName, final String keyVersion, final URI baseUri) {
         final VaultStub vaultStub = vaultService.findByUri(baseUri);
         final KeyVaultStub keyVaultStub = vaultStub.keyVaultStub();
 
         final VersionedKeyEntityId keyEntityId = new VersionedKeyEntityId(vaultStub.baseUri(), keyName, keyVersion);
-        final ReadOnlyKeyVaultKeyEntity keyVaultKeyEntity = keyVaultStub.getEntity(keyEntityId);
-
-        return ResponseEntity.ok(keyEntityToV72ModelConverter.convert(keyVaultKeyEntity));
+        return keyVaultStub.getEntity(keyEntityId);
     }
 
     private String versionsSuffix(final int maxResults, final int skip) {

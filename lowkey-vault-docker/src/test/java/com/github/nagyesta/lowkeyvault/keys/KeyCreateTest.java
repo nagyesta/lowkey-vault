@@ -181,10 +181,10 @@ public class KeyCreateTest extends BaseKeyTest {
 
         //when
         final KeyVaultKey actual = keyClient
-                .createOctKey(new CreateOctKeyOptions(name).setKeySize(keySize));
+                .createOctKey(new CreateOctKeyOptions(name).setKeySize(keySize).setHardwareProtected(true));
 
         //then
-        assertOctKey(name, byteArrayLength, actual);
+        assertOctKey(name, actual);
     }
 
     @ParameterizedTest
@@ -197,11 +197,11 @@ public class KeyCreateTest extends BaseKeyTest {
 
         //when
         final KeyVaultKey actual = keyClient
-                .createOctKey(new CreateOctKeyOptions(name).setKeySize(keySize))
+                .createOctKey(new CreateOctKeyOptions(name).setKeySize(keySize).setHardwareProtected(true))
                 .block();
 
         //then
-        assertOctKey(name, byteArrayLength, actual);
+        assertOctKey(name, actual);
     }
 
     private void assertMatchesExpectations(final KeyType keyType, final String name, final KeyVaultKey actual) {
@@ -230,11 +230,11 @@ public class KeyCreateTest extends BaseKeyTest {
         assertOctFieldsMissing(actual);
     }
 
-    private void assertOctKey(final String keyName, final int byteArrayLength, final KeyVaultKey actual) {
-        assertCommonFields(keyName, KeyType.OCT, actual);
+    private void assertOctKey(final String keyName, final KeyVaultKey actual) {
+        assertCommonFields(keyName, KeyType.OCT_HSM, actual);
         assertRsaFieldsMissing(actual);
         assertEcFieldsMissing(actual);
-        assertOctFields(byteArrayLength, actual);
+        assertOctFields(actual);
     }
 
     private void assertCommonFields(final String keyName, final KeyType keyType, final KeyVaultKey actual) {
@@ -268,8 +268,8 @@ public class KeyCreateTest extends BaseKeyTest {
         Assertions.assertNull(actual.getKey().getY());
     }
 
-    private void assertOctFields(final int byteArrayLength, final KeyVaultKey actual) {
-        assertByteArrayLength(byteArrayLength, actual.getKey().getK());
+    private void assertOctFields(final KeyVaultKey actual) {
+        Assertions.assertNull(actual.getKey().getK());
     }
 
     private void assertOctFieldsMissing(final KeyVaultKey actual) {

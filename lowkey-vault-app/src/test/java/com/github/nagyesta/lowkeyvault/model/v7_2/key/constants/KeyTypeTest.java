@@ -31,7 +31,6 @@ class KeyTypeTest {
                 .add(Arguments.of(KeyType.RSA_HSM, ReadOnlyRsaKeyVaultKeyEntity.class))
                 .add(Arguments.of(KeyType.EC, ReadOnlyEcKeyVaultKeyEntity.class))
                 .add(Arguments.of(KeyType.EC_HSM, ReadOnlyEcKeyVaultKeyEntity.class))
-                .add(Arguments.of(KeyType.OCT, ReadOnlyAesKeyVaultKeyEntity.class))
                 .add(Arguments.of(KeyType.OCT_HSM, ReadOnlyAesKeyVaultKeyEntity.class))
                 .build();
     }

@@ -7,8 +7,12 @@ import com.azure.core.http.policy.RetryPolicy;
 import com.azure.security.keyvault.keys.KeyAsyncClient;
 import com.azure.security.keyvault.keys.KeyClient;
 import com.azure.security.keyvault.keys.KeyClientBuilder;
+import com.azure.security.keyvault.keys.cryptography.CryptographyAsyncClient;
+import com.azure.security.keyvault.keys.cryptography.CryptographyClient;
+import com.azure.security.keyvault.keys.cryptography.CryptographyClientBuilder;
 
 import java.time.Duration;
+import java.util.Objects;
 
 public final class ApacheHttpClientProvider {
 
@@ -32,11 +36,27 @@ public final class ApacheHttpClientProvider {
         return getBuilder().buildClient();
     }
 
+    public CryptographyAsyncClient getCryptoAsyncClient(final String webKeyId) {
+        return getCryptoBuilder(webKeyId).buildAsyncClient();
+    }
+
+    public CryptographyClient getCryptoClient(final String webKeyId) {
+        return getCryptoBuilder(webKeyId).buildClient();
+    }
+
     private KeyClientBuilder getBuilder() {
         return new KeyClientBuilder()
-                .vaultUrl(vaultUrl)
+                .vaultUrl(getVaultUrl())
                 .credential(new BasicAuthenticationCredential(EMPTY, EMPTY))
-                .httpClient(new ApacheHttpClient())
+                .httpClient(createInstance())
+                .retryPolicy(new RetryPolicy(new FixedDelay(0, Duration.ZERO)));
+    }
+
+    private CryptographyClientBuilder getCryptoBuilder(final String webKeyId) {
+        return new CryptographyClientBuilder()
+                .keyIdentifier(Objects.requireNonNull(ClientUriUtil.hackPort(webKeyId)))
+                .credential(new BasicAuthenticationCredential(EMPTY, EMPTY))
+                .httpClient(createInstance())
                 .retryPolicy(new RetryPolicy(new FixedDelay(0, Duration.ZERO)));
     }
 

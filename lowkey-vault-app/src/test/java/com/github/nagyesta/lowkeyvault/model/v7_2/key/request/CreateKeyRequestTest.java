@@ -46,9 +46,7 @@ class CreateKeyRequestTest {
 
     public static Stream<Arguments> octInputProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(KeyType.OCT, MIN_AES_KEY_SIZE))
                 .add(Arguments.of(KeyType.OCT_HSM, MIN_AES_KEY_SIZE))
-                .add(Arguments.of(KeyType.OCT, null))
                 .add(Arguments.of(KeyType.OCT_HSM, null))
                 .build();
     }

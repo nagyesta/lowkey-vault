@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.service.key.impl;
 
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.service.KeyEntityId;
@@ -58,6 +59,7 @@ public class KeyVaultStubImpl
     public VersionedKeyEntityId createKeyVersion(
             @NonNull final String keyName, @NonNull final EcKeyCreationInput input) {
         final VersionedKeyEntityId keyEntityId = new VersionedKeyEntityId(vaultStub().baseUri(), keyName);
+        input.getKeyType().validate(input.getKeyParameter(), KeyCurveName.class);
         final EcKeyVaultKeyEntity keyEntity = new EcKeyVaultKeyEntity(keyEntityId, vaultStub(),
                 input.getKeyParameter(), input.getKeyType().isHsm());
         return addVersion(keyEntityId, keyEntity);
@@ -67,6 +69,7 @@ public class KeyVaultStubImpl
     public VersionedKeyEntityId createKeyVersion(
             @NonNull final String keyName, @NonNull final OctKeyCreationInput input) {
         final VersionedKeyEntityId keyEntityId = new VersionedKeyEntityId(vaultStub().baseUri(), keyName);
+        Assert.isTrue(input.getKeyType().isHsm(), "OCT keys are only supported using HSM.");
         final AesKeyVaultKeyEntity keyEntity = new AesKeyVaultKeyEntity(keyEntityId, vaultStub(),
                 input.getKeyParameter(), input.getKeyType().isHsm());
         return addVersion(keyEntityId, keyEntity);

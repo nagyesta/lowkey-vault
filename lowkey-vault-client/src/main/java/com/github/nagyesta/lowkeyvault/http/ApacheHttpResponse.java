@@ -23,34 +23,41 @@ final class ApacheHttpResponse extends HttpResponse {
         this.statusCode = apacheResponse.getStatusLine().getStatusCode();
         this.headers = new HttpHeaders();
         Arrays.stream(apacheResponse.getAllHeaders())
-                .forEach(header -> headers.put(header.getName(), header.getValue()));
+                .forEach(header -> headers.set(header.getName(), header.getValue()));
         this.entity = EntityUtils.toString(apacheResponse.getEntity(), StandardCharsets.UTF_8);
     }
 
+    @Override
     public int getStatusCode() {
         return statusCode;
     }
 
+    @Override
     public String getHeaderValue(final String s) {
-        return headers.getValue(s);
+        return getHeaders().getValue(s);
     }
 
+    @Override
     public HttpHeaders getHeaders() {
         return headers;
     }
 
+    @Override
     public Flux<ByteBuffer> getBody() {
         return getBodyAsByteArray().map(ByteBuffer::wrap).flux();
     }
 
+    @Override
     public Mono<byte[]> getBodyAsByteArray() {
         return Mono.just(entity.getBytes(StandardCharsets.UTF_8));
     }
 
+    @Override
     public Mono<String> getBodyAsString() {
-        return getBodyAsByteArray().map(String::new);
+        return getBodyAsString(StandardCharsets.UTF_8);
     }
 
+    @Override
     public Mono<String> getBodyAsString(final Charset charset) {
         return getBodyAsByteArray().map(bytes -> new String(bytes, charset));
     }

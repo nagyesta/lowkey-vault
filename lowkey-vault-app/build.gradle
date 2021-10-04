@@ -19,6 +19,7 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-web:${rootProject.ext.springBootVersion}"
     implementation "org.springframework.boot:spring-boot-starter-tomcat:${rootProject.ext.springBootVersion}"
     implementation "org.springframework.boot:spring-boot-starter-validation:${rootProject.ext.springBootVersion}"
+    implementation "org.bouncycastle:bcpkix-jdk15on:${rootProject.ext.bouncyCastleVersion}"
     implementation "org.hibernate:hibernate-validator:${rootProject.ext.hibernateVersion}"
     implementation "com.google.code.findbugs:jsr305:${rootProject.ext.findBugsVersion}"
     annotationProcessor "org.projectlombok:lombok:${rootProject.ext.lombokVersion}"
@@ -29,6 +30,11 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+
+jar {
+    enabled = false
 }
 
 task regenerateCert(type:Exec) {

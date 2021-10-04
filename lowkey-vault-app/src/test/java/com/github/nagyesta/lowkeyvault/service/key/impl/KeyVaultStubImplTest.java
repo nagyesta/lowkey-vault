@@ -42,9 +42,11 @@ class KeyVaultStubImplTest {
         return Stream.<Arguments>builder()
                 .add(Arguments.of(null, null))
                 .add(Arguments.of(KEY_NAME_1, null))
+                .add(Arguments.of(KEY_NAME_1, new KeyCreationInput<Integer>(KeyType.RSA_HSM, null)))
                 .add(Arguments.of(KEY_NAME_1, new KeyCreationInput<Integer>(KeyType.RSA, null)))
-                .add(Arguments.of(KEY_NAME_1, new KeyCreationInput<Integer>(KeyType.OCT, null)))
+                .add(Arguments.of(KEY_NAME_1, new KeyCreationInput<Integer>(KeyType.OCT_HSM, null)))
                 .add(Arguments.of(KEY_NAME_1, new KeyCreationInput<KeyCurveName>(KeyType.EC, null)))
+                .add(Arguments.of(KEY_NAME_1, new KeyCreationInput<KeyCurveName>(KeyType.EC_HSM, null)))
                 .build();
     }
 
@@ -228,7 +230,7 @@ class KeyVaultStubImplTest {
     void testCreateKeyVersionShouldReturnIdWhenCalledWithValidRsaParameter() {
         //given
         final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
-        final RsaKeyCreationInput input = new RsaKeyCreationInput(KeyType.RSA, null, null);
+        final RsaKeyCreationInput input = new RsaKeyCreationInput(KeyType.RSA_HSM, null, null);
 
         //when
         final VersionedKeyEntityId actual = underTest.createKeyVersion(KEY_NAME_1, input);
@@ -260,7 +262,7 @@ class KeyVaultStubImplTest {
     void testCreateKeyVersionShouldReturnIdWhenCalledWithValidOctParameter() {
         //given
         final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
-        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT, null);
+        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
 
         //when
         final VersionedKeyEntityId actual = underTest.createKeyVersion(KEY_NAME_1, input);
@@ -277,7 +279,7 @@ class KeyVaultStubImplTest {
     void testSetKeyOperationsShouldUpdateListWhenCalledWithValidValues(final List<KeyOperation> list) {
         //given
         final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
-        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT, null);
+        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
 
         //when
@@ -305,7 +307,7 @@ class KeyVaultStubImplTest {
     void testClearTagsShouldClearPreviouslySetTagsWhenCalledOnValidKey() {
         //given
         final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
-        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT, null);
+        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
 
         //when
@@ -349,7 +351,7 @@ class KeyVaultStubImplTest {
     void testSetEnabledShouldReplacePreviouslySetValueWhenCalledOnValidKey() {
         //given
         final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
-        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT, null);
+        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
         final ReadOnlyKeyVaultKeyEntity check = underTest.getEntity(keyEntityId);
         Assertions.assertFalse(check.isEnabled());
@@ -378,7 +380,7 @@ class KeyVaultStubImplTest {
     void testSetExpiryShouldReplacePreviouslySetValueWhenCalledOnValidKey() {
         //given
         final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
-        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT, null);
+        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
         final ReadOnlyKeyVaultKeyEntity check = underTest.getEntity(keyEntityId);
         Assertions.assertTrue(check.getExpiry().isEmpty());
@@ -399,7 +401,7 @@ class KeyVaultStubImplTest {
     void testSetExpiryShouldReplacePreviouslySetValueWhenCalledOnValidKeyAndNotBeforeOnly() {
         //given
         final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
-        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT, null);
+        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
         final ReadOnlyKeyVaultKeyEntity check = underTest.getEntity(keyEntityId);
         Assertions.assertTrue(check.getExpiry().isEmpty());
@@ -419,7 +421,7 @@ class KeyVaultStubImplTest {
     void testSetExpiryShouldReplacePreviouslySetValueWhenCalledOnValidKeyAndExpiryOnly() {
         //given
         final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
-        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT, null);
+        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
         final ReadOnlyKeyVaultKeyEntity check = underTest.getEntity(keyEntityId);
         Assertions.assertTrue(check.getExpiry().isEmpty());
@@ -452,7 +454,7 @@ class KeyVaultStubImplTest {
     void testSetExpiryShouldThrowExceptionWhenCalledWithNegativeTimeDuration() {
         //given
         final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
-        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT, null);
+        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
 
         //when
@@ -466,7 +468,7 @@ class KeyVaultStubImplTest {
     void testSetRecoveryShouldReplacePreviouslySetValueWhenCalledOnValidKey() {
         //given
         final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
-        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT, null);
+        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
         final ReadOnlyKeyVaultKeyEntity check = underTest.getEntity(keyEntityId);
         Assertions.assertNull(check.getRecoveryLevel());
@@ -485,7 +487,7 @@ class KeyVaultStubImplTest {
     void testSetRecoveryShouldThrowExceptionWhenCalledWithInvalidData() {
         //given
         final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
-        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT, null);
+        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
 
         //when
@@ -500,7 +502,7 @@ class KeyVaultStubImplTest {
     void testSetRecoveryShouldThrowExceptionWhenCalledWithNullRecoveryLevel() {
         //given
         final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
-        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT, null);
+        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
 
         //when
@@ -541,7 +543,7 @@ class KeyVaultStubImplTest {
     void testGetEntityShouldThrowExceptionWhenCalledWithNullType() {
         //given
         final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
-        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT, null);
+        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
 
         //when
@@ -555,7 +557,7 @@ class KeyVaultStubImplTest {
     void testGetEntityShouldReturnValueWhenCalledWithExistingKeyAndValidType() {
         //given
         final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
-        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT, null);
+        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
 
         //when

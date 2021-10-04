@@ -1,0 +1,65 @@
+plugins {
+    id 'java'
+    //noinspection SpellCheckingInspection
+    id 'org.sonatype.gradle.plugins.scan' version '2.2.0'
+}
+
+group = "${rootProject.group}"
+
+project.ext {
+    artifactDisplayName = "Lowkey Vault - Client"
+    artifactDescription = "HTTP Client provider for Lowkey Vault tests."
+}
+
+dependencies {
+    implementation "com.azure:azure-security-keyvault-keys:${rootProject.ext.azureKeyVaultClientVersion}"
+    implementation "org.apache.httpcomponents:httpclient:${rootProject.ext.httpClientVersion}"
+    testImplementation "org.mockito:mockito-core:${rootProject.ext.mockitoCoreVersion}"
+    testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.ext.jupiterVersion}"
+    testImplementation "ch.qos.logback:logback-classic:${rootProject.ext.logbackVersion}"
+}
+
+test {
+    useJUnitPlatform()
+}
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifactId = "${project.name}"
+            pom {
+                name = "${project.artifactDisplayName}"
+                description = "${project.artifactDescription}"
+                url = rootProject.ext.repoUrl
+                packaging = "jar"
+                licenses {
+                    license {
+                        name = rootProject.ext.licenseName
+                        url = rootProject.ext.licenseUrl
+                    }
+                }
+                developers {
+                    developer {
+                        id = rootProject.ext.maintainerId
+                        name = rootProject.ext.maintainerName
+                        url = rootProject.ext.maintainerUrl
+                    }
+                }
+                scm {
+                    connection = rootProject.ext.scmConnection
+                    developerConnection = rootProject.ext.scmConnection
+                    url = rootProject.ext.scmProjectUrl
+                }
+                withXml {
+                    asNode().dependencies.'*'.findAll() {
+                        it.scope.text() == 'runtime'
+                    }.each { it.scope*.value = 'compile' }
+                }
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}

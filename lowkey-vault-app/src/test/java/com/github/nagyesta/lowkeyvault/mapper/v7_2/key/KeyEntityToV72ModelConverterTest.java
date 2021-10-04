@@ -73,8 +73,8 @@ class KeyEntityToV72ModelConverterTest {
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, MIN_AES_KEY_SIZE, HTTPS_LOCALHOST, true, TAGS_EMPTY))
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_2, MIN_AES_KEY_SIZE, HTTPS_LOCALHOST, true, TAGS_ONE_KEY))
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_3, MIN_AES_KEY_SIZE, HTTPS_LOCALHOST, true, TAGS_TWO_KEYS))
-                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, MIN_AES_KEY_SIZE, HTTPS_LOWKEY_VAULT, false, TAGS_EMPTY))
-                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_2_VERSION_1, MIN_AES_KEY_SIZE, HTTPS_LOWKEY_VAULT, false, TAGS_THREE_KEYS))
+                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, MIN_AES_KEY_SIZE, HTTPS_LOWKEY_VAULT, true, TAGS_EMPTY))
+                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_2_VERSION_1, MIN_AES_KEY_SIZE, HTTPS_LOWKEY_VAULT, true, TAGS_THREE_KEYS))
                 .build();
     }
 
@@ -171,7 +171,7 @@ class KeyEntityToV72ModelConverterTest {
         if (hsm) {
             Assertions.assertEquals(KeyType.OCT_HSM, actual.getKey().getKeyType());
         } else {
-            Assertions.assertEquals(KeyType.OCT, actual.getKey().getKeyType());
+            Assertions.fail("Only HSM is supported, software protection isn't.");
         }
         Assertions.assertArrayEquals(input.getK(), actual.getKey().getK());
         assertRsaFieldsAreNull(actual);

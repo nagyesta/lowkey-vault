@@ -3,7 +3,7 @@
 [![GitHub license](https://img.shields.io/github/license/nagyesta/lowkey-vault?color=informational)](https://raw.githubusercontent.com/nagyesta/lowkey-vault/main/LICENSE)
 [![Java version](https://img.shields.io/badge/Java%20version-11-yellow?logo=java)](https://img.shields.io/badge/Java%20version-11-yellow?logo=java)
 [![latest-release](https://img.shields.io/github/v/tag/nagyesta/lowkey-vault?color=blue&logo=git&label=releases&sort=semver)](https://github.com/nagyesta/lowkey-vault/releases)
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.nagyesta.lowkey-vault.app/lowkey-vault-app?logo=apache-maven)](https://search.maven.org/search?q=com.github.nagyesta.lowkey-vault)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.nagyesta.lowkey-vault/lowkey-vault-app?logo=apache-maven)](https://search.maven.org/search?q=com.github.nagyesta.lowkey-vault)
 [![Docker Hub](https://img.shields.io/docker/v/nagyesta/lowkey-vault?label=docker%20hub&logo=docker&sort=semver)](https://hub.docker.com/repository/docker/nagyesta/lowkey-vault)
 [![JavaCI](https://img.shields.io/github/workflow/status/nagyesta/lowkey-vault/JavaCI?logo=github)](https://img.shields.io/github/workflow/status/nagyesta/lowkey-vault/JavaCI?logo=github)
 
@@ -66,6 +66,14 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 - Get key
     - Latest
     - Specific version
+- Encrypt/Decrypt/Wrap/Unwrap keys
+    - ```RSA``` (```2k```/```3k```/```4k```)
+        - ```RSA1_5```
+        - ```RSA-OAEP```
+        - ```RSA-OAEP-256```
+    - ```AES``` (```128```/```192```/```256```)
+        - ```AES-CBC```
+        - ```AES-CBC Pad```
 
 ### Limitations
 

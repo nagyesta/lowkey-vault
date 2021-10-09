@@ -1,4 +1,4 @@
-package com.github.nagyesta.lowkeyvault.service;
+package com.github.nagyesta.lowkeyvault.service.key.id;
 
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;

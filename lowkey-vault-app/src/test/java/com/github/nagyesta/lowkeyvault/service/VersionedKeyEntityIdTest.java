@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.service;
 
+import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -93,6 +94,18 @@ class VersionedKeyEntityIdTest {
 
         //then
         Assertions.assertEquals(URI.create("https://localhost/keys/" + KEY_NAME_1 + "/" + KEY_VERSION_1), actual);
+    }
+
+    @Test
+    void testAsUriShouldGenerateRecoveryUriWhenCalledBasedOnProvidedValues() {
+        //given
+        final VersionedKeyEntityId underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
+
+        //when
+        final URI actual = underTest.asRecoveryUri();
+
+        //then
+        Assertions.assertEquals(URI.create("https://localhost/deletedkeys/" + KEY_NAME_1), actual);
     }
 
     @Test

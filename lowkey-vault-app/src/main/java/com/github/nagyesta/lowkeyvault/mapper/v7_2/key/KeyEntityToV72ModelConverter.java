@@ -1,37 +1,37 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_2.key;
 
+import com.github.nagyesta.lowkeyvault.mapper.common.BaseRecoveryAwareConverter;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.DeletedKeyVaultKeyModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.JsonWebKeyModel;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyPropertiesModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyModel;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyAesKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyEcKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyRsaKeyVaultKeyEntity;
+import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import java.util.Map;
-
 @Component
-public class KeyEntityToV72ModelConverter implements Converter<ReadOnlyKeyVaultKeyEntity, KeyVaultKeyModel> {
+public class KeyEntityToV72ModelConverter
+        extends BaseRecoveryAwareConverter<VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity, KeyVaultKeyModel, DeletedKeyVaultKeyModel> {
 
     private final KeyEntityToV72PropertiesModelConverter keyEntityToV72PropertiesModelConverter;
 
     @Autowired
     public KeyEntityToV72ModelConverter(@NonNull final KeyEntityToV72PropertiesModelConverter keyEntityToV72PropertiesModelConverter) {
+        super(KeyVaultKeyModel::new, DeletedKeyVaultKeyModel::new);
         this.keyEntityToV72PropertiesModelConverter = keyEntityToV72PropertiesModelConverter;
     }
 
     @Override
-    @org.springframework.lang.NonNull
-    public KeyVaultKeyModel convert(@org.springframework.lang.NonNull final ReadOnlyKeyVaultKeyEntity source) {
-        final JsonWebKeyModel key = mapJsonWebKey(source);
-        final KeyPropertiesModel attributes = keyEntityToV72PropertiesModelConverter.convert(source);
-        final Map<String, String> tags = source.getTags();
-        return new KeyVaultKeyModel(attributes, key, tags);
+    protected <M extends KeyVaultKeyModel> M mapActiveFields(final ReadOnlyKeyVaultKeyEntity source, final M model) {
+        model.setKey(mapJsonWebKey(source));
+        model.setAttributes(keyEntityToV72PropertiesModelConverter.convert(source));
+        model.setTags(source.getTags());
+        return model;
     }
 
     private JsonWebKeyModel mapJsonWebKey(final ReadOnlyKeyVaultKeyEntity source) {

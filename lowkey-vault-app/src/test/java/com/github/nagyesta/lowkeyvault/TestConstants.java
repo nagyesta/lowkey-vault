@@ -54,6 +54,15 @@ public final class TestConstants {
     public static final String PORT_8443 = ":8443";
     //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="Paths">
+    public static final String KEYS = "/keys";
+    public static final String VAULT_VAULT_NAME = "/vault/vault-name";
+    public static final String VAULT_VAULT_NAME_KEYS = VAULT_VAULT_NAME + KEYS;
+    public static final String VAULT_INVALID_VAULT_NAME_KEYS = "/vault/vault_name/keys";
+    public static final String HTTPS_DEFAULT_LOWKEY_VAULT_8443_VAULT_VAULT_NAME =
+            HTTPS + DEFAULT_LOWKEY_VAULT + PORT_8443 + VAULT_VAULT_NAME;
+    //</editor-fold>
+
     //<editor-fold defaultstate="collapsed" desc="Tags">
     public static final String KEY_1 = "key1";
     public static final String KEY_2 = "key2";

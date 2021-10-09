@@ -1,9 +1,9 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_2.key;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyItemModel;
-import com.github.nagyesta.lowkeyvault.service.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.KeyVaultStub;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
+import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.impl.RsaKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
 import org.junit.jupiter.api.AfterEach;
@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.net.URI;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -27,10 +28,10 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class KeyEntityToV72ItemModelConverterTest {
+class KeyEntityToV72KeyVersionItemModelConverterTest {
 
     @InjectMocks
-    private KeyEntityToV72ItemModelConverter underTest;
+    private KeyEntityToV72KeyVersionItemModelConverter underTest;
     @Mock
     private KeyEntityToV72PropertiesModelConverter propertiesModelConverter;
     @Mock
@@ -43,15 +44,15 @@ class KeyEntityToV72ItemModelConverterTest {
     public static Stream<Arguments> validInputProvider() {
         return Stream.<Arguments>builder()
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, MIN_RSA_KEY_SIZE, TAGS_EMPTY,
-                        new KeyVaultKeyItemModel(PROPERTIES_MODEL, VERSIONED_KEY_ENTITY_ID_1_VERSION_1.asUri(), TAGS_EMPTY)))
+                        keyVaultKeyItemModel(VERSIONED_KEY_ENTITY_ID_1_VERSION_1.asUri(), TAGS_EMPTY)))
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_2, MIN_RSA_KEY_SIZE, TAGS_ONE_KEY,
-                        new KeyVaultKeyItemModel(PROPERTIES_MODEL, VERSIONED_KEY_ENTITY_ID_1_VERSION_2.asUri(), TAGS_ONE_KEY)))
+                        keyVaultKeyItemModel(VERSIONED_KEY_ENTITY_ID_1_VERSION_2.asUri(), TAGS_ONE_KEY)))
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_3, MIN_RSA_KEY_SIZE, TAGS_TWO_KEYS,
-                        new KeyVaultKeyItemModel(PROPERTIES_MODEL, VERSIONED_KEY_ENTITY_ID_1_VERSION_3.asUri(), TAGS_TWO_KEYS)))
+                        keyVaultKeyItemModel(VERSIONED_KEY_ENTITY_ID_1_VERSION_3.asUri(), TAGS_TWO_KEYS)))
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_2_VERSION_1, MIN_RSA_KEY_SIZE, TAGS_EMPTY,
-                        new KeyVaultKeyItemModel(PROPERTIES_MODEL, VERSIONED_KEY_ENTITY_ID_2_VERSION_1.asUri(), TAGS_EMPTY)))
+                        keyVaultKeyItemModel(VERSIONED_KEY_ENTITY_ID_2_VERSION_1.asUri(), TAGS_EMPTY)))
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_2_VERSION_2, MIN_RSA_KEY_SIZE, TAGS_THREE_KEYS,
-                        new KeyVaultKeyItemModel(PROPERTIES_MODEL, VERSIONED_KEY_ENTITY_ID_2_VERSION_2.asUri(), TAGS_THREE_KEYS)))
+                        keyVaultKeyItemModel(VERSIONED_KEY_ENTITY_ID_2_VERSION_2.asUri(), TAGS_THREE_KEYS)))
                 .build();
     }
 
@@ -94,8 +95,16 @@ class KeyEntityToV72ItemModelConverterTest {
         //when
         //noinspection ConstantConditions
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new KeyEntityToV72ItemModelConverter(null));
+                () -> new KeyEntityToV72KeyVersionItemModelConverter(null));
 
         //then exception
+    }
+
+    private static KeyVaultKeyItemModel keyVaultKeyItemModel(final URI asUriNoVersion, final Map<String, String> tags) {
+        final KeyVaultKeyItemModel model = new KeyVaultKeyItemModel();
+        model.setAttributes(PROPERTIES_MODEL);
+        model.setKeyId(asUriNoVersion.toString());
+        model.setTags(tags);
+        return model;
     }
 }

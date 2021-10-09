@@ -3,7 +3,7 @@ package com.github.nagyesta.lowkeyvault.service.key.impl;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.EncryptionAlgorithm;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
-import com.github.nagyesta.lowkeyvault.service.VersionedKeyEntityId;
+import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
 import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultStubImpl;
 import org.junit.jupiter.api.Assertions;
@@ -67,10 +67,11 @@ class RsaKeyVaultKeyEntityTest {
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultStub, algorithm.getMinKeySize(), null, false);
         underTest.setOperations(List.of(KeyOperation.ENCRYPT, KeyOperation.WRAP_KEY, KeyOperation.DECRYPT, KeyOperation.UNWRAP_KEY));
         underTest.setEnabled(true);
+        Assertions.assertEquals(algorithm.getMinKeySize(), underTest.getKeySize());
 
         //when
-        final byte[] encrypted = underTest.encrypt(clear, algorithm, null, null, null);
-        final String actual = underTest.decrypt(encrypted, algorithm, null, null, null);
+        final byte[] encrypted = underTest.encrypt(clear, algorithm, null);
+        final String actual = underTest.decrypt(encrypted, algorithm, null);
 
         //then
         Assertions.assertEquals(clear, actual);
@@ -87,7 +88,7 @@ class RsaKeyVaultKeyEntityTest {
 
         //when
         Assertions.assertThrows(IllegalStateException.class,
-                () -> underTest.encrypt(DEFAULT_VAULT, EncryptionAlgorithm.RSA_OAEP_256, null, null, null));
+                () -> underTest.encrypt(DEFAULT_VAULT, EncryptionAlgorithm.RSA_OAEP_256, null));
 
         //then + exception
     }
@@ -102,9 +103,9 @@ class RsaKeyVaultKeyEntityTest {
         underTest.setEnabled(true);
 
         //when
-        final byte[] encrypted = underTest.encrypt(DEFAULT_VAULT, EncryptionAlgorithm.RSA_OAEP_256, null, null, null);
+        final byte[] encrypted = underTest.encrypt(DEFAULT_VAULT, EncryptionAlgorithm.RSA_OAEP_256, null);
         Assertions.assertThrows(IllegalStateException.class,
-                () -> underTest.decrypt(encrypted, EncryptionAlgorithm.RSA_OAEP_256, null, null, null));
+                () -> underTest.decrypt(encrypted, EncryptionAlgorithm.RSA_OAEP_256, null));
 
         //then + exception
     }
@@ -120,7 +121,7 @@ class RsaKeyVaultKeyEntityTest {
 
         //when
         Assertions.assertThrows(IllegalStateException.class,
-                () -> underTest.encrypt(DEFAULT_VAULT, EncryptionAlgorithm.RSA_OAEP_256, null, null, null));
+                () -> underTest.encrypt(DEFAULT_VAULT, EncryptionAlgorithm.RSA_OAEP_256, null));
 
         //then + exception
     }
@@ -135,10 +136,10 @@ class RsaKeyVaultKeyEntityTest {
         underTest.setEnabled(true);
 
         //when
-        final byte[] encrypted = underTest.encrypt(DEFAULT_VAULT, EncryptionAlgorithm.RSA_OAEP_256, null, null, null);
+        final byte[] encrypted = underTest.encrypt(DEFAULT_VAULT, EncryptionAlgorithm.RSA_OAEP_256, null);
         underTest.setEnabled(false);
         Assertions.assertThrows(IllegalStateException.class,
-                () -> underTest.decrypt(encrypted, EncryptionAlgorithm.RSA_OAEP_256, null, null, null));
+                () -> underTest.decrypt(encrypted, EncryptionAlgorithm.RSA_OAEP_256, null));
 
         //then + exception
     }

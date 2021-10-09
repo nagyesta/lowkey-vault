@@ -1,13 +1,13 @@
 package com.github.nagyesta.lowkeyvault.service.key.impl;
 
+import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
-import com.github.nagyesta.lowkeyvault.service.KeyEntityId;
-import com.github.nagyesta.lowkeyvault.service.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.common.impl.BaseVaultStubImpl;
 import com.github.nagyesta.lowkeyvault.service.key.KeyVaultStub;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
+import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
+import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
 import lombok.NonNull;
 import org.springframework.util.Assert;
@@ -20,8 +20,10 @@ public class KeyVaultStubImpl
         extends BaseVaultStubImpl<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity, KeyVaultKeyEntity<?, ?>>
         implements KeyVaultStub {
 
-    public KeyVaultStubImpl(@org.springframework.lang.NonNull final VaultStub vaultStub) {
-        super(vaultStub);
+    public KeyVaultStubImpl(@org.springframework.lang.NonNull final VaultStub vaultStub,
+                            @org.springframework.lang.NonNull final RecoveryLevel recoveryLevel,
+                            final Integer recoverableDays) {
+        super(vaultStub, recoveryLevel, recoverableDays);
     }
 
     @Override
@@ -32,22 +34,11 @@ public class KeyVaultStubImpl
     @Override
     public <E, T extends KeyCreationInput<E>> VersionedKeyEntityId createKeyVersion(
             @NonNull final String keyName, @NonNull final T input) {
-        final KeyType keyType = input.getKeyType();
-        if (keyType.isRsa()) {
-            Assert.isInstanceOf(RsaKeyCreationInput.class, input);
-            return createKeyVersion(keyName, (RsaKeyCreationInput) input);
-        } else if (keyType.isEc()) {
-            Assert.isInstanceOf(EcKeyCreationInput.class, input);
-            return createKeyVersion(keyName, (EcKeyCreationInput) input);
-        } else {
-            Assert.isTrue(keyType.isOct(), "Unknown key type found: " + input.getKeyType());
-            Assert.isInstanceOf(OctKeyCreationInput.class, input);
-            return createKeyVersion(keyName, (OctKeyCreationInput) input);
-        }
+        return input.getKeyType().createKey(this, keyName, input);
     }
 
     @Override
-    public VersionedKeyEntityId createKeyVersion(
+    public VersionedKeyEntityId createRsaKeyVersion(
             @NonNull final String keyName, @NonNull final RsaKeyCreationInput input) {
         final VersionedKeyEntityId keyEntityId = new VersionedKeyEntityId(vaultStub().baseUri(), keyName);
         final RsaKeyVaultKeyEntity keyEntity = new RsaKeyVaultKeyEntity(keyEntityId, vaultStub(),
@@ -56,7 +47,7 @@ public class KeyVaultStubImpl
     }
 
     @Override
-    public VersionedKeyEntityId createKeyVersion(
+    public VersionedKeyEntityId createEcKeyVersion(
             @NonNull final String keyName, @NonNull final EcKeyCreationInput input) {
         final VersionedKeyEntityId keyEntityId = new VersionedKeyEntityId(vaultStub().baseUri(), keyName);
         input.getKeyType().validate(input.getKeyParameter(), KeyCurveName.class);
@@ -66,7 +57,7 @@ public class KeyVaultStubImpl
     }
 
     @Override
-    public VersionedKeyEntityId createKeyVersion(
+    public VersionedKeyEntityId createOctKeyVersion(
             @NonNull final String keyName, @NonNull final OctKeyCreationInput input) {
         final VersionedKeyEntityId keyEntityId = new VersionedKeyEntityId(vaultStub().baseUri(), keyName);
         Assert.isTrue(input.getKeyType().isHsm(), "OCT keys are only supported using HSM.");
@@ -78,8 +69,7 @@ public class KeyVaultStubImpl
     @Override
     public void setKeyOperations(@NonNull final VersionedKeyEntityId keyEntityId,
                                  final List<KeyOperation> keyOperations) {
-        assertHasEntity(keyEntityId);
-        doGetEntity(keyEntityId).setOperations(Objects.requireNonNullElse(keyOperations, Collections.emptyList()));
+        getEntitiesInternal().getEntity(keyEntityId).setOperations(Objects.requireNonNullElse(keyOperations, Collections.emptyList()));
     }
 
 }

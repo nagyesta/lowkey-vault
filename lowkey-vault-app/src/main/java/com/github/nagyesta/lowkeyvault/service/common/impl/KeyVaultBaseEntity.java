@@ -1,0 +1,78 @@
+package com.github.nagyesta.lowkeyvault.service.common.impl;
+
+import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
+import com.github.nagyesta.lowkeyvault.service.common.BaseVaultEntity;
+import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
+import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
+import lombok.NonNull;
+
+import java.time.OffsetDateTime;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+public abstract class KeyVaultBaseEntity extends KeyVaultLifecycleAwareEntity implements BaseVaultEntity<VersionedKeyEntityId> {
+    private final RecoveryLevel recoveryLevel;
+    private final Integer recoverableDays;
+    private Map<String, String> tags;
+    private Optional<OffsetDateTime> deletedDate;
+    private Optional<OffsetDateTime> scheduledPurgeDate;
+
+    protected KeyVaultBaseEntity(@NonNull final VaultStub vault) {
+        super();
+        this.recoveryLevel = vault.getRecoveryLevel();
+        this.recoverableDays = vault.getRecoverableDays();
+        this.tags = Collections.emptyMap();
+        this.deletedDate = Optional.empty();
+        this.scheduledPurgeDate = Optional.empty();
+    }
+
+    @Override
+    public RecoveryLevel getRecoveryLevel() {
+        return recoveryLevel;
+    }
+
+    @Override
+    public Integer getRecoverableDays() {
+        return recoverableDays;
+    }
+
+    @Override
+    public Map<String, String> getTags() {
+        return tags;
+    }
+
+    @Override
+    public void setTags(final Map<String, String> tags) {
+        updatedNow();
+        this.tags = Map.copyOf(tags);
+    }
+
+    @Override
+    public Optional<OffsetDateTime> getDeletedDate() {
+        return deletedDate;
+    }
+
+    @Override
+    public void setDeletedDate(final OffsetDateTime deletedDate) {
+        this.deletedDate = Optional.ofNullable(deletedDate);
+    }
+
+    @Override
+    public Optional<OffsetDateTime> getScheduledPurgeDate() {
+        return scheduledPurgeDate;
+    }
+
+    @Override
+    public void setScheduledPurgeDate(final OffsetDateTime scheduledPurgeDate) {
+        this.scheduledPurgeDate = Optional.ofNullable(scheduledPurgeDate);
+    }
+
+    @Override
+    public boolean isPurgeExpired() {
+        return getScheduledPurgeDate()
+                .filter(date -> date.isBefore(now()))
+                .isPresent();
+    }
+}

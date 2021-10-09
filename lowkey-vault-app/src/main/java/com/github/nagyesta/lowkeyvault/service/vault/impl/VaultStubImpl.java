@@ -21,14 +21,21 @@ public class VaultStubImpl implements VaultStub {
     private final KeyVaultStub keys;
     private final SecretVaultStub secrets;
     private final CertificateVaultStub certificates;
-    private RecoveryLevel recoveryLevel;
-    private Integer recoverableDays;
+    private final RecoveryLevel recoveryLevel;
+    private final Integer recoverableDays;
 
-    public VaultStubImpl(@NonNull final URI vaultUri) {
+    public VaultStubImpl(@org.springframework.lang.NonNull final URI vaultUri) {
+        this(vaultUri, RecoveryLevel.RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
+    }
+
+    public VaultStubImpl(@NonNull final URI vaultUri, @NonNull final RecoveryLevel recoveryLevel, final Integer recoverableDays) {
+        recoveryLevel.checkValidRecoverableDays(recoverableDays);
         this.vaultUri = vaultUri;
-        this.keys = new KeyVaultStubImpl(this);
-        this.secrets = new SecretVaultStubImpl(this);
-        this.certificates = new CertificateVaultStubImpl(this);
+        this.keys = new KeyVaultStubImpl(this, recoveryLevel, recoverableDays);
+        this.secrets = new SecretVaultStubImpl(this, recoveryLevel, recoverableDays);
+        this.certificates = new CertificateVaultStubImpl(this, recoveryLevel, recoverableDays);
+        this.recoveryLevel = recoveryLevel;
+        this.recoverableDays = recoverableDays;
     }
 
     @Override
@@ -64,13 +71,6 @@ public class VaultStubImpl implements VaultStub {
     @Override
     public Integer getRecoverableDays() {
         return recoverableDays;
-    }
-
-    @Override
-    public void setDefaultRecovery(@NonNull final RecoveryLevel recoveryLevel, final Integer recoverableDays) {
-        recoveryLevel.checkValidRecoverableDays(recoverableDays);
-        this.recoveryLevel = recoveryLevel;
-        this.recoverableDays = recoverableDays;
     }
 
 }

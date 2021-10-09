@@ -35,6 +35,15 @@ class KeyTypeTest {
                 .build();
     }
 
+    public static Stream<Arguments> validationProvider() {
+        return Stream.<Arguments>builder()
+                .add(Arguments.of(KeyType.RSA, -1))
+                .add(Arguments.of(KeyType.RSA_HSM, -1))
+                .add(Arguments.of(KeyType.OCT, -1))
+                .add(Arguments.of(KeyType.OCT_HSM, -1))
+                .build();
+    }
+
     @ParameterizedTest
     @MethodSource("valueProvider")
     void testForValueShouldReturnEnumWhenValueStringMatches(final String input, final KeyType expected) {
@@ -50,7 +59,7 @@ class KeyTypeTest {
 
     @ParameterizedTest
     @MethodSource("entityProvider")
-    void tesEntityClassShouldReturnClassWhenCalled(final KeyType underTest, final Class<?> expected) {
+    void testEntityClassShouldReturnClassWhenCalled(final KeyType underTest, final Class<?> expected) {
         //given
 
         //when
@@ -58,5 +67,16 @@ class KeyTypeTest {
 
         //then
         Assertions.assertEquals(expected, actual);
+    }
+
+    @ParameterizedTest
+    @MethodSource("validationProvider")
+    void testValidateShouldThrowExceptionWhenCalledWithInvalidValue(final KeyType underTest, final Integer value) {
+        //given
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.validate(value, Integer.class));
+
+        //then + exception
     }
 }

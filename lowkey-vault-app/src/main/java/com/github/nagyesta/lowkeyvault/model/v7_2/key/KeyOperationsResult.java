@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.nagyesta.lowkeyvault.model.json.util.Base64Deserializer;
 import com.github.nagyesta.lowkeyvault.model.json.util.Base64Serializer;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeyOperationsParameters;
-import com.github.nagyesta.lowkeyvault.service.VersionedKeyEntityId;
+import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import lombok.Data;
 import lombok.NonNull;
 import org.springframework.util.Assert;

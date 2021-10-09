@@ -11,7 +11,8 @@ class SecretVaultStubImplTest {
         //given
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new SecretVaultStubImpl(null));
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> new SecretVaultStubImpl(null, null, null));
 
         //then + exception
     }

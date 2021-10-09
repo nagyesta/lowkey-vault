@@ -71,7 +71,7 @@ class KeyEntityToV72PropertiesModelConverterTest {
             final Boolean enabled) {
 
         //given
-        final KeyVaultKeyEntity<Integer, Integer> input = new DummyKeyVaultKeyEntity();
+        final DummyKeyVaultKeyEntity input = new DummyKeyVaultKeyEntity();
         input.setEnabled(enabled);
         input.setExpiry(expiry);
         input.setNotBefore(notBefore);
@@ -95,6 +95,9 @@ class KeyEntityToV72PropertiesModelConverterTest {
     }
 
     private final class DummyKeyVaultKeyEntity extends KeyVaultKeyEntity<Integer, Integer> {
+        private Integer recoverableDays;
+        private RecoveryLevel recoveryLevel;
+
         private DummyKeyVaultKeyEntity() {
             super(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, KeyEntityToV72PropertiesModelConverterTest.this.vault, 1, 1, false);
         }
@@ -106,14 +109,32 @@ class KeyEntityToV72PropertiesModelConverterTest {
 
         @Override
         public byte[] encryptBytes(final byte[] clear, final EncryptionAlgorithm encryptionAlgorithm,
-                                   final byte[] iv, final byte[] aad, final byte[] tag) {
+                                   final byte[] iv) {
             return new byte[0];
         }
 
         @Override
         public byte[] decryptToBytes(final byte[] encrypted, final EncryptionAlgorithm encryptionAlgorithm,
-                                     final byte[] iv, final byte[] aad, final byte[] tag) {
+                                     final byte[] iv) {
             return new byte[0];
+        }
+
+        @Override
+        public Integer getRecoverableDays() {
+            return recoverableDays;
+        }
+
+        public void setRecoverableDays(final Integer recoverableDays) {
+            this.recoverableDays = recoverableDays;
+        }
+
+        @Override
+        public RecoveryLevel getRecoveryLevel() {
+            return recoveryLevel;
+        }
+
+        public void setRecoveryLevel(final RecoveryLevel recoveryLevel) {
+            this.recoveryLevel = recoveryLevel;
         }
     }
 }

@@ -36,7 +36,7 @@ public class KeyGetTest extends BaseKeyTest {
 
     public static Stream<Arguments> iterationProvider() {
         return KeyType.values().stream()
-                .filter(k -> k != KeyType.OCT)
+                .filter(k -> k != KeyType.OCT && k != KeyType.RSA && k != KeyType.EC)
                 .flatMap(keyType -> IntStream.of(1, 2, 3, 42, 64)
                         .mapToObj(i -> Arguments.of(i, keyType)));
     }

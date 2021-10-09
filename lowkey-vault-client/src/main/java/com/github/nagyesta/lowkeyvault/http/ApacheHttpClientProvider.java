@@ -16,7 +16,7 @@ import java.util.Objects;
 
 public final class ApacheHttpClientProvider {
 
-    private static final String EMPTY = "";
+    private static final String DUMMY = "dummy";
 
     private final String vaultUrl;
 
@@ -47,15 +47,15 @@ public final class ApacheHttpClientProvider {
     private KeyClientBuilder getBuilder() {
         return new KeyClientBuilder()
                 .vaultUrl(getVaultUrl())
-                .credential(new BasicAuthenticationCredential(EMPTY, EMPTY))
+                .credential(new BasicAuthenticationCredential(DUMMY, DUMMY))
                 .httpClient(createInstance())
                 .retryPolicy(new RetryPolicy(new FixedDelay(0, Duration.ZERO)));
     }
 
     private CryptographyClientBuilder getCryptoBuilder(final String webKeyId) {
         return new CryptographyClientBuilder()
-                .keyIdentifier(Objects.requireNonNull(ClientUriUtil.hackPort(webKeyId)))
-                .credential(new BasicAuthenticationCredential(EMPTY, EMPTY))
+                .keyIdentifier(Objects.requireNonNull(webKeyId))
+                .credential(new BasicAuthenticationCredential(DUMMY, DUMMY))
                 .httpClient(createInstance())
                 .retryPolicy(new RetryPolicy(new FixedDelay(0, Duration.ZERO)));
     }

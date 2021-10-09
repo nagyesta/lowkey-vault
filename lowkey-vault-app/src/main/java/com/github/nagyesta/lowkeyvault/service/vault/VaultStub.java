@@ -23,5 +23,4 @@ public interface VaultStub {
 
     Integer getRecoverableDays();
 
-    void setDefaultRecovery(RecoveryLevel recoveryLevel, Integer recoverableDays);
 }

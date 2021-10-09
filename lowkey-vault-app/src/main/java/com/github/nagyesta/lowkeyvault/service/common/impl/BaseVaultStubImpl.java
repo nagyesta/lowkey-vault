@@ -4,103 +4,107 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel
 import com.github.nagyesta.lowkeyvault.service.EntityId;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultEntity;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultStub;
+import com.github.nagyesta.lowkeyvault.service.common.ReadOnlyVersionedEntityMultiMap;
+import com.github.nagyesta.lowkeyvault.service.common.VersionedEntityMultiMap;
+import com.github.nagyesta.lowkeyvault.service.exception.AlreadyExistsException;
 import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
 import lombok.NonNull;
 
 import java.time.OffsetDateTime;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
 
-public abstract class BaseVaultStubImpl<K extends EntityId, V extends K, E extends BaseVaultEntity, M extends E>
-        implements BaseVaultStub<K, V, E> {
+/**
+ * The base interface of the vault stubs.
+ *
+ * @param <K>  The type of the key (not versioned).
+ * @param <V>  The versioned key type.
+ * @param <RE> The read-only entity type.
+ * @param <ME> The modifiable entity type.
+ */
+public abstract class BaseVaultStubImpl<K extends EntityId, V extends K, RE extends BaseVaultEntity<V>, ME extends RE>
+        implements BaseVaultStub<K, V, RE> {
 
     private final VaultStub vaultStub;
-    private final Map<String, Map<String, M>> entities;
-    private final Map<String, Deque<String>> versions;
+    private final VersionedEntityMultiMap<K, V, RE, ME> entities;
+    private final VersionedEntityMultiMap<K, V, RE, ME> deletedEntities;
 
-    public BaseVaultStubImpl(@NonNull final VaultStub vaultStub) {
+    protected BaseVaultStubImpl(@NonNull final VaultStub vaultStub,
+                                @NonNull final RecoveryLevel recoveryLevel,
+                                final Integer recoverableDays) {
+        recoveryLevel.checkValidRecoverableDays(recoverableDays);
         this.vaultStub = vaultStub;
-        entities = new ConcurrentHashMap<>();
-        versions = new ConcurrentHashMap<>();
+        entities = new ConcurrentVersionedEntityMultiMap<>(
+                recoveryLevel, recoverableDays, this::createVersionedId, false);
+        deletedEntities = new ConcurrentVersionedEntityMultiMap<>(
+                recoveryLevel, recoverableDays, this::createVersionedId, true);
     }
 
     @Override
-    public Deque<String> getVersions(@NonNull final K entityId) {
-        if (!vaultStub.matches(entityId.vault())
-                || !versions.containsKey(entityId.id())
-                || versions.get(entityId.id()).isEmpty()) {
-            throw new NotFoundException("Key not found: " + entityId);
-        }
-        return new LinkedList<>(versions.get(entityId.id()));
+    public ReadOnlyVersionedEntityMultiMap<K, V, RE> getEntities() {
+        return entities;
     }
 
     @Override
-    public V getLatestVersionOfEntity(@NonNull final K entityId) {
-        final Deque<String> availableVersions = getVersions(entityId);
-        return createVersionedId(entityId.id(), availableVersions.getLast());
+    public ReadOnlyVersionedEntityMultiMap<K, V, RE> getDeletedEntities() {
+        return deletedEntities;
     }
-
-    protected abstract V createVersionedId(String id, String version);
 
     @Override
     public void clearTags(@NonNull final V entityId) {
-        assertHasEntity(entityId);
-        doGetEntity(entityId).setTags(new TreeMap<>());
+        entities.getEntity(entityId).setTags(new TreeMap<>());
     }
 
     @Override
     public void addTags(@NonNull final V entityId, final Map<String, String> tags) {
-        assertHasEntity(entityId);
-        final TreeMap<String, String> newTags = new TreeMap<>(getEntity(entityId).getTags());
+        final TreeMap<String, String> newTags = new TreeMap<>(entities.getEntity(entityId).getTags());
         newTags.putAll(Objects.requireNonNullElse(tags, Collections.emptyMap()));
-        doGetEntity(entityId).setTags(newTags);
+        entities.getEntity(entityId).setTags(newTags);
     }
 
     @Override
     public void setEnabled(@NonNull final V entityId, final boolean enabled) {
-        assertHasEntity(entityId);
-        doGetEntity(entityId).setEnabled(enabled);
+        entities.getEntity(entityId).setEnabled(enabled);
     }
 
     @Override
     public void setExpiry(@NonNull final V entityId,
                           final OffsetDateTime notBefore,
                           final OffsetDateTime expiry) {
-        assertHasEntity(entityId);
         if (expiry != null && notBefore != null && notBefore.isAfter(expiry)) {
             throw new IllegalArgumentException("Expiry cannot be before notBefore.");
         }
-        final M entity = doGetEntity(entityId);
+        final ME entity = entities.getEntity(entityId);
         entity.setNotBefore(notBefore);
         entity.setExpiry(expiry);
     }
 
     @Override
-    public void setRecovery(@NonNull final V entityId,
-                            @NonNull final RecoveryLevel recoveryLevel,
-                            final Integer recoverableDays) {
-        assertHasEntity(entityId);
-        recoveryLevel.checkValidRecoverableDays(recoverableDays);
-        final M entity = doGetEntity(entityId);
-        entity.setRecoveryLevel(recoveryLevel);
-        entity.setRecoverableDays(recoverableDays);
+    public void delete(@NonNull final K entityId) {
+        if (!entities.containsName(entityId.id())) {
+            throw new NotFoundException("Entity not found: " + entityId);
+        }
+        entities.moveTo(entityId, deletedEntities, this::markDeleted);
     }
 
     @Override
-    public <R extends E> R getEntity(
-            @NonNull final V entityId, @NonNull final Class<R> type) {
-        return type.cast(getEntity(entityId));
+    public void recover(@NonNull final K entityId) {
+        deletedEntities.purgeExpired();
+        if (!deletedEntities.containsName(entityId.id())) {
+            throw new NotFoundException("Entity not found: " + entityId);
+        }
+        deletedEntities.moveTo(entityId, entities, this::markRestored);
     }
 
-    @Override
-    public E getEntity(@NonNull final V entityId) {
-        return doGetEntity(entityId);
-    }
+    protected abstract V createVersionedId(String id, String version);
 
-    protected M doGetEntity(@org.springframework.lang.NonNull final V entityId) {
-        return entities.get(entityId.id()).get(entityId.version());
+    protected VersionedEntityMultiMap<K, V, RE, ME> getEntitiesInternal() {
+        return entities;
     }
 
     protected VaultStub vaultStub() {
@@ -108,17 +112,30 @@ public abstract class BaseVaultStubImpl<K extends EntityId, V extends K, E exten
     }
 
     protected V addVersion(@org.springframework.lang.NonNull final V entityId,
-                           @org.springframework.lang.NonNull final M entity) {
-        entities.computeIfAbsent(entityId.id(), id -> new ConcurrentHashMap<>()).put(entityId.version(), entity);
-        versions.computeIfAbsent(entityId.id(), id -> new ConcurrentLinkedDeque<>()).add(entityId.version());
+                           @org.springframework.lang.NonNull final ME entity) {
+        assertNoConflict(entityId);
+        entities.put(entityId, entity);
         return entityId;
     }
 
-    protected void assertHasEntity(
-            @org.springframework.lang.NonNull final V entityId) {
-        if (!entities.containsKey(entityId.id())
-                || !entities.get(entityId.id()).containsKey(entityId.version())) {
-            throw new NotFoundException("Entity not found: " + entityId);
+    private void assertNoConflict(final V entityId) {
+        deletedEntities.purgeExpired();
+        if (!entities.containsName(entityId.id()) && deletedEntities.containsName(entityId.id())) {
+            throw new AlreadyExistsException("A deleted entity already exists with this name: " + entityId);
         }
+    }
+
+    private ME markDeleted(final ME entity) {
+        final int days = entity.getRecoverableDays();
+        final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS);
+        entity.setDeletedDate(now);
+        entity.setScheduledPurgeDate(now.plusDays(days));
+        return entity;
+    }
+
+    private ME markRestored(final ME entity) {
+        entity.setDeletedDate(null);
+        entity.setScheduledPurgeDate(null);
+        return entity;
     }
 }

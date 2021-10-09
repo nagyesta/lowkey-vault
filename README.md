@@ -64,8 +64,14 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
     - Including metadata
 - Get available key versions
 - Get key
-    - Latest
-    - Specific version
+    - Latest version of a single key
+    - Specific version of a single key
+    - List of all keys
+- Get deleted key
+    - Latest version of a single key
+    - List of all keys
+- Delete key
+- Recover deleted key
 - Encrypt/Decrypt/Wrap/Unwrap keys
     - ```RSA``` (```2k```/```3k```/```4k```)
         - ```RSA1_5```

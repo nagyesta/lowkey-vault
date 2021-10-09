@@ -6,7 +6,10 @@ import com.azure.security.keyvault.keys.KeyClient;
 import com.azure.security.keyvault.keys.cryptography.CryptographyAsyncClient;
 import com.azure.security.keyvault.keys.cryptography.CryptographyClient;
 import com.azure.security.keyvault.keys.cryptography.models.*;
-import com.azure.security.keyvault.keys.models.*;
+import com.azure.security.keyvault.keys.models.CreateOctKeyOptions;
+import com.azure.security.keyvault.keys.models.KeyOperation;
+import com.azure.security.keyvault.keys.models.KeyType;
+import com.azure.security.keyvault.keys.models.KeyVaultKey;
 import com.github.nagyesta.abortmission.booster.jupiter.annotation.LaunchAbortArmed;
 import com.github.nagyesta.lowkeyvault.http.ApacheHttpClientProvider;
 import com.github.nagyesta.lowkeyvault.http.ClientProviderConfig;
@@ -52,12 +55,12 @@ public class KeyEncryptDecryptAesTest extends BaseKeyTest {
         //given
         final KeyClient keyClient = provider.getKeyClient();
         final String name = randomName();
-        final CreateKeyOptions options = new CreateOctKeyOptions(name).setKeySize(size)
+        final CreateOctKeyOptions options = new CreateOctKeyOptions(name).setKeySize(size)
                 .setHardwareProtected(keyType == KeyType.OCT_HSM)
                 .setKeyOperations(KeyOperation.ENCRYPT, KeyOperation.DECRYPT, KeyOperation.WRAP_KEY, KeyOperation.UNWRAP_KEY)
                 .setEnabled(true);
 
-        final KeyVaultKey key = keyClient.createKey(options);
+        final KeyVaultKey key = keyClient.createOctKey(options);
         final CryptographyClient cryptoClient = provider.getCryptoClient(key.getKey().getId());
 
         //when
@@ -77,12 +80,12 @@ public class KeyEncryptDecryptAesTest extends BaseKeyTest {
         //given
         final KeyAsyncClient keyClient = provider.getKeyAsyncClient();
         final String name = randomName();
-        final CreateKeyOptions options = new CreateOctKeyOptions(name).setKeySize(size)
+        final CreateOctKeyOptions options = new CreateOctKeyOptions(name).setKeySize(size)
                 .setHardwareProtected(keyType == KeyType.OCT_HSM)
                 .setKeyOperations(KeyOperation.ENCRYPT, KeyOperation.DECRYPT, KeyOperation.WRAP_KEY, KeyOperation.UNWRAP_KEY)
                 .setEnabled(true);
 
-        final KeyVaultKey key = keyClient.createKey(options).block();
+        final KeyVaultKey key = keyClient.createOctKey(options).block();
         final CryptographyAsyncClient cryptoClient = provider.getCryptoAsyncClient(Objects.requireNonNull(key).getKey().getId());
 
         //when

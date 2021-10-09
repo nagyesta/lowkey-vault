@@ -9,12 +9,12 @@ import java.util.Arrays;
 @SuppressWarnings("checkstyle:JavadocVariable")
 public enum EncryptionAlgorithm {
 
-    A128CBC("A128CBC", "AES/CBC/ZeroBytePadding", KeyType.OCT, 128, 128),
-    A128CBCPAD("A128CBCPAD", "AES/CBC/PKCS5Padding", KeyType.OCT, 128, 128),
-    A192CBC("A192CBC", "AES/CBC/ZeroBytePadding", KeyType.OCT, 192, 192),
-    A192CBCPAD("A192CBCPAD", "AES/CBC/PKCS5Padding", KeyType.OCT, 192, 192),
-    A256CBC("A256CBC", "AES/CBC/ZeroBytePadding", KeyType.OCT, 256, 256),
-    A256CBCPAD("A256CBCPAD", "AES/CBC/PKCS5Padding", KeyType.OCT, 256, 256),
+    A128CBC("A128CBC", "AES/CBC/ZeroBytePadding", KeyType.OCT_HSM, 128, 128),
+    A128CBCPAD("A128CBCPAD", "AES/CBC/PKCS5Padding", KeyType.OCT_HSM, 128, 128),
+    A192CBC("A192CBC", "AES/CBC/ZeroBytePadding", KeyType.OCT_HSM, 192, 192),
+    A192CBCPAD("A192CBCPAD", "AES/CBC/PKCS5Padding", KeyType.OCT_HSM, 192, 192),
+    A256CBC("A256CBC", "AES/CBC/ZeroBytePadding", KeyType.OCT_HSM, 256, 256),
+    A256CBCPAD("A256CBCPAD", "AES/CBC/PKCS5Padding", KeyType.OCT_HSM, 256, 256),
     RSA_OAEP("RSA-OAEP", "RSA/None/OAEPWithSHA1AndMGF1Padding", KeyType.RSA, 2048, 4096),
     RSA_OAEP_256("RSA-OAEP-256", "RSA/None/OAEPWithSHA256AndMGF1Padding", KeyType.RSA, 2048, 4096),
     RSA1_5("RSA1_5", "RSA/None/PKCS1Padding", KeyType.RSA, 2048, 4096);
@@ -37,7 +37,7 @@ public enum EncryptionAlgorithm {
 
     @JsonCreator
     public static EncryptionAlgorithm forValue(final String name) {
-        return Arrays.stream(values()).filter(keyType -> keyType.getValue().equals(name)).findFirst().orElse(null);
+        return Arrays.stream(values()).filter(algorithm -> algorithm.getValue().equals(name)).findFirst().orElse(null);
     }
 
     @JsonValue

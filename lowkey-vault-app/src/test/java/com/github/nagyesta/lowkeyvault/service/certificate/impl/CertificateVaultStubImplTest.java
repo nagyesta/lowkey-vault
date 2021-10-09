@@ -11,7 +11,8 @@ class CertificateVaultStubImplTest {
         //given
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new CertificateVaultStubImpl(null));
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> new CertificateVaultStubImpl(null, null, null));
 
         //then + exception
     }

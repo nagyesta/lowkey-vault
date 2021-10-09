@@ -2,7 +2,7 @@ package com.github.nagyesta.lowkeyvault.model.v7_2.key;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.EncryptionAlgorithm;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeyOperationsParameters;
-import com.github.nagyesta.lowkeyvault.service.VersionedKeyEntityId;
+import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;

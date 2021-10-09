@@ -132,7 +132,7 @@ class VaultStubImplTest {
     }
 
     @Test
-    void testGetRecoveryLevelShouldReturnNullWhenCalledByDefault() {
+    void testGetRecoveryLevelShouldReturnRecoverableWhenCalledByDefault() {
         //given
         final VaultStubImpl underTest = new VaultStubImpl(HTTPS_LOCALHOST);
 
@@ -140,11 +140,11 @@ class VaultStubImplTest {
         final RecoveryLevel actual = underTest.getRecoveryLevel();
 
         //then
-        Assertions.assertNull(actual);
+        Assertions.assertEquals(RecoveryLevel.RECOVERABLE, actual);
     }
 
     @Test
-    void testGetRecoverableDaysShouldReturnNullWhenCalledByDefault() {
+    void testGetRecoverableDaysShouldReturn90WhenCalledByDefault() {
         //given
         final VaultStubImpl underTest = new VaultStubImpl(HTTPS_LOCALHOST);
 
@@ -152,36 +152,18 @@ class VaultStubImplTest {
         final Integer actual = underTest.getRecoverableDays();
 
         //then
-        Assertions.assertNull(actual);
+        Assertions.assertEquals(RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE, actual);
     }
 
     @ParameterizedTest
     @MethodSource("invalidRecoveryParameterProvider")
-    void testSetDefaultRecoveryShouldValidateThePairOfParametersWhenCalled(
+    void testConstructorWithRecoveryShouldValidateThePairOfParametersWhenCalled(
             final RecoveryLevel recoveryLevel, final Integer days) {
         //given
-        final VaultStubImpl underTest = new VaultStubImpl(HTTPS_LOCALHOST);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setDefaultRecovery(recoveryLevel, days));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new VaultStubImpl(HTTPS_LOCALHOST, recoveryLevel, days));
 
         //then + exception
-    }
-
-    @Test
-    void testRecoveryLevelAndRecoverableDaysShouldBeReturnedWhenSetBefore() {
-        //given
-        final RecoveryLevel recoveryLevel = RecoveryLevel.RECOVERABLE;
-        final int recoverableDays = 90;
-        final VaultStubImpl underTest = new VaultStubImpl(HTTPS_LOCALHOST);
-        underTest.setDefaultRecovery(recoveryLevel, recoverableDays);
-
-        //when
-        final Integer actualDays = underTest.getRecoverableDays();
-        final RecoveryLevel actualLevel = underTest.getRecoveryLevel();
-
-        //then
-        Assertions.assertEquals(recoverableDays, actualDays);
-        Assertions.assertEquals(recoveryLevel, actualLevel);
     }
 }

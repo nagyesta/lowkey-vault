@@ -21,9 +21,4 @@ public class KeyVaultKeyModel {
     @JsonProperty("managed")
     private Boolean managed;
 
-    public KeyVaultKeyModel(final KeyPropertiesModel attributes, final JsonWebKeyModel key, final Map<String, String> tags) {
-        this.attributes = attributes;
-        this.key = key;
-        this.tags = Map.copyOf(tags);
-    }
 }

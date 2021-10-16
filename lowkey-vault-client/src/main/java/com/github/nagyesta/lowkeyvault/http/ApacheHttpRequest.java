@@ -13,7 +13,7 @@ final class ApacheHttpRequest extends HttpEntityEnclosingRequestBase {
 
     ApacheHttpRequest(final HttpMethod method, final URL url, final HttpHeaders headers) throws URISyntaxException {
         this.method = method.name();
-        setURI(Objects.requireNonNull(ClientUriUtil.revertPortHack(url)).toURI());
+        setURI(Objects.requireNonNull(url).toURI());
         headers.stream().forEach(header -> addHeader(header.getName(), header.getValue()));
     }
 

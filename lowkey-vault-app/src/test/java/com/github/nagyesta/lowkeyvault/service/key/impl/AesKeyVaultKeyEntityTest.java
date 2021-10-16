@@ -3,7 +3,7 @@ package com.github.nagyesta.lowkeyvault.service.key.impl;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.EncryptionAlgorithm;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
-import com.github.nagyesta.lowkeyvault.service.VersionedKeyEntityId;
+import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
 import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultStubImpl;
 import org.junit.jupiter.api.Assertions;
@@ -40,7 +40,7 @@ class AesKeyVaultKeyEntityTest {
 
     public static Stream<Arguments> stringSource() {
         return Arrays.stream(EncryptionAlgorithm.values())
-                .filter(ea -> ea.isCompatible(KeyType.OCT))
+                .filter(ea -> ea.isCompatible(KeyType.OCT_HSM))
                 .flatMap(ea -> Stream.<Arguments>builder()
                         .add(Arguments.of(DEFAULT_VAULT, ea))
                         .add(Arguments.of(LOCALHOST, ea))
@@ -71,8 +71,8 @@ class AesKeyVaultKeyEntityTest {
         underTest.setEnabled(true);
 
         //when
-        final byte[] encrypted = underTest.encrypt(clear, algorithm, IV, null, null);
-        final String actual = underTest.decrypt(encrypted, algorithm, IV, null, null);
+        final byte[] encrypted = underTest.encrypt(clear, algorithm, IV);
+        final String actual = underTest.decrypt(encrypted, algorithm, IV);
 
         //then
         Assertions.assertEquals(clear, actual);
@@ -83,17 +83,13 @@ class AesKeyVaultKeyEntityTest {
         //given
         final VaultStub vaultStub = new VaultStubImpl(HTTPS_LOWKEY_VAULT);
         final AesKeyVaultKeyEntity underTest = new AesKeyVaultKeyEntity(
-                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultStub,
-                null,
-//                EncryptionAlgorithm.A128KW.getMinKeySize(),
-                false);
+                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultStub, null, false);
         underTest.setOperations(List.of(KeyOperation.DECRYPT, KeyOperation.UNWRAP_KEY));
         underTest.setEnabled(true);
 
         //when
         Assertions.assertThrows(IllegalStateException.class,
-                () -> underTest.encrypt(DEFAULT_VAULT, EncryptionAlgorithm.A128CBC,
-                        IV, null, null));
+                () -> underTest.encrypt(DEFAULT_VAULT, EncryptionAlgorithm.A128CBC, IV));
 
         //then + exception
     }
@@ -108,9 +104,75 @@ class AesKeyVaultKeyEntityTest {
         underTest.setEnabled(true);
 
         //when
-        final byte[] encrypted = underTest.encrypt(DEFAULT_VAULT, EncryptionAlgorithm.A128CBC, IV, null, null);
+        final byte[] encrypted = underTest.encrypt(DEFAULT_VAULT, EncryptionAlgorithm.A128CBC, IV);
         Assertions.assertThrows(IllegalStateException.class,
-                () -> underTest.decrypt(encrypted, EncryptionAlgorithm.A128CBC, IV, null, null));
+                () -> underTest.decrypt(encrypted, EncryptionAlgorithm.A128CBC, IV));
+
+        //then + exception
+    }
+
+    @Test
+    void testEncryptShouldThrowExceptionWhenIvIsMissing() {
+        //given
+        final VaultStub vaultStub = new VaultStubImpl(HTTPS_LOWKEY_VAULT);
+        final AesKeyVaultKeyEntity underTest = new AesKeyVaultKeyEntity(
+                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultStub, null, false);
+        underTest.setOperations(List.of(KeyOperation.ENCRYPT, KeyOperation.DECRYPT, KeyOperation.WRAP_KEY, KeyOperation.UNWRAP_KEY));
+        underTest.setEnabled(true);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> underTest.encrypt(DEFAULT_VAULT, EncryptionAlgorithm.A128CBC, null));
+
+        //then + exception
+    }
+
+    @Test
+    void testDecryptShouldThrowExceptionWhenIvIsMissing() {
+        //given
+        final VaultStub vaultStub = new VaultStubImpl(HTTPS_LOWKEY_VAULT);
+        final AesKeyVaultKeyEntity underTest = new AesKeyVaultKeyEntity(
+                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultStub, KeyType.OCT.getValidKeyParameters(Integer.class).first(), false);
+        underTest.setOperations(List.of(KeyOperation.ENCRYPT, KeyOperation.DECRYPT, KeyOperation.WRAP_KEY, KeyOperation.UNWRAP_KEY));
+        underTest.setEnabled(true);
+
+        //when
+        final byte[] encrypted = underTest.encrypt(DEFAULT_VAULT, EncryptionAlgorithm.A128CBC, IV);
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> underTest.decrypt(encrypted, EncryptionAlgorithm.A128CBC, null));
+
+        //then + exception
+    }
+
+    @Test
+    void testEncryptShouldThrowExceptionWhenKeySizeDoesNotMatchAlgorithm() {
+        //given
+        final VaultStub vaultStub = new VaultStubImpl(HTTPS_LOWKEY_VAULT);
+        final AesKeyVaultKeyEntity underTest = new AesKeyVaultKeyEntity(
+                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultStub, null, false);
+        underTest.setOperations(List.of(KeyOperation.ENCRYPT, KeyOperation.DECRYPT, KeyOperation.WRAP_KEY, KeyOperation.UNWRAP_KEY));
+        underTest.setEnabled(true);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> underTest.encrypt(DEFAULT_VAULT, EncryptionAlgorithm.A192CBC, IV));
+
+        //then + exception
+    }
+
+    @Test
+    void testDecryptShouldThrowExceptionWhenKeySizeDoesNotMatchAlgorithm() {
+        //given
+        final VaultStub vaultStub = new VaultStubImpl(HTTPS_LOWKEY_VAULT);
+        final AesKeyVaultKeyEntity underTest = new AesKeyVaultKeyEntity(
+                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultStub, KeyType.OCT.getValidKeyParameters(Integer.class).first(), false);
+        underTest.setOperations(List.of(KeyOperation.ENCRYPT, KeyOperation.DECRYPT, KeyOperation.WRAP_KEY, KeyOperation.UNWRAP_KEY));
+        underTest.setEnabled(true);
+
+        //when
+        final byte[] encrypted = underTest.encrypt(DEFAULT_VAULT, EncryptionAlgorithm.A128CBC, IV);
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> underTest.decrypt(encrypted, EncryptionAlgorithm.A192CBC, IV));
 
         //then + exception
     }
@@ -126,8 +188,7 @@ class AesKeyVaultKeyEntityTest {
 
         //when
         Assertions.assertThrows(IllegalStateException.class,
-                () -> underTest.encrypt(DEFAULT_VAULT, EncryptionAlgorithm.A128CBC,
-                        IV, null, null));
+                () -> underTest.encrypt(DEFAULT_VAULT, EncryptionAlgorithm.A128CBC, IV));
 
         //then + exception
     }
@@ -142,10 +203,10 @@ class AesKeyVaultKeyEntityTest {
         underTest.setEnabled(true);
 
         //when
-        final byte[] encrypted = underTest.encrypt(DEFAULT_VAULT, EncryptionAlgorithm.A128CBC, IV, null, null);
+        final byte[] encrypted = underTest.encrypt(DEFAULT_VAULT, EncryptionAlgorithm.A128CBC, IV);
         underTest.setEnabled(false);
         Assertions.assertThrows(IllegalStateException.class,
-                () -> underTest.decrypt(encrypted, EncryptionAlgorithm.A128CBC, IV, null, null));
+                () -> underTest.decrypt(encrypted, EncryptionAlgorithm.A128CBC, IV));
 
         //then + exception
     }

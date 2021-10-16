@@ -11,8 +11,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.github.nagyesta.lowkeyvault.TestConstants.PROPERTIES_MODEL;
-import static com.github.nagyesta.lowkeyvault.TestConstants.TAGS_ONE_KEY;
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
 
 class KeyVaultKeyItemListModelTest {
@@ -41,7 +39,7 @@ class KeyVaultKeyItemListModelTest {
     void testConstructorShouldCreateNewInstanceWhenCalledWithValidData() {
         //given
         final List<KeyVaultKeyItemModel> list = List.of(
-                new KeyVaultKeyItemModel(PROPERTIES_MODEL, VERSIONED_KEY_ENTITY_ID_1_VERSION_1.asUri(), TAGS_ONE_KEY));
+                keyVaultKeyItemModel(VERSIONED_KEY_ENTITY_ID_1_VERSION_1.asUri()));
 
         //when
         final KeyVaultKeyItemListModel actual = new KeyVaultKeyItemListModel(list, null);
@@ -50,5 +48,13 @@ class KeyVaultKeyItemListModelTest {
         Assertions.assertNotNull(actual);
         Assertions.assertNull(actual.getNextLink());
         Assertions.assertIterableEquals(list, actual.getValue());
+    }
+
+    private KeyVaultKeyItemModel keyVaultKeyItemModel(final URI asUriNoVersion) {
+        final KeyVaultKeyItemModel model = new KeyVaultKeyItemModel();
+        model.setAttributes(com.github.nagyesta.lowkeyvault.TestConstants.PROPERTIES_MODEL);
+        model.setKeyId(asUriNoVersion.toString());
+        model.setTags(com.github.nagyesta.lowkeyvault.TestConstants.TAGS_ONE_KEY);
+        return model;
     }
 }

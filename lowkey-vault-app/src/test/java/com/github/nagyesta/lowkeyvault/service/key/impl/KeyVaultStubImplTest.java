@@ -4,11 +4,13 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
-import com.github.nagyesta.lowkeyvault.service.KeyEntityId;
-import com.github.nagyesta.lowkeyvault.service.VersionedKeyEntityId;
+import com.github.nagyesta.lowkeyvault.service.exception.AlreadyExistsException;
 import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
-import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyAesKeyVaultKeyEntity;
+import com.github.nagyesta.lowkeyvault.service.key.KeyVaultStub;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
+import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
+import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
+import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
 import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultStubImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
@@ -30,7 +32,7 @@ import java.util.stream.Stream;
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST;
-import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOWKEY_VAULT;
+import static org.mockito.Mockito.mock;
 
 class KeyVaultStubImplTest {
 
@@ -66,13 +68,24 @@ class KeyVaultStubImplTest {
                 .build();
     }
 
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testConstructorShouldThrowExceptionWhenCalledWithNull() {
+    public static Stream<Arguments> nullProvider() {
+        return Stream.<Arguments>builder()
+                .add(Arguments.of(null, null, null))
+                .add(Arguments.of(mock(VaultStub.class), null, null))
+                .add(Arguments.of(null, RecoveryLevel.PURGEABLE, null))
+                .add(Arguments.of(null, null, 0))
+                .add(Arguments.of(mock(VaultStub.class), RecoveryLevel.RECOVERABLE, null))
+                .build();
+    }
+
+    @ParameterizedTest
+    @MethodSource("nullProvider")
+    void testConstructorShouldThrowExceptionWhenCalledWithNull(
+            final VaultStub vaultStub, final RecoveryLevel recoveryLevel, final Integer recoverableDays) {
         //given
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new KeyVaultStubImpl(null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new KeyVaultStubImpl(vaultStub, recoveryLevel, recoverableDays));
 
         //then + exception
     }
@@ -80,8 +93,8 @@ class KeyVaultStubImplTest {
     @Test
     void testGetKeyVersionsShouldReturnAllKeyVersionsInChronologicalOrderWhenFound() {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
-        final List<String> expected = insertMultipleVersionsOfSameKey(underTest).stream()
+        final KeyVaultStub underTest = createUnderTest();
+        final List<String> expected = insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1).stream()
                 .map(KeyEntityId::version)
                 .collect(Collectors.toList());
         underTest.createKeyVersion(KEY_NAME_2, EC_KEY_CREATION_INPUT);
@@ -90,35 +103,20 @@ class KeyVaultStubImplTest {
         final KeyEntityId keyEntityId = new KeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, null);
 
         //when
-        final Deque<String> actual = underTest.getVersions(keyEntityId);
+        final Deque<String> actual = underTest.getEntities().getVersions(keyEntityId);
 
         //then
         Assertions.assertIterableEquals(expected, actual);
     }
 
     @Test
-    void testGetKeyVersionsShouldThrowExceptionWhenVaultUriDoesNotMatch() {
-        //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
-        insertMultipleVersionsOfSameKey(underTest);
-
-        final KeyEntityId keyEntityId = new KeyEntityId(HTTPS_LOWKEY_VAULT, KEY_NAME_1, null);
-
-        //when
-        Assertions.assertThrows(NotFoundException.class, () -> underTest.getVersions(keyEntityId));
-
-        //then + exception
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @Test
     void testGetKeyVersionsShouldThrowExceptionWhenKeyIdIsNull() {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
-        insertMultipleVersionsOfSameKey(underTest);
+        final KeyVaultStub underTest = createUnderTest();
+        insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.getVersions(null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.getEntities().getVersions(null));
 
         //then + exception
     }
@@ -126,25 +124,24 @@ class KeyVaultStubImplTest {
     @Test
     void testGetKeyVersionsShouldThrowExceptionWhenNotFound() {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
-        insertMultipleVersionsOfSameKey(underTest);
+        final KeyVaultStub underTest = createUnderTest();
+        insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
 
         final KeyEntityId keyEntityId = new KeyEntityId(HTTPS_LOCALHOST, KEY_NAME_2, null);
 
         //when
-        Assertions.assertThrows(NotFoundException.class, () -> underTest.getVersions(keyEntityId));
+        Assertions.assertThrows(NotFoundException.class, () -> underTest.getEntities().getVersions(keyEntityId));
 
         //then + exception
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Test
     void testGetLatestVersionOfEntityShouldThrowExceptionWhenKeyIdIsNull() {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
+        final KeyVaultStub underTest = createUnderTest();
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.getLatestVersionOfEntity(null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.getEntities().getLatestVersionOfEntity(null));
 
         //then + exception
     }
@@ -152,8 +149,8 @@ class KeyVaultStubImplTest {
     @Test
     void testGetLatestVersionOfKeyShouldReturnAllKeyVersionsInChronologicalOrderWhenFound() {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
-        final String expected = insertMultipleVersionsOfSameKey(underTest).stream()
+        final KeyVaultStub underTest = createUnderTest();
+        final String expected = insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1).stream()
                 .map(KeyEntityId::version)
                 .skip(COUNT - 1)
                 .findFirst().orElse(null);
@@ -163,7 +160,7 @@ class KeyVaultStubImplTest {
         final KeyEntityId keyEntityId = new KeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, null);
 
         //when
-        final VersionedKeyEntityId actual = underTest.getLatestVersionOfEntity(keyEntityId);
+        final VersionedKeyEntityId actual = underTest.getEntities().getLatestVersionOfEntity(keyEntityId);
 
         //then
         Assertions.assertEquals(expected, actual.version());
@@ -173,7 +170,7 @@ class KeyVaultStubImplTest {
     @MethodSource("genericKeyCreateInputProvider")
     void testCreateKeyVersionShouldThrowExceptionWhenCalledWithNull(final String name, final KeyCreationInput<?> input) {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
+        final KeyVaultStub underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.createKeyVersion(name, input));
@@ -187,11 +184,11 @@ class KeyVaultStubImplTest {
     @ValueSource(strings = KEY_NAME_1)
     void testCreateKeyVersionShouldThrowExceptionWhenCalledWithNullRsa(final String keyName) {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
+        final KeyVaultStub underTest = createUnderTest();
         final RsaKeyCreationInput input = null;
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.createKeyVersion(keyName, input));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.createRsaKeyVersion(keyName, input));
 
         //then + exception
     }
@@ -202,11 +199,11 @@ class KeyVaultStubImplTest {
     @ValueSource(strings = KEY_NAME_1)
     void testCreateKeyVersionShouldThrowExceptionWhenCalledWithNullEc(final String keyName) {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
+        final KeyVaultStub underTest = createUnderTest();
         final EcKeyCreationInput input = null;
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.createKeyVersion(keyName, input));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.createEcKeyVersion(keyName, input));
 
         //then + exception
     }
@@ -217,11 +214,11 @@ class KeyVaultStubImplTest {
     @ValueSource(strings = KEY_NAME_1)
     void testCreateKeyVersionShouldThrowExceptionWhenCalledWithNullOct(final String keyName) {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
+        final KeyVaultStub underTest = createUnderTest();
         final OctKeyCreationInput input = null;
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.createKeyVersion(keyName, input));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.createOctKeyVersion(keyName, input));
 
         //then + exception
     }
@@ -229,7 +226,7 @@ class KeyVaultStubImplTest {
     @Test
     void testCreateKeyVersionShouldReturnIdWhenCalledWithValidRsaParameter() {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
+        final KeyVaultStub underTest = createUnderTest();
         final RsaKeyCreationInput input = new RsaKeyCreationInput(KeyType.RSA_HSM, null, null);
 
         //when
@@ -245,7 +242,7 @@ class KeyVaultStubImplTest {
     @Test
     void testCreateKeyVersionShouldReturnIdWhenCalledWithValidEcParameter() {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
+        final KeyVaultStub underTest = createUnderTest();
         final EcKeyCreationInput input = new EcKeyCreationInput(KeyType.EC_HSM, KeyCurveName.P_256);
 
         //when
@@ -261,7 +258,7 @@ class KeyVaultStubImplTest {
     @Test
     void testCreateKeyVersionShouldReturnIdWhenCalledWithValidOctParameter() {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
+        final KeyVaultStub underTest = createUnderTest();
         final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
 
         //when
@@ -278,13 +275,13 @@ class KeyVaultStubImplTest {
     @MethodSource("keyOperationsProvider")
     void testSetKeyOperationsShouldUpdateListWhenCalledWithValidValues(final List<KeyOperation> list) {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
+        final KeyVaultStub underTest = createUnderTest();
         final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
 
         //when
         underTest.setKeyOperations(keyEntityId, list);
-        final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntity(keyEntityId);
+        final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntities().getReadOnlyEntity(keyEntityId);
 
         //then
         Assertions.assertIterableEquals(list, actual.getOperations());
@@ -295,7 +292,7 @@ class KeyVaultStubImplTest {
     void testSetKeyOperationsShouldThrowExceptionWhenCalledWithInvalidValues(
             final VersionedKeyEntityId keyEntityId, final List<KeyOperation> list) {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
+        final KeyVaultStub underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setKeyOperations(keyEntityId, list));
@@ -306,28 +303,27 @@ class KeyVaultStubImplTest {
     @Test
     void testClearTagsShouldClearPreviouslySetTagsWhenCalledOnValidKey() {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
+        final KeyVaultStub underTest = createUnderTest();
         final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
 
         //when
         underTest.addTags(keyEntityId, TAGS_TWO_KEYS);
-        final ReadOnlyKeyVaultKeyEntity check = underTest.getEntity(keyEntityId);
+        final ReadOnlyKeyVaultKeyEntity check = underTest.getEntities().getReadOnlyEntity(keyEntityId);
         Assumptions.assumeTrue(check.getTags().containsKey(KEY_1));
         Assumptions.assumeTrue(check.getTags().containsKey(KEY_2));
         underTest.clearTags(keyEntityId);
 
-        final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntity(keyEntityId);
+        final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntities().getReadOnlyEntity(keyEntityId);
 
         //then
         Assertions.assertEquals(Collections.emptyMap(), actual.getTags());
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Test
     void testClearTagsShouldThrowExceptionWhenCalledWithNullKey() {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
+        final KeyVaultStub underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.clearTags(null));
@@ -335,11 +331,10 @@ class KeyVaultStubImplTest {
         //then + exception
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Test
     void testAddTagsShouldThrowExceptionWhenCalledWithNullKey() {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
+        final KeyVaultStub underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.addTags(null, TAGS_EMPTY));
@@ -350,25 +345,24 @@ class KeyVaultStubImplTest {
     @Test
     void testSetEnabledShouldReplacePreviouslySetValueWhenCalledOnValidKey() {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
+        final KeyVaultStub underTest = createUnderTest();
         final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
-        final ReadOnlyKeyVaultKeyEntity check = underTest.getEntity(keyEntityId);
-        Assertions.assertFalse(check.isEnabled());
+        final ReadOnlyKeyVaultKeyEntity check = underTest.getEntities().getReadOnlyEntity(keyEntityId);
+        Assertions.assertTrue(check.isEnabled());
 
         //when
-        underTest.setEnabled(keyEntityId, true);
-        final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntity(keyEntityId);
+        underTest.setEnabled(keyEntityId, false);
+        final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntities().getReadOnlyEntity(keyEntityId);
 
         //then
-        Assertions.assertTrue(actual.isEnabled());
+        Assertions.assertFalse(actual.isEnabled());
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Test
     void testSetEnabledShouldThrowExceptionWhenCalledWithNullKey() {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
+        final KeyVaultStub underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setEnabled(null, true));
@@ -379,16 +373,16 @@ class KeyVaultStubImplTest {
     @Test
     void testSetExpiryShouldReplacePreviouslySetValueWhenCalledOnValidKey() {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
+        final KeyVaultStub underTest = createUnderTest();
         final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
-        final ReadOnlyKeyVaultKeyEntity check = underTest.getEntity(keyEntityId);
+        final ReadOnlyKeyVaultKeyEntity check = underTest.getEntities().getReadOnlyEntity(keyEntityId);
         Assertions.assertTrue(check.getExpiry().isEmpty());
         Assertions.assertTrue(check.getNotBefore().isEmpty());
 
         //when
         underTest.setExpiry(keyEntityId, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES);
-        final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntity(keyEntityId);
+        final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntities().getReadOnlyEntity(keyEntityId);
 
         //then
         Assertions.assertTrue(actual.getNotBefore().isPresent());
@@ -400,16 +394,16 @@ class KeyVaultStubImplTest {
     @Test
     void testSetExpiryShouldReplacePreviouslySetValueWhenCalledOnValidKeyAndNotBeforeOnly() {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
+        final KeyVaultStub underTest = createUnderTest();
         final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
-        final ReadOnlyKeyVaultKeyEntity check = underTest.getEntity(keyEntityId);
+        final ReadOnlyKeyVaultKeyEntity check = underTest.getEntities().getReadOnlyEntity(keyEntityId);
         Assertions.assertTrue(check.getExpiry().isEmpty());
         Assertions.assertTrue(check.getNotBefore().isEmpty());
 
         //when
         underTest.setExpiry(keyEntityId, TIME_10_MINUTES_AGO, null);
-        final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntity(keyEntityId);
+        final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntities().getReadOnlyEntity(keyEntityId);
 
         //then
         Assertions.assertTrue(actual.getNotBefore().isPresent());
@@ -420,16 +414,16 @@ class KeyVaultStubImplTest {
     @Test
     void testSetExpiryShouldReplacePreviouslySetValueWhenCalledOnValidKeyAndExpiryOnly() {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
+        final KeyVaultStub underTest = createUnderTest();
         final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
-        final ReadOnlyKeyVaultKeyEntity check = underTest.getEntity(keyEntityId);
+        final ReadOnlyKeyVaultKeyEntity check = underTest.getEntities().getReadOnlyEntity(keyEntityId);
         Assertions.assertTrue(check.getExpiry().isEmpty());
         Assertions.assertTrue(check.getNotBefore().isEmpty());
 
         //when
         underTest.setExpiry(keyEntityId, null, TIME_IN_10_MINUTES);
-        final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntity(keyEntityId);
+        final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntities().getReadOnlyEntity(keyEntityId);
 
         //then
         Assertions.assertTrue(actual.getNotBefore().isEmpty());
@@ -437,11 +431,10 @@ class KeyVaultStubImplTest {
         Assertions.assertEquals(TIME_IN_10_MINUTES, actual.getExpiry().get());
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Test
     void testSetExpiryShouldThrowExceptionWhenCalledWithNullKey() {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
+        final KeyVaultStub underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
@@ -453,9 +446,9 @@ class KeyVaultStubImplTest {
     @Test
     void testSetExpiryShouldThrowExceptionWhenCalledWithNegativeTimeDuration() {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
+        final KeyVaultStub underTest = createUnderTest();
         final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
-        final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
+        final VersionedKeyEntityId keyEntityId = underTest.createOctKeyVersion(KEY_NAME_1, input);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
@@ -465,124 +458,160 @@ class KeyVaultStubImplTest {
     }
 
     @Test
-    void testSetRecoveryShouldReplacePreviouslySetValueWhenCalledOnValidKey() {
+    void testConstructorWithRecoveryShouldThrowExceptionWhenCalledWithInvalidData() {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
-        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
-        final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
-        final ReadOnlyKeyVaultKeyEntity check = underTest.getEntity(keyEntityId);
-        Assertions.assertNull(check.getRecoveryLevel());
-        Assertions.assertNull(check.getRecoverableDays());
-
-        //when
-        underTest.setRecovery(keyEntityId, RecoveryLevel.CUSTOMIZED_RECOVERABLE, DAYS);
-        final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntity(keyEntityId);
-
-        //then
-        Assertions.assertEquals(DAYS, actual.getRecoverableDays());
-        Assertions.assertEquals(RecoveryLevel.CUSTOMIZED_RECOVERABLE, actual.getRecoveryLevel());
-    }
-
-    @Test
-    void testSetRecoveryShouldThrowExceptionWhenCalledWithInvalidData() {
-        //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
-        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
-        final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
+        final VaultStubImpl vaultStub = new VaultStubImpl(HTTPS_LOCALHOST);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.setRecovery(keyEntityId, RecoveryLevel.PURGEABLE, DAYS));
+                () -> new KeyVaultStubImpl(vaultStub, RecoveryLevel.PURGEABLE, DAYS));
 
         //then + exception
     }
 
     @SuppressWarnings("ConstantConditions")
     @Test
-    void testSetRecoveryShouldThrowExceptionWhenCalledWithNullRecoveryLevel() {
+    void testConstructorWithRecoveryShouldThrowExceptionWhenCalledWithNullRecoveryLevel() {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
+        final VaultStubImpl vaultStub = new VaultStubImpl(HTTPS_LOCALHOST);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> new KeyVaultStubImpl(vaultStub, null, DAYS));
+
+        //then + exception
+    }
+
+    @Test
+    void testGetEntityShouldReturnValueWhenCalledWithExistingKey() {
+        //given
+        final KeyVaultStub underTest = createUnderTest();
         final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.setRecovery(keyEntityId, null, DAYS));
-
-        //then + exception
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testSetRecoveryShouldThrowExceptionWhenCalledWithNullKey() {
-        //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.setRecovery(null, RecoveryLevel.CUSTOMIZED_RECOVERABLE, DAYS));
-
-        //then + exception
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testGetEntityShouldThrowExceptionWhenCalledWithNullKey() {
-        //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.getEntity(null, null));
-
-        //then + exception
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testGetEntityShouldThrowExceptionWhenCalledWithNullType() {
-        //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
-        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
-        final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.getEntity(keyEntityId, null));
-
-        //then + exception
-    }
-
-    @Test
-    void testGetEntityShouldReturnValueWhenCalledWithExistingKeyAndValidType() {
-        //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
-        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
-        final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
-
-        //when
-        final ReadOnlyAesKeyVaultKeyEntity actual = underTest.getEntity(keyEntityId, ReadOnlyAesKeyVaultKeyEntity.class);
+        final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntities().getReadOnlyEntity(keyEntityId);
 
         //then
         Assertions.assertNotNull(actual);
         Assertions.assertEquals(keyEntityId.asUri(), actual.getUri());
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Test
     void testRawGetEntityShouldThrowExceptionWhenCalledWithNullKey() {
         //given
-        final KeyVaultStubImpl underTest = new KeyVaultStubImpl(new VaultStubImpl(HTTPS_LOCALHOST));
+        final KeyVaultStub underTest = createUnderTest();
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.getEntity(null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.getEntities().getReadOnlyEntity(null));
 
         //then + exception
     }
 
-    private List<VersionedKeyEntityId> insertMultipleVersionsOfSameKey(final KeyVaultStubImpl underTest) {
+    @Test
+    void testCreateShouldThrowExceptionWhenCalledWithAlreadyDeletedKey() {
+        //given
+        final KeyVaultStub underTest = createUnderTest();
+        insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
+        underTest.delete(UNVERSIONED_KEY_ENTITY_ID_1);
+
+        //when
+        Assertions.assertThrows(AlreadyExistsException.class, () -> underTest.createEcKeyVersion(KEY_NAME_1, EC_KEY_CREATION_INPUT));
+
+        //then + exception
+    }
+
+    @Test
+    void testDeleteShouldThrowExceptionWhenCalledWithMissingKey() {
+        //given
+        final KeyVaultStub underTest = createUnderTest();
+        insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
+
+        //when
+        Assertions.assertThrows(NotFoundException.class, () -> underTest.delete(UNVERSIONED_KEY_ENTITY_ID_2));
+
+        //then + exception
+    }
+
+    @Test
+    void testDeleteShouldMoveEntityToDeletedWhenCalledWithExistingKey() {
+        //given
+        final KeyVaultStub underTest = createUnderTest();
+        insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
+        insertMultipleVersionsOfSameKey(underTest, KEY_NAME_2);
+        insertMultipleVersionsOfSameKey(underTest, KEY_NAME_3);
+        Assertions.assertFalse(underTest.getDeletedEntities().containsName(KEY_NAME_1));
+
+        //when
+        underTest.delete(UNVERSIONED_KEY_ENTITY_ID_1);
+
+        //then
+        Assertions.assertTrue(underTest.getDeletedEntities().containsName(KEY_NAME_1));
+        Assertions.assertEquals(COUNT, underTest.getDeletedEntities().getVersions(UNVERSIONED_KEY_ENTITY_ID_1).size());
+    }
+
+    @Test
+    void testDeleteShouldThrowExceptionWhenCalledWithNullKey() {
+        //given
+        final KeyVaultStub underTest = createUnderTest();
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.delete(null));
+
+        //then + exception
+    }
+
+    @Test
+    void testRecoverShouldThrowExceptionWhenCalledWithMissingDeletedKey() {
+        //given
+        final KeyVaultStub underTest = createUnderTest();
+        insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
+        Assertions.assertFalse(underTest.getDeletedEntities().containsName(KEY_NAME_1));
+
+        //when
+        Assertions.assertThrows(NotFoundException.class, () -> underTest.recover(UNVERSIONED_KEY_ENTITY_ID_1));
+
+        //then + exception
+    }
+
+    @Test
+    void testRecoverShouldMoveEntityFromDeletedWhenCalledWithExistingDeletedKey() {
+        //given
+        final KeyVaultStub underTest = createUnderTest();
+        insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
+        insertMultipleVersionsOfSameKey(underTest, KEY_NAME_2);
+        insertMultipleVersionsOfSameKey(underTest, KEY_NAME_3);
+        underTest.delete(UNVERSIONED_KEY_ENTITY_ID_1);
+        Assertions.assertTrue(underTest.getDeletedEntities().containsName(KEY_NAME_1));
+
+        //when
+        underTest.recover(UNVERSIONED_KEY_ENTITY_ID_1);
+
+        //then
+        Assertions.assertFalse(underTest.getDeletedEntities().containsName(KEY_NAME_1));
+        Assertions.assertEquals(COUNT, underTest.getEntities().getVersions(UNVERSIONED_KEY_ENTITY_ID_1).size());
+    }
+
+    @Test
+    void testRecoverShouldThrowExceptionWhenCalledWithNullKey() {
+        //given
+        final KeyVaultStub underTest = createUnderTest();
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.recover(null));
+
+        //then + exception
+    }
+
+    private KeyVaultStub createUnderTest() {
+        final KeyVaultStub underTest = new VaultStubImpl(HTTPS_LOCALHOST).keyVaultStub();
+        Assertions.assertInstanceOf(KeyVaultStubImpl.class, underTest);
+        return underTest;
+    }
+
+    private List<VersionedKeyEntityId> insertMultipleVersionsOfSameKey(final KeyVaultStub underTest, final String keyName) {
         return IntStream.range(0, COUNT)
-                .mapToObj(i -> underTest.createKeyVersion(KEY_NAME_1, EC_KEY_CREATION_INPUT))
+                .mapToObj(i -> underTest.createEcKeyVersion(keyName, EC_KEY_CREATION_INPUT))
                 .collect(Collectors.toList());
     }
 }

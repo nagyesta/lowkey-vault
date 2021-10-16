@@ -1,9 +1,9 @@
 package com.github.nagyesta.lowkeyvault.service.key;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
-import com.github.nagyesta.lowkeyvault.service.KeyEntityId;
-import com.github.nagyesta.lowkeyvault.service.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultStub;
+import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
+import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.impl.EcKeyCreationInput;
 import com.github.nagyesta.lowkeyvault.service.key.impl.KeyCreationInput;
 import com.github.nagyesta.lowkeyvault.service.key.impl.OctKeyCreationInput;
@@ -15,13 +15,12 @@ public interface KeyVaultStub extends BaseVaultStub<KeyEntityId, VersionedKeyEnt
 
     <E, T extends KeyCreationInput<E>> VersionedKeyEntityId createKeyVersion(String keyName, T input);
 
-    VersionedKeyEntityId createKeyVersion(String keyName, RsaKeyCreationInput input);
+    VersionedKeyEntityId createRsaKeyVersion(String keyName, RsaKeyCreationInput input);
 
-    VersionedKeyEntityId createKeyVersion(String keyName, EcKeyCreationInput input);
+    VersionedKeyEntityId createEcKeyVersion(String keyName, EcKeyCreationInput input);
 
-    VersionedKeyEntityId createKeyVersion(String keyName, OctKeyCreationInput input);
+    VersionedKeyEntityId createOctKeyVersion(String keyName, OctKeyCreationInput input);
 
     void setKeyOperations(VersionedKeyEntityId keyEntityId, List<KeyOperation> keyOperations);
 
-    <E extends ReadOnlyKeyVaultKeyEntity> E getEntity(VersionedKeyEntityId keyEntityId, Class<E> type);
 }

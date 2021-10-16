@@ -3,10 +3,12 @@ package com.github.nagyesta.lowkeyvault.model.v7_2.key.constants;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyAesKeyVaultKeyEntity;
-import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyEcKeyVaultKeyEntity;
-import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
-import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyRsaKeyVaultKeyEntity;
+import com.github.nagyesta.lowkeyvault.service.key.*;
+import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
+import com.github.nagyesta.lowkeyvault.service.key.impl.EcKeyCreationInput;
+import com.github.nagyesta.lowkeyvault.service.key.impl.KeyCreationInput;
+import com.github.nagyesta.lowkeyvault.service.key.impl.OctKeyCreationInput;
+import com.github.nagyesta.lowkeyvault.service.key.impl.RsaKeyCreationInput;
 import org.springframework.util.Assert;
 
 import java.util.Arrays;
@@ -38,6 +40,13 @@ public enum KeyType {
                     .map(itemType::cast)
                     .collect(Collectors.toCollection(TreeSet::new));
         }
+
+        @Override
+        public <E, T extends KeyCreationInput<E>> VersionedKeyEntityId createKey(
+                final KeyVaultStub keyVaultStub, final String name, final T input) {
+            Assert.isInstanceOf(EcKeyCreationInput.class, input);
+            return keyVaultStub.createEcKeyVersion(name, (EcKeyCreationInput) input);
+        }
     },
 
     /**
@@ -58,6 +67,12 @@ public enum KeyType {
         public <E> SortedSet<E> getValidKeyParameters(final Class<E> itemType) {
             return EC.getValidKeyParameters(itemType);
         }
+
+        @Override
+        public <E, T extends KeyCreationInput<E>> VersionedKeyEntityId createKey(
+                final KeyVaultStub keyVaultStub, final String name, final T input) {
+            return EC.createKey(keyVaultStub, name, input);
+        }
     },
 
     /**
@@ -75,6 +90,13 @@ public enum KeyType {
             return Stream.of(2048, 3072, 4096)
                     .map(itemType::cast)
                     .collect(Collectors.toCollection(TreeSet::new));
+        }
+
+        @Override
+        public <E, T extends KeyCreationInput<E>> VersionedKeyEntityId createKey(
+                final KeyVaultStub keyVaultStub, final String name, final T input) {
+            Assert.isInstanceOf(RsaKeyCreationInput.class, input);
+            return keyVaultStub.createRsaKeyVersion(name, (RsaKeyCreationInput) input);
         }
     },
 
@@ -96,6 +118,12 @@ public enum KeyType {
         public <E> SortedSet<E> getValidKeyParameters(final Class<E> itemType) {
             return RSA.getValidKeyParameters(itemType);
         }
+
+        @Override
+        public <E, T extends KeyCreationInput<E>> VersionedKeyEntityId createKey(
+                final KeyVaultStub keyVaultStub, final String name, final T input) {
+            return RSA.createKey(keyVaultStub, name, input);
+        }
     },
 
     /**
@@ -113,6 +141,13 @@ public enum KeyType {
             return Stream.of(128, 192, 256)
                     .map(itemType::cast)
                     .collect(Collectors.toCollection(TreeSet::new));
+        }
+
+        @Override
+        public <E, T extends KeyCreationInput<E>> VersionedKeyEntityId createKey(
+                final KeyVaultStub keyVaultStub, final String name, final T input) {
+            Assert.isInstanceOf(OctKeyCreationInput.class, input);
+            return keyVaultStub.createOctKeyVersion(name, (OctKeyCreationInput) input);
         }
     },
 
@@ -133,6 +168,12 @@ public enum KeyType {
         @Override
         public <E> SortedSet<E> getValidKeyParameters(final Class<E> itemType) {
             return OCT.getValidKeyParameters(itemType);
+        }
+
+        @Override
+        public <E, T extends KeyCreationInput<E>> VersionedKeyEntityId createKey(
+                final KeyVaultStub keyVaultStub, final String name, final T input) {
+            return OCT.createKey(keyVaultStub, name, input);
         }
     };
 
@@ -209,4 +250,6 @@ public enum KeyType {
         validate(value, type);
         return Objects.requireNonNullElse(value, getValidKeyParameters(type).first());
     }
+
+    public abstract <E, T extends KeyCreationInput<E>> VersionedKeyEntityId createKey(KeyVaultStub keyVaultStub, String name, T input);
 }

@@ -1,17 +1,22 @@
 package com.github.nagyesta.lowkeyvault.service.common;
 
-import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.service.EntityId;
 
 import java.time.OffsetDateTime;
-import java.util.Deque;
 import java.util.Map;
 
-public interface BaseVaultStub<K extends EntityId, V extends K, E extends BaseVaultEntity> {
+/**
+ * The base interface of the vault stubs.
+ *
+ * @param <K> The type of the key (not versioned).
+ * @param <V> The versioned key type.
+ * @param <E> The entity type.
+ */
+public interface BaseVaultStub<K extends EntityId, V extends K, E extends BaseVaultEntity<V>> {
 
-    Deque<String> getVersions(K entityId);
+    ReadOnlyVersionedEntityMultiMap<K, V, E> getEntities();
 
-    V getLatestVersionOfEntity(K entityId);
+    ReadOnlyVersionedEntityMultiMap<K, V, E> getDeletedEntities();
 
     void clearTags(V entityId);
 
@@ -21,9 +26,7 @@ public interface BaseVaultStub<K extends EntityId, V extends K, E extends BaseVa
 
     void setExpiry(V entityId, OffsetDateTime notBefore, OffsetDateTime expiry);
 
-    void setRecovery(V entityId, RecoveryLevel recoveryLevel, Integer recoverableDays);
+    void delete(K entityId);
 
-    E getEntity(V entityId);
-
-    <R extends E> R getEntity(V entityId, Class<R> type);
+    void recover(K entityId);
 }

@@ -11,7 +11,7 @@ public class KeyEntityToV72PropertiesModelConverter implements Converter<ReadOnl
 
     @Override
     @NonNull
-    public KeyPropertiesModel convert(final ReadOnlyKeyVaultKeyEntity source) {
+    public KeyPropertiesModel convert(@org.springframework.lang.NonNull final ReadOnlyKeyVaultKeyEntity source) {
         return mapAttributes(source);
     }
 

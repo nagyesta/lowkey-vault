@@ -4,6 +4,7 @@ plugins {
     //noinspection SpellCheckingInspection
     id "io.freefair.lombok" version '6.2.0'
     id 'org.sonatype.gradle.plugins.scan' version '2.2.0'
+    id 'com.github.nagyesta.abort-mission-gradle-plugin' version '2.0.2'
 }
 
 group = "${rootProject.group}"
@@ -26,12 +27,17 @@ dependencies {
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:${rootProject.ext.springBootVersion}"
     testImplementation "org.springframework.boot:spring-boot-starter-test:${rootProject.ext.springBootVersion}"
     testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.ext.jupiterVersion}"
+    testImplementation "com.github.nagyesta.abort-mission.boosters:abort.booster-junit-jupiter:${rootProject.ext.abortMissionVersion}"
 }
 
 test {
     useJUnitPlatform()
+    systemProperty("junit.jupiter.extensions.autodetection.enabled", true)
 }
 
+abortMission {
+    toolVersion rootProject.ext.abortMissionVersion
+}
 
 jar {
     enabled = false

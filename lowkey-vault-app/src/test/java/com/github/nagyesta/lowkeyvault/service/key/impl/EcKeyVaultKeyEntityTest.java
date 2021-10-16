@@ -1,7 +1,7 @@
 package com.github.nagyesta.lowkeyvault.service.key.impl;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
-import com.github.nagyesta.lowkeyvault.service.VersionedKeyEntityId;
+import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
 import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultStubImpl;
 import org.junit.jupiter.api.Assertions;
@@ -52,9 +52,9 @@ class EcKeyVaultKeyEntityTest {
 
         //when
         Assertions.assertThrows(UnsupportedOperationException.class,
-                () -> underTest.encrypt(DEFAULT_VAULT, null, null, null, null));
+                () -> underTest.encrypt(DEFAULT_VAULT, null, null));
         Assertions.assertThrows(UnsupportedOperationException.class,
-                () -> underTest.decrypt(null, null, null, null, null));
+                () -> underTest.decrypt(null, null, null));
 
         //then + exception
     }

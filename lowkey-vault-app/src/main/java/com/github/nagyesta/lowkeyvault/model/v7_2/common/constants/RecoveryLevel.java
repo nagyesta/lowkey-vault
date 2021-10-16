@@ -96,8 +96,14 @@ public enum RecoveryLevel {
         }
     };
 
-    private static final int MIN_RECOVERABLE_DAYS_INCLUSIVE = 7;
-    private static final int MAX_RECOVERABLE_DAYS_INCLUSIVE = 90;
+    /**
+     * The minimum number of days entities are recoverable for.
+     */
+    public static final int MIN_RECOVERABLE_DAYS_INCLUSIVE = 7;
+    /**
+     * The maximum number of days entities are recoverable for.
+     */
+    public static final int MAX_RECOVERABLE_DAYS_INCLUSIVE = 90;
     private final String value;
 
     RecoveryLevel(final String value) {
@@ -137,11 +143,15 @@ public enum RecoveryLevel {
         if (recoverableDays == null) {
             throw new IllegalArgumentException("Recoverable days must not be null.");
         } else if (isCustomized()) {
-            if (recoverableDays < MIN_RECOVERABLE_DAYS_INCLUSIVE || recoverableDays > MAX_RECOVERABLE_DAYS_INCLUSIVE) {
-                throw new IllegalArgumentException("Recoverable days must be at least 7 and maximum 90.");
-            }
+            validateCustomizedRecoverableDays(recoverableDays);
         } else if (recoverableDays != MAX_RECOVERABLE_DAYS_INCLUSIVE) {
             throw new IllegalArgumentException("Recoverable days must be 90 if not customised.");
+        }
+    }
+
+    private void validateCustomizedRecoverableDays(final Integer recoverableDays) {
+        if (recoverableDays < MIN_RECOVERABLE_DAYS_INCLUSIVE || recoverableDays > MAX_RECOVERABLE_DAYS_INCLUSIVE) {
+            throw new IllegalArgumentException("Recoverable days must be at least 7 and maximum 90.");
         }
     }
 }

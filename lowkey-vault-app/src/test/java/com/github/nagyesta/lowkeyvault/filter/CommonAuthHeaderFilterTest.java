@@ -40,18 +40,22 @@ class CommonAuthHeaderFilterTest {
 
     public static Stream<Arguments> hostAndPortProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(LOCALHOST, HTTPS_PORT, HTTPS_LOCALHOST))
-                .add(Arguments.of(LOCALHOST, TOMCAT_SECURE_PORT, HTTPS_LOCALHOST_8443))
-                .add(Arguments.of(LOCALHOST, HTTP_PORT, HTTPS_LOCALHOST_80))
-                .add(Arguments.of(LOOP_BACK_IP, HTTPS_PORT, HTTPS_LOOP_BACK_IP))
-                .add(Arguments.of(LOOP_BACK_IP, TOMCAT_SECURE_PORT, HTTPS_LOOP_BACK_IP_8443))
-                .add(Arguments.of(LOOP_BACK_IP, HTTP_PORT, HTTPS_LOOP_BACK_IP_80))
-                .add(Arguments.of(LOWKEY_VAULT, HTTPS_PORT, HTTPS_LOWKEY_VAULT))
-                .add(Arguments.of(LOWKEY_VAULT, TOMCAT_SECURE_PORT, HTTPS_LOWKEY_VAULT_8443))
-                .add(Arguments.of(LOWKEY_VAULT, HTTP_PORT, HTTPS_LOWKEY_VAULT_80))
-                .add(Arguments.of(DEFAULT_LOWKEY_VAULT, HTTPS_PORT, HTTPS_DEFAULT_LOWKEY_VAULT))
-                .add(Arguments.of(DEFAULT_LOWKEY_VAULT, TOMCAT_SECURE_PORT, HTTPS_DEFAULT_LOWKEY_VAULT_8443))
-                .add(Arguments.of(DEFAULT_LOWKEY_VAULT, HTTP_PORT, HTTPS_DEFAULT_LOWKEY_VAULT_80))
+                .add(Arguments.of(LOCALHOST, HTTPS_PORT, EMPTY, HTTPS_LOCALHOST))
+                .add(Arguments.of(LOCALHOST, HTTPS_PORT, KEYS, HTTPS_LOCALHOST))
+                .add(Arguments.of(LOCALHOST, TOMCAT_SECURE_PORT, KEYS, HTTPS_LOCALHOST_8443))
+                .add(Arguments.of(LOCALHOST, TOMCAT_SECURE_PORT, VAULT_INVALID_VAULT_NAME_KEYS, HTTPS_LOCALHOST_8443))
+                .add(Arguments.of(LOCALHOST, HTTP_PORT, EMPTY, HTTPS_LOCALHOST_80))
+                .add(Arguments.of(LOOP_BACK_IP, HTTPS_PORT, VAULT_INVALID_VAULT_NAME_KEYS, HTTPS_LOOP_BACK_IP))
+                .add(Arguments.of(LOOP_BACK_IP, TOMCAT_SECURE_PORT, EMPTY, HTTPS_LOOP_BACK_IP_8443))
+                .add(Arguments.of(LOOP_BACK_IP, HTTP_PORT, null, HTTPS_LOOP_BACK_IP_80))
+                .add(Arguments.of(LOWKEY_VAULT, HTTPS_PORT, EMPTY, HTTPS_LOWKEY_VAULT))
+                .add(Arguments.of(LOWKEY_VAULT, TOMCAT_SECURE_PORT, EMPTY, HTTPS_LOWKEY_VAULT_8443))
+                .add(Arguments.of(LOWKEY_VAULT, HTTP_PORT, null, HTTPS_LOWKEY_VAULT_80))
+                .add(Arguments.of(DEFAULT_LOWKEY_VAULT, HTTPS_PORT, EMPTY, HTTPS_DEFAULT_LOWKEY_VAULT))
+                .add(Arguments.of(DEFAULT_LOWKEY_VAULT, TOMCAT_SECURE_PORT, EMPTY, HTTPS_DEFAULT_LOWKEY_VAULT_8443))
+                .add(Arguments.of(DEFAULT_LOWKEY_VAULT, HTTP_PORT, KEYS, HTTPS_DEFAULT_LOWKEY_VAULT_80))
+                .add(Arguments.of(DEFAULT_LOWKEY_VAULT, TOMCAT_SECURE_PORT, VAULT_VAULT_NAME_KEYS,
+                        URI.create(HTTPS_DEFAULT_LOWKEY_VAULT_8443_VAULT_VAULT_NAME)))
                 .build();
     }
 
@@ -103,10 +107,11 @@ class CommonAuthHeaderFilterTest {
     @ParameterizedTest
     @MethodSource("hostAndPortProvider")
     void testDoFilterInternalShouldSetRequestBaseUriRequestAttributeWhenCalled(
-            final String hostName, final int port, final URI expected) throws ServletException, IOException {
+            final String hostName, final int port, final String path, final URI expected) throws ServletException, IOException {
         //given
         when(request.getServerName()).thenReturn(hostName);
         when(request.getServerPort()).thenReturn(port);
+        when(request.getRequestURI()).thenReturn(path);
 
         //when
         underTest.doFilterInternal(request, response, chain);
@@ -114,6 +119,7 @@ class CommonAuthHeaderFilterTest {
         //then
         verify(request).getServerName();
         verify(request).getServerPort();
+        verify(request, atLeastOnce()).getRequestURI();
         verify(request).setAttribute(eq(ApiConstants.REQUEST_BASE_URI), eq(expected));
     }
 }

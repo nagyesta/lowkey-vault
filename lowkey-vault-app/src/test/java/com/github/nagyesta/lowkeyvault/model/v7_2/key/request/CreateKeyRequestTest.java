@@ -7,6 +7,7 @@ import com.github.nagyesta.lowkeyvault.service.key.impl.KeyCreationInput;
 import com.github.nagyesta.lowkeyvault.service.key.impl.OctKeyCreationInput;
 import com.github.nagyesta.lowkeyvault.service.key.impl.RsaKeyCreationInput;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -100,5 +101,17 @@ class CreateKeyRequestTest {
 
         //then
         Assertions.assertEquals(expected, actual);
+    }
+
+    @Test
+    void testSetPublicExponentShouldSetNullWhenCalledWithZero() {
+        //given
+        final CreateKeyRequest underTest = new CreateKeyRequest();
+
+        //when
+        underTest.setPublicExponent(BigInteger.ZERO);
+
+        //then
+        Assertions.assertNull(underTest.getPublicExponent());
     }
 }

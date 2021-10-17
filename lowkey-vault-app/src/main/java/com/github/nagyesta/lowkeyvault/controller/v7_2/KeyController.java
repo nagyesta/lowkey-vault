@@ -7,6 +7,7 @@ import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.*;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.CreateKeyRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeyOperationsParameters;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.UpdateKeyRequest;
 import com.github.nagyesta.lowkeyvault.service.key.KeyVaultStub;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
@@ -25,6 +26,7 @@ import javax.validation.constraints.Pattern;
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.V_7_2;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -147,6 +149,38 @@ public class KeyController extends BaseController<KeyEntityId, VersionedKeyEntit
 
         final ReadOnlyKeyVaultKeyEntity keyVaultKeyEntity = getEntityByNameAndVersion(baseUri, keyName, keyVersion);
         return ResponseEntity.ok(convertDetails(keyVaultKeyEntity));
+    }
+
+    @PatchMapping(value = "/keys/{keyName}/{keyVersion}",
+            params = API_VERSION_7_2,
+            consumes = APPLICATION_JSON_VALUE,
+            produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<KeyVaultKeyModel> updateVersion(
+            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
+            @PathVariable @Valid @Pattern(regexp = VERSION_NAME_PATTERN) final String keyVersion,
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
+            @NonNull @Valid @RequestBody final UpdateKeyRequest request) {
+        log.info("Received request to {} update key: {} with version: {} using API version: {}",
+                baseUri.toString(), keyName, keyVersion, V_7_2);
+
+        final KeyVaultStub keyVaultStub = getVaultByUri(baseUri);
+        final VersionedKeyEntityId entityId = versionedEntityId(baseUri, keyName, keyVersion);
+        Optional.ofNullable(request.getKeyOperations())
+                .ifPresent(operations -> keyVaultStub.setKeyOperations(entityId, operations));
+        Optional.ofNullable(request.getProperties())
+                .ifPresent(attributes -> {
+                    Optional.ofNullable(attributes.getEnabled())
+                            .ifPresent(enabled -> keyVaultStub.setEnabled(entityId, enabled));
+                    if (attributes.getExpiresOn() != null || attributes.getNotBefore() != null) {
+                        keyVaultStub.setExpiry(entityId, attributes.getNotBefore(), attributes.getExpiresOn());
+                    }
+                });
+        Optional.ofNullable(request.getTags())
+                .ifPresent(tags -> {
+                    keyVaultStub.clearTags(entityId);
+                    keyVaultStub.addTags(entityId, tags);
+                });
+        return ResponseEntity.ok(getModelById(keyVaultStub, entityId));
     }
 
     @GetMapping(value = "/deletedkeys/{keyName}",

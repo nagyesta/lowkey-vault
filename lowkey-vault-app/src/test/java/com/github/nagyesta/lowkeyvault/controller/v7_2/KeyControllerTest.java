@@ -3,6 +3,7 @@ package com.github.nagyesta.lowkeyvault.controller.v7_2;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyItemModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyVersionItemModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ModelConverter;
+import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesUpdateModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.*;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.EncryptionAlgorithm;
@@ -10,6 +11,7 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.CreateKeyRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeyOperationsParameters;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.UpdateKeyRequest;
 import com.github.nagyesta.lowkeyvault.service.common.ReadOnlyVersionedEntityMultiMap;
 import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
 import com.github.nagyesta.lowkeyvault.service.key.KeyVaultStub;
@@ -131,6 +133,19 @@ class KeyControllerTest {
                 .add(Arguments.of(ec, null, vic, mock(VaultService.class)))
                 .add(Arguments.of(ec, ic, null, mock(VaultService.class)))
                 .add(Arguments.of(ec, ic, vic, null))
+                .build();
+    }
+
+    public static Stream<Arguments> updateAttributeProvider() {
+        return Stream.<Arguments>builder()
+                .add(Arguments.of(null, null, null, null, null))
+                .add(Arguments.of(List.of(), TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES, null, TAGS_EMPTY))
+                .add(Arguments.of(List.of(), null, TIME_IN_10_MINUTES, null, null))
+                .add(Arguments.of(List.of(), null, null, true, TAGS_THREE_KEYS))
+                .add(Arguments.of(List.of(KeyOperation.ENCRYPT), TIME_10_MINUTES_AGO, null, false, TAGS_TWO_KEYS))
+                .add(Arguments.of(List.of(KeyOperation.ENCRYPT), TIME_IN_10_MINUTES, null, null, TAGS_TWO_KEYS))
+                .add(Arguments.of(List.of(KeyOperation.ENCRYPT, KeyOperation.DECRYPT),
+                        TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES, false, TAGS_TWO_KEYS))
                 .build();
     }
 
@@ -693,6 +708,89 @@ class KeyControllerTest {
         verify(keyEntityToV72ModelConverter).convert(same(entity));
     }
 
+    @SuppressWarnings("checkstyle:MagicNumber")
+    @ParameterizedTest
+    @MethodSource("updateAttributeProvider")
+    void testUpdateVersionShouldReturnEntryWhenKeyAndVersionIsFound(
+            final List<KeyOperation> operations, final OffsetDateTime expiry, final OffsetDateTime notBefore,
+            final Boolean enabled, final Map<String, String> tags) {
+        //given
+        final KeyEntityId baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
+        final CreateKeyRequest createKeyRequest = createRequest(null, null, null);
+        final UpdateKeyRequest updateKeyRequest = new UpdateKeyRequest();
+        if (operations != null) {
+            updateKeyRequest.setKeyOperations(operations);
+        }
+        if (tags != null) {
+            updateKeyRequest.setTags(tags);
+        }
+        if (enabled != null || expiry != null || notBefore != null) {
+            final BasePropertiesUpdateModel properties = new BasePropertiesUpdateModel();
+            properties.setEnabled(enabled);
+            properties.setExpiresOn(expiry);
+            properties.setNotBefore(notBefore);
+            updateKeyRequest.setProperties(properties);
+        }
+        final ReadOnlyKeyVaultKeyEntity entity = createEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, createKeyRequest);
+        when(keyVaultStub.getEntities())
+                .thenReturn(entities);
+        when(vaultStub.getRecoveryLevel())
+                .thenReturn(RecoveryLevel.PURGEABLE);
+        when(entities.getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3)))
+                .thenReturn(entity);
+        when(keyEntityToV72ModelConverter.convert(same(entity)))
+                .thenReturn(RESPONSE);
+
+        //when
+        final ResponseEntity<KeyVaultKeyModel> actual = underTest
+                .updateVersion(KEY_NAME_1, KEY_VERSION_3, HTTPS_LOCALHOST_8443, updateKeyRequest);
+
+        //then
+        Assertions.assertNotNull(actual);
+        Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
+        Assertions.assertSame(RESPONSE, actual.getBody());
+        verify(vaultService).findByUri(eq(HTTPS_LOCALHOST_8443));
+        verify(vaultStub).keyVaultStub();
+        verify(vaultStub).getRecoveryLevel();
+        verify(vaultStub).getRecoverableDays();
+        verify(keyVaultStub).getEntities();
+        verify(entities, never()).getLatestVersionOfEntity(eq(baseUri));
+        final InOrder inOrder = inOrder(keyVaultStub, entities);
+        if (operations != null) {
+            inOrder.verify(keyVaultStub)
+                    .setKeyOperations(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3), same(updateKeyRequest.getKeyOperations()));
+        } else {
+            inOrder.verify(keyVaultStub, never())
+                    .setKeyOperations(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3), anyList());
+        }
+        if (enabled != null) {
+            inOrder.verify(keyVaultStub)
+                    .setEnabled(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3), eq(enabled));
+        } else {
+            inOrder.verify(keyVaultStub, never())
+                    .setEnabled(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3), anyBoolean());
+        }
+        if (expiry != null || notBefore != null) {
+            inOrder.verify(keyVaultStub)
+                    .setExpiry(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3), eq(notBefore), eq(expiry));
+        } else {
+            inOrder.verify(keyVaultStub, never())
+                    .setExpiry(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3), any(), any());
+        }
+        if (tags != null) {
+            inOrder.verify(keyVaultStub)
+                    .clearTags(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3));
+            inOrder.verify(keyVaultStub)
+                    .addTags(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3), same(updateKeyRequest.getTags()));
+        } else {
+            inOrder.verify(keyVaultStub, never())
+                    .clearTags(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3));
+            inOrder.verify(keyVaultStub, never())
+                    .addTags(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3), anyMap());
+        }
+        inOrder.verify(entities).getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3));
+        verify(keyEntityToV72ModelConverter).convert(same(entity));
+    }
 
     @SuppressWarnings("checkstyle:MagicNumber")
     @ParameterizedTest

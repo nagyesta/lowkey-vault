@@ -1,4 +1,4 @@
-![LowkeyVault](.github/assets/LowkeyVault-logo.png)
+![LowkeyVault](.github/assets/LowkeyVault-logo-full.png)
 
 [![GitHub license](https://img.shields.io/github/license/nagyesta/lowkey-vault?color=informational)](https://raw.githubusercontent.com/nagyesta/lowkey-vault/main/LICENSE)
 [![Java version](https://img.shields.io/badge/Java%20version-11-yellow?logo=java)](https://img.shields.io/badge/Java%20version-11-yellow?logo=java)
@@ -71,6 +71,7 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
     - Latest version of a single key
     - List of all keys
 - Delete key
+- Update key
 - Recover deleted key
 - Encrypt/Decrypt/Wrap/Unwrap keys
     - ```RSA``` (```2k```/```3k```/```4k```)

@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-public abstract class KeyVaultKeyEntity<T, S> extends KeyVaultBaseEntity implements ReadOnlyKeyVaultKeyEntity {
+public abstract class KeyVaultKeyEntity<T, S> extends KeyVaultBaseEntity<VersionedKeyEntityId> implements ReadOnlyKeyVaultKeyEntity {
 
     private final T key;
     private final S keyParam;

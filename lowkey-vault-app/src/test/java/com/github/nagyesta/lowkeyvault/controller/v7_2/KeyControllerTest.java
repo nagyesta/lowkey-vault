@@ -3,6 +3,7 @@ package com.github.nagyesta.lowkeyvault.controller.v7_2;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyItemModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyVersionItemModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ModelConverter;
+import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesUpdateModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.*;
@@ -263,11 +264,12 @@ class KeyControllerTest {
         final URI expected = new VersionedKeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, fullList.get(index)).asUri();
 
         //when
-        final ResponseEntity<KeyVaultKeyItemListModel> actual = underTest.versions(KEY_NAME_1, HTTPS_LOCALHOST_8443, 1, index);
+        final ResponseEntity<KeyVaultItemListModel<KeyVaultKeyItemModel>> actual =
+                underTest.versions(KEY_NAME_1, HTTPS_LOCALHOST_8443, 1, index);
 
         //then
         Assertions.assertNotNull(actual);
-        final KeyVaultKeyItemListModel actualBody = actual.getBody();
+        final KeyVaultItemListModel<KeyVaultKeyItemModel> actualBody = actual.getBody();
         Assertions.assertNotNull(actualBody);
         Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
         Assertions.assertEquals(expected.toString(), actualBody.getValue().get(0).getKeyId());
@@ -299,11 +301,12 @@ class KeyControllerTest {
                 .collect(Collectors.toList());
 
         //when
-        final ResponseEntity<KeyVaultKeyItemListModel> actual = underTest.versions(KEY_NAME_1, HTTPS_LOCALHOST_8443, 25, 0);
+        final ResponseEntity<KeyVaultItemListModel<KeyVaultKeyItemModel>> actual =
+                underTest.versions(KEY_NAME_1, HTTPS_LOCALHOST_8443, 25, 0);
 
         //then
         Assertions.assertNotNull(actual);
-        final KeyVaultKeyItemListModel actualBody = actual.getBody();
+        final KeyVaultItemListModel<KeyVaultKeyItemModel> actualBody = actual.getBody();
         Assertions.assertNotNull(actualBody);
         final List<URI> actualList = actualBody.getValue().stream()
                 .map(KeyVaultKeyItemModel::getKeyId)
@@ -516,7 +519,8 @@ class KeyControllerTest {
                 .thenReturn(keyItemModel);
 
         //when
-        final ResponseEntity<KeyVaultKeyItemListModel> actual = underTest.listKeys(HTTPS_LOCALHOST_8443, 1, 0);
+        final ResponseEntity<KeyVaultItemListModel<KeyVaultKeyItemModel>> actual =
+                underTest.listKeys(HTTPS_LOCALHOST_8443, 1, 0);
 
         //then
         Assertions.assertNotNull(actual);
@@ -558,7 +562,8 @@ class KeyControllerTest {
                 .thenReturn(keyItemModel);
 
         //when
-        final ResponseEntity<KeyVaultKeyItemListModel> actual = underTest.listKeys(HTTPS_LOCALHOST_8443, 1, 0);
+        final ResponseEntity<KeyVaultItemListModel<KeyVaultKeyItemModel>> actual =
+                underTest.listKeys(HTTPS_LOCALHOST_8443, 1, 0);
 
         //then
         Assertions.assertNotNull(actual);
@@ -605,7 +610,8 @@ class KeyControllerTest {
                 .thenReturn(keyItemModel);
 
         //when
-        final ResponseEntity<KeyVaultKeyItemListModel> actual = underTest.listDeletedKeys(HTTPS_LOCALHOST_8443, 1, 0);
+        final ResponseEntity<KeyVaultItemListModel<KeyVaultKeyItemModel>> actual =
+                underTest.listDeletedKeys(HTTPS_LOCALHOST_8443, 1, 0);
 
         //then
         Assertions.assertNotNull(actual);
@@ -649,7 +655,8 @@ class KeyControllerTest {
                 .thenReturn(keyItemModel);
 
         //when
-        final ResponseEntity<KeyVaultKeyItemListModel> actual = underTest.listDeletedKeys(HTTPS_LOCALHOST_8443, 1, 0);
+        final ResponseEntity<KeyVaultItemListModel<KeyVaultKeyItemModel>> actual =
+                underTest.listDeletedKeys(HTTPS_LOCALHOST_8443, 1, 0);
 
         //then
         Assertions.assertNotNull(actual);

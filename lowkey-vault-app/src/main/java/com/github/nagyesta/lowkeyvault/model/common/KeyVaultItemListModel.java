@@ -1,4 +1,4 @@
-package com.github.nagyesta.lowkeyvault.model.v7_2.key;
+package com.github.nagyesta.lowkeyvault.model.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,15 +13,15 @@ import java.util.Optional;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class KeyVaultKeyItemListModel {
+public class KeyVaultItemListModel<E> {
     @JsonProperty("nextLink")
     private String nextLink;
 
     @JsonProperty("value")
-    private List<KeyVaultKeyItemModel> value;
+    private List<E> value;
 
-    public KeyVaultKeyItemListModel(@NonNull final List<KeyVaultKeyItemModel> value,
-                                    @Nullable final URI nextLinkUri) {
+    public KeyVaultItemListModel(@NonNull final List<E> value,
+                                 @Nullable final URI nextLinkUri) {
         Assert.notEmpty(value, "Value cannot be empty.");
         this.value = List.copyOf(value);
         this.nextLink = Optional.ofNullable(nextLinkUri).map(URI::toString).orElse(null);

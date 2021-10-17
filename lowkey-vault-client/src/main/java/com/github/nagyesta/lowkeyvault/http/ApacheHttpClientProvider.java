@@ -10,6 +10,9 @@ import com.azure.security.keyvault.keys.KeyClientBuilder;
 import com.azure.security.keyvault.keys.cryptography.CryptographyAsyncClient;
 import com.azure.security.keyvault.keys.cryptography.CryptographyClient;
 import com.azure.security.keyvault.keys.cryptography.CryptographyClientBuilder;
+import com.azure.security.keyvault.secrets.SecretAsyncClient;
+import com.azure.security.keyvault.secrets.SecretClient;
+import com.azure.security.keyvault.secrets.SecretClientBuilder;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -29,11 +32,19 @@ public final class ApacheHttpClientProvider {
     }
 
     public KeyAsyncClient getKeyAsyncClient() {
-        return getBuilder().buildAsyncClient();
+        return getKeyBuilder().buildAsyncClient();
     }
 
     public KeyClient getKeyClient() {
-        return getBuilder().buildClient();
+        return getKeyBuilder().buildClient();
+    }
+
+    public SecretAsyncClient getSecretAsyncClient() {
+        return getSecretBuilder().buildAsyncClient();
+    }
+
+    public SecretClient getSecretClient() {
+        return getSecretBuilder().buildClient();
     }
 
     public CryptographyAsyncClient getCryptoAsyncClient(final String webKeyId) {
@@ -44,8 +55,16 @@ public final class ApacheHttpClientProvider {
         return getCryptoBuilder(webKeyId).buildClient();
     }
 
-    private KeyClientBuilder getBuilder() {
+    private KeyClientBuilder getKeyBuilder() {
         return new KeyClientBuilder()
+                .vaultUrl(getVaultUrl())
+                .credential(new BasicAuthenticationCredential(DUMMY, DUMMY))
+                .httpClient(createInstance())
+                .retryPolicy(new RetryPolicy(new FixedDelay(0, Duration.ZERO)));
+    }
+
+    private SecretClientBuilder getSecretBuilder() {
+        return new SecretClientBuilder()
                 .vaultUrl(getVaultUrl())
                 .credential(new BasicAuthenticationCredential(DUMMY, DUMMY))
                 .httpClient(createInstance())

@@ -82,6 +82,23 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
         - ```AES-CBC```
         - ```AES-CBC Pad```
 
+### Secrets
+
+- API version supported: ```7.2```
+- Set secret
+    - Including metadata
+- Get available secret versions
+- Get secret
+    - Latest version of a single secret
+    - Specific version of a single secret
+    - List of all secrets
+- Get deleted secret
+    - Latest version of a single secret
+    - List of all secrets
+- Delete secret
+- Update secret
+- Recover deleted secret
+
 ### Limitations
 
 Although basic support for different vaults is baked in, only a handful of default vaults are available based on hostname at the moment.

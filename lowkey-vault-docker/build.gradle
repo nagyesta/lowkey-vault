@@ -23,6 +23,7 @@ dependencies {
     testImplementation project(":lowkey-vault-client")
     testImplementation "org.apache.httpcomponents:httpclient:${rootProject.ext.httpClientVersion}"
     testImplementation "com.azure:azure-security-keyvault-keys:${rootProject.ext.azureKeyVaultClientVersion}"
+    testImplementation "com.azure:azure-security-keyvault-secrets:${rootProject.ext.azureKeyVaultClientVersion}"
     testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.jupiterVersion}"
     testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.ext.jupiterVersion}"
     testImplementation "org.springframework.boot:spring-boot-starter-test:${rootProject.ext.springBootVersion}"

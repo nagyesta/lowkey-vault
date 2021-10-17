@@ -1,6 +1,8 @@
 package com.github.nagyesta.lowkeyvault.controller.v7_2;
 
 import com.github.nagyesta.lowkeyvault.mapper.common.RecoveryAwareConverter;
+import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
+import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesUpdateModel;
 import com.github.nagyesta.lowkeyvault.service.EntityId;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultEntity;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultStub;
@@ -9,9 +11,7 @@ import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
 import lombok.NonNull;
 
 import java.net.URI;
-import java.util.Collection;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -27,14 +27,13 @@ import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.V_7_2;
  * @param <DM>  The deleted entity model type.
  * @param <I>   The item model type.
  * @param <DI>  The deleted item model type.
- * @param <L>   The item list model type.
  * @param <MC>  The model converter, converting entities to entity models.
  * @param <IC>  The item converter, converting version item entities to item models.
  * @param <VIC> The versioned item converter, converting version item entities to item models.
  * @param <S>   The stub type holding the entities.
  */
 public abstract class BaseController<K extends EntityId, V extends K, E extends BaseVaultEntity<V>,
-        M, DM extends M, I, DI extends I, L, MC extends RecoveryAwareConverter<E, M, DM>,
+        M, DM extends M, I, DI extends I, MC extends RecoveryAwareConverter<E, M, DM>,
         IC extends RecoveryAwareConverter<E, I, DI>, VIC extends RecoveryAwareConverter<E, I, DI>,
         S extends BaseVaultStub<K, V, E>> {
     /**
@@ -94,7 +93,8 @@ public abstract class BaseController<K extends EntityId, V extends K, E extends 
         return modelConverter.convert(entity);
     }
 
-    protected L getPageOfItemVersions(final URI baseUri, final String name, final int limit, final int offset, final String uriPath) {
+    protected KeyVaultItemListModel<I> getPageOfItemVersions(
+            final URI baseUri, final String name, final int limit, final int offset, final String uriPath) {
         final S entityVaultStub = getVaultByUri(baseUri);
         final K entityId = entityId(baseUri, name);
         final Deque<String> allItems = entityVaultStub.getEntities().getVersions(entityId);
@@ -107,7 +107,7 @@ public abstract class BaseController<K extends EntityId, V extends K, E extends 
     }
 
     @SuppressWarnings("SameParameterValue")
-    protected L getPageOfItems(final URI baseUri, final int limit, final int offset, final String uriPath) {
+    protected KeyVaultItemListModel<I> getPageOfItems(final URI baseUri, final int limit, final int offset, final String uriPath) {
         final S entityVaultStub = getVaultByUri(baseUri);
         final List<E> allItems = entityVaultStub.getEntities().listLatestEntities();
         final List<I> items = filterList(limit, offset, allItems, itemConverter::convert);
@@ -116,7 +116,7 @@ public abstract class BaseController<K extends EntityId, V extends K, E extends 
     }
 
     @SuppressWarnings("SameParameterValue")
-    protected L getPageOfDeletedItems(final URI baseUri, final int limit, final int offset, final String uriPath) {
+    protected KeyVaultItemListModel<I> getPageOfDeletedItems(final URI baseUri, final int limit, final int offset, final String uriPath) {
         final S entityVaultStub = getVaultByUri(baseUri);
         final List<E> allItems = entityVaultStub.getDeletedEntities().listLatestEntities();
         final List<I> items = filterList(limit, offset, allItems, itemConverter::convertDeleted);
@@ -140,7 +140,28 @@ public abstract class BaseController<K extends EntityId, V extends K, E extends 
         return toEntityVault.apply(vaultService.findByUri(baseUri));
     }
 
-    protected abstract L listModel(List<I> items, URI nextUri);
+    protected void updateAttributes(final BaseVaultStub<K, V, ?> vaultStub, final V entityId, final BasePropertiesUpdateModel properties) {
+        Optional.ofNullable(properties)
+                .ifPresent(attributes -> {
+                    Optional.ofNullable(attributes.getEnabled())
+                            .ifPresent(enabled -> vaultStub.setEnabled(entityId, enabled));
+                    if (attributes.getExpiresOn() != null || attributes.getNotBefore() != null) {
+                        vaultStub.setExpiry(entityId, attributes.getNotBefore(), attributes.getExpiresOn());
+                    }
+                });
+    }
+
+    protected void updateTags(final BaseVaultStub<K, V, ?> vaultStub, final V entityId, final Map<String, String> requestTags) {
+        Optional.ofNullable(requestTags)
+                .ifPresent(tags -> {
+                    vaultStub.clearTags(entityId);
+                    vaultStub.addTags(entityId, tags);
+                });
+    }
+
+    protected KeyVaultItemListModel<I> listModel(final List<I> items, final URI nextUri) {
+        return new KeyVaultItemListModel<>(items, nextUri);
+    }
 
     protected abstract V versionedEntityId(URI baseUri, String name, String version);
 

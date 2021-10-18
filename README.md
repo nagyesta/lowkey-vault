@@ -39,7 +39,8 @@ I have an app using Azure Key Vault and:
 2. Start Lowkey Vault jar
 3. Use ```https://localhost:8443``` as key vault URI when using
    the [Azure Key Vault Key client](https://docs.microsoft.com/en-us/azure/key-vault/keys/quick-create-java)
-4. Initialize your keys using the client
+   or the [Azure Key Vault Secret client](https://docs.microsoft.com/en-us/azure/key-vault/secrets/quick-create-java)
+4. Initialize your keys or secrets using the client
 5. Run your code
 6. Stop Lowkey Vault
 
@@ -49,7 +50,8 @@ I have an app using Azure Key Vault and:
 2. ```docker run lowkey-vault:0.1.0 -p 8443:8443```
 3. Use ```https://localhost:8443``` as key vault URI when using
    the [Azure Key Vault Key client](https://docs.microsoft.com/en-us/azure/key-vault/keys/quick-create-java)
-4. Initialize your keys using the client
+   or the [Azure Key Vault Secret client](https://docs.microsoft.com/en-us/azure/key-vault/secrets/quick-create-java)
+4. Initialize your keys or secrets using the client
 5. Run your code
 6. Stop Lowkey Vault
 

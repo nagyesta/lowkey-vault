@@ -1,5 +1,6 @@
-package com.github.nagyesta.lowkeyvault.model.v7_2.key;
+package com.github.nagyesta.lowkeyvault.model.common;
 
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyItemModel;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -30,7 +31,7 @@ class KeyVaultKeyItemListModelTest {
         //given
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new KeyVaultKeyItemListModel(list, uri));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new KeyVaultItemListModel<>(list, uri));
 
         //then + exception
     }
@@ -42,7 +43,7 @@ class KeyVaultKeyItemListModelTest {
                 keyVaultKeyItemModel(VERSIONED_KEY_ENTITY_ID_1_VERSION_1.asUri()));
 
         //when
-        final KeyVaultKeyItemListModel actual = new KeyVaultKeyItemListModel(list, null);
+        final KeyVaultItemListModel<KeyVaultKeyItemModel> actual = new KeyVaultItemListModel<>(list, null);
 
         //then
         Assertions.assertNotNull(actual);

@@ -1,4 +1,4 @@
-package com.github.nagyesta.lowkeyvault.model.v7_2.key;
+package com.github.nagyesta.lowkeyvault.model.v7_2.secret;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,13 +8,15 @@ import java.util.Map;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class KeyVaultKeyModel {
+public class KeyVaultSecretItemModel {
+    @JsonProperty("id")
+    private String id;
 
-    @JsonProperty("key")
-    private JsonWebKeyModel key;
+    @JsonProperty("contentType")
+    private String contentType;
 
     @JsonProperty("attributes")
-    private KeyPropertiesModel attributes;
+    private SecretPropertiesModel attributes;
 
     @JsonProperty("tags")
     private Map<String, String> tags;

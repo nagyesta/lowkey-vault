@@ -4,6 +4,8 @@ import com.azure.security.keyvault.keys.KeyAsyncClient;
 import com.azure.security.keyvault.keys.KeyClient;
 import com.azure.security.keyvault.keys.cryptography.CryptographyAsyncClient;
 import com.azure.security.keyvault.keys.cryptography.CryptographyClient;
+import com.azure.security.keyvault.secrets.SecretAsyncClient;
+import com.azure.security.keyvault.secrets.SecretClient;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -30,6 +32,28 @@ class ApacheHttpClientProviderTest {
 
         //when
         final KeyClient client = underTest.getKeyClient();
+
+        //then
+        Assertions.assertNotNull(client);
+    }
+
+    @Test
+    void testGetSecretAsyncClientShouldReturnClientWhenCalled() {
+        //given
+
+        //when
+        final SecretAsyncClient client = underTest.getSecretAsyncClient();
+
+        //then
+        Assertions.assertNotNull(client);
+    }
+
+    @Test
+    void testGetSecretClientShouldReturnClientWhenCalled() {
+        //given
+
+        //when
+        final SecretClient client = underTest.getSecretClient();
 
         //then
         Assertions.assertNotNull(client);

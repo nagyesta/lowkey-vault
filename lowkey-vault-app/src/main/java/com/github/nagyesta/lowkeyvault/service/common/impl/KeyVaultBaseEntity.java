@@ -1,8 +1,8 @@
 package com.github.nagyesta.lowkeyvault.service.common.impl;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
+import com.github.nagyesta.lowkeyvault.service.EntityId;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultEntity;
-import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
 import lombok.NonNull;
 
@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-public abstract class KeyVaultBaseEntity extends KeyVaultLifecycleAwareEntity implements BaseVaultEntity<VersionedKeyEntityId> {
+public abstract class KeyVaultBaseEntity<V extends EntityId> extends KeyVaultLifecycleAwareEntity implements BaseVaultEntity<V> {
     private final RecoveryLevel recoveryLevel;
     private final Integer recoverableDays;
     private Map<String, String> tags;

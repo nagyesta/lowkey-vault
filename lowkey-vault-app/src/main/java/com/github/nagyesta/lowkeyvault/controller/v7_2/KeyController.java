@@ -4,6 +4,7 @@ import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyItemMode
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyVersionItemModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ModelConverter;
 import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
+import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.*;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.CreateKeyRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeyOperationsParameters;
@@ -24,7 +25,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 import java.net.URI;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -36,7 +36,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Validated
 @RequestMapping({"", "/vault/*/"})
 public class KeyController extends BaseController<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity,
-        KeyVaultKeyModel, DeletedKeyVaultKeyModel, KeyVaultKeyItemModel, DeletedKeyVaultKeyItemModel, KeyVaultKeyItemListModel,
+        KeyVaultKeyModel, DeletedKeyVaultKeyModel, KeyVaultKeyItemModel, DeletedKeyVaultKeyItemModel,
         KeyEntityToV72ModelConverter, KeyEntityToV72KeyItemModelConverter, KeyEntityToV72KeyVersionItemModelConverter,
         KeyVaultStub> {
 
@@ -84,7 +84,7 @@ public class KeyController extends BaseController<KeyEntityId, VersionedKeyEntit
             params = API_VERSION_7_2,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<KeyVaultKeyItemListModel> versions(
+    public ResponseEntity<KeyVaultItemListModel<KeyVaultKeyItemModel>> versions(
             @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
             @RequestParam(name = MAX_RESULTS_PARAM, required = false, defaultValue = DEFAULT_MAX) final int maxResults,
@@ -99,7 +99,7 @@ public class KeyController extends BaseController<KeyEntityId, VersionedKeyEntit
             params = API_VERSION_7_2,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<KeyVaultKeyItemListModel> listKeys(
+    public ResponseEntity<KeyVaultItemListModel<KeyVaultKeyItemModel>> listKeys(
             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
             @RequestParam(name = MAX_RESULTS_PARAM, required = false, defaultValue = DEFAULT_MAX) final int maxResults,
             @RequestParam(name = SKIP_TOKEN_PARAM, required = false, defaultValue = SKIP_ZERO) final int skipToken) {
@@ -113,7 +113,7 @@ public class KeyController extends BaseController<KeyEntityId, VersionedKeyEntit
             params = API_VERSION_7_2,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<KeyVaultKeyItemListModel> listDeletedKeys(
+    public ResponseEntity<KeyVaultItemListModel<KeyVaultKeyItemModel>> listDeletedKeys(
             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
             @RequestParam(name = MAX_RESULTS_PARAM, required = false, defaultValue = DEFAULT_MAX) final int maxResults,
             @RequestParam(name = SKIP_TOKEN_PARAM, required = false, defaultValue = SKIP_ZERO) final int skipToken) {
@@ -167,19 +167,8 @@ public class KeyController extends BaseController<KeyEntityId, VersionedKeyEntit
         final VersionedKeyEntityId entityId = versionedEntityId(baseUri, keyName, keyVersion);
         Optional.ofNullable(request.getKeyOperations())
                 .ifPresent(operations -> keyVaultStub.setKeyOperations(entityId, operations));
-        Optional.ofNullable(request.getProperties())
-                .ifPresent(attributes -> {
-                    Optional.ofNullable(attributes.getEnabled())
-                            .ifPresent(enabled -> keyVaultStub.setEnabled(entityId, enabled));
-                    if (attributes.getExpiresOn() != null || attributes.getNotBefore() != null) {
-                        keyVaultStub.setExpiry(entityId, attributes.getNotBefore(), attributes.getExpiresOn());
-                    }
-                });
-        Optional.ofNullable(request.getTags())
-                .ifPresent(tags -> {
-                    keyVaultStub.clearTags(entityId);
-                    keyVaultStub.addTags(entityId, tags);
-                });
+        updateAttributes(keyVaultStub, entityId, request.getProperties());
+        updateTags(keyVaultStub, entityId, request.getTags());
         return ResponseEntity.ok(getModelById(keyVaultStub, entityId));
     }
 
@@ -248,11 +237,6 @@ public class KeyController extends BaseController<KeyEntityId, VersionedKeyEntit
         final byte[] decrypted = keyVaultKeyEntity.decryptToBytes(request.getValueAsBase64DecodedBytes(), request.getAlgorithm(),
                 request.getInitializationVector());
         return ResponseEntity.ok(KeyOperationsResult.forBytes(keyVaultKeyEntity.getId(), decrypted, request));
-    }
-
-    @Override
-    protected KeyVaultKeyItemListModel listModel(final List<KeyVaultKeyItemModel> items, final URI nextUri) {
-        return new KeyVaultKeyItemListModel(items, nextUri);
     }
 
     @Override

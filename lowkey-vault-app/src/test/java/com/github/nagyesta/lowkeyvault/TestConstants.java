@@ -1,6 +1,7 @@
 package com.github.nagyesta.lowkeyvault;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyPropertiesModel;
+import com.github.nagyesta.lowkeyvault.model.v7_2.secret.SecretPropertiesModel;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -82,5 +83,6 @@ public final class TestConstants {
 
     //<editor-fold defaultstate="collapsed" desc="Properties">
     public static final KeyPropertiesModel PROPERTIES_MODEL = new KeyPropertiesModel();
+    public static final SecretPropertiesModel SECRET_PROPERTIES_MODEL = new SecretPropertiesModel();
     //</editor-fold>
 }

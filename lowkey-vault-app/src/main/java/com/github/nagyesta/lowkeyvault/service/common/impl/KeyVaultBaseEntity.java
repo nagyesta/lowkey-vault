@@ -3,7 +3,7 @@ package com.github.nagyesta.lowkeyvault.service.common.impl;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.service.EntityId;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultEntity;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
+import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.NonNull;
 
 import java.time.OffsetDateTime;
@@ -19,7 +19,7 @@ public abstract class KeyVaultBaseEntity<V extends EntityId> extends KeyVaultLif
     private Optional<OffsetDateTime> deletedDate;
     private Optional<OffsetDateTime> scheduledPurgeDate;
 
-    protected KeyVaultBaseEntity(@NonNull final VaultStub vault) {
+    protected KeyVaultBaseEntity(@NonNull final VaultFake vault) {
         super();
         this.recoveryLevel = vault.getRecoveryLevel();
         this.recoverableDays = vault.getRecoverableDays();

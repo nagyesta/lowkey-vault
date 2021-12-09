@@ -4,10 +4,10 @@ import com.github.nagyesta.lowkeyvault.TestConstants;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.DeletedKeyVaultSecretItemModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.KeyVaultSecretItemModel;
 import com.github.nagyesta.lowkeyvault.service.secret.ReadOnlyKeyVaultSecretEntity;
-import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultStub;
+import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultFake;
 import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId;
 import com.github.nagyesta.lowkeyvault.service.secret.impl.KeyVaultSecretEntity;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
+import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,9 +38,9 @@ class SecretEntityToV72SecretItemModelConverterTest {
     @Mock
     private SecretEntityToV72PropertiesModelConverter propertiesModelConverter;
     @Mock
-    private VaultStub vault;
+    private VaultFake vault;
     @Mock
-    private SecretVaultStub secretVault;
+    private SecretVaultFake secretVault;
 
     private AutoCloseable openMocks;
 
@@ -108,7 +108,7 @@ class SecretEntityToV72SecretItemModelConverterTest {
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
-        when(vault.secretVaultStub()).thenReturn(secretVault);
+        when(vault.secretVaultFake()).thenReturn(secretVault);
         when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultSecretEntity.class))).thenReturn(SECRET_PROPERTIES_MODEL);
     }
 

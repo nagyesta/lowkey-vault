@@ -3,11 +3,11 @@ package com.github.nagyesta.lowkeyvault.mapper.v7_2.key;
 import com.github.nagyesta.lowkeyvault.TestConstants;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.DeletedKeyVaultKeyItemModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyItemModel;
-import com.github.nagyesta.lowkeyvault.service.key.KeyVaultStub;
+import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.impl.RsaKeyVaultKeyEntity;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
+import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,9 +38,9 @@ class KeyEntityToV72KeyItemModelConverterTest {
     @Mock
     private KeyEntityToV72PropertiesModelConverter propertiesModelConverter;
     @Mock
-    private VaultStub vault;
+    private VaultFake vault;
     @Mock
-    private KeyVaultStub keyVault;
+    private KeyVaultFake keyVault;
 
     private AutoCloseable openMocks;
 
@@ -108,7 +108,7 @@ class KeyEntityToV72KeyItemModelConverterTest {
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
-        when(vault.keyVaultStub()).thenReturn(keyVault);
+        when(vault.keyVaultFake()).thenReturn(keyVault);
         when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultKeyEntity.class))).thenReturn(PROPERTIES_MODEL);
     }
 

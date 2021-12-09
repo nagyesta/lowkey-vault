@@ -5,7 +5,7 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyAesKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
+import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.lang.NonNull;
@@ -19,7 +19,7 @@ import javax.crypto.spec.IvParameterSpec;
 public class AesKeyVaultKeyEntity extends KeyVaultKeyEntity<SecretKey, Integer> implements ReadOnlyAesKeyVaultKeyEntity {
 
     public AesKeyVaultKeyEntity(@NonNull final VersionedKeyEntityId id,
-                                @NonNull final VaultStub vault,
+                                @NonNull final VaultFake vault,
                                 final Integer keyParam,
                                 final boolean hsm) {
         super(id, vault, generate(keyParam), KeyType.OCT_HSM.validateOrDefault(keyParam, Integer.class), hsm);

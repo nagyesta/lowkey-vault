@@ -1,6 +1,6 @@
 package com.github.nagyesta.lowkeyvault.service.vault.impl;
 
-import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
+import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -43,7 +43,7 @@ class VaultServiceImplTest {
         vaults.forEach(underTest::create);
 
         //when
-        final VaultStub actual = underTest.findByUri(lookup);
+        final VaultFake actual = underTest.findByUri(lookup);
 
         //then
         if (expected) {
@@ -59,7 +59,7 @@ class VaultServiceImplTest {
         //given
         final VaultServiceImpl underTest = new VaultServiceImpl() {
             @Override
-            public VaultStub findByUri(final URI uri) {
+            public VaultFake findByUri(final URI uri) {
                 //Make sure exists checks are slow to generate race conditions
                 Assertions.assertDoesNotThrow(() -> Thread.sleep(WAIT_MILLIS));
                 return super.findByUri(uri);
@@ -67,8 +67,8 @@ class VaultServiceImplTest {
         };
 
         //when
-        final List<Future<VaultStub>> futures = new ArrayList<>();
-        final List<VaultStub> stubs = new ArrayList<>();
+        final List<Future<VaultFake>> futures = new ArrayList<>();
+        final List<VaultFake> fakes = new ArrayList<>();
         ExecutorService executorService = null;
         try {
             //start more create calls in parallel
@@ -76,16 +76,16 @@ class VaultServiceImplTest {
             for (int i = 0; i < THREADS; i++) {
                 futures.add(executorService.submit(() -> underTest.create(HTTPS_LOCALHOST)));
             }
-            for (final Future<VaultStub> future : futures) {
-                Assertions.assertDoesNotThrow(() -> stubs.add(future.get()));
+            for (final Future<VaultFake> future : futures) {
+                Assertions.assertDoesNotThrow(() -> fakes.add(future.get()));
             }
         } finally {
             Optional.ofNullable(executorService).ifPresent(ExecutorService::shutdownNow);
         }
 
         //then
-        final VaultStub firstStub = stubs.get(0);
-        stubs.forEach(stub -> Assertions.assertSame(firstStub, stub));
+        final VaultFake firstFake = fakes.get(0);
+        fakes.forEach(fake -> Assertions.assertSame(firstFake, fake));
     }
 
 }

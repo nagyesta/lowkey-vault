@@ -3,7 +3,7 @@ package com.github.nagyesta.lowkeyvault.service.secret.impl;
 import com.github.nagyesta.lowkeyvault.service.common.impl.KeyVaultBaseEntity;
 import com.github.nagyesta.lowkeyvault.service.secret.ReadOnlyKeyVaultSecretEntity;
 import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
+import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
@@ -18,7 +18,7 @@ public class KeyVaultSecretEntity extends KeyVaultBaseEntity<VersionedSecretEnti
     private final URI uri;
 
     public KeyVaultSecretEntity(@NonNull final VersionedSecretEntityId id,
-                                @org.springframework.lang.NonNull final VaultStub vault,
+                                @org.springframework.lang.NonNull final VaultFake vault,
                                 @org.springframework.lang.NonNull final String value,
                                 @Nullable final String contentType) {
         super(vault);

@@ -5,9 +5,9 @@ import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesUpdateModel;
 import com.github.nagyesta.lowkeyvault.service.EntityId;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultEntity;
-import com.github.nagyesta.lowkeyvault.service.common.BaseVaultStub;
+import com.github.nagyesta.lowkeyvault.service.common.BaseVaultFake;
+import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
 import lombok.NonNull;
 
 import java.net.URI;
@@ -30,12 +30,12 @@ import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.V_7_2;
  * @param <MC>  The model converter, converting entities to entity models.
  * @param <IC>  The item converter, converting version item entities to item models.
  * @param <VIC> The versioned item converter, converting version item entities to item models.
- * @param <S>   The stub type holding the entities.
+ * @param <S>   The fake type holding the entities.
  */
 public abstract class BaseController<K extends EntityId, V extends K, E extends BaseVaultEntity<V>,
         M, DM extends M, I, DI extends I, MC extends RecoveryAwareConverter<E, M, DM>,
         IC extends RecoveryAwareConverter<E, I, DI>, VIC extends RecoveryAwareConverter<E, I, DI>,
-        S extends BaseVaultStub<K, V, E>> {
+        S extends BaseVaultFake<K, V, E>> {
     /**
      * API version.
      */
@@ -68,10 +68,10 @@ public abstract class BaseController<K extends EntityId, V extends K, E extends 
     private final IC itemConverter;
     private final VIC versionedItemConverter;
     private final VaultService vaultService;
-    private final Function<VaultStub, S> toEntityVault;
+    private final Function<VaultFake, S> toEntityVault;
 
     protected BaseController(@NonNull final MC modelConverter, @NonNull final IC itemConverter, @NonNull final VIC versionedItemConverter,
-                             @NonNull final VaultService vaultService, final Function<VaultStub, S> toEntityVault) {
+                             @NonNull final VaultService vaultService, final Function<VaultFake, S> toEntityVault) {
         this.modelConverter = modelConverter;
         this.itemConverter = itemConverter;
         this.versionedItemConverter = versionedItemConverter;
@@ -79,13 +79,13 @@ public abstract class BaseController<K extends EntityId, V extends K, E extends 
         this.toEntityVault = toEntityVault;
     }
 
-    protected M getModelById(final S entityVaultStub, final V entityId) {
-        final E entity = entityVaultStub.getEntities().getReadOnlyEntity(entityId);
+    protected M getModelById(final S entityVaultFake, final V entityId) {
+        final E entity = entityVaultFake.getEntities().getReadOnlyEntity(entityId);
         return modelConverter.convert(entity);
     }
 
-    protected DM getDeletedModelById(final S entityVaultStub, final V entityId) {
-        final E entity = entityVaultStub.getDeletedEntities().getReadOnlyEntity(entityId);
+    protected DM getDeletedModelById(final S entityVaultFake, final V entityId) {
+        final E entity = entityVaultFake.getDeletedEntities().getReadOnlyEntity(entityId);
         return modelConverter.convertDeleted(entity);
     }
 
@@ -95,9 +95,9 @@ public abstract class BaseController<K extends EntityId, V extends K, E extends 
 
     protected KeyVaultItemListModel<I> getPageOfItemVersions(
             final URI baseUri, final String name, final int limit, final int offset, final String uriPath) {
-        final S entityVaultStub = getVaultByUri(baseUri);
+        final S entityVaultFake = getVaultByUri(baseUri);
         final K entityId = entityId(baseUri, name);
-        final Deque<String> allItems = entityVaultStub.getEntities().getVersions(entityId);
+        final Deque<String> allItems = entityVaultFake.getEntities().getVersions(entityId);
         final List<I> items = filterList(limit, offset, allItems, v -> {
             final E entity = getEntityByNameAndVersion(baseUri, name, v);
             return versionedItemConverter.convert(entity);
@@ -108,8 +108,8 @@ public abstract class BaseController<K extends EntityId, V extends K, E extends 
 
     @SuppressWarnings("SameParameterValue")
     protected KeyVaultItemListModel<I> getPageOfItems(final URI baseUri, final int limit, final int offset, final String uriPath) {
-        final S entityVaultStub = getVaultByUri(baseUri);
-        final List<E> allItems = entityVaultStub.getEntities().listLatestEntities();
+        final S entityVaultFake = getVaultByUri(baseUri);
+        final List<E> allItems = entityVaultFake.getEntities().listLatestEntities();
         final List<I> items = filterList(limit, offset, allItems, itemConverter::convert);
         final URI nextUri = getNextUri(baseUri + uriPath, allItems, items, limit, offset);
         return listModel(items, nextUri);
@@ -117,45 +117,45 @@ public abstract class BaseController<K extends EntityId, V extends K, E extends 
 
     @SuppressWarnings("SameParameterValue")
     protected KeyVaultItemListModel<I> getPageOfDeletedItems(final URI baseUri, final int limit, final int offset, final String uriPath) {
-        final S entityVaultStub = getVaultByUri(baseUri);
-        final List<E> allItems = entityVaultStub.getDeletedEntities().listLatestEntities();
+        final S entityVaultFake = getVaultByUri(baseUri);
+        final List<E> allItems = entityVaultFake.getDeletedEntities().listLatestEntities();
         final List<I> items = filterList(limit, offset, allItems, itemConverter::convertDeleted);
         final URI nextUri = getNextUri(baseUri + uriPath, allItems, items, limit, offset);
         return listModel(items, nextUri);
     }
 
     protected E getEntityByNameAndVersion(final URI baseUri, final String name, final String version) {
-        final S vaultStub = getVaultByUri(baseUri);
+        final S vaultFake = getVaultByUri(baseUri);
         final V entityId = versionedEntityId(baseUri, name, version);
-        return vaultStub.getEntities().getReadOnlyEntity(entityId);
+        return vaultFake.getEntities().getReadOnlyEntity(entityId);
     }
 
     protected M getLatestEntityModel(final URI baseUri, final String name) {
-        final S vaultStub = getVaultByUri(baseUri);
-        final V entityId = vaultStub.getEntities().getLatestVersionOfEntity(entityId(baseUri, name));
-        return getModelById(vaultStub, entityId);
+        final S vaultFake = getVaultByUri(baseUri);
+        final V entityId = vaultFake.getEntities().getLatestVersionOfEntity(entityId(baseUri, name));
+        return getModelById(vaultFake, entityId);
     }
 
     protected S getVaultByUri(final URI baseUri) {
         return toEntityVault.apply(vaultService.findByUri(baseUri));
     }
 
-    protected void updateAttributes(final BaseVaultStub<K, V, ?> vaultStub, final V entityId, final BasePropertiesUpdateModel properties) {
+    protected void updateAttributes(final BaseVaultFake<K, V, ?> vaultFake, final V entityId, final BasePropertiesUpdateModel properties) {
         Optional.ofNullable(properties)
                 .ifPresent(attributes -> {
                     Optional.ofNullable(attributes.getEnabled())
-                            .ifPresent(enabled -> vaultStub.setEnabled(entityId, enabled));
+                            .ifPresent(enabled -> vaultFake.setEnabled(entityId, enabled));
                     if (attributes.getExpiresOn() != null || attributes.getNotBefore() != null) {
-                        vaultStub.setExpiry(entityId, attributes.getNotBefore(), attributes.getExpiresOn());
+                        vaultFake.setExpiry(entityId, attributes.getNotBefore(), attributes.getExpiresOn());
                     }
                 });
     }
 
-    protected void updateTags(final BaseVaultStub<K, V, ?> vaultStub, final V entityId, final Map<String, String> requestTags) {
+    protected void updateTags(final BaseVaultFake<K, V, ?> vaultFake, final V entityId, final Map<String, String> requestTags) {
         Optional.ofNullable(requestTags)
                 .ifPresent(tags -> {
-                    vaultStub.clearTags(entityId);
-                    vaultStub.addTags(entityId, tags);
+                    vaultFake.clearTags(entityId);
+                    vaultFake.addTags(entityId, tags);
                 });
     }
 

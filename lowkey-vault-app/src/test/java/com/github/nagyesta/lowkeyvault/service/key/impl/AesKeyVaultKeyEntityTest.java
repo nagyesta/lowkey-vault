@@ -4,8 +4,8 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.EncryptionAlgori
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
-import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultStubImpl;
+import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
+import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultFakeImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -31,9 +31,9 @@ class AesKeyVaultKeyEntityTest {
         return Stream.<Arguments>builder()
                 .add(Arguments.of(null, null, null))
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, null, null))
-                .add(Arguments.of(null, mock(VaultStub.class), null))
+                .add(Arguments.of(null, mock(VaultFake.class), null))
                 .add(Arguments.of(null, null, MIN_AES_KEY_SIZE))
-                .add(Arguments.of(null, mock(VaultStub.class), MIN_AES_KEY_SIZE))
+                .add(Arguments.of(null, mock(VaultFake.class), MIN_AES_KEY_SIZE))
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, null, MIN_AES_KEY_SIZE))
                 .build();
     }
@@ -51,7 +51,7 @@ class AesKeyVaultKeyEntityTest {
     @ParameterizedTest
     @MethodSource("invalidValueProvider")
     void testConstructorShouldThrowExceptionWhenCalledWithNull(
-            final VersionedKeyEntityId id, final VaultStub vault, final Integer keySize) {
+            final VersionedKeyEntityId id, final VaultFake vault, final Integer keySize) {
         //given
 
         //when
@@ -64,9 +64,9 @@ class AesKeyVaultKeyEntityTest {
     @MethodSource("stringSource")
     void testEncryptThenDecryptShouldReturnOriginalTextWhenCalled(final String clear, final EncryptionAlgorithm algorithm) {
         //given
-        final VaultStub vaultStub = new VaultStubImpl(HTTPS_LOWKEY_VAULT);
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
         final AesKeyVaultKeyEntity underTest = new AesKeyVaultKeyEntity(
-                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultStub, algorithm.getMinKeySize(), false);
+                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, algorithm.getMinKeySize(), false);
         underTest.setOperations(List.of(KeyOperation.ENCRYPT, KeyOperation.DECRYPT, KeyOperation.WRAP_KEY, KeyOperation.UNWRAP_KEY));
         underTest.setEnabled(true);
 
@@ -81,9 +81,9 @@ class AesKeyVaultKeyEntityTest {
     @Test
     void testEncryptShouldThrowExceptionWhenOperationIsNotAllowed() {
         //given
-        final VaultStub vaultStub = new VaultStubImpl(HTTPS_LOWKEY_VAULT);
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
         final AesKeyVaultKeyEntity underTest = new AesKeyVaultKeyEntity(
-                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultStub, null, false);
+                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, null, false);
         underTest.setOperations(List.of(KeyOperation.DECRYPT, KeyOperation.UNWRAP_KEY));
         underTest.setEnabled(true);
 
@@ -97,9 +97,9 @@ class AesKeyVaultKeyEntityTest {
     @Test
     void testDecryptShouldThrowExceptionWhenOperationIsNotAllowed() {
         //given
-        final VaultStub vaultStub = new VaultStubImpl(HTTPS_LOWKEY_VAULT);
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
         final AesKeyVaultKeyEntity underTest = new AesKeyVaultKeyEntity(
-                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultStub, KeyType.OCT.getValidKeyParameters(Integer.class).first(), false);
+                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, KeyType.OCT.getValidKeyParameters(Integer.class).first(), false);
         underTest.setOperations(List.of(KeyOperation.ENCRYPT, KeyOperation.WRAP_KEY));
         underTest.setEnabled(true);
 
@@ -114,9 +114,9 @@ class AesKeyVaultKeyEntityTest {
     @Test
     void testEncryptShouldThrowExceptionWhenIvIsMissing() {
         //given
-        final VaultStub vaultStub = new VaultStubImpl(HTTPS_LOWKEY_VAULT);
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
         final AesKeyVaultKeyEntity underTest = new AesKeyVaultKeyEntity(
-                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultStub, null, false);
+                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, null, false);
         underTest.setOperations(List.of(KeyOperation.ENCRYPT, KeyOperation.DECRYPT, KeyOperation.WRAP_KEY, KeyOperation.UNWRAP_KEY));
         underTest.setEnabled(true);
 
@@ -130,9 +130,9 @@ class AesKeyVaultKeyEntityTest {
     @Test
     void testDecryptShouldThrowExceptionWhenIvIsMissing() {
         //given
-        final VaultStub vaultStub = new VaultStubImpl(HTTPS_LOWKEY_VAULT);
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
         final AesKeyVaultKeyEntity underTest = new AesKeyVaultKeyEntity(
-                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultStub, KeyType.OCT.getValidKeyParameters(Integer.class).first(), false);
+                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, KeyType.OCT.getValidKeyParameters(Integer.class).first(), false);
         underTest.setOperations(List.of(KeyOperation.ENCRYPT, KeyOperation.DECRYPT, KeyOperation.WRAP_KEY, KeyOperation.UNWRAP_KEY));
         underTest.setEnabled(true);
 
@@ -147,9 +147,9 @@ class AesKeyVaultKeyEntityTest {
     @Test
     void testEncryptShouldThrowExceptionWhenKeySizeDoesNotMatchAlgorithm() {
         //given
-        final VaultStub vaultStub = new VaultStubImpl(HTTPS_LOWKEY_VAULT);
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
         final AesKeyVaultKeyEntity underTest = new AesKeyVaultKeyEntity(
-                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultStub, null, false);
+                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, null, false);
         underTest.setOperations(List.of(KeyOperation.ENCRYPT, KeyOperation.DECRYPT, KeyOperation.WRAP_KEY, KeyOperation.UNWRAP_KEY));
         underTest.setEnabled(true);
 
@@ -163,9 +163,9 @@ class AesKeyVaultKeyEntityTest {
     @Test
     void testDecryptShouldThrowExceptionWhenKeySizeDoesNotMatchAlgorithm() {
         //given
-        final VaultStub vaultStub = new VaultStubImpl(HTTPS_LOWKEY_VAULT);
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
         final AesKeyVaultKeyEntity underTest = new AesKeyVaultKeyEntity(
-                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultStub, KeyType.OCT.getValidKeyParameters(Integer.class).first(), false);
+                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, KeyType.OCT.getValidKeyParameters(Integer.class).first(), false);
         underTest.setOperations(List.of(KeyOperation.ENCRYPT, KeyOperation.DECRYPT, KeyOperation.WRAP_KEY, KeyOperation.UNWRAP_KEY));
         underTest.setEnabled(true);
 
@@ -180,9 +180,9 @@ class AesKeyVaultKeyEntityTest {
     @Test
     void testEncryptShouldThrowExceptionWhenOperationIsNotEnabled() {
         //given
-        final VaultStub vaultStub = new VaultStubImpl(HTTPS_LOWKEY_VAULT);
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
         final AesKeyVaultKeyEntity underTest = new AesKeyVaultKeyEntity(
-                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultStub, KeyType.OCT.getValidKeyParameters(Integer.class).first(), false);
+                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, KeyType.OCT.getValidKeyParameters(Integer.class).first(), false);
         underTest.setOperations(List.of(KeyOperation.ENCRYPT, KeyOperation.WRAP_KEY));
         underTest.setEnabled(false);
 
@@ -196,9 +196,9 @@ class AesKeyVaultKeyEntityTest {
     @Test
     void testDecryptShouldThrowExceptionWhenKeyIsNotEnabled() {
         //given
-        final VaultStub vaultStub = new VaultStubImpl(HTTPS_LOWKEY_VAULT);
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
         final AesKeyVaultKeyEntity underTest = new AesKeyVaultKeyEntity(
-                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultStub, KeyType.OCT.getValidKeyParameters(Integer.class).first(), false);
+                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, KeyType.OCT.getValidKeyParameters(Integer.class).first(), false);
         underTest.setOperations(List.of(KeyOperation.ENCRYPT, KeyOperation.DECRYPT, KeyOperation.WRAP_KEY, KeyOperation.UNWRAP_KEY));
         underTest.setEnabled(true);
 

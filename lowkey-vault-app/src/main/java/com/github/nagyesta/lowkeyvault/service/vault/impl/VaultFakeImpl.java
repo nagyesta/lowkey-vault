@@ -1,0 +1,76 @@
+package com.github.nagyesta.lowkeyvault.service.vault.impl;
+
+import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
+import com.github.nagyesta.lowkeyvault.service.certificate.CertificateVaultFake;
+import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateVaultFakeImpl;
+import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
+import com.github.nagyesta.lowkeyvault.service.key.impl.KeyVaultFakeImpl;
+import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultFake;
+import com.github.nagyesta.lowkeyvault.service.secret.impl.SecretVaultFakeImpl;
+import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
+import lombok.EqualsAndHashCode;
+import lombok.NonNull;
+
+import java.net.URI;
+
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, doNotUseGetters = true)
+public class VaultFakeImpl implements VaultFake {
+
+    @EqualsAndHashCode.Include
+    private final URI vaultUri;
+    private final KeyVaultFake keys;
+    private final SecretVaultFake secrets;
+    private final CertificateVaultFake certificates;
+    private final RecoveryLevel recoveryLevel;
+    private final Integer recoverableDays;
+
+    public VaultFakeImpl(@org.springframework.lang.NonNull final URI vaultUri) {
+        this(vaultUri, RecoveryLevel.RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
+    }
+
+    public VaultFakeImpl(@NonNull final URI vaultUri, @NonNull final RecoveryLevel recoveryLevel, final Integer recoverableDays) {
+        recoveryLevel.checkValidRecoverableDays(recoverableDays);
+        this.vaultUri = vaultUri;
+        this.keys = new KeyVaultFakeImpl(this, recoveryLevel, recoverableDays);
+        this.secrets = new SecretVaultFakeImpl(this, recoveryLevel, recoverableDays);
+        this.certificates = new CertificateVaultFakeImpl(this, recoveryLevel, recoverableDays);
+        this.recoveryLevel = recoveryLevel;
+        this.recoverableDays = recoverableDays;
+    }
+
+    @Override
+    public boolean matches(@NonNull final URI vaultUri) {
+        return this.vaultUri.equals(vaultUri);
+    }
+
+    @Override
+    public URI baseUri() {
+        return vaultUri;
+    }
+
+    @Override
+    public KeyVaultFake keyVaultFake() {
+        return keys;
+    }
+
+    @Override
+    public SecretVaultFake secretVaultFake() {
+        return secrets;
+    }
+
+    @Override
+    public CertificateVaultFake certificateVaultFake() {
+        return certificates;
+    }
+
+    @Override
+    public RecoveryLevel getRecoveryLevel() {
+        return recoveryLevel;
+    }
+
+    @Override
+    public Integer getRecoverableDays() {
+        return recoverableDays;
+    }
+
+}

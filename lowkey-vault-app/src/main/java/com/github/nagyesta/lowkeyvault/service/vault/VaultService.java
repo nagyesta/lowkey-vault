@@ -4,7 +4,7 @@ import java.net.URI;
 
 public interface VaultService {
 
-    VaultStub findByUri(URI uri);
+    VaultFake findByUri(URI uri);
 
-    VaultStub create(URI uri);
+    VaultFake create(URI uri);
 }

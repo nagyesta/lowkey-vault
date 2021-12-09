@@ -1,9 +1,9 @@
 package com.github.nagyesta.lowkeyvault.service.vault.impl;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
-import com.github.nagyesta.lowkeyvault.service.certificate.CertificateVaultStub;
-import com.github.nagyesta.lowkeyvault.service.key.KeyVaultStub;
-import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultStub;
+import com.github.nagyesta.lowkeyvault.service.certificate.CertificateVaultFake;
+import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
+import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultFake;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.*;
 
-class VaultStubImplTest {
+class VaultFakeImplTest {
 
     public static Stream<Arguments> uriProvider() {
         return Stream.<Arguments>builder()
@@ -52,7 +52,7 @@ class VaultStubImplTest {
         //given
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new VaultStubImpl(null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new VaultFakeImpl(null));
 
         //then + exception
     }
@@ -61,7 +61,7 @@ class VaultStubImplTest {
     @MethodSource("uriPairProvider")
     void testMatchesShouldUseFullMatchWhenCalled(final URI self, final URI other) {
         //given
-        final VaultStubImpl underTest = new VaultStubImpl(self);
+        final VaultFakeImpl underTest = new VaultFakeImpl(self);
 
         //when
         final boolean actual = underTest.matches(other);
@@ -74,7 +74,7 @@ class VaultStubImplTest {
     @Test
     void testMatchesShouldThrowExceptionWhenCalledWithNull() {
         //given
-        final VaultStubImpl underTest = new VaultStubImpl(HTTPS_LOCALHOST);
+        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.matches(null));
@@ -86,7 +86,7 @@ class VaultStubImplTest {
     @MethodSource("uriProvider")
     void testBaseUriShouldReturnUriPassedToConstructorWhenCalled(final URI self) {
         //given
-        final VaultStubImpl underTest = new VaultStubImpl(self);
+        final VaultFakeImpl underTest = new VaultFakeImpl(self);
 
         //when
         final URI actual = underTest.baseUri();
@@ -96,36 +96,36 @@ class VaultStubImplTest {
     }
 
     @Test
-    void testKeyVaultStubShouldNeverBeNullWhenCalled() {
+    void testKeyVaultFakeShouldNeverBeNullWhenCalled() {
         //given
-        final VaultStubImpl underTest = new VaultStubImpl(HTTPS_LOCALHOST);
+        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
 
         //when
-        final KeyVaultStub actual = underTest.keyVaultStub();
+        final KeyVaultFake actual = underTest.keyVaultFake();
 
         //then
         Assertions.assertNotNull(actual);
     }
 
     @Test
-    void testSecretVaultStubShouldNeverBeNullWhenCalled() {
+    void testSecretVaultFakeShouldNeverBeNullWhenCalled() {
         //given
-        final VaultStubImpl underTest = new VaultStubImpl(HTTPS_LOCALHOST);
+        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
 
         //when
-        final SecretVaultStub actual = underTest.secretVaultStub();
+        final SecretVaultFake actual = underTest.secretVaultFake();
 
         //then
         Assertions.assertNotNull(actual);
     }
 
     @Test
-    void testCertificateVaultStubShouldNeverBeNullWhenCalled() {
+    void testCertificateVaultFakeShouldNeverBeNullWhenCalled() {
         //given
-        final VaultStubImpl underTest = new VaultStubImpl(HTTPS_LOCALHOST);
+        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
 
         //when
-        final CertificateVaultStub actual = underTest.certificateVaultStub();
+        final CertificateVaultFake actual = underTest.certificateVaultFake();
 
         //then
         Assertions.assertNotNull(actual);
@@ -134,7 +134,7 @@ class VaultStubImplTest {
     @Test
     void testGetRecoveryLevelShouldReturnRecoverableWhenCalledByDefault() {
         //given
-        final VaultStubImpl underTest = new VaultStubImpl(HTTPS_LOCALHOST);
+        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
 
         //when
         final RecoveryLevel actual = underTest.getRecoveryLevel();
@@ -146,7 +146,7 @@ class VaultStubImplTest {
     @Test
     void testGetRecoverableDaysShouldReturn90WhenCalledByDefault() {
         //given
-        final VaultStubImpl underTest = new VaultStubImpl(HTTPS_LOCALHOST);
+        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
 
         //when
         final Integer actual = underTest.getRecoverableDays();
@@ -162,7 +162,7 @@ class VaultStubImplTest {
         //given
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new VaultStubImpl(HTTPS_LOCALHOST, recoveryLevel, days));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new VaultFakeImpl(HTTPS_LOCALHOST, recoveryLevel, days));
 
         //then + exception
     }

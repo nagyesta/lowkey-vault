@@ -2,8 +2,8 @@
 
 ## Err on the safer side
 
-As Lowkey Vault is intended to be a standalone stub allowing you to use it when testing with an Azure Key Vault would be complicated or
-impossible. It is **strongly recommended to never deploy the Lowkey Vault artifacts** together with your production service/product.
+As Lowkey Vault is intended to be a standalone test double allowing you to use it when testing with an Azure Key Vault would be complicated
+or impossible. It is **strongly recommended to never deploy the Lowkey Vault artifacts** together with your production service/product.
 Although this is not ensuring that it won't be ever a source you would need to consider as a source of risk, it would certainly make it a
 bit harder to use for malicious actors. When deploying your Lowkey Vault App instance, please make sure to secure your infrastructure
 properly.

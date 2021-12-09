@@ -9,12 +9,12 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.*;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.CreateKeyRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeyOperationsParameters;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.UpdateKeyRequest;
-import com.github.nagyesta.lowkeyvault.service.key.KeyVaultStub;
+import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
+import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +38,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class KeyController extends BaseController<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity,
         KeyVaultKeyModel, DeletedKeyVaultKeyModel, KeyVaultKeyItemModel, DeletedKeyVaultKeyItemModel,
         KeyEntityToV72ModelConverter, KeyEntityToV72KeyItemModelConverter, KeyEntityToV72KeyVersionItemModelConverter,
-        KeyVaultStub> {
+        KeyVaultFake> {
 
     @Autowired
     public KeyController(@NonNull final KeyEntityToV72ModelConverter keyEntityToV72ModelConverter,
@@ -46,7 +46,7 @@ public class KeyController extends BaseController<KeyEntityId, VersionedKeyEntit
                          @NonNull final KeyEntityToV72KeyVersionItemModelConverter keyEntityToV72KeyVersionItemModelConverter,
                          @NonNull final VaultService vaultService) {
         super(keyEntityToV72ModelConverter, keyEntityToV72KeyItemModelConverter,
-                keyEntityToV72KeyVersionItemModelConverter, vaultService, VaultStub::keyVaultStub);
+                keyEntityToV72KeyVersionItemModelConverter, vaultService, VaultFake::keyVaultFake);
     }
 
     @PostMapping(value = "/keys/{keyName}/create",
@@ -59,9 +59,9 @@ public class KeyController extends BaseController<KeyEntityId, VersionedKeyEntit
         log.info("Received request to {} create key: {} using API version: {}",
                 baseUri.toString(), keyName, V_7_2);
 
-        final KeyVaultStub keyVaultStub = getVaultByUri(baseUri);
-        final VersionedKeyEntityId keyEntityId = createKeyWithAttributes(keyVaultStub, keyName, request);
-        return ResponseEntity.ok(getModelById(keyVaultStub, keyEntityId));
+        final KeyVaultFake keyVaultFake = getVaultByUri(baseUri);
+        final VersionedKeyEntityId keyEntityId = createKeyWithAttributes(keyVaultFake, keyName, request);
+        return ResponseEntity.ok(getModelById(keyVaultFake, keyEntityId));
     }
 
     @DeleteMapping(value = "/keys/{keyName}",
@@ -73,11 +73,11 @@ public class KeyController extends BaseController<KeyEntityId, VersionedKeyEntit
         log.info("Received request to {} delete key: {} using API version: {}",
                 baseUri.toString(), keyName, V_7_2);
 
-        final KeyVaultStub keyVaultStub = getVaultByUri(baseUri);
+        final KeyVaultFake keyVaultFake = getVaultByUri(baseUri);
         final KeyEntityId entityId = new KeyEntityId(baseUri, keyName);
-        keyVaultStub.delete(entityId);
-        final VersionedKeyEntityId latestVersion = keyVaultStub.getDeletedEntities().getLatestVersionOfEntity(entityId);
-        return ResponseEntity.ok(getDeletedModelById(keyVaultStub, latestVersion));
+        keyVaultFake.delete(entityId);
+        final VersionedKeyEntityId latestVersion = keyVaultFake.getDeletedEntities().getLatestVersionOfEntity(entityId);
+        return ResponseEntity.ok(getDeletedModelById(keyVaultFake, latestVersion));
     }
 
     @GetMapping(value = "/keys/{keyName}/versions",
@@ -163,13 +163,13 @@ public class KeyController extends BaseController<KeyEntityId, VersionedKeyEntit
         log.info("Received request to {} update key: {} with version: {} using API version: {}",
                 baseUri.toString(), keyName, keyVersion, V_7_2);
 
-        final KeyVaultStub keyVaultStub = getVaultByUri(baseUri);
+        final KeyVaultFake keyVaultFake = getVaultByUri(baseUri);
         final VersionedKeyEntityId entityId = versionedEntityId(baseUri, keyName, keyVersion);
         Optional.ofNullable(request.getKeyOperations())
-                .ifPresent(operations -> keyVaultStub.setKeyOperations(entityId, operations));
-        updateAttributes(keyVaultStub, entityId, request.getProperties());
-        updateTags(keyVaultStub, entityId, request.getTags());
-        return ResponseEntity.ok(getModelById(keyVaultStub, entityId));
+                .ifPresent(operations -> keyVaultFake.setKeyOperations(entityId, operations));
+        updateAttributes(keyVaultFake, entityId, request.getProperties());
+        updateTags(keyVaultFake, entityId, request.getTags());
+        return ResponseEntity.ok(getModelById(keyVaultFake, entityId));
     }
 
     @GetMapping(value = "/deletedkeys/{keyName}",
@@ -181,10 +181,10 @@ public class KeyController extends BaseController<KeyEntityId, VersionedKeyEntit
         log.info("Received request to {} get deleted key: {} using API version: {}",
                 baseUri.toString(), keyName, V_7_2);
 
-        final KeyVaultStub keyVaultStub = getVaultByUri(baseUri);
+        final KeyVaultFake keyVaultFake = getVaultByUri(baseUri);
         final KeyEntityId entityId = new KeyEntityId(baseUri, keyName);
-        final VersionedKeyEntityId latestVersion = keyVaultStub.getDeletedEntities().getLatestVersionOfEntity(entityId);
-        return ResponseEntity.ok(getDeletedModelById(keyVaultStub, latestVersion));
+        final VersionedKeyEntityId latestVersion = keyVaultFake.getDeletedEntities().getLatestVersionOfEntity(entityId);
+        return ResponseEntity.ok(getDeletedModelById(keyVaultFake, latestVersion));
     }
 
     @PostMapping(value = "/deletedkeys/{keyName}/recover",
@@ -196,11 +196,11 @@ public class KeyController extends BaseController<KeyEntityId, VersionedKeyEntit
         log.info("Received request to {} recover deleted key: {} using API version: {}",
                 baseUri.toString(), keyName, V_7_2);
 
-        final KeyVaultStub keyVaultStub = getVaultByUri(baseUri);
+        final KeyVaultFake keyVaultFake = getVaultByUri(baseUri);
         final KeyEntityId entityId = new KeyEntityId(baseUri, keyName);
-        keyVaultStub.recover(entityId);
-        final VersionedKeyEntityId latestVersion = keyVaultStub.getEntities().getLatestVersionOfEntity(entityId);
-        return ResponseEntity.ok(getModelById(keyVaultStub, latestVersion));
+        keyVaultFake.recover(entityId);
+        final VersionedKeyEntityId latestVersion = keyVaultFake.getEntities().getLatestVersionOfEntity(entityId);
+        return ResponseEntity.ok(getModelById(keyVaultFake, latestVersion));
     }
 
     @PostMapping(value = {"/keys/{keyName}/{keyVersion}/encrypt", "/keys/{keyName}/{keyVersion}/wrap"},
@@ -250,13 +250,13 @@ public class KeyController extends BaseController<KeyEntityId, VersionedKeyEntit
     }
 
     private VersionedKeyEntityId createKeyWithAttributes(
-            final KeyVaultStub keyVaultStub, final String keyName, final CreateKeyRequest request) {
+            final KeyVaultFake keyVaultFake, final String keyName, final CreateKeyRequest request) {
         final KeyPropertiesModel properties = Objects.requireNonNullElse(request.getProperties(), new KeyPropertiesModel());
-        final VersionedKeyEntityId keyEntityId = keyVaultStub.createKeyVersion(keyName, request.toKeyCreationInput());
-        keyVaultStub.setKeyOperations(keyEntityId, request.getKeyOperations());
-        keyVaultStub.addTags(keyEntityId, request.getTags());
-        keyVaultStub.setExpiry(keyEntityId, properties.getNotBefore(), properties.getExpiresOn());
-        keyVaultStub.setEnabled(keyEntityId, properties.isEnabled());
+        final VersionedKeyEntityId keyEntityId = keyVaultFake.createKeyVersion(keyName, request.toKeyCreationInput());
+        keyVaultFake.setKeyOperations(keyEntityId, request.getKeyOperations());
+        keyVaultFake.addTags(keyEntityId, request.getTags());
+        keyVaultFake.setExpiry(keyEntityId, properties.getNotBefore(), properties.getExpiresOn());
+        keyVaultFake.setEnabled(keyEntityId, properties.isEnabled());
         return keyEntityId;
     }
 }

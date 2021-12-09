@@ -3,12 +3,12 @@ package com.github.nagyesta.lowkeyvault.service.common.impl;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.service.EntityId;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultEntity;
-import com.github.nagyesta.lowkeyvault.service.common.BaseVaultStub;
+import com.github.nagyesta.lowkeyvault.service.common.BaseVaultFake;
 import com.github.nagyesta.lowkeyvault.service.common.ReadOnlyVersionedEntityMultiMap;
 import com.github.nagyesta.lowkeyvault.service.common.VersionedEntityMultiMap;
 import com.github.nagyesta.lowkeyvault.service.exception.AlreadyExistsException;
 import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
+import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.NonNull;
 
 import java.time.OffsetDateTime;
@@ -20,25 +20,25 @@ import java.util.Objects;
 import java.util.TreeMap;
 
 /**
- * The base interface of the vault stubs.
+ * The base interface of the vault fakes.
  *
  * @param <K>  The type of the key (not versioned).
  * @param <V>  The versioned key type.
  * @param <RE> The read-only entity type.
  * @param <ME> The modifiable entity type.
  */
-public abstract class BaseVaultStubImpl<K extends EntityId, V extends K, RE extends BaseVaultEntity<V>, ME extends RE>
-        implements BaseVaultStub<K, V, RE> {
+public abstract class BaseVaultFakeImpl<K extends EntityId, V extends K, RE extends BaseVaultEntity<V>, ME extends RE>
+        implements BaseVaultFake<K, V, RE> {
 
-    private final VaultStub vaultStub;
+    private final VaultFake vaultFake;
     private final VersionedEntityMultiMap<K, V, RE, ME> entities;
     private final VersionedEntityMultiMap<K, V, RE, ME> deletedEntities;
 
-    protected BaseVaultStubImpl(@NonNull final VaultStub vaultStub,
+    protected BaseVaultFakeImpl(@NonNull final VaultFake vaultFake,
                                 @NonNull final RecoveryLevel recoveryLevel,
                                 final Integer recoverableDays) {
         recoveryLevel.checkValidRecoverableDays(recoverableDays);
-        this.vaultStub = vaultStub;
+        this.vaultFake = vaultFake;
         entities = new ConcurrentVersionedEntityMultiMap<>(
                 recoveryLevel, recoverableDays, this::createVersionedId, false);
         deletedEntities = new ConcurrentVersionedEntityMultiMap<>(
@@ -107,8 +107,8 @@ public abstract class BaseVaultStubImpl<K extends EntityId, V extends K, RE exte
         return entities;
     }
 
-    protected VaultStub vaultStub() {
-        return vaultStub;
+    protected VaultFake vaultFake() {
+        return vaultFake;
     }
 
     protected V addVersion(@org.springframework.lang.NonNull final V entityId,

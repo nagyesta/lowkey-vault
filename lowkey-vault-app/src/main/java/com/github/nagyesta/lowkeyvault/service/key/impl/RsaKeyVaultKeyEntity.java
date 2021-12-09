@@ -5,7 +5,7 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyRsaKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
+import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.lang.NonNull;
@@ -22,7 +22,7 @@ import java.util.Objects;
 public class RsaKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, Integer> implements ReadOnlyRsaKeyVaultKeyEntity {
 
     public RsaKeyVaultKeyEntity(@NonNull final VersionedKeyEntityId id,
-                                @NonNull final VaultStub vault,
+                                @NonNull final VaultFake vault,
                                 final Integer keyParam,
                                 final BigInteger publicExponent,
                                 final boolean hsm) {

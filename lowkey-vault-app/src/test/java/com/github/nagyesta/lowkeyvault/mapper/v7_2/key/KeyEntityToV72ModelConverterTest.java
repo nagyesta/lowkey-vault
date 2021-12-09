@@ -3,13 +3,13 @@ package com.github.nagyesta.lowkeyvault.mapper.v7_2.key;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
-import com.github.nagyesta.lowkeyvault.service.key.KeyVaultStub;
+import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.impl.AesKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.impl.EcKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.impl.RsaKeyVaultKeyEntity;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
+import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,9 +42,9 @@ class KeyEntityToV72ModelConverterTest {
     @Mock
     private KeyEntityToV72PropertiesModelConverter propertiesModelConverter;
     @Mock
-    private VaultStub vault;
+    private VaultFake vault;
     @Mock
-    private KeyVaultStub keyVault;
+    private KeyVaultFake keyVault;
 
     private AutoCloseable openMocks;
 
@@ -81,7 +81,7 @@ class KeyEntityToV72ModelConverterTest {
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
-        when(vault.keyVaultStub()).thenReturn(keyVault);
+        when(vault.keyVaultFake()).thenReturn(keyVault);
         when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultKeyEntity.class))).thenReturn(PROPERTIES_MODEL);
     }
 

@@ -2,9 +2,9 @@ package com.github.nagyesta.lowkeyvault.mapper.v7_2.secret;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.SecretPropertiesModel;
-import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultStub;
+import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultFake;
 import com.github.nagyesta.lowkeyvault.service.secret.impl.KeyVaultSecretEntity;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
+import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,9 +29,9 @@ class SecretEntityToV72PropertiesModelConverterTest {
     @InjectMocks
     private SecretEntityToV72PropertiesModelConverter underTest;
     @Mock
-    private VaultStub vault;
+    private VaultFake vault;
     @Mock
-    private SecretVaultStub secretVault;
+    private SecretVaultFake secretVault;
 
     private AutoCloseable openMocks;
 
@@ -51,7 +51,7 @@ class SecretEntityToV72PropertiesModelConverterTest {
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
-        when(vault.secretVaultStub()).thenReturn(secretVault);
+        when(vault.secretVaultFake()).thenReturn(secretVault);
         when(vault.baseUri()).thenReturn(HTTPS_LOCALHOST);
         when(vault.matches(eq(HTTPS_LOCALHOST))).thenReturn(true);
     }

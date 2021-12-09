@@ -5,7 +5,7 @@ import com.github.nagyesta.lowkeyvault.service.common.impl.KeyVaultBaseEntity;
 import com.github.nagyesta.lowkeyvault.service.exception.CryptoException;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
+import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.NonNull;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
@@ -28,7 +28,7 @@ public abstract class KeyVaultKeyEntity<T, S> extends KeyVaultBaseEntity<Version
     private List<KeyOperation> operations;
 
     protected KeyVaultKeyEntity(@NonNull final VersionedKeyEntityId id,
-                                @org.springframework.lang.NonNull final VaultStub vault,
+                                @org.springframework.lang.NonNull final VaultFake vault,
                                 @org.springframework.lang.NonNull final T key,
                                 @org.springframework.lang.NonNull final S keyParam,
                                 final boolean hsm) {

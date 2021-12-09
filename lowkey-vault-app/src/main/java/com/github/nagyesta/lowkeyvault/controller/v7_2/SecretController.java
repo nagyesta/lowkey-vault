@@ -9,11 +9,11 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.secret.*;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.request.CreateSecretRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.request.UpdateSecretRequest;
 import com.github.nagyesta.lowkeyvault.service.secret.ReadOnlyKeyVaultSecretEntity;
-import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultStub;
+import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultFake;
 import com.github.nagyesta.lowkeyvault.service.secret.id.SecretEntityId;
 import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId;
+import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +36,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class SecretController extends BaseController<SecretEntityId, VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity,
         KeyVaultSecretModel, DeletedKeyVaultSecretModel, KeyVaultSecretItemModel, DeletedKeyVaultSecretItemModel,
         SecretEntityToV72ModelConverter, SecretEntityToV72SecretItemModelConverter,
-        SecretEntityToV72SecretVersionItemModelConverter, SecretVaultStub> {
+        SecretEntityToV72SecretVersionItemModelConverter, SecretVaultFake> {
 
     @Autowired
     public SecretController(
@@ -45,7 +45,7 @@ public class SecretController extends BaseController<SecretEntityId, VersionedSe
             @NonNull final SecretEntityToV72SecretVersionItemModelConverter secretEntityToV72SecretVersionItemModelConverter,
             @NonNull final VaultService vaultService) {
         super(secretEntityToV72ModelConverter, secretEntityToV72SecretItemModelConverter,
-                secretEntityToV72SecretVersionItemModelConverter, vaultService, VaultStub::secretVaultStub);
+                secretEntityToV72SecretVersionItemModelConverter, vaultService, VaultFake::secretVaultFake);
     }
 
     @PutMapping(value = "/secrets/{secretName}",
@@ -58,9 +58,9 @@ public class SecretController extends BaseController<SecretEntityId, VersionedSe
         log.info("Received request to {} create secret: {} using API version: {}",
                 baseUri.toString(), secretName, V_7_2);
 
-        final SecretVaultStub secretVaultStub = getVaultByUri(baseUri);
-        final VersionedSecretEntityId secretEntityId = createSecretWithAttributes(secretVaultStub, secretName, request);
-        return ResponseEntity.ok(getModelById(secretVaultStub, secretEntityId));
+        final SecretVaultFake secretVaultFake = getVaultByUri(baseUri);
+        final VersionedSecretEntityId secretEntityId = createSecretWithAttributes(secretVaultFake, secretName, request);
+        return ResponseEntity.ok(getModelById(secretVaultFake, secretEntityId));
     }
 
     @DeleteMapping(value = "/secrets/{secretName}",
@@ -72,11 +72,11 @@ public class SecretController extends BaseController<SecretEntityId, VersionedSe
         log.info("Received request to {} delete secret: {} using API version: {}",
                 baseUri.toString(), secretName, V_7_2);
 
-        final SecretVaultStub secretVaultStub = getVaultByUri(baseUri);
+        final SecretVaultFake secretVaultFake = getVaultByUri(baseUri);
         final SecretEntityId entityId = new SecretEntityId(baseUri, secretName);
-        secretVaultStub.delete(entityId);
-        final VersionedSecretEntityId latestVersion = secretVaultStub.getDeletedEntities().getLatestVersionOfEntity(entityId);
-        return ResponseEntity.ok(getDeletedModelById(secretVaultStub, latestVersion));
+        secretVaultFake.delete(entityId);
+        final VersionedSecretEntityId latestVersion = secretVaultFake.getDeletedEntities().getLatestVersionOfEntity(entityId);
+        return ResponseEntity.ok(getDeletedModelById(secretVaultFake, latestVersion));
     }
 
     @GetMapping(value = "/secrets/{secretName}/versions",
@@ -163,11 +163,11 @@ public class SecretController extends BaseController<SecretEntityId, VersionedSe
         log.info("Received request to {} update secret: {} with version: {} using API version: {}",
                 baseUri.toString(), secretName, secretVersion, V_7_2);
 
-        final SecretVaultStub secretVaultStub = getVaultByUri(baseUri);
+        final SecretVaultFake secretVaultFake = getVaultByUri(baseUri);
         final VersionedSecretEntityId entityId = versionedEntityId(baseUri, secretName, secretVersion);
-        updateAttributes(secretVaultStub, entityId, request.getProperties());
-        updateTags(secretVaultStub, entityId, request.getTags());
-        return ResponseEntity.ok(getModelById(secretVaultStub, entityId));
+        updateAttributes(secretVaultFake, entityId, request.getProperties());
+        updateTags(secretVaultFake, entityId, request.getTags());
+        return ResponseEntity.ok(getModelById(secretVaultFake, entityId));
     }
 
     @GetMapping(value = "/deletedsecrets/{secretName}",
@@ -180,10 +180,10 @@ public class SecretController extends BaseController<SecretEntityId, VersionedSe
         log.info("Received request to {} get deleted secret: {} using API version: {}",
                 baseUri.toString(), secretName, V_7_2);
 
-        final SecretVaultStub secretVaultStub = getVaultByUri(baseUri);
+        final SecretVaultFake secretVaultFake = getVaultByUri(baseUri);
         final SecretEntityId entityId = new SecretEntityId(baseUri, secretName);
-        final VersionedSecretEntityId latestVersion = secretVaultStub.getDeletedEntities().getLatestVersionOfEntity(entityId);
-        return ResponseEntity.ok(getDeletedModelById(secretVaultStub, latestVersion));
+        final VersionedSecretEntityId latestVersion = secretVaultFake.getDeletedEntities().getLatestVersionOfEntity(entityId);
+        return ResponseEntity.ok(getDeletedModelById(secretVaultFake, latestVersion));
     }
 
     @PostMapping(value = "/deletedsecrets/{secretName}/recover",
@@ -196,11 +196,11 @@ public class SecretController extends BaseController<SecretEntityId, VersionedSe
         log.info("Received request to {} recover deleted secret: {} using API version: {}",
                 baseUri.toString(), secretName, V_7_2);
 
-        final SecretVaultStub secretVaultStub = getVaultByUri(baseUri);
+        final SecretVaultFake secretVaultFake = getVaultByUri(baseUri);
         final SecretEntityId entityId = new SecretEntityId(baseUri, secretName);
-        secretVaultStub.recover(entityId);
-        final VersionedSecretEntityId latestVersion = secretVaultStub.getEntities().getLatestVersionOfEntity(entityId);
-        return ResponseEntity.ok(getModelById(secretVaultStub, latestVersion));
+        secretVaultFake.recover(entityId);
+        final VersionedSecretEntityId latestVersion = secretVaultFake.getEntities().getLatestVersionOfEntity(entityId);
+        return ResponseEntity.ok(getModelById(secretVaultFake, latestVersion));
     }
 
     @Override
@@ -214,13 +214,13 @@ public class SecretController extends BaseController<SecretEntityId, VersionedSe
     }
 
     private VersionedSecretEntityId createSecretWithAttributes(
-            final SecretVaultStub secretVaultStub, final String secretName, final CreateSecretRequest request) {
+            final SecretVaultFake secretVaultFake, final String secretName, final CreateSecretRequest request) {
         final SecretPropertiesModel properties = Objects.requireNonNullElse(request.getProperties(), new SecretPropertiesModel());
-        final VersionedSecretEntityId secretEntityId = secretVaultStub
+        final VersionedSecretEntityId secretEntityId = secretVaultFake
                 .createSecretVersion(secretName, request.getValue(), request.getContentType());
-        secretVaultStub.addTags(secretEntityId, request.getTags());
-        secretVaultStub.setExpiry(secretEntityId, properties.getNotBefore(), properties.getExpiresOn());
-        secretVaultStub.setEnabled(secretEntityId, properties.isEnabled());
+        secretVaultFake.addTags(secretEntityId, request.getTags());
+        secretVaultFake.setExpiry(secretEntityId, properties.getNotBefore(), properties.getExpiresOn());
+        secretVaultFake.setEnabled(secretEntityId, properties.isEnabled());
         return secretEntityId;
     }
 }

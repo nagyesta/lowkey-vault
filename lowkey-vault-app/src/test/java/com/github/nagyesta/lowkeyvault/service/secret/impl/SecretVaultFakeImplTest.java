@@ -3,8 +3,8 @@ package com.github.nagyesta.lowkeyvault.service.secret.impl;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.service.secret.ReadOnlyKeyVaultSecretEntity;
 import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
-import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultStubImpl;
+import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
+import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultFakeImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +14,7 @@ import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class SecretVaultStubImplTest {
+class SecretVaultFakeImplTest {
 
     @SuppressWarnings("ConstantConditions")
     @Test
@@ -23,7 +23,7 @@ class SecretVaultStubImplTest {
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new SecretVaultStubImpl(null, null, null));
+                () -> new SecretVaultFakeImpl(null, null, null));
 
         //then + exception
     }
@@ -32,9 +32,9 @@ class SecretVaultStubImplTest {
     @Test
     void testCreateSecretVersionShouldThrowExceptionWhenCalledWithNullName() {
         //given
-        final VaultStub vaultStub = new VaultStubImpl(HTTPS_LOCALHOST_8443);
-        final SecretVaultStubImpl underTest =
-                new SecretVaultStubImpl(vaultStub, vaultStub.getRecoveryLevel(), vaultStub.getRecoverableDays());
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
+        final SecretVaultFakeImpl underTest =
+                new SecretVaultFakeImpl(vaultFake, vaultFake.getRecoveryLevel(), vaultFake.getRecoverableDays());
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
@@ -47,9 +47,9 @@ class SecretVaultStubImplTest {
     @Test
     void testCreateSecretVersionShouldThrowExceptionWhenCalledWithNullValue() {
         //given
-        final VaultStub vaultStub = new VaultStubImpl(HTTPS_LOCALHOST_8443);
-        final SecretVaultStubImpl underTest =
-                new SecretVaultStubImpl(vaultStub, vaultStub.getRecoveryLevel(), vaultStub.getRecoverableDays());
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
+        final SecretVaultFakeImpl underTest =
+                new SecretVaultFakeImpl(vaultFake, vaultFake.getRecoveryLevel(), vaultFake.getRecoverableDays());
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
@@ -61,9 +61,9 @@ class SecretVaultStubImplTest {
     @Test
     void testCreateSecretVersionShouldCreateNewEntityWhenCalledWithValidInput() {
         //given
-        final VaultStub vaultStub = new VaultStubImpl(HTTPS_LOCALHOST_8443);
-        final SecretVaultStubImpl underTest =
-                new SecretVaultStubImpl(vaultStub, vaultStub.getRecoveryLevel(), vaultStub.getRecoverableDays());
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
+        final SecretVaultFakeImpl underTest =
+                new SecretVaultFakeImpl(vaultFake, vaultFake.getRecoveryLevel(), vaultFake.getRecoverableDays());
 
         //when
         final VersionedSecretEntityId secretVersion = underTest.createSecretVersion(SECRET_NAME_1, LOWKEY_VAULT, null);
@@ -78,9 +78,9 @@ class SecretVaultStubImplTest {
     @Test
     void testCreateVersionedSecretEntityIdShouldCreateNewEntityIdWhenCalledWithValidInput() {
         //given
-        final VaultStub vaultStub = mock(VaultStub.class);
-        when(vaultStub.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
-        final SecretVaultStubImpl underTest = new SecretVaultStubImpl(vaultStub, RecoveryLevel.PURGEABLE, null);
+        final VaultFake vaultFake = mock(VaultFake.class);
+        when(vaultFake.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
+        final SecretVaultFakeImpl underTest = new SecretVaultFakeImpl(vaultFake, RecoveryLevel.PURGEABLE, null);
 
         //when
         final VersionedSecretEntityId actual = underTest.createVersionedId(SECRET_NAME_1, SECRET_VERSION_1);

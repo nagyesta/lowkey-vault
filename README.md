@@ -12,8 +12,9 @@
 [![last_commit](https://img.shields.io/github/last-commit/nagyesta/lowkey-vault?logo=git)](https://img.shields.io/github/last-commit/nagyesta/lowkey-vault?logo=git)
 [![badge-abort-mission-armed-green](https://raw.githubusercontent.com/nagyesta/abort-mission/wiki_assets/.github/assets/badge-abort-mission-armed-green.svg)](https://github.com/nagyesta/abort-mission)
 
-Lowkey Vault is a stub aspiring to be compatible with [Azure Key Vault](https://azure.microsoft.com/en-us/services/key-vault/) REST APIs.
-The project aims to provide a low footprint alternative for the cases when using a real Key Vault is not practical or impossible.
+Lowkey Vault is a test double (fake object) aspiring to be compatible
+with [Azure Key Vault](https://azure.microsoft.com/en-us/services/key-vault/) REST APIs. The project aims to provide a low footprint
+alternative for the cases when using a real Key Vault is not practical or impossible.
 
 ## Recommended use
 

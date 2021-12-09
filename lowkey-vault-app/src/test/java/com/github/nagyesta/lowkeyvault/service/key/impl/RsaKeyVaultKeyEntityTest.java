@@ -4,8 +4,8 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.EncryptionAlgori
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
-import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultStubImpl;
+import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
+import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultFakeImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -29,9 +29,9 @@ class RsaKeyVaultKeyEntityTest {
         return Stream.<Arguments>builder()
                 .add(Arguments.of(null, null, null, null))
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, null, null, null))
-                .add(Arguments.of(null, mock(VaultStub.class), null, null))
+                .add(Arguments.of(null, mock(VaultFake.class), null, null))
                 .add(Arguments.of(null, null, MIN_RSA_KEY_SIZE, null))
-                .add(Arguments.of(null, mock(VaultStub.class), MIN_RSA_KEY_SIZE, null))
+                .add(Arguments.of(null, mock(VaultFake.class), MIN_RSA_KEY_SIZE, null))
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, null, MIN_RSA_KEY_SIZE, null))
                 .build();
     }
@@ -49,7 +49,7 @@ class RsaKeyVaultKeyEntityTest {
     @ParameterizedTest
     @MethodSource("invalidValueProvider")
     void testConstructorShouldThrowExceptionWhenCalledWithNull(
-            final VersionedKeyEntityId id, final VaultStub vault, final Integer keySize, final BigInteger exponent) {
+            final VersionedKeyEntityId id, final VaultFake vault, final Integer keySize, final BigInteger exponent) {
         //given
 
         //when
@@ -62,9 +62,9 @@ class RsaKeyVaultKeyEntityTest {
     @MethodSource("stringSource")
     void testEncryptThenDecryptShouldReturnOriginalTextWhenCalled(final String clear, final EncryptionAlgorithm algorithm) {
         //given
-        final VaultStub vaultStub = new VaultStubImpl(HTTPS_LOWKEY_VAULT);
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
         final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(
-                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultStub, algorithm.getMinKeySize(), null, false);
+                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, algorithm.getMinKeySize(), null, false);
         underTest.setOperations(List.of(KeyOperation.ENCRYPT, KeyOperation.WRAP_KEY, KeyOperation.DECRYPT, KeyOperation.UNWRAP_KEY));
         underTest.setEnabled(true);
         Assertions.assertEquals(algorithm.getMinKeySize(), underTest.getKeySize());
@@ -80,9 +80,9 @@ class RsaKeyVaultKeyEntityTest {
     @Test
     void testEncryptShouldThrowExceptionWhenOperationIsNotAllowed() {
         //given
-        final VaultStub vaultStub = new VaultStubImpl(HTTPS_LOWKEY_VAULT);
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
         final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(
-                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultStub, EncryptionAlgorithm.RSA_OAEP_256.getMinKeySize(), null, false);
+                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, EncryptionAlgorithm.RSA_OAEP_256.getMinKeySize(), null, false);
         underTest.setOperations(List.of(KeyOperation.DECRYPT));
         underTest.setEnabled(true);
 
@@ -96,9 +96,9 @@ class RsaKeyVaultKeyEntityTest {
     @Test
     void testDecryptShouldThrowExceptionWhenOperationIsNotAllowed() {
         //given
-        final VaultStub vaultStub = new VaultStubImpl(HTTPS_LOWKEY_VAULT);
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
         final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(
-                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultStub, EncryptionAlgorithm.RSA_OAEP_256.getMinKeySize(), null, false);
+                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, EncryptionAlgorithm.RSA_OAEP_256.getMinKeySize(), null, false);
         underTest.setOperations(List.of(KeyOperation.ENCRYPT, KeyOperation.WRAP_KEY));
         underTest.setEnabled(true);
 
@@ -113,9 +113,9 @@ class RsaKeyVaultKeyEntityTest {
     @Test
     void testEncryptShouldThrowExceptionWhenOperationIsNotEnabled() {
         //given
-        final VaultStub vaultStub = new VaultStubImpl(HTTPS_LOWKEY_VAULT);
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
         final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(
-                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultStub, EncryptionAlgorithm.RSA_OAEP_256.getMinKeySize(), null, false);
+                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, EncryptionAlgorithm.RSA_OAEP_256.getMinKeySize(), null, false);
         underTest.setOperations(List.of(KeyOperation.ENCRYPT, KeyOperation.WRAP_KEY));
         underTest.setEnabled(false);
 
@@ -129,9 +129,9 @@ class RsaKeyVaultKeyEntityTest {
     @Test
     void testDecryptShouldThrowExceptionWhenKeyIsNotEnabled() {
         //given
-        final VaultStub vaultStub = new VaultStubImpl(HTTPS_LOWKEY_VAULT);
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
         final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(
-                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultStub, EncryptionAlgorithm.RSA_OAEP_256.getMinKeySize(), null, false);
+                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, EncryptionAlgorithm.RSA_OAEP_256.getMinKeySize(), null, false);
         underTest.setOperations(List.of(KeyOperation.ENCRYPT, KeyOperation.WRAP_KEY, KeyOperation.DECRYPT, KeyOperation.UNWRAP_KEY));
         underTest.setEnabled(true);
 

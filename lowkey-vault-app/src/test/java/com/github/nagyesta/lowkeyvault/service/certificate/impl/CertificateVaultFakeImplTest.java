@@ -3,7 +3,7 @@ package com.github.nagyesta.lowkeyvault.service.certificate.impl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class CertificateVaultStubImplTest {
+class CertificateVaultFakeImplTest {
 
     @SuppressWarnings("ConstantConditions")
     @Test
@@ -12,7 +12,7 @@ class CertificateVaultStubImplTest {
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new CertificateVaultStubImpl(null, null, null));
+                () -> new CertificateVaultFakeImpl(null, null, null));
 
         //then + exception
     }

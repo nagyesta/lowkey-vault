@@ -6,13 +6,13 @@ import java.time.OffsetDateTime;
 import java.util.Map;
 
 /**
- * The base interface of the vault stubs.
+ * The base interface of the vault fakes.
  *
  * @param <K> The type of the key (not versioned).
  * @param <V> The versioned key type.
  * @param <E> The entity type.
  */
-public interface BaseVaultStub<K extends EntityId, V extends K, E extends BaseVaultEntity<V>> {
+public interface BaseVaultFake<K extends EntityId, V extends K, E extends BaseVaultEntity<V>> {
 
     ReadOnlyVersionedEntityMultiMap<K, V, E> getEntities();
 

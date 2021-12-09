@@ -43,9 +43,9 @@ public enum KeyType {
 
         @Override
         public <E, T extends KeyCreationInput<E>> VersionedKeyEntityId createKey(
-                final KeyVaultStub keyVaultStub, final String name, final T input) {
+                final KeyVaultFake keyVaultFake, final String name, final T input) {
             Assert.isInstanceOf(EcKeyCreationInput.class, input);
-            return keyVaultStub.createEcKeyVersion(name, (EcKeyCreationInput) input);
+            return keyVaultFake.createEcKeyVersion(name, (EcKeyCreationInput) input);
         }
     },
 
@@ -70,8 +70,8 @@ public enum KeyType {
 
         @Override
         public <E, T extends KeyCreationInput<E>> VersionedKeyEntityId createKey(
-                final KeyVaultStub keyVaultStub, final String name, final T input) {
-            return EC.createKey(keyVaultStub, name, input);
+                final KeyVaultFake keyVaultFake, final String name, final T input) {
+            return EC.createKey(keyVaultFake, name, input);
         }
     },
 
@@ -94,9 +94,9 @@ public enum KeyType {
 
         @Override
         public <E, T extends KeyCreationInput<E>> VersionedKeyEntityId createKey(
-                final KeyVaultStub keyVaultStub, final String name, final T input) {
+                final KeyVaultFake keyVaultFake, final String name, final T input) {
             Assert.isInstanceOf(RsaKeyCreationInput.class, input);
-            return keyVaultStub.createRsaKeyVersion(name, (RsaKeyCreationInput) input);
+            return keyVaultFake.createRsaKeyVersion(name, (RsaKeyCreationInput) input);
         }
     },
 
@@ -121,8 +121,8 @@ public enum KeyType {
 
         @Override
         public <E, T extends KeyCreationInput<E>> VersionedKeyEntityId createKey(
-                final KeyVaultStub keyVaultStub, final String name, final T input) {
-            return RSA.createKey(keyVaultStub, name, input);
+                final KeyVaultFake keyVaultFake, final String name, final T input) {
+            return RSA.createKey(keyVaultFake, name, input);
         }
     },
 
@@ -145,9 +145,9 @@ public enum KeyType {
 
         @Override
         public <E, T extends KeyCreationInput<E>> VersionedKeyEntityId createKey(
-                final KeyVaultStub keyVaultStub, final String name, final T input) {
+                final KeyVaultFake keyVaultFake, final String name, final T input) {
             Assert.isInstanceOf(OctKeyCreationInput.class, input);
-            return keyVaultStub.createOctKeyVersion(name, (OctKeyCreationInput) input);
+            return keyVaultFake.createOctKeyVersion(name, (OctKeyCreationInput) input);
         }
     },
 
@@ -172,8 +172,8 @@ public enum KeyType {
 
         @Override
         public <E, T extends KeyCreationInput<E>> VersionedKeyEntityId createKey(
-                final KeyVaultStub keyVaultStub, final String name, final T input) {
-            return OCT.createKey(keyVaultStub, name, input);
+                final KeyVaultFake keyVaultFake, final String name, final T input) {
+            return OCT.createKey(keyVaultFake, name, input);
         }
     };
 
@@ -251,5 +251,5 @@ public enum KeyType {
         return Objects.requireNonNullElse(value, getValidKeyParameters(type).first());
     }
 
-    public abstract <E, T extends KeyCreationInput<E>> VersionedKeyEntityId createKey(KeyVaultStub keyVaultStub, String name, T input);
+    public abstract <E, T extends KeyCreationInput<E>> VersionedKeyEntityId createKey(KeyVaultFake keyVaultFake, String name, T input);
 }

@@ -5,7 +5,7 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyEcKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
+import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 
@@ -16,7 +16,7 @@ import java.security.interfaces.ECPublicKey;
 public class EcKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, KeyCurveName> implements ReadOnlyEcKeyVaultKeyEntity {
 
     public EcKeyVaultKeyEntity(@NonNull final VersionedKeyEntityId id,
-                               @NonNull final VaultStub vault,
+                               @NonNull final VaultFake vault,
                                @NonNull final KeyCurveName keyParam,
                                final boolean hsm) {
         super(id, vault, generate(keyParam), keyParam, hsm);

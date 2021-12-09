@@ -1,7 +1,7 @@
 package com.github.nagyesta.lowkeyvault.service.secret.impl;
 
 import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
+import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -20,18 +20,18 @@ class KeyVaultSecretEntityTest {
         return Stream.<Arguments>builder()
                 .add(Arguments.of(null, null, null))
                 .add(Arguments.of(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, null, null))
-                .add(Arguments.of(null, mock(VaultStub.class), null))
+                .add(Arguments.of(null, mock(VaultFake.class), null))
                 .add(Arguments.of(null, null, LOWKEY_VAULT))
-                .add(Arguments.of(null, mock(VaultStub.class), LOWKEY_VAULT))
+                .add(Arguments.of(null, mock(VaultFake.class), LOWKEY_VAULT))
                 .add(Arguments.of(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, null, LOWKEY_VAULT))
-                .add(Arguments.of(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, mock(VaultStub.class), null))
+                .add(Arguments.of(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, mock(VaultFake.class), null))
                 .build();
     }
 
     @ParameterizedTest
     @MethodSource("invalidValueProvider")
     void testConstructorShouldThrowExceptionWhenCalledWithNull(
-            final VersionedSecretEntityId id, final VaultStub vault, final String value) {
+            final VersionedSecretEntityId id, final VaultFake vault, final String value) {
         //given
 
         //when

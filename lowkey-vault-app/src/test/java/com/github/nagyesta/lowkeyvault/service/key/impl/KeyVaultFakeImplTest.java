@@ -6,12 +6,12 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.service.exception.AlreadyExistsException;
 import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
-import com.github.nagyesta.lowkeyvault.service.key.KeyVaultStub;
+import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultStub;
-import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultStubImpl;
+import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
+import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultFakeImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
@@ -34,7 +34,7 @@ import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST;
 import static org.mockito.Mockito.mock;
 
-class KeyVaultStubImplTest {
+class KeyVaultFakeImplTest {
 
     private static final int DAYS = 42;
     private static final int COUNT = 10;
@@ -71,21 +71,21 @@ class KeyVaultStubImplTest {
     public static Stream<Arguments> nullProvider() {
         return Stream.<Arguments>builder()
                 .add(Arguments.of(null, null, null))
-                .add(Arguments.of(mock(VaultStub.class), null, null))
+                .add(Arguments.of(mock(VaultFake.class), null, null))
                 .add(Arguments.of(null, RecoveryLevel.PURGEABLE, null))
                 .add(Arguments.of(null, null, 0))
-                .add(Arguments.of(mock(VaultStub.class), RecoveryLevel.RECOVERABLE, null))
+                .add(Arguments.of(mock(VaultFake.class), RecoveryLevel.RECOVERABLE, null))
                 .build();
     }
 
     @ParameterizedTest
     @MethodSource("nullProvider")
     void testConstructorShouldThrowExceptionWhenCalledWithNull(
-            final VaultStub vaultStub, final RecoveryLevel recoveryLevel, final Integer recoverableDays) {
+            final VaultFake vaultFake, final RecoveryLevel recoveryLevel, final Integer recoverableDays) {
         //given
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new KeyVaultStubImpl(vaultStub, recoveryLevel, recoverableDays));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new KeyVaultFakeImpl(vaultFake, recoveryLevel, recoverableDays));
 
         //then + exception
     }
@@ -93,7 +93,7 @@ class KeyVaultStubImplTest {
     @Test
     void testGetKeyVersionsShouldReturnAllKeyVersionsInChronologicalOrderWhenFound() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
         final List<String> expected = insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1).stream()
                 .map(KeyEntityId::version)
                 .collect(Collectors.toList());
@@ -112,7 +112,7 @@ class KeyVaultStubImplTest {
     @Test
     void testGetKeyVersionsShouldThrowExceptionWhenKeyIdIsNull() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
 
         //when
@@ -124,7 +124,7 @@ class KeyVaultStubImplTest {
     @Test
     void testGetKeyVersionsShouldThrowExceptionWhenNotFound() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
 
         final KeyEntityId keyEntityId = new KeyEntityId(HTTPS_LOCALHOST, KEY_NAME_2, null);
@@ -138,7 +138,7 @@ class KeyVaultStubImplTest {
     @Test
     void testGetLatestVersionOfEntityShouldThrowExceptionWhenKeyIdIsNull() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.getEntities().getLatestVersionOfEntity(null));
@@ -149,7 +149,7 @@ class KeyVaultStubImplTest {
     @Test
     void testGetLatestVersionOfKeyShouldReturnAllKeyVersionsInChronologicalOrderWhenFound() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
         final String expected = insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1).stream()
                 .map(KeyEntityId::version)
                 .skip(COUNT - 1)
@@ -170,7 +170,7 @@ class KeyVaultStubImplTest {
     @MethodSource("genericKeyCreateInputProvider")
     void testCreateKeyVersionShouldThrowExceptionWhenCalledWithNull(final String name, final KeyCreationInput<?> input) {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.createKeyVersion(name, input));
@@ -184,7 +184,7 @@ class KeyVaultStubImplTest {
     @ValueSource(strings = KEY_NAME_1)
     void testCreateKeyVersionShouldThrowExceptionWhenCalledWithNullRsa(final String keyName) {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
         final RsaKeyCreationInput input = null;
 
         //when
@@ -199,7 +199,7 @@ class KeyVaultStubImplTest {
     @ValueSource(strings = KEY_NAME_1)
     void testCreateKeyVersionShouldThrowExceptionWhenCalledWithNullEc(final String keyName) {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
         final EcKeyCreationInput input = null;
 
         //when
@@ -214,7 +214,7 @@ class KeyVaultStubImplTest {
     @ValueSource(strings = KEY_NAME_1)
     void testCreateKeyVersionShouldThrowExceptionWhenCalledWithNullOct(final String keyName) {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
         final OctKeyCreationInput input = null;
 
         //when
@@ -226,7 +226,7 @@ class KeyVaultStubImplTest {
     @Test
     void testCreateKeyVersionShouldReturnIdWhenCalledWithValidRsaParameter() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
         final RsaKeyCreationInput input = new RsaKeyCreationInput(KeyType.RSA_HSM, null, null);
 
         //when
@@ -242,7 +242,7 @@ class KeyVaultStubImplTest {
     @Test
     void testCreateKeyVersionShouldReturnIdWhenCalledWithValidEcParameter() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
         final EcKeyCreationInput input = new EcKeyCreationInput(KeyType.EC_HSM, KeyCurveName.P_256);
 
         //when
@@ -258,7 +258,7 @@ class KeyVaultStubImplTest {
     @Test
     void testCreateKeyVersionShouldReturnIdWhenCalledWithValidOctParameter() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
         final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
 
         //when
@@ -275,7 +275,7 @@ class KeyVaultStubImplTest {
     @MethodSource("keyOperationsProvider")
     void testSetKeyOperationsShouldUpdateListWhenCalledWithValidValues(final List<KeyOperation> list) {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
         final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
 
@@ -292,7 +292,7 @@ class KeyVaultStubImplTest {
     void testSetKeyOperationsShouldThrowExceptionWhenCalledWithInvalidValues(
             final VersionedKeyEntityId keyEntityId, final List<KeyOperation> list) {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setKeyOperations(keyEntityId, list));
@@ -303,7 +303,7 @@ class KeyVaultStubImplTest {
     @Test
     void testClearTagsShouldClearPreviouslySetTagsWhenCalledOnValidKey() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
         final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
 
@@ -323,7 +323,7 @@ class KeyVaultStubImplTest {
     @Test
     void testClearTagsShouldThrowExceptionWhenCalledWithNullKey() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.clearTags(null));
@@ -334,7 +334,7 @@ class KeyVaultStubImplTest {
     @Test
     void testAddTagsShouldThrowExceptionWhenCalledWithNullKey() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.addTags(null, TAGS_EMPTY));
@@ -345,7 +345,7 @@ class KeyVaultStubImplTest {
     @Test
     void testSetEnabledShouldReplacePreviouslySetValueWhenCalledOnValidKey() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
         final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
         final ReadOnlyKeyVaultKeyEntity check = underTest.getEntities().getReadOnlyEntity(keyEntityId);
@@ -362,7 +362,7 @@ class KeyVaultStubImplTest {
     @Test
     void testSetEnabledShouldThrowExceptionWhenCalledWithNullKey() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setEnabled(null, true));
@@ -373,7 +373,7 @@ class KeyVaultStubImplTest {
     @Test
     void testSetExpiryShouldReplacePreviouslySetValueWhenCalledOnValidKey() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
         final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
         final ReadOnlyKeyVaultKeyEntity check = underTest.getEntities().getReadOnlyEntity(keyEntityId);
@@ -394,7 +394,7 @@ class KeyVaultStubImplTest {
     @Test
     void testSetExpiryShouldReplacePreviouslySetValueWhenCalledOnValidKeyAndNotBeforeOnly() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
         final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
         final ReadOnlyKeyVaultKeyEntity check = underTest.getEntities().getReadOnlyEntity(keyEntityId);
@@ -414,7 +414,7 @@ class KeyVaultStubImplTest {
     @Test
     void testSetExpiryShouldReplacePreviouslySetValueWhenCalledOnValidKeyAndExpiryOnly() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
         final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
         final ReadOnlyKeyVaultKeyEntity check = underTest.getEntities().getReadOnlyEntity(keyEntityId);
@@ -434,7 +434,7 @@ class KeyVaultStubImplTest {
     @Test
     void testSetExpiryShouldThrowExceptionWhenCalledWithNullKey() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
@@ -446,7 +446,7 @@ class KeyVaultStubImplTest {
     @Test
     void testSetExpiryShouldThrowExceptionWhenCalledWithNegativeTimeDuration() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
         final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createOctKeyVersion(KEY_NAME_1, input);
 
@@ -460,11 +460,11 @@ class KeyVaultStubImplTest {
     @Test
     void testConstructorWithRecoveryShouldThrowExceptionWhenCalledWithInvalidData() {
         //given
-        final VaultStubImpl vaultStub = new VaultStubImpl(HTTPS_LOCALHOST);
+        final VaultFakeImpl vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new KeyVaultStubImpl(vaultStub, RecoveryLevel.PURGEABLE, DAYS));
+                () -> new KeyVaultFakeImpl(vaultFake, RecoveryLevel.PURGEABLE, DAYS));
 
         //then + exception
     }
@@ -473,11 +473,11 @@ class KeyVaultStubImplTest {
     @Test
     void testConstructorWithRecoveryShouldThrowExceptionWhenCalledWithNullRecoveryLevel() {
         //given
-        final VaultStubImpl vaultStub = new VaultStubImpl(HTTPS_LOCALHOST);
+        final VaultFakeImpl vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new KeyVaultStubImpl(vaultStub, null, DAYS));
+                () -> new KeyVaultFakeImpl(vaultFake, null, DAYS));
 
         //then + exception
     }
@@ -485,7 +485,7 @@ class KeyVaultStubImplTest {
     @Test
     void testGetEntityShouldReturnValueWhenCalledWithExistingKey() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
         final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
         final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
 
@@ -500,7 +500,7 @@ class KeyVaultStubImplTest {
     @Test
     void testRawGetEntityShouldThrowExceptionWhenCalledWithNullKey() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.getEntities().getReadOnlyEntity(null));
@@ -511,7 +511,7 @@ class KeyVaultStubImplTest {
     @Test
     void testCreateShouldThrowExceptionWhenCalledWithAlreadyDeletedKey() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
         underTest.delete(UNVERSIONED_KEY_ENTITY_ID_1);
 
@@ -524,7 +524,7 @@ class KeyVaultStubImplTest {
     @Test
     void testDeleteShouldThrowExceptionWhenCalledWithMissingKey() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
 
         //when
@@ -536,7 +536,7 @@ class KeyVaultStubImplTest {
     @Test
     void testDeleteShouldMoveEntityToDeletedWhenCalledWithExistingKey() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_2);
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_3);
@@ -553,7 +553,7 @@ class KeyVaultStubImplTest {
     @Test
     void testDeleteShouldThrowExceptionWhenCalledWithNullKey() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.delete(null));
@@ -564,7 +564,7 @@ class KeyVaultStubImplTest {
     @Test
     void testRecoverShouldThrowExceptionWhenCalledWithMissingDeletedKey() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
         Assertions.assertFalse(underTest.getDeletedEntities().containsName(KEY_NAME_1));
 
@@ -577,7 +577,7 @@ class KeyVaultStubImplTest {
     @Test
     void testRecoverShouldMoveEntityFromDeletedWhenCalledWithExistingDeletedKey() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_2);
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_3);
@@ -595,7 +595,7 @@ class KeyVaultStubImplTest {
     @Test
     void testRecoverShouldThrowExceptionWhenCalledWithNullKey() {
         //given
-        final KeyVaultStub underTest = createUnderTest();
+        final KeyVaultFake underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.recover(null));
@@ -603,13 +603,13 @@ class KeyVaultStubImplTest {
         //then + exception
     }
 
-    private KeyVaultStub createUnderTest() {
-        final KeyVaultStub underTest = new VaultStubImpl(HTTPS_LOCALHOST).keyVaultStub();
-        Assertions.assertInstanceOf(KeyVaultStubImpl.class, underTest);
+    private KeyVaultFake createUnderTest() {
+        final KeyVaultFake underTest = new VaultFakeImpl(HTTPS_LOCALHOST).keyVaultFake();
+        Assertions.assertInstanceOf(KeyVaultFakeImpl.class, underTest);
         return underTest;
     }
 
-    private List<VersionedKeyEntityId> insertMultipleVersionsOfSameKey(final KeyVaultStub underTest, final String keyName) {
+    private List<VersionedKeyEntityId> insertMultipleVersionsOfSameKey(final KeyVaultFake underTest, final String keyName) {
         return IntStream.range(0, COUNT)
                 .mapToObj(i -> underTest.createEcKeyVersion(keyName, EC_KEY_CREATION_INPUT))
                 .collect(Collectors.toList());

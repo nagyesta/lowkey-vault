@@ -5,7 +5,7 @@ import com.github.nagyesta.lowkeyvault.TestConstantsUri;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.service.exception.AlreadyExistsException;
 import com.github.nagyesta.lowkeyvault.service.exception.CryptoException;
-import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultStubImpl;
+import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultFakeImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -79,7 +79,7 @@ class KeyVaultKeyEntityTest {
     void testDoCryptoShouldCatchAndWrapExceptionsWhenTheyAreThrown() {
         //given
         final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1,
-                new VaultStubImpl(TestConstantsUri.HTTPS_LOCALHOST_8443),
+                new VaultFakeImpl(TestConstantsUri.HTTPS_LOCALHOST_8443),
                 2048, BigInteger.valueOf(3), false);
 
         //when
@@ -94,7 +94,7 @@ class KeyVaultKeyEntityTest {
             final OffsetDateTime deleted, final OffsetDateTime purgable, final boolean expected) {
         //given
         final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1,
-                new VaultStubImpl(TestConstantsUri.HTTPS_LOCALHOST_8443),
+                new VaultFakeImpl(TestConstantsUri.HTTPS_LOCALHOST_8443),
                 2048, BigInteger.valueOf(3), false);
         underTest.setDeletedDate(deleted);
         underTest.setScheduledPurgeDate(purgable);

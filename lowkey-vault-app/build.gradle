@@ -31,10 +31,10 @@ dependencies {
 }
 
 test {
+    outputs.file(file("$buildDir/reports/abort-mission/abort-mission-report.json"))
     useJUnitPlatform()
     systemProperty("junit.jupiter.extensions.autodetection.enabled", true)
 }
-
 abortMission {
     toolVersion rootProject.ext.abortMissionVersion
 }
@@ -43,12 +43,13 @@ jar {
     enabled = false
 }
 
-task regenerateCert(type:Exec) {
-    outputs.file("${project.projectDir}/src/main/resources/cert/keystore.p12")
+task regenerateCertJks(type: Exec) {
+    outputs.file("${project.projectDir}/src/main/resources/cert/keystore.jks")
     workingDir file("${project.projectDir}/src/main/resources/cert")
+    outputs.upToDateWhen { false }
 
-    //on windows:
-    commandLine 'keytool',
+    //generate key in JKS with JDK15+ keytool to allow wildcard SAN
+    commandLine "${project.property('keyToolDir') ?: ''}/keytool",
             '-genkeypair',
             '-alias', 'lowkey-vault.local',
             '-keyalg', 'RSA',
@@ -56,14 +57,46 @@ task regenerateCert(type:Exec) {
             '-validity', '3650',
             '-dname', 'CN=lowkey-vault.local',
             '-keypass', 'changeit',
-            '-keystore', 'keystore.p12',
-            '-storeType', 'PKCS12',
+            '-keystore', 'keystore.jks',
+            '-storeType', 'JKS',
             '-storepass', 'changeit',
-            '-ext', 'SAN=dns:default.lowkey-vault.local,dns:default.lowkey-vault,dns:lowkey-vault.local,dns:lowkey-vault,dns:localhost'
+            '-ext', 'SAN=dns:lowkey-vault.local,dns:lowkey-vault,dns:*.localhost,dns:*.lowkey-vault,dns:localhost'
+
+    doFirst {
+        file("${project.projectDir}/src/main/resources/cert/keystore.jks").delete()
+    }
 
     logging.captureStandardOutput LogLevel.INFO
-    logging.captureStandardError  LogLevel.ERROR
+    logging.captureStandardError LogLevel.ERROR
 }
+task regenerateCert(type: Exec) {
+    outputs.file("${project.projectDir}/src/main/resources/cert/keystore.p12")
+    outputs.file("${project.projectDir}/src/main/resources/cert/keystore.jks")
+    inputs.file("${project.projectDir}/src/main/resources/cert/keystore.jks")
+    workingDir file("${project.projectDir}/src/main/resources/cert")
+    outputs.upToDateWhen { false }
+    dependsOn tasks.regenerateCertJks
+    //convert to P12 using the old keytool to fix algorithm issues when used with old JDK (and still use P12)
+    commandLine 'keytool',
+            '-importkeystore',
+            '-srckeystore', 'keystore.jks',
+            '-srcstorepass', 'changeit',
+            '-srcstoretype', 'JKS',
+            '-destkeystore', 'keystore.p12',
+            '-deststorepass', 'changeit',
+            '-deststoretype', 'pkcs12'
+
+    doFirst {
+        file("${project.projectDir}/src/main/resources/cert/keystore.p12").delete()
+    }
+    doLast {
+        file("${project.projectDir}/src/main/resources/cert/keystore.jks").delete()
+    }
+
+    logging.captureStandardOutput LogLevel.INFO
+    logging.captureStandardError LogLevel.ERROR
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {

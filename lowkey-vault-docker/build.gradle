@@ -24,10 +24,12 @@ dependencies {
     testImplementation "org.apache.httpcomponents:httpclient:${rootProject.ext.httpClientVersion}"
     testImplementation "com.azure:azure-security-keyvault-keys:${rootProject.ext.azureKeyVaultClientVersion}"
     testImplementation "com.azure:azure-security-keyvault-secrets:${rootProject.ext.azureKeyVaultClientVersion}"
-    testImplementation "org.junit.jupiter:junit-jupiter-api:${rootProject.ext.jupiterVersion}"
-    testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.ext.jupiterVersion}"
     testImplementation "org.springframework.boot:spring-boot-starter-test:${rootProject.ext.springBootVersion}"
-    testImplementation "com.github.nagyesta.abort-mission.boosters:abort.booster-junit-jupiter:${rootProject.ext.abortMissionVersion}"
+    testImplementation "io.cucumber:cucumber-java:${rootProject.ext.cucumberVersion}"
+    testImplementation "io.cucumber:cucumber-testng:${rootProject.ext.cucumberVersion}"
+    testImplementation "io.cucumber:cucumber-spring:${rootProject.ext.cucumberVersion}"
+    testImplementation "com.github.nagyesta.abort-mission.boosters:abort.booster-cucumber-jvm:${rootProject.ext.abortMissionVersion}"
+    testImplementation "com.google.code.findbugs:jsr305:${rootProject.ext.findBugsVersion}"
 }
 
 task copyAppJar(type: Copy) {
@@ -59,6 +61,16 @@ dockerRun {
     ports "8443:8443"
     daemonize true
     arguments '--rm'
+    env 'LOWKEY_ARGS': '--LOWKEY_VAULT_NAMES=keys-generic,keys-delete,' +
+            'keys-list-rsa-1,keys-list-rsa-2,keys-list-rsa-3,keys-list-rsa-5,keys-list-rsa-25,keys-list-rsa-42,' +
+            'keys-list-oct-1,keys-list-oct-2,keys-list-oct-3,keys-list-oct-5,keys-list-oct-25,keys-list-oct-42,' +
+            'keys-list-ec-1,keys-list-ec-2,keys-list-ec-3,keys-list-ec-5,keys-list-ec-25,keys-list-ec-42,' +
+            'keys-del-rsa-1,keys-del-rsa-2,keys-del-rsa-3,keys-del-rsa-5,keys-del-rsa-25,keys-del-rsa-42,' +
+            'keys-del-oct-1,keys-del-oct-2,keys-del-oct-3,keys-del-oct-5,keys-del-oct-25,keys-del-oct-42,' +
+            'keys-del-ec-1,keys-del-ec-2,keys-del-ec-3,keys-del-ec-5,keys-del-ec-25,keys-del-ec-42,' +
+            'secrets-generic,secrets-delete,' +
+            'secrets-list-1,secrets-list-2,secrets-list-3,secrets-list-5,secrets-list-25,secrets-list-42,' +
+            'secrets-del-1,secrets-del-2,secrets-del-3,secrets-del-5,secrets-del-25,secrets-del-42'
 }
 tasks.dockerRun.dependsOn tasks.docker
 
@@ -70,14 +82,21 @@ task waitForStartup {
 }
 
 test {
-    useJUnitPlatform()
+    outputs.file(file("$buildDir/reports/abort-mission/abort-mission-report.json"))
+    outputs.dir(file("$buildDir/reports/cucumber"))
+    systemProperty("cucumber.execution.parallel.enabled", System.getProperty("test.parallel"))
+    systemProperty("cucumber.filter.tags", "not @ignore")
+    useTestNG {
+        systemProperty("abort-mission.report.directory", file("${buildDir}/reports/abort-mission/"))
+    }
 }
-test.outputs.upToDateWhen {false}
+test.outputs.upToDateWhen { false }
 test.dependsOn tasks.waitForStartup
 test.finalizedBy tasks.dockerStop
 
 abortMission {
     toolVersion rootProject.ext.abortMissionVersion
+    relaxedValidation true
 }
 
 task publish {

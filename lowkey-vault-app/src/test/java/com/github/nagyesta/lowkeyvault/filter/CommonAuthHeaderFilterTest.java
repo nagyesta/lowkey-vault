@@ -54,8 +54,6 @@ class CommonAuthHeaderFilterTest {
                 .add(Arguments.of(DEFAULT_LOWKEY_VAULT, HTTPS_PORT, EMPTY, HTTPS_DEFAULT_LOWKEY_VAULT))
                 .add(Arguments.of(DEFAULT_LOWKEY_VAULT, TOMCAT_SECURE_PORT, EMPTY, HTTPS_DEFAULT_LOWKEY_VAULT_8443))
                 .add(Arguments.of(DEFAULT_LOWKEY_VAULT, HTTP_PORT, KEYS, HTTPS_DEFAULT_LOWKEY_VAULT_80))
-                .add(Arguments.of(DEFAULT_LOWKEY_VAULT, TOMCAT_SECURE_PORT, VAULT_VAULT_NAME_KEYS,
-                        URI.create(HTTPS_DEFAULT_LOWKEY_VAULT_8443_VAULT_VAULT_NAME)))
                 .build();
     }
 

@@ -24,7 +24,7 @@ project.ext {
     // internal build versions
     httpClientVersion = '4.5.13'
     azureKeyVaultClientVersion = '4.3.4'
-    abortMissionVersion = '2.8.0'
+    abortMissionVersion = '2.8.1'
     cucumberVersion = '7.1.0'
     jupiterVersion = '5.8.2'
     mockitoCoreVersion = '3.9.0'

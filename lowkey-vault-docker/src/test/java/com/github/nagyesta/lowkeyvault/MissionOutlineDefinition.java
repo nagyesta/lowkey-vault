@@ -14,7 +14,8 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import static com.github.nagyesta.abortmission.core.MissionControl.*;
+import static com.github.nagyesta.abortmission.core.MissionControl.matcher;
+import static com.github.nagyesta.abortmission.core.MissionControl.percentageBasedEvaluator;
 import static com.github.nagyesta.abortmission.core.outline.MissionOutline.SHARED_CONTEXT;
 
 public class MissionOutlineDefinition extends LaunchAbortHook {
@@ -54,7 +55,6 @@ public class MissionOutlineDefinition extends LaunchAbortHook {
                         .build();
                 ops.registerHealthCheck(tagPercentage);
             });
-            ops.registerHealthCheck(reportOnlyEvaluator(matcher().anyClass().build()).build());
         });
     }
 

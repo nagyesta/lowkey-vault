@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'com.github.nagyesta.abort-mission-gradle-plugin' version '2.0.2'
+    id 'com.github.nagyesta.abort-mission-gradle-plugin' version '2.1.0'
     id 'com.palantir.docker' version '0.30.0'
     id 'com.palantir.docker-run' version '0.30.0'
 }
@@ -96,7 +96,6 @@ test.finalizedBy tasks.dockerStop
 
 abortMission {
     toolVersion rootProject.ext.abortMissionVersion
-    relaxedValidation true
 }
 
 task publish {

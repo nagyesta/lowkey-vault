@@ -9,6 +9,7 @@ project.ext {
     gitUser = project.hasProperty('githubUser') ? (project.property('githubUser') as String) : ''
     ossrhUser = project.hasProperty('ossrhUsername') ? (project.property('ossrhUsername') as String) : ''
     ossrhPass = project.hasProperty('ossrhPassword') ? (project.property('ossrhPassword') as String) : ''
+    keyToolDir = project.hasProperty('keyToolDir') ? (project.property('keyToolDir') as String) : ''
     repoUrl = 'https://github.com/nagyesta/lowkey-vault'
     licenseName = 'MIT License'
     licenseUrl = 'https://raw.githubusercontent.com/nagyesta/lowkey-vault/main/LICENSE'
@@ -23,14 +24,15 @@ project.ext {
     // internal build versions
     httpClientVersion = '4.5.13'
     azureKeyVaultClientVersion = '4.3.4'
-    abortMissionVersion = '2.7.2'
-    jupiterVersion = '5.8.0'
+    abortMissionVersion = '2.8.0'
+    cucumberVersion = '7.1.0'
+    jupiterVersion = '5.8.2'
     mockitoCoreVersion = '3.9.0'
     springBootVersion = '2.6.1'
     bouncyCastleVersion = '1.69'
     hibernateVersion = '6.2.0.Final'
     springVersion = '5.3.13'
-    lombokVersion = '1.18.12'
+    lombokVersion = '1.18.20'
     findBugsVersion = '3.0.2'
     logbackVersion = '1.2.6'
 }
@@ -139,6 +141,7 @@ configure(subprojects.findAll({
                         'com.github.nagyesta.lowkeyvault.service.exception.NotFoundException',
                         'com.github.nagyesta.lowkeyvault.service.exception.CryptoException',
                         'com.github.nagyesta.lowkeyvault.model.common.ApiConstants',
+                        'com.github.nagyesta.lowkeyvault.exception.VaultNotFoundException'
                 ]
             }
         }

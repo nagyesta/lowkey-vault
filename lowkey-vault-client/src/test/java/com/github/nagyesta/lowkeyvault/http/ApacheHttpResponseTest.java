@@ -24,19 +24,6 @@ class ApacheHttpResponseTest {
     private static final String HEADER_2 = "Header2";
     private static final String HEADER_VALUE_2 = "HeaderValue2";
 
-    @Test
-    void testConstructorShouldMapFieldsWhenCalled() throws IOException {
-        //given
-        final HttpRequest request = mock(HttpRequest.class);
-        final HttpResponse response = responseMock();
-
-        //when
-        final ApacheHttpResponse actual = new ApacheHttpResponse(request, response);
-
-        //then
-        verifyResponse(actual);
-    }
-
     static void verifyResponse(final ApacheHttpResponse actual) {
         Assertions.assertEquals(BODY, actual.getBodyAsString().block());
         Assertions.assertEquals(STATUS_CODE, actual.getStatusCode());
@@ -63,5 +50,18 @@ class ApacheHttpResponseTest {
         when(header2.getValue()).thenReturn(HEADER_VALUE_2);
         when(response.getAllHeaders()).thenReturn(new Header[]{header1, header2});
         return response;
+    }
+
+    @Test
+    void testConstructorShouldMapFieldsWhenCalled() throws IOException {
+        //given
+        final HttpRequest request = mock(HttpRequest.class);
+        final HttpResponse response = responseMock();
+
+        //when
+        final ApacheHttpResponse actual = new ApacheHttpResponse(request, response);
+
+        //then
+        verifyResponse(actual);
     }
 }

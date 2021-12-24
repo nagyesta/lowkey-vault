@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.controller.v7_2;
 
+import com.github.nagyesta.lowkeyvault.exception.VaultNotFoundException;
 import com.github.nagyesta.lowkeyvault.mapper.common.RecoveryAwareConverter;
 import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesUpdateModel;
@@ -137,7 +138,9 @@ public abstract class BaseController<K extends EntityId, V extends K, E extends 
     }
 
     protected S getVaultByUri(final URI baseUri) {
-        return toEntityVault.apply(vaultService.findByUri(baseUri));
+        return Optional.ofNullable(vaultService.findByUri(baseUri))
+                .map(toEntityVault)
+                .orElseThrow(() -> new VaultNotFoundException(baseUri));
     }
 
     protected void updateAttributes(final BaseVaultFake<K, V, ?> vaultFake, final V entityId, final BasePropertiesUpdateModel properties) {

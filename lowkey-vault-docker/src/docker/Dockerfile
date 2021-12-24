@@ -3,4 +3,4 @@ LABEL maintainer="nagyesta@gmail.com"
 EXPOSE 8443:8443
 ADD lowkey-vault.jar /lowkey-vault.jar
 CMD [ "sh", "-c", "ls /" ]
-ENTRYPOINT ["java", "-jar", "/lowkey-vault.jar"]
+ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -jar /lowkey-vault.jar ${LOWKEY_ARGS}"]

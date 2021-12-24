@@ -14,21 +14,34 @@ import com.azure.security.keyvault.secrets.SecretAsyncClient;
 import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.SecretClientBuilder;
 
+import java.net.URI;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.Objects;
+import java.util.Set;
 
 public final class ApacheHttpClientProvider {
 
     private static final String DUMMY = "dummy";
 
     private final String vaultUrl;
+    private final Set<String> hostOverride;
 
     public ApacheHttpClientProvider(final String vaultUrl) {
+        this(vaultUrl, true);
+    }
+
+    public ApacheHttpClientProvider(final String vaultUrl, final boolean forceLocalhost) {
         this.vaultUrl = vaultUrl;
+        if (forceLocalhost) {
+            this.hostOverride = Set.of(URI.create(vaultUrl).getHost());
+        } else {
+            this.hostOverride = Collections.emptySet();
+        }
     }
 
     public HttpClient createInstance() {
-        return new ApacheHttpClient();
+        return new ApacheHttpClient(hostOverride);
     }
 
     public KeyAsyncClient getKeyAsyncClient() {

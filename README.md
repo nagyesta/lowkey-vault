@@ -102,7 +102,14 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 - Update secret
 - Recover deleted secret
 
-### Limitations
+### Non-default vaults
 
-Although basic support for different vaults is baked in, only a handful of default vaults are available based on hostname at the moment.
-These are configured [here](lowkey-vault-app/src/main/java/com/github/nagyesta/lowkeyvault/AppConfiguration.java).
+In case you wish to use more than one vaults, you should consider registering additional vaults using
+the ```--LOWKEY_VAULT_NAMES=name1,name2``` comma separated format passed in the
+```LOWKEY_ARGS``` env variable when starting the Docker container. This will register the ```https://name1.localhost:8443```
+and ```https://name2.localhost:8443```
+vaults in the aforementioned example. You can pass any number of vault prefixes (as long as you have enough RAM)
+. [Example](lowkey-vault-docker/build.gradle#L65)
+
+A handful of default vaults are available by default. These are
+configured [here](lowkey-vault-app/src/main/java/com/github/nagyesta/lowkeyvault/AppConfiguration.java).

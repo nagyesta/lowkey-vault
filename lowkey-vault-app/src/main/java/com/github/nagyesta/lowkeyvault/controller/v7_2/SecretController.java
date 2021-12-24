@@ -32,7 +32,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Slf4j
 @RestController
 @Validated
-@RequestMapping({"", "/vault/*/"})
 public class SecretController extends BaseController<SecretEntityId, VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity,
         KeyVaultSecretModel, DeletedKeyVaultSecretModel, KeyVaultSecretItemModel, DeletedKeyVaultSecretItemModel,
         SecretEntityToV72ModelConverter, SecretEntityToV72SecretItemModelConverter,

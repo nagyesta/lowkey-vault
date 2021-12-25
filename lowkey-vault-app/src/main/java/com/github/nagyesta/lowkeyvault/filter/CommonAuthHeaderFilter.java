@@ -42,6 +42,11 @@ public class CommonAuthHeaderFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    @Override
+    protected boolean shouldNotFilter(final HttpServletRequest request) {
+        return "/ping".equals(request.getRequestURI());
+    }
+
     private String resolvePort(final int port) {
         if (port == DEFAULT_HTTPS_PORT) {
             return OMIT_DEFAULT;

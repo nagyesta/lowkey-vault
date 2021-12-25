@@ -1,15 +1,22 @@
 package com.github.nagyesta.lowkeyvault.controller.v7_2;
 
-import com.github.nagyesta.lowkeyvault.exception.VaultNotFoundException;
 import com.github.nagyesta.lowkeyvault.mapper.common.RecoveryAwareConverter;
+import com.github.nagyesta.lowkeyvault.model.common.ErrorModel;
 import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesUpdateModel;
 import com.github.nagyesta.lowkeyvault.service.EntityId;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultEntity;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultFake;
+import com.github.nagyesta.lowkeyvault.service.exception.AlreadyExistsException;
+import com.github.nagyesta.lowkeyvault.service.exception.CryptoException;
+import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import lombok.NonNull;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.net.URI;
 import java.util.*;
@@ -80,6 +87,16 @@ public abstract class BaseController<K extends EntityId, V extends K, E extends 
         this.toEntityVault = toEntityVault;
     }
 
+    @ExceptionHandler({AlreadyExistsException.class, CryptoException.class, NotFoundException.class})
+    public ResponseEntity<ErrorModel> handleException(final Exception exception) {
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        final Class<? extends Exception> exceptionClass = exception.getClass();
+        if (exceptionClass.isAnnotationPresent(ResponseStatus.class)) {
+            status = exceptionClass.getAnnotation(ResponseStatus.class).value();
+        }
+        return ResponseEntity.status(status).body(ErrorModel.fromException(exception));
+    }
+
     protected M getModelById(final S entityVaultFake, final V entityId) {
         final E entity = entityVaultFake.getEntities().getReadOnlyEntity(entityId);
         return modelConverter.convert(entity);
@@ -140,7 +157,7 @@ public abstract class BaseController<K extends EntityId, V extends K, E extends 
     protected S getVaultByUri(final URI baseUri) {
         return Optional.ofNullable(vaultService.findByUri(baseUri))
                 .map(toEntityVault)
-                .orElseThrow(() -> new VaultNotFoundException(baseUri));
+                .orElseThrow(() -> new NotFoundException("Vault not found by base URI: " + baseUri));
     }
 
     protected void updateAttributes(final BaseVaultFake<K, V, ?> vaultFake, final V entityId, final BasePropertiesUpdateModel properties) {

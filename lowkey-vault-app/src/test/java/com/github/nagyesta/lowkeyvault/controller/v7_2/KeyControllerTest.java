@@ -3,6 +3,8 @@ package com.github.nagyesta.lowkeyvault.controller.v7_2;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyItemModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyVersionItemModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ModelConverter;
+import com.github.nagyesta.lowkeyvault.model.common.ErrorMessage;
+import com.github.nagyesta.lowkeyvault.model.common.ErrorModel;
 import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesUpdateModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
@@ -14,6 +16,8 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.CreateKeyRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeyOperationsParameters;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.UpdateKeyRequest;
 import com.github.nagyesta.lowkeyvault.service.common.ReadOnlyVersionedEntityMultiMap;
+import com.github.nagyesta.lowkeyvault.service.exception.AlreadyExistsException;
+import com.github.nagyesta.lowkeyvault.service.exception.CryptoException;
 import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
 import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
@@ -150,6 +154,19 @@ class KeyControllerTest {
                 .build();
     }
 
+    public static Stream<Arguments> exceptionProvider() {
+        final String message = "Message";
+        final String failed = "failed";
+        return Stream.<Arguments>builder()
+                .add(Arguments.of(new NotFoundException(message),
+                        HttpStatus.NOT_FOUND, message, null))
+                .add(Arguments.of(new AlreadyExistsException(message),
+                        HttpStatus.CONFLICT, message, null))
+                .add(Arguments.of(new CryptoException(message, new RuntimeException(failed)),
+                        HttpStatus.INTERNAL_SERVER_ERROR, message, failed))
+                .build();
+    }
+
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
@@ -163,6 +180,32 @@ class KeyControllerTest {
     @AfterEach
     void tearDown() throws Exception {
         openMocks.close();
+    }
+
+    @ParameterizedTest
+    @MethodSource("exceptionProvider")
+    void testErrorHandlerConvertsExceptionWhenCaught(final Exception exception, final HttpStatus status,
+                                                     final String message, final String innerMessage) {
+        //given
+
+        //when
+        final ResponseEntity<ErrorModel> actual = underTest.handleException(exception);
+
+        //then
+        Assertions.assertEquals(status, actual.getStatusCode());
+        final ErrorModel actualBody = actual.getBody();
+        Assertions.assertNotNull(actualBody);
+        Assertions.assertNotNull(actualBody.getError());
+        Assertions.assertEquals(message, actualBody.getError().getMessage());
+        Assertions.assertEquals(exception.getClass().getName(), actualBody.getError().getCode());
+        final ErrorMessage actualInnerError = actualBody.getError().getInnerError();
+        if (innerMessage != null) {
+            Assertions.assertNotNull(actualInnerError);
+            Assertions.assertEquals(exception.getCause().getClass().getName(), actualInnerError.getCode());
+            Assertions.assertEquals(innerMessage, actualInnerError.getMessage());
+        } else {
+            Assertions.assertNull(actualInnerError);
+        }
     }
 
     @ParameterizedTest

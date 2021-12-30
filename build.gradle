@@ -24,6 +24,7 @@ project.ext {
     // internal build versions
     httpClientVersion = '4.5.13'
     azureKeyVaultClientVersion = '4.3.4'
+    azureCoreVersion = '1.21.0'
     abortMissionVersion = '2.8.1'
     cucumberVersion = '7.1.0'
     jupiterVersion = '5.8.2'
@@ -35,6 +36,7 @@ project.ext {
     lombokVersion = '1.18.20'
     findBugsVersion = '3.0.2'
     logbackVersion = '1.2.6'
+    testcontainersVersion = '1.16.2'
 }
 
 versioner {

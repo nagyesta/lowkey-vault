@@ -14,12 +14,12 @@ import org.mockito.ArgumentCaptor;
 import reactor.core.publisher.Flux;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static org.mockito.Mockito.mock;
@@ -32,27 +32,23 @@ class ApacheHttpClientTest {
     private static final String HEADER_2 = "Header2";
     private static final String HEADER_VALUE_2 = "HeaderValue2";
     private static final String LOCALHOST = "localhost";
-    private static final Set<String> SET_WITH_LOCALHOST = Collections.singleton(LOCALHOST);
-    private static final Set<String> SET_WITH_BLANK = Collections.singleton(" ");
+    private static final String ALTERNATIVE_HOST = "alternative.example.com";
+    private static final Function<URI, URI> LOCALHOST_TO_ALTERNATIVE = new AuthorityOverrideFunction(LOCALHOST, ALTERNATIVE_HOST);
     private static final String EMPTY = "";
 
     public static Stream<Arguments> validProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, Collections.emptySet()))
-                .add(Arguments.of(EMPTY, null, Collections.emptySet()))
-                .add(Arguments.of(null, Collections.emptySet(), Collections.emptySet()))
-                .add(Arguments.of(EMPTY, Collections.emptySet(), Collections.emptySet()))
-                .add(Arguments.of(null, SET_WITH_BLANK, Collections.emptySet()))
-                .add(Arguments.of(EMPTY, SET_WITH_BLANK, Collections.emptySet()))
-                .add(Arguments.of(null, SET_WITH_LOCALHOST, SET_WITH_LOCALHOST))
-                .add(Arguments.of(EMPTY, SET_WITH_LOCALHOST, SET_WITH_LOCALHOST))
+                .add(Arguments.of(null, Function.identity(), LOCALHOST))
+                .add(Arguments.of(EMPTY, Function.identity(), LOCALHOST))
+                .add(Arguments.of(null, LOCALHOST_TO_ALTERNATIVE, ALTERNATIVE_HOST))
+                .add(Arguments.of(EMPTY, LOCALHOST_TO_ALTERNATIVE, ALTERNATIVE_HOST))
                 .build();
     }
 
     @ParameterizedTest
     @MethodSource("validProvider")
     void testConstructorShouldConvertValuesWhenCalled(
-            final String body, final Set<String> hosts, final Set<String> expectedHosts) throws IOException {
+            final String body, final Function<URI, URI> hostOverrideFunction, final String expectedHost) throws IOException {
         //given
         final HttpMethod method = HttpMethod.POST;
         final URL url = new URL("https://localhost");
@@ -68,7 +64,7 @@ class ApacheHttpClientTest {
         final org.apache.http.HttpResponse response = ApacheHttpResponseTest.responseMock();
         final ArgumentCaptor<HttpUriRequest> captor = ArgumentCaptor.forClass(HttpUriRequest.class);
         when(client.execute(captor.capture())).thenReturn(response);
-        final ApacheHttpClient underTest = new ApacheHttpClient(client, hosts);
+        final ApacheHttpClient underTest = new ApacheHttpClient(client, hostOverrideFunction);
 
         //when
         final HttpResponse actual = underTest.send(azureRequest).block();
@@ -76,10 +72,6 @@ class ApacheHttpClientTest {
         //then
         Assertions.assertNotNull(actual);
         ApacheHttpResponseTest.verifyResponse((ApacheHttpResponse) actual);
-        if (expectedHosts.contains(LOCALHOST)) {
-            Assertions.assertEquals(ApacheHttpRequest.LOCALHOST, captor.getValue().getURI().getHost());
-        } else {
-            Assertions.assertEquals(LOCALHOST, captor.getValue().getURI().getHost());
-        }
+        Assertions.assertEquals(expectedHost, captor.getValue().getURI().getHost());
     }
 }

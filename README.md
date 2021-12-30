@@ -41,20 +41,34 @@ I have an app using Azure Key Vault and:
 3. Use ```https://localhost:8443``` as key vault URI when using
    the [Azure Key Vault Key client](https://docs.microsoft.com/en-us/azure/key-vault/keys/quick-create-java)
    or the [Azure Key Vault Secret client](https://docs.microsoft.com/en-us/azure/key-vault/secrets/quick-create-java)
-4. Initialize your keys or secrets using the client
-5. Run your code
-6. Stop Lowkey Vault
+   and set any basic credentials (Lowkey Vault will check whether they are there but ignore the value.)
+4. If you are using more than one vaults parallel
+    1. Either set up all of their host names in hosts to point to localhost
+    2. Or, use the provider in [lowkey-vault-client](lowkey-vault-client/README.md) to handle the mapping for you
+    3. (Or mimic the same using your HTTP client provider)
+5. Initialize your keys or secrets using the client
+6. Run your code
+7. Stop Lowkey Vault
 
 ### Docker
 
 1. Pull the most recent version from ```nagyesta/lowkey-vault```
-2. ```docker run lowkey-vault:0.1.0 -p 8443:8443```
+2. ```docker run lowkey-vault:<version> -p 8443:8443```
 3. Use ```https://localhost:8443``` as key vault URI when using
    the [Azure Key Vault Key client](https://docs.microsoft.com/en-us/azure/key-vault/keys/quick-create-java)
    or the [Azure Key Vault Secret client](https://docs.microsoft.com/en-us/azure/key-vault/secrets/quick-create-java)
-4. Initialize your keys or secrets using the client
-5. Run your code
-6. Stop Lowkey Vault
+   and set any basic credentials (Lowkey Vault will check whether they are there but ignore the value.)
+4. If you are using more than one vaults parallel
+    1. Either set up all of their host names in hosts to point to localhost
+    2. Or, use the provider in [lowkey-vault-client](lowkey-vault-client/README.md) to handle the mapping for you
+    3. (Or mimic the same using your HTTP client provider)
+5. Initialize your keys or secrets using the client
+6. Run your code
+7. Stop Lowkey Vault
+
+## Testcontainers
+
+See examples under [Lowkey Vault Testcontainers](lowkey-vault-testcontainers/README.md).
 
 ## Features
 
@@ -113,3 +127,22 @@ vaults in the aforementioned example. You can pass any number of vault prefixes 
 
 A handful of default vaults are available by default. These are
 configured [here](lowkey-vault-app/src/main/java/com/github/nagyesta/lowkeyvault/AppConfiguration.java).
+
+### Custom port use on host machine
+
+In order to avoid using the reserved `8443` port, we need to tell Lowkey Vault to use a different one instead.
+We need to solve different issues depending on the tool we are using.
+
+##### Using the `.jar`
+
+Set `--server.port=<portNumber>` as an argument as usual with Spring Boot apps.
+
+##### Using Docker
+
+In this case the issue is probably just exposing the `8443` port of the container as `8443` when starting it. Adding `-p <portNumber>:8443`
+when starting the container should do the trick.
+[Example](lowkey-vault-docker/build.gradle#L61)
+
+##### Using Testcontainers
+
+This issue should not happen while using Testcontainers. See examples under [Lowkey Vault Testcontainers](lowkey-vault-testcontainers/README.md).

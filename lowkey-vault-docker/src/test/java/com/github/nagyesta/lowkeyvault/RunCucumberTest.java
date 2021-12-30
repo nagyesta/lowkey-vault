@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 
 import java.util.Objects;
 
-import static com.github.nagyesta.lowkeyvault.context.TestContextConfig.HTTPS_LOCALHOST_8443;
+import static com.github.nagyesta.lowkeyvault.context.TestContextConfig.DEFAULT_CONTAINER_URL;
 
 @CucumberOptions(glue = "com.github.nagyesta.lowkeyvault",
         plugin = {"com.github.nagyesta.abortmission.booster.cucumber.AbortMissionPlugin"
@@ -33,9 +33,9 @@ public class RunCucumberTest extends AbstractTestNGCucumberTests {
     private static final Logger LOGGER = LoggerFactory.getLogger(RunCucumberTest.class);
 
     @BeforeSuite
-    public void beforeSuit() throws InterruptedException {
-        final HttpRequest request = new HttpRequest(HttpMethod.GET, HTTPS_LOCALHOST_8443 + "/ping");
-        final HttpClient client = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443).createInstance();
+    public void beforeSuit() {
+        final HttpRequest request = new HttpRequest(HttpMethod.GET, DEFAULT_CONTAINER_URL + "/ping");
+        final HttpClient client = new ApacheHttpClientProvider(DEFAULT_CONTAINER_URL).createInstance();
         for (int i = 0; i < 30; i++) {
             try {
                 Thread.sleep(200);

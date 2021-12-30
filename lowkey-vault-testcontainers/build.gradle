@@ -1,0 +1,98 @@
+plugins {
+    id 'java'
+    //noinspection SpellCheckingInspection
+    id 'org.sonatype.gradle.plugins.scan' version '2.2.0'
+}
+
+group = "${rootProject.group}"
+
+project.ext {
+    artifactDisplayName = "Lowkey Vault - Testcontainers"
+    artifactDescription = "Support for using Lowkey Vault with Testcontainers."
+}
+
+dependencies {
+    compileOnly "com.azure:azure-core:${rootProject.ext.azureCoreVersion}"
+    implementation platform("org.testcontainers:testcontainers-bom:${rootProject.ext.testcontainersVersion}") //import bom
+    implementation("org.testcontainers:testcontainers")
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation project(":lowkey-vault-client")
+    testImplementation("com.fasterxml.jackson.core:jackson-core") {
+        version {
+            strictly("2.13.1")
+        }
+    }
+    testImplementation("com.fasterxml.jackson.core:jackson-annotations") {
+        version {
+            strictly("2.13.1")
+        }
+    }
+    testImplementation("com.fasterxml.jackson.core:jackson-databind") {
+        version {
+            strictly("2.13.1")
+        }
+    }
+    testImplementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml") {
+        version {
+            strictly("2.13.1")
+        }
+    }
+    testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310") {
+        version {
+            strictly("2.13.1")
+        }
+    }
+    testImplementation "org.apache.httpcomponents:httpclient:${rootProject.ext.httpClientVersion}"
+    testImplementation "com.azure:azure-security-keyvault-keys:${rootProject.ext.azureKeyVaultClientVersion}"
+    testImplementation "com.azure:azure-security-keyvault-secrets:${rootProject.ext.azureKeyVaultClientVersion}"
+    testImplementation "org.mockito:mockito-core:${rootProject.ext.mockitoCoreVersion}"
+    testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.ext.jupiterVersion}"
+    testImplementation "ch.qos.logback:logback-classic:${rootProject.ext.logbackVersion}"
+}
+
+test {
+    useJUnitPlatform()
+    systemProperty("imageVersion", project.version)
+    mustRunAfter(":lowkey-vault-docker:build")
+}
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifactId = "${project.name}"
+            pom {
+                name = "${project.artifactDisplayName}"
+                description = "${project.artifactDescription}"
+                url = rootProject.ext.repoUrl
+                packaging = "jar"
+                licenses {
+                    license {
+                        name = rootProject.ext.licenseName
+                        url = rootProject.ext.licenseUrl
+                    }
+                }
+                developers {
+                    developer {
+                        id = rootProject.ext.maintainerId
+                        name = rootProject.ext.maintainerName
+                        url = rootProject.ext.maintainerUrl
+                    }
+                }
+                scm {
+                    connection = rootProject.ext.scmConnection
+                    developerConnection = rootProject.ext.scmConnection
+                    url = rootProject.ext.scmProjectUrl
+                }
+                withXml {
+                    asNode().dependencies.'*'.findAll() {
+                        it.scope.text() == 'runtime'
+                    }.each { it.scope*.value = 'compile' }
+                }
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}

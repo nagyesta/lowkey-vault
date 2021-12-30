@@ -16,32 +16,38 @@ import com.azure.security.keyvault.secrets.SecretClientBuilder;
 
 import java.net.URI;
 import java.time.Duration;
-import java.util.Collections;
 import java.util.Objects;
-import java.util.Set;
+import java.util.Optional;
+import java.util.function.Function;
 
 public final class ApacheHttpClientProvider {
 
     private static final String DUMMY = "dummy";
 
     private final String vaultUrl;
-    private final Set<String> hostOverride;
+    private final Function<URI, URI> hostOverrideFunction;
 
     public ApacheHttpClientProvider(final String vaultUrl) {
-        this(vaultUrl, true);
+        this(vaultUrl, null);
     }
 
-    public ApacheHttpClientProvider(final String vaultUrl, final boolean forceLocalhost) {
+    /**
+     * Creates a new provider instance setting the vault URL and the host override function.
+     *
+     * @param vaultUrl             The vault URL.
+     * @param hostOverrideFunction The function mapping between the logical host name used by vault URLs
+     *                             and the host name used by the host machine for accessing Lowkey Vault.
+     *                             e.g. Maps from *.localhost:8443 to localhost:30443.
+     * @see ApacheHttpRequest#ApacheHttpRequest(com.azure.core.http.HttpMethod, java.net.URL, com.azure.core.http.HttpHeaders, Function)
+     */
+    public ApacheHttpClientProvider(final String vaultUrl, final Function<URI, URI> hostOverrideFunction) {
         this.vaultUrl = vaultUrl;
-        if (forceLocalhost) {
-            this.hostOverride = Set.of(URI.create(vaultUrl).getHost());
-        } else {
-            this.hostOverride = Collections.emptySet();
-        }
+        this.hostOverrideFunction = Optional.ofNullable(hostOverrideFunction)
+                .orElse(Function.identity());
     }
 
     public HttpClient createInstance() {
-        return new ApacheHttpClient(hostOverride);
+        return new ApacheHttpClient(hostOverrideFunction);
     }
 
     public KeyAsyncClient getKeyAsyncClient() {
@@ -95,4 +101,5 @@ public final class ApacheHttpClientProvider {
     public String getVaultUrl() {
         return vaultUrl;
     }
+
 }

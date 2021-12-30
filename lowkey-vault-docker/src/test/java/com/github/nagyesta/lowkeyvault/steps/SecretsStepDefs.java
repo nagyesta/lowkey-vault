@@ -6,6 +6,7 @@ import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
 import com.azure.security.keyvault.secrets.models.SecretProperties;
 import com.github.nagyesta.lowkeyvault.context.SecretTestContext;
 import com.github.nagyesta.lowkeyvault.http.ApacheHttpClientProvider;
+import com.github.nagyesta.lowkeyvault.http.AuthorityOverrideFunction;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.github.nagyesta.lowkeyvault.context.KeyTestContext.NOW;
+import static com.github.nagyesta.lowkeyvault.context.TestContextConfig.CONTAINER_AUTHORITY;
 
 public class SecretsStepDefs extends CommonAssertions {
 
@@ -27,7 +29,10 @@ public class SecretsStepDefs extends CommonAssertions {
 
     @Given("a secret client is created with the vault named {name}")
     public void theSecretClientIsCreatedWithVaultNameSelected(final String vaultName) {
-        context.setProvider(new ApacheHttpClientProvider("https://" + vaultName + ".localhost:8443"));
+        final String vaultAuthority = vaultName + ".localhost:8443";
+        final String vaultUrl = "https://" + vaultAuthority;
+        final AuthorityOverrideFunction overrideFunction = new AuthorityOverrideFunction(vaultAuthority,CONTAINER_AUTHORITY);
+        context.setProvider(new ApacheHttpClientProvider(vaultUrl, overrideFunction));
     }
 
     @Given("a secret named {name} and valued {secretValue} is prepared")

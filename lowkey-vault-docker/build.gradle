@@ -58,7 +58,7 @@ clean.mustRunAfter dockerClean
 dockerRun {
     name "lowkey-vault"
     image "lowkey-vault:${rootProject.version}"
-    ports "8443:8443"
+    ports "8444:8443"
     daemonize true
     arguments '--rm'
     env 'LOWKEY_ARGS': '--LOWKEY_VAULT_NAMES=keys-generic,keys-delete,' +

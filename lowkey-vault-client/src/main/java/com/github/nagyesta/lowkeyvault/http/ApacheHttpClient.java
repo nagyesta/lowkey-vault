@@ -13,19 +13,18 @@ import org.apache.http.ssl.SSLContextBuilder;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collections;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
 public final class ApacheHttpClient implements HttpClient {
     private final org.apache.http.client.HttpClient httpClient;
-    private final Set<String> hostOverride;
+    private final Function<URI, URI> authorityOverrideFunction;
 
-    public ApacheHttpClient(final Set<String> hostOverride) {
+    public ApacheHttpClient(final Function<URI, URI> authorityOverrideFunction) {
         try {
-            this.hostOverride = convertHosts(hostOverride);
+            this.authorityOverrideFunction = Objects.requireNonNull(authorityOverrideFunction);
             final SSLContextBuilder builder = new SSLContextBuilder();
             builder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
             final SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(builder.build(), new DefaultHostnameVerifier());
@@ -37,23 +36,16 @@ public final class ApacheHttpClient implements HttpClient {
         }
     }
 
-    public ApacheHttpClient(final org.apache.http.client.HttpClient httpClient, final Set<String> hosts) {
-        this.httpClient = httpClient;
-        this.hostOverride = convertHosts(hosts);
-    }
-
-    private Set<String> convertHosts(final Set<String> hostOverride) {
-        return Objects.requireNonNullElse(hostOverride, Collections.<String>emptySet()).stream()
-                .filter(Objects::nonNull)
-                .filter(s -> !s.isBlank())
-                .collect(Collectors.toSet());
+    ApacheHttpClient(final org.apache.http.client.HttpClient httpClient, final Function<URI, URI> authorityOverrideFunction) {
+        this.httpClient = Objects.requireNonNull(httpClient);
+        this.authorityOverrideFunction = Objects.requireNonNull(authorityOverrideFunction);
     }
 
     @SuppressWarnings("BlockingMethodInNonBlockingContext")
     public Mono<HttpResponse> send(final HttpRequest azureRequest) {
         try {
             final ApacheHttpRequest apacheRequest = new ApacheHttpRequest(azureRequest.getHttpMethod(),
-                    azureRequest.getUrl(), azureRequest.getHeaders(), Collections.unmodifiableSet(hostOverride));
+                    azureRequest.getUrl(), azureRequest.getHeaders(), authorityOverrideFunction);
 
             final Mono<byte[]> bodyMono;
             if (azureRequest.getBody() != null) {

@@ -9,14 +9,20 @@ import com.azure.security.keyvault.secrets.SecretClient;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.function.Function;
+
 class ApacheHttpClientProviderTest {
 
-    private static final String HTTPS_LOCALHOST_8443 = "https://localhost:8443";
+    private static final String SPECIAL_LOCALHOST = "special.localhost";
+    private static final String LOCALHOST = "localhost";
+    private static final String HTTPS_SPECIAL_LOCALHOST_8443 = "https://" + SPECIAL_LOCALHOST + ":8443";
+    private static final String HTTPS_LOCALHOST_8443 = "https://" + LOCALHOST + ":8443";
     private static final String WEB_KEY_ID = HTTPS_LOCALHOST_8443 + "/keys/test/00000000000000000000000000000001";
+
     @Test
     void testGetKeyAsyncClientShouldReturnClientWhenCalled() {
         //given
-        final ApacheHttpClientProvider underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, false);
+        final ApacheHttpClientProvider underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, Function.identity());
 
         //when
         final KeyAsyncClient client = underTest.getKeyAsyncClient();
@@ -28,7 +34,7 @@ class ApacheHttpClientProviderTest {
     @Test
     void testGetKeyClientShouldReturnClientWhenCalled() {
         //given
-        final ApacheHttpClientProvider underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, false);
+        final ApacheHttpClientProvider underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, Function.identity());
 
         //when
         final KeyClient client = underTest.getKeyClient();
@@ -40,7 +46,7 @@ class ApacheHttpClientProviderTest {
     @Test
     void testGetSecretAsyncClientShouldReturnClientWhenCalled() {
         //given
-        final ApacheHttpClientProvider underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, false);
+        final ApacheHttpClientProvider underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, Function.identity());
 
         //when
         final SecretAsyncClient client = underTest.getSecretAsyncClient();
@@ -52,7 +58,7 @@ class ApacheHttpClientProviderTest {
     @Test
     void testGetSecretClientShouldReturnClientWhenCalled() {
         //given
-        final ApacheHttpClientProvider underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, false);
+        final ApacheHttpClientProvider underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, Function.identity());
 
         //when
         final SecretClient client = underTest.getSecretClient();
@@ -76,7 +82,8 @@ class ApacheHttpClientProviderTest {
     @Test
     void testGetCryptoClientShouldReturnClientWhenCalled() {
         //given
-        final ApacheHttpClientProvider underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, true);
+        final ApacheHttpClientProvider underTest = new ApacheHttpClientProvider(HTTPS_SPECIAL_LOCALHOST_8443,
+                new AuthorityOverrideFunction(SPECIAL_LOCALHOST, LOCALHOST));
 
         //when
         final CryptographyClient client = underTest.getCryptoClient(WEB_KEY_ID);

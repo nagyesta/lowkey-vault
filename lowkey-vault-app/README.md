@@ -10,4 +10,4 @@
 
 # Lowkey Vault - App
 
-This is the root of the Java app. Visit the [Readme](../README.md) in the repo root for more information.
+This is the root of the Java app. Visit the [Readme](../README.md) in the repo root for more information about the project in general.

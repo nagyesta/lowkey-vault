@@ -41,6 +41,7 @@ public class AppConfiguration {
                         .map(vaultName -> "https://" + vaultName + ".localhost:" + port)
                         .map(URI::create))
                 .orElse(Stream.of()).forEach(service::create);
+        log.info("Vaults registered!");
 
         return service;
     }

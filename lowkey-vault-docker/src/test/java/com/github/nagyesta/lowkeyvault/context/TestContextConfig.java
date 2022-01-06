@@ -9,13 +9,25 @@ import org.springframework.context.annotation.Configuration;
 public class TestContextConfig {
 
     /**
+     * The host port mapped to the SSL port of the container.
+     */
+    public static final String CONTAINER_PORT = "8444";
+    /**
+     * The hostname we can use to access the container from the host.
+     */
+    public static final String CONTAINER_HOST = "localhost";
+    /**
+     * The authority we can use to access the container from the host.
+     */
+    public static final String CONTAINER_AUTHORITY = CONTAINER_HOST + ":" + CONTAINER_PORT;
+    /**
      * Default base URI.
      */
-    public static final String HTTPS_LOCALHOST_8443 = "https://localhost:8443";
+    public static final String DEFAULT_CONTAINER_URL = "https://" + CONTAINER_HOST + ":" + CONTAINER_PORT;
 
     @Bean
     public ApacheHttpClientProvider provider() {
-        return new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443);
+        return new ApacheHttpClientProvider(DEFAULT_CONTAINER_URL);
     }
 
     @Bean

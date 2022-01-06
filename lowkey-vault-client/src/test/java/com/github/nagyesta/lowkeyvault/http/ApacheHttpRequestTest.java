@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Collections;
 import java.util.Map;
+import java.util.function.Function;
 
 class ApacheHttpRequestTest {
 
@@ -26,7 +26,7 @@ class ApacheHttpRequestTest {
         final HttpHeaders headers = new HttpHeaders(Map.of(HEADER_1, HEADER_VALUE_1, HEADER_2, HEADER_VALUE_2));
 
         //when
-        final ApacheHttpRequest actual = new ApacheHttpRequest(method, url, headers, Collections.emptySet());
+        final ApacheHttpRequest actual = new ApacheHttpRequest(method, url, headers, Function.identity());
 
         //then
         Assertions.assertEquals(method.toString(), actual.getMethod());

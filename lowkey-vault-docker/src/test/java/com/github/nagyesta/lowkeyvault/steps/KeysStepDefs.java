@@ -6,6 +6,7 @@ import com.azure.security.keyvault.keys.cryptography.models.*;
 import com.azure.security.keyvault.keys.models.*;
 import com.github.nagyesta.lowkeyvault.context.KeyTestContext;
 import com.github.nagyesta.lowkeyvault.http.ApacheHttpClientProvider;
+import com.github.nagyesta.lowkeyvault.http.AuthorityOverrideFunction;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.github.nagyesta.lowkeyvault.context.KeyTestContext.NOW;
+import static com.github.nagyesta.lowkeyvault.context.TestContextConfig.CONTAINER_AUTHORITY;
 
 public class KeysStepDefs extends CommonAssertions {
 
@@ -29,7 +31,10 @@ public class KeysStepDefs extends CommonAssertions {
 
     @Given("a key client is created with the vault named {name}")
     public void theKeyClientIsCreatedWithVaultNameSelected(final String vaultName) {
-        context.setProvider(new ApacheHttpClientProvider("https://" + vaultName + ".localhost:8443"));
+        final String vaultAuthority = vaultName + ".localhost:8443";
+        final String vaultUrl = "https://" + vaultAuthority;
+        final AuthorityOverrideFunction overrideFunction = new AuthorityOverrideFunction(vaultAuthority,CONTAINER_AUTHORITY);
+        context.setProvider(new ApacheHttpClientProvider(vaultUrl, overrideFunction));
     }
 
     @Given("an EC key named {name} is prepared with {ecCurveName} and {hsm} HSM")

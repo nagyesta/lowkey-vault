@@ -35,6 +35,7 @@ project.ext {
     lombokVersion = '1.18.20'
     findBugsVersion = '3.0.2'
     logbackVersion = '1.2.6'
+    testcontainersVersion = '1.16.2'
 }
 
 versioner {

@@ -1,5 +1,7 @@
 package com.github.nagyesta.lowkeyvault.testcontainers;
 
+import com.azure.core.credential.BasicAuthenticationCredential;
+import com.azure.core.credential.TokenCredential;
 import com.github.nagyesta.lowkeyvault.http.ApacheHttpClient;
 import com.github.nagyesta.lowkeyvault.http.AuthorityOverrideFunction;
 import org.junit.jupiter.api.Test;
@@ -30,6 +32,7 @@ class LowkeyVaultContainerJupiterTest extends AbstractLowkeyVaultContainerTest {
         final AuthorityOverrideFunction authorityOverrideFunction = new AuthorityOverrideFunction(
                 underTest.getVaultAuthority(VAULT_NAME),
                 underTest.getEndpointAuthority());
-        verifyConnectionIsWorking(endpoint, new ApacheHttpClient(authorityOverrideFunction), underTest.getCredentials());
+        final TokenCredential credentials = new BasicAuthenticationCredential(underTest.getUsername(), underTest.getPassword());
+        verifyConnectionIsWorking(endpoint, new ApacheHttpClient(authorityOverrideFunction), credentials);
     }
 }

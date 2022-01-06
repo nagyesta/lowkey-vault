@@ -1,7 +1,5 @@
 package com.github.nagyesta.lowkeyvault.testcontainers;
 
-import com.azure.core.credential.BasicAuthenticationCredential;
-import com.azure.core.credential.TokenCredential;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
@@ -104,12 +102,21 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
     }
 
     /**
-     * Returns the credentials tests should use.
+     * Returns the password to be used for authentication using com.azure.core.credential.BasicAuthenticationCredential.
      *
-     * @return the credentials.
+     * @return password
      */
-    public TokenCredential getCredentials() {
-        return new BasicAuthenticationCredential(DUMMY_USERNAME, DUMMY_PASSWORD);
+    public String getPassword() {
+        return DUMMY_PASSWORD;
+    }
+
+    /**
+     * Returns the username to be used for authentication using com.azure.core.credential.BasicAuthenticationCredential.
+     *
+     * @return username
+     */
+    public String getUsername() {
+        return DUMMY_USERNAME;
     }
 
     private void assertVaultNamesAreValid(final Set<String> vaultNames) {

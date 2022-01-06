@@ -12,7 +12,6 @@ project.ext {
 }
 
 dependencies {
-    compileOnly "com.azure:azure-core:${rootProject.ext.azureCoreVersion}"
     implementation platform("org.testcontainers:testcontainers-bom:${rootProject.ext.testcontainersVersion}") //import bom
     implementation("org.testcontainers:testcontainers")
     testImplementation("org.testcontainers:junit-jupiter")

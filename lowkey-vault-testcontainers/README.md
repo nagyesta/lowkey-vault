@@ -10,14 +10,14 @@
 
 # Lowkey Vault - Testcontainers
 
-This is the root of the Java Testcontainers library. Visit the [Readme](../README.md) in the repo root for more information about the
+This is the root of the Java Testcontainers support library. Visit the [Readme](../README.md) in the repo root for more information about the
 project in general.
 
 ## Usage
 
 ### Dependency
 
-The Testcontainers specific dependencies can be found below. The following examples assume that
+The [Testcontainers](https://testcontainers.org/) specific dependencies can be found below. The following examples assume that
 [Azure Key Vault Key client](https://docs.microsoft.com/en-us/azure/key-vault/keys/quick-create-java)
 and [Azure Key Vault Secret client](https://docs.microsoft.com/en-us/azure/key-vault/secrets/quick-create-java), are already on your
 classpath.

@@ -13,6 +13,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
+/**
+ * Modified class based on https://github.com/Azure/azure-sdk-for-java/wiki/Custom-HTTP-Clients.
+ */
 final class ApacheHttpResponse extends HttpResponse {
     private final int statusCode;
     private final HttpHeaders headers;

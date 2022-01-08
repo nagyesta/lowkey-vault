@@ -20,6 +20,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
+/**
+ * Modified class based on https://github.com/Azure/azure-sdk-for-java/wiki/Custom-HTTP-Clients.
+ */
 public final class ApacheHttpClientProvider {
 
     private static final String DUMMY = "dummy";

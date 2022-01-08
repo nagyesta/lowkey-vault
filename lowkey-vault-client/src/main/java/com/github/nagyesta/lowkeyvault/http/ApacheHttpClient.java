@@ -18,6 +18,9 @@ import java.net.URISyntaxException;
 import java.util.Objects;
 import java.util.function.Function;
 
+/**
+ * Modified class based on https://github.com/Azure/azure-sdk-for-java/wiki/Custom-HTTP-Clients.
+ */
 public final class ApacheHttpClient implements HttpClient {
     private final org.apache.http.client.HttpClient httpClient;
     private final Function<URI, URI> authorityOverrideFunction;

@@ -10,6 +10,10 @@ import java.net.URL;
 import java.util.Objects;
 import java.util.function.Function;
 
+
+/**
+ * Modified class based on https://github.com/Azure/azure-sdk-for-java/wiki/Custom-HTTP-Clients.
+ */
 final class ApacheHttpRequest extends HttpEntityEnclosingRequestBase {
     private final String method;
 

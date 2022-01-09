@@ -9,6 +9,8 @@ on:
     paths-ignore:
       - 'README.md'
       - '**/README.md'
+      - '.lift/.toml'
+      - '**/.lift/.toml'
       - 'SECURITY.md'
       - 'LICENSE'
       - '.github/ISSUE_TEMPLATE/**'
@@ -63,4 +65,3 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./lowkey-vault-app/build/reports/jacoco/report.xml
-          fail_ci_if_error: false

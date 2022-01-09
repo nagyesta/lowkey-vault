@@ -3,7 +3,6 @@ plugins {
     id 'java'
     //noinspection SpellCheckingInspection
     id "io.freefair.lombok" version '6.2.0'
-    id 'org.sonatype.gradle.plugins.scan' version '2.2.0'
     id 'com.github.nagyesta.abort-mission-gradle-plugin' version '2.1.0'
 }
 
@@ -20,6 +19,8 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-web:${rootProject.ext.springBootVersion}"
     implementation "org.springframework.boot:spring-boot-starter-tomcat:${rootProject.ext.springBootVersion}"
     implementation "org.springframework.boot:spring-boot-starter-validation:${rootProject.ext.springBootVersion}"
+    implementation "ch.qos.logback:logback-classic:${rootProject.ext.logbackVersion}"
+    implementation "ch.qos.logback:logback-core:${rootProject.ext.logbackVersion}"
     implementation "org.bouncycastle:bcpkix-jdk15on:${rootProject.ext.bouncyCastleVersion}"
     implementation "org.hibernate:hibernate-validator:${rootProject.ext.hibernateVersion}"
     implementation "com.google.code.findbugs:jsr305:${rootProject.ext.findBugsVersion}"

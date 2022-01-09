@@ -1,5 +1,7 @@
 plugins {
     id 'io.toolebox.git-versioner' version '1.6.5'
+    id 'org.sonatype.gradle.plugins.scan' version '2.2.2' apply false
+    id 'org.owasp.dependencycheck' version '6.5.2' apply false
 }
 
 group = 'com.github.nagyesta.lowkey-vault'
@@ -9,6 +11,8 @@ project.ext {
     gitUser = project.hasProperty('githubUser') ? (project.property('githubUser') as String) : ''
     ossrhUser = project.hasProperty('ossrhUsername') ? (project.property('ossrhUsername') as String) : ''
     ossrhPass = project.hasProperty('ossrhPassword') ? (project.property('ossrhPassword') as String) : ''
+    ossIndexUser = project.hasProperty('ossIndexUsername') ? (project.property('ossIndexUsername') as String) : ''
+    ossIndexPass = project.hasProperty('ossIndexPassword') ? (project.property('ossIndexPassword') as String) : ''
     keyToolDir = project.hasProperty('keyToolDir') ? (project.property('keyToolDir') as String) : ''
     repoUrl = 'https://github.com/nagyesta/lowkey-vault'
     licenseName = 'MIT License'
@@ -24,17 +28,17 @@ project.ext {
     // internal build versions
     httpClientVersion = '4.5.13'
     azureKeyVaultClientVersion = '4.3.4'
-    abortMissionVersion = '2.8.1'
+    abortMissionVersion = '2.8.4'
     cucumberVersion = '7.1.0'
     jupiterVersion = '5.8.2'
     mockitoCoreVersion = '3.9.0'
-    springBootVersion = '2.6.1'
+    springBootVersion = '2.6.2'
     bouncyCastleVersion = '1.69'
     hibernateVersion = '6.2.0.Final'
-    springVersion = '5.3.13'
+    springVersion = '5.3.14'
     lombokVersion = '1.18.20'
     findBugsVersion = '3.0.2'
-    logbackVersion = '1.2.6'
+    logbackVersion = '1.2.10'
     testcontainersVersion = '1.16.2'
 }
 
@@ -73,6 +77,8 @@ configure(subprojects.findAll({
     apply plugin: 'jacoco'
     apply plugin: 'maven-publish'
     apply plugin: 'signing'
+    apply plugin: 'org.sonatype.gradle.plugins.scan'
+    apply plugin: 'org.owasp.dependencycheck'
 
     versioner.apply()
 
@@ -161,6 +167,7 @@ configure(subprojects.findAll({
                     .fromFile(rootProject.file('config/checkstyle/checkstyle-stylesheet.xsl') as String)
         }
     }
+    checkstyle.toolVersion = '9.2.1'
 
     publishing {
         repositories {
@@ -186,6 +193,15 @@ configure(subprojects.findAll({
     //Disable metadata publishing and rely on Maven only
     tasks.withType(GenerateModuleMetadata) {
         enabled = false
+    }
+
+    ossIndexAudit {
+        username = rootProject.ext.ossIndexUser
+        password = rootProject.ext.ossIndexPass
+        printBanner = false
+        colorEnabled = true
+        showAll = false
+        dependencyGraph = true
     }
 }
 

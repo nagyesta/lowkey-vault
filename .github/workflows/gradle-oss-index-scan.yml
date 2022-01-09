@@ -21,4 +21,4 @@ jobs:
         with:
           java-version: 11
       - name: Check dependencies with Gradle
-        run: ./gradlew ossIndexAudit --info
+        run: ./gradlew ossIndexAudit -PossIndexUsername=${{ secrets.OSS_INDEX_USER }} -PossIndexPassword=${{ secrets.OSS_INDEX_PASSWORD }}

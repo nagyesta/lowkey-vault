@@ -1,7 +1,5 @@
 plugins {
     id 'java'
-    //noinspection SpellCheckingInspection
-    id 'org.sonatype.gradle.plugins.scan' version '2.2.0'
 }
 
 group = "${rootProject.group}"

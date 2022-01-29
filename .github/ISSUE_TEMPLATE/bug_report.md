@@ -1,7 +1,9 @@
 ---
-name: Bug report about: Something didn't go as expected? Please report a bug to help us improve!
-title: ''
-labels: 'bug' assignees: ''
+name: Bug report
+about: Something didn't go as expected? Please report a bug to help us improve!
+title: Bug report
+labels: bug
+assignees: ''
 
 ---
 

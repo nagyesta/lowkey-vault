@@ -1,7 +1,9 @@
 ---
-name: Feature request about: It works fine but something is missing to make it better. Please tell us more!
+name: Feature request
+about: It works fine but something is missing to make it better. Please tell us more!
 title: ''
-labels: 'enhancement' assignees: ''
+labels: enhancement
+assignees: ''
 
 ---
 

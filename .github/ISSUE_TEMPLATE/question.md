@@ -1,7 +1,10 @@
 ---
-name: General question about: Do you need to find out something but can't find it in our readme? Please feel free to ask!
+name: Question
+about: Do you need to find out something but can't find it in our readme? Please feel
+  free to ask!
 title: ''
-labels: 'question' assignees: ''
+labels: question
+assignees: ''
 
 ---
 

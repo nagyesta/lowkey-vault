@@ -22,6 +22,8 @@ public class KeyTestContext extends CommonTestContext<KeyVaultKey, DeletedKey, K
     private KeyOperation[] updateKeyOperations;
     private EncryptResult encryptResult;
     private DecryptResult decryptResult;
+    private byte[] signatureResult;
+    private Boolean verifyResult;
 
     public KeyTestContext(final ApacheHttpClientProvider provider) {
         super(provider);
@@ -95,5 +97,21 @@ public class KeyTestContext extends CommonTestContext<KeyVaultKey, DeletedKey, K
 
     public void setDecryptResult(final DecryptResult decryptResult) {
         this.decryptResult = decryptResult;
+    }
+
+    public byte[] getSignatureResult() {
+        return signatureResult;
+    }
+
+    public void setSignatureResult(final byte[] signatureResult) {
+        this.signatureResult = signatureResult;
+    }
+
+    public Boolean getVerifyResult() {
+        return verifyResult;
+    }
+
+    public void setVerifyResult(final Boolean verifyResult) {
+        this.verifyResult = verifyResult;
     }
 }

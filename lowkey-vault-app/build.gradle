@@ -35,6 +35,9 @@ test {
     outputs.file(file("$buildDir/reports/abort-mission/abort-mission-report.json"))
     useJUnitPlatform()
     systemProperty("junit.jupiter.extensions.autodetection.enabled", true)
+    systemProperty("junit.jupiter.execution.parallel.enabled", true)
+    systemProperty("junit.jupiter.execution.parallel.mode.default", "concurrent")
+    systemProperty("junit.jupiter.execution.parallel.mode.classes.default", "concurrent")
 }
 abortMission {
     toolVersion rootProject.ext.abortMissionVersion

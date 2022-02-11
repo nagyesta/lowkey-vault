@@ -16,6 +16,8 @@ on:
       - '.github/ISSUE_TEMPLATE/**'
       - '.github/assets/**'
 
+permissions: read-all
+
 jobs:
   build:
     runs-on: ubuntu-latest

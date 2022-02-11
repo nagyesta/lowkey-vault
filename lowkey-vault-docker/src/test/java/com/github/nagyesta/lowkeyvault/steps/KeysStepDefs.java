@@ -13,6 +13,8 @@ import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +35,7 @@ public class KeysStepDefs extends CommonAssertions {
     public void theKeyClientIsCreatedWithVaultNameSelected(final String vaultName) {
         final String vaultAuthority = vaultName + ".localhost:8443";
         final String vaultUrl = "https://" + vaultAuthority;
-        final AuthorityOverrideFunction overrideFunction = new AuthorityOverrideFunction(vaultAuthority,CONTAINER_AUTHORITY);
+        final AuthorityOverrideFunction overrideFunction = new AuthorityOverrideFunction(vaultAuthority, CONTAINER_AUTHORITY);
         context.setProvider(new ApacheHttpClientProvider(vaultUrl, overrideFunction));
     }
 
@@ -265,10 +267,26 @@ public class KeysStepDefs extends CommonAssertions {
         context.setEncryptResult(encryptResult);
     }
 
+    @When("the created key is used to sign {clearText} with {signAlgorithm}")
+    public void theCreatedKeyIsUsedToSignClearTextWithAlgorithm(final byte[] text, final SignatureAlgorithm algorithm) {
+        final String keyId = context.getLastResult().getKey().getId();
+        context.setCryptographyClient(context.getProvider().getCryptoClient(keyId));
+        final byte[] digest = hash(text);
+        final SignResult signResult = context.getCryptographyClient()
+                .sign(algorithm, digest);
+        context.setSignatureResult(signResult.getSignature());
+    }
+
     @When("the encrypted value is not {clearText}")
     public void theEncryptedValueIsNotClearText(final byte[] text) {
         assertTrue("The cipherText and the clearText should not be the same!",
                 !Arrays.equals(context.getEncryptResult().getCipherText(), text));
+    }
+
+    @When("the signed value is not {clearText}")
+    public void theSignedValueIsNotClearText(final byte[] text) {
+        assertTrue("The signature and the clearText should not be the same!",
+                !Arrays.equals(context.getSignatureResult(), text));
     }
 
     @And("the encrypted value is decrypted with {algorithm}")
@@ -278,6 +296,25 @@ public class KeysStepDefs extends CommonAssertions {
         final DecryptResult decryptResult = context.getCryptographyClient()
                 .decrypt(decryptParams(algorithm, context.getEncryptResult()), Context.NONE);
         context.setDecryptResult(decryptResult);
+    }
+
+    @And("the signature of {clearText} is verified with {signAlgorithm}")
+    public void theSignValueIsVerifiedWithAlgorithm(final byte[] text, final SignatureAlgorithm algorithm) {
+        final String keyId = context.getLastResult().getKey().getId();
+        context.setCryptographyClient(context.getProvider().getCryptoClient(keyId));
+        final byte[] digest = hash(text);
+        final VerifyResult verifyResult = context.getCryptographyClient().verify(algorithm, digest, context.getSignatureResult());
+        context.setVerifyResult(verifyResult.isValid());
+    }
+
+    private byte[] hash(final byte[] text) {
+        try {
+            final MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(text);
+            return md.digest();
+        } catch (final NoSuchAlgorithmException e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
+        }
     }
 
     private byte[] getIv() {

@@ -99,6 +99,19 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
     - ```AES``` (```128```/```192```/```256```)
         - ```AES-CBC```
         - ```AES-CBC Pad```
+- Sing/Verify digest with keys
+    - ```RSA``` (```2k```/```3k```/```4k```)
+        - ```PS256```
+        - ```PS384```
+        - ```PS512```
+        - ```RS256```
+        - ```RS384```
+        - ```RS512```
+    - ```EC``` (```P-256```/```P-256K```/```P-384```/```P-521```)
+        - ```ES256```
+        - ```ES256K```
+        - ```ES384```
+        - ```ES512```
 
 ### Secrets
 
@@ -147,3 +160,11 @@ when starting the container should do the trick.
 ##### Using Testcontainers
 
 This issue should not happen while using Testcontainers. See examples under [Lowkey Vault Testcontainers](lowkey-vault-testcontainers/README.md).
+
+# Limitations
+
+- Some encryption/signature algorithms are not supported. Please refer to the ["Features"](#features) section for the up-to-date list of supported algorithms.
+- ```EC``` public keys are not exposed by the server to make Azure Cryptography Client always go to the server during encrypt/verify operations.
+- Backup and restore features are not supported at the moment
+- Certificate Vault features are not supported at the moment
+- Recovery options cannot be set as vault creation is implicit during start-up

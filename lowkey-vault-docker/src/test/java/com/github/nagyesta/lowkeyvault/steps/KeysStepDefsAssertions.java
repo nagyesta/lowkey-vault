@@ -23,8 +23,7 @@ public class KeysStepDefsAssertions extends CommonAssertions {
     @Then("the created key is using EC algorithm with {ecCurveName} curve name and {int} bytes length")
     public void theCreatedKeyIsUsingEcAlgorithmWithNBytesBytesLength(final KeyCurveName curveName, final int nBytes) {
         assertEquals(curveName, context.getLastResult().getKey().getCurveName());
-        assertByteArrayLength(nBytes, context.getLastResult().getKey().getX());
-        assertByteArrayLength(nBytes, context.getLastResult().getKey().getY());
+        //X and Y are not returned by the server to avoid miscalculation issues with wrong public key
     }
 
     @Then("the created key is using OCT algorithm")
@@ -150,5 +149,10 @@ public class KeysStepDefsAssertions extends CommonAssertions {
     @Then("the decrypted value is {clearText}")
     public void theDecryptedValueIsClearText(final byte[] text) {
         assertEquals(text, context.getDecryptResult().getPlainText());
+    }
+
+    @Then("the signature matches")
+    public void theSignatureMatches() {
+        assertTrue(context.getVerifyResult());
     }
 }

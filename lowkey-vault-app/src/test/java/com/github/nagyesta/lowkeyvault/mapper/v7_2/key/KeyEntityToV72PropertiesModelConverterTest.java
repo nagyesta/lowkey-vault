@@ -4,6 +4,7 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyPropertiesModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.EncryptionAlgorithm;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.SignatureAlgorithm;
 import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
 import com.github.nagyesta.lowkeyvault.service.key.impl.KeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
@@ -135,6 +136,18 @@ class KeyEntityToV72PropertiesModelConverterTest {
 
         public void setRecoveryLevel(final RecoveryLevel recoveryLevel) {
             this.recoveryLevel = recoveryLevel;
+        }
+
+        @Override
+        public byte[] signBytes(final byte[] clear, final SignatureAlgorithm encryptionAlgorithm) {
+            return new byte[0];
+        }
+
+        @Override
+        public boolean verifySignedBytes(final byte[] signed,
+                                         final SignatureAlgorithm encryptionAlgorithm,
+                                         final byte[] digest) {
+            return false;
         }
     }
 }

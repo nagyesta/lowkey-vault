@@ -3,6 +3,7 @@ package com.github.nagyesta.lowkeyvault.service.key;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.EncryptionAlgorithm;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.SignatureAlgorithm;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import org.springframework.util.Assert;
@@ -27,6 +28,10 @@ public interface ReadOnlyKeyVaultKeyEntity extends BaseVaultEntity<VersionedKeyE
     byte[] encryptBytes(byte[] clear, EncryptionAlgorithm encryptionAlgorithm, byte[] iv);
 
     byte[] decryptToBytes(byte[] encrypted, EncryptionAlgorithm encryptionAlgorithm, byte[] iv);
+
+    byte[] signBytes(byte[] clear, SignatureAlgorithm encryptionAlgorithm);
+
+    boolean verifySignedBytes(byte[] signed, SignatureAlgorithm encryptionAlgorithm, byte[] digest);
 
     VersionedKeyEntityId getId();
 

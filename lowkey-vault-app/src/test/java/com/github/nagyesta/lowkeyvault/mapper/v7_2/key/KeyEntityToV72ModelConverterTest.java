@@ -143,8 +143,6 @@ class KeyEntityToV72ModelConverterTest {
             Assertions.assertEquals(KeyType.EC, actual.getKey().getKeyType());
         }
         Assertions.assertEquals(input.getKeyCurveName(), actual.getKey().getCurveName());
-        Assertions.assertArrayEquals(input.getX(), actual.getKey().getX());
-        Assertions.assertArrayEquals(input.getY(), actual.getKey().getY());
         assertRsaFieldsAreNull(actual);
         assertOctFieldsAreNull(actual);
 

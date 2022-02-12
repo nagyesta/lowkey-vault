@@ -1,15 +1,16 @@
 package com.github.nagyesta.lowkeyvault.service.key.impl;
 
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.EncryptionAlgorithm;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.*;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyEcKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.lang.NonNull;
+import org.springframework.util.Assert;
 
 import java.security.KeyPair;
+import java.security.Signature;
 import java.security.interfaces.ECPublicKey;
 
 @Slf4j
@@ -60,4 +61,31 @@ public class EcKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, KeyCurveName
         throw new UnsupportedOperationException("Decrypt is not supported for EC keys.");
     }
 
+    @Override
+    public byte[] signBytes(final byte[] clear, final SignatureAlgorithm signatureAlgorithm) {
+        Assert.state(getOperations().contains(KeyOperation.SIGN), getId() + " does not have SIGN operation assigned.");
+        Assert.state(isEnabled(), getId() + " is not enabled.");
+        Assert.state(signatureAlgorithm.isCompatibleWithCurve(getKeyCurveName()), getId() + " is not using the right key curve.");
+        return doCrypto(() -> {
+            final Signature ecSign = Signature.getInstance(signatureAlgorithm.getAlg(), new BouncyCastleProvider());
+            ecSign.initSign(getKey().getPrivate());
+            ecSign.update(clear);
+            return ecSign.sign();
+        }, "Cannot sign message.", log);
+    }
+
+    @Override
+    public boolean verifySignedBytes(final byte[] signed,
+                                     final SignatureAlgorithm signatureAlgorithm,
+                                     final byte[] digest) {
+        Assert.state(getOperations().contains(KeyOperation.VERIFY), getId() + " does not have VERIFY operation assigned.");
+        Assert.state(isEnabled(), getId() + " is not enabled.");
+        Assert.state(signatureAlgorithm.isCompatibleWithCurve(getKeyCurveName()), getId() + " is not using the right key curve.");
+        return doCrypto(() -> {
+            final Signature ecVerify = Signature.getInstance(signatureAlgorithm.getAlg(), new BouncyCastleProvider());
+            ecVerify.initVerify(getKey().getPublic());
+            ecVerify.update(signed);
+            return ecVerify.verify(digest);
+        }, "Cannot verify signed message.", log);
+    }
 }

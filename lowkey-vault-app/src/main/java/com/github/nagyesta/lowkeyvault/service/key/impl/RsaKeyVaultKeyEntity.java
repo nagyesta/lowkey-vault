@@ -3,6 +3,7 @@ package com.github.nagyesta.lowkeyvault.service.key.impl;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.EncryptionAlgorithm;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.SignatureAlgorithm;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyRsaKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
@@ -14,6 +15,7 @@ import org.springframework.util.Assert;
 import javax.crypto.Cipher;
 import java.math.BigInteger;
 import java.security.KeyPair;
+import java.security.Signature;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.RSAKeyGenParameterSpec;
 import java.util.Objects;
@@ -82,5 +84,31 @@ public class RsaKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, Integer> im
             cipher.init(Cipher.DECRYPT_MODE, getKey().getPrivate());
             return cipher.doFinal(encrypted);
         }, "Cannot decrypt message.", log);
+    }
+
+    @Override
+    public byte[] signBytes(final byte[] clear, final SignatureAlgorithm signatureAlgorithm) {
+        Assert.state(getOperations().contains(KeyOperation.SIGN), getId() + " does not have SIGN operation assigned.");
+        Assert.state(isEnabled(), getId() + " is not enabled.");
+        return doCrypto(() -> {
+            final Signature rsaSign = Signature.getInstance(signatureAlgorithm.getAlg(), new BouncyCastleProvider());
+            rsaSign.initSign(getKey().getPrivate());
+            rsaSign.update(clear);
+            return rsaSign.sign();
+        }, "Cannot sign message.", log);
+    }
+
+    @Override
+    public boolean verifySignedBytes(final byte[] signed,
+                                     final SignatureAlgorithm signatureAlgorithm,
+                                     final byte[] digest) {
+        Assert.state(getOperations().contains(KeyOperation.VERIFY), getId() + " does not have VERIFY operation assigned.");
+        Assert.state(isEnabled(), getId() + " is not enabled.");
+        return doCrypto(() -> {
+            final Signature rsaVerify = Signature.getInstance(signatureAlgorithm.getAlg(), new BouncyCastleProvider());
+            rsaVerify.initVerify(getKey().getPublic());
+            rsaVerify.update(signed);
+            return rsaVerify.verify(digest);
+        }, "Cannot verify signed message.", log);
     }
 }

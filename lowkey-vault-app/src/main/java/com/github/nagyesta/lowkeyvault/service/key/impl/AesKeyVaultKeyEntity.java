@@ -3,6 +3,7 @@ package com.github.nagyesta.lowkeyvault.service.key.impl;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.EncryptionAlgorithm;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.SignatureAlgorithm;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyAesKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
@@ -79,5 +80,17 @@ public class AesKeyVaultKeyEntity extends KeyVaultKeyEntity<SecretKey, Integer> 
             cipher.init(Cipher.DECRYPT_MODE, this.getKey(), new IvParameterSpec(iv));
             return cipher.doFinal(encrypted);
         }, "Cannot decrypt message.", log);
+    }
+
+    @Override
+    public byte[] signBytes(final byte[] clear, final SignatureAlgorithm encryptionAlgorithm) {
+        throw new UnsupportedOperationException("Sign is not supported for OCT keys.");
+    }
+
+    @Override
+    public boolean verifySignedBytes(final byte[] signed,
+                                     final SignatureAlgorithm encryptionAlgorithm,
+                                     final byte[] digest) {
+        throw new UnsupportedOperationException("Verify is not supported for OCT keys.");
     }
 }

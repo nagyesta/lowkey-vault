@@ -12,9 +12,8 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.*;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.EncryptionAlgorithm;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.CreateKeyRequest;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeyOperationsParameters;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.UpdateKeyRequest;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.SignatureAlgorithm;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.*;
 import com.github.nagyesta.lowkeyvault.service.common.ReadOnlyVersionedEntityMultiMap;
 import com.github.nagyesta.lowkeyvault.service.exception.AlreadyExistsException;
 import com.github.nagyesta.lowkeyvault.service.exception.CryptoException;
@@ -884,6 +883,55 @@ class KeyControllerTest {
         Assertions.assertNotNull(actual.getBody());
         final String decoded = new String(DECODER.decode(actual.getBody().getValue()), StandardCharsets.UTF_8);
         Assertions.assertEquals(clearText, decoded);
+
+        verify(vaultService, times(2)).findByUri(eq(HTTPS_LOCALHOST_8443));
+        verify(vaultFake, times(2)).keyVaultFake();
+        verify(keyVaultFake, times(2)).getEntities();
+        verify(entities, never()).getLatestVersionOfEntity(eq(baseUri));
+        verify(entities, times(2)).getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3));
+    }
+
+    @SuppressWarnings("checkstyle:MagicNumber")
+    @ParameterizedTest
+    @ValueSource(strings = {BLANK, DEFAULT_VAULT, LOCALHOST, LOWKEY_VAULT})
+    void testSignAndVerifyShouldReturnTrueWhenKeyAndVersionIsFoundAndCalledInSequence(final String clearText) {
+        //given
+        final KeyEntityId baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
+        final List<KeyOperation> operations = List.of(KeyOperation.SIGN, KeyOperation.VERIFY);
+        final CreateKeyRequest request = createRequest(operations, null, null);
+        final RsaKeyVaultKeyEntity entity = (RsaKeyVaultKeyEntity) createEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, request);
+        entity.setEnabled(true);
+        entity.setOperations(operations);
+        when(keyVaultFake.getEntities())
+                .thenReturn(entities);
+        when(entities.getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3)))
+                .thenReturn(entity);
+        when(keyEntityToV72ModelConverter.convert(same(entity)))
+                .thenReturn(RESPONSE);
+        final KeySignParameters keySignParameters = new KeySignParameters();
+        keySignParameters.setAlgorithm(SignatureAlgorithm.PS256);
+        keySignParameters.setValue(ENCODER.encodeToString(clearText.getBytes(StandardCharsets.UTF_8)));
+
+        //when
+        final ResponseEntity<KeySignResult> signature = underTest
+                .sign(KEY_NAME_1, KEY_VERSION_3, HTTPS_LOCALHOST_8443, keySignParameters);
+        Assertions.assertNotNull(signature);
+        Assertions.assertEquals(HttpStatus.OK, signature.getStatusCode());
+        Assertions.assertNotNull(signature.getBody());
+        Assertions.assertNotEquals(clearText, signature.getBody().getValue());
+
+        final KeyVerifyParameters verifyParameters = new KeyVerifyParameters();
+        verifyParameters.setAlgorithm(SignatureAlgorithm.PS256);
+        verifyParameters.setDigest(ENCODER.encodeToString(clearText.getBytes(StandardCharsets.UTF_8)));
+        verifyParameters.setValue(signature.getBody().getValue());
+        final ResponseEntity<KeyVerifyResult> actual = underTest
+                .verify(KEY_NAME_1, KEY_VERSION_3, HTTPS_LOCALHOST_8443, verifyParameters);
+
+        //then
+        Assertions.assertNotNull(actual);
+        Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
+        Assertions.assertNotNull(actual.getBody());
+        Assertions.assertTrue(actual.getBody().isValue());
 
         verify(vaultService, times(2)).findByUri(eq(HTTPS_LOCALHOST_8443));
         verify(vaultFake, times(2)).keyVaultFake();

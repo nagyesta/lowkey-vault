@@ -1,6 +1,7 @@
 package com.github.nagyesta.lowkeyvault.steps;
 
 import com.azure.security.keyvault.keys.cryptography.models.EncryptionAlgorithm;
+import com.azure.security.keyvault.keys.cryptography.models.SignatureAlgorithm;
 import com.azure.security.keyvault.keys.models.KeyCurveName;
 import com.azure.security.keyvault.keys.models.KeyOperation;
 import io.cucumber.java.ParameterType;
@@ -72,6 +73,11 @@ public class ParameterTypeDefs {
     @ParameterType("(A128CBC|A128CBCPAD|A192CBC|A192CBCPAD|A256CBC|A256CBCPAD|RSA1_5|RSA-OAEP|RSA-OAEP-256)")
     public EncryptionAlgorithm algorithm(final String name) {
         return EncryptionAlgorithm.fromString(name);
+    }
+
+    @ParameterType("(ES256|ES256K|ES384|ES512|PS256|PS384|PS512|RS256|RS384|RS512)")
+    public SignatureAlgorithm signAlgorithm(final String name) {
+        return SignatureAlgorithm.fromString(name);
     }
 
     @ParameterType("(with|without)")

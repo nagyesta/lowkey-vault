@@ -15,6 +15,8 @@ on:
       - 'LICENSE'
       - '.github/ISSUE_TEMPLATE/**'
       - '.github/assets/**'
+      - '.github/dependabot.yml'
+      - '.github/workflows/**'
 
 permissions: read-all
 
@@ -50,3 +52,16 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./lowkey-vault-app/build/reports/jacoco/report.xml
+          flags: app
+      - name: Upload coverage to Codecov - Client
+        uses: codecov/codecov-action@11d69070bf0bb19a473235e011c7890707db52de # v2.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./lowkey-vault-client/build/reports/jacoco/report.xml
+          flags: client
+      - name: Upload coverage to Codecov - Testcontainers
+        uses: codecov/codecov-action@11d69070bf0bb19a473235e011c7890707db52de # v2.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./lowkey-vault-testcontainers/build/reports/jacoco/report.xml
+          flags: testcontainers

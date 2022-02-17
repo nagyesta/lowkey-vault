@@ -83,14 +83,14 @@ public class AesKeyVaultKeyEntity extends KeyVaultKeyEntity<SecretKey, Integer> 
     }
 
     @Override
-    public byte[] signBytes(final byte[] clear, final SignatureAlgorithm encryptionAlgorithm) {
+    public byte[] signBytes(final byte[] digest, final SignatureAlgorithm encryptionAlgorithm) {
         throw new UnsupportedOperationException("Sign is not supported for OCT keys.");
     }
 
     @Override
-    public boolean verifySignedBytes(final byte[] signed,
+    public boolean verifySignedBytes(final byte[] digest,
                                      final SignatureAlgorithm encryptionAlgorithm,
-                                     final byte[] digest) {
+                                     final byte[] signature) {
         throw new UnsupportedOperationException("Verify is not supported for OCT keys.");
     }
 }

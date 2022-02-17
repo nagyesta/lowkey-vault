@@ -57,7 +57,8 @@ public class KeyEntityToV72ModelConverter
     private JsonWebKeyModel mapEcFields(final ReadOnlyEcKeyVaultKeyEntity entity) {
         final JsonWebKeyModel jsonWebKeyModel = mapCommonKeyProperties(entity);
         jsonWebKeyModel.setCurveName(entity.getKeyCurveName());
-        //skip mapping X and Y to not expose public key to client
+        jsonWebKeyModel.setX(entity.getX());
+        jsonWebKeyModel.setY(entity.getY());
         return jsonWebKeyModel;
     }
 

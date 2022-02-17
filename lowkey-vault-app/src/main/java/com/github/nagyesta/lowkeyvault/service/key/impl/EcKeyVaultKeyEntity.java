@@ -5,13 +5,14 @@ import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyEcKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
+import java.lang.reflect.Array;
 import java.security.KeyPair;
 import java.security.Signature;
-import java.security.interfaces.ECPublicKey;
+import java.util.Optional;
 
 @Slf4j
 public class EcKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, KeyCurveName> implements ReadOnlyEcKeyVaultKeyEntity {
@@ -38,12 +39,12 @@ public class EcKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, KeyCurveName
 
     @Override
     public byte[] getX() {
-        return ((ECPublicKey) getKey().getPublic()).getW().getAffineX().toByteArray();
+        return ((BCECPublicKey) getKey().getPublic()).getQ().getAffineXCoord().getEncoded();
     }
 
     @Override
     public byte[] getY() {
-        return ((ECPublicKey) getKey().getPublic()).getW().getAffineY().toByteArray();
+        return ((BCECPublicKey) getKey().getPublic()).getQ().getAffineYCoord().getEncoded();
     }
 
     @Override
@@ -62,30 +63,38 @@ public class EcKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, KeyCurveName
     }
 
     @Override
-    public byte[] signBytes(final byte[] clear, final SignatureAlgorithm signatureAlgorithm) {
+    public byte[] signBytes(final byte[] digest, final SignatureAlgorithm signatureAlgorithm) {
         Assert.state(getOperations().contains(KeyOperation.SIGN), getId() + " does not have SIGN operation assigned.");
         Assert.state(isEnabled(), getId() + " is not enabled.");
         Assert.state(signatureAlgorithm.isCompatibleWithCurve(getKeyCurveName()), getId() + " is not using the right key curve.");
+        final int length = Optional.ofNullable(digest)
+                .map(Array::getLength)
+                .orElseThrow(() -> new IllegalArgumentException("Digest is null."));
+        Assert.isTrue(signatureAlgorithm.supportsDigestLength(length), getId() + " does not support digest length: " + length + ".");
         return doCrypto(() -> {
-            final Signature ecSign = Signature.getInstance(signatureAlgorithm.getAlg(), new BouncyCastleProvider());
+            final Signature ecSign = Signature.getInstance(signatureAlgorithm.getAlg());
             ecSign.initSign(getKey().getPrivate());
-            ecSign.update(clear);
+            ecSign.update(digest);
             return ecSign.sign();
         }, "Cannot sign message.", log);
     }
 
     @Override
-    public boolean verifySignedBytes(final byte[] signed,
+    public boolean verifySignedBytes(final byte[] digest,
                                      final SignatureAlgorithm signatureAlgorithm,
-                                     final byte[] digest) {
+                                     final byte[] signature) {
         Assert.state(getOperations().contains(KeyOperation.VERIFY), getId() + " does not have VERIFY operation assigned.");
         Assert.state(isEnabled(), getId() + " is not enabled.");
         Assert.state(signatureAlgorithm.isCompatibleWithCurve(getKeyCurveName()), getId() + " is not using the right key curve.");
+        final int length = Optional.ofNullable(digest)
+                .map(Array::getLength)
+                .orElseThrow(() -> new IllegalArgumentException("Digest is null."));
+        Assert.isTrue(signatureAlgorithm.supportsDigestLength(length), getId() + " does not support digest length: " + length + ".");
         return doCrypto(() -> {
-            final Signature ecVerify = Signature.getInstance(signatureAlgorithm.getAlg(), new BouncyCastleProvider());
+            final Signature ecVerify = Signature.getInstance(signatureAlgorithm.getAlg());
             ecVerify.initVerify(getKey().getPublic());
-            ecVerify.update(signed);
-            return ecVerify.verify(digest);
-        }, "Cannot verify signed message.", log);
+            ecVerify.update(digest);
+            return ecVerify.verify(signature);
+        }, "Cannot verify digest message.", log);
     }
 }

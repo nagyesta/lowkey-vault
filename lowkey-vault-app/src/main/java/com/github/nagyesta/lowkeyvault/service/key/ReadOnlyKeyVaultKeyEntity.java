@@ -29,9 +29,9 @@ public interface ReadOnlyKeyVaultKeyEntity extends BaseVaultEntity<VersionedKeyE
 
     byte[] decryptToBytes(byte[] encrypted, EncryptionAlgorithm encryptionAlgorithm, byte[] iv);
 
-    byte[] signBytes(byte[] clear, SignatureAlgorithm encryptionAlgorithm);
+    byte[] signBytes(byte[] digest, SignatureAlgorithm encryptionAlgorithm);
 
-    boolean verifySignedBytes(byte[] signed, SignatureAlgorithm encryptionAlgorithm, byte[] digest);
+    boolean verifySignedBytes(byte[] digest, SignatureAlgorithm encryptionAlgorithm, byte[] signature);
 
     VersionedKeyEntityId getId();
 

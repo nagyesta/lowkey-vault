@@ -2,7 +2,7 @@ plugins {
     id 'org.springframework.boot' version '2.5.5'
     id 'java'
     //noinspection SpellCheckingInspection
-    id "io.freefair.lombok" version '6.2.0'
+    id 'io.freefair.lombok' version '6.4.0'
     id 'com.github.nagyesta.abort-mission-gradle-plugin' version '2.1.0'
 }
 

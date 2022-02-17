@@ -4,9 +4,11 @@ import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
+import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -17,6 +19,7 @@ import java.util.stream.Stream;
 @Slf4j
 public class AppConfiguration {
 
+    private static final int PAYLOAD_LENGTH_BYTES = 512 * 1024;
     @Value("${LOWKEY_VAULT_NAMES:primary,secondary}")
     private String autoRegisterVaults;
     @Value("${server.port}")
@@ -44,5 +47,16 @@ public class AppConfiguration {
         log.info("Vaults registered!");
 
         return service;
+    }
+
+    @Bean
+    @ConditionalOnExpression("${LOWKEY_DEBUG_REQUEST_LOG:false}")
+    public CommonsRequestLoggingFilter requestLoggingFilter() {
+        final CommonsRequestLoggingFilter requestLoggingFilter = new CommonsRequestLoggingFilter();
+        requestLoggingFilter.setIncludeClientInfo(true);
+        requestLoggingFilter.setIncludeQueryString(true);
+        requestLoggingFilter.setIncludePayload(true);
+        requestLoggingFilter.setMaxPayloadLength(PAYLOAD_LENGTH_BYTES);
+        return requestLoggingFilter;
     }
 }

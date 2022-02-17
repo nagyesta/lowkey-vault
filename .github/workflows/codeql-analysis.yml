@@ -22,6 +22,8 @@ on:
       - 'LICENSE'
       - '.github/ISSUE_TEMPLATE/**'
       - '.github/assets/**'
+      - '.github/dependabot.yml'
+      - '.github/workflows/**'
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ main ]
@@ -32,6 +34,8 @@ on:
       - 'LICENSE'
       - '.github/ISSUE_TEMPLATE/**'
       - '.github/assets/**'
+      - '.github/dependabot.yml'
+      - '.github/workflows/**'
 
 permissions:
   # required for all workflows

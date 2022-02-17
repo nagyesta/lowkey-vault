@@ -12,10 +12,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullSource;
 
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
@@ -24,6 +28,15 @@ import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOWKEY_VAUL
 import static org.mockito.Mockito.mock;
 
 class EcKeyVaultKeyEntityTest {
+
+    private static final String SHA_256 = "SHA-256";
+    private static final String SHA_384 = "SHA-384";
+    private static final String SHA_512 = "SHA-512";
+    private static final Map<SignatureAlgorithm, String> HASH_ALGORITHMS = Map.of(
+            SignatureAlgorithm.ES256, SHA_256,
+            SignatureAlgorithm.ES256K, SHA_256,
+            SignatureAlgorithm.ES384, SHA_384,
+            SignatureAlgorithm.ES512, SHA_512);
 
     public static Stream<Arguments> invalidValueProvider() {
         return Stream.<Arguments>builder()
@@ -50,6 +63,13 @@ class EcKeyVaultKeyEntityTest {
                                 .add(Arguments.of(LOCALHOST, DEFAULT_VAULT, sa, kcn))
                                 .add(Arguments.of(LOWKEY_VAULT, LOCALHOST, sa, kcn))
                                 .build()));
+    }
+
+    public static Stream<Arguments> digestSource() {
+        final Object bytes = DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8);
+        return Stream.<Arguments>builder()
+                .add(Arguments.of(bytes))
+                .build();
     }
 
     @ParameterizedTest
@@ -90,10 +110,12 @@ class EcKeyVaultKeyEntityTest {
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, keyCurveName, false);
         underTest.setOperations(List.of(KeyOperation.SIGN, KeyOperation.VERIFY));
         underTest.setEnabled(true);
+        final byte[] cipherSign = hash(clearSign.getBytes(StandardCharsets.UTF_8), algorithm);
+        final byte[] cipherVerify = hash(clearVerify.getBytes(StandardCharsets.UTF_8), algorithm);
 
         //when
-        final byte[] signature = underTest.signBytes(clearSign.getBytes(StandardCharsets.UTF_8), algorithm);
-        final boolean actual = underTest.verifySignedBytes(clearVerify.getBytes(StandardCharsets.UTF_8), algorithm, signature);
+        final byte[] signature = underTest.signBytes(cipherSign, algorithm);
+        final boolean actual = underTest.verifySignedBytes(cipherVerify, algorithm, signature);
 
         //then
         Assertions.assertEquals(clearSign.equals(clearVerify), actual);
@@ -107,10 +129,11 @@ class EcKeyVaultKeyEntityTest {
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, KeyCurveName.P_256, false);
         underTest.setOperations(List.of(KeyOperation.VERIFY));
         underTest.setEnabled(true);
+        final byte[] digest = hash(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.ES256);
 
         //when
         Assertions.assertThrows(IllegalStateException.class,
-                () -> underTest.signBytes(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.ES256));
+                () -> underTest.signBytes(digest, SignatureAlgorithm.ES256));
 
         //then + exception
     }
@@ -123,11 +146,12 @@ class EcKeyVaultKeyEntityTest {
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, KeyCurveName.P_256, false);
         underTest.setOperations(List.of(KeyOperation.SIGN));
         underTest.setEnabled(true);
+        final byte[] digest = hash(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.ES256);
 
         //when
-        final byte[] signature = underTest.signBytes(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.ES256);
+        final byte[] signature = underTest.signBytes(digest, SignatureAlgorithm.ES256);
         Assertions.assertThrows(IllegalStateException.class,
-                () -> underTest.verifySignedBytes(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.ES256, signature));
+                () -> underTest.verifySignedBytes(digest, SignatureAlgorithm.ES256, signature));
 
         //then + exception
     }
@@ -140,10 +164,11 @@ class EcKeyVaultKeyEntityTest {
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, KeyCurveName.P_256, false);
         underTest.setOperations(List.of(KeyOperation.SIGN, KeyOperation.VERIFY));
         underTest.setEnabled(false);
+        final byte[] digest = hash(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.ES256);
 
         //when
         Assertions.assertThrows(IllegalStateException.class,
-                () -> underTest.signBytes(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.ES256));
+                () -> underTest.signBytes(digest, SignatureAlgorithm.ES256));
 
         //then + exception
     }
@@ -156,12 +181,13 @@ class EcKeyVaultKeyEntityTest {
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, KeyCurveName.P_256, false);
         underTest.setOperations(List.of(KeyOperation.SIGN, KeyOperation.VERIFY));
         underTest.setEnabled(true);
+        final byte[] digest = hash(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.ES256);
 
         //when
-        final byte[] signature = underTest.signBytes(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.ES256);
+        final byte[] signature = underTest.signBytes(digest, SignatureAlgorithm.ES256);
         underTest.setEnabled(false);
         Assertions.assertThrows(IllegalStateException.class,
-                () -> underTest.verifySignedBytes(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.ES256, signature));
+                () -> underTest.verifySignedBytes(digest, SignatureAlgorithm.ES256, signature));
 
         //then + exception
     }
@@ -174,10 +200,11 @@ class EcKeyVaultKeyEntityTest {
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, KeyCurveName.P_256, false);
         underTest.setOperations(List.of(KeyOperation.SIGN, KeyOperation.VERIFY));
         underTest.setEnabled(true);
+        final byte[] digest = hash(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.ES256);
 
         //when
         Assertions.assertThrows(IllegalStateException.class,
-                () -> underTest.signBytes(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.ES256K));
+                () -> underTest.signBytes(digest, SignatureAlgorithm.ES256K));
 
         //then + exception
     }
@@ -190,12 +217,61 @@ class EcKeyVaultKeyEntityTest {
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, KeyCurveName.P_256, false);
         underTest.setOperations(List.of(KeyOperation.SIGN, KeyOperation.VERIFY));
         underTest.setEnabled(true);
+        final byte[] digest = hash(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.ES256);
 
         //when
-        final byte[] signature = underTest.signBytes(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.ES256);
+        final byte[] signature = underTest.signBytes(digest, SignatureAlgorithm.ES256);
         Assertions.assertThrows(IllegalStateException.class,
-                () -> underTest.verifySignedBytes(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.ES256K, signature));
+                () -> underTest.verifySignedBytes(digest, SignatureAlgorithm.ES256K, signature));
 
         //then + exception
+    }
+
+    @ParameterizedTest
+    @MethodSource("digestSource")
+    @NullSource
+    void testSignShouldThrowExceptionWhenWhenDigestSizeIsNotCompatible(final byte[] digest) {
+        //given
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
+        final EcKeyVaultKeyEntity underTest = new EcKeyVaultKeyEntity(
+                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, KeyCurveName.P_256, false);
+        underTest.setOperations(List.of(KeyOperation.SIGN, KeyOperation.VERIFY));
+        underTest.setEnabled(true);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> underTest.signBytes(digest, SignatureAlgorithm.ES256));
+
+        //then + exception
+    }
+
+    @ParameterizedTest
+    @MethodSource("digestSource")
+    @NullSource
+    void testVerifyShouldThrowExceptionWhenWhenDigestSizeIsNotCompatible(final byte[] digest) {
+        //given
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
+        final EcKeyVaultKeyEntity underTest = new EcKeyVaultKeyEntity(
+                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, KeyCurveName.P_256, false);
+        underTest.setOperations(List.of(KeyOperation.SIGN, KeyOperation.VERIFY));
+        underTest.setEnabled(true);
+        final byte[] hash = hash(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.ES256);
+
+        //when
+        final byte[] signature = underTest.signBytes(hash, SignatureAlgorithm.ES256);
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> underTest.verifySignedBytes(digest, SignatureAlgorithm.ES256, signature));
+
+        //then + exception
+    }
+
+    private byte[] hash(final byte[] text, final SignatureAlgorithm algorithm) {
+        try {
+            final MessageDigest md = MessageDigest.getInstance(HASH_ALGORITHMS.get(algorithm));
+            md.update(text);
+            return md.digest();
+        } catch (final NoSuchAlgorithmException e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
+        }
     }
 }

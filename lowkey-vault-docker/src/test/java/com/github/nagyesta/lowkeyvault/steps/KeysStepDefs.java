@@ -271,7 +271,7 @@ public class KeysStepDefs extends CommonAssertions {
     public void theCreatedKeyIsUsedToSignClearTextWithAlgorithm(final byte[] text, final SignatureAlgorithm algorithm) {
         final String keyId = context.getLastResult().getKey().getId();
         context.setCryptographyClient(context.getProvider().getCryptoClient(keyId));
-        final byte[] digest = hash(text);
+        final byte[] digest = hash(text, algorithm.toString());
         final SignResult signResult = context.getCryptographyClient()
                 .sign(algorithm, digest);
         context.setSignatureResult(signResult.getSignature());
@@ -302,14 +302,14 @@ public class KeysStepDefs extends CommonAssertions {
     public void theSignValueIsVerifiedWithAlgorithm(final byte[] text, final SignatureAlgorithm algorithm) {
         final String keyId = context.getLastResult().getKey().getId();
         context.setCryptographyClient(context.getProvider().getCryptoClient(keyId));
-        final byte[] digest = hash(text);
+        final byte[] digest = hash(text, algorithm.toString());
         final VerifyResult verifyResult = context.getCryptographyClient().verify(algorithm, digest, context.getSignatureResult());
         context.setVerifyResult(verifyResult.isValid());
     }
 
-    private byte[] hash(final byte[] text) {
+    private byte[] hash(final byte[] text, final String algorithm) {
         try {
-            final MessageDigest md = MessageDigest.getInstance("SHA-256");
+            final MessageDigest md = MessageDigest.getInstance("SHA-" + algorithm.substring(2, 5));
             md.update(text);
             return md.digest();
         } catch (final NoSuchAlgorithmException e) {

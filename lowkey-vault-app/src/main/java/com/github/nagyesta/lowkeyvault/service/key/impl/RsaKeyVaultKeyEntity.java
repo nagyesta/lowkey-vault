@@ -87,28 +87,28 @@ public class RsaKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, Integer> im
     }
 
     @Override
-    public byte[] signBytes(final byte[] clear, final SignatureAlgorithm signatureAlgorithm) {
+    public byte[] signBytes(final byte[] digest, final SignatureAlgorithm signatureAlgorithm) {
         Assert.state(getOperations().contains(KeyOperation.SIGN), getId() + " does not have SIGN operation assigned.");
         Assert.state(isEnabled(), getId() + " is not enabled.");
         return doCrypto(() -> {
             final Signature rsaSign = Signature.getInstance(signatureAlgorithm.getAlg(), new BouncyCastleProvider());
             rsaSign.initSign(getKey().getPrivate());
-            rsaSign.update(clear);
+            rsaSign.update(digest);
             return rsaSign.sign();
         }, "Cannot sign message.", log);
     }
 
     @Override
-    public boolean verifySignedBytes(final byte[] signed,
+    public boolean verifySignedBytes(final byte[] digest,
                                      final SignatureAlgorithm signatureAlgorithm,
-                                     final byte[] digest) {
+                                     final byte[] signature) {
         Assert.state(getOperations().contains(KeyOperation.VERIFY), getId() + " does not have VERIFY operation assigned.");
         Assert.state(isEnabled(), getId() + " is not enabled.");
         return doCrypto(() -> {
             final Signature rsaVerify = Signature.getInstance(signatureAlgorithm.getAlg(), new BouncyCastleProvider());
             rsaVerify.initVerify(getKey().getPublic());
-            rsaVerify.update(signed);
-            return rsaVerify.verify(digest);
-        }, "Cannot verify signed message.", log);
+            rsaVerify.update(digest);
+            return rsaVerify.verify(signature);
+        }, "Cannot verify digest message.", log);
     }
 }

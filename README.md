@@ -130,6 +130,14 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 - Update secret
 - Recover deleted secret
 
+## Startup parameters
+
+### Log requests
+
+In order to support debugging integration, Lowkey Vault can log request data. To turn on this feature, 
+you must pass ```--LOWKEY_DEBUG_REQUEST_LOG=true``` as startup argument in the
+```LOWKEY_ARGS``` env variable when starting the Docker container. [Example](lowkey-vault-docker/build.gradle#L64)
+
 ### Non-default vaults
 
 In case you wish to use more than one vaults, you should consider registering additional vaults using
@@ -164,7 +172,6 @@ This issue should not happen while using Testcontainers. See examples under [Low
 # Limitations
 
 - Some encryption/signature algorithms are not supported. Please refer to the ["Features"](#features) section for the up-to-date list of supported algorithms.
-- ```EC``` public keys are not exposed by the server to make Azure Cryptography Client always go to the server during encrypt/verify operations.
 - Backup and restore features are not supported at the moment
 - Certificate Vault features are not supported at the moment
 - Recovery options cannot be set as vault creation is implicit during start-up

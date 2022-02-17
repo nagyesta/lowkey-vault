@@ -61,7 +61,7 @@ dockerRun {
     ports "8444:8443"
     daemonize true
     arguments '--rm'
-    env 'LOWKEY_ARGS': '--LOWKEY_VAULT_NAMES=keys-generic,keys-delete,' +
+    env 'LOWKEY_ARGS': '--LOWKEY_DEBUG_REQUEST_LOG=false --LOWKEY_VAULT_NAMES=keys-generic,keys-delete,' +
             'keys-list-rsa-1,keys-list-rsa-2,keys-list-rsa-3,keys-list-rsa-5,keys-list-rsa-25,keys-list-rsa-42,' +
             'keys-list-oct-1,keys-list-oct-2,keys-list-oct-3,keys-list-oct-5,keys-list-oct-25,keys-list-oct-42,' +
             'keys-list-ec-1,keys-list-ec-2,keys-list-ec-3,keys-list-ec-5,keys-list-ec-25,keys-list-ec-42,' +

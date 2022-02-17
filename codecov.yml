@@ -3,4 +3,23 @@ coverage:
     project:
       default:
         threshold: 0.50%
-    patch: off
+      app:
+        flags:
+        - app
+      client:
+        flags:
+        - client
+      testcontainers:
+        flags:
+        - testcontainers
+    patch: false
+flags:
+  app:
+    paths:
+      - ./lowkey-vault-app
+  client:
+    paths:
+      - ./lowkey-vault-client
+  testcontainers:
+    paths:
+      - ./lowkey-vault-testcontainers

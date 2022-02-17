@@ -32,6 +32,19 @@ class SignatureAlgorithmTest {
         Assertions.assertFalse(actual);
     }
 
+
+    @Test
+    void testSupportsDigestLengthShouldReturnFalseInCaseOfRsaAlgorithm() {
+        //given
+        final SignatureAlgorithm underTest = SignatureAlgorithm.PS256;
+
+        //when
+        final boolean actual = underTest.supportsDigestLength(0);
+
+        //then
+        Assertions.assertFalse(actual);
+    }
+
     @ParameterizedTest
     @MethodSource("valueProvider")
     void forValue(final String inout, final SignatureAlgorithm expected) {

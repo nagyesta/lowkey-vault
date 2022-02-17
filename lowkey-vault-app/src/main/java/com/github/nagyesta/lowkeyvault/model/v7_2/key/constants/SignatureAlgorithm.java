@@ -9,28 +9,52 @@ import java.util.Arrays;
 @SuppressWarnings("checkstyle:JavadocVariable")
 public enum SignatureAlgorithm {
 
-    ES256("ES256", "NONEwithECDSA", KeyType.EC) {
+    ES256("ES256", "NONEwithECDSAinP1363Format", KeyType.EC) {
         @Override
         public boolean isCompatibleWithCurve(final KeyCurveName keyCurveName) {
             return KeyCurveName.P_256 == keyCurveName;
         }
+
+        @SuppressWarnings("checkstyle:MagicNumber")
+        @Override
+        public boolean supportsDigestLength(final int digestLength) {
+            return digestLength == 32;
+        }
     },
-    ES256K("ES256K", "NONEwithECDSA", KeyType.EC) {
+    ES256K("ES256K", "NONEwithECDSAinP1363Format", KeyType.EC) {
         @Override
         public boolean isCompatibleWithCurve(final KeyCurveName keyCurveName) {
             return KeyCurveName.P_256K == keyCurveName;
         }
+
+        @SuppressWarnings("checkstyle:MagicNumber")
+        @Override
+        public boolean supportsDigestLength(final int digestLength) {
+            return digestLength == 32;
+        }
     },
-    ES384("ES384", "NONEwithECDSA", KeyType.EC) {
+    ES384("ES384", "NONEwithECDSAinP1363Format", KeyType.EC) {
         @Override
         public boolean isCompatibleWithCurve(final KeyCurveName keyCurveName) {
             return KeyCurveName.P_384 == keyCurveName;
         }
+
+        @SuppressWarnings("checkstyle:MagicNumber")
+        @Override
+        public boolean supportsDigestLength(final int digestLength) {
+            return digestLength == 48;
+        }
     },
-    ES512("ES512", "NONEwithECDSA", KeyType.EC) {
+    ES512("ES512", "NONEwithECDSAinP1363Format", KeyType.EC) {
         @Override
         public boolean isCompatibleWithCurve(final KeyCurveName keyCurveName) {
             return KeyCurveName.P_521 == keyCurveName;
+        }
+
+        @SuppressWarnings("checkstyle:MagicNumber")
+        @Override
+        public boolean supportsDigestLength(final int digestLength) {
+            return digestLength == 64;
         }
     },
     PS256("PS256", "SHA256withRSAandMGF1", KeyType.RSA),
@@ -73,6 +97,11 @@ public enum SignatureAlgorithm {
 
     @JsonIgnore
     public boolean isCompatibleWithCurve(final KeyCurveName keyCurveName) {
+        return false;
+    }
+
+    @JsonIgnore
+    public boolean supportsDigestLength(final int digestLength) {
         return false;
     }
 

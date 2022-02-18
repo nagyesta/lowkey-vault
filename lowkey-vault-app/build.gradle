@@ -1,9 +1,8 @@
 plugins {
-    id 'org.springframework.boot' version '2.5.5'
+    alias(libs.plugins.spring.boot)
     id 'java'
-    //noinspection SpellCheckingInspection
-    id 'io.freefair.lombok' version '6.4.0'
-    id 'com.github.nagyesta.abort-mission-gradle-plugin' version '2.1.0'
+    alias(libs.plugins.lombok)
+    alias(libs.plugins.abort.mission)
 }
 
 group = "${rootProject.group}"
@@ -14,21 +13,17 @@ project.ext {
 }
 
 dependencies {
-    implementation "org.springframework.boot:spring-boot-starter:${rootProject.ext.springBootVersion}"
-    implementation "org.springframework.boot:spring-boot-starter-json:${rootProject.ext.springBootVersion}"
-    implementation "org.springframework.boot:spring-boot-starter-web:${rootProject.ext.springBootVersion}"
-    implementation "org.springframework.boot:spring-boot-starter-tomcat:${rootProject.ext.springBootVersion}"
-    implementation "org.springframework.boot:spring-boot-starter-validation:${rootProject.ext.springBootVersion}"
-    implementation "ch.qos.logback:logback-classic:${rootProject.ext.logbackVersion}"
-    implementation "ch.qos.logback:logback-core:${rootProject.ext.logbackVersion}"
-    implementation "org.bouncycastle:bcpkix-jdk15on:${rootProject.ext.bouncyCastleVersion}"
-    implementation "org.hibernate:hibernate-validator:${rootProject.ext.hibernateVersion}"
-    implementation "com.google.code.findbugs:jsr305:${rootProject.ext.findBugsVersion}"
-    annotationProcessor "org.projectlombok:lombok:${rootProject.ext.lombokVersion}"
-    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:${rootProject.ext.springBootVersion}"
-    testImplementation "org.springframework.boot:spring-boot-starter-test:${rootProject.ext.springBootVersion}"
-    testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.ext.jupiterVersion}"
-    testImplementation "com.github.nagyesta.abort-mission.boosters:abort.booster-junit-jupiter:${rootProject.ext.abortMissionVersion}"
+    implementation libs.bundles.spring.boot.app
+    implementation libs.bundles.logback
+    implementation libs.bundles.tomcat
+    implementation libs.bouncycastle.bcpkix
+    implementation libs.hibernate.validator
+    implementation libs.findbugs.jsr305
+    annotationProcessor libs.lombok
+    annotationProcessor libs.spring.boot.configuration.processor
+    testImplementation libs.spring.boot.starter.test
+    testImplementation libs.jupiter
+    testImplementation libs.abort.mission.jupiter
 }
 
 test {
@@ -40,7 +35,7 @@ test {
     systemProperty("junit.jupiter.execution.parallel.mode.classes.default", "concurrent")
 }
 abortMission {
-    toolVersion rootProject.ext.abortMissionVersion
+    toolVersion libs.versions.abortMission.get()
 }
 
 jar {

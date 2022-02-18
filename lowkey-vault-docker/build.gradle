@@ -1,8 +1,8 @@
 plugins {
     id 'java'
-    id 'com.github.nagyesta.abort-mission-gradle-plugin' version '2.1.0'
-    id 'com.palantir.docker' version '0.31.0'
-    id 'com.palantir.docker-run' version '0.31.0'
+    alias(libs.plugins.abort.mission)
+    alias(libs.plugins.docker)
+    alias(libs.plugins.docker.run)
 }
 
 version = rootProject.version
@@ -21,15 +21,13 @@ group = "${rootProject.group}"
 
 dependencies {
     testImplementation project(":lowkey-vault-client")
-    testImplementation "org.apache.httpcomponents:httpclient:${rootProject.ext.httpClientVersion}"
-    testImplementation "com.azure:azure-security-keyvault-keys:${rootProject.ext.azureKeyVaultClientVersion}"
-    testImplementation "com.azure:azure-security-keyvault-secrets:${rootProject.ext.azureKeyVaultClientVersion}"
-    testImplementation "org.springframework.boot:spring-boot-starter-test:${rootProject.ext.springBootVersion}"
-    testImplementation "io.cucumber:cucumber-java:${rootProject.ext.cucumberVersion}"
-    testImplementation "io.cucumber:cucumber-testng:${rootProject.ext.cucumberVersion}"
-    testImplementation "io.cucumber:cucumber-spring:${rootProject.ext.cucumberVersion}"
-    testImplementation "com.github.nagyesta.abort-mission.boosters:abort.booster-cucumber-jvm:${rootProject.ext.abortMissionVersion}"
-    testImplementation "com.google.code.findbugs:jsr305:${rootProject.ext.findBugsVersion}"
+    testImplementation libs.httpclient
+    testImplementation libs.azure.security.keyvault.keys
+    testImplementation libs.azure.security.keyvault.secrets
+    testImplementation libs.spring.boot.starter.test
+    testImplementation libs.bundles.cucumber
+    testImplementation libs.abort.mission.cucumber
+    testImplementation libs.findbugs.jsr305
 }
 
 task copyAppJar(type: Copy) {
@@ -88,7 +86,7 @@ test.dependsOn tasks.dockerRun
 test.finalizedBy tasks.dockerStop
 
 abortMission {
-    toolVersion rootProject.ext.abortMissionVersion
+    toolVersion libs.versions.abortMission.get()
 }
 
 task publish {

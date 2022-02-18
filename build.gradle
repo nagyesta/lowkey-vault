@@ -1,7 +1,7 @@
 plugins {
-    id 'io.toolebox.git-versioner' version '1.6.7'
-    id 'org.sonatype.gradle.plugins.scan' version '2.2.3' apply false
-    id 'org.owasp.dependencycheck' version '6.5.3' apply false
+    alias(libs.plugins.versioner)
+    alias(libs.plugins.index.scan)
+    alias(libs.plugins.owasp.dependencycheck)
 }
 
 group = 'com.github.nagyesta.lowkey-vault'
@@ -22,24 +22,6 @@ project.ext {
     maintainerUrl = 'https://github.com/nagyesta/'
     scmConnection = 'scm:git:https://github.com/nagyesta/lowkey-vault.git'
     scmProjectUrl = 'https://github.com/nagyesta/lowkey-vault/'
-
-    // dependency versions
-
-    // internal build versions
-    httpClientVersion = '4.5.13'
-    azureKeyVaultClientVersion = '4.3.4'
-    abortMissionVersion = '2.8.4'
-    cucumberVersion = '7.1.0'
-    jupiterVersion = '5.8.2'
-    mockitoCoreVersion = '3.9.0'
-    springBootVersion = '2.6.2'
-    bouncyCastleVersion = '1.69'
-    hibernateVersion = '6.2.0.Final'
-    springVersion = '5.3.14'
-    lombokVersion = '1.18.20'
-    findBugsVersion = '3.0.2'
-    logbackVersion = '1.2.10'
-    testcontainersVersion = '1.16.2'
 }
 
 versioner {
@@ -108,7 +90,7 @@ configure(subprojects.findAll({
     jacocoTestReport.finalizedBy jacocoTestCoverageVerification
 
     jacoco {
-        toolVersion = "0.8.2"
+        toolVersion = libs.versions.jacoco.get()
     }
 
     jacocoTestCoverageVerification {
@@ -167,7 +149,7 @@ configure(subprojects.findAll({
                     .fromFile(rootProject.file('config/checkstyle/checkstyle-stylesheet.xsl') as String)
         }
     }
-    checkstyle.toolVersion = '9.2.1'
+    checkstyle.toolVersion = libs.versions.checkstyle.get()
 
     publishing {
         repositories {

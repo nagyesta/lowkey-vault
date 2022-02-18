@@ -1,0 +1,92 @@
+[versions]
+springBoot = "2.6.3"
+tomcat = "9.0.58"
+logback = "1.2.10"
+bouncycastle = "1.69"
+hibernateValidator = "6.2.0.Final"
+findbugs = "3.0.2"
+lombok = "1.18.20"
+httpClient = "4.5.13"
+azureKeyVaultClient = "4.3.4"
+testcontainers = "1.16.2"
+cucumber = "7.1.0"
+mockitoCore = "3.9.0"
+jupiter = "5.8.2"
+abortMission = "2.8.4"
+checkstyle = "9.2.1"
+jacoco = "0.8.2"
+jackson = { strictly = "2.13.1" }
+
+[libraries]
+spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter", version.ref = "springBoot" }
+spring-boot-starter-json = { module = "org.springframework.boot:spring-boot-starter-json", version.ref = "springBoot" }
+spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "springBoot" }
+spring-boot-starter-tomcat = { module = "org.springframework.boot:spring-boot-starter-tomcat", version.ref = "springBoot" }
+spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation", version.ref = "springBoot" }
+spring-boot-configuration-processor = { module = "org.springframework.boot:spring-boot-configuration-processor", version.ref = "springBoot" }
+spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "springBoot" }
+
+tomcat-annotations-api = { module = "org.apache.tomcat:tomcat-annotations-api", version.ref = "tomcat" }
+tomcat-jsp-api = { module = "org.apache.tomcat:tomcat-jsp-api", version.ref = "tomcat" }
+tomcat-embed-core = { module = "org.apache.tomcat.embed:tomcat-embed-core", version.ref = "tomcat" }
+tomcat-embed-el = { module = "org.apache.tomcat.embed:tomcat-embed-el", version.ref = "tomcat" }
+tomcat-embed-jasper = { module = "org.apache.tomcat.embed:tomcat-embed-jasper", version.ref = "tomcat" }
+tomcat-embed-websocket = { module = "org.apache.tomcat.embed:tomcat-embed-websocket", version.ref = "tomcat" }
+
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
+
+bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk15on", version.ref = "bouncycastle" }
+
+hibernate-validator = { module = "org.hibernate:hibernate-validator", version.ref = "hibernateValidator" }
+
+findbugs-jsr305 = { module = "com.google.code.findbugs:jsr305", version.ref = "findbugs" }
+
+httpclient = { module = "org.apache.httpcomponents:httpclient", version.ref = "httpClient" }
+
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
+
+azure-security-keyvault-secrets = { module = "com.azure:azure-security-keyvault-secrets", version.ref = "azureKeyVaultClient" }
+azure-security-keyvault-keys = { module = "com.azure:azure-security-keyvault-keys", version.ref = "azureKeyVaultClient" }
+
+lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
+
+jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "jupiter" }
+
+abort-mission-jupiter = { module = "com.github.nagyesta.abort-mission.boosters:abort.booster-junit-jupiter", version.ref = "abortMission" }
+abort-mission-cucumber = { module = "com.github.nagyesta.abort-mission.boosters:abort.booster-cucumber-jvm", version.ref = "abortMission" }
+
+cucumber-java = { module = "io.cucumber:cucumber-java", version.ref = "cucumber" }
+cucumber-testng = { module = "io.cucumber:cucumber-testng", version.ref = "cucumber" }
+cucumber-spring = { module = "io.cucumber:cucumber-spring", version.ref = "cucumber" }
+
+jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson" }
+jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jackson" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+jackson-dataformat-xml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml", version.ref = "jackson" }
+jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
+
+testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
+testcontainers-jupiter = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers" }
+
+[bundles]
+spring-boot-app = [
+    "spring-boot-starter", "spring-boot-starter-json", "spring-boot-starter-web", "spring-boot-starter-tomcat",
+    "spring-boot-starter-validation"
+]
+logback = ["logback-classic", "logback-core"]
+cucumber = ["cucumber-java", "cucumber-testng", "cucumber-spring"]
+jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-dataformat-xml", "jackson-datatype-jsr310"]
+tomcat = [
+    "tomcat-annotations-api", "tomcat-jsp-api", "tomcat-embed-core", "tomcat-embed-el", "tomcat-embed-jasper", "tomcat-embed-websocket"
+]
+
+[plugins]
+spring-boot = { id = "org.springframework.boot", version = "2.5.5" }
+lombok = { id = "io.freefair.lombok", version = "6.4.1" }
+abort-mission = { id = "com.github.nagyesta.abort-mission-gradle-plugin", version = "2.1.0" }
+docker = { id = "com.palantir.docker", version = "0.31.0" }
+docker-run = { id = "com.palantir.docker-run", version = "0.31.0" }
+versioner = { id = "io.toolebox.git-versioner", version = "1.6.7" }
+index-scan = { id = "org.sonatype.gradle.plugins.scan", version = "2.2.3" }
+owasp-dependencycheck = { id = "org.owasp.dependencycheck", version = "6.5.3" }

@@ -10,16 +10,16 @@ project.ext {
 }
 
 dependencies {
-    implementation("com.azure:azure-security-keyvault-keys:${rootProject.ext.azureKeyVaultClientVersion}") {
+    implementation(libs.azure.security.keyvault.keys) {
         exclude(group: "io.netty")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:${rootProject.ext.azureKeyVaultClientVersion}") {
+    implementation(libs.azure.security.keyvault.secrets) {
         exclude(group: "io.netty")
     }
-    implementation "org.apache.httpcomponents:httpclient:${rootProject.ext.httpClientVersion}"
-    testImplementation "org.mockito:mockito-core:${rootProject.ext.mockitoCoreVersion}"
-    testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.ext.jupiterVersion}"
-    testImplementation "ch.qos.logback:logback-classic:${rootProject.ext.logbackVersion}"
+    implementation libs.httpclient
+    testImplementation libs.mockito.core
+    testImplementation libs.jupiter
+    testImplementation libs.logback.classic
 }
 
 test {

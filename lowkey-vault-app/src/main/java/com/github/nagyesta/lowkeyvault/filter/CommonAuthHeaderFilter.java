@@ -23,7 +23,7 @@ public class CommonAuthHeaderFilter extends OncePerRequestFilter {
     private static final String OMIT_DEFAULT = "";
     private static final String PORT_SEPARATOR = ":";
     private static final String HTTPS = "https://";
-    private static final String BEARER_FAKE_TOKEN = "Bearer resource=\"%s\"";
+    private static final String BEARER_FAKE_TOKEN = "Bearer resource=\"%s\", authorization_uri=\"%s\"";
 
     @Override
     protected void doFilterInternal(final HttpServletRequest request, final HttpServletResponse response,
@@ -33,7 +33,8 @@ public class CommonAuthHeaderFilter extends OncePerRequestFilter {
         final String port = resolvePort(request.getServerPort());
         final URI baseUri = URI.create(HTTPS + request.getServerName() + port);
         request.setAttribute(ApiConstants.REQUEST_BASE_URI, baseUri);
-        response.setHeader(HttpHeaders.WWW_AUTHENTICATE, String.format(BEARER_FAKE_TOKEN, request.getRequestURI()));
+        response.setHeader(HttpHeaders.WWW_AUTHENTICATE,
+                String.format(BEARER_FAKE_TOKEN, request.getRequestURI(), request.getRequestURI()));
         if (!StringUtils.hasText(request.getHeader(HttpHeaders.AUTHORIZATION))) {
             log.info("Sending token to client without processing payload: {}", request.getRequestURI());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

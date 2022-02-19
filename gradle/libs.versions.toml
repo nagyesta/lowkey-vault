@@ -17,6 +17,14 @@ checkstyle = "9.2.1"
 jacoco = "0.8.2"
 jackson = { strictly = "2.13.1" }
 
+abortMissionPlugin = "2.1.0"
+dockerPlugin = "0.32.0"
+indexScanPlugin = "2.2.3"
+lombokPlugin = "6.4.1"
+springBootPlugin = "2.6.3"
+gitVersionerPlugin = "1.6.7"
+owaspPlugin = "6.5.3"
+
 [libraries]
 spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter", version.ref = "springBoot" }
 spring-boot-starter-json = { module = "org.springframework.boot:spring-boot-starter-json", version.ref = "springBoot" }
@@ -82,11 +90,11 @@ tomcat = [
 ]
 
 [plugins]
-spring-boot = { id = "org.springframework.boot", version = "2.6.3" }
-lombok = { id = "io.freefair.lombok", version = "6.4.1" }
-abort-mission = { id = "com.github.nagyesta.abort-mission-gradle-plugin", version = "2.1.0" }
-docker = { id = "com.palantir.docker", version = "0.31.0" }
-docker-run = { id = "com.palantir.docker-run", version = "0.31.0" }
-versioner = { id = "io.toolebox.git-versioner", version = "1.6.7" }
-index-scan = { id = "org.sonatype.gradle.plugins.scan", version = "2.2.3" }
-owasp-dependencycheck = { id = "org.owasp.dependencycheck", version = "6.5.3" }
+spring-boot = { id = "org.springframework.boot", version.ref = "springBootPlugin" }
+lombok = { id = "io.freefair.lombok", version.ref = "lombokPlugin" }
+abort-mission = { id = "com.github.nagyesta.abort-mission-gradle-plugin", version.ref = "abortMissionPlugin" }
+docker = { id = "com.palantir.docker", version.ref = "dockerPlugin" }
+docker-run = { id = "com.palantir.docker-run", version.ref = "dockerPlugin" }
+versioner = { id = "io.toolebox.git-versioner", version.ref = "gitVersionerPlugin" }
+index-scan = { id = "org.sonatype.gradle.plugins.scan", version.ref = "indexScanPlugin" }
+owasp-dependencycheck = { id = "org.owasp.dependencycheck", version.ref = "owaspPlugin" }

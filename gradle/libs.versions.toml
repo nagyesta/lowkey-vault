@@ -82,7 +82,7 @@ tomcat = [
 ]
 
 [plugins]
-spring-boot = { id = "org.springframework.boot", version = "2.5.5" }
+spring-boot = { id = "org.springframework.boot", version = "2.6.3" }
 lombok = { id = "io.freefair.lombok", version = "6.4.1" }
 abort-mission = { id = "com.github.nagyesta.abort-mission-gradle-plugin", version = "2.1.0" }
 docker = { id = "com.palantir.docker", version = "0.31.0" }

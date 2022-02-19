@@ -2,7 +2,7 @@
 springBoot = "2.6.3"
 tomcat = "9.0.58"
 logback = "1.2.10"
-bouncycastle = "1.69"
+bouncycastle = "1.70"
 hibernateValidator = "6.2.2.Final"
 findbugs = "3.0.2"
 lombok = "1.18.22"

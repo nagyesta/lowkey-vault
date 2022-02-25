@@ -1,5 +1,5 @@
 #openjdk:11.0.14-jre-slim-buster amd64
-FROM openjdk@sha256:98f19a6e8f22ab752fe98c2c5e4c100d2f5a32eedfd4ac5b8adb9bd3a390c53e
+FROM openjdk@sha256:2c3ffd17a95947a187cbf00b454656566063cc53f21ea419929c0d23f3347572
 LABEL maintainer="nagyesta@gmail.com"
 EXPOSE 8443:8443
 ADD lowkey-vault.jar /lowkey-vault.jar

@@ -16,6 +16,7 @@ dependencies {
     testImplementation project(":lowkey-vault-client")
     testImplementation libs.bundles.jackson
     testImplementation libs.httpclient
+    testImplementation libs.commons.codec
     testImplementation libs.azure.security.keyvault.keys
     testImplementation libs.azure.security.keyvault.secrets
     testImplementation libs.mockito.core

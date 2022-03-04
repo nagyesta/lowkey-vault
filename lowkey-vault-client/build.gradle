@@ -17,6 +17,7 @@ dependencies {
         exclude(group: "io.netty")
     }
     implementation libs.httpclient
+    implementation libs.commons.codec
     testImplementation libs.mockito.core
     testImplementation libs.jupiter
     testImplementation libs.logback.classic

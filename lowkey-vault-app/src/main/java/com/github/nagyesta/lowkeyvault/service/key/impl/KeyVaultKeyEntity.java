@@ -7,13 +7,9 @@ import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.NonNull;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 
-import javax.crypto.KeyGenerator;
 import java.net.URI;
-import java.security.KeyPairGenerator;
-import java.security.spec.AlgorithmParameterSpec;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -39,31 +35,6 @@ public abstract class KeyVaultKeyEntity<T, S> extends KeyVaultBaseEntity<Version
         this.keyParam = keyParam;
         this.hsm = hsm;
         this.operations = Collections.emptyList();
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    protected static KeyGenerator keyGenerator(final String algorithmName, final int keySize, final Logger log) {
-        try {
-            final KeyGenerator keyGenerator = KeyGenerator.getInstance(algorithmName);
-            keyGenerator.init(keySize);
-            return keyGenerator;
-        } catch (final Exception e) {
-            log.error(e.getMessage(), e);
-            throw new CryptoException("Failed to generate key.", e);
-        }
-    }
-
-    protected static KeyPairGenerator keyPairGenerator(final String algorithmName,
-                                                       final AlgorithmParameterSpec algSpec,
-                                                       final Logger log) {
-        try {
-            final KeyPairGenerator keyGen = KeyPairGenerator.getInstance(algorithmName, new BouncyCastleProvider());
-            keyGen.initialize(algSpec);
-            return keyGen;
-        } catch (final Exception e) {
-            log.error(e.getMessage(), e);
-            throw new CryptoException("Failed to generate key.", e);
-        }
     }
 
     protected T getKey() {

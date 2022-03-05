@@ -1,0 +1,11 @@
+{
+  "key": {
+    "kty": "EC",
+    "crv": "P-256",
+    "d": "AIr3-iApan7BvLYEHhXmScSQNn-B5N7-Bs5Hvi9_JUrP",
+    "x": "bgaA-ohoODwHW-g6idvSTETho-mkFYmsQ2tYcNgYxbQ"
+  },
+  "tags": {
+    "purpose": "unit test"
+  }
+}

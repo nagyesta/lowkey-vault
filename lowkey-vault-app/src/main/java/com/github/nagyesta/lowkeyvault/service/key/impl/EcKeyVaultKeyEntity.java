@@ -14,6 +14,8 @@ import java.security.KeyPair;
 import java.security.Signature;
 import java.util.Optional;
 
+import static com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil.generateEc;
+
 @Slf4j
 public class EcKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, KeyCurveName> implements ReadOnlyEcKeyVaultKeyEntity {
 
@@ -21,11 +23,15 @@ public class EcKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, KeyCurveName
                                @NonNull final VaultFake vault,
                                @NonNull final KeyCurveName keyParam,
                                final boolean hsm) {
-        super(id, vault, generate(keyParam), keyParam, hsm);
+        super(id, vault, generateEc(keyParam), keyParam, hsm);
     }
 
-    private static KeyPair generate(@lombok.NonNull final KeyCurveName keyCurveName) {
-        return keyPairGenerator(KeyType.EC.getAlgorithmName(), keyCurveName.getAlgSpec(), log).generateKeyPair();
+    public EcKeyVaultKeyEntity(@NonNull final VersionedKeyEntityId id,
+                               @NonNull final VaultFake vault,
+                               @NonNull final KeyPair keyPair,
+                               final KeyCurveName curveName,
+                               final Boolean hsm) {
+        super(id, vault, keyPair, KeyType.EC.validateOrDefault(curveName, KeyCurveName.class), hsm);
     }
 
     @Override

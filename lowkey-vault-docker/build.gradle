@@ -21,6 +21,7 @@ group = "${rootProject.group}"
 
 dependencies {
     testImplementation project(":lowkey-vault-client")
+    testImplementation libs.bouncycastle.bcpkix
     testImplementation libs.httpclient
     testImplementation libs.commons.codec
     testImplementation libs.azure.security.keyvault.keys

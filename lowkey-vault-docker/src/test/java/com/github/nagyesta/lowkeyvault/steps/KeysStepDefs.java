@@ -4,17 +4,21 @@ import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.util.Context;
 import com.azure.security.keyvault.keys.cryptography.models.*;
 import com.azure.security.keyvault.keys.models.*;
+import com.github.nagyesta.lowkeyvault.KeyGenUtil;
 import com.github.nagyesta.lowkeyvault.context.KeyTestContext;
 import com.github.nagyesta.lowkeyvault.http.ApacheHttpClientProvider;
 import com.github.nagyesta.lowkeyvault.http.AuthorityOverrideFunction;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +26,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.azure.security.keyvault.keys.cryptography.models.EncryptionAlgorithm.*;
+import static com.azure.security.keyvault.keys.cryptography.models.SignatureAlgorithm.*;
 import static com.github.nagyesta.lowkeyvault.context.KeyTestContext.NOW;
 import static com.github.nagyesta.lowkeyvault.context.TestContextConfig.CONTAINER_AUTHORITY;
 
@@ -103,6 +109,43 @@ public class KeysStepDefs extends CommonAssertions {
         final CreateRsaKeyOptions createKeyOptions = context.getCreateRsaKeyOptions();
         final KeyVaultKey rsaKey = context.getClient().createRsaKey(createKeyOptions);
         context.addCreatedEntity(createKeyOptions.getName(), rsaKey);
+    }
+
+    @And("an EC key is imported with {name} as name and {ecCurveName} curve {hsm} HSM")
+    public void ecKeyImportedWithNameAndParameters(final String name, final KeyCurveName curveName, final boolean hsm) {
+        final KeyPair keyPair = KeyGenUtil.generateEc(curveName);
+        context.setKeyPair(keyPair);
+        final JsonWebKey key = JsonWebKey.fromEc(keyPair, new BouncyCastleProvider())
+                .setKeyOps(List.of(KeyOperation.SIGN, KeyOperation.ENCRYPT, KeyOperation.WRAP_KEY));
+        final ImportKeyOptions options = new ImportKeyOptions(name, key)
+                .setHardwareProtected(hsm);
+        final KeyVaultKey ecKey = context.getClient().importKey(options);
+        context.addCreatedEntity(name, ecKey);
+    }
+
+    @And("an RSA key is imported with {name} as name and {rsaKeySize} bits of key size {hsm} HSM")
+    public void rsaKeyImportedWithNameAndParameters(final String name, final int size, final boolean hsm) {
+        final KeyPair keyPair = KeyGenUtil.generateRsa(size, null);
+        context.setKeyPair(keyPair);
+        final JsonWebKey key = JsonWebKey.fromRsa(keyPair)
+                .setKeyOps(List.of(KeyOperation.SIGN, KeyOperation.ENCRYPT, KeyOperation.WRAP_KEY));
+        final ImportKeyOptions options = new ImportKeyOptions(name, key)
+                .setHardwareProtected(hsm);
+        final KeyVaultKey rsaKey = context.getClient().importKey(options);
+        context.addCreatedEntity(name, rsaKey);
+    }
+
+    @And("an OCT key is imported with {name} as name and {octKeySize} bits of key size with HSM")
+    public void octKeyImportedWithNameAndParameters(final String name, final int size) {
+        final SecretKey secretKey = KeyGenUtil.generateAes(size);
+        context.setSecretKey(secretKey);
+        final JsonWebKey key = JsonWebKey.fromAes(secretKey)
+                .setKeyOps(List.of(KeyOperation.SIGN, KeyOperation.ENCRYPT, KeyOperation.WRAP_KEY))
+                .setKeyType(KeyType.OCT_HSM);
+        final ImportKeyOptions options = new ImportKeyOptions(name, key)
+                .setHardwareProtected(true);
+        final KeyVaultKey rsaKey = context.getClient().importKey(options);
+        context.addCreatedEntity(name, rsaKey);
     }
 
     @When("the first key version of {name} is fetched with providing a version")
@@ -298,6 +341,15 @@ public class KeysStepDefs extends CommonAssertions {
         context.setDecryptResult(decryptResult);
     }
 
+    @And("the encrypted value is decrypted using the original OCT key using {algorithm}")
+    public void theEncryptedValueIsDecryptedUsingTheOriginalOctKeyWithAlgorithm(final EncryptionAlgorithm algorithm) throws Exception {
+        final Cipher cipher = Cipher.getInstance(getSymmetricalEncryptionAlgName(algorithm), new BouncyCastleProvider());
+        final EncryptResult encryptResult = context.getEncryptResult();
+        cipher.init(Cipher.DECRYPT_MODE, context.getSecretKey(), new IvParameterSpec(encryptResult.getIv()));
+        final byte[] plain = cipher.doFinal(encryptResult.getCipherText());
+        context.setDecryptResult(new DecryptResult(plain, algorithm, context.getLastResult().getId()));
+    }
+
     @And("the signature of {clearText} is verified with {signAlgorithm}")
     public void theSignValueIsVerifiedWithAlgorithm(final byte[] text, final SignatureAlgorithm algorithm) {
         final String keyId = context.getLastResult().getKey().getId();
@@ -305,6 +357,28 @@ public class KeysStepDefs extends CommonAssertions {
         final byte[] digest = hash(text, algorithm.toString());
         final VerifyResult verifyResult = context.getCryptographyClient().verify(algorithm, digest, context.getSignatureResult());
         context.setVerifyResult(verifyResult.isValid());
+    }
+
+    @And("the EC signature of {clearText} is verified using the original public key with {signAlgorithm}")
+    public void theEcSignValueIsVerifiedUsingOriginalPublicKeyWithAlgorithm(final byte[] text, final SignatureAlgorithm algorithm)
+            throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        final byte[] digest = hash(text, algorithm.toString());
+        final Signature ecVerify = Signature.getInstance(getAsymmetricSignatureAlgorithm(algorithm));
+        ecVerify.initVerify(context.getKeyPair().getPublic());
+        ecVerify.update(digest);
+        final boolean result = ecVerify.verify(context.getSignatureResult());
+        context.setVerifyResult(result);
+    }
+
+    @And("the RSA signature of {clearText} is verified using the original public key with {signAlgorithm}")
+    public void theRsaSignValueIsVerifiedUsingOriginalPublicKeyWithAlgorithm(final byte[] text, final SignatureAlgorithm algorithm)
+            throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        final byte[] digest = hash(text, algorithm.toString());
+        final Signature rsaVerify = Signature.getInstance(getAsymmetricSignatureAlgorithm(algorithm), new BouncyCastleProvider());
+        rsaVerify.initVerify(context.getKeyPair().getPublic());
+        rsaVerify.update(digest);
+        final boolean result = rsaVerify.verify(context.getSignatureResult());
+        context.setVerifyResult(result);
     }
 
     private byte[] hash(final byte[] text, final String algorithm) {
@@ -328,15 +402,15 @@ public class KeysStepDefs extends CommonAssertions {
             return com.azure.security.keyvault.keys.cryptography.models.EncryptParameters.createRsaOaepParameters(clearText);
         } else if (encryptionAlgorithm == EncryptionAlgorithm.RSA_OAEP_256) {
             return com.azure.security.keyvault.keys.cryptography.models.EncryptParameters.createRsaOaep256Parameters(clearText);
-        } else if (encryptionAlgorithm == EncryptionAlgorithm.A128CBC) {
+        } else if (encryptionAlgorithm == A128CBC) {
             return com.azure.security.keyvault.keys.cryptography.models.EncryptParameters.createA128CbcParameters(clearText, getIv());
         } else if (encryptionAlgorithm == EncryptionAlgorithm.A128CBCPAD) {
             return com.azure.security.keyvault.keys.cryptography.models.EncryptParameters.createA128CbcPadParameters(clearText, getIv());
         } else if (encryptionAlgorithm == EncryptionAlgorithm.A192CBC) {
             return com.azure.security.keyvault.keys.cryptography.models.EncryptParameters.createA192CbcParameters(clearText, getIv());
-        } else if (encryptionAlgorithm == EncryptionAlgorithm.A192CBCPAD) {
+        } else if (encryptionAlgorithm == A192CBCPAD) {
             return com.azure.security.keyvault.keys.cryptography.models.EncryptParameters.createA192CbcPadParameters(clearText, getIv());
-        } else if (encryptionAlgorithm == EncryptionAlgorithm.A256CBC) {
+        } else if (encryptionAlgorithm == A256CBC) {
             return com.azure.security.keyvault.keys.cryptography.models.EncryptParameters.createA256CbcParameters(clearText, getIv());
         } else if (encryptionAlgorithm == EncryptionAlgorithm.A256CBCPAD) {
             return com.azure.security.keyvault.keys.cryptography.models.EncryptParameters.createA256CbcPadParameters(clearText, getIv());
@@ -352,20 +426,60 @@ public class KeysStepDefs extends CommonAssertions {
             return DecryptParameters.createRsaOaepParameters(encryptResult.getCipherText());
         } else if (encryptionAlgorithm == EncryptionAlgorithm.RSA_OAEP_256) {
             return DecryptParameters.createRsaOaep256Parameters(encryptResult.getCipherText());
-        } else if (encryptionAlgorithm == EncryptionAlgorithm.A128CBC) {
+        } else if (encryptionAlgorithm == A128CBC) {
             return DecryptParameters.createA128CbcParameters(encryptResult.getCipherText(), encryptResult.getIv());
         } else if (encryptionAlgorithm == EncryptionAlgorithm.A128CBCPAD) {
             return DecryptParameters.createA128CbcPadParameters(encryptResult.getCipherText(), encryptResult.getIv());
         } else if (encryptionAlgorithm == EncryptionAlgorithm.A192CBC) {
             return DecryptParameters.createA192CbcParameters(encryptResult.getCipherText(), encryptResult.getIv());
-        } else if (encryptionAlgorithm == EncryptionAlgorithm.A192CBCPAD) {
+        } else if (encryptionAlgorithm == A192CBCPAD) {
             return DecryptParameters.createA192CbcPadParameters(encryptResult.getCipherText(), encryptResult.getIv());
-        } else if (encryptionAlgorithm == EncryptionAlgorithm.A256CBC) {
+        } else if (encryptionAlgorithm == A256CBC) {
             return DecryptParameters.createA256CbcParameters(encryptResult.getCipherText(), encryptResult.getIv());
         } else if (encryptionAlgorithm == EncryptionAlgorithm.A256CBCPAD) {
             return DecryptParameters.createA256CbcPadParameters(encryptResult.getCipherText(), encryptResult.getIv());
         } else {
             return null;
+        }
+    }
+
+    private String getSymmetricalEncryptionAlgName(final EncryptionAlgorithm algorithm) {
+        if (algorithm == A128CBC) {
+            return "AES/CBC/ZeroBytePadding";
+        } else if (algorithm == A128CBCPAD) {
+            return "AES/CBC/PKCS5Padding";
+        } else if (algorithm == A192CBC) {
+            return "AES/CBC/ZeroBytePadding";
+        } else if (algorithm == A192CBCPAD) {
+            return "AES/CBC/PKCS5Padding";
+        } else if (algorithm == A256CBC) {
+            return "AES/CBC/ZeroBytePadding";
+        } else {
+            return "AES/CBC/PKCS5Padding";
+        }
+    }
+
+    private String getAsymmetricSignatureAlgorithm(final SignatureAlgorithm algorithm) {
+        if (algorithm == ES256) {
+            return "NONEwithECDSAinP1363Format";
+        } else if (algorithm == ES256K) {
+            return "NONEwithECDSAinP1363Format";
+        } else if (algorithm == ES384) {
+            return "NONEwithECDSAinP1363Format";
+        } else if (algorithm == ES512) {
+            return "NONEwithECDSAinP1363Format";
+        } else if (algorithm == PS256) {
+            return "SHA256withRSAandMGF1";
+        } else if (algorithm == PS384) {
+            return "SHA384withRSAandMGF1";
+        } else if (algorithm == PS512) {
+            return "SHA512withRSAandMGF1";
+        } else if (algorithm == RS256) {
+            return "SHA256withRSA";
+        } else if (algorithm == RS384) {
+            return "SHA384withRSA";
+        } else {
+            return "SHA512withRSA";
         }
     }
 }

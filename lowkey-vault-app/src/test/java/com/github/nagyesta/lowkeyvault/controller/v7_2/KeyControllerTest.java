@@ -9,11 +9,10 @@ import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesUpdateModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.*;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.EncryptionAlgorithm;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.SignatureAlgorithm;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.*;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.CreateKeyRequest;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.UpdateKeyRequest;
 import com.github.nagyesta.lowkeyvault.service.common.ReadOnlyVersionedEntityMultiMap;
 import com.github.nagyesta.lowkeyvault.service.exception.AlreadyExistsException;
 import com.github.nagyesta.lowkeyvault.service.exception.CryptoException;
@@ -34,7 +33,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -43,9 +41,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -59,8 +59,6 @@ import static org.mockito.Mockito.*;
 
 class KeyControllerTest {
 
-    private static final Base64.Encoder ENCODER = Base64.getUrlEncoder().withoutPadding();
-    private static final Base64.Decoder DECODER = Base64.getUrlDecoder();
     private static final KeyVaultKeyModel RESPONSE = createResponse();
     private static final DeletedKeyVaultKeyModel DELETED_RESPONSE = createDeletedResponse();
     @Mock
@@ -839,105 +837,6 @@ class KeyControllerTest {
         }
         inOrder.verify(entities).getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3));
         verify(keyEntityToV72ModelConverter).convert(same(entity));
-    }
-
-    @SuppressWarnings("checkstyle:MagicNumber")
-    @ParameterizedTest
-    @ValueSource(strings = {BLANK, DEFAULT_VAULT, LOCALHOST, LOWKEY_VAULT})
-    void testEncryptAndDecryptShouldGetBackOriginalInputWhenKeyAndVersionIsFound(final String clearText) {
-        //given
-        final KeyEntityId baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
-        final List<KeyOperation> operations = List.of(
-                KeyOperation.ENCRYPT, KeyOperation.DECRYPT, KeyOperation.WRAP_KEY, KeyOperation.UNWRAP_KEY);
-        final CreateKeyRequest request = createRequest(operations, null, null);
-        final RsaKeyVaultKeyEntity entity = (RsaKeyVaultKeyEntity) createEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, request);
-        entity.setEnabled(true);
-        entity.setOperations(operations);
-        when(keyVaultFake.getEntities())
-                .thenReturn(entities);
-        when(entities.getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3)))
-                .thenReturn(entity);
-        when(keyEntityToV72ModelConverter.convert(same(entity)))
-                .thenReturn(RESPONSE);
-        final KeyOperationsParameters encryptParameters = new KeyOperationsParameters();
-        encryptParameters.setAlgorithm(EncryptionAlgorithm.RSA_OAEP_256);
-        encryptParameters.setValue(ENCODER.encodeToString(clearText.getBytes(StandardCharsets.UTF_8)));
-
-        //when
-        final ResponseEntity<KeyOperationsResult> encrypted = underTest
-                .encrypt(KEY_NAME_1, KEY_VERSION_3, HTTPS_LOCALHOST_8443, encryptParameters);
-        Assertions.assertNotNull(encrypted);
-        Assertions.assertEquals(HttpStatus.OK, encrypted.getStatusCode());
-        Assertions.assertNotNull(encrypted.getBody());
-        Assertions.assertNotEquals(clearText, encrypted.getBody().getValue());
-
-        final KeyOperationsParameters decryptParameters = new KeyOperationsParameters();
-        decryptParameters.setAlgorithm(EncryptionAlgorithm.RSA_OAEP_256);
-        decryptParameters.setValue(encrypted.getBody().getValue());
-        final ResponseEntity<KeyOperationsResult> actual = underTest
-                .decrypt(KEY_NAME_1, KEY_VERSION_3, HTTPS_LOCALHOST_8443, decryptParameters);
-
-        //then
-        Assertions.assertNotNull(actual);
-        Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
-        Assertions.assertNotNull(actual.getBody());
-        final String decoded = new String(DECODER.decode(actual.getBody().getValue()), StandardCharsets.UTF_8);
-        Assertions.assertEquals(clearText, decoded);
-
-        verify(vaultService, times(2)).findByUri(eq(HTTPS_LOCALHOST_8443));
-        verify(vaultFake, times(2)).keyVaultFake();
-        verify(keyVaultFake, times(2)).getEntities();
-        verify(entities, never()).getLatestVersionOfEntity(eq(baseUri));
-        verify(entities, times(2)).getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3));
-    }
-
-    @SuppressWarnings("checkstyle:MagicNumber")
-    @ParameterizedTest
-    @ValueSource(strings = {BLANK, DEFAULT_VAULT, LOCALHOST, LOWKEY_VAULT})
-    void testSignAndVerifyShouldReturnTrueWhenKeyAndVersionIsFoundAndCalledInSequence(final String clearText) {
-        //given
-        final KeyEntityId baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
-        final List<KeyOperation> operations = List.of(KeyOperation.SIGN, KeyOperation.VERIFY);
-        final CreateKeyRequest request = createRequest(operations, null, null);
-        final RsaKeyVaultKeyEntity entity = (RsaKeyVaultKeyEntity) createEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, request);
-        entity.setEnabled(true);
-        entity.setOperations(operations);
-        when(keyVaultFake.getEntities())
-                .thenReturn(entities);
-        when(entities.getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3)))
-                .thenReturn(entity);
-        when(keyEntityToV72ModelConverter.convert(same(entity)))
-                .thenReturn(RESPONSE);
-        final KeySignParameters keySignParameters = new KeySignParameters();
-        keySignParameters.setAlgorithm(SignatureAlgorithm.PS256);
-        keySignParameters.setValue(ENCODER.encodeToString(clearText.getBytes(StandardCharsets.UTF_8)));
-
-        //when
-        final ResponseEntity<KeySignResult> signature = underTest
-                .sign(KEY_NAME_1, KEY_VERSION_3, HTTPS_LOCALHOST_8443, keySignParameters);
-        Assertions.assertNotNull(signature);
-        Assertions.assertEquals(HttpStatus.OK, signature.getStatusCode());
-        Assertions.assertNotNull(signature.getBody());
-        Assertions.assertNotEquals(clearText, signature.getBody().getValue());
-
-        final KeyVerifyParameters verifyParameters = new KeyVerifyParameters();
-        verifyParameters.setAlgorithm(SignatureAlgorithm.PS256);
-        verifyParameters.setDigest(ENCODER.encodeToString(clearText.getBytes(StandardCharsets.UTF_8)));
-        verifyParameters.setValue(signature.getBody().getValue());
-        final ResponseEntity<KeyVerifyResult> actual = underTest
-                .verify(KEY_NAME_1, KEY_VERSION_3, HTTPS_LOCALHOST_8443, verifyParameters);
-
-        //then
-        Assertions.assertNotNull(actual);
-        Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
-        Assertions.assertNotNull(actual.getBody());
-        Assertions.assertTrue(actual.getBody().isValue());
-
-        verify(vaultService, times(2)).findByUri(eq(HTTPS_LOCALHOST_8443));
-        verify(vaultFake, times(2)).keyVaultFake();
-        verify(keyVaultFake, times(2)).getEntities();
-        verify(entities, never()).getLatestVersionOfEntity(eq(baseUri));
-        verify(entities, times(2)).getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3));
     }
 
     @NonNull

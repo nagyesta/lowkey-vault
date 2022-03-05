@@ -1,0 +1,11 @@
+{
+  "key": {
+    "kty": "EC",
+    "d": "AIr3-iApan7BvLYEHhXmScSQNn-B5N7-Bs5Hvi9_JUrP",
+    "x": "bgaA-ohoODwHW-g6idvSTETho-mkFYmsQ2tYcNgYxbQ",
+    "y": "1fa3lOetqDuLmdXIahRFKegv5MSmdxewHT4YVvBZxrg"
+  },
+  "tags": {
+    "purpose": "unit test"
+  }
+}

@@ -3,6 +3,7 @@ package com.github.nagyesta.lowkeyvault.model.v7_2.key.constants;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRequest;
 import com.github.nagyesta.lowkeyvault.service.key.*;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.impl.EcKeyCreationInput;
@@ -47,6 +48,13 @@ public enum KeyType {
             Assert.isInstanceOf(EcKeyCreationInput.class, input);
             return keyVaultFake.createEcKeyVersion(name, (EcKeyCreationInput) input);
         }
+
+        @Override
+        public VersionedKeyEntityId importKey(final KeyVaultFake keyVaultFake,
+                                              final VersionedKeyEntityId keyEntityId,
+                                              final JsonWebKeyImportRequest input) {
+            return keyVaultFake.importEcKeyVersion(keyEntityId, input);
+        }
     },
 
     /**
@@ -73,6 +81,13 @@ public enum KeyType {
                 final KeyVaultFake keyVaultFake, final String name, final T input) {
             return EC.createKey(keyVaultFake, name, input);
         }
+
+        @Override
+        public VersionedKeyEntityId importKey(final KeyVaultFake keyVaultFake,
+                                              final VersionedKeyEntityId keyEntityId,
+                                              final JsonWebKeyImportRequest input) {
+            return EC.importKey(keyVaultFake, keyEntityId, input);
+        }
     },
 
     /**
@@ -97,6 +112,13 @@ public enum KeyType {
                 final KeyVaultFake keyVaultFake, final String name, final T input) {
             Assert.isInstanceOf(RsaKeyCreationInput.class, input);
             return keyVaultFake.createRsaKeyVersion(name, (RsaKeyCreationInput) input);
+        }
+
+        @Override
+        public VersionedKeyEntityId importKey(final KeyVaultFake keyVaultFake,
+                                              final VersionedKeyEntityId keyEntityId,
+                                              final JsonWebKeyImportRequest input) {
+            return keyVaultFake.importRsaKeyVersion(keyEntityId, input);
         }
     },
 
@@ -124,6 +146,13 @@ public enum KeyType {
                 final KeyVaultFake keyVaultFake, final String name, final T input) {
             return RSA.createKey(keyVaultFake, name, input);
         }
+
+        @Override
+        public VersionedKeyEntityId importKey(final KeyVaultFake keyVaultFake,
+                                              final VersionedKeyEntityId keyEntityId,
+                                              final JsonWebKeyImportRequest input) {
+            return RSA.importKey(keyVaultFake, keyEntityId, input);
+        }
     },
 
     /**
@@ -149,6 +178,13 @@ public enum KeyType {
             Assert.isInstanceOf(OctKeyCreationInput.class, input);
             return keyVaultFake.createOctKeyVersion(name, (OctKeyCreationInput) input);
         }
+
+        @Override
+        public VersionedKeyEntityId importKey(final KeyVaultFake keyVaultFake,
+                                              final VersionedKeyEntityId keyEntityId,
+                                              final JsonWebKeyImportRequest input) {
+            return keyVaultFake.importOctKeyVersion(keyEntityId, input);
+        }
     },
 
     /**
@@ -157,7 +193,7 @@ public enum KeyType {
     OCT_HSM("oct-HSM") {
         @Override
         public boolean isOct() {
-            return true;
+            return OCT.isOct();
         }
 
         @Override
@@ -174,6 +210,13 @@ public enum KeyType {
         public <E, T extends KeyCreationInput<E>> VersionedKeyEntityId createKey(
                 final KeyVaultFake keyVaultFake, final String name, final T input) {
             return OCT.createKey(keyVaultFake, name, input);
+        }
+
+        @Override
+        public VersionedKeyEntityId importKey(final KeyVaultFake keyVaultFake,
+                                              final VersionedKeyEntityId keyEntityId,
+                                              final JsonWebKeyImportRequest input) {
+            return OCT.importKey(keyVaultFake, keyEntityId, input);
         }
     };
 
@@ -252,4 +295,7 @@ public enum KeyType {
     }
 
     public abstract <E, T extends KeyCreationInput<E>> VersionedKeyEntityId createKey(KeyVaultFake keyVaultFake, String name, T input);
+
+    public abstract VersionedKeyEntityId importKey(
+            KeyVaultFake keyVaultFake, VersionedKeyEntityId keyEntityId, JsonWebKeyImportRequest input);
 }

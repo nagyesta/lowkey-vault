@@ -17,8 +17,8 @@ import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.Signature;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.RSAKeyGenParameterSpec;
-import java.util.Objects;
+
+import static com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil.generateRsa;
 
 @Slf4j
 public class RsaKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, Integer> implements ReadOnlyRsaKeyVaultKeyEntity {
@@ -28,14 +28,15 @@ public class RsaKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, Integer> im
                                 final Integer keyParam,
                                 final BigInteger publicExponent,
                                 final boolean hsm) {
-        super(id, vault, generate(keyParam, publicExponent), KeyType.RSA.validateOrDefault(keyParam, Integer.class), hsm);
+        super(id, vault, generateRsa(keyParam, publicExponent), KeyType.RSA.validateOrDefault(keyParam, Integer.class), hsm);
     }
 
-    private static KeyPair generate(final Integer keySize, final BigInteger publicExponent) {
-        final int nonNullKeySize = KeyType.RSA.validateOrDefault(keySize, Integer.class);
-        final BigInteger notNullPublicExponent = Objects.requireNonNullElse(publicExponent, BigInteger.valueOf(65537));
-        final RSAKeyGenParameterSpec rsaKeyGenParameterSpec = new RSAKeyGenParameterSpec(nonNullKeySize, notNullPublicExponent);
-        return keyPairGenerator(KeyType.RSA.getAlgorithmName(), rsaKeyGenParameterSpec, log).generateKeyPair();
+    public RsaKeyVaultKeyEntity(@NonNull final VersionedKeyEntityId id,
+                                @NonNull final VaultFake vault,
+                                @NonNull final KeyPair keyPair,
+                                final Integer keySize,
+                                final Boolean hsm) {
+        super(id, vault, keyPair, KeyType.RSA.validateOrDefault(keySize, Integer.class), hsm);
     }
 
     @Override

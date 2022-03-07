@@ -1,8 +1,13 @@
 package com.github.nagyesta.lowkeyvault.service.key.impl;
 
+import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.AesJsonWebKeyImportRequestConverter;
+import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.EcJsonWebKeyImportRequestConverter;
+import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.RsaJsonWebKeyImportRequestConverter;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRequest;
 import com.github.nagyesta.lowkeyvault.service.common.impl.BaseVaultFakeImpl;
 import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
@@ -20,6 +25,10 @@ public class KeyVaultFakeImpl
         extends BaseVaultFakeImpl<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity, KeyVaultKeyEntity<?, ?>>
         implements KeyVaultFake {
 
+    private final RsaJsonWebKeyImportRequestConverter rsaConverter = new RsaJsonWebKeyImportRequestConverter();
+    private final EcJsonWebKeyImportRequestConverter ecConverter = new EcJsonWebKeyImportRequestConverter();
+    private final AesJsonWebKeyImportRequestConverter aesConverter = new AesJsonWebKeyImportRequestConverter();
+
     public KeyVaultFakeImpl(@org.springframework.lang.NonNull final VaultFake vaultFake,
                             @org.springframework.lang.NonNull final RecoveryLevel recoveryLevel,
                             final Integer recoverableDays) {
@@ -35,6 +44,46 @@ public class KeyVaultFakeImpl
     public <E, T extends KeyCreationInput<E>> VersionedKeyEntityId createKeyVersion(
             @NonNull final String keyName, @NonNull final T input) {
         return input.getKeyType().createKey(this, keyName, input);
+    }
+
+    @Override
+    public VersionedKeyEntityId importKeyVersion(
+            final String keyName, final JsonWebKeyImportRequest key) {
+        final VersionedKeyEntityId keyEntityId = new VersionedKeyEntityId(vaultFake().baseUri(), keyName);
+
+        final KeyType keyType = Objects.requireNonNull(key).getKeyType();
+        return keyType.importKey(this, keyEntityId, key);
+    }
+
+    @Override
+    public VersionedKeyEntityId importRsaKeyVersion(
+            final VersionedKeyEntityId keyEntityId, final JsonWebKeyImportRequest key) {
+        final KeyType keyType = Objects.requireNonNull(key).getKeyType();
+        Assert.isTrue(keyType.isRsa(), "RSA key expected, but found: " + keyType.name());
+        final RsaKeyVaultKeyEntity keyEntity = new RsaKeyVaultKeyEntity(keyEntityId, vaultFake(), rsaConverter.convert(key),
+                rsaConverter.getKeyParameter(key), keyType.isHsm());
+        return addVersion(keyEntityId, keyEntity);
+    }
+
+    @Override
+    public VersionedKeyEntityId importEcKeyVersion(
+            final VersionedKeyEntityId keyEntityId, final JsonWebKeyImportRequest key) {
+        final KeyType keyType = Objects.requireNonNull(key).getKeyType();
+        Assert.isTrue(keyType.isEc(), "EC key expected, but found: " + keyType.name());
+        final EcKeyVaultKeyEntity keyEntity = new EcKeyVaultKeyEntity(keyEntityId, vaultFake(), ecConverter.convert(key),
+                ecConverter.getKeyParameter(key), keyType.isHsm());
+        return addVersion(keyEntityId, keyEntity);
+    }
+
+    @Override
+    public VersionedKeyEntityId importOctKeyVersion(
+            final VersionedKeyEntityId keyEntityId, final JsonWebKeyImportRequest key) {
+        final KeyType keyType = Objects.requireNonNull(key).getKeyType();
+        Assert.isTrue(keyType.isOct(), "OCT key expected, but found: " + keyType.name());
+        Assert.isTrue(keyType.isHsm(), "OCT keys are only supported using HSM.");
+        final AesKeyVaultKeyEntity keyEntity = new AesKeyVaultKeyEntity(keyEntityId, vaultFake(), aesConverter.convert(key),
+                aesConverter.getKeyParameter(key), keyType.isHsm());
+        return addVersion(keyEntityId, keyEntity);
     }
 
     @Override

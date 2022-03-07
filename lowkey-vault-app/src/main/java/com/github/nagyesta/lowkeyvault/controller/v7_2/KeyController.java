@@ -5,8 +5,12 @@ import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyVersionI
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ModelConverter;
 import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
 import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
+import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesUpdateModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.*;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.*;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.CreateKeyRequest;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.ImportKeyRequest;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRequest;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.UpdateKeyRequest;
 import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
@@ -17,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
+import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,6 +63,21 @@ public class KeyController extends BaseController<KeyEntityId, VersionedKeyEntit
 
         final KeyVaultFake keyVaultFake = getVaultByUri(baseUri);
         final VersionedKeyEntityId keyEntityId = createKeyWithAttributes(keyVaultFake, keyName, request);
+        return ResponseEntity.ok(getModelById(keyVaultFake, keyEntityId));
+    }
+
+    @PutMapping(value = "/keys/{keyName}",
+            params = API_VERSION_7_2,
+            consumes = APPLICATION_JSON_VALUE,
+            produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<KeyVaultKeyModel> importKey(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
+                                                      @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
+                                                      @Valid @RequestBody final ImportKeyRequest request) {
+        log.info("Received request to {} import key: {} using API version: {}",
+                baseUri.toString(), keyName, V_7_2);
+
+        final KeyVaultFake keyVaultFake = getVaultByUri(baseUri);
+        final VersionedKeyEntityId keyEntityId = importKeyWithAttributes(keyVaultFake, keyName, request);
         return ResponseEntity.ok(getModelById(keyVaultFake, keyEntityId));
     }
 
@@ -200,77 +220,6 @@ public class KeyController extends BaseController<KeyEntityId, VersionedKeyEntit
         return ResponseEntity.ok(getModelById(keyVaultFake, latestVersion));
     }
 
-    @PostMapping(value = {"/keys/{keyName}/{keyVersion}/encrypt", "/keys/{keyName}/{keyVersion}/wrap"},
-            params = API_VERSION_7_2,
-            consumes = APPLICATION_JSON_VALUE,
-            produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<KeyOperationsResult> encrypt(
-            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
-            @PathVariable @Valid @Pattern(regexp = VERSION_NAME_PATTERN) final String keyVersion,
-            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
-            @Valid @RequestBody final KeyOperationsParameters request) {
-        log.info("Received request to {} encrypt using key: {} with version: {} using API version: {}",
-                baseUri.toString(), keyName, keyVersion, V_7_2);
-
-        final ReadOnlyKeyVaultKeyEntity keyVaultKeyEntity = getEntityByNameAndVersion(baseUri, keyName, keyVersion);
-        final byte[] encrypted = keyVaultKeyEntity.encryptBytes(request.getValueAsBase64DecodedBytes(), request.getAlgorithm(),
-                request.getInitializationVector());
-        return ResponseEntity.ok(KeyOperationsResult.forBytes(keyVaultKeyEntity.getId(), encrypted, request));
-    }
-
-    @PostMapping(value = {"/keys/{keyName}/{keyVersion}/decrypt", "/keys/{keyName}/{keyVersion}/unwrap"},
-            params = API_VERSION_7_2,
-            consumes = APPLICATION_JSON_VALUE,
-            produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<KeyOperationsResult> decrypt(
-            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
-            @PathVariable @Valid @Pattern(regexp = VERSION_NAME_PATTERN) final String keyVersion,
-            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
-            @Valid @RequestBody final KeyOperationsParameters request) {
-        log.info("Received request to {} decrypt using key: {} with version: {} using API version: {}",
-                baseUri.toString(), keyName, keyVersion, V_7_2);
-
-        final ReadOnlyKeyVaultKeyEntity keyVaultKeyEntity = getEntityByNameAndVersion(baseUri, keyName, keyVersion);
-        final byte[] decrypted = keyVaultKeyEntity.decryptToBytes(request.getValueAsBase64DecodedBytes(), request.getAlgorithm(),
-                request.getInitializationVector());
-        return ResponseEntity.ok(KeyOperationsResult.forBytes(keyVaultKeyEntity.getId(), decrypted, request));
-    }
-
-    @PostMapping(value = "/keys/{keyName}/{keyVersion}/sign",
-            params = API_VERSION_7_2,
-            consumes = APPLICATION_JSON_VALUE,
-            produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<KeySignResult> sign(
-            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
-            @PathVariable @Valid @Pattern(regexp = VERSION_NAME_PATTERN) final String keyVersion,
-            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
-            @Valid @RequestBody final KeySignParameters request) {
-        log.info("Received request to {} sign using key: {} with version: {} using API version: {}",
-                baseUri.toString(), keyName, keyVersion, V_7_2);
-
-        final ReadOnlyKeyVaultKeyEntity keyVaultKeyEntity = getEntityByNameAndVersion(baseUri, keyName, keyVersion);
-        final byte[] signature = keyVaultKeyEntity.signBytes(request.getValueAsBase64DecodedBytes(), request.getAlgorithm());
-        return ResponseEntity.ok(KeySignResult.forBytes(keyVaultKeyEntity.getId(), signature));
-    }
-
-    @PostMapping(value = "/keys/{keyName}/{keyVersion}/verify",
-            params = API_VERSION_7_2,
-            consumes = APPLICATION_JSON_VALUE,
-            produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<KeyVerifyResult> verify(
-            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
-            @PathVariable @Valid @Pattern(regexp = VERSION_NAME_PATTERN) final String keyVersion,
-            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
-            @Valid @RequestBody final KeyVerifyParameters request) {
-        log.info("Received request to {} verify using key: {} with version: {} using API version: {}",
-                baseUri.toString(), keyName, keyVersion, V_7_2);
-
-        final ReadOnlyKeyVaultKeyEntity keyVaultKeyEntity = getEntityByNameAndVersion(baseUri, keyName, keyVersion);
-        final boolean result = keyVaultKeyEntity.verifySignedBytes(request.getDigestAsBase64DecodedBytes(), request.getAlgorithm(),
-                request.getValueAsBase64DecodedBytes());
-        return ResponseEntity.ok(new KeyVerifyResult(result));
-    }
-
     @Override
     protected VersionedKeyEntityId versionedEntityId(final URI baseUri, final String name, final String version) {
         return new VersionedKeyEntityId(baseUri, name, version);
@@ -289,6 +238,20 @@ public class KeyController extends BaseController<KeyEntityId, VersionedKeyEntit
         keyVaultFake.addTags(keyEntityId, request.getTags());
         keyVaultFake.setExpiry(keyEntityId, properties.getNotBefore(), properties.getExpiresOn());
         keyVaultFake.setEnabled(keyEntityId, properties.isEnabled());
+        return keyEntityId;
+    }
+
+    private VersionedKeyEntityId importKeyWithAttributes(
+            final KeyVaultFake keyVaultFake, final String keyName, final ImportKeyRequest request) {
+        final BasePropertiesUpdateModel properties = Objects.requireNonNullElse(request.getProperties(), new BasePropertiesUpdateModel());
+        Assert.isTrue(request.getHsm() == null || request.getHsm() == request.getKey().getKeyType().isHsm(),
+                "When HSM property is set in request, key type must match it.");
+        final VersionedKeyEntityId keyEntityId = keyVaultFake.importKeyVersion(keyName, request.getKey());
+        final JsonWebKeyImportRequest keyImport = request.getKey();
+        keyVaultFake.setKeyOperations(keyEntityId, keyImport.getKeyOps());
+        keyVaultFake.addTags(keyEntityId, request.getTags());
+        keyVaultFake.setExpiry(keyEntityId, properties.getNotBefore(), properties.getExpiresOn());
+        keyVaultFake.setEnabled(keyEntityId, Objects.requireNonNullElse(properties.getEnabled(), true));
         return keyEntityId;
     }
 }

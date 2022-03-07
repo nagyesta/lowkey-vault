@@ -80,6 +80,8 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 - API version supported: ```7.2```
 - Create key (```RSA```, ```EC```, ```OCT```)
     - Including metadata
+- Import key  (```RSA```, ```EC```, ```OCT```)
+    - Including metadata
 - Get available key versions
 - Get key
     - Latest version of a single key
@@ -99,7 +101,7 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
     - ```AES``` (```128```/```192```/```256```)
         - ```AES-CBC```
         - ```AES-CBC Pad```
-- Sing/Verify digest with keys
+- Sign/Verify digest with keys
     - ```RSA``` (```2k```/```3k```/```4k```)
         - ```PS256```
         - ```PS384```

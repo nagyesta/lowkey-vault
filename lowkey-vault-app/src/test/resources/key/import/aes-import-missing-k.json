@@ -1,0 +1,8 @@
+{
+  "key": {
+    "kty": "oct"
+  },
+  "tags": {
+    "purpose": "unit test"
+  }
+}

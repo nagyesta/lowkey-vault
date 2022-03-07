@@ -20,6 +20,32 @@ class SignatureAlgorithmTest {
         return builder.build();
     }
 
+    @SuppressWarnings("checkstyle:MagicNumber")
+    public static Stream<Arguments> digestLengthProvider() {
+        return Stream.<Arguments>builder()
+                .add(Arguments.of(SignatureAlgorithm.ES256, 32, true))
+                .add(Arguments.of(SignatureAlgorithm.ES256, 31, false))
+                .add(Arguments.of(SignatureAlgorithm.ES256, 33, false))
+                .add(Arguments.of(SignatureAlgorithm.ES256, 16, false))
+                .add(Arguments.of(SignatureAlgorithm.ES256, 64, false))
+                .add(Arguments.of(SignatureAlgorithm.ES256K, 32, true))
+                .add(Arguments.of(SignatureAlgorithm.ES256K, 31, false))
+                .add(Arguments.of(SignatureAlgorithm.ES256K, 33, false))
+                .add(Arguments.of(SignatureAlgorithm.ES256K, 16, false))
+                .add(Arguments.of(SignatureAlgorithm.ES256K, 64, false))
+                .add(Arguments.of(SignatureAlgorithm.ES384, 48, true))
+                .add(Arguments.of(SignatureAlgorithm.ES384, 47, false))
+                .add(Arguments.of(SignatureAlgorithm.ES384, 49, false))
+                .add(Arguments.of(SignatureAlgorithm.ES384, 32, false))
+                .add(Arguments.of(SignatureAlgorithm.ES384, 64, false))
+                .add(Arguments.of(SignatureAlgorithm.ES512, 64, true))
+                .add(Arguments.of(SignatureAlgorithm.ES512, 63, false))
+                .add(Arguments.of(SignatureAlgorithm.ES512, 65, false))
+                .add(Arguments.of(SignatureAlgorithm.ES512, 32, false))
+                .add(Arguments.of(SignatureAlgorithm.ES512, 128, false))
+                .build();
+    }
+
     @Test
     void testIsCompatibleWithCurveShouldReturnFalseInCaseOfRsaAlgorithm() {
         //given
@@ -47,11 +73,24 @@ class SignatureAlgorithmTest {
 
     @ParameterizedTest
     @MethodSource("valueProvider")
-    void forValue(final String inout, final SignatureAlgorithm expected) {
+    void testForValueShouldReturnExpectedAlgorithmWhenCalled(final String inout, final SignatureAlgorithm expected) {
         //given
 
         //when
         final SignatureAlgorithm actual = SignatureAlgorithm.forValue(inout);
+
+        //then
+        Assertions.assertEquals(expected, actual);
+    }
+
+    @ParameterizedTest
+    @MethodSource("digestLengthProvider")
+    void testSupportsDigestLengthShouldReturnTrueOnlyWhenCalledWithExpectedDigest(
+            final SignatureAlgorithm underTest, final int input, final boolean expected) {
+        //given
+
+        //when
+        final boolean actual = underTest.supportsDigestLength(input);
 
         //then
         Assertions.assertEquals(expected, actual);

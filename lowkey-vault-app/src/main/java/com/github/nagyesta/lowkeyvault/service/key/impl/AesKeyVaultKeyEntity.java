@@ -16,6 +16,8 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
+import static com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil.generateAes;
+
 @Slf4j
 public class AesKeyVaultKeyEntity extends KeyVaultKeyEntity<SecretKey, Integer> implements ReadOnlyAesKeyVaultKeyEntity {
 
@@ -23,12 +25,15 @@ public class AesKeyVaultKeyEntity extends KeyVaultKeyEntity<SecretKey, Integer> 
                                 @NonNull final VaultFake vault,
                                 final Integer keyParam,
                                 final boolean hsm) {
-        super(id, vault, generate(keyParam), KeyType.OCT_HSM.validateOrDefault(keyParam, Integer.class), hsm);
+        super(id, vault, generateAes(keyParam), KeyType.OCT_HSM.validateOrDefault(keyParam, Integer.class), hsm);
     }
 
-    private static SecretKey generate(final Integer keySize) {
-        final int size = KeyType.OCT_HSM.validateOrDefault(keySize, Integer.class);
-        return keyGenerator(KeyType.OCT_HSM.getAlgorithmName(), size, log).generateKey();
+    public AesKeyVaultKeyEntity(@NonNull final VersionedKeyEntityId id,
+                                @NonNull final VaultFake vault,
+                                @NonNull final SecretKey key,
+                                final Integer keySize,
+                                final boolean hsm) {
+        super(id, vault, key, KeyType.OCT_HSM.validateOrDefault(keySize, Integer.class), hsm);
     }
 
     @Override

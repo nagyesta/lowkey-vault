@@ -7,6 +7,8 @@ import com.azure.security.keyvault.keys.cryptography.models.EncryptResult;
 import com.azure.security.keyvault.keys.models.*;
 import com.github.nagyesta.lowkeyvault.http.ApacheHttpClientProvider;
 
+import javax.crypto.SecretKey;
+import java.security.KeyPair;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
@@ -24,6 +26,8 @@ public class KeyTestContext extends CommonTestContext<KeyVaultKey, DeletedKey, K
     private DecryptResult decryptResult;
     private byte[] signatureResult;
     private Boolean verifyResult;
+    private KeyPair keyPair;
+    private SecretKey secretKey;
 
     public KeyTestContext(final ApacheHttpClientProvider provider) {
         super(provider);
@@ -113,5 +117,21 @@ public class KeyTestContext extends CommonTestContext<KeyVaultKey, DeletedKey, K
 
     public void setVerifyResult(final Boolean verifyResult) {
         this.verifyResult = verifyResult;
+    }
+
+    public KeyPair getKeyPair() {
+        return keyPair;
+    }
+
+    public void setKeyPair(final KeyPair keyPair) {
+        this.keyPair = keyPair;
+    }
+
+    public SecretKey getSecretKey() {
+        return secretKey;
+    }
+
+    public void setSecretKey(final SecretKey secretKey) {
+        this.secretKey = secretKey;
     }
 }

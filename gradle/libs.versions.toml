@@ -16,7 +16,7 @@ jupiter = "5.8.2"
 abortMission = "2.8.12"
 checkstyle = "9.2.1"
 jacoco = "0.8.2"
-jackson = { strictly = "2.13.1" }
+jackson = { strictly = "2.13.2" }
 
 abortMissionPlugin = "2.2.3"
 dockerPlugin = "0.32.0"

@@ -41,4 +41,10 @@ public class TestContextConfig {
     public SecretTestContext secretContext() {
         return new SecretTestContext(provider());
     }
+
+    @Bean
+    @ScenarioScope
+    public ManagementTestContext managementContext() {
+        return new ManagementTestContext(provider());
+    }
 }

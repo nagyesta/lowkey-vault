@@ -1,22 +1,16 @@
 package com.github.nagyesta.lowkeyvault.controller.v7_2;
 
+import com.github.nagyesta.lowkeyvault.controller.ErrorHandlingAwareController;
 import com.github.nagyesta.lowkeyvault.mapper.common.RecoveryAwareConverter;
-import com.github.nagyesta.lowkeyvault.model.common.ErrorModel;
 import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesUpdateModel;
 import com.github.nagyesta.lowkeyvault.service.EntityId;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultEntity;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultFake;
-import com.github.nagyesta.lowkeyvault.service.exception.AlreadyExistsException;
-import com.github.nagyesta.lowkeyvault.service.exception.CryptoException;
 import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import lombok.NonNull;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.net.URI;
 import java.util.*;
@@ -43,7 +37,7 @@ import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.V_7_2;
 public abstract class BaseController<K extends EntityId, V extends K, E extends BaseVaultEntity<V>,
         M, DM extends M, I, DI extends I, MC extends RecoveryAwareConverter<E, M, DM>,
         IC extends RecoveryAwareConverter<E, I, DI>, VIC extends RecoveryAwareConverter<E, I, DI>,
-        S extends BaseVaultFake<K, V, E>> {
+        S extends BaseVaultFake<K, V, E>> extends ErrorHandlingAwareController {
     /**
      * API version.
      */
@@ -85,16 +79,6 @@ public abstract class BaseController<K extends EntityId, V extends K, E extends 
         this.versionedItemConverter = versionedItemConverter;
         this.vaultService = vaultService;
         this.toEntityVault = toEntityVault;
-    }
-
-    @ExceptionHandler({AlreadyExistsException.class, CryptoException.class, NotFoundException.class})
-    public ResponseEntity<ErrorModel> handleException(final Exception exception) {
-        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-        final Class<? extends Exception> exceptionClass = exception.getClass();
-        if (exceptionClass.isAnnotationPresent(ResponseStatus.class)) {
-            status = exceptionClass.getAnnotation(ResponseStatus.class).value();
-        }
-        return ResponseEntity.status(status).body(ErrorModel.fromException(exception));
     }
 
     protected M getModelById(final S entityVaultFake, final V entityId) {

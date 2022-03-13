@@ -13,6 +13,9 @@ import com.azure.security.keyvault.keys.cryptography.CryptographyClientBuilder;
 import com.azure.security.keyvault.secrets.SecretAsyncClient;
 import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.SecretClientBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.nagyesta.lowkeyvault.http.management.LowkeyVaultManagementClient;
+import com.github.nagyesta.lowkeyvault.http.management.impl.LowkeyVaultManagementClientImpl;
 
 import java.net.URI;
 import java.time.Duration;
@@ -55,6 +58,10 @@ public final class ApacheHttpClientProvider {
 
     public KeyAsyncClient getKeyAsyncClient() {
         return getKeyBuilder().buildAsyncClient();
+    }
+
+    public LowkeyVaultManagementClient getLowkeyVaultManagementClient(final ObjectMapper objectMapper) {
+        return new LowkeyVaultManagementClientImpl(vaultUrl, createInstance(), objectMapper);
     }
 
     public KeyClient getKeyClient() {

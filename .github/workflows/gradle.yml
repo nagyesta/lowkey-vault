@@ -20,6 +20,7 @@ on:
       - '.whitesource'
       - 'gradle/libs.versions.toml'
       - 'lowkey-vault-docker/src/docker/Dockerfile'
+      - 'gradle/wrapper/gradle-wrapper.properties'
 
 permissions: read-all
 

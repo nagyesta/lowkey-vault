@@ -1,8 +1,9 @@
 Feature: Secret list deleted
 
-  @Secret @SecretCreate @SecretListDeleted
+  @Secret @SecretCreate @SecretListDeleted @CreateVault
   Scenario Outline: SECRET_LIST_DELETED_01 Secrets are created and deleted with the secret client then all are listed as deleted secrets
-    Given a secret client is created with the vault named secrets-del-<count>
+    Given a vault is created with name secrets-del-<count>
+    And a secret client is created with the vault named secrets-del-<count>
     And <count> secrets with <secretName>- prefix are created valued abc123
     And <count> secrets with <secretName>- prefix are deleted
     When the deleted secret properties are listed

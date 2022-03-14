@@ -11,11 +11,14 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.net.URI;
+import java.time.OffsetDateTime;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.*;
 
 class VaultFakeImplTest {
+
+    private static final int WAIT_MILLIS = 5;
 
     public static Stream<Arguments> uriProvider() {
         return Stream.<Arguments>builder()
@@ -41,8 +44,8 @@ class VaultFakeImplTest {
                 .add(Arguments.of(RecoveryLevel.RECOVERABLE, null))
                 .add(Arguments.of(RecoveryLevel.RECOVERABLE, 42))
                 .add(Arguments.of(RecoveryLevel.PURGEABLE, 21))
-                .add(Arguments.of(RecoveryLevel.CUSTOMIZED_RECOVERABLE, 5))
-                .add(Arguments.of(null, 5))
+                .add(Arguments.of(RecoveryLevel.CUSTOMIZED_RECOVERABLE, WAIT_MILLIS))
+                .add(Arguments.of(null, WAIT_MILLIS))
                 .build();
     }
 
@@ -165,5 +168,49 @@ class VaultFakeImplTest {
         Assertions.assertThrows(IllegalArgumentException.class, () -> new VaultFakeImpl(HTTPS_LOCALHOST, recoveryLevel, days));
 
         //then + exception
+    }
+
+    @Test
+    void testDeleteShouldThrowExceptionWhenVaultIsSubscriptionProtected() {
+        //given
+        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST,
+                RecoveryLevel.RECOVERABLE_AND_PROTECTED_SUBSCRIPTION, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
+
+        //when
+        Assertions.assertThrows(IllegalStateException.class, underTest::delete);
+
+        //then + exception
+    }
+
+    @Test
+    void testGetDeletedOnShouldBeNullWhenNotDeleted() {
+        //given
+        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST,
+                RecoveryLevel.RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
+
+        //when
+        final OffsetDateTime deletedOnBeforeDeletion = underTest.getDeletedOn();
+        underTest.delete();
+        final OffsetDateTime deletedOnWhileDeleted = underTest.getDeletedOn();
+        underTest.recover();
+        final OffsetDateTime deletedOnAfterRecovery = underTest.getDeletedOn();
+
+        //then
+        Assertions.assertNull(deletedOnBeforeDeletion);
+        Assertions.assertNotNull(deletedOnWhileDeleted);
+        Assertions.assertNull(deletedOnAfterRecovery);
+    }
+
+    @Test
+    void testGetCreatedOnShouldBeInThePastWhenCalled() {
+        //given
+        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST,
+                RecoveryLevel.RECOVERABLE_AND_PROTECTED_SUBSCRIPTION, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
+        Assertions.assertDoesNotThrow(() -> Thread.sleep(WAIT_MILLIS));
+        //when
+        final OffsetDateTime actual = underTest.getCreatedOn();
+
+        //then
+        Assertions.assertTrue(actual.isBefore(OffsetDateTime.now()));
     }
 }

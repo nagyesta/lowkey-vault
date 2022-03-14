@@ -62,15 +62,7 @@ dockerRun {
     daemonize true
     arguments '--rm'
     env 'LOWKEY_ARGS': '--LOWKEY_DEBUG_REQUEST_LOG=false --LOWKEY_VAULT_NAMES=keys-generic,keys-delete,' +
-            'keys-list-rsa-1,keys-list-rsa-2,keys-list-rsa-3,keys-list-rsa-5,keys-list-rsa-25,keys-list-rsa-42,' +
-            'keys-list-oct-1,keys-list-oct-2,keys-list-oct-3,keys-list-oct-5,keys-list-oct-25,keys-list-oct-42,' +
-            'keys-list-ec-1,keys-list-ec-2,keys-list-ec-3,keys-list-ec-5,keys-list-ec-25,keys-list-ec-42,' +
-            'keys-del-rsa-1,keys-del-rsa-2,keys-del-rsa-3,keys-del-rsa-5,keys-del-rsa-25,keys-del-rsa-42,' +
-            'keys-del-oct-1,keys-del-oct-2,keys-del-oct-3,keys-del-oct-5,keys-del-oct-25,keys-del-oct-42,' +
-            'keys-del-ec-1,keys-del-ec-2,keys-del-ec-3,keys-del-ec-5,keys-del-ec-25,keys-del-ec-42,' +
-            'secrets-generic,secrets-delete,' +
-            'secrets-list-1,secrets-list-2,secrets-list-3,secrets-list-5,secrets-list-25,secrets-list-42,' +
-            'secrets-del-1,secrets-del-2,secrets-del-3,secrets-del-5,secrets-del-25,secrets-del-42'
+            'secrets-generic,secrets-delete'
 }
 tasks.dockerRun.dependsOn tasks.docker
 

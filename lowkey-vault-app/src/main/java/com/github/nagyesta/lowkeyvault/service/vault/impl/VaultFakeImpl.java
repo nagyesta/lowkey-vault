@@ -10,8 +10,11 @@ import com.github.nagyesta.lowkeyvault.service.secret.impl.SecretVaultFakeImpl;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
+import org.springframework.util.Assert;
 
 import java.net.URI;
+import java.time.OffsetDateTime;
+import java.util.Objects;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, doNotUseGetters = true)
 public class VaultFakeImpl implements VaultFake {
@@ -23,6 +26,8 @@ public class VaultFakeImpl implements VaultFake {
     private final CertificateVaultFake certificates;
     private final RecoveryLevel recoveryLevel;
     private final Integer recoverableDays;
+    private final OffsetDateTime createdOn;
+    private OffsetDateTime deletedOn;
 
     public VaultFakeImpl(@org.springframework.lang.NonNull final URI vaultUri) {
         this(vaultUri, RecoveryLevel.RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
@@ -36,6 +41,7 @@ public class VaultFakeImpl implements VaultFake {
         this.certificates = new CertificateVaultFakeImpl(this, recoveryLevel, recoverableDays);
         this.recoveryLevel = recoveryLevel;
         this.recoverableDays = recoverableDays;
+        this.createdOn = OffsetDateTime.now();
     }
 
     @Override
@@ -73,4 +79,47 @@ public class VaultFakeImpl implements VaultFake {
         return recoverableDays;
     }
 
+    @Override
+    public OffsetDateTime getCreatedOn() {
+        return createdOn;
+    }
+
+    @Override
+    public OffsetDateTime getDeletedOn() {
+        return deletedOn;
+    }
+
+    @Override
+    public boolean isDeleted() {
+        return !isActive();
+    }
+
+    @Override
+    public boolean isActive() {
+        return deletedOn == null;
+    }
+
+    @Override
+    public boolean isExpired() {
+        boolean result = false;
+        if (isDeleted()) {
+            final int recoverableDaysOffset = Objects.requireNonNullElse(recoverableDays, 0);
+            final OffsetDateTime purgeDeadline = deletedOn.plusDays(recoverableDaysOffset);
+            result = purgeDeadline.isBefore(OffsetDateTime.now());
+        }
+        return result;
+    }
+
+    @Override
+    public void delete() {
+        Assert.state(!recoveryLevel.isSubscriptionProtected(),
+                "Unable to delete subscription protected vault: " + baseUri());
+        deletedOn = OffsetDateTime.now();
+    }
+
+    @Override
+    public void recover() {
+        Assert.state(isDeleted(), "Unable to recover a vault which is not deleted: " + baseUri());
+        deletedOn = null;
+    }
 }

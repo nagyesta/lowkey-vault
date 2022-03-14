@@ -6,10 +6,14 @@ import com.azure.security.keyvault.keys.cryptography.CryptographyAsyncClient;
 import com.azure.security.keyvault.keys.cryptography.CryptographyClient;
 import com.azure.security.keyvault.secrets.SecretAsyncClient;
 import com.azure.security.keyvault.secrets.SecretClient;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.nagyesta.lowkeyvault.http.management.LowkeyVaultManagementClient;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.function.Function;
+
+import static org.mockito.Mockito.mock;
 
 class ApacheHttpClientProviderTest {
 
@@ -87,6 +91,18 @@ class ApacheHttpClientProviderTest {
 
         //when
         final CryptographyClient client = underTest.getCryptoClient(WEB_KEY_ID);
+
+        //then
+        Assertions.assertNotNull(client);
+    }
+
+    @Test
+    void testGetLowkeyVaultManagementClientShouldReturnClientWhenCalled() {
+        //given
+        final ApacheHttpClientProvider underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, Function.identity());
+
+        //when
+        final LowkeyVaultManagementClient client = underTest.getLowkeyVaultManagementClient(mock(ObjectMapper.class));
 
         //then
         Assertions.assertNotNull(client);

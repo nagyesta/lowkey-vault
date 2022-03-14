@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Set;
 
 @Component
 @Slf4j
@@ -24,6 +26,8 @@ public class CommonAuthHeaderFilter extends OncePerRequestFilter {
     private static final String PORT_SEPARATOR = ":";
     private static final String HTTPS = "https://";
     private static final String BEARER_FAKE_TOKEN = "Bearer resource=\"%s\", authorization_uri=\"%s\"";
+    private final AntPathMatcher antPathMatcher = new AntPathMatcher();
+    private final Set<String> skipUrisIfMatch = Set.of("/ping", "/management/**");
 
     @Override
     protected void doFilterInternal(final HttpServletRequest request, final HttpServletResponse response,
@@ -44,8 +48,9 @@ public class CommonAuthHeaderFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected boolean shouldNotFilter(final HttpServletRequest request) {
-        return "/ping".equals(request.getRequestURI());
+    protected boolean shouldNotFilter(@NonNull final HttpServletRequest request) {
+        return skipUrisIfMatch.stream()
+                .anyMatch(pattern -> antPathMatcher.matchStart(pattern, request.getRequestURI()));
     }
 
     private String resolvePort(final int port) {

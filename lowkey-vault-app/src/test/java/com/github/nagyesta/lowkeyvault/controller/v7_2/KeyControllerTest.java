@@ -155,6 +155,8 @@ class KeyControllerTest {
         final String message = "Message";
         final String failed = "failed";
         return Stream.<Arguments>builder()
+                .add(Arguments.of(new IllegalStateException(message),
+                        HttpStatus.INTERNAL_SERVER_ERROR, message, null))
                 .add(Arguments.of(new NotFoundException(message),
                         HttpStatus.NOT_FOUND, message, null))
                 .add(Arguments.of(new AlreadyExistsException(message),

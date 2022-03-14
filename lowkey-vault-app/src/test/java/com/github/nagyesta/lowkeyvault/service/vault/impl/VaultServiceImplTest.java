@@ -1,43 +1,98 @@
 package com.github.nagyesta.lowkeyvault.service.vault.impl;
 
+import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
+import com.github.nagyesta.lowkeyvault.service.exception.AlreadyExistsException;
+import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.*;
 
 class VaultServiceImplTest {
 
-    public static final int WAIT_MILLIS = 2000;
-    private static final int THREADS = 3;
+    private static final int WAIT_MILLIS = 2;
 
     public static Stream<Arguments> valueProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(Collections.emptyList(), null, false))
-                .add(Arguments.of(Collections.emptyList(), HTTPS_LOCALHOST, false))
-                .add(Arguments.of(Collections.singletonList(HTTPS_LOCALHOST_80), HTTPS_LOCALHOST, false))
-                .add(Arguments.of(Collections.singletonList(HTTPS_LOCALHOST_8443), HTTPS_LOCALHOST, false))
-                .add(Arguments.of(Collections.singletonList(HTTPS_LOCALHOST_8443), HTTPS_LOCALHOST_8443, true))
-                .add(Arguments.of(List.of(HTTPS_LOCALHOST, HTTPS_LOCALHOST_80, HTTPS_LOCALHOST_8443), HTTPS_LOCALHOST_8443, true))
+                .add(Arguments.of(Collections.singletonList(HTTPS_LOCALHOST_8443), HTTPS_LOCALHOST_8443))
+                .add(Arguments.of(List.of(HTTPS_LOCALHOST, HTTPS_LOCALHOST_80, HTTPS_LOCALHOST_8443), HTTPS_LOCALHOST_8443))
+                .build();
+    }
+
+    public static Stream<Arguments> valueMapProvider() {
+        return Stream.<Arguments>builder()
+                .add(Arguments.of(Collections.singletonMap(HTTPS_LOCALHOST_8443, false)))
+                .add(Arguments.of(Collections.singletonMap(HTTPS_LOCALHOST_8443, true)))
+                .add(Arguments.of(Map.of(
+                        HTTPS_LOCALHOST, true,
+                        HTTPS_LOCALHOST_80, false,
+                        HTTPS_LOCALHOST_8443, true)))
+                .build();
+    }
+
+    public static Stream<Arguments> missingValueProvider() {
+        return Stream.<Arguments>builder()
+                .add(Arguments.of(Collections.emptyList(), null))
+                .add(Arguments.of(Collections.emptyList(), HTTPS_LOCALHOST))
+                .add(Arguments.of(Collections.singletonList(HTTPS_LOCALHOST_80), HTTPS_LOCALHOST))
+                .add(Arguments.of(Collections.singletonList(HTTPS_LOCALHOST_8443), HTTPS_LOCALHOST))
                 .build();
     }
 
     @ParameterizedTest
     @MethodSource("valueProvider")
-    void testFindByUriShouldUseFullMatchWhenCalled(final List<URI> vaults, final URI lookup, final boolean expected) {
+    void testCreateShouldThrowExceptionWhenAlreadyExists(final List<URI> vaults, final URI duplicate) {
+        //given
+        final VaultServiceImpl underTest = new VaultServiceImpl();
+        vaults.forEach(underTest::create);
+
+        //when
+        Assertions.assertThrows(AlreadyExistsException.class, () -> underTest.create(duplicate));
+
+        //then + exception
+    }
+
+    @ParameterizedTest
+    @MethodSource("valueProvider")
+    void testDeleteShouldReturnFalseWhenAlreadyDeleted(final List<URI> vaults, final URI delete) {
+        //given
+        final VaultServiceImpl underTest = new VaultServiceImpl();
+        vaults.forEach(underTest::create);
+
+        //when
+        final boolean actualOriginal = underTest.delete(delete);
+        final boolean actualSecondTry = underTest.delete(delete);
+
+        //then
+        Assertions.assertTrue(actualOriginal);
+        Assertions.assertFalse(actualSecondTry);
+    }
+
+    @ParameterizedTest
+    @MethodSource("valueProvider")
+    void testRecoverShouldThrowExceptionWhenNotDeleted(final List<URI> vaults, final URI duplicate) {
+        //given
+        final VaultServiceImpl underTest = new VaultServiceImpl();
+        vaults.forEach(underTest::create);
+
+        //when
+        Assertions.assertThrows(NotFoundException.class, () -> underTest.recover(duplicate));
+
+        //then + exception
+    }
+
+    @ParameterizedTest
+    @MethodSource("valueProvider")
+    void testFindByUriShouldReturnValueWhenItMatchesFully(final List<URI> vaults, final URI lookup) {
         //given
         final VaultServiceImpl underTest = new VaultServiceImpl();
         vaults.forEach(underTest::create);
@@ -46,46 +101,108 @@ class VaultServiceImplTest {
         final VaultFake actual = underTest.findByUri(lookup);
 
         //then
-        if (expected) {
-            Assertions.assertNotNull(actual);
-            Assertions.assertEquals(lookup, actual.baseUri());
-        } else {
-            Assertions.assertNull(actual);
-        }
+        Assertions.assertNotNull(actual);
+        Assertions.assertEquals(lookup, actual.baseUri());
     }
 
-    @Test
-    void testCreateShouldBeSynchronized() {
+    @ParameterizedTest
+    @MethodSource("valueProvider")
+    void testFindByUriShouldReturnValueWhenItMatchesFullyAfterRecovery(final List<URI> vaults, final URI lookup) {
         //given
-        final VaultServiceImpl underTest = new VaultServiceImpl() {
-            @Override
-            public VaultFake findByUri(final URI uri) {
-                //Make sure exists checks are slow to generate race conditions
-                Assertions.assertDoesNotThrow(() -> Thread.sleep(WAIT_MILLIS));
-                return super.findByUri(uri);
-            }
-        };
+        final VaultServiceImpl underTest = new VaultServiceImpl();
+        vaults.forEach(uri -> underTest.create(uri, RecoveryLevel.RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE));
+        vaults.forEach(underTest::delete);
+        vaults.forEach(underTest::recover);
 
         //when
-        final List<Future<VaultFake>> futures = new ArrayList<>();
-        final List<VaultFake> fakes = new ArrayList<>();
-        ExecutorService executorService = null;
-        try {
-            //start more create calls in parallel
-            executorService = Executors.newFixedThreadPool(THREADS);
-            for (int i = 0; i < THREADS; i++) {
-                futures.add(executorService.submit(() -> underTest.create(HTTPS_LOCALHOST)));
-            }
-            for (final Future<VaultFake> future : futures) {
-                Assertions.assertDoesNotThrow(() -> fakes.add(future.get()));
-            }
-        } finally {
-            Optional.ofNullable(executorService).ifPresent(ExecutorService::shutdownNow);
-        }
+        final VaultFake actual = underTest.findByUri(lookup);
 
         //then
-        final VaultFake firstFake = fakes.get(0);
-        fakes.forEach(fake -> Assertions.assertSame(firstFake, fake));
+        Assertions.assertNotNull(actual);
+        Assertions.assertEquals(lookup, actual.baseUri());
     }
 
+    @ParameterizedTest
+    @MethodSource("missingValueProvider")
+    void testFindByUriShouldThrowExceptionWhenItemDoesNotMatchFully(final List<URI> vaults, final URI lookup) {
+        //given
+        final VaultServiceImpl underTest = new VaultServiceImpl();
+        vaults.forEach(underTest::create);
+
+        //when
+        Assertions.assertThrows(NotFoundException.class, () -> underTest.findByUri(lookup));
+
+        //then + exception
+    }
+
+    @ParameterizedTest
+    @MethodSource("valueProvider")
+    void testFindByUriShouldThrowExceptionWhenItemIsDeleted(final List<URI> vaults, final URI lookup) {
+        //given
+        final VaultServiceImpl underTest = new VaultServiceImpl();
+        vaults.forEach(uri -> underTest.create(uri, RecoveryLevel.CUSTOMIZED_RECOVERABLE, RecoveryLevel.MIN_RECOVERABLE_DAYS_INCLUSIVE));
+        vaults.forEach(underTest::delete);
+
+
+        //when
+        Assertions.assertThrows(NotFoundException.class, () -> underTest.findByUri(lookup));
+
+        //then + exception
+    }
+
+    @ParameterizedTest
+    @MethodSource("valueMapProvider")
+    void testListAndListDeletedShouldFilterBasedOnDeletedStatusWhenCalled(final Map<URI, Boolean> vaults) {
+        //given
+        final VaultServiceImpl underTest = new VaultServiceImpl();
+        vaults.forEach((k, v) -> {
+            underTest.create(k, RecoveryLevel.CUSTOMIZED_RECOVERABLE, RecoveryLevel.MIN_RECOVERABLE_DAYS_INCLUSIVE);
+            if (v) {
+                underTest.delete(k);
+            }
+        });
+
+        //when
+        final List<VaultFake> actualActive = underTest.list();
+        final List<VaultFake> actualDeleted = underTest.listDeleted();
+
+        //then
+        vaults.forEach((k, v) -> {
+            if (v) {
+                Assertions.assertTrue(actualActive.stream().noneMatch(vault -> vault.matches(k)));
+                Assertions.assertTrue(actualDeleted.stream().anyMatch(vault -> vault.matches(k)));
+            } else {
+                Assertions.assertTrue(actualDeleted.stream().noneMatch(vault -> vault.matches(k)));
+                Assertions.assertTrue(actualActive.stream().anyMatch(vault -> vault.matches(k)));
+            }
+        });
+    }
+
+    @ParameterizedTest
+    @MethodSource("valueMapProvider")
+    void testListDeletedShouldNotReturnPurgedItemsWhenCalled(final Map<URI, Boolean> vaults) {
+        //given
+        final VaultServiceImpl underTest = new VaultServiceImpl();
+        vaults.forEach((k, v) -> {
+            if (v) {
+                underTest.create(k, RecoveryLevel.PURGEABLE, null);
+            } else {
+                underTest.create(k, RecoveryLevel.CUSTOMIZED_RECOVERABLE, RecoveryLevel.MIN_RECOVERABLE_DAYS_INCLUSIVE);
+            }
+            underTest.delete(k);
+        });
+        Assertions.assertDoesNotThrow(() -> Thread.sleep(WAIT_MILLIS));
+
+        //when
+        final List<VaultFake> actualDeleted = underTest.listDeleted();
+
+        //then
+        vaults.forEach((k, v) -> {
+            if (v) {
+                Assertions.assertTrue(actualDeleted.stream().noneMatch(vault -> vault.matches(k)));
+            } else {
+                Assertions.assertTrue(actualDeleted.stream().anyMatch(vault -> vault.matches(k)));
+            }
+        });
+    }
 }

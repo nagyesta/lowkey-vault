@@ -18,7 +18,7 @@ checkstyle = "9.2.1"
 jacoco = "0.8.2"
 jackson = { strictly = "2.13.2" }
 
-abortMissionPlugin = "2.2.3"
+abortMissionPlugin = "2.2.6"
 dockerPlugin = "0.32.0"
 indexScanPlugin = "2.2.3"
 lombokPlugin = "6.4.1"

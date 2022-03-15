@@ -1,6 +1,6 @@
 [versions]
 springBoot = "2.6.4"
-tomcat = "9.0.59"
+tomcat = "10.0.17"
 logback = "1.2.11"
 bouncycastle = "1.70"
 hibernateValidator = "6.2.3.Final"

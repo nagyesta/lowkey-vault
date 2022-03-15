@@ -6,6 +6,7 @@ import io.cucumber.java.en.Then;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -107,5 +108,10 @@ public class SecretsStepDefsAssertions extends CommonAssertions {
         final List<String> actual = context.getListedIds();
         final List<String> expected = context.getDeletedRecoveryIds();
         assertContainsEqualEntriesSorted(expected, actual);
+    }
+
+    @And("the listed deleted secrets are empty")
+    public void theListedDeletedSecretsAreEmpty() {
+        assertEquals(Collections.emptyList(), context.getListedIds());
     }
 }

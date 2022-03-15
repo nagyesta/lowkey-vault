@@ -35,6 +35,7 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
     private static final String MANAGEMENT_VAULT_PATH = "/management/vault";
     private static final String MANAGEMENT_VAULT_DELETED_PATH = MANAGEMENT_VAULT_PATH + "/deleted";
     private static final String MANAGEMENT_VAULT_RECOVERY_PATH = MANAGEMENT_VAULT_PATH + "/recover";
+    private static final String MANAGEMENT_VAULT_PURGE_PATH = MANAGEMENT_VAULT_PATH + "/purge";
     private static final String BASE_URI_QUERY_PARAM = "baseUri";
     private final String vaultUrl;
     private final HttpClient instance;
@@ -107,6 +108,15 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
         final HttpRequest request = new HttpRequest(HttpMethod.PUT, uri.toString())
                 .setHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON);
         return sendAndProcess(request, r -> r.getResponseObject(VaultModel.class));
+    }
+
+    @Override
+    public boolean purge(@NonNull final URI baseUri) {
+        final Map<String, String> parameters = Map.of(BASE_URI_QUERY_PARAM, baseUri.toString());
+        final URI uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_PURGE_PATH, parameters);
+        final HttpRequest request = new HttpRequest(HttpMethod.DELETE, uri.toString())
+                .setHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON);
+        return sendAndProcess(request, r -> r.getResponseObject(Boolean.class));
     }
 
     String vaultModelAsString(final URI baseUri, final RecoveryLevel recoveryLevel, final Integer recoverableDays) {

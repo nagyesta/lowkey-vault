@@ -101,6 +101,15 @@ public abstract class BaseVaultFakeImpl<K extends EntityId, V extends K, RE exte
         deletedEntities.moveTo(entityId, entities, this::markRestored);
     }
 
+    @Override
+    public void purge(@NonNull final K entityId) {
+        deletedEntities.purgeExpired();
+        if (!deletedEntities.containsName(entityId.id())) {
+            throw new NotFoundException("Entity not found: " + entityId);
+        }
+        deletedEntities.purgeDeleted(entityId);
+    }
+
     protected abstract V createVersionedId(String id, String version);
 
     protected VersionedEntityMultiMap<K, V, RE, ME> getEntitiesInternal() {

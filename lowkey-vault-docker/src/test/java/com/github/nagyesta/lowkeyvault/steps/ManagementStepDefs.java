@@ -31,7 +31,7 @@ public class ManagementStepDefs extends CommonAssertions {
         final String vaultUrl = "https://" + vaultAuthority;
         final AuthorityOverrideFunction overrideFunction = new AuthorityOverrideFunction(vaultAuthority, CONTAINER_AUTHORITY);
         context.setProvider(new ApacheHttpClientProvider(vaultUrl, overrideFunction));
-        context.getClient().createVault(URI.create(vaultUrl), RecoveryLevel.RECOVERABLE, 90);
+        context.getClient().createVault(URI.create(vaultUrl), RecoveryLevel.RECOVERABLE_AND_PURGEABLE, 90);
     }
 
     @And("vault list contains {name} with deletedOn as null")
@@ -96,5 +96,14 @@ public class ManagementStepDefs extends CommonAssertions {
         final String vaultUrl = "https://" + vaultAuthority;
         final VaultModel model = context.getClient().recover(URI.create(vaultUrl));
         assertNotNull(model);
+    }
+
+    @And("the vault named {name} is purged")
+    public void theVaultNamedVaultNameIsPurged(final String vaultName)
+            throws HttpException, JsonProcessingException {
+        final String vaultAuthority = vaultName + ".localhost:8443";
+        final String vaultUrl = "https://" + vaultAuthority;
+        final boolean model = context.getClient().purge(URI.create(vaultUrl));
+        assertTrue(model);
     }
 }

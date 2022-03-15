@@ -16,4 +16,6 @@ public interface VersionedEntityMultiMap<K extends EntityId, V extends K, RE ext
     void moveTo(K entityId, VersionedEntityMultiMap<K, V, RE, ME> destination, Function<ME, ME> applyToAll);
 
     void purgeExpired();
+
+    void purgeDeleted(K entityId);
 }

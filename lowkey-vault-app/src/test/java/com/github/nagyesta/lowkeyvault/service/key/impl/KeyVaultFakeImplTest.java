@@ -603,8 +603,54 @@ class KeyVaultFakeImplTest {
         //then + exception
     }
 
+
+
+    @Test
+    void testPurgeShouldThrowExceptionWhenCalledWithMissingDeletedKey() {
+        //given
+        final KeyVaultFake underTest = createUnderTest();
+        insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
+        Assertions.assertFalse(underTest.getDeletedEntities().containsName(KEY_NAME_1));
+
+        //when
+        Assertions.assertThrows(NotFoundException.class, () -> underTest.purge(UNVERSIONED_KEY_ENTITY_ID_1));
+
+        //then + exception
+    }
+
+    @Test
+    void testPurgeShouldRemoveEntityFromDeletedWhenCalledWithExistingDeletedKey() {
+        //given
+        final KeyVaultFake underTest = createUnderTest();
+        insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
+        insertMultipleVersionsOfSameKey(underTest, KEY_NAME_2);
+        insertMultipleVersionsOfSameKey(underTest, KEY_NAME_3);
+        underTest.delete(UNVERSIONED_KEY_ENTITY_ID_1);
+        Assertions.assertTrue(underTest.getDeletedEntities().containsName(KEY_NAME_1));
+
+        //when
+        underTest.purge(UNVERSIONED_KEY_ENTITY_ID_1);
+
+        //then
+        Assertions.assertFalse(underTest.getEntities().containsName(KEY_NAME_1));
+        Assertions.assertFalse(underTest.getDeletedEntities().containsName(KEY_NAME_1));
+    }
+
+    @Test
+    void testPurgeShouldThrowExceptionWhenCalledWithNullKey() {
+        //given
+        final KeyVaultFake underTest = createUnderTest();
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.purge(null));
+
+        //then + exception
+    }
+
     private KeyVaultFake createUnderTest() {
-        final KeyVaultFake underTest = new VaultFakeImpl(HTTPS_LOCALHOST).keyVaultFake();
+        final KeyVaultFake underTest = new VaultFakeImpl(HTTPS_LOCALHOST,
+                RecoveryLevel.RECOVERABLE_AND_PURGEABLE,
+                RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE).keyVaultFake();
         Assertions.assertInstanceOf(KeyVaultFakeImpl.class, underTest);
         return underTest;
     }

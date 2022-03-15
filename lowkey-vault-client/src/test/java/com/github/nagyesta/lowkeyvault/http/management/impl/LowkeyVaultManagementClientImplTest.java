@@ -338,6 +338,45 @@ class LowkeyVaultManagementClientImplTest {
         }
 
         @Test
+        void testPurgeShouldReturnPurgeStatusWhenCalled() throws JsonProcessingException {
+            //given
+            final HttpResponse response = mock(HttpResponse.class);
+            when(httpClient.send(httpRequestArgumentCaptor.capture())).thenReturn(Mono.just(response));
+            when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.just(JSON));
+            when(response.getStatusCode()).thenReturn(HttpStatus.SC_OK);
+            when(objectReader.forType(eq(Boolean.class))).thenReturn(objectReader);
+            when(objectReader.readValue(eq(JSON))).thenReturn(true);
+
+            //when
+            final boolean actual = underTest.purge(URI.create(HTTPS_LOCALHOST));
+
+            //then
+            Assertions.assertTrue(actual);
+            verify(httpClient, atMostOnce()).send(any());
+            final HttpRequest request = httpRequestArgumentCaptor.getValue();
+            Assertions.assertEquals("/management/vault/purge", request.getUrl().getPath());
+            Assertions.assertEquals(HttpMethod.DELETE, request.getHttpMethod());
+            Assertions.assertEquals(APPLICATION_JSON, request.getHeaders().getValue(HttpHeaders.CONTENT_TYPE));
+            verify(response).getStatusCode();
+            verify(response).getBodyAsString(eq(StandardCharsets.UTF_8));
+            verify(objectReader).forType(eq(Boolean.class));
+            verify(objectReader).readValue(anyString());
+        }
+
+        @SuppressWarnings("ConstantConditions")
+        @Test
+        void testPurgeShouldThrowExceptionWhenUriIsNull() {
+            //given
+            final URI uri = null;
+
+            //when
+            Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.purge(uri));
+
+            //then
+            verifyNoInteractions(httpClient);
+        }
+
+        @Test
         void testVaultModelAsStringShouldThrowExceptionWhenSerializationFails() throws JsonProcessingException {
             //given
             when(objectWriter.writeValueAsString(any())).thenThrow(JsonProcessingException.class);

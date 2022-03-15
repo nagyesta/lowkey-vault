@@ -141,4 +141,13 @@ public class ConcurrentVersionedEntityMultiMap<K extends EntityId, V extends K, 
             versions.remove(key);
         });
     }
+
+    @Override
+    public void purgeDeleted(@NonNull final K entityId) {
+        Assert.state(isDeleted(), "Purge cannot be called when map is not in deleted role.");
+        final Map<String, ME> map = entities.get(entityId.id());
+        Assert.state(map.values().stream().allMatch(ME::canPurge), "The selected elements cannot be purged.");
+        entities.remove(entityId.id());
+        versions.remove(entityId.id());
+    }
 }

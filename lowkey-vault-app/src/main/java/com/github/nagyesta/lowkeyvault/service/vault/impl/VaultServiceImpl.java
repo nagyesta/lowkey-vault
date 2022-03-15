@@ -75,6 +75,17 @@ public class VaultServiceImpl implements VaultService {
         }
     }
 
+    @Override
+    public boolean purge(final URI uri) {
+        purgeExpired();
+        synchronized (vaultFakes) {
+            final Optional<VaultFake> vaultFake = findByUriAndDeleteStatus(uri, VaultFake::isDeleted);
+            final VaultFake found = vaultFake
+                    .orElseThrow(() -> new NotFoundException("Unable to find deleted vault: " + uri));
+            return vaultFakes.remove(found);
+        }
+    }
+
     private Optional<VaultFake> findByUriAndDeleteStatus(final URI uri, final Predicate<VaultFake> deletedPredicate) {
         return vaultFakes.stream()
                 .filter(v -> v.matches(uri))

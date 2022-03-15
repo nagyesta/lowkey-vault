@@ -75,4 +75,9 @@ public abstract class KeyVaultBaseEntity<V extends EntityId> extends KeyVaultLif
                 .filter(date -> date.isBefore(now()))
                 .isPresent();
     }
+
+    @Override
+    public boolean canPurge() {
+        return getScheduledPurgeDate().isPresent() && getRecoveryLevel().isPurgeable();
+    }
 }

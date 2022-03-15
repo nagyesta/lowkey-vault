@@ -260,6 +260,12 @@ public class KeysStepDefs extends CommonAssertions {
         context.addFetchedKey(key.getName(), key);
     }
 
+    @When("the key is purged")
+    public void theKeyIsPurged() {
+        final DeletedKey deleted = context.getLastDeleted();
+        context.getClient().purgeDeletedKey(deleted.getName());
+    }
+
     @When("the last version of the key is prepared for an update")
     public void theLastVersionOfTheKeyIsPreparedForAnUpdate() {
         final KeyVaultKey lastResult = context.getLastResult();

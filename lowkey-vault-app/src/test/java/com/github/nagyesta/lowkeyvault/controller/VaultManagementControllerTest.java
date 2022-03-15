@@ -185,5 +185,20 @@ class VaultManagementControllerTest {
             inOrder.verify(converter).convert(same(VAULT_FAKE_DELETED));
             verifyNoMoreInteractions(vaultService, converter);
         }
+
+        @Test
+        void testPurgeVaultShouldCallServiceWhenCalled() {
+            //given
+            when(vaultService.purge(eq(HTTPS_DEFAULT_LOWKEY_VAULT_8443))).thenReturn(true);
+
+            //when
+            final ResponseEntity<Boolean> actual = underTest.purgeVault(HTTPS_DEFAULT_LOWKEY_VAULT_8443);
+
+            //then
+            Assertions.assertEquals(true, actual.getBody());
+            Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
+            verify(vaultService).purge(eq(HTTPS_DEFAULT_LOWKEY_VAULT_8443));
+            verifyNoMoreInteractions(vaultService, converter);
+        }
     }
 }

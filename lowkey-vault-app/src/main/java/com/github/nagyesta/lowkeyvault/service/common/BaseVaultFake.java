@@ -29,4 +29,6 @@ public interface BaseVaultFake<K extends EntityId, V extends K, E extends BaseVa
     void delete(K entityId);
 
     void recover(K entityId);
+
+    void purge(K entityId);
 }

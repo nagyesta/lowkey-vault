@@ -34,10 +34,7 @@ import org.springframework.lang.NonNull;
 
 import java.net.URI;
 import java.time.OffsetDateTime;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -98,6 +95,8 @@ class SecretControllerTest {
                 .add(Arguments.of(null, null, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES))
                 .add(Arguments.of(RecoveryLevel.RECOVERABLE, 90, null, null))
                 .add(Arguments.of(RecoveryLevel.RECOVERABLE, 90, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES))
+                .add(Arguments.of(RecoveryLevel.RECOVERABLE_AND_PURGEABLE, 90, null, null))
+                .add(Arguments.of(RecoveryLevel.RECOVERABLE_AND_PURGEABLE, 90, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES))
                 .add(Arguments.of(RecoveryLevel.CUSTOMIZED_RECOVERABLE, 42, null, null))
                 .add(Arguments.of(RecoveryLevel.CUSTOMIZED_RECOVERABLE, 42, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES))
                 .add(Arguments.of(RecoveryLevel.PURGEABLE, null, null, null))
@@ -436,6 +435,53 @@ class SecretControllerTest {
         verify(entities).getLatestVersionOfEntity(eq(baseUri));
         verify(entities).getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3));
         verify(secretEntityToV72ModelConverter).convertDeleted(same(entity));
+    }
+
+    @SuppressWarnings("checkstyle:MagicNumber")
+    @ParameterizedTest
+    @MethodSource("secretAttributeProvider")
+    void testPurgeDeletedShouldSucceedWhenDeletedSecretIsPurgeable(
+            final RecoveryLevel recoveryLevel, final Integer recoverableDays,
+            final OffsetDateTime expiry, final OffsetDateTime notBefore) {
+        //given
+        final SecretEntityId baseUri = new SecretEntityId(HTTPS_LOCALHOST_8443, SECRET_NAME_1, null);
+        when(secretVaultFake.getDeletedEntities())
+                .thenReturn(entities);
+        when(vaultFake.getRecoveryLevel())
+                .thenReturn(recoveryLevel);
+        when(vaultFake.getRecoverableDays())
+                .thenReturn(recoverableDays);
+        final CreateSecretRequest request = createRequest(expiry, notBefore);
+        final ReadOnlyKeyVaultSecretEntity entity = createEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, request);
+        entity.setDeletedDate(TIME_10_MINUTES_AGO);
+        entity.setScheduledPurgeDate(TIME_IN_10_MINUTES);
+        when(entities.getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3)))
+                .thenReturn(entity);
+        final RecoveryLevel nonNullRecoveryLevel = Optional.ofNullable(recoveryLevel).orElse(RecoveryLevel.PURGEABLE);
+        if (!nonNullRecoveryLevel.isPurgeable()) {
+            doThrow(IllegalStateException.class).when(secretVaultFake).purge(eq(UNVERSIONED_SECRET_ENTITY_ID_1));
+        }
+
+        //when
+        if (nonNullRecoveryLevel.isPurgeable()) {
+            final ResponseEntity<Void> response = underTest.purgeDeleted(SECRET_NAME_1, HTTPS_LOCALHOST_8443);
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        } else {
+            Assertions.assertThrows(IllegalStateException.class, () -> underTest.purgeDeleted(SECRET_NAME_1, HTTPS_LOCALHOST_8443));
+        }
+
+        //then
+        verify(vaultService).findByUri(eq(HTTPS_LOCALHOST_8443));
+        verify(vaultFake).secretVaultFake();
+        verify(vaultFake).getRecoveryLevel();
+        verify(vaultFake).getRecoverableDays();
+        verify(secretVaultFake, never()).getEntities();
+        verify(secretVaultFake, never()).getDeletedEntities();
+        verify(secretVaultFake, atLeastOnce()).purge(eq(UNVERSIONED_SECRET_ENTITY_ID_1));
+        verify(entities, never()).getLatestVersionOfEntity(eq(baseUri));
+        verify(entities, never()).getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3));
+        verify(secretEntityToV72ModelConverter, never()).convertDeleted(same(entity));
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")

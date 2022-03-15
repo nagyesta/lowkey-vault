@@ -49,4 +49,6 @@ public interface BaseVaultEntity<V extends EntityId> {
     void setScheduledPurgeDate(OffsetDateTime scheduledPurgeDate);
 
     boolean isPurgeExpired();
+
+    boolean canPurge();
 }

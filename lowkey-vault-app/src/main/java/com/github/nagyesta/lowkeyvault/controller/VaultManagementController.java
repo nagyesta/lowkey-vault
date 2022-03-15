@@ -62,4 +62,9 @@ public class VaultManagementController extends ErrorHandlingAwareController {
         final VaultFake fake = vaultService.findByUri(baseUri);
         return ResponseEntity.ok(vaultFakeToVaultModelConverter.convert(fake));
     }
+
+    @DeleteMapping("/purge")
+    public ResponseEntity<Boolean> purgeVault(@RequestParam final URI baseUri) {
+        return ResponseEntity.ok(vaultService.purge(baseUri));
+    }
 }

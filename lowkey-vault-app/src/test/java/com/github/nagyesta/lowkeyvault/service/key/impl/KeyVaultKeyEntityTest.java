@@ -2,6 +2,7 @@ package com.github.nagyesta.lowkeyvault.service.key.impl;
 
 import com.github.nagyesta.lowkeyvault.TestConstantsKeys;
 import com.github.nagyesta.lowkeyvault.TestConstantsUri;
+import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.service.exception.AlreadyExistsException;
 import com.github.nagyesta.lowkeyvault.service.exception.CryptoException;
 import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultFakeImpl;
@@ -51,20 +52,66 @@ class KeyVaultKeyEntityTest {
     @ParameterizedTest
     @MethodSource("purgeExpirySource")
     void testIsPurgeExpiredShouldReturnTrueOnlyWhenCalledAfterTheDeadline(
-            final OffsetDateTime deleted, final OffsetDateTime purgable, final boolean expected) {
+            final OffsetDateTime deleted, final OffsetDateTime purgeable, final boolean expected) {
         //given
         final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1,
                 new VaultFakeImpl(TestConstantsUri.HTTPS_LOCALHOST_8443),
                 2048, BigInteger.valueOf(3), false);
         underTest.setDeletedDate(deleted);
-        underTest.setScheduledPurgeDate(purgable);
+        underTest.setScheduledPurgeDate(purgeable);
 
         //when
         final boolean actual = underTest.isPurgeExpired();
 
         //then
         Assertions.assertEquals(deleted, underTest.getDeletedDate().orElse(null));
-        Assertions.assertEquals(purgable, underTest.getScheduledPurgeDate().orElse(null));
+        Assertions.assertEquals(purgeable, underTest.getScheduledPurgeDate().orElse(null));
         Assertions.assertEquals(expected, actual);
+    }
+
+    @Test
+    void testCanPurgeShouldReturnFalseWhenElementIsNotDeleted() {
+        //given
+        final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1,
+                new VaultFakeImpl(TestConstantsUri.HTTPS_LOCALHOST_8443),
+                2048, BigInteger.valueOf(3), false);
+
+        //when
+        final boolean actual = underTest.canPurge();
+
+        //then
+        Assertions.assertFalse(actual);
+    }
+
+    @Test
+    void testCanPurgeShouldReturnFalseWhenRecoveryLevelIsNotPurgeable() {
+        //given
+        final VaultFakeImpl vaultFake = new VaultFakeImpl(TestConstantsUri.HTTPS_LOCALHOST_8443,
+                RecoveryLevel.RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
+        final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1,
+                vaultFake, 2048, BigInteger.valueOf(3), false);
+        underTest.setDeletedDate(TIME_10_MINUTES_AGO);
+        underTest.setScheduledPurgeDate(TIME_IN_10_MINUTES);
+
+        //when
+        final boolean actual = underTest.canPurge();
+
+        //then
+        Assertions.assertFalse(actual);
+    }
+
+    @Test
+    void testCanPurgeShouldReturnFalseWhenRecoveryLevelIsNotPurgeableAndItemIsNotDeleted() {
+        //given
+        final VaultFakeImpl vaultFake = new VaultFakeImpl(TestConstantsUri.HTTPS_LOCALHOST_8443,
+                RecoveryLevel.RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
+        final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1,
+                vaultFake, 2048, BigInteger.valueOf(3), false);
+
+        //when
+        final boolean actual = underTest.canPurge();
+
+        //then
+        Assertions.assertFalse(actual);
     }
 }

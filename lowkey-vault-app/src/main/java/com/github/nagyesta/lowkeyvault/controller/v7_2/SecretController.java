@@ -185,6 +185,22 @@ public class SecretController extends BaseController<SecretEntityId, VersionedSe
         return ResponseEntity.ok(getDeletedModelById(secretVaultFake, latestVersion));
     }
 
+    @DeleteMapping(value = "/deletedsecrets/{secretName}",
+            params = API_VERSION_7_2,
+            consumes = APPLICATION_JSON_VALUE,
+            produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> purgeDeleted(
+            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String secretName,
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
+        log.info("Received request to {} purge deleted secret: {} using API version: {}",
+                baseUri.toString(), secretName, V_7_2);
+
+        final SecretVaultFake secretVaultFake = getVaultByUri(baseUri);
+        final SecretEntityId entityId = new SecretEntityId(baseUri, secretName);
+        secretVaultFake.purge(entityId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping(value = "/deletedsecrets/{secretName}/recover",
             params = API_VERSION_7_2,
             consumes = APPLICATION_JSON_VALUE,

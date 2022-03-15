@@ -20,4 +20,6 @@ public interface VaultService {
     boolean delete(URI uri);
 
     void recover(URI uri);
+
+    boolean purge(URI uri);
 }

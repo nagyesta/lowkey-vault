@@ -8,7 +8,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.net.URI;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -19,7 +18,6 @@ class KeyVaultKeyItemListModelTest {
     public static Stream<Arguments> invalidInputProvider() {
         return Stream.<Arguments>builder()
                 .add(Arguments.of(null, null))
-                .add(Arguments.of(Collections.emptyList(), null))
                 .add(Arguments.of(null, VERSIONED_KEY_ENTITY_ID_1_VERSION_1.asUri()))
                 .build();
     }

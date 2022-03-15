@@ -582,7 +582,6 @@ class ConcurrentVersionedEntityMultiMapTest {
         Assertions.assertTrue(underTest.containsEntity(VERSIONED_KEY_ENTITY_ID_3_VERSION_2));
     }
 
-
     @Test
     void testPurgeExpiredShouldThrowExceptionWhenCalledOnNotDeletedMap() {
         //given
@@ -592,6 +591,93 @@ class ConcurrentVersionedEntityMultiMapTest {
 
         //when
         Assertions.assertThrows(IllegalStateException.class, () -> underTest.purgeExpired());
+
+        //then + exception
+    }
+
+    @Test
+    void testPurgeDeletedShouldRemoveMatchingItemsWhenTheyCanBePurged() {
+        //given
+        underTest = new ConcurrentVersionedEntityMultiMap<>(
+                RecoveryLevel.RECOVERABLE_AND_PURGEABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE,
+                (i, v) -> new VersionedKeyEntityId(HTTPS_LOCALHOST_8443, i, v), true);
+        putAllMocks();
+        Stream.of(
+                        key1Version1Mock, key1Version2Mock, key1Version3Mock,
+                        key2Version1Mock, key2Version2Mock,
+                        key3Version1Mock, key3Version2Mock
+                )
+                .forEach(mock -> {
+                    when(mock.isPurgeExpired()).thenReturn(false);
+                    when(mock.canPurge()).thenReturn(true);
+                });
+
+        //when
+        underTest.purgeDeleted(UNVERSIONED_KEY_ENTITY_ID_3);
+
+        //then
+        Assertions.assertTrue(underTest.containsEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1));
+        Assertions.assertTrue(underTest.containsEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_2));
+        Assertions.assertTrue(underTest.containsEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_3));
+        Assertions.assertTrue(underTest.containsEntity(VERSIONED_KEY_ENTITY_ID_2_VERSION_1));
+        Assertions.assertTrue(underTest.containsEntity(VERSIONED_KEY_ENTITY_ID_2_VERSION_2));
+        Assertions.assertFalse(underTest.containsEntity(VERSIONED_KEY_ENTITY_ID_3_VERSION_1));
+        Assertions.assertFalse(underTest.containsEntity(VERSIONED_KEY_ENTITY_ID_3_VERSION_2));
+    }
+
+    @Test
+    void testPurgeDeletedShouldThrowExceptionWhenTheyCanNotBePurged() {
+        //given
+        underTest = new ConcurrentVersionedEntityMultiMap<>(
+                RecoveryLevel.RECOVERABLE_AND_PURGEABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE,
+                (i, v) -> new VersionedKeyEntityId(HTTPS_LOCALHOST_8443, i, v), true);
+        putAllMocks();
+        Stream.of(
+                        key1Version1Mock, key1Version2Mock, key1Version3Mock,
+                        key2Version1Mock, key2Version2Mock,
+                        key3Version1Mock, key3Version2Mock
+                )
+                .forEach(mock -> {
+                    when(mock.isPurgeExpired()).thenReturn(false);
+                    when(mock.canPurge()).thenReturn(false);
+                });
+
+        //when
+        Assertions.assertThrows(IllegalStateException.class, () -> underTest.purgeDeleted(UNVERSIONED_KEY_ENTITY_ID_3));
+
+        //then + exception
+        Assertions.assertTrue(underTest.containsEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1));
+        Assertions.assertTrue(underTest.containsEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_2));
+        Assertions.assertTrue(underTest.containsEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_3));
+        Assertions.assertTrue(underTest.containsEntity(VERSIONED_KEY_ENTITY_ID_2_VERSION_1));
+        Assertions.assertTrue(underTest.containsEntity(VERSIONED_KEY_ENTITY_ID_2_VERSION_2));
+        Assertions.assertTrue(underTest.containsEntity(VERSIONED_KEY_ENTITY_ID_3_VERSION_1));
+        Assertions.assertTrue(underTest.containsEntity(VERSIONED_KEY_ENTITY_ID_3_VERSION_2));
+    }
+
+    @Test
+    void testPurgeDeletedShouldThrowExceptionWhenCalledOnNotDeletedMap() {
+        //given
+        underTest = new ConcurrentVersionedEntityMultiMap<>(RecoveryLevel.RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE,
+                (i, v) -> new VersionedKeyEntityId(HTTPS_LOCALHOST_8443, i, v), false);
+        putAllMocks();
+
+        //when
+        Assertions.assertThrows(IllegalStateException.class, () -> underTest.purgeDeleted(UNVERSIONED_KEY_ENTITY_ID_3));
+
+        //then + exception
+    }
+
+    @Test
+    void testPurgeDeletedShouldThrowExceptionWhenCalledWithNull() {
+        //given
+        underTest = new ConcurrentVersionedEntityMultiMap<>(RecoveryLevel.RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE,
+                (i, v) -> new VersionedKeyEntityId(HTTPS_LOCALHOST_8443, i, v), true);
+        putAllMocks();
+
+        //when
+        //noinspection ConstantConditions
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.purgeDeleted(null));
 
         //then + exception
     }

@@ -152,6 +152,12 @@ public class SecretsStepDefs extends CommonAssertions {
         context.addFetchedSecret(secret.getName(), secret);
     }
 
+    @When("the secret is purged")
+    public void theSecretIsPurged() {
+        final DeletedSecret deleted = context.getLastDeleted();
+        context.getClient().purgeDeletedSecret(deleted.getName());
+    }
+
     @When("the last version of the secret is prepared for an update")
     public void theLastVersionOfTheSecretIsPreparedForAnUpdate() {
         final KeyVaultSecret lastResult = context.getLastResult();

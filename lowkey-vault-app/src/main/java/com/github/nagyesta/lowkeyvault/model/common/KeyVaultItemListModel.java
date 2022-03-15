@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NonNull;
 import org.springframework.lang.Nullable;
-import org.springframework.util.Assert;
 
 import java.net.URI;
 import java.util.List;
@@ -22,7 +21,6 @@ public class KeyVaultItemListModel<E> {
 
     public KeyVaultItemListModel(@NonNull final List<E> value,
                                  @Nullable final URI nextLinkUri) {
-        Assert.notEmpty(value, "Value cannot be empty.");
         this.value = List.copyOf(value);
         this.nextLink = Optional.ofNullable(nextLinkUri).map(URI::toString).orElse(null);
     }

@@ -42,10 +42,7 @@ import org.springframework.lang.NonNull;
 
 import java.net.URI;
 import java.time.OffsetDateTime;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -110,6 +107,10 @@ class KeyControllerTest {
                         RecoveryLevel.RECOVERABLE, 90, null, null))
                 .add(Arguments.of(List.of(),
                         RecoveryLevel.RECOVERABLE, 90, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES))
+                .add(Arguments.of(List.of(),
+                        RecoveryLevel.RECOVERABLE_AND_PURGEABLE, 90, null, null))
+                .add(Arguments.of(List.of(),
+                        RecoveryLevel.RECOVERABLE_AND_PURGEABLE, 90, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES))
                 .add(Arguments.of(List.of(KeyOperation.ENCRYPT),
                         RecoveryLevel.CUSTOMIZED_RECOVERABLE, 42, null, null))
                 .add(Arguments.of(List.of(KeyOperation.ENCRYPT),
@@ -626,7 +627,6 @@ class KeyControllerTest {
         verify(keyEntityToV72KeyItemModelConverter).convert(same(entity));
     }
 
-
     @SuppressWarnings("checkstyle:MagicNumber")
     @ParameterizedTest
     @MethodSource("keyAttributeProvider")
@@ -670,6 +670,49 @@ class KeyControllerTest {
         verify(keyVaultFake, never()).getEntities();
         verify(entities).listLatestEntities();
         verify(keyEntityToV72KeyItemModelConverter).convertDeleted(same(entity));
+    }
+
+    @SuppressWarnings("checkstyle:MagicNumber")
+    @ParameterizedTest
+    @MethodSource("keyAttributeProvider")
+    void testPurgeDeletedShouldRemoveEntryWhenDeletedKeyIsPurgeable(
+            final List<KeyOperation> operations, final RecoveryLevel recoveryLevel, final Integer recoverableDays,
+            final OffsetDateTime expiry, final OffsetDateTime notBefore) {
+        //given
+        when(keyVaultFake.getDeletedEntities())
+                .thenReturn(entities);
+        when(vaultFake.getRecoveryLevel())
+                .thenReturn(recoveryLevel);
+        when(vaultFake.getRecoverableDays())
+                .thenReturn(recoverableDays);
+        final CreateKeyRequest request = createRequest(operations, expiry, notBefore);
+        final ReadOnlyKeyVaultKeyEntity entity = createEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, request);
+        entity.setDeletedDate(TIME_10_MINUTES_AGO);
+        entity.setScheduledPurgeDate(TIME_IN_10_MINUTES);
+        final RecoveryLevel nonNullRecoveryLevel = Optional.ofNullable(recoveryLevel).orElse(RecoveryLevel.PURGEABLE);
+        if (!nonNullRecoveryLevel.isPurgeable()) {
+            doThrow(IllegalStateException.class).when(keyVaultFake).purge(eq(UNVERSIONED_KEY_ENTITY_ID_1));
+        }
+
+        //when
+        if (nonNullRecoveryLevel.isPurgeable()) {
+            final ResponseEntity<Void> response = underTest.purgeDeleted(KEY_NAME_1, HTTPS_LOCALHOST_8443);
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        } else {
+            Assertions.assertThrows(IllegalStateException.class, () -> underTest.purgeDeleted(KEY_NAME_1, HTTPS_LOCALHOST_8443));
+        }
+
+        //then
+        verify(vaultService).findByUri(eq(HTTPS_LOCALHOST_8443));
+        verify(vaultFake).keyVaultFake();
+        verify(vaultFake).getRecoveryLevel();
+        verify(vaultFake).getRecoverableDays();
+        verify(keyVaultFake, never()).getDeletedEntities();
+        verify(keyVaultFake, atLeastOnce()).purge(eq(UNVERSIONED_KEY_ENTITY_ID_1));
+        verify(keyVaultFake, never()).getEntities();
+        verify(entities, never()).listLatestEntities();
+        verify(keyEntityToV72KeyItemModelConverter, never()).convertDeleted(same(entity));
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")

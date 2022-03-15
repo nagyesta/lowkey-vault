@@ -3,10 +3,12 @@ package com.github.nagyesta.lowkeyvault.steps;
 import com.azure.security.keyvault.keys.models.KeyCurveName;
 import com.azure.security.keyvault.keys.models.KeyOperation;
 import com.github.nagyesta.lowkeyvault.context.KeyTestContext;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -154,5 +156,10 @@ public class KeysStepDefsAssertions extends CommonAssertions {
     @Then("the signature matches")
     public void theSignatureMatches() {
         assertTrue(context.getVerifyResult());
+    }
+
+    @And("the listed deleted keys are empty")
+    public void theListedDeletedKeysAreEmpty() {
+        assertEquals(Collections.emptyList(), context.getListedIds());
     }
 }

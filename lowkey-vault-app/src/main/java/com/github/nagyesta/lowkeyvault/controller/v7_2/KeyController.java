@@ -220,6 +220,21 @@ public class KeyController extends BaseController<KeyEntityId, VersionedKeyEntit
         return ResponseEntity.ok(getModelById(keyVaultFake, latestVersion));
     }
 
+    @DeleteMapping(value = "/deletedkeys/{keyName}",
+            params = API_VERSION_7_2,
+            consumes = APPLICATION_JSON_VALUE,
+            produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> purgeDeleted(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
+                                             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
+        log.info("Received request to {} purge deleted key: {} using API version: {}",
+                baseUri.toString(), keyName, V_7_2);
+
+        final KeyVaultFake keyVaultFake = getVaultByUri(baseUri);
+        final KeyEntityId entityId = new KeyEntityId(baseUri, keyName);
+        keyVaultFake.purge(entityId);
+        return ResponseEntity.noContent().build();
+    }
+
     @Override
     protected VersionedKeyEntityId versionedEntityId(final URI baseUri, final String name, final String version) {
         return new VersionedKeyEntityId(baseUri, name, version);

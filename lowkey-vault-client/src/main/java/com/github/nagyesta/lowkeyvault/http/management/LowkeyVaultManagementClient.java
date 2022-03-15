@@ -24,4 +24,6 @@ public interface LowkeyVaultManagementClient {
     boolean delete(@NonNull URI baseUri) throws HttpException, JsonProcessingException;
 
     VaultModel recover(@NonNull URI baseUri) throws HttpException, JsonProcessingException;
+
+    boolean purge(@NonNull URI baseUri) throws HttpException, JsonProcessingException;
 }

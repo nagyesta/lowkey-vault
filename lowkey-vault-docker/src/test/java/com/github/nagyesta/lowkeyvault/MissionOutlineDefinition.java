@@ -36,7 +36,7 @@ public class MissionOutlineDefinition extends LaunchAbortHook {
                         .build();
                 ops.registerHealthCheck(featurePercentage);
 
-                Stream.of("Create", "Get", "Delete", "List", "Update", "ListDeleted").forEach(subtype -> {
+                Stream.of("Create", "Get", "Delete", "List", "Update", "ListDeleted", "Recover", "Purge").forEach(subtype -> {
                     final MissionHealthCheckMatcher subTypeMatcher = matcher().dependencyWith(type + subtype)
                             .extractor(extractor).build();
                     final MissionHealthCheckEvaluator subFeaturePercentage = percentageBasedEvaluator(subTypeMatcher)

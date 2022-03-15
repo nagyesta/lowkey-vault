@@ -92,6 +92,19 @@ class VaultServiceImplTest {
 
     @ParameterizedTest
     @MethodSource("valueProvider")
+    void testPurgeShouldThrowExceptionWhenNotDeleted(final List<URI> vaults, final URI duplicate) {
+        //given
+        final VaultServiceImpl underTest = new VaultServiceImpl();
+        vaults.forEach(underTest::create);
+
+        //when
+        Assertions.assertThrows(NotFoundException.class, () -> underTest.purge(duplicate));
+
+        //then + exception
+    }
+
+    @ParameterizedTest
+    @MethodSource("valueProvider")
     void testFindByUriShouldReturnValueWhenItMatchesFully(final List<URI> vaults, final URI lookup) {
         //given
         final VaultServiceImpl underTest = new VaultServiceImpl();
@@ -120,6 +133,21 @@ class VaultServiceImplTest {
         //then
         Assertions.assertNotNull(actual);
         Assertions.assertEquals(lookup, actual.baseUri());
+    }
+
+    @ParameterizedTest
+    @MethodSource("valueProvider")
+    void testFindByUriShouldNotReturnValueWhenItWasPurged(final List<URI> vaults, final URI lookup) {
+        //given
+        final VaultServiceImpl underTest = new VaultServiceImpl();
+        vaults.forEach(uri -> underTest.create(uri, RecoveryLevel.RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE));
+        vaults.forEach(underTest::delete);
+        vaults.forEach(underTest::purge);
+
+        //when
+        Assertions.assertThrows(NotFoundException.class, () -> underTest.findByUri(lookup));
+
+        //then + exception
     }
 
     @ParameterizedTest

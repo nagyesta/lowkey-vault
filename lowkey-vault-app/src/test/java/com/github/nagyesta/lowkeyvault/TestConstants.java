@@ -18,6 +18,7 @@ public final class TestConstants {
     }
 
     //<editor-fold defaultstate="collapsed" desc="Time">
+    public static final int NUMBER_OF_SECONDS_IN_10_MINUTES = 600;
     public static final OffsetDateTime NOW = OffsetDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS);
     public static final OffsetDateTime TIME_10_MINUTES_AGO = NOW.minusMinutes(10);
     public static final OffsetDateTime TIME_IN_10_MINUTES = NOW.plusMinutes(10);

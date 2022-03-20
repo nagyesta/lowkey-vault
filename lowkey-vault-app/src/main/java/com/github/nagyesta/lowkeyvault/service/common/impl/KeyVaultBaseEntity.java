@@ -80,4 +80,11 @@ public abstract class KeyVaultBaseEntity<V extends EntityId> extends KeyVaultLif
     public boolean canPurge() {
         return getScheduledPurgeDate().isPresent() && getRecoveryLevel().isPurgeable();
     }
+
+    @Override
+    public void timeShift(final int offsetSeconds) {
+        super.timeShift(offsetSeconds);
+        deletedDate = deletedDate.map(offsetDateTime -> offsetDateTime.minusSeconds(offsetSeconds));
+        scheduledPurgeDate = scheduledPurgeDate.map(offsetDateTime -> offsetDateTime.minusSeconds(offsetSeconds));
+    }
 }

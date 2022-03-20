@@ -21,6 +21,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
@@ -645,6 +646,67 @@ class KeyVaultFakeImplTest {
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.purge(null));
 
         //then + exception
+    }
+
+    @SuppressWarnings("checkstyle:MagicNumber")
+    @ParameterizedTest
+    @ValueSource(ints = {-42, -10, -5, -3, -2, -1, 0})
+    void testTimeShiftShouldThrowExceptionWhenCalledWithNegativeOrZero(final int value) {
+        //given
+        final KeyVaultFake underTest = createUnderTest();
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.timeShift(value));
+
+        //then + exception
+    }
+
+    @Test
+    void testTimeShiftShouldReduceTimeStampsWhenCalledOnActiveEntityWithPositiveValue() {
+        //given
+        final KeyVaultFake underTest = createUnderTest();
+        final VersionedKeyEntityId keyEntityId = underTest.createEcKeyVersion(KEY_NAME_1, EC_KEY_CREATION_INPUT);
+        underTest.setExpiry(keyEntityId, NOW, TIME_IN_10_MINUTES);
+        final ReadOnlyKeyVaultKeyEntity before = underTest.getEntities().getReadOnlyEntity(keyEntityId);
+        final OffsetDateTime createdOriginal = before.getCreated();
+        final OffsetDateTime updatedOriginal = before.getUpdated();
+
+        //when
+        underTest.timeShift(NUMBER_OF_SECONDS_IN_10_MINUTES);
+
+        //then
+        final ReadOnlyKeyVaultKeyEntity after = underTest.getEntities().getReadOnlyEntity(keyEntityId);
+        Assertions.assertEquals(createdOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), after.getCreated());
+        Assertions.assertEquals(updatedOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), after.getUpdated());
+        Assertions.assertEquals(TIME_10_MINUTES_AGO, after.getNotBefore().orElse(null));
+        Assertions.assertEquals(NOW, after.getExpiry().orElse(null));
+    }
+
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    @Test
+    void testTimeShiftShouldReduceTimeStampsWhenCalledOnDeletedEntityWithPositiveValue() {
+        //given
+        final KeyVaultFake underTest = createUnderTest();
+        final VersionedKeyEntityId keyEntityId = underTest.createEcKeyVersion(KEY_NAME_1, EC_KEY_CREATION_INPUT);
+        underTest.setExpiry(keyEntityId, NOW, TIME_IN_10_MINUTES);
+        underTest.delete(keyEntityId);
+        final ReadOnlyKeyVaultKeyEntity before = underTest.getDeletedEntities().getReadOnlyEntity(keyEntityId);
+        final OffsetDateTime createdOriginal = before.getCreated();
+        final OffsetDateTime updatedOriginal = before.getUpdated();
+        final OffsetDateTime deletedOriginal = before.getDeletedDate().get();
+        final OffsetDateTime scheduledPurgeOriginal = before.getScheduledPurgeDate().get();
+
+        //when
+        underTest.timeShift(NUMBER_OF_SECONDS_IN_10_MINUTES);
+
+        //then
+        final ReadOnlyKeyVaultKeyEntity after = underTest.getDeletedEntities().getReadOnlyEntity(keyEntityId);
+        Assertions.assertEquals(createdOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), after.getCreated());
+        Assertions.assertEquals(updatedOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), after.getUpdated());
+        Assertions.assertEquals(deletedOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), after.getDeletedDate().get());
+        Assertions.assertEquals(scheduledPurgeOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), after.getScheduledPurgeDate().get());
+        Assertions.assertEquals(TIME_10_MINUTES_AGO, after.getNotBefore().orElse(null));
+        Assertions.assertEquals(NOW, after.getExpiry().orElse(null));
     }
 
     private KeyVaultFake createUnderTest() {

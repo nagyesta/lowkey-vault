@@ -1,8 +1,6 @@
 package com.github.nagyesta.lowkeyvault.http.management;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.NonNull;
-import org.apache.http.HttpException;
 
 import java.net.URI;
 import java.util.List;
@@ -15,15 +13,17 @@ public interface LowkeyVaultManagementClient {
 
     VaultModel createVault(@NonNull URI baseUri,
                            @NonNull RecoveryLevel recoveryLevel,
-                           @NonNull Integer recoverableDays) throws HttpException, JsonProcessingException;
+                           @NonNull Integer recoverableDays);
 
-    List<VaultModel> listVaults() throws HttpException, JsonProcessingException;
+    List<VaultModel> listVaults();
 
-    List<VaultModel> listDeletedVaults() throws HttpException, JsonProcessingException;
+    List<VaultModel> listDeletedVaults();
 
-    boolean delete(@NonNull URI baseUri) throws HttpException, JsonProcessingException;
+    boolean delete(@NonNull URI baseUri);
 
-    VaultModel recover(@NonNull URI baseUri) throws HttpException, JsonProcessingException;
+    VaultModel recover(@NonNull URI baseUri);
 
-    boolean purge(@NonNull URI baseUri) throws HttpException, JsonProcessingException;
+    boolean purge(@NonNull URI baseUri);
+
+    void timeShift(@NonNull TimeShiftContext context);
 }

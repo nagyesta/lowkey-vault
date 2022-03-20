@@ -5,6 +5,7 @@ import com.github.nagyesta.lowkeyvault.service.exception.AlreadyExistsException;
 import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
+import org.springframework.util.Assert;
 
 import java.net.URI;
 import java.util.List;
@@ -23,6 +24,12 @@ public class VaultServiceImpl implements VaultService {
     public VaultFake findByUri(final URI uri) {
         return findByUriAndDeleteStatus(uri, VaultFake::isActive)
                 .orElseThrow(() -> new NotFoundException("Unable to find active vault: " + uri));
+    }
+
+    @Override
+    public VaultFake findByUriIncludeDeleted(final URI uri) {
+        return findByUriAndDeleteStatus(uri, v -> true)
+                .orElseThrow(() -> new NotFoundException("Unable to find vault: " + uri));
     }
 
     @Override
@@ -84,6 +91,13 @@ public class VaultServiceImpl implements VaultService {
                     .orElseThrow(() -> new NotFoundException("Unable to find deleted vault: " + uri));
             return vaultFakes.remove(found);
         }
+    }
+
+    @Override
+    public void timeShift(final int offsetSeconds)  {
+        Assert.isTrue(offsetSeconds > 0, "Offset must be positive.");
+        vaultFakes.forEach(vaultFake -> vaultFake.timeShift(offsetSeconds));
+        purgeExpired();
     }
 
     private Optional<VaultFake> findByUriAndDeleteStatus(final URI uri, final Predicate<VaultFake> deletedPredicate) {

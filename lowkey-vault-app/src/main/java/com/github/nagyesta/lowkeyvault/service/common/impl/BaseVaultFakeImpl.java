@@ -10,6 +10,7 @@ import com.github.nagyesta.lowkeyvault.service.exception.AlreadyExistsException;
 import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.NonNull;
+import org.springframework.util.Assert;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -108,6 +109,14 @@ public abstract class BaseVaultFakeImpl<K extends EntityId, V extends K, RE exte
             throw new NotFoundException("Entity not found: " + entityId);
         }
         deletedEntities.purgeDeleted(entityId);
+    }
+
+    @Override
+    public void timeShift(final int offsetSeconds) {
+        Assert.isTrue(offsetSeconds > 0, "Offset must be positive.");
+        this.entities.forEachEntity(entity -> entity.timeShift(offsetSeconds));
+        this.deletedEntities.forEachEntity(entity -> entity.timeShift(offsetSeconds));
+        this.deletedEntities.purgeExpired();
     }
 
     protected abstract V createVersionedId(String id, String version);

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.github.nagyesta.lowkeyvault.http.management.LowkeyVaultException;
 import com.github.nagyesta.lowkeyvault.http.management.RecoveryLevel;
+import com.github.nagyesta.lowkeyvault.http.management.TimeShiftContext;
 import com.github.nagyesta.lowkeyvault.http.management.VaultModel;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
@@ -386,6 +387,68 @@ class LowkeyVaultManagementClientImplTest {
                     () -> underTest.vaultModelAsString(null, null, null));
 
             //then + exception
+        }
+
+        @SuppressWarnings("ConstantConditions")
+        @Test
+        void testTimeShiftShouldThrowExceptionWhenCalledWithNull() {
+            //given
+
+            //when
+            Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.timeShift(null));
+
+            //then + exception
+        }
+
+        @Test
+        void testTimeShiftShouldSucceedWhenCalledWithOnlyTime() {
+            //given
+            final HttpResponse response = mock(HttpResponse.class);
+            when(httpClient.send(httpRequestArgumentCaptor.capture())).thenReturn(Mono.just(response));
+            when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.empty());
+            when(response.getStatusCode()).thenReturn(HttpStatus.SC_NO_CONTENT);
+            final TimeShiftContext context = TimeShiftContext.builder()
+                    .addDays(1)
+                    .build();
+
+            //when
+            underTest.timeShift(context);
+
+            //then
+            verify(httpClient, atMostOnce()).send(any());
+            final HttpRequest request = httpRequestArgumentCaptor.getValue();
+            Assertions.assertEquals("/management/vault/time", request.getUrl().getPath());
+            Assertions.assertEquals("seconds=86400", request.getUrl().getQuery());
+            Assertions.assertEquals(HttpMethod.PUT, request.getHttpMethod());
+            Assertions.assertEquals(APPLICATION_JSON, request.getHeaders().getValue(HttpHeaders.CONTENT_TYPE));
+            verify(response).getStatusCode();
+            verify(response).getBodyAsString(eq(StandardCharsets.UTF_8));
+        }
+
+        @Test
+        void testTimeShiftShouldSucceedWhenCalledWithUriAndTime() {
+            //given
+            final HttpResponse response = mock(HttpResponse.class);
+            when(httpClient.send(httpRequestArgumentCaptor.capture())).thenReturn(Mono.just(response));
+            when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.empty());
+            when(response.getStatusCode()).thenReturn(HttpStatus.SC_NO_CONTENT);
+            final TimeShiftContext context = TimeShiftContext.builder()
+                    .vaultBaseUri(URI.create("http://localhost"))
+                    .addSeconds(1)
+                    .build();
+
+            //when
+            underTest.timeShift(context);
+
+            //then
+            verify(httpClient, atMostOnce()).send(any());
+            final HttpRequest request = httpRequestArgumentCaptor.getValue();
+            Assertions.assertEquals("/management/vault/time", request.getUrl().getPath());
+            Assertions.assertEquals("baseUri=http%3A%2F%2Flocalhost&seconds=1", request.getUrl().getQuery());
+            Assertions.assertEquals(HttpMethod.PUT, request.getHttpMethod());
+            Assertions.assertEquals(APPLICATION_JSON, request.getHeaders().getValue(HttpHeaders.CONTENT_TYPE));
+            verify(response).getStatusCode();
+            verify(response).getBodyAsString(eq(StandardCharsets.UTF_8));
         }
 
         @Test

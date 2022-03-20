@@ -37,4 +37,6 @@ public interface VaultFake {
     void delete();
 
     void recover();
+
+    void timeShift(int offsetSeconds);
 }

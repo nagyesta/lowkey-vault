@@ -19,10 +19,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.net.URI;
+import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static com.github.nagyesta.lowkeyvault.TestConstants.NUMBER_OF_SECONDS_IN_10_MINUTES;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_DEFAULT_LOWKEY_VAULT;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_DEFAULT_LOWKEY_VAULT_8443;
 import static org.mockito.ArgumentMatchers.eq;
@@ -33,8 +35,6 @@ class VaultManagementControllerTest {
 
     private static final VaultModel VAULT_MODEL = createVaultModel(HTTPS_DEFAULT_LOWKEY_VAULT, false);
     private static final VaultModel VAULT_MODEL_DELETED = createVaultModel(HTTPS_DEFAULT_LOWKEY_VAULT_8443, true);
-    private static final VaultFake VAULT_FAKE = new VaultFakeImpl(HTTPS_DEFAULT_LOWKEY_VAULT);
-    private static final VaultFake VAULT_FAKE_DELETED = new VaultFakeImpl(HTTPS_DEFAULT_LOWKEY_VAULT_8443);
 
     public static Stream<Arguments> invalidProvider() {
         return Stream.<Arguments>builder()
@@ -80,23 +80,28 @@ class VaultManagementControllerTest {
         @InjectMocks
         private VaultManagementController underTest;
         private AutoCloseable openMocks;
+        private VaultFake vaultFakeActive;
+        private VaultFake vaultFakeDeleted;
+
 
         @BeforeEach
         void setUp() {
             openMocks = MockitoAnnotations.openMocks(this);
+            vaultFakeActive = new VaultFakeImpl(HTTPS_DEFAULT_LOWKEY_VAULT);
+            vaultFakeDeleted = new VaultFakeImpl(HTTPS_DEFAULT_LOWKEY_VAULT_8443);
             when(vaultService.create(
                     eq(HTTPS_DEFAULT_LOWKEY_VAULT),
                     eq(RecoveryLevel.CUSTOMIZED_RECOVERABLE),
-                    eq(RecoveryLevel.MIN_RECOVERABLE_DAYS_INCLUSIVE))).thenReturn(VAULT_FAKE);
-            when(vaultService.findByUri(eq(HTTPS_DEFAULT_LOWKEY_VAULT))).thenReturn(VAULT_FAKE);
-            when(vaultService.findByUri(eq(HTTPS_DEFAULT_LOWKEY_VAULT_8443))).thenReturn(VAULT_FAKE_DELETED);
-            when(vaultService.list()).thenReturn(Collections.singletonList(VAULT_FAKE));
-            when(vaultService.listDeleted()).thenReturn(Collections.singletonList(VAULT_FAKE_DELETED));
-            when(vaultService.delete(eq(VAULT_FAKE.baseUri()))).thenReturn(true);
-            when(converter.convert(same(VAULT_FAKE))).thenReturn(VAULT_MODEL);
-            when(converter.convert(same(VAULT_FAKE_DELETED))).thenReturn(VAULT_MODEL_DELETED);
-            when(converter.convertNonNull(same(VAULT_FAKE))).thenReturn(VAULT_MODEL);
-            when(converter.convertNonNull(same(VAULT_FAKE_DELETED))).thenReturn(VAULT_MODEL_DELETED);
+                    eq(RecoveryLevel.MIN_RECOVERABLE_DAYS_INCLUSIVE))).thenReturn(vaultFakeActive);
+            when(vaultService.findByUri(eq(HTTPS_DEFAULT_LOWKEY_VAULT))).thenReturn(vaultFakeActive);
+            when(vaultService.findByUri(eq(HTTPS_DEFAULT_LOWKEY_VAULT_8443))).thenReturn(vaultFakeDeleted);
+            when(vaultService.list()).thenReturn(Collections.singletonList(vaultFakeActive));
+            when(vaultService.listDeleted()).thenReturn(Collections.singletonList(vaultFakeDeleted));
+            when(vaultService.delete(eq(vaultFakeActive.baseUri()))).thenReturn(true);
+            when(converter.convert(same(vaultFakeActive))).thenReturn(VAULT_MODEL);
+            when(converter.convert(same(vaultFakeDeleted))).thenReturn(VAULT_MODEL_DELETED);
+            when(converter.convertNonNull(same(vaultFakeActive))).thenReturn(VAULT_MODEL);
+            when(converter.convertNonNull(same(vaultFakeDeleted))).thenReturn(VAULT_MODEL_DELETED);
         }
 
         @AfterEach
@@ -119,7 +124,7 @@ class VaultManagementControllerTest {
                     .create(eq(HTTPS_DEFAULT_LOWKEY_VAULT),
                             eq(VAULT_MODEL.getRecoveryLevel()),
                             eq(VAULT_MODEL.getRecoverableDays()));
-            inOrder.verify(converter).convert(eq(VAULT_FAKE));
+            inOrder.verify(converter).convert(eq(vaultFakeActive));
             verifyNoMoreInteractions(vaultService, converter);
         }
 
@@ -135,7 +140,7 @@ class VaultManagementControllerTest {
             Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
             final InOrder inOrder = inOrder(vaultService, converter);
             inOrder.verify(vaultService).list();
-            inOrder.verify(converter).convertNonNull(eq(VAULT_FAKE));
+            inOrder.verify(converter).convertNonNull(eq(vaultFakeActive));
             verifyNoMoreInteractions(vaultService, converter);
         }
 
@@ -151,7 +156,7 @@ class VaultManagementControllerTest {
             Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
             final InOrder inOrder = inOrder(vaultService, converter);
             inOrder.verify(vaultService).listDeleted();
-            inOrder.verify(converter).convertNonNull(eq(VAULT_FAKE_DELETED));
+            inOrder.verify(converter).convertNonNull(eq(vaultFakeDeleted));
             verifyNoMoreInteractions(vaultService, converter);
         }
 
@@ -182,7 +187,7 @@ class VaultManagementControllerTest {
             final InOrder inOrder = inOrder(vaultService, converter);
             inOrder.verify(vaultService).recover(eq(HTTPS_DEFAULT_LOWKEY_VAULT_8443));
             inOrder.verify(vaultService).findByUri(eq(HTTPS_DEFAULT_LOWKEY_VAULT_8443));
-            inOrder.verify(converter).convert(same(VAULT_FAKE_DELETED));
+            inOrder.verify(converter).convert(same(vaultFakeDeleted));
             verifyNoMoreInteractions(vaultService, converter);
         }
 
@@ -199,6 +204,35 @@ class VaultManagementControllerTest {
             Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
             verify(vaultService).purge(eq(HTTPS_DEFAULT_LOWKEY_VAULT_8443));
             verifyNoMoreInteractions(vaultService, converter);
+        }
+
+        @Test
+        void testTimeShiftGlobalShouldCallServiceWhenCalled() {
+            //given
+
+            //when
+            final ResponseEntity<Void> actual = underTest.timeShift(NUMBER_OF_SECONDS_IN_10_MINUTES);
+
+            //then
+            Assertions.assertEquals(HttpStatus.NO_CONTENT, actual.getStatusCode());
+            verify(vaultService).timeShift(eq(NUMBER_OF_SECONDS_IN_10_MINUTES));
+            verifyNoMoreInteractions(vaultService);
+        }
+
+        @Test
+        void testTimeShiftSingleShouldCallServiceWhenCalled() {
+            //given
+            final OffsetDateTime createdOn = vaultFakeActive.getCreatedOn();
+            when(vaultService.findByUriIncludeDeleted(eq(HTTPS_DEFAULT_LOWKEY_VAULT))).thenReturn(vaultFakeActive);
+
+            //when
+            final ResponseEntity<Void> actual = underTest.timeShift(HTTPS_DEFAULT_LOWKEY_VAULT, NUMBER_OF_SECONDS_IN_10_MINUTES);
+
+            //then
+            Assertions.assertEquals(HttpStatus.NO_CONTENT, actual.getStatusCode());
+            Assertions.assertEquals(createdOn.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), vaultFakeActive.getCreatedOn());
+            verify(vaultService).findByUriIncludeDeleted(eq(HTTPS_DEFAULT_LOWKEY_VAULT));
+            verifyNoMoreInteractions(vaultService);
         }
     }
 }

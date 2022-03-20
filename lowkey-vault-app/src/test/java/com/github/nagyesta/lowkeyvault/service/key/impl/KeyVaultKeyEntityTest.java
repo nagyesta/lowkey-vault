@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.math.BigInteger;
 import java.time.OffsetDateTime;
@@ -113,5 +114,21 @@ class KeyVaultKeyEntityTest {
 
         //then
         Assertions.assertFalse(actual);
+    }
+
+    @SuppressWarnings("checkstyle:MagicNumber")
+    @ParameterizedTest
+    @ValueSource(ints = {-42, -10, -5, -3, -2, -1, 0})
+    void testTimeShiftShouldThrowExceptionWhenCalledWithNegativeOrZero(final int value) {
+        //given
+        final VaultFakeImpl vaultFake = new VaultFakeImpl(TestConstantsUri.HTTPS_LOCALHOST_8443,
+                RecoveryLevel.RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
+        final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1,
+                vaultFake, 2048, BigInteger.valueOf(3), false);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.timeShift(value));
+
+        //then + exception
     }
 }

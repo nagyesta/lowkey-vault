@@ -93,6 +93,7 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 - Delete key
 - Update key
 - Recover deleted key
+- Purge deleted key
 - Encrypt/Decrypt/Wrap/Unwrap keys
     - ```RSA``` (```2k```/```3k```/```4k```)
         - ```RSA1_5```
@@ -131,6 +132,7 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 - Delete secret
 - Update secret
 - Recover deleted secret
+- Purge deleted secret
 
 ## Startup parameters
 

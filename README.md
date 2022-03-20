@@ -134,6 +134,24 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 - Recover deleted secret
 - Purge deleted secret
 
+### Management API
+
+#### Functionality
+
+- Create vault
+- List vaults
+- Delete vault
+- List deleted vaults
+- Recover deleted vault
+- Purge vault
+- Time-shift (simulate the passing of time)
+  - A single vault
+  - All vaults
+
+#### Swagger
+
+[https://localhost:8443/api/swagger-ui/index.html](https://localhost:8443/api/swagger-ui/index.html)
+
 ## Startup parameters
 
 ### Log requests

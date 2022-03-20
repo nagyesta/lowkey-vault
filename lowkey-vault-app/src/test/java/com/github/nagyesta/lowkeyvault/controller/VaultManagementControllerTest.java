@@ -211,7 +211,7 @@ class VaultManagementControllerTest {
             //given
 
             //when
-            final ResponseEntity<Void> actual = underTest.timeShift(NUMBER_OF_SECONDS_IN_10_MINUTES);
+            final ResponseEntity<Void> actual = underTest.timeShiftAll(NUMBER_OF_SECONDS_IN_10_MINUTES);
 
             //then
             Assertions.assertEquals(HttpStatus.NO_CONTENT, actual.getStatusCode());
@@ -226,7 +226,7 @@ class VaultManagementControllerTest {
             when(vaultService.findByUriIncludeDeleted(eq(HTTPS_DEFAULT_LOWKEY_VAULT))).thenReturn(vaultFakeActive);
 
             //when
-            final ResponseEntity<Void> actual = underTest.timeShift(HTTPS_DEFAULT_LOWKEY_VAULT, NUMBER_OF_SECONDS_IN_10_MINUTES);
+            final ResponseEntity<Void> actual = underTest.timeShiftSingle(HTTPS_DEFAULT_LOWKEY_VAULT, NUMBER_OF_SECONDS_IN_10_MINUTES);
 
             //then
             Assertions.assertEquals(HttpStatus.NO_CONTENT, actual.getStatusCode());

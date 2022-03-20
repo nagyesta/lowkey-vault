@@ -9,6 +9,8 @@ public interface VaultService {
 
     VaultFake findByUri(URI uri);
 
+    VaultFake findByUriIncludeDeleted(URI uri);
+
     VaultFake create(URI uri);
 
     VaultFake create(URI baseUri, RecoveryLevel recoveryLevel, Integer recoverableDays);
@@ -22,4 +24,6 @@ public interface VaultService {
     void recover(URI uri);
 
     boolean purge(URI uri);
+
+    void timeShift(int offsetSeconds);
 }

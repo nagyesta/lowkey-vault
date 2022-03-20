@@ -1,4 +1,4 @@
-package com.github.nagyesta.lowkeyvault;
+package com.github.nagyesta.lowkeyvault.hook;
 
 import com.github.nagyesta.abortmission.booster.cucumber.LaunchAbortHook;
 import com.github.nagyesta.abortmission.booster.cucumber.matcher.TagDependencyNameExtractor;

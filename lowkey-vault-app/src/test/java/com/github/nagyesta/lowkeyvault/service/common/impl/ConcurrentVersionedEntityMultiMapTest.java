@@ -682,6 +682,17 @@ class ConcurrentVersionedEntityMultiMapTest {
         //then + exception
     }
 
+    @SuppressWarnings("ConstantConditions")
+    @Test
+    void testForEachEntityShouldThrowExceptionWhenCalledWithNull() {
+        //given
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.forEachEntity(null));
+
+        //then + exception
+    }
+
     private void putAllMocks() {
         underTest.put(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, key1Version1Mock);
         underTest.put(VERSIONED_KEY_ENTITY_ID_2_VERSION_1, key2Version1Mock);

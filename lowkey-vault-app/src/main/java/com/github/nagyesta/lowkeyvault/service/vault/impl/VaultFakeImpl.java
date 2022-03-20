@@ -15,6 +15,7 @@ import org.springframework.util.Assert;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.Objects;
+import java.util.Optional;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, doNotUseGetters = true)
 public class VaultFakeImpl implements VaultFake {
@@ -26,7 +27,7 @@ public class VaultFakeImpl implements VaultFake {
     private final CertificateVaultFake certificates;
     private final RecoveryLevel recoveryLevel;
     private final Integer recoverableDays;
-    private final OffsetDateTime createdOn;
+    private OffsetDateTime createdOn;
     private OffsetDateTime deletedOn;
 
     public VaultFakeImpl(@org.springframework.lang.NonNull final URI vaultUri) {
@@ -121,5 +122,16 @@ public class VaultFakeImpl implements VaultFake {
     public void recover() {
         Assert.state(isDeleted(), "Unable to recover a vault which is not deleted: " + baseUri());
         deletedOn = null;
+    }
+
+    @Override
+    public void timeShift(final int offsetSeconds) {
+        Assert.isTrue(offsetSeconds > 0, "Offset must be positive.");
+        createdOn = createdOn.minusSeconds(offsetSeconds);
+        deletedOn = Optional.ofNullable(deletedOn)
+                .map(offsetDateTime -> offsetDateTime.minusSeconds(offsetSeconds))
+                .orElse(null);
+        keyVaultFake().timeShift(offsetSeconds);
+        secretVaultFake().timeShift(offsetSeconds);
     }
 }

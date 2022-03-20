@@ -31,4 +31,6 @@ public interface BaseVaultFake<K extends EntityId, V extends K, E extends BaseVa
     void recover(K entityId);
 
     void purge(K entityId);
+
+    void timeShift(int offsetSeconds);
 }

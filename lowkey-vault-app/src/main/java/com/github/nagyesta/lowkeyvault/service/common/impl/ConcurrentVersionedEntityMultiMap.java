@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -149,5 +150,10 @@ public class ConcurrentVersionedEntityMultiMap<K extends EntityId, V extends K, 
         Assert.state(map.values().stream().allMatch(ME::canPurge), "The selected elements cannot be purged.");
         entities.remove(entityId.id());
         versions.remove(entityId.id());
+    }
+
+    @Override
+    public void forEachEntity(@NonNull final Consumer<ME> entityConsumer) {
+        entities.values().forEach(entityVersions -> entityVersions.values().forEach(entityConsumer));
     }
 }

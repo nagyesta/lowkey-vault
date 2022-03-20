@@ -8,20 +8,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.github.nagyesta.lowkeyvault.http.management.LowkeyVaultException;
-import com.github.nagyesta.lowkeyvault.http.management.LowkeyVaultManagementClient;
-import com.github.nagyesta.lowkeyvault.http.management.RecoveryLevel;
-import com.github.nagyesta.lowkeyvault.http.management.VaultModel;
+import com.github.nagyesta.lowkeyvault.http.management.*;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHeaders;
 import reactor.util.annotation.Nullable;
 
 import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -36,7 +30,9 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
     private static final String MANAGEMENT_VAULT_DELETED_PATH = MANAGEMENT_VAULT_PATH + "/deleted";
     private static final String MANAGEMENT_VAULT_RECOVERY_PATH = MANAGEMENT_VAULT_PATH + "/recover";
     private static final String MANAGEMENT_VAULT_PURGE_PATH = MANAGEMENT_VAULT_PATH + "/purge";
+    private static final String MANAGEMENT_VAULT_TIME_PATH = MANAGEMENT_VAULT_PATH + "/time";
     private static final String BASE_URI_QUERY_PARAM = "baseUri";
+    private static final String SECONDS_QUERY_PARAM = "seconds";
     private final String vaultUrl;
     private final HttpClient instance;
     private final ObjectReader objectReader;
@@ -119,6 +115,17 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
         return sendAndProcess(request, r -> r.getResponseObject(Boolean.class));
     }
 
+    @Override
+    public void timeShift(@NonNull final TimeShiftContext context) {
+        final Map<String, String> parameters = new TreeMap<>();
+        parameters.put(SECONDS_QUERY_PARAM, Integer.toString(context.getSeconds()));
+        Optional.ofNullable(context.getVaultBaseUri()).ifPresent(uri -> parameters.put(BASE_URI_QUERY_PARAM, uri.toString()));
+        final URI uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_TIME_PATH, parameters);
+        final HttpRequest request = new HttpRequest(HttpMethod.PUT, uri.toString())
+                .setHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON);
+        sendRaw(request);
+    }
+
     String vaultModelAsString(final URI baseUri, final RecoveryLevel recoveryLevel, final Integer recoverableDays) {
         try {
             return objectWriter.writeValueAsString(new VaultModel(baseUri, recoveryLevel, recoverableDays, null, null));
@@ -128,12 +135,16 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
     }
 
     <T> T sendAndProcess(final HttpRequest request, final Function<ResponseEntity, T> conversionFunction) {
+        final ResponseEntity responseEntity = sendRaw(request);
+        return conversionFunction.apply(responseEntity);
+    }
+
+    private ResponseEntity sendRaw(final HttpRequest request) {
         final ResponseEntity responseEntity = doSendNotNull(request);
-        if (responseEntity.isSuccessful()) {
-            return conversionFunction.apply(responseEntity);
-        } else {
+        if (!responseEntity.isSuccessful()) {
             throw new LowkeyVaultException("Request was not successful. Status: " + responseEntity.getResponseCode());
         }
+        return responseEntity;
     }
 
     private boolean isSuccessful(final ResponseEntity responseEntity) {

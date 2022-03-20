@@ -9,11 +9,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.stream.Stream;
 
+import static com.github.nagyesta.lowkeyvault.TestConstants.NUMBER_OF_SECONDS_IN_10_MINUTES;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.*;
 
 class VaultFakeImplTest {
@@ -212,5 +214,37 @@ class VaultFakeImplTest {
 
         //then
         Assertions.assertTrue(actual.isBefore(OffsetDateTime.now()));
+    }
+
+    @SuppressWarnings("checkstyle:MagicNumber")
+    @ParameterizedTest
+    @ValueSource(ints = {-42, -10, -5, -3, -2, -1, 0})
+    void testTimeShiftShouldThrowExceptionWhenCalledWithNegativeOrZero(final int value) {
+        //given
+        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST,
+                RecoveryLevel.RECOVERABLE_AND_PROTECTED_SUBSCRIPTION, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.timeShift(value));
+
+        //then + exception
+    }
+
+    @SuppressWarnings("checkstyle:MagicNumber")
+    @Test
+    void testTimeShiftShouldReduceTimeStampsWhenCalledWithPositive() {
+        //given
+        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST,
+                RecoveryLevel.RECOVERABLE_AND_PURGEABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
+        underTest.delete();
+        final OffsetDateTime createdOriginal = underTest.getCreatedOn();
+        final OffsetDateTime deletedOriginal = underTest.getDeletedOn();
+
+        //when
+        underTest.timeShift(NUMBER_OF_SECONDS_IN_10_MINUTES);
+
+        //then
+        Assertions.assertEquals(createdOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), underTest.getCreatedOn());
+        Assertions.assertEquals(deletedOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), underTest.getDeletedOn());
     }
 }

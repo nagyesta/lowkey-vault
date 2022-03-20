@@ -1,15 +1,19 @@
 package com.github.nagyesta.lowkeyvault.service.vault.impl;
 
+import com.github.nagyesta.lowkeyvault.TestConstants;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.service.exception.AlreadyExistsException;
 import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.URI;
+import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -99,6 +103,36 @@ class VaultServiceImplTest {
 
         //when
         Assertions.assertThrows(NotFoundException.class, () -> underTest.purge(duplicate));
+
+        //then + exception
+    }
+
+    @ParameterizedTest
+    @MethodSource("valueProvider")
+    void testFindByUriIncludeDeletedShouldReturnValueWhenItMatchesFully(final List<URI> vaults, final URI lookup) {
+        //given
+        final VaultServiceImpl underTest = new VaultServiceImpl();
+        vaults.forEach(underTest::create);
+        vaults.stream().limit(2).forEach(underTest::delete);
+
+        //when
+        final VaultFake actual = underTest.findByUriIncludeDeleted(lookup);
+
+        //then
+        Assertions.assertNotNull(actual);
+        Assertions.assertEquals(lookup, actual.baseUri());
+    }
+
+    @ParameterizedTest
+    @MethodSource("missingValueProvider")
+    void testFindByUriIncludeDeletedShouldThrowExceptionWhenItemDoesNotMatchFully(final List<URI> vaults, final URI lookup) {
+        //given
+        final VaultServiceImpl underTest = new VaultServiceImpl();
+        vaults.forEach(underTest::create);
+        vaults.stream().limit(2).forEach(underTest::delete);
+
+        //when
+        Assertions.assertThrows(NotFoundException.class, () -> underTest.findByUriIncludeDeleted(lookup));
 
         //then + exception
     }
@@ -232,5 +266,32 @@ class VaultServiceImplTest {
                 Assertions.assertTrue(actualDeleted.stream().anyMatch(vault -> vault.matches(k)));
             }
         });
+    }
+
+    @SuppressWarnings("checkstyle:MagicNumber")
+    @ParameterizedTest
+    @ValueSource(ints = {-42, -10, -5, -3, -2, -1, 0})
+    void testTimeShiftShouldThrowExceptionWhenCalledWithNegativeOrZero(final int value) {
+        //given
+        final VaultServiceImpl underTest = new VaultServiceImpl();
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.timeShift(value));
+
+        //then + exception
+    }
+
+    @Test
+    void testTimeShiftShouldBeForwardedToEachVaultWhenCalledWithPositive() {
+        //given
+        final VaultServiceImpl underTest = new VaultServiceImpl();
+        final VaultFake vaultFake = underTest.create(HTTPS_LOWKEY_VAULT_8443);
+        final OffsetDateTime createdOriginal = vaultFake.getCreatedOn();
+
+        //when
+        underTest.timeShift(TestConstants.NUMBER_OF_SECONDS_IN_10_MINUTES);
+
+        //then
+        Assertions.assertEquals(createdOriginal.minusSeconds(TestConstants.NUMBER_OF_SECONDS_IN_10_MINUTES), vaultFake.getCreatedOn());
     }
 }

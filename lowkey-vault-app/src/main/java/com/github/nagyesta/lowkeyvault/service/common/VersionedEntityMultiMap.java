@@ -1,7 +1,9 @@
 package com.github.nagyesta.lowkeyvault.service.common;
 
 import com.github.nagyesta.lowkeyvault.service.EntityId;
+import lombok.NonNull;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public interface VersionedEntityMultiMap<K extends EntityId, V extends K, RE extends BaseVaultEntity<V>, ME extends RE>
@@ -18,4 +20,6 @@ public interface VersionedEntityMultiMap<K extends EntityId, V extends K, RE ext
     void purgeExpired();
 
     void purgeDeleted(K entityId);
+
+    void forEachEntity(@NonNull Consumer<ME> entityConsumer);
 }

@@ -51,4 +51,6 @@ public interface BaseVaultEntity<V extends EntityId> {
     boolean isPurgeExpired();
 
     boolean canPurge();
+
+    void timeShift(int offsetSeconds);
 }

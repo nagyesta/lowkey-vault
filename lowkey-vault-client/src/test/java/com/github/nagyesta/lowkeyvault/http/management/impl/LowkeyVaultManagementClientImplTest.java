@@ -417,7 +417,7 @@ class LowkeyVaultManagementClientImplTest {
             //then
             verify(httpClient, atMostOnce()).send(any());
             final HttpRequest request = httpRequestArgumentCaptor.getValue();
-            Assertions.assertEquals("/management/vault/time", request.getUrl().getPath());
+            Assertions.assertEquals("/management/vault/time/all", request.getUrl().getPath());
             Assertions.assertEquals("seconds=86400", request.getUrl().getQuery());
             Assertions.assertEquals(HttpMethod.PUT, request.getHttpMethod());
             Assertions.assertEquals(APPLICATION_JSON, request.getHeaders().getValue(HttpHeaders.CONTENT_TYPE));

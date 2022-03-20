@@ -31,6 +31,7 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
     private static final String MANAGEMENT_VAULT_RECOVERY_PATH = MANAGEMENT_VAULT_PATH + "/recover";
     private static final String MANAGEMENT_VAULT_PURGE_PATH = MANAGEMENT_VAULT_PATH + "/purge";
     private static final String MANAGEMENT_VAULT_TIME_PATH = MANAGEMENT_VAULT_PATH + "/time";
+    private static final String MANAGEMENT_VAULT_TIME_ALL_PATH = MANAGEMENT_VAULT_TIME_PATH + "/all";
     private static final String BASE_URI_QUERY_PARAM = "baseUri";
     private static final String SECONDS_QUERY_PARAM = "seconds";
     private final String vaultUrl;
@@ -119,8 +120,10 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
     public void timeShift(@NonNull final TimeShiftContext context) {
         final Map<String, String> parameters = new TreeMap<>();
         parameters.put(SECONDS_QUERY_PARAM, Integer.toString(context.getSeconds()));
-        Optional.ofNullable(context.getVaultBaseUri()).ifPresent(uri -> parameters.put(BASE_URI_QUERY_PARAM, uri.toString()));
-        final URI uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_TIME_PATH, parameters);
+        final Optional<URI> optionalURI = Optional.ofNullable(context.getVaultBaseUri());
+        optionalURI.ifPresent(uri -> parameters.put(BASE_URI_QUERY_PARAM, uri.toString()));
+        final String path = optionalURI.map(u -> MANAGEMENT_VAULT_TIME_PATH).orElse(MANAGEMENT_VAULT_TIME_ALL_PATH);
+        final URI uri = UriUtil.uriBuilderForPath(vaultUrl, path, parameters);
         final HttpRequest request = new HttpRequest(HttpMethod.PUT, uri.toString())
                 .setHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON);
         sendRaw(request);

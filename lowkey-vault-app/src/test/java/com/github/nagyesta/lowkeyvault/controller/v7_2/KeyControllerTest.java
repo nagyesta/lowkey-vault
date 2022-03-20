@@ -208,6 +208,27 @@ class KeyControllerTest {
         }
     }
 
+    @Test
+    void testErrorHandlerConvertsIllegalArgumentExceptionWhenCaught() {
+        //given
+        final HttpStatus status = HttpStatus.BAD_REQUEST;
+        final String message = "Message";
+        final Exception exception = new IllegalArgumentException(message);
+
+        //when
+        final ResponseEntity<ErrorModel> actual = underTest.handleArgumentException(exception);
+
+        //then
+        Assertions.assertEquals(status, actual.getStatusCode());
+        final ErrorModel actualBody = actual.getBody();
+        Assertions.assertNotNull(actualBody);
+        Assertions.assertNotNull(actualBody.getError());
+        Assertions.assertEquals(message, actualBody.getError().getMessage());
+        Assertions.assertEquals(exception.getClass().getName(), actualBody.getError().getCode());
+        final ErrorMessage actualInnerError = actualBody.getError().getInnerError();
+        Assertions.assertNull(actualInnerError);
+    }
+
     @ParameterizedTest
     @MethodSource("nullProvider")
     void testConstructorShouldThrowExceptionWhenCalledWithNull(

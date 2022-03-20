@@ -19,6 +19,7 @@ dependencies {
     implementation libs.bouncycastle.bcpkix
     implementation libs.hibernate.validator
     implementation libs.findbugs.jsr305
+    implementation libs.springdoc.openapi.ui
     annotationProcessor libs.lombok
     annotationProcessor libs.spring.boot.configuration.processor
     testImplementation libs.spring.boot.starter.test

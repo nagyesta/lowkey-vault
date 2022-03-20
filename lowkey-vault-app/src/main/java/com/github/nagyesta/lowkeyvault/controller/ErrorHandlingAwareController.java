@@ -20,4 +20,9 @@ public class ErrorHandlingAwareController {
         }
         return ResponseEntity.status(status).body(ErrorModel.fromException(exception));
     }
+
+    @ExceptionHandler({IllegalArgumentException.class})
+    public ResponseEntity<ErrorModel> handleArgumentException(final Exception exception) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorModel.fromException(exception));
+    }
 }

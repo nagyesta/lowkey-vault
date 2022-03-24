@@ -1,5 +1,5 @@
 [versions]
-springBoot = "2.6.4"
+springBoot = "2.6.5"
 tomcat = "9.0.60"
 logback = "1.2.11"
 bouncycastle = "1.70"

@@ -37,7 +37,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Slf4j
 @RestController
 @Validated
-public class KeyController extends BaseController<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity,
+public class KeyController extends GenericEntityController<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity,
         KeyVaultKeyModel, DeletedKeyVaultKeyModel, KeyVaultKeyItemModel, DeletedKeyVaultKeyItemModel,
         KeyEntityToV72ModelConverter, KeyEntityToV72KeyItemModelConverter, KeyEntityToV72KeyVersionItemModelConverter,
         KeyVaultFake> {
@@ -253,6 +253,7 @@ public class KeyController extends BaseController<KeyEntityId, VersionedKeyEntit
         keyVaultFake.addTags(keyEntityId, request.getTags());
         keyVaultFake.setExpiry(keyEntityId, properties.getNotBefore(), properties.getExpiresOn());
         keyVaultFake.setEnabled(keyEntityId, properties.isEnabled());
+        //no need to set managed property as this endpoint cannot create managed entities by definition
         return keyEntityId;
     }
 
@@ -267,6 +268,7 @@ public class KeyController extends BaseController<KeyEntityId, VersionedKeyEntit
         keyVaultFake.addTags(keyEntityId, request.getTags());
         keyVaultFake.setExpiry(keyEntityId, properties.getNotBefore(), properties.getExpiresOn());
         keyVaultFake.setEnabled(keyEntityId, Objects.requireNonNullElse(properties.getEnabled(), true));
+        //no need to set managed property as this endpoint cannot create managed entities by definition
         return keyEntityId;
     }
 }

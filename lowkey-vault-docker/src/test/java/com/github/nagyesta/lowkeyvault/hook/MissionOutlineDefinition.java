@@ -36,15 +36,16 @@ public class MissionOutlineDefinition extends LaunchAbortHook {
                         .build();
                 ops.registerHealthCheck(featurePercentage);
 
-                Stream.of("Create", "Get", "Delete", "List", "Update", "ListDeleted", "Recover", "Purge").forEach(subtype -> {
-                    final MissionHealthCheckMatcher subTypeMatcher = matcher().dependencyWith(type + subtype)
-                            .extractor(extractor).build();
-                    final MissionHealthCheckEvaluator subFeaturePercentage = percentageBasedEvaluator(subTypeMatcher)
-                            .abortThreshold(ABORT_THRESHOLD)
-                            .burnInTestCount(BURN_IN_TEST_COUNT)
-                            .build();
-                    ops.registerHealthCheck(subFeaturePercentage);
-                });
+                Stream.of("Create", "Get", "Delete", "List", "Update", "ListDeleted", "Recover", "Purge", "Backup", "Restore")
+                        .forEach(subtype -> {
+                            final MissionHealthCheckMatcher subTypeMatcher = matcher().dependencyWith(type + subtype)
+                                    .extractor(extractor).build();
+                            final MissionHealthCheckEvaluator subFeaturePercentage = percentageBasedEvaluator(subTypeMatcher)
+                                    .abortThreshold(ABORT_THRESHOLD)
+                                    .burnInTestCount(BURN_IN_TEST_COUNT)
+                                    .build();
+                            ops.registerHealthCheck(subFeaturePercentage);
+                        });
             });
 
             Stream.of("CreateVault", "KeyImport", "KeyEncrypt", "KeySign", "RSA", "EC", "OCT").forEach(tag -> {

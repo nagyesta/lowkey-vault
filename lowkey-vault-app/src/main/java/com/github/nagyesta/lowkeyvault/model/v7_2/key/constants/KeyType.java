@@ -51,8 +51,8 @@ public enum KeyType {
 
         @Override
         public VersionedKeyEntityId importKey(final KeyVaultFake keyVaultFake,
-                                              final VersionedKeyEntityId keyEntityId,
-                                              final JsonWebKeyImportRequest input) {
+                                                 final VersionedKeyEntityId keyEntityId,
+                                                 final JsonWebKeyImportRequest input) {
             return keyVaultFake.importEcKeyVersion(keyEntityId, input);
         }
     },
@@ -84,8 +84,8 @@ public enum KeyType {
 
         @Override
         public VersionedKeyEntityId importKey(final KeyVaultFake keyVaultFake,
-                                              final VersionedKeyEntityId keyEntityId,
-                                              final JsonWebKeyImportRequest input) {
+                                                 final VersionedKeyEntityId keyEntityId,
+                                                 final JsonWebKeyImportRequest input) {
             return EC.importKey(keyVaultFake, keyEntityId, input);
         }
     },
@@ -116,8 +116,8 @@ public enum KeyType {
 
         @Override
         public VersionedKeyEntityId importKey(final KeyVaultFake keyVaultFake,
-                                              final VersionedKeyEntityId keyEntityId,
-                                              final JsonWebKeyImportRequest input) {
+                                                 final VersionedKeyEntityId keyEntityId,
+                                                 final JsonWebKeyImportRequest input) {
             return keyVaultFake.importRsaKeyVersion(keyEntityId, input);
         }
     },
@@ -149,8 +149,8 @@ public enum KeyType {
 
         @Override
         public VersionedKeyEntityId importKey(final KeyVaultFake keyVaultFake,
-                                              final VersionedKeyEntityId keyEntityId,
-                                              final JsonWebKeyImportRequest input) {
+                                                 final VersionedKeyEntityId keyEntityId,
+                                                 final JsonWebKeyImportRequest input) {
             return RSA.importKey(keyVaultFake, keyEntityId, input);
         }
     },
@@ -181,8 +181,8 @@ public enum KeyType {
 
         @Override
         public VersionedKeyEntityId importKey(final KeyVaultFake keyVaultFake,
-                                              final VersionedKeyEntityId keyEntityId,
-                                              final JsonWebKeyImportRequest input) {
+                                                 final VersionedKeyEntityId keyEntityId,
+                                                 final JsonWebKeyImportRequest input) {
             return keyVaultFake.importOctKeyVersion(keyEntityId, input);
         }
     },
@@ -214,8 +214,8 @@ public enum KeyType {
 
         @Override
         public VersionedKeyEntityId importKey(final KeyVaultFake keyVaultFake,
-                                              final VersionedKeyEntityId keyEntityId,
-                                              final JsonWebKeyImportRequest input) {
+                                                 final VersionedKeyEntityId keyEntityId,
+                                                 final JsonWebKeyImportRequest input) {
             return OCT.importKey(keyVaultFake, keyEntityId, input);
         }
     };

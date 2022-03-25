@@ -1,13 +1,11 @@
 package com.github.nagyesta.lowkeyvault.controller.v7_2;
 
-import com.github.nagyesta.lowkeyvault.controller.ErrorHandlingAwareController;
 import com.github.nagyesta.lowkeyvault.mapper.common.RecoveryAwareConverter;
 import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesUpdateModel;
 import com.github.nagyesta.lowkeyvault.service.EntityId;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultEntity;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultFake;
-import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import lombok.NonNull;
@@ -16,8 +14,6 @@ import java.net.URI;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.V_7_2;
 
 /**
  * The base implementation of the entity controllers.
@@ -34,22 +30,10 @@ import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.V_7_2;
  * @param <VIC> The versioned item converter, converting version item entities to item models.
  * @param <S>   The fake type holding the entities.
  */
-public abstract class BaseController<K extends EntityId, V extends K, E extends BaseVaultEntity<V>,
+public abstract class GenericEntityController<K extends EntityId, V extends K, E extends BaseVaultEntity<V>,
         M, DM extends M, I, DI extends I, MC extends RecoveryAwareConverter<E, M, DM>,
         IC extends RecoveryAwareConverter<E, I, DI>, VIC extends RecoveryAwareConverter<E, I, DI>,
-        S extends BaseVaultFake<K, V, E>> extends ErrorHandlingAwareController {
-    /**
-     * API version.
-     */
-    protected static final String API_VERSION_7_2 = "api-version=" + V_7_2;
-    /**
-     * RegExp of entity names (key name, secret name, certificate name).
-     */
-    protected static final String NAME_PATTERN = "^[0-9a-zA-Z-]+$";
-    /**
-     * RegExp of entity version identifiers (key version, secret version, certificate version).
-     */
-    protected static final String VERSION_NAME_PATTERN = "^[0-9a-f]{32}$";
+        S extends BaseVaultFake<K, V, E>> extends BaseEntityReadController<K, V, E, S> {
     /**
      * Default page size used when returning available versions of an entity.
      */
@@ -69,16 +53,16 @@ public abstract class BaseController<K extends EntityId, V extends K, E extends 
     private final MC modelConverter;
     private final IC itemConverter;
     private final VIC versionedItemConverter;
-    private final VaultService vaultService;
-    private final Function<VaultFake, S> toEntityVault;
 
-    protected BaseController(@NonNull final MC modelConverter, @NonNull final IC itemConverter, @NonNull final VIC versionedItemConverter,
-                             @NonNull final VaultService vaultService, final Function<VaultFake, S> toEntityVault) {
+    protected GenericEntityController(@NonNull final MC modelConverter,
+                                      @NonNull final IC itemConverter,
+                                      @NonNull final VIC versionedItemConverter,
+                                      @org.springframework.lang.NonNull final VaultService vaultService,
+                                      @org.springframework.lang.NonNull final Function<VaultFake, S> toEntityVault) {
+        super(vaultService, toEntityVault);
         this.modelConverter = modelConverter;
         this.itemConverter = itemConverter;
         this.versionedItemConverter = versionedItemConverter;
-        this.vaultService = vaultService;
-        this.toEntityVault = toEntityVault;
     }
 
     protected M getModelById(final S entityVaultFake, final V entityId) {
@@ -126,22 +110,10 @@ public abstract class BaseController<K extends EntityId, V extends K, E extends 
         return listModel(items, nextUri);
     }
 
-    protected E getEntityByNameAndVersion(final URI baseUri, final String name, final String version) {
-        final S vaultFake = getVaultByUri(baseUri);
-        final V entityId = versionedEntityId(baseUri, name, version);
-        return vaultFake.getEntities().getReadOnlyEntity(entityId);
-    }
-
     protected M getLatestEntityModel(final URI baseUri, final String name) {
         final S vaultFake = getVaultByUri(baseUri);
         final V entityId = vaultFake.getEntities().getLatestVersionOfEntity(entityId(baseUri, name));
         return getModelById(vaultFake, entityId);
-    }
-
-    protected S getVaultByUri(final URI baseUri) {
-        return Optional.ofNullable(vaultService.findByUri(baseUri))
-                .map(toEntityVault)
-                .orElseThrow(() -> new NotFoundException("Vault not found by base URI: " + baseUri));
     }
 
     protected void updateAttributes(final BaseVaultFake<K, V, ?> vaultFake, final V entityId, final BasePropertiesUpdateModel properties) {
@@ -166,10 +138,6 @@ public abstract class BaseController<K extends EntityId, V extends K, E extends 
     protected KeyVaultItemListModel<I> listModel(final List<I> items, final URI nextUri) {
         return new KeyVaultItemListModel<>(items, nextUri);
     }
-
-    protected abstract V versionedEntityId(URI baseUri, String name, String version);
-
-    protected abstract K entityId(URI baseUri, String name);
 
     private URI getNextUri(final String prefix, final Collection<?> allItems,
                            final Collection<?> items, final int limit, final int offset) {

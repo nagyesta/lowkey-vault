@@ -11,19 +11,21 @@ import java.util.Optional;
 public class Base64Serializer extends JsonSerializer<byte[]> {
 
     private static final Base64.Encoder ENCODER = Base64.getUrlEncoder().withoutPadding();
-    private static final String EMPTY = "";
 
     @Override
     public void serialize(final byte[] value, final JsonGenerator generator, final SerializerProvider provider) throws IOException {
-        final Optional<byte[]> optional = Optional.ofNullable(value);
-        if (optional.isPresent()) {
-            final String text = optional
-                    .filter(v -> v.length > 0)
-                    .map(ENCODER::encodeToString)
-                    .orElse(EMPTY);
+        final String text = base64Encode(value);
+        if (text != null) {
             generator.writeString(text);
         } else {
             generator.writeNull();
         }
+    }
+
+    protected String base64Encode(final byte[] value) {
+        final Optional<byte[]> optional = Optional.ofNullable(value);
+        return optional.filter(v -> v.length > 0)
+                .map(ENCODER::encodeToString)
+                .orElse(null);
     }
 }

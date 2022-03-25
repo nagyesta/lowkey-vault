@@ -7,4 +7,6 @@ import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId
 public interface SecretVaultFake extends BaseVaultFake<SecretEntityId, VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity> {
 
     VersionedSecretEntityId createSecretVersion(String secretName, String value, String contentType);
+
+    VersionedSecretEntityId createSecretVersion(VersionedSecretEntityId entityId, String value, String contentType);
 }

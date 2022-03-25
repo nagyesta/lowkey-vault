@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.service.common.impl;
 
+import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
 import java.time.OffsetDateTime;
@@ -60,6 +61,14 @@ public class KeyVaultLifecycleAwareEntity {
         updated = updated.minusSeconds(offsetSeconds);
         notBefore = notBefore.map(offsetDateTime -> offsetDateTime.minusSeconds(offsetSeconds));
         expiry = expiry.map(offsetDateTime -> offsetDateTime.minusSeconds(offsetSeconds));
+    }
+
+    public void setCreatedOn(@NonNull final OffsetDateTime createdOn) {
+        this.created = createdOn;
+    }
+
+    public void setUpdatedOn(@NonNull final OffsetDateTime updatedOn) {
+        this.updated = updatedOn;
     }
 
     protected void updatedNow() {

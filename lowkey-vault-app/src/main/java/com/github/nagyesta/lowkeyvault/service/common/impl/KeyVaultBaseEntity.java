@@ -18,6 +18,7 @@ public abstract class KeyVaultBaseEntity<V extends EntityId> extends KeyVaultLif
     private Map<String, String> tags;
     private Optional<OffsetDateTime> deletedDate;
     private Optional<OffsetDateTime> scheduledPurgeDate;
+    private boolean managed;
 
     protected KeyVaultBaseEntity(@NonNull final VaultFake vault) {
         super();
@@ -86,5 +87,14 @@ public abstract class KeyVaultBaseEntity<V extends EntityId> extends KeyVaultLif
         super.timeShift(offsetSeconds);
         deletedDate = deletedDate.map(offsetDateTime -> offsetDateTime.minusSeconds(offsetSeconds));
         scheduledPurgeDate = scheduledPurgeDate.map(offsetDateTime -> offsetDateTime.minusSeconds(offsetSeconds));
+    }
+
+    @Override
+    public boolean isManaged() {
+        return managed;
+    }
+
+    public void setManaged(final boolean managed) {
+        this.managed = managed;
     }
 }

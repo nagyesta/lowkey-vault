@@ -162,4 +162,10 @@ public class KeysStepDefsAssertions extends CommonAssertions {
     public void theListedDeletedKeysAreEmpty() {
         assertEquals(Collections.emptyList(), context.getListedIds());
     }
+
+    @And("the key named {name} matches the previous backup")
+    public void theKeyNamedNameMatchesThePreviousBackup(final String name) {
+        final byte[] bytes = context.getClient().backupKey(name);
+        assertEquals(context.getBackupBytes(name), bytes);
+    }
 }

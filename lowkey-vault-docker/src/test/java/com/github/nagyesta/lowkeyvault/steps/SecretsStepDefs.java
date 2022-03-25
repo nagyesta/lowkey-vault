@@ -31,7 +31,7 @@ public class SecretsStepDefs extends CommonAssertions {
     public void theSecretClientIsCreatedWithVaultNameSelected(final String vaultName) {
         final String vaultAuthority = vaultName + ".localhost:8443";
         final String vaultUrl = "https://" + vaultAuthority;
-        final AuthorityOverrideFunction overrideFunction = new AuthorityOverrideFunction(vaultAuthority,CONTAINER_AUTHORITY);
+        final AuthorityOverrideFunction overrideFunction = new AuthorityOverrideFunction(vaultAuthority, CONTAINER_AUTHORITY);
         context.setProvider(new ApacheHttpClientProvider(vaultUrl, overrideFunction));
     }
 
@@ -190,5 +190,18 @@ public class SecretsStepDefs extends CommonAssertions {
     public void theUpdateRequestIsSent() {
         final SecretProperties properties = context.getClient().updateSecretProperties(context.getUpdateProperties());
         fetchLatestSecretVersion(properties.getName());
+    }
+
+    @And("the secret named {name} is backed up")
+    public void theSecretNamedNameIsBackedUp(final String name) {
+        final byte[] bytes = context.getClient().backupSecret(name);
+        context.setBackupBytes(name, bytes);
+    }
+
+    @And("the secret named {name} is restored")
+    public void theSecretNamedNameIsRestored(final String name) {
+        final byte[] bytes = context.getBackupBytes(name);
+        final KeyVaultSecret secret = context.getClient().restoreSecretBackup(bytes);
+        context.addFetchedSecret(name, secret);
     }
 }

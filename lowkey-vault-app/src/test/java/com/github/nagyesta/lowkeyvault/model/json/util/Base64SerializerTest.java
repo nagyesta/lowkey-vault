@@ -37,7 +37,7 @@ class Base64SerializerTest {
         final Base64.Encoder encoder = Base64.getUrlEncoder().withoutPadding();
         return Stream.of(null, EMPTY, BLANK, LOCALHOST)
                 .map(s -> Optional.ofNullable(s).map(String::getBytes).orElse(null))
-                .map(b -> Arguments.of(b, Optional.ofNullable(b).map(encoder::encodeToString).orElse(null)));
+                .map(b -> Arguments.of(b, Optional.ofNullable(b).filter(v -> v.length > 0).map(encoder::encodeToString).orElse(null)));
     }
 
     @BeforeEach

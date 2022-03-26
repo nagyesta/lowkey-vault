@@ -63,6 +63,7 @@ public class KeyEntityToV72ModelConverter
     }
 
     private JsonWebKeyModel mapOctFields(final ReadOnlyAesKeyVaultKeyEntity entity) {
+        //Do not map K to avoid exposing key material
         return mapCommonKeyProperties(entity);
     }
 

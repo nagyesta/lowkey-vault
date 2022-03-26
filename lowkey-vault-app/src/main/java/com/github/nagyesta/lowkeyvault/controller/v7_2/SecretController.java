@@ -32,7 +32,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Slf4j
 @RestController
 @Validated
-public class SecretController extends BaseController<SecretEntityId, VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity,
+public class SecretController extends GenericEntityController<SecretEntityId, VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity,
         KeyVaultSecretModel, DeletedKeyVaultSecretModel, KeyVaultSecretItemModel, DeletedKeyVaultSecretItemModel,
         SecretEntityToV72ModelConverter, SecretEntityToV72SecretItemModelConverter,
         SecretEntityToV72SecretVersionItemModelConverter, SecretVaultFake> {
@@ -236,6 +236,7 @@ public class SecretController extends BaseController<SecretEntityId, VersionedSe
         secretVaultFake.addTags(secretEntityId, request.getTags());
         secretVaultFake.setExpiry(secretEntityId, properties.getNotBefore(), properties.getExpiresOn());
         secretVaultFake.setEnabled(secretEntityId, properties.isEnabled());
+        //no need to set managed property as this endpoint cannot create managed entities by definition
         return secretEntityId;
     }
 }

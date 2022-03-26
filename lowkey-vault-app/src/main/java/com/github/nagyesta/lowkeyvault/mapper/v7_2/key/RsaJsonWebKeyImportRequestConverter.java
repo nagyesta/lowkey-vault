@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_2.key;
 
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRequest;
 import com.github.nagyesta.lowkeyvault.service.exception.CryptoException;
 import org.springframework.lang.NonNull;
@@ -11,6 +12,7 @@ import java.security.PublicKey;
 import java.security.spec.RSAPrivateCrtKeySpec;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.SortedSet;
 
 /**
  * Converts import requests to RSA key pairs.
@@ -34,7 +36,10 @@ public class RsaJsonWebKeyImportRequestConverter extends BaseJsonWebKeyImportReq
 
     @Override
     public Integer getKeyParameter(@NonNull final JsonWebKeyImportRequest source) {
-        return source.getN().length * RSA_MODULUS_BYTES_TO_KEY_SIZE_BITS_MULTIPLIER;
+        final int calculatedWithPotentialLeadingZero = source.getN().length * RSA_MODULUS_BYTES_TO_KEY_SIZE_BITS_MULTIPLIER;
+        final SortedSet<Integer> validValuesBelowLimit = KeyType.RSA.getValidKeyParameters(Integer.class)
+                .headSet(calculatedWithPotentialLeadingZero + 1);
+        return validValuesBelowLimit.last();
     }
 
     private RSAPublicKeySpec rsaPublicKeySpec(final JsonWebKeyImportRequest source) {

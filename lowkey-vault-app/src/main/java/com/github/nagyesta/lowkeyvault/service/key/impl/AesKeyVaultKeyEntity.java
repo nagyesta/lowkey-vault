@@ -41,10 +41,9 @@ public class AesKeyVaultKeyEntity extends KeyVaultKeyEntity<SecretKey, Integer> 
         return KeyType.OCT_HSM;
     }
 
-    //Never return the key to the client
     @Override
     public byte[] getK() {
-        return null;
+        return getKey().getEncoded();
     }
 
     @Override

@@ -16,6 +16,7 @@ import javax.crypto.Cipher;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.Signature;
+import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPublicKey;
 
 import static com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil.generateRsa;
@@ -56,6 +57,36 @@ public class RsaKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, Integer> im
     @Override
     public byte[] getE() {
         return ((RSAPublicKey) getKey().getPublic()).getPublicExponent().toByteArray();
+    }
+
+    @Override
+    public byte[] getD() {
+        return ((RSAPrivateCrtKey) getKey().getPrivate()).getPrivateExponent().toByteArray();
+    }
+
+    @Override
+    public byte[] getDp() {
+        return ((RSAPrivateCrtKey) getKey().getPrivate()).getPrimeExponentP().toByteArray();
+    }
+
+    @Override
+    public byte[] getDq() {
+        return ((RSAPrivateCrtKey) getKey().getPrivate()).getPrimeExponentQ().toByteArray();
+    }
+
+    @Override
+    public byte[] getP() {
+        return ((RSAPrivateCrtKey) getKey().getPrivate()).getPrimeP().toByteArray();
+    }
+
+    @Override
+    public byte[] getQ() {
+        return ((RSAPrivateCrtKey) getKey().getPrivate()).getPrimeQ().toByteArray();
+    }
+
+    @Override
+    public byte[] getQi() {
+        return ((RSAPrivateCrtKey) getKey().getPrivate()).getCrtCoefficient().toByteArray();
     }
 
     @Override

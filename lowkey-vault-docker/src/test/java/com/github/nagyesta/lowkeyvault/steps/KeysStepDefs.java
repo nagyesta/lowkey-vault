@@ -387,6 +387,19 @@ public class KeysStepDefs extends CommonAssertions {
         context.setVerifyResult(result);
     }
 
+    @And("the key named {name} is backed up")
+    public void theKeyNamedNameIsBackedUp(final String name) {
+        final byte[] bytes = context.getClient().backupKey(name);
+        context.setBackupBytes(name, bytes);
+    }
+
+    @And("the key named {name} is restored")
+    public void theKeyNamedNameIsRestored(final String name) {
+        final byte[] bytes = context.getBackupBytes(name);
+        final KeyVaultKey key = context.getClient().restoreKeyBackup(bytes);
+        context.addFetchedKey(name, key);
+    }
+
     private byte[] hash(final byte[] text, final String algorithm) {
         try {
             final MessageDigest md = MessageDigest.getInstance("SHA-" + algorithm.substring(2, 5));

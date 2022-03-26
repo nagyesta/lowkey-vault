@@ -50,7 +50,12 @@ public class KeyVaultFakeImpl
     public VersionedKeyEntityId importKeyVersion(
             final String keyName, final JsonWebKeyImportRequest key) {
         final VersionedKeyEntityId keyEntityId = new VersionedKeyEntityId(vaultFake().baseUri(), keyName);
+        return importKeyVersion(keyEntityId, key);
+    }
 
+    @Override
+    public VersionedKeyEntityId importKeyVersion(
+            final VersionedKeyEntityId keyEntityId, final JsonWebKeyImportRequest key) {
         final KeyType keyType = Objects.requireNonNull(key).getKeyType();
         return keyType.importKey(this, keyEntityId, key);
     }

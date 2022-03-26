@@ -173,7 +173,7 @@ class KeyEntityToV72ModelConverterTest {
         } else {
             Assertions.fail("Only HSM is supported, software protection isn't.");
         }
-        Assertions.assertArrayEquals(input.getK(), actual.getKey().getK());
+        Assertions.assertNull(actual.getKey().getK());
         assertRsaFieldsAreNull(actual);
         assertEcFieldsAreNull(actual);
 

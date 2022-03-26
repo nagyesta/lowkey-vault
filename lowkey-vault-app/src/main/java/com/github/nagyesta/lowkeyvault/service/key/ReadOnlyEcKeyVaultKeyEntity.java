@@ -8,5 +8,7 @@ public interface ReadOnlyEcKeyVaultKeyEntity extends ReadOnlyKeyVaultKeyEntity {
 
     byte[] getY();
 
+    byte[] getD();
+
     KeyCurveName getKeyCurveName();
 }

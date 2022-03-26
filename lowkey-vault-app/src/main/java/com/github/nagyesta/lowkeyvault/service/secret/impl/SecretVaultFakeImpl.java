@@ -28,6 +28,12 @@ public class SecretVaultFakeImpl
     public VersionedSecretEntityId createSecretVersion(
             @NonNull final String secretName, @NonNull final String value, final String contentType) {
         final VersionedSecretEntityId entityId = new VersionedSecretEntityId(vaultFake().baseUri(), secretName);
+        return createSecretVersion(entityId, value, contentType);
+    }
+
+    @Override
+    public VersionedSecretEntityId createSecretVersion(
+            @NonNull final VersionedSecretEntityId entityId, @NonNull final String value, final String contentType) {
         final KeyVaultSecretEntity secretEntity = new KeyVaultSecretEntity(entityId, vaultFake(), value, contentType);
         return addVersion(entityId, secretEntity);
     }

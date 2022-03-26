@@ -53,4 +53,10 @@ public interface BaseVaultEntity<V extends EntityId> {
     boolean canPurge();
 
     void timeShift(int offsetSeconds);
+
+    boolean isManaged();
+
+    void setCreatedOn(OffsetDateTime createdOn);
+
+    void setUpdatedOn(OffsetDateTime updatedOn);
 }

@@ -27,6 +27,8 @@ public interface KeyVaultFake extends BaseVaultFake<KeyEntityId, VersionedKeyEnt
 
     VersionedKeyEntityId importKeyVersion(String keyName, JsonWebKeyImportRequest key) throws CryptoException;
 
+    VersionedKeyEntityId importKeyVersion(VersionedKeyEntityId keyEntityId, JsonWebKeyImportRequest key) throws CryptoException;
+
     VersionedKeyEntityId importEcKeyVersion(VersionedKeyEntityId keyEntityId, JsonWebKeyImportRequest key) throws CryptoException;
 
     VersionedKeyEntityId importRsaKeyVersion(VersionedKeyEntityId keyEntityId, JsonWebKeyImportRequest key) throws CryptoException;

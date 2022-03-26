@@ -5,13 +5,14 @@ import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyEcKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Array;
 import java.security.KeyPair;
 import java.security.Signature;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
 import java.util.Optional;
 
 import static com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil.generateEc;
@@ -45,12 +46,17 @@ public class EcKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, KeyCurveName
 
     @Override
     public byte[] getX() {
-        return ((BCECPublicKey) getKey().getPublic()).getQ().getAffineXCoord().getEncoded();
+        return ((ECPublicKey) getKey().getPublic()).getW().getAffineX().toByteArray();
     }
 
     @Override
     public byte[] getY() {
-        return ((BCECPublicKey) getKey().getPublic()).getQ().getAffineYCoord().getEncoded();
+        return ((ECPublicKey) getKey().getPublic()).getW().getAffineY().toByteArray();
+    }
+
+    @Override
+    public byte[] getD() {
+        return ((ECPrivateKey) getKey().getPrivate()).getS().toByteArray();
     }
 
     @Override

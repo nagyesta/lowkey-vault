@@ -7,4 +7,16 @@ public interface ReadOnlyRsaKeyVaultKeyEntity extends ReadOnlyKeyVaultKeyEntity 
     byte[] getE();
 
     int getKeySize();
+
+    byte[] getD();
+
+    byte[] getDp();
+
+    byte[] getDq();
+
+    byte[] getP();
+
+    byte[] getQ();
+
+    byte[] getQi();
 }

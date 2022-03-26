@@ -38,7 +38,7 @@ class SecretVaultFakeImplTest {
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.createSecretVersion(null, LOWKEY_VAULT, null));
+                () -> underTest.createSecretVersion((String) null, LOWKEY_VAULT, null));
 
         //then + exception
     }
@@ -54,6 +54,36 @@ class SecretVaultFakeImplTest {
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> underTest.createSecretVersion(SECRET_NAME_1, null, null));
+
+        //then + exception
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Test
+    void testCreateSecretVersionUsingVersionedIdShouldThrowExceptionWhenCalledWithNullValue() {
+        //given
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
+        final SecretVaultFakeImpl underTest =
+                new SecretVaultFakeImpl(vaultFake, vaultFake.getRecoveryLevel(), vaultFake.getRecoverableDays());
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> underTest.createSecretVersion(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, null, null));
+
+        //then + exception
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Test
+    void testCreateSecretVersionUsingVersionedIdShouldThrowExceptionWhenCalledWithNullEntityId() {
+        //given
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
+        final SecretVaultFakeImpl underTest =
+                new SecretVaultFakeImpl(vaultFake, vaultFake.getRecoveryLevel(), vaultFake.getRecoverableDays());
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> underTest.createSecretVersion((VersionedSecretEntityId) null, LOWKEY_VAULT, null));
 
         //then + exception
     }

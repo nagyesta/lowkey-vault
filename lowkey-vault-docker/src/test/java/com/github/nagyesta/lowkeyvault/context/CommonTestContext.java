@@ -4,6 +4,7 @@ import com.github.nagyesta.lowkeyvault.http.ApacheHttpClientProvider;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,6 +24,7 @@ public abstract class CommonTestContext<E, D, P, C> {
     private P updateProperties;
     private List<String> listedIds;
     private List<String> deletedRecoveryIds;
+    private Map<String, byte[]> backups = new HashMap<String, byte[]>();
 
     public CommonTestContext(final ApacheHttpClientProvider provider) {
         this.provider = provider;
@@ -43,11 +45,11 @@ public abstract class CommonTestContext<E, D, P, C> {
         return client;
     }
 
-    protected abstract C providerToClient(ApacheHttpClientProvider provider);
-
     public void setClient(final C client) {
         this.client = client;
     }
+
+    protected abstract C providerToClient(ApacheHttpClientProvider provider);
 
     public Map<String, List<E>> getCreatedEntities() {
         return createdEntities;
@@ -109,5 +111,13 @@ public abstract class CommonTestContext<E, D, P, C> {
 
     public void setUpdateProperties(final P updateProperties) {
         this.updateProperties = updateProperties;
+    }
+
+    public void setBackupBytes(final String name, final byte[] bytes) {
+        backups.put(name, bytes);
+    }
+
+    public byte[] getBackupBytes(final String name) {
+        return backups.get(name);
     }
 }

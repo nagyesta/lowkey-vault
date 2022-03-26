@@ -115,6 +115,7 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
         - ```ES256K```
         - ```ES384```
         - ```ES512```
+- Backup and restore keys
 
 ### Secrets
 
@@ -133,6 +134,7 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 - Update secret
 - Recover deleted secret
 - Purge deleted secret
+- Backup and restore secrets
 
 ### Management API
 
@@ -196,4 +198,4 @@ This issue should not happen while using Testcontainers. See examples under [Low
 - Some encryption/signature algorithms are not supported. Please refer to the ["Features"](#features) section for the up-to-date list of supported algorithms.
 - Backup and restore features are not supported at the moment
 - Certificate Vault features are not supported at the moment
-- Recovery options cannot be set as vault creation is implicit during start-up
+- Recovery options cannot be for vaults created during start-up

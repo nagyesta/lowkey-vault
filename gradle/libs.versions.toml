@@ -17,6 +17,7 @@ abortMission = "2.8.20"
 checkstyle = "9.2.1"
 jacoco = "0.8.2"
 jackson = { strictly = "2.13.2" }
+jacksonDatabind = { strictly = "2.13.2.1" }
 openApiUi = "1.6.6"
 
 abortMissionPlugin = "2.2.6"
@@ -72,9 +73,10 @@ cucumber-java = { module = "io.cucumber:cucumber-java", version.ref = "cucumber"
 cucumber-testng = { module = "io.cucumber:cucumber-testng", version.ref = "cucumber" }
 cucumber-spring = { module = "io.cucumber:cucumber-spring", version.ref = "cucumber" }
 
+jackson-bom = { module = "com.fasterxml.jackson:jackson-bom", version.ref = "jackson" }
 jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson" }
 jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jackson" }
-jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jacksonDatabind" }
 jackson-dataformat-xml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml", version.ref = "jackson" }
 jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
 
@@ -88,7 +90,7 @@ spring-boot-app = [
 ]
 logback = ["logback-classic", "logback-core"]
 cucumber = ["cucumber-java", "cucumber-testng", "cucumber-spring"]
-jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-dataformat-xml", "jackson-datatype-jsr310"]
+jackson = ["jackson-bom", "jackson-core", "jackson-annotations", "jackson-databind", "jackson-dataformat-xml", "jackson-datatype-jsr310"]
 tomcat = [
     "tomcat-annotations-api", "tomcat-jsp-api", "tomcat-embed-core", "tomcat-embed-el", "tomcat-embed-jasper", "tomcat-embed-websocket"
 ]

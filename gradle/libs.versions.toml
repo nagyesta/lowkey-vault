@@ -73,6 +73,7 @@ cucumber-java = { module = "io.cucumber:cucumber-java", version.ref = "cucumber"
 cucumber-testng = { module = "io.cucumber:cucumber-testng", version.ref = "cucumber" }
 cucumber-spring = { module = "io.cucumber:cucumber-spring", version.ref = "cucumber" }
 
+jackson-bom = { module = "com.fasterxml.jackson:jackson-bom", version.ref = "jackson" }
 jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson" }
 jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jackson" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jacksonDatabind" }
@@ -89,7 +90,7 @@ spring-boot-app = [
 ]
 logback = ["logback-classic", "logback-core"]
 cucumber = ["cucumber-java", "cucumber-testng", "cucumber-spring"]
-jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-dataformat-xml", "jackson-datatype-jsr310"]
+jackson = ["jackson-bom", "jackson-core", "jackson-annotations", "jackson-databind", "jackson-dataformat-xml", "jackson-datatype-jsr310"]
 tomcat = [
     "tomcat-annotations-api", "tomcat-jsp-api", "tomcat-embed-core", "tomcat-embed-el", "tomcat-embed-jasper", "tomcat-embed-websocket"
 ]

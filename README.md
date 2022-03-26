@@ -196,6 +196,5 @@ This issue should not happen while using Testcontainers. See examples under [Low
 # Limitations
 
 - Some encryption/signature algorithms are not supported. Please refer to the ["Features"](#features) section for the up-to-date list of supported algorithms.
-- Backup and restore features are not supported at the moment
 - Certificate Vault features are not supported at the moment
-- Recovery options cannot be for vaults created during start-up
+- Recovery options cannot be configured for vaults created during start-up

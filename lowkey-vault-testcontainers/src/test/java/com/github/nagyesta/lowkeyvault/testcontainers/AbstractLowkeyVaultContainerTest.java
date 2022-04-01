@@ -6,6 +6,7 @@ import com.azure.core.http.policy.FixedDelay;
 import com.azure.core.http.policy.RetryPolicy;
 import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.SecretClientBuilder;
+import com.azure.security.keyvault.secrets.SecretServiceVersion;
 import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
 import org.junit.jupiter.api.Assertions;
 
@@ -25,6 +26,7 @@ public class AbstractLowkeyVaultContainerTest {
                 .vaultUrl(vaultUrl)
                 .credential(credential)
                 .httpClient(httpClient)
+                .serviceVersion(SecretServiceVersion.V7_2)
                 .retryPolicy(new RetryPolicy(new FixedDelay(0, Duration.ZERO)))
                 .buildClient();
 

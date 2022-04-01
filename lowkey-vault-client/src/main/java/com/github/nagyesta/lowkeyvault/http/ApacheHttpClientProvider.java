@@ -7,12 +7,15 @@ import com.azure.core.http.policy.RetryPolicy;
 import com.azure.security.keyvault.keys.KeyAsyncClient;
 import com.azure.security.keyvault.keys.KeyClient;
 import com.azure.security.keyvault.keys.KeyClientBuilder;
+import com.azure.security.keyvault.keys.KeyServiceVersion;
 import com.azure.security.keyvault.keys.cryptography.CryptographyAsyncClient;
 import com.azure.security.keyvault.keys.cryptography.CryptographyClient;
 import com.azure.security.keyvault.keys.cryptography.CryptographyClientBuilder;
+import com.azure.security.keyvault.keys.cryptography.CryptographyServiceVersion;
 import com.azure.security.keyvault.secrets.SecretAsyncClient;
 import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.SecretClientBuilder;
+import com.azure.security.keyvault.secrets.SecretServiceVersion;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nagyesta.lowkeyvault.http.management.LowkeyVaultManagementClient;
 import com.github.nagyesta.lowkeyvault.http.management.impl.LowkeyVaultManagementClientImpl;
@@ -89,6 +92,7 @@ public final class ApacheHttpClientProvider {
                 .vaultUrl(getVaultUrl())
                 .credential(new BasicAuthenticationCredential(DUMMY, DUMMY))
                 .httpClient(createInstance())
+                .serviceVersion(KeyServiceVersion.V7_2)
                 .retryPolicy(new RetryPolicy(new FixedDelay(0, Duration.ZERO)));
     }
 
@@ -97,6 +101,7 @@ public final class ApacheHttpClientProvider {
                 .vaultUrl(getVaultUrl())
                 .credential(new BasicAuthenticationCredential(DUMMY, DUMMY))
                 .httpClient(createInstance())
+                .serviceVersion(SecretServiceVersion.V7_2)
                 .retryPolicy(new RetryPolicy(new FixedDelay(0, Duration.ZERO)));
     }
 
@@ -105,6 +110,7 @@ public final class ApacheHttpClientProvider {
                 .keyIdentifier(Objects.requireNonNull(webKeyId))
                 .credential(new BasicAuthenticationCredential(DUMMY, DUMMY))
                 .httpClient(createInstance())
+                .serviceVersion(CryptographyServiceVersion.V7_2)
                 .retryPolicy(new RetryPolicy(new FixedDelay(0, Duration.ZERO)));
     }
 

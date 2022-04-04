@@ -26,7 +26,7 @@ indexScanPlugin = "2.2.3"
 lombokPlugin = "6.4.1"
 springBootPlugin = "2.6.6"
 gitVersionerPlugin = "1.6.7"
-owaspPlugin = "7.0.3"
+owaspPlugin = "7.0.4.1"
 
 [libraries]
 spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter", version.ref = "springBoot" }

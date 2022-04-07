@@ -18,7 +18,7 @@ checkstyle = "9.2.1"
 jacoco = "0.8.2"
 jackson = { strictly = "2.13.2" }
 jacksonDatabind = { strictly = "2.13.2.2" }
-openApiUi = "1.6.6"
+openApiUi = "1.6.7"
 
 abortMissionPlugin = "2.2.11"
 dockerPlugin = "0.33.0"

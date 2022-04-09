@@ -1,0 +1,23 @@
+[ {
+  "vaultBaseUri" : "https://keys-backup-jsonBackupEc-521.localhost:8443",
+  "entityId" : "jsonBackupEc-521",
+  "entityVersion" : "9301e31d18a540e08c68ad5230e60e21",
+  "attributes" : {
+    "enabled" : true,
+    "created" : 1649503879,
+    "updated" : 1649503879,
+    "recoveryLevel" : "Recoverable+Purgeable",
+    "recoverableDays" : 90
+  },
+  "tags" : { },
+  "managed" : false,
+  "keyMaterial" : {
+    "crv" : "P-521",
+    "d" : "AWNmGqYqot0Zq_6uqnqv2lkA40ke1uTJhehp692dS_r2C7oPmJ0qcPgc31jOOFzc-v69chbMawkR-wyKXFf2O4mh",
+    "key_ops" : [ "sign", "encrypt", "wrapKey" ],
+    "kid" : "https://keys-backup-jsonBackupEc-521.localhost:8443/keys/jsonBackupEc-521/9301e31d18a540e08c68ad5230e60e21",
+    "kty" : "EC",
+    "x" : "AbDYVOxj0e-tUTgqybst45IXon0axFo_sXlHyJQgYvFDxMNrxa5d4rV7X5H487zh3p_aR_dnVEnbWz9od42mlldE",
+    "y" : "ANk3zxFnwHSgsJr2AZvCHe06Zv7LOQdifHIVaZqx72NOf87DQQoEEMXNp3lTMYANkAqlerz80kjGpoBAe1ZyEtsH"
+  }
+} ]

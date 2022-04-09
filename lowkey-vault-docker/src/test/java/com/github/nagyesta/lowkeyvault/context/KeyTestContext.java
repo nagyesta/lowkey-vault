@@ -5,18 +5,18 @@ import com.azure.security.keyvault.keys.cryptography.CryptographyClient;
 import com.azure.security.keyvault.keys.cryptography.models.DecryptResult;
 import com.azure.security.keyvault.keys.cryptography.models.EncryptResult;
 import com.azure.security.keyvault.keys.models.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nagyesta.lowkeyvault.http.ApacheHttpClientProvider;
+import com.github.nagyesta.lowkeyvault.http.management.LowkeyVaultManagementClient;
 
 import javax.crypto.SecretKey;
 import java.security.KeyPair;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.Optional;
 
 public class KeyTestContext extends CommonTestContext<KeyVaultKey, DeletedKey, KeyProperties, KeyClient> {
 
-    public static final OffsetDateTime NOW = OffsetDateTime.now(ZoneOffset.UTC);
-
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private LowkeyVaultManagementClient lowkeyVaultManagementClient;
     private CryptographyClient cryptographyClient;
     private CreateRsaKeyOptions createRsaKeyOptions;
     private CreateEcKeyOptions createEcKeyOptions;
@@ -36,6 +36,13 @@ public class KeyTestContext extends CommonTestContext<KeyVaultKey, DeletedKey, K
     @Override
     protected KeyClient providerToClient(final ApacheHttpClientProvider provider) {
         return provider.getKeyClient();
+    }
+
+    public synchronized LowkeyVaultManagementClient getLowkeyVaultManagementClient() {
+        if (lowkeyVaultManagementClient == null) {
+            lowkeyVaultManagementClient = getProvider().getLowkeyVaultManagementClient(objectMapper);
+        }
+        return lowkeyVaultManagementClient;
     }
 
     public CryptographyClient getCryptographyClient() {

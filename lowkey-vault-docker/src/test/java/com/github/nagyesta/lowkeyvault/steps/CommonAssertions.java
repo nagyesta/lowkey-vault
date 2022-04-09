@@ -2,10 +2,12 @@ package com.github.nagyesta.lowkeyvault.steps;
 
 import org.testng.Assert;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class CommonAssertions {
 
@@ -52,5 +54,14 @@ public class CommonAssertions {
         assertNotNull(bytes);
         assertTrue("Byte array was " + bytes.length + " long, expected " + byteArrayLength + " (+/-1 tolerance)",
                 byteArrayLength - 1 <= bytes.length && byteArrayLength + 1 >= bytes.length);
+    }
+
+    protected String readResourceContent(final String resource) throws IOException {
+        //noinspection LocalCanBeFinal
+        try (InputStream stream = getClass().getResourceAsStream(resource);
+             InputStreamReader reader = new InputStreamReader(Objects.requireNonNull(stream));
+             BufferedReader bufferedReader = new BufferedReader(reader)) {
+            return bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
+        }
     }
 }

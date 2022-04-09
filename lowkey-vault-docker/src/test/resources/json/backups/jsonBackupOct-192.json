@@ -1,0 +1,20 @@
+[ {
+  "vaultBaseUri" : "https://keys-backup-jsonBackupOct-192.localhost:8443",
+  "entityId" : "jsonBackupOct-192",
+  "entityVersion" : "55ccab8f94b244ab97d82899340c22dd",
+  "attributes" : {
+    "enabled" : true,
+    "created" : 1649503106,
+    "updated" : 1649503106,
+    "recoveryLevel" : "Recoverable+Purgeable",
+    "recoverableDays" : 90
+  },
+  "tags" : { },
+  "managed" : false,
+  "keyMaterial" : {
+    "k" : "fp2J-nnMUBZVxCDFdKDxjDJX0F_BIM8P",
+    "key_ops" : [ "sign", "encrypt", "wrapKey" ],
+    "kid" : "https://keys-backup-jsonBackupOct-192.localhost:8443/keys/jsonBackupOct-192/55ccab8f94b244ab97d82899340c22dd",
+    "kty" : "oct-HSM"
+  }
+} ]

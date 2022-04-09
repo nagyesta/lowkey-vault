@@ -17,6 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.Arrays;
@@ -117,6 +120,9 @@ public class KeysStepDefs extends CommonAssertions {
         context.setKeyPair(keyPair);
         final JsonWebKey key = JsonWebKey.fromEc(keyPair, new BouncyCastleProvider())
                 .setKeyOps(List.of(KeyOperation.SIGN, KeyOperation.ENCRYPT, KeyOperation.WRAP_KEY));
+        if (hsm) {
+            key.setKeyType(KeyType.EC_HSM);
+        }
         final ImportKeyOptions options = new ImportKeyOptions(name, key)
                 .setHardwareProtected(hsm);
         final KeyVaultKey ecKey = context.getClient().importKey(options);
@@ -129,6 +135,9 @@ public class KeysStepDefs extends CommonAssertions {
         context.setKeyPair(keyPair);
         final JsonWebKey key = JsonWebKey.fromRsa(keyPair)
                 .setKeyOps(List.of(KeyOperation.SIGN, KeyOperation.ENCRYPT, KeyOperation.WRAP_KEY));
+        if (hsm) {
+            key.setKeyType(KeyType.RSA_HSM);
+        }
         final ImportKeyOptions options = new ImportKeyOptions(name, key)
                 .setHardwareProtected(hsm);
         final KeyVaultKey rsaKey = context.getClient().importKey(options);
@@ -393,11 +402,30 @@ public class KeysStepDefs extends CommonAssertions {
         context.setBackupBytes(name, bytes);
     }
 
+    @And("the key named {name} is backed up to resource")
+    public void theKeyNamedNameIsBackedUpToResource(final String name) throws IOException {
+        final byte[] bytes = context.getClient().backupKey(name);
+        final String s = context.getLowkeyVaultManagementClient().unpackBackup(bytes);
+        final File file = new File("/home/esta/IdeaProjects/github/lowkey-vault/lowkey-vault-docker/src/test/resources"
+                + "/json/backups/" + name + ".json");
+        file.createNewFile();
+        new FileWriter(file).append(s).close();
+        context.setBackupBytes(name, bytes);
+    }
+
     @And("the key named {name} is restored")
     public void theKeyNamedNameIsRestored(final String name) {
         final byte[] bytes = context.getBackupBytes(name);
         final KeyVaultKey key = context.getClient().restoreKeyBackup(bytes);
         context.addFetchedKey(name, key);
+    }
+
+    @And("the key named {name} is restored from classpath resource")
+    public void theKeyIsRestoredFromClasspath(final String name) throws IOException {
+        final String content = readResourceContent("/json/backups/" + name + ".json");
+        final byte[] bytes = context.getLowkeyVaultManagementClient().compressBackup(content);
+        final KeyVaultKey key = context.getClient().restoreKeyBackup(bytes);
+        context.addFetchedKey(key.getName(), key);
     }
 
     private byte[] hash(final byte[] text, final String algorithm) {

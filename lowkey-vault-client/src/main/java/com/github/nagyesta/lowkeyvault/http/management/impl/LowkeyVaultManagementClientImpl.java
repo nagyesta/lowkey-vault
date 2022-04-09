@@ -14,10 +14,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHeaders;
 import reactor.util.annotation.Nullable;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import static com.azure.core.http.ContentType.APPLICATION_JSON;
 import static com.github.nagyesta.lowkeyvault.http.management.impl.ResponseEntity.VAULT_MODEL_LIST_TYPE_REF;
@@ -127,6 +133,30 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
         final HttpRequest request = new HttpRequest(HttpMethod.PUT, uri.toString())
                 .setHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON);
         sendRaw(request);
+    }
+
+    @Override
+    public String unpackBackup(final byte[] backup) throws IOException {
+        final byte[] nonNullBackup = Optional.ofNullable(backup)
+                .orElseThrow(() -> new IllegalArgumentException("Backup cannot be null"));
+        //noinspection LocalCanBeFinal
+        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(nonNullBackup);
+             GZIPInputStream gzipInputStream = new GZIPInputStream(byteArrayInputStream)) {
+            final String json = new String(gzipInputStream.readAllBytes());
+            return objectReader.readTree(json).toPrettyString();
+        }
+    }
+
+    @Override
+    public byte[] compressBackup(@NonNull final String backup) throws IOException {
+        //noinspection LocalCanBeFinal
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+             GZIPOutputStream gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream)) {
+            gzipOutputStream.write(backup.getBytes(StandardCharsets.UTF_8));
+            gzipOutputStream.flush();
+            gzipOutputStream.finish();
+            return byteArrayOutputStream.toByteArray();
+        }
     }
 
     String vaultModelAsString(final URI baseUri, final RecoveryLevel recoveryLevel, final Integer recoverableDays) {

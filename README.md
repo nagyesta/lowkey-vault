@@ -21,7 +21,7 @@ alternative for the cases when using a real Key Vault is not practical or imposs
 
 ### Warning!
 
-> Lowkey Vault is NOT intended as a [Azure Key Vault](https://azure.microsoft.com/en-us/services/key-vault/) replacement. Please do not attempt using it instead of the real service in production as it is not using any security measures to keep your secrets safe.
+> Lowkey Vault is NOT intended as an [Azure Key Vault](https://azure.microsoft.com/en-us/services/key-vault/) replacement. Please do not attempt using it instead of the real service in production as it is not using any security measures to keep your secrets safe.
 
 ### Valid use-cases
 
@@ -54,7 +54,7 @@ I have an app using Azure Key Vault and:
 ### Docker
 
 1. Pull the most recent version from ```nagyesta/lowkey-vault```
-2. ```docker run lowkey-vault:<version> -p 8443:8443```
+2. ```docker run --rm  -p 8443:8443 nagyesta/lowkey-vault:<version>```
 3. Use ```https://localhost:8443``` as key vault URI when using
    the [Azure Key Vault Key client](https://docs.microsoft.com/en-us/azure/key-vault/keys/quick-create-java)
    or the [Azure Key Vault Secret client](https://docs.microsoft.com/en-us/azure/key-vault/secrets/quick-create-java)

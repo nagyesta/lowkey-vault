@@ -7,6 +7,7 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.IOException;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -167,5 +168,13 @@ public class KeysStepDefsAssertions extends CommonAssertions {
     public void theKeyNamedNameMatchesThePreviousBackup(final String name) {
         final byte[] bytes = context.getClient().backupKey(name);
         assertEquals(context.getBackupBytes(name), bytes);
+    }
+
+    @And("the unpacked backup of {name} matches the content of the classpath resource")
+    public void theKeyNamedNameMatchesTheResourceContent(final String name) throws IOException {
+        final byte[] bytes = context.getClient().backupKey(name);
+        final String backup = context.getLowkeyVaultManagementClient().unpackBackup(bytes);
+        final String expected = readResourceContent("/json/backups/" + name + ".json");
+        assertEquals(expected, backup);
     }
 }

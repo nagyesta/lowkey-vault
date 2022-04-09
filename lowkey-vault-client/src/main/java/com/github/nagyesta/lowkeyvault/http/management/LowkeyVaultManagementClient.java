@@ -2,6 +2,7 @@ package com.github.nagyesta.lowkeyvault.http.management;
 
 import lombok.NonNull;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.function.Supplier;
@@ -26,4 +27,8 @@ public interface LowkeyVaultManagementClient {
     boolean purge(@NonNull URI baseUri);
 
     void timeShift(@NonNull TimeShiftContext context);
+
+    String unpackBackup(byte[] backup) throws IOException;
+
+    byte[] compressBackup(String backup) throws IOException;
 }

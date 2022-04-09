@@ -1,0 +1,23 @@
+[ {
+  "vaultBaseUri" : "https://keys-backup-jsonBackupEc-256.localhost:8443",
+  "entityId" : "jsonBackupEc-256",
+  "entityVersion" : "f16a91376c13478996195a0c2cee39cb",
+  "attributes" : {
+    "enabled" : true,
+    "created" : 1649503879,
+    "updated" : 1649503879,
+    "recoveryLevel" : "Recoverable+Purgeable",
+    "recoverableDays" : 90
+  },
+  "tags" : { },
+  "managed" : false,
+  "keyMaterial" : {
+    "crv" : "P-256",
+    "d" : "IvdJQWa59MJflXPF25Cc4UlOREHZVL5_6sD27nyz1J8",
+    "key_ops" : [ "sign", "encrypt", "wrapKey" ],
+    "kid" : "https://keys-backup-jsonBackupEc-256.localhost:8443/keys/jsonBackupEc-256/f16a91376c13478996195a0c2cee39cb",
+    "kty" : "EC",
+    "x" : "XBlNkVS33eZqrVgbpeoNerx5XKMixFxFrYl5FJKQ5vQ",
+    "y" : "KKoHw5q3QM1lehkqggvNViaX1KBM2ePvmXE2IQbWiLE"
+  }
+} ]

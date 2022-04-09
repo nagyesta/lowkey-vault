@@ -5,6 +5,7 @@ import com.azure.core.http.HttpMethod;
 import com.azure.core.http.HttpRequest;
 import com.azure.core.http.HttpResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -21,6 +22,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.*;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
+import java.math.BigInteger;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -35,6 +38,8 @@ import static org.mockito.Mockito.*;
 
 class LowkeyVaultManagementClientImplTest {
 
+    public static final String SIMPLE_JSON = "{\"property\":42}";
+    public static final String SIMPLE_JSON_PRETTY = "{\n\t\"property\": 42\n}";
     private static final String HTTPS_LOCALHOST = "https://localhost";
     private static final String JSON = "{}";
     private static final int RECOVERABLE_DAYS = 90;
@@ -473,6 +478,59 @@ class LowkeyVaultManagementClientImplTest {
             verify(response).getBodyAsString(eq(StandardCharsets.UTF_8));
             verify(objectReader, never()).forType(eq(VaultModel.class));
             verify(objectReader, never()).readValue(anyString());
+        }
+
+        @Test
+        void testUnpackBackupShouldThrowExceptionWhenCalledWithNull() {
+            //given
+
+            //when
+            Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.unpackBackup(null));
+
+            //then + exception
+        }
+
+        @SuppressWarnings("ConstantConditions")
+        @Test
+        void testCompressBackupShouldThrowExceptionWhenCalledWithNull() {
+            //given
+
+            //when
+            Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.compressBackup(null));
+
+            //then + exception
+        }
+
+        @Test
+        void testUnpackBackupShouldProduceFormattedJsonWhenCalledWithValidInput() throws IOException {
+            //given
+            final byte[] input = underTest.compressBackup(SIMPLE_JSON);
+            final JsonNode node = mock(JsonNode.class);
+            when(objectReader.readTree(eq(SIMPLE_JSON))).thenReturn(node);
+            when(node.toPrettyString()).thenReturn(SIMPLE_JSON_PRETTY);
+
+            //when
+            final String actual = underTest.unpackBackup(input);
+
+            //then
+            Assertions.assertEquals(SIMPLE_JSON_PRETTY, actual);
+            final InOrder inOrder = inOrder(objectReader, node);
+            inOrder.verify(objectReader).readTree(eq(SIMPLE_JSON));
+            inOrder.verify(node).toPrettyString();
+            verifyNoMoreInteractions(objectReader, node);
+        }
+
+        @Test
+        void testCompressBackupShouldProduceGzipBytesWhenCalledWithValidInput() throws IOException {
+            //given
+            final byte[] out = new BigInteger("239366333208093937709170404274988390036218345476049221665072896269330010352532848640")
+                    .toByteArray();
+
+            //when
+            final byte[] actual = underTest.compressBackup(SIMPLE_JSON);
+
+            //then
+            Assertions.assertArrayEquals(out, actual);
         }
     }
 }

@@ -77,3 +77,46 @@ Feature: Key backup and restore
       | backupOct-4 | 128     | A128CBC    | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
       | backupOct-5 | 192     | A192CBC    | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
       | backupOct-6 | 256     | A256CBC    | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
+
+  @Key @KeyImport @KeyEncrypt @KeyBackup @KeyRestore @RSA
+  Scenario Outline: RSA_BACKUP_02 An RSA key is restored from json, backed up, then the backup content is compared to the source
+    Given a vault is created with name keys-backup-<keyName>
+    And a key client is created with the vault named keys-backup-<keyName>
+    And the key named <keyName> is restored from classpath resource
+    When the key named <keyName> is backed up
+    And the unpacked backup of <keyName> matches the content of the classpath resource
+
+    Examples:
+      | keyName            |
+      | jsonBackupRsa-2048 |
+      | jsonBackupRsa-3072 |
+      | jsonBackupRsa-4096 |
+
+  @Key @KeyImport @KeyEncrypt @KeyBackup @KeyRestore @EC
+  Scenario Outline: EC_BACKUP_02 An EC key is restored from json, backed up, then the backup content is compared to the source
+    Given a vault is created with name keys-backup-<keyName>
+    And a key client is created with the vault named keys-backup-<keyName>
+    And the key named <keyName> is restored from classpath resource
+    When the key named <keyName> is backed up
+    And the unpacked backup of <keyName> matches the content of the classpath resource
+
+    Examples:
+      | keyName           |
+      | jsonBackupEc-256  |
+      | jsonBackupEc-256k |
+      | jsonBackupEc-384  |
+      | jsonBackupEc-521  |
+
+  @Key @KeyImport @KeyEncrypt @KeyBackup @KeyRestore @OCT
+  Scenario Outline: OCT_BACKUP_02 An OCT key is restored from json, backed up, then the backup content is compared to the source
+    Given a vault is created with name keys-backup-<keyName>
+    And a key client is created with the vault named keys-backup-<keyName>
+    And the key named <keyName> is restored from classpath resource
+    When the key named <keyName> is backed up
+    And the unpacked backup of <keyName> matches the content of the classpath resource
+
+    Examples:
+      | keyName           |
+      | jsonBackupOct-128 |
+      | jsonBackupOct-192 |
+      | jsonBackupOct-256 |

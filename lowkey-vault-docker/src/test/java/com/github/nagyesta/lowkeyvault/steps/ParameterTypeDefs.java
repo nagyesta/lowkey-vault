@@ -45,7 +45,7 @@ public class ParameterTypeDefs {
         return Integer.parseInt(size);
     }
 
-    @ParameterType("(2048|4096)")
+    @ParameterType("(2048|3072|4096)")
     public int rsaKeySize(final String size) {
         return Integer.parseInt(size);
     }

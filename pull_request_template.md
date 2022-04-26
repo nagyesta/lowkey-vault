@@ -14,17 +14,12 @@ __Issue:__ <#issue number>
 
 ### Checklists
 
- [ ] I have rebased my branch
-
- [ ] My commit message is meaningful
-
- [ ] The commit messages use semantic versioning: ```{major}```, ```{minor}``` or ```{patch}```
-
- [ ] The changes are focusing on the issue at hand
-
- [ ] Tests are passing
-
- [ ] I have maintained or increased test coverage
+- [ ] I have rebased my branch
+- [ ] My commit message is meaningful
+- [ ] The commit messages use semantic versioning: ```{major}```, ```{minor}``` or ```{patch}```
+- [ ] The changes are focusing on the issue at hand
+- [ ] Tests are passing
+- [ ] I have maintained or increased test coverage
 
 ### Notes
 

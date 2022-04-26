@@ -39,8 +39,18 @@ abortMission {
     toolVersion libs.versions.abortMission.get()
 }
 
+processResources {
+    inputs.property('version', project.version)
+    filesMatching('application.properties') {
+        expand(project.properties)
+    }
+}
+
 jar {
     enabled = false
+}
+bootJar {
+    archiveVersion.value(project.version as String)
 }
 
 task regenerateCertJks(type: Exec) {

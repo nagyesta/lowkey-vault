@@ -18,7 +18,8 @@ A contribution might be any of the following:
 Regardless of the option you choose, please be mindful about the fact that this is
 an open source project. Your contribution is considered to be voluntary and your
 contribution will become part of the Lowkey Vault project. Your code contributions
-will be released under our MIT license agreement.
+will be released under our MIT license agreement. Once your code becomes part of our
+repository, you irrevocably transfer ownership to the Lowkey Vault project. 
 
 ## Issue creation guidelines
 
@@ -42,12 +43,13 @@ sure to follow the points below:
 1. Make sure your changes belong to an issue
 2. Keep your changes relevant for the issue you are addressing
 3. Maintain test coverage and make sure tests are passing
-4. Avoid adding new Checkstyle violations
-5. Use the common indentation and formatting settings we use
-6. Do not add unnecessary dependencies
-7. Rebase your branch before asking for a pull-request
-8. Use our pull request template
-9. Please be patient with pull requests (it takes time to review changes properly)
+4. Make sure to write new test cases for both new features and bugfixes
+5. Avoid adding new Checkstyle violations
+6. Use the common indentation and formatting settings we use
+7. Do not add unnecessary dependencies
+8. Rebase your branch before asking for a pull-request
+9. Use our pull request template
+10. Please be patient with pull requests (it takes time to review changes properly)
 
 ## Pull request reviews
 

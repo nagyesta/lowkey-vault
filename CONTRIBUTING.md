@@ -33,7 +33,7 @@ us resolve your issue faster.
 
 ## Interacting with the community
 
-Please be respectful and follow the [Code if Conduct](CODE_OF_CONDUCT.md).
+Please be respectful and follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Code contributions
 

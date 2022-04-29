@@ -19,7 +19,9 @@ Regardless of the option you choose, please be mindful about the fact that this 
 an open source project. Your contribution is considered to be voluntary and your
 contribution will become part of the Lowkey Vault project. Your code contributions
 will be released under our MIT license agreement. Once your code becomes part of our
-repository, you irrevocably transfer ownership to the Lowkey Vault project. 
+repository, you irrevocably transfer ownership to the Lowkey Vault project. Due to
+this, we require you to sign off your commits and by doing so, sign the 
+[Developer Certificate of Origin (DCO)](https://developercertificate.org). 
 
 ## Issue creation guidelines
 

@@ -1,0 +1,58 @@
+name: ReleaseTrigger
+on:
+  workflow_dispatch:
+    inputs:
+      execution:
+        description: 'Type of execution'
+        required: true
+        default: 'Manual'
+        type: choice
+        options:
+          - Manual
+  schedule:
+    # * is a special character in YAML, so we have to quote this string
+    - cron: '0 4 10 * *'
+
+jobs:
+  build:
+    name: Release trigger action
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # tag=v2.4.0
+        with:
+          fetch-depth: 0
+      - name: "Check existing tag"
+        id: check
+        run: |
+          echo "::set-output name=has_tag::$(git log --format='format:%d' --decorate-refs="refs/tags/v*" -n 1 | grep tag | wc -l)"
+      - name: Debug
+        run: |
+          echo "Has tag: ${{ steps.check.outputs.has_tag }}"
+          echo "---"
+          echo "Execution: ${{ github.event.inputs.execution }}"
+          echo "---"
+          echo "Should run: ${{ steps.check.outputs.has_tag == 0 || github.event.inputs.execution == 'Manual' }}"
+      - name: "Update trigger"
+        if: ${{ steps.check.outputs.has_tag == 0 || github.event.inputs.execution == 'Manual' }}
+        run |
+          date +%s > .release-trigger
+      - name: "git branch"
+        if: ${{ steps.check.outputs.has_tag == 0 || github.event.inputs.execution == 'Manual' }}
+        run: |
+          git config --global user.name 'Esta Nagy'
+          git config --global user.email 'nagyesta@gmail.com'
+          git checkout -b release/run-${{ github.run_number }}
+          git add .release-trigger
+          git commit -asm "Triggering a release {patch}"
+          git push -f --set-upstream origin release/run-${{ github.run_number }}
+      - uses: actions/github-script@9ac08808f993958e9de277fe43a64532a609130e  # tag=v6.0.0
+        if: ${{ steps.check.outputs.has_tag == 0 || github.event.inputs.execution == 'Manual' }}
+        with:
+          script: |
+            github.rest.pulls.create({
+              owner: "${{ github.repository_owner }}",
+              repo: "lowkey-vault",
+              head: "release/run-${{ github.run_number }}",
+              base: "main",
+              title: "Triggering a release {patch}"
+            });

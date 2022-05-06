@@ -19,6 +19,7 @@ on:
       - '.github/ISSUE_TEMPLATE/**'
       - '.github/assets/**'
       - '.github/workflows/**'
+      - '.github/pr-labeler.yml'
       - 'renovate.json'
       - '.whitesource'
 

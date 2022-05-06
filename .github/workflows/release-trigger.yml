@@ -34,7 +34,7 @@ jobs:
           echo "Should run: ${{ steps.check.outputs.has_tag == 0 || github.event.inputs.execution == 'Manual' }}"
       - name: "Update trigger"
         if: ${{ steps.check.outputs.has_tag == 0 || github.event.inputs.execution == 'Manual' }}
-        run |
+        run: |
           date +%s > .release-trigger
       - name: "git branch"
         if: ${{ steps.check.outputs.has_tag == 0 || github.event.inputs.execution == 'Manual' }}

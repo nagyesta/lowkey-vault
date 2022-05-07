@@ -1,27 +1,37 @@
 package com.github.nagyesta.lowkeyvault.context;
 
 import com.azure.security.keyvault.secrets.SecretClient;
+import com.azure.security.keyvault.secrets.SecretServiceVersion;
 import com.azure.security.keyvault.secrets.models.DeletedSecret;
 import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
 import com.azure.security.keyvault.secrets.models.SecretProperties;
 import com.github.nagyesta.lowkeyvault.http.ApacheHttpClientProvider;
 
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.util.Arrays;
 
-public class SecretTestContext extends CommonTestContext<KeyVaultSecret, DeletedSecret, SecretProperties, SecretClient> {
-
-    public static final OffsetDateTime NOW = OffsetDateTime.now(ZoneOffset.UTC);
+public class SecretTestContext
+        extends CommonTestContext<KeyVaultSecret, DeletedSecret, SecretProperties, SecretClient, SecretServiceVersion> {
 
     private KeyVaultSecret createSecretOptions;
+
+    private SecretServiceVersion secretServiceVersion = SecretServiceVersion.getLatest();
+
+    public SecretServiceVersion getSecretServiceVersion() {
+        return secretServiceVersion;
+    }
+
+    public void setApiVersion(final String version) {
+        secretServiceVersion = Arrays.stream(SecretServiceVersion.values())
+                .filter(v -> v.getVersion().equalsIgnoreCase(version)).findFirst().orElseThrow();
+    }
 
     public SecretTestContext(final ApacheHttpClientProvider provider) {
         super(provider);
     }
 
     @Override
-    protected SecretClient providerToClient(final ApacheHttpClientProvider provider) {
-        return provider.getSecretClient();
+    protected SecretClient providerToClient(final ApacheHttpClientProvider provider, final SecretServiceVersion version) {
+        return provider.getSecretClient(version);
     }
 
     public KeyVaultSecret getCreateSecretOptions() {

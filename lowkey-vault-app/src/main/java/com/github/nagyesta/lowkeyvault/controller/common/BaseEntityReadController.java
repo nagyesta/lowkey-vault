@@ -1,4 +1,4 @@
-package com.github.nagyesta.lowkeyvault.controller.v7_2;
+package com.github.nagyesta.lowkeyvault.controller.common;
 
 import com.github.nagyesta.lowkeyvault.controller.ErrorHandlingAwareController;
 import com.github.nagyesta.lowkeyvault.service.EntityId;
@@ -13,8 +13,6 @@ import java.net.URI;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.V_7_2;
-
 /**
  * The base implementation of the backup/restore controllers.
  *
@@ -25,10 +23,7 @@ import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.V_7_2;
  */
 public abstract class BaseEntityReadController<K extends EntityId, V extends K, E extends BaseVaultEntity<V>,
         S extends BaseVaultFake<K, V, E>> extends ErrorHandlingAwareController {
-    /**
-     * API version.
-     */
-    protected static final String API_VERSION_7_2 = "api-version=" + V_7_2;
+
     /**
      * RegExp of entity names (key name, secret name, certificate name).
      */
@@ -61,5 +56,7 @@ public abstract class BaseEntityReadController<K extends EntityId, V extends K, 
     protected abstract V versionedEntityId(URI baseUri, String name, String version);
 
     protected abstract K entityId(URI baseUri, String name);
+
+    protected abstract String apiVersion();
 
 }

@@ -166,13 +166,13 @@ public class KeysStepDefsAssertions extends CommonAssertions {
 
     @And("the key named {name} matches the previous backup")
     public void theKeyNamedNameMatchesThePreviousBackup(final String name) {
-        final byte[] bytes = context.getClient().backupKey(name);
+        final byte[] bytes = context.getClient(context.getKeyServiceVersion()).backupKey(name);
         assertEquals(context.getBackupBytes(name), bytes);
     }
 
     @And("the unpacked backup of {name} matches the content of the classpath resource")
     public void theKeyNamedNameMatchesTheResourceContent(final String name) throws IOException {
-        final byte[] bytes = context.getClient().backupKey(name);
+        final byte[] bytes = context.getClient(context.getKeyServiceVersion()).backupKey(name);
         final String backup = context.getLowkeyVaultManagementClient().unpackBackup(bytes);
         final String expected = readResourceContent("/json/backups/" + name + ".json");
         assertEquals(expected, backup);

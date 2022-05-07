@@ -28,6 +28,7 @@ test {
     useJUnitPlatform()
     systemProperty("imageVersion", project.version)
     mustRunAfter(":lowkey-vault-docker:build")
+    mustRunAfter(":lowkey-vault-docker:test")
 }
 publishing {
     publications {

@@ -41,6 +41,7 @@ task copyAppJar(type: Copy) {
         'lowkey-vault.jar'
     }
     dependsOn(":lowkey-vault-app:bootJar")
+    dependsOn(":lowkey-vault-app:test")
 }
 
 docker {

@@ -77,7 +77,7 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 
 ### Keys
 
-- API version supported: ```7.2```
+- API version supported: ```7.2```, partially ```7.3```
 - Create key (```RSA```, ```EC```, ```OCT```)
     - Including metadata
 - Import key  (```RSA```, ```EC```, ```OCT```)
@@ -119,7 +119,7 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 
 ### Secrets
 
-- API version supported: ```7.2```
+- API version supported: ```7.2```, ```7.3```
 - Set secret
     - Including metadata
 - Get available secret versions

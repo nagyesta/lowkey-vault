@@ -1,4 +1,4 @@
-package com.github.nagyesta.lowkeyvault.controller.v7_2;
+package com.github.nagyesta.lowkeyvault.controller.common;
 
 import com.github.nagyesta.lowkeyvault.mapper.common.RecoveryAwareConverter;
 import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
@@ -14,6 +14,8 @@ import java.net.URI;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.API_VERSION_PREFIX;
 
 /**
  * The base implementation of the entity controllers.
@@ -162,7 +164,7 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
     }
 
     private String pageSuffix(final int maxResults, final int skip) {
-        return "?" + API_VERSION_7_2 + "&" + SKIP_TOKEN_PARAM + "=" + skip + "&" + MAX_RESULTS_PARAM + "=" + maxResults;
+        return "?" + API_VERSION_PREFIX + apiVersion() + "&" + SKIP_TOKEN_PARAM + "=" + skip + "&" + MAX_RESULTS_PARAM + "=" + maxResults;
     }
 
 }

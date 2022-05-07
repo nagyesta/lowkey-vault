@@ -1,4 +1,4 @@
-package com.github.nagyesta.lowkeyvault.controller.v7_2;
+package com.github.nagyesta.lowkeyvault.controller.common;
 
 import com.github.nagyesta.lowkeyvault.controller.PingController;
 import org.junit.jupiter.api.Assertions;

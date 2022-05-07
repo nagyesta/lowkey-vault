@@ -1,7 +1,9 @@
 package com.github.nagyesta.lowkeyvault.context;
 
 import com.azure.security.keyvault.keys.KeyClient;
+import com.azure.security.keyvault.keys.KeyServiceVersion;
 import com.azure.security.keyvault.keys.cryptography.CryptographyClient;
+import com.azure.security.keyvault.keys.cryptography.CryptographyServiceVersion;
 import com.azure.security.keyvault.keys.cryptography.models.DecryptResult;
 import com.azure.security.keyvault.keys.cryptography.models.EncryptResult;
 import com.azure.security.keyvault.keys.models.*;
@@ -11,9 +13,10 @@ import com.github.nagyesta.lowkeyvault.http.management.LowkeyVaultManagementClie
 
 import javax.crypto.SecretKey;
 import java.security.KeyPair;
+import java.util.Arrays;
 import java.util.Optional;
 
-public class KeyTestContext extends CommonTestContext<KeyVaultKey, DeletedKey, KeyProperties, KeyClient> {
+public class KeyTestContext extends CommonTestContext<KeyVaultKey, DeletedKey, KeyProperties, KeyClient, KeyServiceVersion> {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private LowkeyVaultManagementClient lowkeyVaultManagementClient;
@@ -28,14 +31,31 @@ public class KeyTestContext extends CommonTestContext<KeyVaultKey, DeletedKey, K
     private Boolean verifyResult;
     private KeyPair keyPair;
     private SecretKey secretKey;
+    private KeyServiceVersion keyServiceVersion = KeyServiceVersion.getLatest();
+    private CryptographyServiceVersion cryptoServiceVersion = CryptographyServiceVersion.getLatest();
 
     public KeyTestContext(final ApacheHttpClientProvider provider) {
         super(provider);
     }
 
+    public void setApiVersion(final String version) {
+        keyServiceVersion = Arrays.stream(KeyServiceVersion.values())
+                .filter(v -> v.getVersion().equalsIgnoreCase(version)).findFirst().orElseThrow();
+        cryptoServiceVersion = Arrays.stream(CryptographyServiceVersion.values())
+                .filter(v -> v.getVersion().equalsIgnoreCase(version)).findFirst().orElseThrow();
+    }
+
+    public KeyServiceVersion getKeyServiceVersion() {
+        return keyServiceVersion;
+    }
+
+    public CryptographyServiceVersion getCryptoServiceVersion() {
+        return cryptoServiceVersion;
+    }
+
     @Override
-    protected KeyClient providerToClient(final ApacheHttpClientProvider provider) {
-        return provider.getKeyClient();
+    protected KeyClient providerToClient(final ApacheHttpClientProvider provider, final KeyServiceVersion version) {
+        return provider.getKeyClient(version);
     }
 
     public synchronized LowkeyVaultManagementClient getLowkeyVaultManagementClient() {

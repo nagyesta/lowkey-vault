@@ -59,32 +59,56 @@ public final class ApacheHttpClientProvider {
         return new ApacheHttpClient(hostOverrideFunction);
     }
 
-    public KeyAsyncClient getKeyAsyncClient() {
-        return getKeyBuilder().buildAsyncClient();
-    }
-
     public LowkeyVaultManagementClient getLowkeyVaultManagementClient(final ObjectMapper objectMapper) {
         return new LowkeyVaultManagementClientImpl(vaultUrl, createInstance(), objectMapper);
     }
 
+    public KeyAsyncClient getKeyAsyncClient() {
+        return getKeyAsyncClient(KeyServiceVersion.V7_3);
+    }
+
+    public KeyAsyncClient getKeyAsyncClient(final KeyServiceVersion version) {
+        return getKeyBuilder().serviceVersion(version).buildAsyncClient();
+    }
+
     public KeyClient getKeyClient() {
-        return getKeyBuilder().buildClient();
+        return getKeyClient(KeyServiceVersion.V7_3);
+    }
+
+    public KeyClient getKeyClient(final KeyServiceVersion version) {
+        return getKeyBuilder().serviceVersion(version).buildClient();
     }
 
     public SecretAsyncClient getSecretAsyncClient() {
-        return getSecretBuilder().buildAsyncClient();
+        return getSecretAsyncClient(SecretServiceVersion.V7_3);
+    }
+
+    public SecretAsyncClient getSecretAsyncClient(final SecretServiceVersion version) {
+        return getSecretBuilder().serviceVersion(version).buildAsyncClient();
     }
 
     public SecretClient getSecretClient() {
-        return getSecretBuilder().buildClient();
+        return getSecretClient(SecretServiceVersion.V7_3);
+    }
+
+    public SecretClient getSecretClient(final SecretServiceVersion version) {
+        return getSecretBuilder().serviceVersion(version).buildClient();
     }
 
     public CryptographyAsyncClient getCryptoAsyncClient(final String webKeyId) {
-        return getCryptoBuilder(webKeyId).buildAsyncClient();
+        return getCryptoAsyncClient(webKeyId, CryptographyServiceVersion.V7_3);
+    }
+
+    public CryptographyAsyncClient getCryptoAsyncClient(final String webKeyId, final CryptographyServiceVersion version) {
+        return getCryptoBuilder(webKeyId).serviceVersion(version).buildAsyncClient();
     }
 
     public CryptographyClient getCryptoClient(final String webKeyId) {
-        return getCryptoBuilder(webKeyId).buildClient();
+        return getCryptoClient(webKeyId, CryptographyServiceVersion.V7_3);
+    }
+
+    public CryptographyClient getCryptoClient(final String webKeyId, final CryptographyServiceVersion version) {
+        return getCryptoBuilder(webKeyId).serviceVersion(version).buildClient();
     }
 
     private KeyClientBuilder getKeyBuilder() {
@@ -92,7 +116,6 @@ public final class ApacheHttpClientProvider {
                 .vaultUrl(getVaultUrl())
                 .credential(new BasicAuthenticationCredential(DUMMY, DUMMY))
                 .httpClient(createInstance())
-                .serviceVersion(KeyServiceVersion.V7_2)
                 .retryPolicy(new RetryPolicy(new FixedDelay(0, Duration.ZERO)));
     }
 
@@ -101,7 +124,6 @@ public final class ApacheHttpClientProvider {
                 .vaultUrl(getVaultUrl())
                 .credential(new BasicAuthenticationCredential(DUMMY, DUMMY))
                 .httpClient(createInstance())
-                .serviceVersion(SecretServiceVersion.V7_2)
                 .retryPolicy(new RetryPolicy(new FixedDelay(0, Duration.ZERO)));
     }
 
@@ -110,7 +132,6 @@ public final class ApacheHttpClientProvider {
                 .keyIdentifier(Objects.requireNonNull(webKeyId))
                 .credential(new BasicAuthenticationCredential(DUMMY, DUMMY))
                 .httpClient(createInstance())
-                .serviceVersion(CryptographyServiceVersion.V7_2)
                 .retryPolicy(new RetryPolicy(new FixedDelay(0, Duration.ZERO)));
     }
 

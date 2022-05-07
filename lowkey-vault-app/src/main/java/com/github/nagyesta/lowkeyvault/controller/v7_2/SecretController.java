@@ -1,41 +1,37 @@
 package com.github.nagyesta.lowkeyvault.controller.v7_2;
 
+import com.github.nagyesta.lowkeyvault.controller.common.CommonSecretController;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72ModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72SecretItemModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72SecretVersionItemModelConverter;
 import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
 import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
-import com.github.nagyesta.lowkeyvault.model.v7_2.secret.*;
+import com.github.nagyesta.lowkeyvault.model.v7_2.secret.KeyVaultSecretItemModel;
+import com.github.nagyesta.lowkeyvault.model.v7_2.secret.KeyVaultSecretModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.request.CreateSecretRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.request.UpdateSecretRequest;
-import com.github.nagyesta.lowkeyvault.service.secret.ReadOnlyKeyVaultSecretEntity;
-import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultFake;
-import com.github.nagyesta.lowkeyvault.service.secret.id.SecretEntityId;
-import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 import java.net.URI;
-import java.util.Objects;
 
+import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.API_VERSION_7_2;
 import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.V_7_2;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @RestController
 @Validated
-public class SecretController extends GenericEntityController<SecretEntityId, VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity,
-        KeyVaultSecretModel, DeletedKeyVaultSecretModel, KeyVaultSecretItemModel, DeletedKeyVaultSecretItemModel,
-        SecretEntityToV72ModelConverter, SecretEntityToV72SecretItemModelConverter,
-        SecretEntityToV72SecretVersionItemModelConverter, SecretVaultFake> {
+@Component("SecretControllerV72")
+public class SecretController extends CommonSecretController {
 
     @Autowired
     public SecretController(
@@ -44,9 +40,10 @@ public class SecretController extends GenericEntityController<SecretEntityId, Ve
             @NonNull final SecretEntityToV72SecretVersionItemModelConverter secretEntityToV72SecretVersionItemModelConverter,
             @NonNull final VaultService vaultService) {
         super(secretEntityToV72ModelConverter, secretEntityToV72SecretItemModelConverter,
-                secretEntityToV72SecretVersionItemModelConverter, vaultService, VaultFake::secretVaultFake);
+                secretEntityToV72SecretVersionItemModelConverter, vaultService);
     }
 
+    @Override
     @PutMapping(value = "/secrets/{secretName}",
             params = API_VERSION_7_2,
             consumes = APPLICATION_JSON_VALUE,
@@ -54,30 +51,20 @@ public class SecretController extends GenericEntityController<SecretEntityId, Ve
     public ResponseEntity<KeyVaultSecretModel> create(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String secretName,
                                                       @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
                                                       @Valid @RequestBody final CreateSecretRequest request) {
-        log.info("Received request to {} create secret: {} using API version: {}",
-                baseUri.toString(), secretName, V_7_2);
-
-        final SecretVaultFake secretVaultFake = getVaultByUri(baseUri);
-        final VersionedSecretEntityId secretEntityId = createSecretWithAttributes(secretVaultFake, secretName, request);
-        return ResponseEntity.ok(getModelById(secretVaultFake, secretEntityId));
+        return super.create(secretName, baseUri, request);
     }
 
+    @Override
     @DeleteMapping(value = "/secrets/{secretName}",
             params = API_VERSION_7_2,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultSecretModel> delete(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String secretName,
                                                       @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
-        log.info("Received request to {} delete secret: {} using API version: {}",
-                baseUri.toString(), secretName, V_7_2);
-
-        final SecretVaultFake secretVaultFake = getVaultByUri(baseUri);
-        final SecretEntityId entityId = new SecretEntityId(baseUri, secretName);
-        secretVaultFake.delete(entityId);
-        final VersionedSecretEntityId latestVersion = secretVaultFake.getDeletedEntities().getLatestVersionOfEntity(entityId);
-        return ResponseEntity.ok(getDeletedModelById(secretVaultFake, latestVersion));
+        return super.delete(secretName, baseUri);
     }
 
+    @Override
     @GetMapping(value = "/secrets/{secretName}/versions",
             params = API_VERSION_7_2,
             consumes = APPLICATION_JSON_VALUE,
@@ -87,13 +74,10 @@ public class SecretController extends GenericEntityController<SecretEntityId, Ve
             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
             @RequestParam(name = MAX_RESULTS_PARAM, required = false, defaultValue = DEFAULT_MAX) final int maxResults,
             @RequestParam(name = SKIP_TOKEN_PARAM, required = false, defaultValue = SKIP_ZERO) final int skipToken) {
-        log.info("Received request to {} list secret versions: {} , (max results: {}, skip: {}) using API version: {}",
-                baseUri.toString(), secretName, maxResults, skipToken, V_7_2);
-
-        return ResponseEntity
-                .ok(getPageOfItemVersions(baseUri, secretName, maxResults, skipToken, "/secrets/" + secretName + "/versions"));
+        return super.versions(secretName, baseUri, maxResults, skipToken);
     }
 
+    @Override
     @GetMapping(value = "/secrets",
             params = API_VERSION_7_2,
             consumes = APPLICATION_JSON_VALUE,
@@ -102,12 +86,10 @@ public class SecretController extends GenericEntityController<SecretEntityId, Ve
             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
             @RequestParam(name = MAX_RESULTS_PARAM, required = false, defaultValue = DEFAULT_MAX) final int maxResults,
             @RequestParam(name = SKIP_TOKEN_PARAM, required = false, defaultValue = SKIP_ZERO) final int skipToken) {
-        log.info("Received request to {} list secrets, (max results: {}, skip: {}) using API version: {}",
-                baseUri.toString(), maxResults, skipToken, V_7_2);
-
-        return ResponseEntity.ok(getPageOfItems(baseUri, maxResults, skipToken, "/secrets"));
+        return super.listSecrets(baseUri, maxResults, skipToken);
     }
 
+    @Override
     @GetMapping(value = "/deletedsecrets",
             params = API_VERSION_7_2,
             consumes = APPLICATION_JSON_VALUE,
@@ -116,12 +98,10 @@ public class SecretController extends GenericEntityController<SecretEntityId, Ve
             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
             @RequestParam(name = MAX_RESULTS_PARAM, required = false, defaultValue = DEFAULT_MAX) final int maxResults,
             @RequestParam(name = SKIP_TOKEN_PARAM, required = false, defaultValue = SKIP_ZERO) final int skipToken) {
-        log.info("Received request to {} list deleted secrets, (max results: {}, skip: {}) using API version: {}",
-                baseUri.toString(), maxResults, skipToken, V_7_2);
-
-        return ResponseEntity.ok(getPageOfDeletedItems(baseUri, maxResults, skipToken, "/deletedsecrets"));
+        return super.listDeletedSecrets(baseUri, maxResults, skipToken);
     }
 
+    @Override
     @GetMapping(value = "/secrets/{secretName}",
             params = API_VERSION_7_2,
             consumes = APPLICATION_JSON_VALUE,
@@ -129,12 +109,10 @@ public class SecretController extends GenericEntityController<SecretEntityId, Ve
     public ResponseEntity<KeyVaultSecretModel> get(
             @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String secretName,
             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
-        log.info("Received request to {} get secret: {} with version: -LATEST- using API version: {}",
-                baseUri.toString(), secretName, V_7_2);
-
-        return ResponseEntity.ok(getLatestEntityModel(baseUri, secretName));
+        return super.get(secretName, baseUri);
     }
 
+    @Override
     @GetMapping(value = "/secrets/{secretName}/{secretVersion}",
             params = API_VERSION_7_2,
             consumes = APPLICATION_JSON_VALUE,
@@ -143,13 +121,10 @@ public class SecretController extends GenericEntityController<SecretEntityId, Ve
             @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String secretName,
             @PathVariable @Valid @Pattern(regexp = VERSION_NAME_PATTERN) final String secretVersion,
             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
-        log.info("Received request to {} get secret: {} with version: {} using API version: {}",
-                baseUri.toString(), secretName, secretVersion, V_7_2);
-
-        final ReadOnlyKeyVaultSecretEntity keyVaultSecretEntity = getEntityByNameAndVersion(baseUri, secretName, secretVersion);
-        return ResponseEntity.ok(convertDetails(keyVaultSecretEntity));
+        return super.getWithVersion(secretName, secretVersion, baseUri);
     }
 
+    @Override
     @PatchMapping(value = "/secrets/{secretName}/{secretVersion}",
             params = API_VERSION_7_2,
             consumes = APPLICATION_JSON_VALUE,
@@ -159,16 +134,10 @@ public class SecretController extends GenericEntityController<SecretEntityId, Ve
             @PathVariable @Valid @Pattern(regexp = VERSION_NAME_PATTERN) final String secretVersion,
             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
             @NonNull @Valid @RequestBody final UpdateSecretRequest request) {
-        log.info("Received request to {} update secret: {} with version: {} using API version: {}",
-                baseUri.toString(), secretName, secretVersion, V_7_2);
-
-        final SecretVaultFake secretVaultFake = getVaultByUri(baseUri);
-        final VersionedSecretEntityId entityId = versionedEntityId(baseUri, secretName, secretVersion);
-        updateAttributes(secretVaultFake, entityId, request.getProperties());
-        updateTags(secretVaultFake, entityId, request.getTags());
-        return ResponseEntity.ok(getModelById(secretVaultFake, entityId));
+        return super.updateVersion(secretName, secretVersion, baseUri, request);
     }
 
+    @Override
     @GetMapping(value = "/deletedsecrets/{secretName}",
             params = API_VERSION_7_2,
             consumes = APPLICATION_JSON_VALUE,
@@ -176,15 +145,10 @@ public class SecretController extends GenericEntityController<SecretEntityId, Ve
     public ResponseEntity<KeyVaultSecretModel> getDeletedSecret(
             @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String secretName,
             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
-        log.info("Received request to {} get deleted secret: {} using API version: {}",
-                baseUri.toString(), secretName, V_7_2);
-
-        final SecretVaultFake secretVaultFake = getVaultByUri(baseUri);
-        final SecretEntityId entityId = new SecretEntityId(baseUri, secretName);
-        final VersionedSecretEntityId latestVersion = secretVaultFake.getDeletedEntities().getLatestVersionOfEntity(entityId);
-        return ResponseEntity.ok(getDeletedModelById(secretVaultFake, latestVersion));
+        return super.getDeletedSecret(secretName, baseUri);
     }
 
+    @Override
     @DeleteMapping(value = "/deletedsecrets/{secretName}",
             params = API_VERSION_7_2,
             consumes = APPLICATION_JSON_VALUE,
@@ -192,15 +156,10 @@ public class SecretController extends GenericEntityController<SecretEntityId, Ve
     public ResponseEntity<Void> purgeDeleted(
             @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String secretName,
             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
-        log.info("Received request to {} purge deleted secret: {} using API version: {}",
-                baseUri.toString(), secretName, V_7_2);
-
-        final SecretVaultFake secretVaultFake = getVaultByUri(baseUri);
-        final SecretEntityId entityId = new SecretEntityId(baseUri, secretName);
-        secretVaultFake.purge(entityId);
-        return ResponseEntity.noContent().build();
+        return super.purgeDeleted(secretName, baseUri);
     }
 
+    @Override
     @PostMapping(value = "/deletedsecrets/{secretName}/recover",
             params = API_VERSION_7_2,
             consumes = APPLICATION_JSON_VALUE,
@@ -208,35 +167,11 @@ public class SecretController extends GenericEntityController<SecretEntityId, Ve
     public ResponseEntity<KeyVaultSecretModel> recoverDeletedSecret(
             @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String secretName,
             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
-        log.info("Received request to {} recover deleted secret: {} using API version: {}",
-                baseUri.toString(), secretName, V_7_2);
-
-        final SecretVaultFake secretVaultFake = getVaultByUri(baseUri);
-        final SecretEntityId entityId = new SecretEntityId(baseUri, secretName);
-        secretVaultFake.recover(entityId);
-        final VersionedSecretEntityId latestVersion = secretVaultFake.getEntities().getLatestVersionOfEntity(entityId);
-        return ResponseEntity.ok(getModelById(secretVaultFake, latestVersion));
+        return super.recoverDeletedSecret(secretName, baseUri);
     }
 
     @Override
-    protected VersionedSecretEntityId versionedEntityId(final URI baseUri, final String name, final String version) {
-        return new VersionedSecretEntityId(baseUri, name, version);
-    }
-
-    @Override
-    protected SecretEntityId entityId(final URI baseUri, final String name) {
-        return new SecretEntityId(baseUri, name);
-    }
-
-    private VersionedSecretEntityId createSecretWithAttributes(
-            final SecretVaultFake secretVaultFake, final String secretName, final CreateSecretRequest request) {
-        final SecretPropertiesModel properties = Objects.requireNonNullElse(request.getProperties(), new SecretPropertiesModel());
-        final VersionedSecretEntityId secretEntityId = secretVaultFake
-                .createSecretVersion(secretName, request.getValue(), request.getContentType());
-        secretVaultFake.addTags(secretEntityId, request.getTags());
-        secretVaultFake.setExpiry(secretEntityId, properties.getNotBefore(), properties.getExpiresOn());
-        secretVaultFake.setEnabled(secretEntityId, properties.isEnabled());
-        //no need to set managed property as this endpoint cannot create managed entities by definition
-        return secretEntityId;
+    protected String apiVersion() {
+        return V_7_2;
     }
 }

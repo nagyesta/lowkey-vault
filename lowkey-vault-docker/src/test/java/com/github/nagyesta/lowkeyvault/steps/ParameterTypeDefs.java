@@ -35,6 +35,11 @@ public class ParameterTypeDefs {
                 .orElse(Collections.emptyList());
     }
 
+    @ParameterType("(7.2|7.3)")
+    public String api(final String api) {
+        return api;
+    }
+
     @ParameterType("(P-256|P-256K|P-384|P-521)")
     public KeyCurveName ecCurveName(final String name) {
         return KeyCurveName.fromString(name);

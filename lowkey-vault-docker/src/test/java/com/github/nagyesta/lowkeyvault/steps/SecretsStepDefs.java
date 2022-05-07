@@ -27,6 +27,11 @@ public class SecretsStepDefs extends CommonAssertions {
     @Autowired
     private SecretTestContext context;
 
+    @Given("secret API version {api} is used")
+    public void apiVersionApiIsUsed(final String version) {
+        context.setApiVersion(version);
+    }
+
     @Given("a secret client is created with the vault named {name}")
     public void theSecretClientIsCreatedWithVaultNameSelected(final String vaultName) {
         final String vaultAuthority = vaultName + ".localhost:8443";
@@ -45,7 +50,7 @@ public class SecretsStepDefs extends CommonAssertions {
     public void versionsCountVersionOfTheSecretIsCreated(final int versionsCount) {
         final KeyVaultSecret secretCreateInfo = context.getCreateSecretOptions();
         IntStream.range(0, versionsCount).forEach(i -> {
-            final KeyVaultSecret secret = context.getClient().setSecret(secretCreateInfo);
+            final KeyVaultSecret secret = context.getClient(context.getSecretServiceVersion()).setSecret(secretCreateInfo);
             context.addCreatedEntity(secretCreateInfo.getName(), secret);
         });
     }
@@ -53,7 +58,7 @@ public class SecretsStepDefs extends CommonAssertions {
     @When("the secret is created")
     public void secretCreationRequestIsSent() {
         final KeyVaultSecret secretCreateInfo = context.getCreateSecretOptions();
-        final KeyVaultSecret secret = context.getClient().setSecret(secretCreateInfo);
+        final KeyVaultSecret secret = context.getClient(context.getSecretServiceVersion()).setSecret(secretCreateInfo);
         context.addCreatedEntity(secretCreateInfo.getName(), secret);
     }
 
@@ -61,14 +66,14 @@ public class SecretsStepDefs extends CommonAssertions {
     public void fetchFirstSecretVersion(final String name) {
         final List<KeyVaultSecret> versionsCreated = context.getCreatedEntities().get(name);
         final String version = versionsCreated.get(0).getProperties().getVersion();
-        final KeyVaultSecret secret = context.getClient().getSecret(name, version);
+        final KeyVaultSecret secret = context.getClient(context.getSecretServiceVersion()).getSecret(name, version);
         context.addFetchedSecret(name, secret);
         assertEquals(version, secret.getProperties().getVersion());
     }
 
     @When("the last secret version of {name} is fetched without providing a version")
     public void fetchLatestSecretVersion(final String name) {
-        final KeyVaultSecret secret = context.getClient().getSecret(name);
+        final KeyVaultSecret secret = context.getClient(context.getSecretServiceVersion()).getSecret(name);
         final List<KeyVaultSecret> versionsCreated = context.getCreatedEntities().get(name);
         final String expectedLastVersionId = versionsCreated.get(versionsCreated.size() - 1).getId();
         context.addFetchedSecret(name, secret);
@@ -102,7 +107,7 @@ public class SecretsStepDefs extends CommonAssertions {
 
     @And("the secret is deleted")
     public void theSecretIsDeleted() {
-        final DeletedSecret actual = context.getClient()
+        final DeletedSecret actual = context.getClient(context.getSecretServiceVersion())
                 .beginDeleteSecret(context.getLastResult().getName()).waitForCompletion().getValue();
         context.setLastDeleted(actual);
     }
@@ -118,7 +123,7 @@ public class SecretsStepDefs extends CommonAssertions {
 
     @When("the secret properties are listed")
     public void theSecretPropertiesAreListed() {
-        final PagedIterable<SecretProperties> actual = context.getClient().listPropertiesOfSecrets();
+        final PagedIterable<SecretProperties> actual = context.getClient(context.getSecretServiceVersion()).listPropertiesOfSecrets();
         final List<String> list = actual.stream()
                 .map(SecretProperties::getId)
                 .collect(Collectors.toList());
@@ -129,7 +134,8 @@ public class SecretsStepDefs extends CommonAssertions {
     public void countSecretsWithKeyNamePrefixAreDeleted(
             final int count, final String prefix) {
         final List<String> deleted = IntStream.range(0, count).mapToObj(i -> {
-            final DeletedSecret actual = context.getClient().beginDeleteSecret(prefix + (i + 1)).waitForCompletion().getValue();
+            final DeletedSecret actual = context.getClient(context.getSecretServiceVersion())
+                    .beginDeleteSecret(prefix + (i + 1)).waitForCompletion().getValue();
             context.setLastDeleted(actual);
             return actual;
         }).map(DeletedSecret::getRecoveryId).collect(Collectors.toList());
@@ -138,7 +144,7 @@ public class SecretsStepDefs extends CommonAssertions {
 
     @When("the deleted secret properties are listed")
     public void theDeletedSecretPropertiesAreListed() {
-        final PagedIterable<DeletedSecret> actual = context.getClient().listDeletedSecrets();
+        final PagedIterable<DeletedSecret> actual = context.getClient(context.getSecretServiceVersion()).listDeletedSecrets();
         final List<String> list = actual.stream()
                 .map(DeletedSecret::getRecoveryId)
                 .collect(Collectors.toList());
@@ -148,20 +154,21 @@ public class SecretsStepDefs extends CommonAssertions {
     @When("secret is recovered")
     public void secretIsRecovered() {
         final DeletedSecret deleted = context.getLastDeleted();
-        final KeyVaultSecret secret = context.getClient().beginRecoverDeletedSecret(deleted.getName()).waitForCompletion().getValue();
+        final KeyVaultSecret secret = context.getClient(context.getSecretServiceVersion())
+                .beginRecoverDeletedSecret(deleted.getName()).waitForCompletion().getValue();
         context.addFetchedSecret(secret.getName(), secret);
     }
 
     @When("the secret is purged")
     public void theSecretIsPurged() {
         final DeletedSecret deleted = context.getLastDeleted();
-        context.getClient().purgeDeletedSecret(deleted.getName());
+        context.getClient(context.getSecretServiceVersion()).purgeDeletedSecret(deleted.getName());
     }
 
     @When("the last version of the secret is prepared for an update")
     public void theLastVersionOfTheSecretIsPreparedForAnUpdate() {
         final KeyVaultSecret lastResult = context.getLastResult();
-        final SecretProperties updatedProperties = context.getClient()
+        final SecretProperties updatedProperties = context.getClient(context.getSecretServiceVersion())
                 .getSecret(lastResult.getName(), lastResult.getProperties().getVersion()).getProperties();
         context.setUpdateProperties(updatedProperties);
     }
@@ -188,20 +195,21 @@ public class SecretsStepDefs extends CommonAssertions {
 
     @When("the secret update request is sent")
     public void theUpdateRequestIsSent() {
-        final SecretProperties properties = context.getClient().updateSecretProperties(context.getUpdateProperties());
+        final SecretProperties properties = context.getClient(context.getSecretServiceVersion())
+                .updateSecretProperties(context.getUpdateProperties());
         fetchLatestSecretVersion(properties.getName());
     }
 
     @And("the secret named {name} is backed up")
     public void theSecretNamedNameIsBackedUp(final String name) {
-        final byte[] bytes = context.getClient().backupSecret(name);
+        final byte[] bytes = context.getClient(context.getSecretServiceVersion()).backupSecret(name);
         context.setBackupBytes(name, bytes);
     }
 
     @And("the secret named {name} is restored")
     public void theSecretNamedNameIsRestored(final String name) {
         final byte[] bytes = context.getBackupBytes(name);
-        final KeyVaultSecret secret = context.getClient().restoreSecretBackup(bytes);
+        final KeyVaultSecret secret = context.getClient(context.getSecretServiceVersion()).restoreSecretBackup(bytes);
         context.addFetchedSecret(name, secret);
     }
 }

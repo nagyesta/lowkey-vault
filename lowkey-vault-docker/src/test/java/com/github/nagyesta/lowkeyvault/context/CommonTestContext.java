@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.context;
 
+import com.azure.core.util.ServiceVersion;
 import com.github.nagyesta.lowkeyvault.http.ApacheHttpClientProvider;
 
 import java.time.OffsetDateTime;
@@ -11,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 
-public abstract class CommonTestContext<E, D, P, C> {
+public abstract class CommonTestContext<E, D, P, C, V extends ServiceVersion> {
 
     public static final OffsetDateTime NOW = OffsetDateTime.now(ZoneOffset.UTC);
 
@@ -38,9 +39,9 @@ public abstract class CommonTestContext<E, D, P, C> {
         this.provider = provider;
     }
 
-    public synchronized C getClient() {
+    public synchronized C getClient(final V version) {
         if (client == null) {
-            client = providerToClient(getProvider());
+            client = providerToClient(getProvider(), version);
         }
         return client;
     }
@@ -49,7 +50,7 @@ public abstract class CommonTestContext<E, D, P, C> {
         this.client = client;
     }
 
-    protected abstract C providerToClient(ApacheHttpClientProvider provider);
+    protected abstract C providerToClient(ApacheHttpClientProvider provider, V version);
 
     public Map<String, List<E>> getCreatedEntities() {
         return createdEntities;

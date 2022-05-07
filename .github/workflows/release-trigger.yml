@@ -21,6 +21,7 @@ jobs:
       - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # tag=v2.4.0
         with:
           fetch-depth: 0
+          token: ${{ secrets.PUBLISH_KEY }}
       - name: "Check existing tag"
         id: check
         run: |

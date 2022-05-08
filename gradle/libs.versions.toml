@@ -20,7 +20,7 @@ jackson = { strictly = "2.13.2" }
 jacksonDatabind = { strictly = "2.13.2.2" }
 openApiUi = "1.6.8"
 
-abortMissionPlugin = "2.2.11"
+abortMissionPlugin = "2.2.22"
 dockerPlugin = "0.33.0"
 indexScanPlugin = "2.3.0"
 lombokPlugin = "6.4.3"

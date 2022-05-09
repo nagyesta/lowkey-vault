@@ -16,6 +16,7 @@ jupiter = "5.8.2"
 abortMission = "2.8.53"
 checkstyle = "9.2.1"
 jacoco = "0.8.2"
+jacksonBom = { strictly = "2.13.2.20220328" }
 jackson = { strictly = "2.13.2" }
 jacksonDatabind = { strictly = "2.13.2.2" }
 openApiUi = "1.6.8"
@@ -73,7 +74,7 @@ cucumber-java = { module = "io.cucumber:cucumber-java", version.ref = "cucumber"
 cucumber-testng = { module = "io.cucumber:cucumber-testng", version.ref = "cucumber" }
 cucumber-spring = { module = "io.cucumber:cucumber-spring", version.ref = "cucumber" }
 
-jackson-bom = { module = "com.fasterxml.jackson:jackson-bom", version.ref = "jackson" }
+jackson-bom = { module = "com.fasterxml.jackson:jackson-bom", version.ref = "jacksonBom" }
 jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson" }
 jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jackson" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jacksonDatabind" }

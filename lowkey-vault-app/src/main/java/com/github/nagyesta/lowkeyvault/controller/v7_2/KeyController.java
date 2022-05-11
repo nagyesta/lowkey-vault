@@ -68,7 +68,6 @@ public class KeyController extends CommonKeyController {
     @Override
     @DeleteMapping(value = "/keys/{keyName}",
             params = API_VERSION_7_2,
-            consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultKeyModel> delete(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
                                                    @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
@@ -78,7 +77,6 @@ public class KeyController extends CommonKeyController {
     @Override
     @GetMapping(value = "/keys/{keyName}/versions",
             params = API_VERSION_7_2,
-            consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultItemListModel<KeyVaultKeyItemModel>> versions(
             @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
@@ -91,7 +89,6 @@ public class KeyController extends CommonKeyController {
     @Override
     @GetMapping(value = "/keys",
             params = API_VERSION_7_2,
-            consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultItemListModel<KeyVaultKeyItemModel>> listKeys(
             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
@@ -103,7 +100,6 @@ public class KeyController extends CommonKeyController {
     @Override
     @GetMapping(value = "/deletedkeys",
             params = API_VERSION_7_2,
-            consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultItemListModel<KeyVaultKeyItemModel>> listDeletedKeys(
             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
@@ -115,7 +111,6 @@ public class KeyController extends CommonKeyController {
     @Override
     @GetMapping(value = "/keys/{keyName}",
             params = API_VERSION_7_2,
-            consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultKeyModel> get(
             @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
@@ -126,7 +121,6 @@ public class KeyController extends CommonKeyController {
     @Override
     @GetMapping(value = "/keys/{keyName}/{keyVersion}",
             params = API_VERSION_7_2,
-            consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultKeyModel> getWithVersion(
             @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
@@ -151,7 +145,6 @@ public class KeyController extends CommonKeyController {
     @Override
     @GetMapping(value = "/deletedkeys/{keyName}",
             params = API_VERSION_7_2,
-            consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultKeyModel> getDeletedKey(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
                                                           @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
@@ -161,7 +154,6 @@ public class KeyController extends CommonKeyController {
     @Override
     @PostMapping(value = "/deletedkeys/{keyName}/recover",
             params = API_VERSION_7_2,
-            consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultKeyModel> recoverDeletedKey(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
                                                               @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
@@ -171,7 +163,6 @@ public class KeyController extends CommonKeyController {
     @Override
     @DeleteMapping(value = "/deletedkeys/{keyName}",
             params = API_VERSION_7_2,
-            consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> purgeDeleted(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
                                              @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {

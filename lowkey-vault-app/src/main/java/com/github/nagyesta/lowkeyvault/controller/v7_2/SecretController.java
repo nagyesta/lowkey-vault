@@ -57,7 +57,6 @@ public class SecretController extends CommonSecretController {
     @Override
     @DeleteMapping(value = "/secrets/{secretName}",
             params = API_VERSION_7_2,
-            consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultSecretModel> delete(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String secretName,
                                                       @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
@@ -67,7 +66,6 @@ public class SecretController extends CommonSecretController {
     @Override
     @GetMapping(value = "/secrets/{secretName}/versions",
             params = API_VERSION_7_2,
-            consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultItemListModel<KeyVaultSecretItemModel>> versions(
             @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String secretName,
@@ -80,7 +78,6 @@ public class SecretController extends CommonSecretController {
     @Override
     @GetMapping(value = "/secrets",
             params = API_VERSION_7_2,
-            consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultItemListModel<KeyVaultSecretItemModel>> listSecrets(
             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
@@ -92,7 +89,6 @@ public class SecretController extends CommonSecretController {
     @Override
     @GetMapping(value = "/deletedsecrets",
             params = API_VERSION_7_2,
-            consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultItemListModel<KeyVaultSecretItemModel>> listDeletedSecrets(
             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
@@ -104,7 +100,6 @@ public class SecretController extends CommonSecretController {
     @Override
     @GetMapping(value = "/secrets/{secretName}",
             params = API_VERSION_7_2,
-            consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultSecretModel> get(
             @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String secretName,
@@ -115,7 +110,6 @@ public class SecretController extends CommonSecretController {
     @Override
     @GetMapping(value = "/secrets/{secretName}/{secretVersion}",
             params = API_VERSION_7_2,
-            consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultSecretModel> getWithVersion(
             @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String secretName,
@@ -140,7 +134,6 @@ public class SecretController extends CommonSecretController {
     @Override
     @GetMapping(value = "/deletedsecrets/{secretName}",
             params = API_VERSION_7_2,
-            consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultSecretModel> getDeletedSecret(
             @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String secretName,
@@ -151,7 +144,6 @@ public class SecretController extends CommonSecretController {
     @Override
     @DeleteMapping(value = "/deletedsecrets/{secretName}",
             params = API_VERSION_7_2,
-            consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> purgeDeleted(
             @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String secretName,
@@ -162,7 +154,6 @@ public class SecretController extends CommonSecretController {
     @Override
     @PostMapping(value = "/deletedsecrets/{secretName}/recover",
             params = API_VERSION_7_2,
-            consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultSecretModel> recoverDeletedSecret(
             @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String secretName,

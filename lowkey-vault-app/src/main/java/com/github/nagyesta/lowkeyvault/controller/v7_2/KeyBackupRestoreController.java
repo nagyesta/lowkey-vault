@@ -38,7 +38,6 @@ public class KeyBackupRestoreController extends CommonKeyBackupRestoreController
     @Override
     @PostMapping(value = "/keys/{keyName}/backup",
             params = API_VERSION_7_2,
-            consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyBackupModel> backup(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
                                                  @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {

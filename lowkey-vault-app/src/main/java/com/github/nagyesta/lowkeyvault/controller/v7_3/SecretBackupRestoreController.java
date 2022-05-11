@@ -40,7 +40,6 @@ public class SecretBackupRestoreController extends CommonSecretBackupRestoreCont
     @Override
     @PostMapping(value = "/secrets/{secretName}/backup",
             params = API_VERSION_7_3,
-            consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<SecretBackupModel> backup(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String secretName,
                                                     @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {

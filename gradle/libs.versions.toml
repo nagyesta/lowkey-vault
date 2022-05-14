@@ -17,7 +17,7 @@ abortMission = "2.8.53"
 checkstyle = "9.2.1"
 jacoco = "0.8.2"
 jacksonBom = { strictly = "2.13.3" }
-jackson = { strictly = "2.13.2" }
+jackson = { strictly = "2.13.3" }
 jacksonDatabind = { strictly = "2.13.2.2" }
 openApiUi = "1.6.8"
 

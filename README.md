@@ -189,9 +189,23 @@ In this case the issue is probably just exposing the `8443` port of the containe
 when starting the container should do the trick.
 [Example](lowkey-vault-docker/build.gradle#L61)
 
+In case you need to change both the internal and the external port numbers, you can try using the ```LOWKEY_ARGS``` environment variable with 
+```--server.port=<portNumber>``` such as:
+
+```shell
+export LOWKEY_ARGS="--server.port=443"
+docker run --rm --name lowkey -e LOWKEY_ARGS -d -p 443:443 nagyesta/lowkey-vault:1.4.0
+```
+
 ##### Using Testcontainers
 
 This issue should not happen while using Testcontainers. See examples under [Lowkey Vault Testcontainers](lowkey-vault-testcontainers/README.md).
+
+# Example projects
+
+1. [Java](https://github.com/nagyesta/lowkey-vault-example)
+2. [.Net](https://github.com/nagyesta/lowkey-vault-example-dotnet)
+3. [Python](https://github.com/nagyesta/lowkey-vault-example-python)
 
 # Limitations
 

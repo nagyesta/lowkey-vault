@@ -437,6 +437,12 @@ public class KeysStepDefs extends CommonAssertions {
         context.addFetchedKey(key.getName(), key);
     }
 
+    @When("the vault is called for {int} bytes of random data")
+    public void theVaultIsCalledForBytesOfRandomData(final int count) {
+        final byte[] bytes = context.getClient(context.getKeyServiceVersion()).getRandomBytes(count);
+        context.setBackupBytes("random", bytes);
+    }
+
     private byte[] hash(final byte[] text, final String algorithm) {
         try {
             final MessageDigest md = MessageDigest.getInstance("SHA-" + algorithm.substring(2, 5));

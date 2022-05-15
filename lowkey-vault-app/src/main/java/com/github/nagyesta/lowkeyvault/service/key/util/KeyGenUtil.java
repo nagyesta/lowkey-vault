@@ -7,12 +7,15 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.RSAKeyGenParameterSpec;
 import java.util.Objects;
@@ -41,6 +44,24 @@ public final class KeyGenUtil {
         final BigInteger notNullPublicExponent = Objects.requireNonNullElse(publicExponent, BigInteger.valueOf(65537));
         final RSAKeyGenParameterSpec rsaKeyGenParameterSpec = new RSAKeyGenParameterSpec(nonNullKeySize, notNullPublicExponent);
         return keyPairGenerator(KeyType.RSA.getAlgorithmName(), rsaKeyGenParameterSpec).generateKeyPair();
+    }
+
+    @org.springframework.lang.NonNull
+    public static byte[] generateRandomBytes(final int count) {
+        return generateRandomBytes(count, "NativePRNG");
+    }
+
+    @org.springframework.lang.NonNull
+    static byte[] generateRandomBytes(final int count, @org.springframework.lang.NonNull final String algorithm) {
+        Assert.isTrue(count > 0, "Number of bytes must be greater than 0.");
+        try {
+            final byte[] bytes = new byte[count];
+            SecureRandom.getInstance(algorithm).nextBytes(bytes);
+            return bytes;
+        } catch (final NoSuchAlgorithmException e) {
+            log.error(e.getMessage(), e);
+            throw new CryptoException("Failed to generate random bytes.", e);
+        }
     }
 
     static KeyPairGenerator keyPairGenerator(final String algorithmName,

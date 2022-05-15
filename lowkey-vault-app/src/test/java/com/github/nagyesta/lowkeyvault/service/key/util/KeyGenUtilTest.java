@@ -19,6 +19,7 @@ import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.RSAKeyGenParameterSpec;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 class KeyGenUtilTest {
@@ -38,6 +39,12 @@ class KeyGenUtilTest {
                 .add(Arguments.of(null, RSA_2048))
                 .add(Arguments.of(KeyType.RSA.getAlgorithmName(), 0))
                 .build();
+    }
+
+    @SuppressWarnings("checkstyle:MagicNumber")
+    public static Stream<Arguments> randomByteCountProvider() {
+        return IntStream.of(-5, -1, 0, 1, 2, 5, 10, 42, 200)
+                .mapToObj(Arguments::of);
     }
 
     @Test
@@ -111,5 +118,31 @@ class KeyGenUtilTest {
         //then
         Assertions.assertNotNull(actual);
         Assertions.assertEquals(KeyType.OCT_HSM.getAlgorithmName(), actual.getAlgorithm());
+    }
+
+    @ParameterizedTest
+    @MethodSource("randomByteCountProvider")
+    void testGenerateRandomBytesShouldReturnTheRightAmountOfRandomBytesWhenCalledWithPositiveNumber(final int number) {
+        //given
+
+        //when
+        if (number <= 0) {
+            Assertions.assertThrows(IllegalArgumentException.class, () -> KeyGenUtil.generateRandomBytes(number));
+        } else {
+            final byte[] actual = Assertions.assertDoesNotThrow(() -> KeyGenUtil.generateRandomBytes(number));
+
+            //then
+            Assertions.assertEquals(number, actual.length);
+        }
+    }
+
+    @Test
+    void testGenerateRandomBytesShouldThrowExceptionWhenCalledWithUnknownAlgorithm() {
+        //given
+
+        //when
+        Assertions.assertThrows(CryptoException.class, () -> KeyGenUtil.generateRandomBytes(1, "unknown"));
+
+        //then + exception
     }
 }

@@ -12,6 +12,8 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.CreateKeyRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeyOperationsParameters;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeySignParameters;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeyVerifyParameters;
+import com.github.nagyesta.lowkeyvault.model.v7_3.key.RandomBytesRequest;
+import com.github.nagyesta.lowkeyvault.model.v7_3.key.RandomBytesResponse;
 import com.github.nagyesta.lowkeyvault.service.common.ReadOnlyVersionedEntityMultiMap;
 import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
@@ -24,6 +26,7 @@ import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -223,6 +226,23 @@ class KeyCryptoControllerTest {
         verify(keyVaultFake, times(2)).getEntities();
         verify(entities, never()).getLatestVersionOfEntity(eq(baseUri));
         verify(entities, times(2)).getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3));
+    }
+
+    @SuppressWarnings("checkstyle:MagicNumber")
+    @Test
+    void testGetRandomBytesShouldReturnRandomBytesWhenCalledWithValidData() {
+        //given
+        final RandomBytesRequest request = new RandomBytesRequest();
+        request.setCount(128);
+
+        //when
+        final ResponseEntity<RandomBytesResponse> response = underTest.getRandomBytes(request);
+
+        //then
+        final RandomBytesResponse body = response.getBody();
+        Assertions.assertNotNull(body);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertEquals(128, body.getValue().length);
     }
 
     @NonNull

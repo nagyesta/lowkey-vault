@@ -116,6 +116,7 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
         - ```ES384```
         - ```ES512```
 - Backup and restore keys
+- Get random bytes
 
 ### Secrets
 

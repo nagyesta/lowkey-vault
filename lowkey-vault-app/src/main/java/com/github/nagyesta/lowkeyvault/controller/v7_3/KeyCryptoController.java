@@ -11,6 +11,9 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVerifyResult;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeyOperationsParameters;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeySignParameters;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeyVerifyParameters;
+import com.github.nagyesta.lowkeyvault.model.v7_3.key.RandomBytesRequest;
+import com.github.nagyesta.lowkeyvault.model.v7_3.key.RandomBytesResponse;
+import com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,6 +96,18 @@ public class KeyCryptoController extends CommonKeyCryptoController {
             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
             @Valid @RequestBody final KeyVerifyParameters request) {
         return super.verify(keyName, keyVersion, baseUri, request);
+    }
+
+    @PostMapping(value = "/rng",
+            params = API_VERSION_7_3,
+            consumes = APPLICATION_JSON_VALUE,
+            produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<RandomBytesResponse> getRandomBytes(
+            @Valid @RequestBody final RandomBytesRequest request) {
+        log.info("Received request to generate {} random bytes using API version: {}", request.getCount(), apiVersion());
+
+        final byte[] randomBytes = KeyGenUtil.generateRandomBytes(request.getCount());
+        return ResponseEntity.ok(new RandomBytesResponse(randomBytes));
     }
 
     @Override

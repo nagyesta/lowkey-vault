@@ -177,4 +177,11 @@ public class KeysStepDefsAssertions extends CommonAssertions {
         final String expected = readResourceContent("/json/backups/" + name + ".json");
         assertEquals(expected, backup);
     }
+
+    @Then("the length of the random data is {int} bytes")
+    public void theLengthOfTheRandomDataIsBytes(final int count) {
+        final int actual = context.getBackupBytes("random").length;
+        assertEquals(count, actual);
+        ;
+    }
 }

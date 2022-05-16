@@ -30,7 +30,7 @@ dependencies {
     testImplementation(libs.azure.security.keyvault.secrets) {
         exclude(group: "io.netty")
     }
-    testImplementation libs.spring.boot.starter.test
+    testImplementation libs.bundles.spring.test
     testImplementation libs.bundles.cucumber
     testImplementation libs.abort.mission.cucumber
     testImplementation libs.findbugs.jsr305

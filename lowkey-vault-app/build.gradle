@@ -22,7 +22,7 @@ dependencies {
     implementation libs.springdoc.openapi.ui
     annotationProcessor libs.lombok
     annotationProcessor libs.spring.boot.configuration.processor
-    testImplementation libs.spring.boot.starter.test
+    testImplementation libs.bundles.spring.test
     testImplementation libs.jupiter
     testImplementation libs.abort.mission.jupiter
 }

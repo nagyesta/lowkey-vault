@@ -1,5 +1,6 @@
 [versions]
 springBoot = "2.6.7"
+spring = "5.3.20"
 tomcat = "9.0.63"
 logback = "1.2.11"
 bouncycastle = "1.70"
@@ -37,6 +38,11 @@ spring-boot-starter-validation = { module = "org.springframework.boot:spring-boo
 spring-boot-configuration-processor = { module = "org.springframework.boot:spring-boot-configuration-processor", version.ref = "springBoot" }
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "springBoot" }
 springdoc-openapi-ui = { module = "org.springdoc:springdoc-openapi-ui", version.ref = "openApiUi" }
+spring-core = { module = "org.springframework:spring-core", version.ref = "spring" }
+spring-context = { module = "org.springframework:spring-context", version.ref = "spring" }
+spring-web = { module = "org.springframework:spring-web", version.ref = "spring" }
+spring-webmvc = { module = "org.springframework:spring-webmvc", version.ref = "spring" }
+spring-test = { module = "org.springframework:spring-test", version.ref = "spring" }
 
 tomcat-annotations-api = { module = "org.apache.tomcat:tomcat-annotations-api", version.ref = "tomcat" }
 tomcat-jsp-api = { module = "org.apache.tomcat:tomcat-jsp-api", version.ref = "tomcat" }
@@ -86,8 +92,9 @@ testcontainers-jupiter = { module = "org.testcontainers:junit-jupiter", version.
 [bundles]
 spring-boot-app = [
     "spring-boot-starter", "spring-boot-starter-json", "spring-boot-starter-web", "spring-boot-starter-tomcat",
-    "spring-boot-starter-validation"
+    "spring-boot-starter-validation", "spring-core", "spring-context", "spring-web", "spring-webmvc"
 ]
+spring-test = ["spring-boot-starter-test", "spring-test"]
 logback = ["logback-classic", "logback-core"]
 cucumber = ["cucumber-java", "cucumber-testng", "cucumber-spring"]
 jackson = ["jackson-bom", "jackson-core", "jackson-annotations", "jackson-databind", "jackson-dataformat-xml", "jackson-datatype-jsr310"]

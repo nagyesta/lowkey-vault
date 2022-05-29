@@ -13,6 +13,7 @@ project.ext {
     ossrhPass = project.hasProperty('ossrhPassword') ? (project.property('ossrhPassword') as String) : ''
     ossIndexUser = project.hasProperty('ossIndexUsername') ? (project.property('ossIndexUsername') as String) : ''
     ossIndexPass = project.hasProperty('ossIndexPassword') ? (project.property('ossIndexPassword') as String) : ''
+    ossIndexExclusions = ["CVE-2016-1000027"]
     keyToolDir = project.hasProperty('keyToolDir') ? (project.property('keyToolDir') as String) : ''
     repoUrl = 'https://github.com/nagyesta/lowkey-vault'
     licenseName = 'MIT License'
@@ -183,7 +184,18 @@ configure(subprojects.findAll({
         colorEnabled = true
         showAll = false
         dependencyGraph = true
+        excludeVulnerabilityIds = rootProject.ext.ossIndexExclusions
     }
+}
+
+ossIndexAudit {
+    username = rootProject.ext.ossIndexUser
+    password = rootProject.ext.ossIndexPass
+    printBanner = false
+    colorEnabled = true
+    showAll = false
+    dependencyGraph = true
+    excludeVulnerabilityIds = rootProject.ext.ossIndexExclusions
 }
 
 repositories {

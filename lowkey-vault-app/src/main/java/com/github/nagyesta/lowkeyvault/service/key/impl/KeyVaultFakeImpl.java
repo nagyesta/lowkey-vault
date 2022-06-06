@@ -11,8 +11,11 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRe
 import com.github.nagyesta.lowkeyvault.service.common.impl.BaseVaultFakeImpl;
 import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
+import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyRotationPolicy;
+import com.github.nagyesta.lowkeyvault.service.key.RotationPolicy;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
+import com.github.nagyesta.lowkeyvault.service.key.util.PeriodUtil;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.NonNull;
 import org.springframework.util.Assert;
@@ -20,6 +23,9 @@ import org.springframework.util.Assert;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class KeyVaultFakeImpl
         extends BaseVaultFakeImpl<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity, KeyVaultKeyEntity<?, ?>>
@@ -28,6 +34,8 @@ public class KeyVaultFakeImpl
     private final RsaJsonWebKeyImportRequestConverter rsaConverter = new RsaJsonWebKeyImportRequestConverter();
     private final EcJsonWebKeyImportRequestConverter ecConverter = new EcJsonWebKeyImportRequestConverter();
     private final AesJsonWebKeyImportRequestConverter aesConverter = new AesJsonWebKeyImportRequestConverter();
+
+    private final ConcurrentMap<String, RotationPolicy> rotationPolicies = new ConcurrentHashMap<>();
 
     public KeyVaultFakeImpl(@org.springframework.lang.NonNull final VaultFake vaultFake,
                             @org.springframework.lang.NonNull final RecoveryLevel recoveryLevel,
@@ -67,6 +75,7 @@ public class KeyVaultFakeImpl
         Assert.isTrue(keyType.isRsa(), "RSA key expected, but found: " + keyType.name());
         final RsaKeyVaultKeyEntity keyEntity = new RsaKeyVaultKeyEntity(keyEntityId, vaultFake(), rsaConverter.convert(key),
                 rsaConverter.getKeyParameter(key), keyType.isHsm());
+        setExpiryBasedOnRotationPolicy(keyEntityId, keyEntity);
         return addVersion(keyEntityId, keyEntity);
     }
 
@@ -77,6 +86,7 @@ public class KeyVaultFakeImpl
         Assert.isTrue(keyType.isEc(), "EC key expected, but found: " + keyType.name());
         final EcKeyVaultKeyEntity keyEntity = new EcKeyVaultKeyEntity(keyEntityId, vaultFake(), ecConverter.convert(key),
                 ecConverter.getKeyParameter(key), keyType.isHsm());
+        setExpiryBasedOnRotationPolicy(keyEntityId, keyEntity);
         return addVersion(keyEntityId, keyEntity);
     }
 
@@ -88,6 +98,7 @@ public class KeyVaultFakeImpl
         Assert.isTrue(keyType.isHsm(), "OCT keys are only supported using HSM.");
         final AesKeyVaultKeyEntity keyEntity = new AesKeyVaultKeyEntity(keyEntityId, vaultFake(), aesConverter.convert(key),
                 aesConverter.getKeyParameter(key), keyType.isHsm());
+        setExpiryBasedOnRotationPolicy(keyEntityId, keyEntity);
         return addVersion(keyEntityId, keyEntity);
     }
 
@@ -97,6 +108,7 @@ public class KeyVaultFakeImpl
         final VersionedKeyEntityId keyEntityId = new VersionedKeyEntityId(vaultFake().baseUri(), keyName);
         final RsaKeyVaultKeyEntity keyEntity = new RsaKeyVaultKeyEntity(keyEntityId, vaultFake(),
                 input.getKeyParameter(), input.getPublicExponent(), input.getKeyType().isHsm());
+        setExpiryBasedOnRotationPolicy(keyEntityId, keyEntity);
         return addVersion(keyEntityId, keyEntity);
     }
 
@@ -107,6 +119,7 @@ public class KeyVaultFakeImpl
         input.getKeyType().validate(input.getKeyParameter(), KeyCurveName.class);
         final EcKeyVaultKeyEntity keyEntity = new EcKeyVaultKeyEntity(keyEntityId, vaultFake(),
                 input.getKeyParameter(), input.getKeyType().isHsm());
+        setExpiryBasedOnRotationPolicy(keyEntityId, keyEntity);
         return addVersion(keyEntityId, keyEntity);
     }
 
@@ -117,6 +130,7 @@ public class KeyVaultFakeImpl
         Assert.isTrue(input.getKeyType().isHsm(), "OCT keys are only supported using HSM.");
         final AesKeyVaultKeyEntity keyEntity = new AesKeyVaultKeyEntity(keyEntityId, vaultFake(),
                 input.getKeyParameter(), input.getKeyType().isHsm());
+        setExpiryBasedOnRotationPolicy(keyEntityId, keyEntity);
         return addVersion(keyEntityId, keyEntity);
     }
 
@@ -126,4 +140,51 @@ public class KeyVaultFakeImpl
         getEntitiesInternal().getEntity(keyEntityId).setOperations(Objects.requireNonNullElse(keyOperations, Collections.emptyList()));
     }
 
+    @Override
+    public void timeShift(final int offsetSeconds) {
+        super.timeShift(offsetSeconds);
+        rotationPolicies.values().forEach(p -> p.timeShift(offsetSeconds));
+    }
+
+    @Override
+    public RotationPolicy rotationPolicy(@NonNull final KeyEntityId keyEntityId) {
+        return rotationPolicies.get(keyEntityId.id());
+    }
+
+    @Override
+    public void setRotationPolicy(@NonNull final RotationPolicy rotationPolicy) {
+        final ReadOnlyKeyVaultKeyEntity readOnlyEntity = latestReadOnlyKeyVersion(rotationPolicy.getId());
+        rotationPolicy.validate(readOnlyEntity.getExpiry().orElse(null));
+        final RotationPolicy existingPolicy = rotationPolicy(rotationPolicy.getId());
+        if (existingPolicy == null) {
+            rotationPolicies.put(rotationPolicy.getId().id(), rotationPolicy);
+        } else {
+            existingPolicy.setLifetimeActions(rotationPolicy.getLifetimeActions());
+            existingPolicy.setExpiryTime(rotationPolicy.getExpiryTime());
+        }
+    }
+
+    @Override
+    public VersionedKeyEntityId rotateKey(@NonNull final KeyEntityId keyEntityId) {
+        final ReadOnlyKeyVaultKeyEntity readOnlyEntity = latestReadOnlyKeyVersion(keyEntityId);
+        final VersionedKeyEntityId rotatedKeyId = createKeyVersion(keyEntityId.id(), readOnlyEntity.keyCreationInput());
+        final KeyVaultKeyEntity<?, ?> rotatedEntity = getEntities().getEntity(rotatedKeyId, KeyVaultKeyEntity.class);
+        rotatedEntity.setOperations(readOnlyEntity.getOperations());
+        rotatedEntity.setEnabled(true);
+        rotatedEntity.setTags(readOnlyEntity.getTags());
+        return rotatedKeyId;
+    }
+
+    private void setExpiryBasedOnRotationPolicy(final VersionedKeyEntityId keyEntityId, final KeyVaultKeyEntity<?, ?> keyEntity) {
+        final Optional<Long> expiryDays = Optional.ofNullable(rotationPolicies)
+                .map(policies -> policies.get(keyEntityId.id()))
+                .map(ReadOnlyRotationPolicy::getExpiryTime)
+                .map(PeriodUtil::asDays);
+        expiryDays.ifPresent(days -> keyEntity.setExpiry(keyEntity.getCreated().plusDays(days)));
+    }
+
+    private ReadOnlyKeyVaultKeyEntity latestReadOnlyKeyVersion(final KeyEntityId keyEntityId) {
+        final VersionedKeyEntityId latestVersionOfEntity = getEntities().getLatestVersionOfEntity(keyEntityId);
+        return getEntities().getReadOnlyEntity(latestVersionOfEntity);
+    }
 }

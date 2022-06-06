@@ -14,6 +14,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+/**
+ * Common Key entity base class.
+ * @param <T> The type of the key.
+ * @param <S> The type of the key parameter.
+ */
 public abstract class KeyVaultKeyEntity<T, S> extends KeyVaultBaseEntity<VersionedKeyEntityId> implements ReadOnlyKeyVaultKeyEntity {
 
     private final T key;

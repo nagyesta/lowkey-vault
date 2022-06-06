@@ -15,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.util.MimeTypeUtils;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
@@ -68,7 +69,7 @@ class Base64ZipSecretSerializerDeserializerIntegrationTest {
 
     private SecretBackupModel getSecretBackupModel(final SecretBackupListItem item) {
         final SecretBackupList list = new SecretBackupList();
-        list.add(item);
+        list.setVersions(List.of(item));
         final SecretBackupModel input = new SecretBackupModel();
         input.setValue(list);
         return input;

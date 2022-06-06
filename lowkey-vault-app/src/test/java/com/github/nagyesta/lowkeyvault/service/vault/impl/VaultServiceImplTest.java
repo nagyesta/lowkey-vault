@@ -268,7 +268,6 @@ class VaultServiceImplTest {
         });
     }
 
-    @SuppressWarnings("checkstyle:MagicNumber")
     @ParameterizedTest
     @ValueSource(ints = {-42, -10, -5, -3, -2, -1, 0})
     void testTimeShiftShouldThrowExceptionWhenCalledWithNegativeOrZero(final int value) {

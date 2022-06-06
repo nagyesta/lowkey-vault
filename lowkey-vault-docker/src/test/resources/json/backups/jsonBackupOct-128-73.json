@@ -1,20 +1,55 @@
-[ {
-  "vaultBaseUri" : "https://keys-backup-jsonBackupOct-128-73.localhost:8443",
-  "entityId" : "jsonBackupOct-128-73",
-  "entityVersion" : "730490a0df9b4ac78ed675902077a18f",
-  "attributes" : {
-    "enabled" : true,
-    "created" : 1649503106,
-    "updated" : 1649503106,
-    "recoveryLevel" : "Recoverable+Purgeable",
-    "recoverableDays" : 90
-  },
-  "tags" : { },
-  "managed" : false,
-  "keyMaterial" : {
-    "k" : "sx32Vta2Zx1BsdQBY2l5iQ",
-    "key_ops" : [ "sign", "encrypt", "wrapKey" ],
-    "kid" : "https://keys-backup-jsonBackupOct-128-73.localhost:8443/keys/jsonBackupOct-128-73/730490a0df9b4ac78ed675902077a18f",
-    "kty" : "oct-HSM"
+{
+  "versions": [
+    {
+      "vaultBaseUri": "https://keys-backup-jsonBackupOct-128-73.localhost:8443",
+      "entityId": "jsonBackupOct-128-73",
+      "entityVersion": "730490a0df9b4ac78ed675902077a18f",
+      "attributes": {
+        "enabled": true,
+        "created": 1649503106,
+        "updated": 1649503106,
+        "recoveryLevel": "Recoverable+Purgeable",
+        "exp": 1659871879,
+        "recoverableDays": 90
+      },
+      "tags": {},
+      "managed": false,
+      "keyMaterial": {
+        "k": "sx32Vta2Zx1BsdQBY2l5iQ",
+        "key_ops": [
+          "sign",
+          "encrypt",
+          "wrapKey"
+        ],
+        "kid": "https://keys-backup-jsonBackupOct-128-73.localhost:8443/keys/jsonBackupOct-128-73/730490a0df9b4ac78ed675902077a18f",
+        "kty": "oct-HSM"
+      }
+    }
+  ],
+  "rotationPolicy": {
+    "id": "https://keys-backup-jsonBackupOct-128-73.localhost:8443/keys/jsonBackupOct-128-73/rotationpolicy",
+    "lifetimeActions": [
+      {
+        "trigger": {
+          "timeBeforeExpiry": "P30D"
+        },
+        "action": {
+          "type": "notify"
+        }
+      },
+      {
+        "trigger": {
+          "timeAfterCreate": "P100D"
+        },
+        "action": {
+          "type": "rotate"
+        }
+      }
+    ],
+    "attributes": {
+      "expiryTime": "P120D",
+      "created": 1649503106,
+      "updated": 1649503106
+    }
   }
-} ]
+}

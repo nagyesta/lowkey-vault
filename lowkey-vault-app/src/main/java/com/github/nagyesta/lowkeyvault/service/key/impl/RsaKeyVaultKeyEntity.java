@@ -50,6 +50,11 @@ public class RsaKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, Integer> im
     }
 
     @Override
+    public KeyCreationInput<?> keyCreationInput() {
+        return new RsaKeyCreationInput(getKeyType(), getKeySize(), ((RSAPublicKey) getKey().getPublic()).getPublicExponent());
+    }
+
+    @Override
     public byte[] getN() {
         return ((RSAPublicKey) getKey().getPublic()).getModulus().toByteArray();
     }

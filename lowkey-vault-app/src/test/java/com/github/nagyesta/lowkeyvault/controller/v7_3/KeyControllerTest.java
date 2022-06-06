@@ -905,6 +905,39 @@ class KeyControllerTest {
         verify(keyEntityToV72ModelConverter).convert(same(entity));
     }
 
+    @Test
+    void testRotateKeyShouldCallTheKeyVaultFakeForDoingTheRotationWhenCalled() {
+        //given
+        final KeyEntityId entityId = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
+        final VersionedKeyEntityId newKeyId = new VersionedKeyEntityId(entityId.vault(), entityId.id());
+        final CreateKeyRequest request = createRequest(List.of(), null, null);
+        final ReadOnlyKeyVaultKeyEntity entity = createEntity(newKeyId, request);
+        when(keyVaultFake.rotateKey(eq(entityId)))
+                .thenReturn(newKeyId);
+        when(keyVaultFake.getEntities())
+                .thenReturn(entities);
+        when(entities.getReadOnlyEntity(eq(newKeyId)))
+                .thenReturn(entity);
+        when(keyEntityToV72ModelConverter.convert(same(entity)))
+                .thenReturn(RESPONSE);
+
+        //when
+        final ResponseEntity<KeyVaultKeyModel> actual = underTest.rotateKey(entityId.id(), entityId.vault());
+
+        //then
+        Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
+        Assertions.assertEquals(RESPONSE, actual.getBody());
+        final InOrder inOrder = inOrder(keyVaultFake, entities, keyEntityToV72ModelConverter);
+        inOrder.verify(keyVaultFake)
+                .rotateKey(eq(entityId));
+        inOrder.verify(keyVaultFake)
+                .getEntities();
+        inOrder.verify(entities)
+                .getReadOnlyEntity(eq(newKeyId));
+        inOrder.verify(keyEntityToV72ModelConverter)
+                .convert(same(entity));
+    }
+
     @NonNull
     private CreateKeyRequest createRequest(
             final List<KeyOperation> operations,

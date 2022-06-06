@@ -6,6 +6,7 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.EncryptionAlgori
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.SignatureAlgorithm;
 import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
+import com.github.nagyesta.lowkeyvault.service.key.impl.KeyCreationInput;
 import com.github.nagyesta.lowkeyvault.service.key.impl.KeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import org.junit.jupiter.api.AfterEach;
@@ -105,6 +106,11 @@ class KeyEntityToV72PropertiesModelConverterTest {
 
         @Override
         public KeyType getKeyType() {
+            return null;
+        }
+
+        @Override
+        public KeyCreationInput<?> keyCreationInput() {
             return null;
         }
 

@@ -21,6 +21,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
 import java.security.KeyPair;
+import java.util.List;
 import java.util.Map;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
@@ -74,7 +75,7 @@ class Base64ZipKeySerializerDeserializerIntegrationTest {
 
     private KeyBackupModel getKeyBackupModel(final KeyBackupListItem item) {
         final KeyBackupList list = new KeyBackupList();
-        list.add(item);
+        list.setVersions(List.of(item));
         final KeyBackupModel input = new KeyBackupModel();
         input.setValue(list);
         return input;

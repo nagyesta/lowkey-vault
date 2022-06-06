@@ -173,7 +173,8 @@ public class KeysStepDefsAssertions extends CommonAssertions {
     @And("the unpacked backup of {name} matches the content of the classpath resource")
     public void theKeyNamedNameMatchesTheResourceContent(final String name) throws IOException {
         final byte[] bytes = context.getClient(context.getKeyServiceVersion()).backupKey(name);
-        final String backup = context.getLowkeyVaultManagementClient().unpackBackup(bytes);
+        final String backup = context.getLowkeyVaultManagementClient().unpackBackup(bytes)
+                .replaceAll("[ \\n]+", "");
         final String expected = readResourceContent("/json/backups/" + name + ".json");
         assertEquals(expected, backup);
     }

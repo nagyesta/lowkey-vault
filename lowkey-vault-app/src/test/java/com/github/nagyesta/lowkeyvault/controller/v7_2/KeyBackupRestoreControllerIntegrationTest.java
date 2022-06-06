@@ -32,6 +32,7 @@ import java.net.URI;
 import java.security.KeyPair;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -110,7 +111,7 @@ class KeyBackupRestoreControllerIntegrationTest {
     }
 
     @Test
-    void testRestoreEntityShouldRestoreAThreeKeysWhenCalledWithValidInput() {
+    void testRestoreEntityShouldRestoreThreeKeysWhenCalledWithValidInput() {
         //given
         final KeyBackupModel backupModel = new KeyBackupModel();
         backupModel.setValue(new KeyBackupList());
@@ -270,7 +271,9 @@ class KeyBackupRestoreControllerIntegrationTest {
         propertiesModel.setRecoverableDays(RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
         listItem.setAttributes(propertiesModel);
         listItem.setTags(tags);
-        backupModel.getValue().add(listItem);
+        final List<KeyBackupListItem> list = new ArrayList<>(backupModel.getValue().getVersions());
+        list.add(listItem);
+        backupModel.getValue().setVersions(list);
         return keyPair;
     }
 }

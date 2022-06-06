@@ -265,6 +265,23 @@ class EcKeyVaultKeyEntityTest {
         //then + exception
     }
 
+    @Test
+    void testKeyCreationInputShouldReturnOriginalParameters() {
+        //given
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
+        final KeyCurveName keyCurveName = KeyCurveName.P_384;
+        final EcKeyVaultKeyEntity underTest = new EcKeyVaultKeyEntity(
+                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, keyCurveName, false);
+
+        //when
+        final KeyCreationInput<?> actual = underTest.keyCreationInput();
+
+        //then
+        Assertions.assertInstanceOf(EcKeyCreationInput.class, actual);
+        final EcKeyCreationInput value = (EcKeyCreationInput) actual;
+        Assertions.assertEquals(keyCurveName, value.getKeyParameter());
+    }
+
     private byte[] hash(final byte[] text, final SignatureAlgorithm algorithm) {
         try {
             final MessageDigest md = MessageDigest.getInstance(HASH_ALGORITHMS.get(algorithm));

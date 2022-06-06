@@ -11,6 +11,8 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.CreateKeyRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.ImportKeyRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.UpdateKeyRequest;
+import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
+import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -140,6 +142,19 @@ public class KeyController extends CommonKeyController {
             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
             @NonNull @Valid @RequestBody final UpdateKeyRequest request) {
         return super.updateVersion(keyName, keyVersion, baseUri, request);
+    }
+
+    @PostMapping(value = "/keys/{keyName}/rotate",
+            params = API_VERSION_7_3,
+            produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<KeyVaultKeyModel> rotateKey(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
+                                          @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
+        log.info("Received request to {} rotate key: {} using API version: {}",
+                baseUri.toString(), keyName, apiVersion());
+
+        final VersionedKeyEntityId rotatedKeyId = getVaultByUri(baseUri).rotateKey(entityId(baseUri, keyName));
+        final ReadOnlyKeyVaultKeyEntity keyVaultKeyEntity = getEntityByNameAndVersion(baseUri, keyName, rotatedKeyId.version());
+        return ResponseEntity.ok(convertDetails(keyVaultKeyEntity));
     }
 
     @Override

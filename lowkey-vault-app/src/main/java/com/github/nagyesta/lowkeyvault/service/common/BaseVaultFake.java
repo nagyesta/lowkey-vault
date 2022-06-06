@@ -12,7 +12,7 @@ import java.util.Map;
  * @param <V> The versioned key type.
  * @param <E> The entity type.
  */
-public interface BaseVaultFake<K extends EntityId, V extends K, E extends BaseVaultEntity<V>> {
+public interface BaseVaultFake<K extends EntityId, V extends K, E extends BaseVaultEntity<V>> extends TimeAware {
 
     ReadOnlyVersionedEntityMultiMap<K, V, E> getEntities();
 
@@ -32,5 +32,4 @@ public interface BaseVaultFake<K extends EntityId, V extends K, E extends BaseVa
 
     void purge(K entityId);
 
-    void timeShift(int offsetSeconds);
 }

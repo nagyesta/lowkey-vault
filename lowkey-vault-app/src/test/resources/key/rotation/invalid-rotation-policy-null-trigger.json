@@ -1,0 +1,16 @@
+{
+  "id": "https:/localhost:8443/keys/key-name/rotationpolicy",
+  "lifetimeActions": [
+    {
+      "trigger": null,
+      "action": {
+        "type": "rotate"
+      }
+    }
+  ],
+  "attributes": {
+    "expiryTime": "P4M",
+    "created": 1482188947,
+    "updated": 1482188948
+  }
+}

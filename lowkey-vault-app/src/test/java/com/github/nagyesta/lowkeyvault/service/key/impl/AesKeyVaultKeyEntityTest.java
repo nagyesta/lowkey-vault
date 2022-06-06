@@ -244,4 +244,21 @@ class AesKeyVaultKeyEntityTest {
 
         //then + exception
     }
+
+    @Test
+    void testKeyCreationInputShouldReturnOriginalParameters() {
+        //given
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
+        final int keySize = KeyType.OCT.getValidKeyParameters(Integer.class).first();
+        final AesKeyVaultKeyEntity underTest = new AesKeyVaultKeyEntity(
+                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, keySize, false);
+
+        //when
+        final KeyCreationInput<?> actual = underTest.keyCreationInput();
+
+        //then
+        Assertions.assertInstanceOf(OctKeyCreationInput.class, actual);
+        final OctKeyCreationInput value = (OctKeyCreationInput) actual;
+        Assertions.assertEquals(keySize, value.getKeyParameter());
+    }
 }

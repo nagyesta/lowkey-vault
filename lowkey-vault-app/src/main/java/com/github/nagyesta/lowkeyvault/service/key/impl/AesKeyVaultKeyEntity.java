@@ -42,6 +42,11 @@ public class AesKeyVaultKeyEntity extends KeyVaultKeyEntity<SecretKey, Integer> 
     }
 
     @Override
+    public KeyCreationInput<?> keyCreationInput() {
+        return new OctKeyCreationInput(getKeyType(), getKeySize());
+    }
+
+    @Override
     public byte[] getK() {
         return getKey().getEncoded();
     }

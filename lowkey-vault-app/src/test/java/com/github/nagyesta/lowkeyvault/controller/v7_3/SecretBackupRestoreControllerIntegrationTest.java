@@ -23,6 +23,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.MimeTypeUtils;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -244,6 +246,8 @@ class SecretBackupRestoreControllerIntegrationTest {
         propertiesModel.setRecoverableDays(RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
         listItem.setAttributes(propertiesModel);
         listItem.setTags(tags);
-        backupModel.getValue().add(listItem);
+        final List<SecretBackupListItem> list = new ArrayList<>(backupModel.getValue().getVersions());
+        list.add(listItem);
+        backupModel.getValue().setVersions(list);
     }
 }

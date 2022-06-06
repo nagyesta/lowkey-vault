@@ -3,14 +3,23 @@ package com.github.nagyesta.lowkeyvault.controller.v7_3;
 import com.github.nagyesta.lowkeyvault.TestConstantsUri;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72BackupConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ModelConverter;
+import com.github.nagyesta.lowkeyvault.mapper.v7_3.key.KeyRotationPolicyToV73ModelConverter;
+import com.github.nagyesta.lowkeyvault.mapper.v7_3.key.KeyRotationPolicyV73ModelToEntityConverter;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.*;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyBackupListItem;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyPropertiesModel;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRequest;
+import com.github.nagyesta.lowkeyvault.model.v7_3.key.*;
 import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
 import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
+import com.github.nagyesta.lowkeyvault.service.key.LifetimeAction;
+import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyRotationPolicy;
+import com.github.nagyesta.lowkeyvault.service.key.constants.LifetimeActionTriggerType;
+import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.impl.EcKeyCreationInput;
 import com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil;
@@ -32,23 +41,29 @@ import java.net.URI;
 import java.security.KeyPair;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.time.Period;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.*;
+import static com.github.nagyesta.lowkeyvault.model.v7_3.key.constants.LifetimeActionType.ROTATE;
 import static org.mockito.Mockito.mock;
 
 @SpringBootTest
 class KeyBackupRestoreControllerIntegrationTest {
 
+    private static final Period EXPIRY_TIME = Period.ofDays(LifetimeActionTriggerType.MINIMUM_EXPIRY_PERIOD_IN_DAYS);
+    private static final Period TRIGGER_TIME = Period.ofDays(LifetimeActionTriggerType.MINIMUM_THRESHOLD_BEFORE_EXPIRY);
     @Autowired
     @Qualifier("KeyBackupRestoreControllerV73")
     private KeyBackupRestoreController underTest;
     @Autowired
     private VaultService vaultService;
+    @Autowired
+    private KeyRotationPolicyToV73ModelConverter toModelConverter;
+    @Autowired
+    private KeyRotationPolicyV73ModelToEntityConverter toEntityConverter;
     private URI uri;
 
     public static Stream<Arguments> nullProvider() {
@@ -86,7 +101,7 @@ class KeyBackupRestoreControllerIntegrationTest {
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new KeyBackupRestoreController(modelConverter, backupConverter, vaultService));
+                () -> new KeyBackupRestoreController(modelConverter, backupConverter, vaultService, toModelConverter, toEntityConverter));
 
         //then + exception
     }
@@ -110,7 +125,7 @@ class KeyBackupRestoreControllerIntegrationTest {
     }
 
     @Test
-    void testRestoreEntityShouldRestoreAThreeKeysWhenCalledWithValidInput() {
+    void testRestoreEntityShouldRestoreThreeKeysWhenCalledWithValidInput() {
         //given
         final KeyBackupModel backupModel = new KeyBackupModel();
         backupModel.setValue(new KeyBackupList());
@@ -127,6 +142,36 @@ class KeyBackupRestoreControllerIntegrationTest {
         Assertions.assertNotNull(actualBody);
         Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
         assertRestoredKeyMatchesExpectations(actualBody, (ECPublicKey) expectedKey.getPublic(), KEY_VERSION_3, TAGS_EMPTY);
+    }
+
+    @Test
+    void testRestoreEntityShouldRestoreRotationPolicyWhenCalledWithValidInput() {
+        //given
+        final KeyBackupModel backupModel = new KeyBackupModel();
+        backupModel.setValue(new KeyBackupList());
+        final KeyPair expectedKey = addVersionToList(uri, KEY_NAME_1, KEY_VERSION_1, backupModel, TAGS_EMPTY);
+        final KeyEntityId keyEntityId = new KeyEntityId(uri, KEY_NAME_1);
+        backupModel.getValue().setKeyRotationPolicy(keyRotationPolicy(keyEntityId));
+
+        //when
+        final ResponseEntity<KeyVaultKeyModel> actual = underTest.restore(uri, backupModel);
+
+        //then
+        Assertions.assertNotNull(actual);
+        final KeyVaultKeyModel actualBody = actual.getBody();
+        Assertions.assertNotNull(actualBody);
+        Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
+        assertRestoredKeyMatchesExpectations(actualBody, (ECPublicKey) expectedKey.getPublic(), KEY_VERSION_1, TAGS_EMPTY);
+        final ReadOnlyRotationPolicy rotationPolicy = vaultService.findByUri(uri).keyVaultFake().rotationPolicy(keyEntityId);
+        Assertions.assertEquals(keyEntityId, rotationPolicy.getId());
+        Assertions.assertEquals(TIME_10_MINUTES_AGO, rotationPolicy.getCreatedOn());
+        Assertions.assertEquals(NOW, rotationPolicy.getUpdatedOn());
+        Assertions.assertEquals(EXPIRY_TIME, rotationPolicy.getExpiryTime());
+        Assertions.assertIterableEquals(Collections.singleton(ROTATE), rotationPolicy.getLifetimeActions().keySet());
+        final LifetimeAction lifetimeAction = rotationPolicy.getLifetimeActions().get(ROTATE);
+        Assertions.assertEquals(ROTATE, lifetimeAction.getActionType());
+        Assertions.assertEquals(LifetimeActionTriggerType.TIME_AFTER_CREATE, lifetimeAction.getTrigger().getTriggerType());
+        Assertions.assertEquals(TRIGGER_TIME, lifetimeAction.getTrigger().getTimePeriod());
     }
 
     @Test
@@ -270,7 +315,32 @@ class KeyBackupRestoreControllerIntegrationTest {
         propertiesModel.setRecoverableDays(RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
         listItem.setAttributes(propertiesModel);
         listItem.setTags(tags);
-        backupModel.getValue().add(listItem);
+        final List<KeyBackupListItem> list = new ArrayList<>(backupModel.getValue().getVersions());
+        list.add(listItem);
+        backupModel.getValue().setVersions(list);
         return keyPair;
+    }
+
+    private KeyRotationPolicyModel keyRotationPolicy(final KeyEntityId keyEntityId) {
+        final KeyRotationPolicyModel model = new KeyRotationPolicyModel();
+        model.setId(keyEntityId.asRotationPolicyUri());
+        model.setLifetimeActions(List.of(actionModel()));
+        model.setAttributes(rotationPolicyAttributes());
+        return model;
+    }
+
+    private KeyRotationPolicyAttributes rotationPolicyAttributes() {
+        final KeyRotationPolicyAttributes attributes = new KeyRotationPolicyAttributes();
+        attributes.setCreatedOn(TIME_10_MINUTES_AGO);
+        attributes.setUpdatedOn(NOW);
+        attributes.setExpiryTime(EXPIRY_TIME);
+        return attributes;
+    }
+
+    private KeyLifetimeActionModel actionModel() {
+        final KeyLifetimeActionModel actionModel = new KeyLifetimeActionModel();
+        actionModel.setAction(new KeyLifetimeActionTypeModel(ROTATE));
+        actionModel.setTrigger(new KeyLifetimeActionTriggerModel(null, TRIGGER_TIME));
+        return actionModel;
     }
 }

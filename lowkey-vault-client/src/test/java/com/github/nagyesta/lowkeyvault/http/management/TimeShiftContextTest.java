@@ -7,7 +7,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 class TimeShiftContextTest {
 
-    @SuppressWarnings("checkstyle:MagicNumber")
     @ParameterizedTest
     @ValueSource(ints = {-42, -10, -5, -3, -2, -1, 0})
     void testBuilderShouldThrowExceptionWhenCalledWithNegativeValue(final int value) {

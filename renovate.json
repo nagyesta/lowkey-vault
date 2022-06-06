@@ -1,6 +1,10 @@
 {
   "extends": [
-    "config:base"
+    "config:base",
+    ":gitSignOff"
+  ],
+  "assignees": [
+    "nagyesta"
   ],
   "commitMessageSuffix": "{patch}",
   "docker": {

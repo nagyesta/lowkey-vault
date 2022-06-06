@@ -8,6 +8,7 @@ on:
     branches: [ main ]
     paths:
       - 'gradle/libs.versions.toml'
+      - 'gradle/verification-metadata.xml'
       - 'lowkey-vault-docker/src/docker/Dockerfile'
       - 'gradle/wrapper/gradle-wrapper.properties'
 

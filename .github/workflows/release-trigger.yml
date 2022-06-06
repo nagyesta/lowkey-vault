@@ -49,6 +49,7 @@ jobs:
       - uses: actions/github-script@9ac08808f993958e9de277fe43a64532a609130e  # tag=v6.0.0
         if: ${{ steps.check.outputs.has_tag == 0 || github.event.inputs.execution == 'Manual' }}
         with:
+          github-token: ${{ secrets.PUBLISH_KEY }}
           script: |
             github.rest.pulls.create({
               owner: "${{ github.repository_owner }}",

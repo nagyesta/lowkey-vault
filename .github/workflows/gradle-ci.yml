@@ -22,6 +22,7 @@ on:
       - '.github/pr-labeler.yml'
       - 'renovate.json'
       - '.whitesource'
+      - 'gradle/libs.versions.toml'
 
 permissions: read-all
 

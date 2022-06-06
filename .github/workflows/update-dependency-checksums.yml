@@ -1,0 +1,41 @@
+name: UpdateChecksums
+on:
+  push:
+    branches: [ renovate/** ]
+    paths:
+      - 'gradle/libs.versions.toml'
+
+permissions: read-all
+
+jobs:
+  build:
+    name: Dependency checksum pin action
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # tag=v2.4.0
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PUBLISH_KEY }}
+      - name: Set up JDK 11
+        uses: actions/setup-java@f0bb91606209742fe3ea40199be2f3ef195ecabf # tag=v2.5.0
+        with:
+          distribution: temurin
+          java-version: 11
+      - uses: actions/cache@937d24475381cd9c75ae6db12cb4e79714b926ed # tag=v2.1.7
+        with:
+          path: |
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-wrapper-
+      - name: "Remove previous version"
+        run: cp gradle/verification-metadata-clean.xml gradle/verification-metadata.xml
+      - name: "Update checksums"
+        run: ./gradlew --write-verification-metadata sha256
+      - name: "Git commit"
+        run: |
+          git config --global user.name 'Esta Nagy'
+          git config --global user.email 'nagyesta@gmail.com'
+          git add gradle/verification-metadata.xml
+          git commit -asm "Pinning dependency checksums {patch}"
+          git push -f --set-upstream origin ${{ github.ref_name }}

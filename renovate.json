@@ -6,6 +6,7 @@
   "assignees": [
     "nagyesta"
   ],
+  "assigneesSampleSize": 1,
   "commitMessageSuffix": "{patch}",
   "docker": {
     "pinDigests": true

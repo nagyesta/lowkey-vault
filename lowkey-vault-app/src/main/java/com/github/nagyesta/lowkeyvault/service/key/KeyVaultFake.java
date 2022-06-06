@@ -34,4 +34,10 @@ public interface KeyVaultFake extends BaseVaultFake<KeyEntityId, VersionedKeyEnt
     VersionedKeyEntityId importRsaKeyVersion(VersionedKeyEntityId keyEntityId, JsonWebKeyImportRequest key) throws CryptoException;
 
     VersionedKeyEntityId importOctKeyVersion(VersionedKeyEntityId keyEntityId, JsonWebKeyImportRequest key) throws CryptoException;
+
+    ReadOnlyRotationPolicy rotationPolicy(KeyEntityId keyEntityId);
+
+    void setRotationPolicy(RotationPolicy rotationPolicy);
+
+    VersionedKeyEntityId rotateKey(KeyEntityId entityId);
 }

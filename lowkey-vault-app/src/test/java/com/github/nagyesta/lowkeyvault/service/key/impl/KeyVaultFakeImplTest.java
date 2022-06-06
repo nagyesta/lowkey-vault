@@ -4,10 +4,14 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
+import com.github.nagyesta.lowkeyvault.model.v7_3.key.constants.LifetimeActionType;
 import com.github.nagyesta.lowkeyvault.service.exception.AlreadyExistsException;
 import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
+import com.github.nagyesta.lowkeyvault.service.key.KeyLifetimeAction;
 import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
+import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyRotationPolicy;
+import com.github.nagyesta.lowkeyvault.service.key.constants.LifetimeActionTriggerType;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
@@ -22,10 +26,8 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.OffsetDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.List;
+import java.time.Period;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -33,6 +35,8 @@ import java.util.stream.Stream;
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST;
+import static com.github.nagyesta.lowkeyvault.service.key.constants.LifetimeActionTriggerType.MINIMUM_EXPIRY_PERIOD_IN_DAYS;
+import static com.github.nagyesta.lowkeyvault.service.key.constants.LifetimeActionTriggerType.MINIMUM_THRESHOLD_BEFORE_EXPIRY;
 import static org.mockito.Mockito.mock;
 
 class KeyVaultFakeImplTest {
@@ -605,7 +609,6 @@ class KeyVaultFakeImplTest {
     }
 
 
-
     @Test
     void testPurgeShouldThrowExceptionWhenCalledWithMissingDeletedKey() {
         //given
@@ -648,7 +651,6 @@ class KeyVaultFakeImplTest {
         //then + exception
     }
 
-    @SuppressWarnings("checkstyle:MagicNumber")
     @ParameterizedTest
     @ValueSource(ints = {-42, -10, -5, -3, -2, -1, 0})
     void testTimeShiftShouldThrowExceptionWhenCalledWithNegativeOrZero(final int value) {
@@ -670,6 +672,15 @@ class KeyVaultFakeImplTest {
         final ReadOnlyKeyVaultKeyEntity before = underTest.getEntities().getReadOnlyEntity(keyEntityId);
         final OffsetDateTime createdOriginal = before.getCreated();
         final OffsetDateTime updatedOriginal = before.getUpdated();
+        final KeyLifetimeActionTrigger trigger = new KeyLifetimeActionTrigger(
+                Period.ofDays(MINIMUM_EXPIRY_PERIOD_IN_DAYS),
+                LifetimeActionTriggerType.TIME_AFTER_CREATE);
+        final Period expiryTime = Period.ofDays(MINIMUM_EXPIRY_PERIOD_IN_DAYS + MINIMUM_THRESHOLD_BEFORE_EXPIRY);
+        underTest.setRotationPolicy(new KeyRotationPolicy(keyEntityId, expiryTime,
+                Map.of(LifetimeActionType.ROTATE, new KeyLifetimeAction(LifetimeActionType.ROTATE, trigger))));
+        final ReadOnlyRotationPolicy beforePolicy = underTest.rotationPolicy(keyEntityId);
+        final OffsetDateTime createdPolicyOriginal = beforePolicy.getCreatedOn();
+        final OffsetDateTime updatedPolicyOriginal = beforePolicy.getUpdatedOn();
 
         //when
         underTest.timeShift(NUMBER_OF_SECONDS_IN_10_MINUTES);
@@ -680,6 +691,9 @@ class KeyVaultFakeImplTest {
         Assertions.assertEquals(updatedOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), after.getUpdated());
         Assertions.assertEquals(TIME_10_MINUTES_AGO, after.getNotBefore().orElse(null));
         Assertions.assertEquals(NOW, after.getExpiry().orElse(null));
+        final ReadOnlyRotationPolicy afterPolicy = underTest.rotationPolicy(keyEntityId);
+        Assertions.assertEquals(createdPolicyOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), afterPolicy.getCreatedOn());
+        Assertions.assertEquals(updatedPolicyOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), afterPolicy.getUpdatedOn());
     }
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
@@ -707,6 +721,119 @@ class KeyVaultFakeImplTest {
         Assertions.assertEquals(scheduledPurgeOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), after.getScheduledPurgeDate().get());
         Assertions.assertEquals(TIME_10_MINUTES_AGO, after.getNotBefore().orElse(null));
         Assertions.assertEquals(NOW, after.getExpiry().orElse(null));
+    }
+
+    @Test
+    void testSetRotationPolicyShouldKeepCreatedWhenCalledASecondTime() {
+        //given
+        final KeyVaultFake underTest = createUnderTest();
+        final VersionedKeyEntityId keyEntityId = underTest.createEcKeyVersion(KEY_NAME_1, EC_KEY_CREATION_INPUT);
+        underTest.setExpiry(keyEntityId, NOW, TIME_IN_10_MINUTES);
+        final KeyLifetimeActionTrigger rotateOriginal = new KeyLifetimeActionTrigger(
+                Period.ofDays(MINIMUM_THRESHOLD_BEFORE_EXPIRY),
+                LifetimeActionTriggerType.TIME_AFTER_CREATE);
+        final KeyLifetimeActionTrigger rotateSecond = new KeyLifetimeActionTrigger(
+                Period.ofDays(MINIMUM_EXPIRY_PERIOD_IN_DAYS),
+                LifetimeActionTriggerType.TIME_AFTER_CREATE);
+        final Period expiryTime = Period.ofDays(MINIMUM_EXPIRY_PERIOD_IN_DAYS + MINIMUM_THRESHOLD_BEFORE_EXPIRY);
+        final KeyRotationPolicy rotationPolicyOriginal = new KeyRotationPolicy(keyEntityId, expiryTime,
+                Map.of(LifetimeActionType.ROTATE, new KeyLifetimeAction(LifetimeActionType.ROTATE, rotateOriginal)));
+        final KeyRotationPolicy rotationPolicySecond = new KeyRotationPolicy(keyEntityId, expiryTime,
+                Map.of(LifetimeActionType.ROTATE, new KeyLifetimeAction(LifetimeActionType.ROTATE, rotateSecond)));
+        underTest.setRotationPolicy(rotationPolicyOriginal);
+        final ReadOnlyRotationPolicy beforePolicy = underTest.rotationPolicy(keyEntityId);
+        final OffsetDateTime createdPolicyOriginal = beforePolicy.getCreatedOn();
+        final OffsetDateTime updatedPolicyOriginal = beforePolicy.getUpdatedOn();
+
+        //when
+        underTest.setRotationPolicy(rotationPolicySecond);
+
+        //then
+        final ReadOnlyRotationPolicy afterPolicy = underTest.rotationPolicy(keyEntityId);
+        Assertions.assertEquals(createdPolicyOriginal, afterPolicy.getCreatedOn());
+        Assertions.assertTrue(updatedPolicyOriginal.isBefore(afterPolicy.getUpdatedOn()));
+    }
+
+    @Test
+    void testRotationPolicyShouldThrowExceptionWhenCalledWithNull() {
+        //given
+        final KeyVaultFake underTest = createUnderTest();
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.rotationPolicy(null));
+
+        //then + exception
+    }
+
+    @Test
+    void testSetRotationPolicyShouldThrowExceptionWhenCalledWithNull() {
+        //given
+        final KeyVaultFake underTest = createUnderTest();
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setRotationPolicy(null));
+
+        //then + exception
+    }
+
+    @Test
+    void testRotateKeyShouldCreateNewKeyVersionKeepingTagsAndOperationsWhenCalledWithExistingKey() {
+        //given
+        final KeyCurveName keyParameter = KeyCurveName.P_384;
+        final Map<String, String> tags = Map.of(KEY_1, VALUE_1);
+        final List<KeyOperation> operations = List.of(KeyOperation.ENCRYPT);
+
+        final KeyVaultFake underTest = createUnderTest();
+        final VersionedKeyEntityId keyEntityId = underTest
+                .createKeyVersion(KEY_NAME_1, new EcKeyCreationInput(KeyType.EC, keyParameter));
+        underTest.setKeyOperations(keyEntityId, operations);
+        underTest.addTags(keyEntityId, tags);
+        final VersionedKeyEntityId latestBeforeRotate = underTest.getEntities().getLatestVersionOfEntity(keyEntityId);
+        underTest.setExpiry(keyEntityId, null, TIME_IN_10_MINUTES);
+        underTest.setRotationPolicy(new DefaultKeyRotationPolicy(keyEntityId));
+
+        //when
+        underTest.rotateKey(keyEntityId);
+
+        //then
+        final VersionedKeyEntityId latestAfterRotate = underTest.getEntities().getLatestVersionOfEntity(keyEntityId);
+        Assertions.assertNotEquals(latestBeforeRotate, latestAfterRotate);
+        final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntities().getReadOnlyEntity(latestAfterRotate);
+        Assertions.assertEquals(keyParameter, actual.keyCreationInput().getKeyParameter());
+        Assertions.assertEquals(actual.getCreated().plusYears(1), actual.getExpiry().orElse(null));
+        Assertions.assertIterableEquals(operations, actual.getOperations());
+        Assertions.assertIterableEquals(tags.entrySet(), actual.getTags().entrySet());
+    }
+
+    @Test
+    void testRotateKeyShouldCreateNewKeyVersionWhenNoRotationPolicyIsDefined() {
+        //given
+        final KeyCurveName keyParameter = KeyCurveName.P_384;
+
+        final KeyVaultFake underTest = createUnderTest();
+        final VersionedKeyEntityId keyEntityId = underTest
+                .createKeyVersion(KEY_NAME_1, new EcKeyCreationInput(KeyType.EC, keyParameter));
+        final VersionedKeyEntityId latestBeforeRotate = underTest.getEntities().getLatestVersionOfEntity(keyEntityId);
+
+        //when
+        underTest.rotateKey(keyEntityId);
+
+        //then
+        final VersionedKeyEntityId latestAfterRotate = underTest.getEntities().getLatestVersionOfEntity(keyEntityId);
+        Assertions.assertNotEquals(latestBeforeRotate, latestAfterRotate);
+        final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntities().getReadOnlyEntity(latestAfterRotate);
+        Assertions.assertEquals(keyParameter, actual.keyCreationInput().getKeyParameter());
+    }
+
+    @Test
+    void testRotateKeyShouldThrowExceptionWhenCalledWithNull() {
+        //given
+        final KeyVaultFake underTest = createUnderTest();
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.rotateKey(null));
+
+        //then + exception
     }
 
     private KeyVaultFake createUnderTest() {

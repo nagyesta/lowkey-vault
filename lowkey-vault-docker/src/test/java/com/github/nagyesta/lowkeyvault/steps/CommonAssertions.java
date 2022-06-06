@@ -61,7 +61,8 @@ public class CommonAssertions {
         try (InputStream stream = getClass().getResourceAsStream(resource);
              InputStreamReader reader = new InputStreamReader(Objects.requireNonNull(stream));
              BufferedReader bufferedReader = new BufferedReader(reader)) {
-            return bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
+            return bufferedReader.lines().collect(Collectors.joining(""))
+                    .replaceAll(" +", "");
         }
     }
 }

@@ -68,4 +68,8 @@ public class KeyEntityId implements EntityId {
     public URI asUri(@NonNull final String query) {
         return URI.create(asUri().toString() + query);
     }
+
+    public URI asRotationPolicyUri() {
+        return URI.create(vault + "/keys/" + id() + "/rotationpolicy");
+    }
 }

@@ -45,6 +45,11 @@ public class EcKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, KeyCurveName
     }
 
     @Override
+    public KeyCreationInput<?> keyCreationInput() {
+        return new EcKeyCreationInput(getKeyType(), getKeyCurveName());
+    }
+
+    @Override
     public byte[] getX() {
         return ((ECPublicKey) getKey().getPublic()).getW().getAffineX().toByteArray();
     }

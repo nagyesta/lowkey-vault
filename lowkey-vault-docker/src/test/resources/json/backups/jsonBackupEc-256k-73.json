@@ -1,23 +1,58 @@
-[ {
-  "vaultBaseUri" : "https://keys-backup-jsonBackupEc-256k-73.localhost:8443",
-  "entityId" : "jsonBackupEc-256k-73",
-  "entityVersion" : "5425a5872c1f4a9fa96db8f40e6c5d07",
-  "attributes" : {
-    "enabled" : true,
-    "created" : 1649503879,
-    "updated" : 1649503879,
-    "recoveryLevel" : "Recoverable+Purgeable",
-    "recoverableDays" : 90
-  },
-  "tags" : { },
-  "managed" : false,
-  "keyMaterial" : {
-    "crv" : "P-256K",
-    "d" : "AONvayGgRSTtrfA6lkCRC-qYccs_pQh35ZSXssCulkrJ",
-    "key_ops" : [ "sign", "encrypt", "wrapKey" ],
-    "kid" : "https://keys-backup-jsonBackupEc-256k-73.localhost:8443/keys/jsonBackupEc-256k-73/5425a5872c1f4a9fa96db8f40e6c5d07",
-    "kty" : "EC",
-    "x" : "AOSHhd4mwdHNED-SdhTnMasUYuEwLPWpLb8rNx-NV9OH",
-    "y" : "DJivtzkKcvFCNe9ZmzCzflbG_CSQrbuDBauJDneZ6Xc"
+{
+  "versions": [
+    {
+      "vaultBaseUri": "https://keys-backup-jsonBackupEc-256k-73.localhost:8443",
+      "entityId": "jsonBackupEc-256k-73",
+      "entityVersion": "5425a5872c1f4a9fa96db8f40e6c5d07",
+      "attributes": {
+        "enabled": true,
+        "created": 1649503879,
+        "updated": 1649503879,
+        "recoveryLevel": "Recoverable+Purgeable",
+        "exp": 1659871879,
+        "recoverableDays": 90
+      },
+      "tags": {},
+      "managed": false,
+      "keyMaterial": {
+        "crv": "P-256K",
+        "d": "AONvayGgRSTtrfA6lkCRC-qYccs_pQh35ZSXssCulkrJ",
+        "key_ops": [
+          "sign",
+          "encrypt",
+          "wrapKey"
+        ],
+        "kid": "https://keys-backup-jsonBackupEc-256k-73.localhost:8443/keys/jsonBackupEc-256k-73/5425a5872c1f4a9fa96db8f40e6c5d07",
+        "kty": "EC",
+        "x": "AOSHhd4mwdHNED-SdhTnMasUYuEwLPWpLb8rNx-NV9OH",
+        "y": "DJivtzkKcvFCNe9ZmzCzflbG_CSQrbuDBauJDneZ6Xc"
+      }
+    }
+  ],
+  "rotationPolicy": {
+    "id": "https://keys-backup-jsonBackupEc-256k-73.localhost:8443/keys/jsonBackupEc-256k-73/rotationpolicy",
+    "lifetimeActions": [
+      {
+        "trigger": {
+          "timeBeforeExpiry": "P30D"
+        },
+        "action": {
+          "type": "notify"
+        }
+      },
+      {
+        "trigger": {
+          "timeAfterCreate": "P100D"
+        },
+        "action": {
+          "type": "rotate"
+        }
+      }
+    ],
+    "attributes": {
+      "expiryTime": "P120D",
+      "created": 1649503879,
+      "updated": 1649503879
+    }
   }
-} ]
+}

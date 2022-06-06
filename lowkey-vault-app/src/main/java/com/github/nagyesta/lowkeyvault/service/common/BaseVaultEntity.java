@@ -12,7 +12,7 @@ import java.util.Optional;
  *
  * @param <V> The type of the versioned Id identifying this entity.
  */
-public interface BaseVaultEntity<V extends EntityId> {
+public interface BaseVaultEntity<V extends EntityId> extends TimeAware {
 
     V getId();
 
@@ -51,8 +51,6 @@ public interface BaseVaultEntity<V extends EntityId> {
     boolean isPurgeExpired();
 
     boolean canPurge();
-
-    void timeShift(int offsetSeconds);
 
     boolean isManaged();
 

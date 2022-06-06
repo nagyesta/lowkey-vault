@@ -4,8 +4,11 @@ import com.github.nagyesta.lowkeyvault.controller.common.CommonKeyBackupRestoreC
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72BackupConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ModelConverter;
 import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyBackupList;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyBackupListItem;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyBackupModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyModel;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRequest;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +29,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @Validated
 @Component("KeyBackupRestoreControllerV72")
-public class KeyBackupRestoreController extends CommonKeyBackupRestoreController {
+public class KeyBackupRestoreController
+        extends CommonKeyBackupRestoreController<KeyBackupListItem, KeyBackupList, KeyBackupModel, KeyEntityToV72BackupConverter> {
 
     @Autowired
     protected KeyBackupRestoreController(final KeyEntityToV72ModelConverter modelConverter,
@@ -52,6 +56,21 @@ public class KeyBackupRestoreController extends CommonKeyBackupRestoreController
     public ResponseEntity<KeyVaultKeyModel> restore(@RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
                                                     @Valid @RequestBody final KeyBackupModel keyBackupModel) {
         return super.restore(baseUri, keyBackupModel);
+    }
+
+    @Override
+    protected JsonWebKeyImportRequest getKeyMaterial(final KeyBackupListItem entityVersion) {
+        return entityVersion.getKeyMaterial();
+    }
+
+    @Override
+    protected KeyBackupList getBackupList() {
+        return new KeyBackupList();
+    }
+
+    @Override
+    protected KeyBackupModel getBackupModel() {
+        return new KeyBackupModel();
     }
 
     @Override

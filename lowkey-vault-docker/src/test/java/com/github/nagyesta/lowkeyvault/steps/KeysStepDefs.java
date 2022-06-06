@@ -443,6 +443,14 @@ public class KeysStepDefs extends CommonAssertions {
         context.setBackupBytes("random", bytes);
     }
 
+    @When("the key named {name} is rotated")
+    public void theKeyIsRotated(final String name) {
+        final String oldId = context.getLastResult().getId();
+        final KeyVaultKey keyVaultKey = context.getClient(context.getKeyServiceVersion()).rotateKey(name);
+        assertTrue(!oldId.equals(keyVaultKey.getId()));
+        context.addFetchedKey(name, keyVaultKey);
+    }
+
     private byte[] hash(final byte[] text, final String algorithm) {
         try {
             final MessageDigest md = MessageDigest.getInstance("SHA-" + algorithm.substring(2, 5));

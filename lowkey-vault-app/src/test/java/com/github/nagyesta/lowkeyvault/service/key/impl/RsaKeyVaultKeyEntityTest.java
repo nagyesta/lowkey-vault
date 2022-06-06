@@ -245,4 +245,23 @@ class RsaKeyVaultKeyEntityTest {
 
         //then + exception
     }
+
+    @Test
+    void testKeyCreationInputShouldReturnOriginalParameters() {
+        //given
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
+        final int keySize = EncryptionAlgorithm.RSA_OAEP_256.getMinKeySize();
+        final BigInteger publicExponent = new BigInteger("3");
+        final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(
+                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, keySize, publicExponent, false);
+
+        //when
+        final KeyCreationInput<?> actual = underTest.keyCreationInput();
+
+        //then
+        Assertions.assertInstanceOf(RsaKeyCreationInput.class, actual);
+        final RsaKeyCreationInput value = (RsaKeyCreationInput) actual;
+        Assertions.assertEquals(keySize, value.getKeyParameter());
+        Assertions.assertEquals(publicExponent, value.getPublicExponent());
+    }
 }

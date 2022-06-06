@@ -5,6 +5,7 @@ import com.github.nagyesta.lowkeyvault.mapper.common.RecoveryAwareConverter;
 import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.BaseBackupListItem;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.BaseBackupModel;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.BackupListContainer;
 import com.github.nagyesta.lowkeyvault.service.EntityId;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultEntity;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultFake;
@@ -40,8 +41,8 @@ import java.util.stream.Collectors;
  * @param <S>   The fake type holding the entities.
  */
 public abstract class BaseBackupRestoreController<K extends EntityId, V extends K, E extends BaseVaultEntity<V>, M, DM extends M,
-        P extends BasePropertiesModel, BLI extends BaseBackupListItem<P>, BL extends List<BLI>, B extends BaseBackupModel<P, BLI, BL>,
-        BC extends BackupConverter<V, E, P, BLI>, MC extends RecoveryAwareConverter<E, M, DM>,
+        P extends BasePropertiesModel, BLI extends BaseBackupListItem<P>, BL extends BackupListContainer<BLI>,
+        B extends BaseBackupModel<P, BLI, BL>, BC extends BackupConverter<V, E, P, BLI>, MC extends RecoveryAwareConverter<E, M, DM>,
         S extends BaseVaultFake<K, V, E>> extends BaseEntityReadController<K, V, E, S> {
 
     private final MC modelConverter;
@@ -62,7 +63,7 @@ public abstract class BaseBackupRestoreController<K extends EntityId, V extends 
         final String id = getSingleEntityName(backupModel);
         final K entityId = entityId(baseUri, id);
         assertNameDoesNotExistYet(vault, entityId);
-        backupModel.getValue().forEach(entityVersion -> {
+        backupModel.getValue().getVersions().forEach(entityVersion -> {
             final V versionedEntityId = versionedEntityId(baseUri, id, entityVersion.getVersion());
             restoreVersion(vault, versionedEntityId, entityVersion);
         });
@@ -98,11 +99,29 @@ public abstract class BaseBackupRestoreController<K extends EntityId, V extends 
 
     protected abstract BL getBackupList();
 
+    protected String getSingleEntityName(final B backupModel) {
+        final List<String> entityNames = backupModel.getValue().getVersions().stream()
+                .map(BLI::getId)
+                .distinct()
+                .collect(Collectors.toUnmodifiableList());
+        Assert.isTrue(entityNames.size() == 1, "All backup entities must belong to the same entity.");
+        return entityNames.get(0);
+    }
+
+    protected URI getSingleBaseUri(final B backupModel) {
+        final List<URI> uris = backupModel.getValue().getVersions().stream()
+                .map(BLI::getVaultBaseUri)
+                .distinct()
+                .collect(Collectors.toUnmodifiableList());
+        Assert.isTrue(uris.size() == 1, "All backup entities must be from the same vault.");
+        return uris.get(0);
+    }
+
     private B wrapBackup(final List<BLI> list) {
         final BL listModel = Optional.ofNullable(list)
                 .map(l -> {
                     final BL backupList = getBackupList();
-                    backupList.addAll(l);
+                    backupList.setVersions(l);
                     return backupList;
                 })
                 .orElse(null);
@@ -116,24 +135,6 @@ public abstract class BaseBackupRestoreController<K extends EntityId, V extends 
                 "Vault already contains entity with name: " + entityId.id());
         Assert.isTrue(!vault.getDeletedEntities().containsName(entityId.id()),
                 "Vault already contains deleted entity with name: " + entityId.id());
-    }
-
-    private String getSingleEntityName(final B backupModel) {
-        final List<String> entityNames = backupModel.getValue().stream()
-                .map(BLI::getId)
-                .distinct()
-                .collect(Collectors.toUnmodifiableList());
-        Assert.isTrue(entityNames.size() == 1, "All backup entities must belong to the same entity.");
-        return entityNames.get(0);
-    }
-
-    private URI getSingleBaseUri(final B backupModel) {
-        final List<URI> uris = backupModel.getValue().stream()
-                .map(BLI::getVaultBaseUri)
-                .distinct()
-                .collect(Collectors.toUnmodifiableList());
-        Assert.isTrue(uris.size() == 1, "All backup entities must be from the same vault.");
-        return uris.get(0);
     }
 
 }

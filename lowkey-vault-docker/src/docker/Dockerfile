@@ -1,4 +1,4 @@
-FROM eclipse-temurin:11.0.15_10-jre-alpine@sha256:37c5e98456f7a9a36d4e385a2d068963b82c1c8e2d4943610d93d13c5f65324a
+FROM eclipse-temurin:11.0.15_10-jre-alpine@sha256:e75a0b1ce5035e68c93e085eb6bcee0c1617c62c2090b98ad6ddbdc94d0bdc85
 LABEL maintainer="nagyesta@gmail.com"
 EXPOSE 8443:8443
 ADD lowkey-vault.jar /lowkey-vault.jar

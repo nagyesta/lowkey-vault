@@ -4,6 +4,7 @@ import com.azure.core.http.HttpHeaders;
 import com.azure.core.http.HttpMethod;
 import com.azure.core.http.HttpRequest;
 import com.azure.core.http.HttpResponse;
+import com.azure.core.util.BinaryData;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.junit.jupiter.api.Assertions;
@@ -11,14 +12,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
-import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -54,13 +53,8 @@ class ApacheHttpClientTest {
         final URL url = new URL("https://localhost");
         final HttpHeaders headers = new HttpHeaders(Map.of(HEADER_1, HEADER_VALUE_1, HEADER_2, HEADER_VALUE_2));
         final HttpClient client = mock(HttpClient.class);
-        final HttpRequest azureRequest;
-        if (body != null) {
-            azureRequest = new HttpRequest(method, url, headers,
-                    Flux.defer(() -> Flux.just(ByteBuffer.wrap(body.getBytes(StandardCharsets.UTF_8)))));
-        } else {
-            azureRequest = new HttpRequest(method, url, headers, null);
-        }
+        final String nonNullBody = Optional.ofNullable(body).orElse("");
+        final HttpRequest azureRequest = new HttpRequest(method, url, headers, BinaryData.fromString(nonNullBody));
         final org.apache.http.HttpResponse response = ApacheHttpResponseTest.responseMock();
         final ArgumentCaptor<HttpUriRequest> captor = ArgumentCaptor.forClass(HttpUriRequest.class);
         when(client.execute(captor.capture())).thenReturn(response);

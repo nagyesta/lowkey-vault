@@ -5,6 +5,7 @@ import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
 
 import java.time.OffsetDateTime;
 import java.time.Period;
+import java.util.List;
 import java.util.Map;
 
 public interface ReadOnlyRotationPolicy {
@@ -18,5 +19,9 @@ public interface ReadOnlyRotationPolicy {
     Period getExpiryTime();
 
     Map<LifetimeActionType, LifetimeAction> getLifetimeActions();
+
+    boolean isAutoRotate();
+
+    List<OffsetDateTime> missedRotations(OffsetDateTime keyCreation);
 
 }

@@ -156,8 +156,8 @@ class KeyRotationPolicyV73ModelToEntityConverterTest {
 
     private KeyRotationPolicyAttributes attributes(final Period expiryTime) {
         final KeyRotationPolicyAttributes attributes = new KeyRotationPolicyAttributes();
-        attributes.setCreatedOn(TIME_10_MINUTES_AGO);
-        attributes.setUpdatedOn(NOW);
+        attributes.setCreated(TIME_10_MINUTES_AGO);
+        attributes.setUpdated(NOW);
         attributes.setExpiryTime(expiryTime);
         return attributes;
     }

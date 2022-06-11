@@ -2,6 +2,7 @@ package com.github.nagyesta.lowkeyvault.service.key.impl;
 
 import com.github.nagyesta.lowkeyvault.service.key.constants.LifetimeActionTriggerType;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -67,5 +68,17 @@ class KeyLifetimeActionTriggerTest {
 
         //then
         Assertions.assertEquals(expected, actual);
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Test
+    void testRotateAfterDaysShouldThrowExceptionWhenCalledWithNull() {
+        //given
+        final KeyLifetimeActionTrigger underTest = new KeyLifetimeActionTrigger(PERIOD_28_DAYS, TIME_AFTER_CREATE);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.rotateAfterDays(null));
+
+        //then + exception
     }
 }

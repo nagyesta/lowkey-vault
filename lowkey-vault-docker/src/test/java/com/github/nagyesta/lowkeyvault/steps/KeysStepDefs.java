@@ -552,4 +552,15 @@ public class KeysStepDefs extends CommonAssertions {
             return "SHA512withRSA";
         }
     }
+
+    @And("the rotation policy is set to rotate after {int} days with expiry of {int} days")
+    public void theRotationPolicyIsSetToRotateAfterDaysWithExpiryDays(final int rotateDays, final int expiryDays) {
+        final String name = context.getLastResult().getName();
+        final KeyRotationLifetimeAction action = new KeyRotationLifetimeAction(KeyRotationPolicyAction.ROTATE)
+                .setTimeAfterCreate("P" + rotateDays + "D");
+        context.getClient(context.getKeyServiceVersion())
+                .updateKeyRotationPolicy(name, new KeyRotationPolicy()
+                        .setLifetimeActions(List.of(action))
+                        .setExpiresIn("P" + expiryDays + "D"));
+    }
 }

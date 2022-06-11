@@ -14,7 +14,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.OffsetDateTime;
 import java.time.Period;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
@@ -67,6 +69,65 @@ class KeyRotationPolicyTest {
                 .add(Arguments.of(null, Period.ZERO, Map.of()))
                 .add(Arguments.of(UNVERSIONED_KEY_ENTITY_ID_1, null, Map.of()))
                 .add(Arguments.of(UNVERSIONED_KEY_ENTITY_ID_1, Period.ZERO, null))
+                .build();
+    }
+
+    public static Stream<Arguments> autoRotateActionProvider() {
+        return Stream.<Arguments>builder()
+                .add(Arguments.of(Map.of(
+                        LifetimeActionType.NOTIFY, NOTIFY_7_DAYS_BEFORE_EXPIRY,
+                        LifetimeActionType.ROTATE, ROTATE_42_DAYS_AFTER_CREATE), true))
+                .add(Arguments.of(Map.of(
+                        LifetimeActionType.ROTATE, ROTATE_42_DAYS_AFTER_CREATE), true))
+                .add(Arguments.of(Map.of(
+                        LifetimeActionType.NOTIFY, NOTIFY_7_DAYS_BEFORE_EXPIRY), false))
+                .add(Arguments.of(Map.of(), false))
+                .build();
+    }
+
+    @SuppressWarnings("checkstyle:MagicNumber")
+    public static Stream<Arguments> missedRotationsProvider() {
+        return Stream.<Arguments>builder()
+                .add(Arguments
+                        .of(10, //keyCreatedDaysAgo
+                                10, //policyCreatedDaysAgo
+                                30, //policyExpiryDays
+                                20, //policyRotatePeriod
+                                LifetimeActionTriggerType.TIME_AFTER_CREATE,
+                                List.of() //expectedRotationsDaysAgo
+                        ))
+                .add(Arguments
+                        .of(40, //keyCreatedDaysAgo
+                                10, //policyCreatedDaysAgo
+                                35, //policyExpiryDays
+                                25, //policyRotatePeriod
+                                LifetimeActionTriggerType.TIME_AFTER_CREATE,
+                                List.of(10) //expectedRotationsDaysAgo
+                        ))
+                .add(Arguments
+                        .of(120, //keyCreatedDaysAgo
+                                110, //policyCreatedDaysAgo
+                                90, //policyExpiryDays
+                                20, //policyRotatePeriod
+                                LifetimeActionTriggerType.TIME_AFTER_CREATE,
+                                List.of(100, 80, 60, 40, 20, 0) //expectedRotationsDaysAgo
+                        ))
+                .add(Arguments
+                        .of(120, //keyCreatedDaysAgo
+                                110, //policyCreatedDaysAgo
+                                90, //policyExpiryDays
+                                20, //policyRotatePeriod
+                                LifetimeActionTriggerType.TIME_BEFORE_EXPIRY,
+                                List.of(50) //expectedRotationsDaysAgo
+                        ))
+                .add(Arguments
+                        .of(30, //keyCreatedDaysAgo
+                                30, //policyCreatedDaysAgo
+                                30, //policyExpiryDays
+                                7, //policyRotatePeriod
+                                LifetimeActionTriggerType.TIME_BEFORE_EXPIRY,
+                                List.of(7) //expectedRotationsDaysAgo
+                        ))
                 .build();
     }
 
@@ -301,5 +362,68 @@ class KeyRotationPolicyTest {
         }
 
         //then + exception
+    }
+
+    @ParameterizedTest
+    @MethodSource("autoRotateActionProvider")
+    void testIsAutoRotateShouldReturnTrueWhenRotateActionIsPresent(
+            final Map<LifetimeActionType, LifetimeAction> input, final boolean expected) {
+        //given
+        final KeyRotationPolicy underTest = new KeyRotationPolicy(UNVERSIONED_KEY_ENTITY_ID_1, Period.parse(DAYS_100), input);
+
+        //when
+        final boolean actual = underTest.isAutoRotate();
+
+        //then
+        Assertions.assertEquals(expected, actual);
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Test
+    void testMissedRotationsShouldThrowExceptionWhenCalledWithNull() {
+        //given
+        final KeyRotationPolicy underTest = new KeyRotationPolicy(UNVERSIONED_KEY_ENTITY_ID_1, Period.parse(DAYS_100),
+                Map.of(LifetimeActionType.ROTATE, ROTATE_42_DAYS_AFTER_CREATE));
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.missedRotations(null));
+
+        //then + exception
+    }
+
+    @Test
+    void testMissedRotationsShouldThrowExceptionWhenThereIsNoRotateAction() {
+        //given
+        final KeyRotationPolicy underTest = new KeyRotationPolicy(UNVERSIONED_KEY_ENTITY_ID_1, Period.parse(DAYS_100), Map.of());
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.missedRotations(OffsetDateTime.now()));
+
+        //then + exception
+    }
+
+    @ParameterizedTest
+    @MethodSource("missedRotationsProvider")
+    void testMissedRotationsShouldReturnExpectedRotationTimestampsWhenCalledWithValidInput(
+            final int keyCreatedDaysAgo, final int policyCreatedDaysAgo, final int policyExpiryDays,
+            final int policyRotatePeriod, final LifetimeActionTriggerType triggerType,
+            final List<Integer> expectedRotationsDaysAgo) {
+        //given
+        final KeyLifetimeActionTrigger trigger = new KeyLifetimeActionTrigger(Period.ofDays(policyRotatePeriod), triggerType);
+        final KeyRotationPolicy underTest = new KeyRotationPolicy(UNVERSIONED_KEY_ENTITY_ID_1, Period.ofDays(policyExpiryDays),
+                Map.of(LifetimeActionType.ROTATE, new KeyLifetimeAction(LifetimeActionType.ROTATE, trigger)));
+        underTest.setCreatedOn(NOW.minusDays(policyCreatedDaysAgo));
+        underTest.setUpdatedOn(NOW.minusDays(policyCreatedDaysAgo));
+
+        final OffsetDateTime keyCreatedOn = NOW.minusDays(keyCreatedDaysAgo);
+
+        //when
+        final List<OffsetDateTime> actual = underTest.missedRotations(keyCreatedOn);
+
+        //then
+        final List<OffsetDateTime> expected = expectedRotationsDaysAgo.stream()
+                .map(NOW::minusDays)
+                .collect(Collectors.toList());
+        Assertions.assertIterableEquals(expected, actual);
     }
 }

@@ -41,8 +41,8 @@ class KeyRotationPolicyToV73ModelConverterTest {
         //then
         Assertions.assertNotNull(actual);
         Assertions.assertEquals(keyEntityId.asRotationPolicyUri(), actual.getId());
-        Assertions.assertEquals(TIME_10_MINUTES_AGO, actual.getAttributes().getCreatedOn());
-        Assertions.assertEquals(TIME_IN_10_MINUTES, actual.getAttributes().getUpdatedOn());
+        Assertions.assertEquals(TIME_10_MINUTES_AGO, actual.getAttributes().getCreated());
+        Assertions.assertEquals(TIME_IN_10_MINUTES, actual.getAttributes().getUpdated());
         Assertions.assertEquals(expiryTime, actual.getAttributes().getExpiryTime());
         Assertions.assertEquals(1, actual.getLifetimeActions().size());
         final KeyLifetimeActionModel actionModel = actual.getLifetimeActions().get(0);

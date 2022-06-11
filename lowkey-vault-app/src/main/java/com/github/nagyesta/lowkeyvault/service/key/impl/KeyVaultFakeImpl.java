@@ -20,6 +20,8 @@ import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.NonNull;
 import org.springframework.util.Assert;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -144,6 +146,13 @@ public class KeyVaultFakeImpl
     public void timeShift(final int offsetSeconds) {
         super.timeShift(offsetSeconds);
         rotationPolicies.values().forEach(p -> p.timeShift(offsetSeconds));
+        performPastRotations();
+    }
+
+    private void performPastRotations() {
+        rotationPolicies.values().stream()
+                .filter(ReadOnlyRotationPolicy::isAutoRotate)
+                .forEach(this::performMissedRotationsOfPolicy);
     }
 
     @Override
@@ -186,5 +195,20 @@ public class KeyVaultFakeImpl
     private ReadOnlyKeyVaultKeyEntity latestReadOnlyKeyVersion(final KeyEntityId keyEntityId) {
         final VersionedKeyEntityId latestVersionOfEntity = getEntities().getLatestVersionOfEntity(keyEntityId);
         return getEntities().getReadOnlyEntity(latestVersionOfEntity);
+    }
+
+    private void performMissedRotationsOfPolicy(final RotationPolicy rotationPolicy) {
+        final KeyEntityId keyEntityId = rotationPolicy.getId();
+        final VersionedKeyEntityId latestVersionOfEntity = getEntities().getLatestVersionOfEntity(keyEntityId);
+        final ReadOnlyKeyVaultKeyEntity readOnlyEntity = getEntities().getReadOnlyEntity(latestVersionOfEntity);
+        rotationPolicy.missedRotations(readOnlyEntity.getCreated())
+                .forEach(rotationTime -> simulatePointInTimeRotation(keyEntityId, rotationTime));
+    }
+
+    private void simulatePointInTimeRotation(final KeyEntityId keyEntityId, final OffsetDateTime rotationTime) {
+        final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+        final int diffSeconds = (int) (now.toEpochSecond() - rotationTime.toEpochSecond());
+        final VersionedKeyEntityId versionedKeyEntityId = rotateKey(keyEntityId);
+        getEntities().getEntity(versionedKeyEntityId, KeyVaultKeyEntity.class).timeShift(diffSeconds);
     }
 }

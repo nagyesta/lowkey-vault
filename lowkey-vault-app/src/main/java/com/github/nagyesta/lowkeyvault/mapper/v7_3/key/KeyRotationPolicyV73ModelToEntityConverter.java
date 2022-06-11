@@ -54,8 +54,8 @@ public class KeyRotationPolicyV73ModelToEntityConverter {
     }
 
     private RotationPolicy convertAttributes(final KeyRotationPolicyAttributes source, final RotationPolicy entity) {
-        entity.setCreatedOn(Optional.ofNullable(source).map(KeyRotationPolicyAttributes::getCreatedOn).orElse(OffsetDateTime.now()));
-        entity.setUpdatedOn(Optional.ofNullable(source).map(KeyRotationPolicyAttributes::getUpdatedOn).orElse(OffsetDateTime.now()));
+        entity.setCreatedOn(Optional.ofNullable(source).map(KeyRotationPolicyAttributes::getCreated).orElse(OffsetDateTime.now()));
+        entity.setUpdatedOn(Optional.ofNullable(source).map(KeyRotationPolicyAttributes::getUpdated).orElse(OffsetDateTime.now()));
         return entity;
     }
 

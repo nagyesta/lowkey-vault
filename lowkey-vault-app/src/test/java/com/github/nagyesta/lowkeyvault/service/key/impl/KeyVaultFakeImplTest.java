@@ -44,6 +44,8 @@ class KeyVaultFakeImplTest {
     private static final int DAYS = 42;
     private static final int COUNT = 10;
     private static final EcKeyCreationInput EC_KEY_CREATION_INPUT = new EcKeyCreationInput(KeyType.EC, KeyCurveName.P_256);
+    private static final int OFFSET_SECONDS_120_DAYS = 120 * 24 * 60 * 60;
+    private static final int ROTATIONS_UNDER_120_DAYS = 120 / MINIMUM_EXPIRY_PERIOD_IN_DAYS;
 
     public static Stream<Arguments> genericKeyCreateInputProvider() {
         return Stream.<Arguments>builder()
@@ -752,6 +754,44 @@ class KeyVaultFakeImplTest {
         final ReadOnlyRotationPolicy afterPolicy = underTest.rotationPolicy(keyEntityId);
         Assertions.assertEquals(createdPolicyOriginal, afterPolicy.getCreatedOn());
         Assertions.assertTrue(updatedPolicyOriginal.isBefore(afterPolicy.getUpdatedOn()));
+    }
+
+    @Test
+    void testTimeShiftShouldPerformMissedRotationsWhenNecessary() {
+        //given
+        final KeyVaultFake underTest = createUnderTest();
+        final VersionedKeyEntityId keyEntityId = underTest.createEcKeyVersion(KEY_NAME_1, EC_KEY_CREATION_INPUT);
+        underTest.setExpiry(keyEntityId, NOW, TIME_IN_10_MINUTES);
+        final ReadOnlyKeyVaultKeyEntity before = underTest.getEntities().getReadOnlyEntity(keyEntityId);
+        final OffsetDateTime createdOriginal = before.getCreated();
+        final OffsetDateTime updatedOriginal = before.getUpdated();
+        final KeyLifetimeActionTrigger trigger = new KeyLifetimeActionTrigger(
+                Period.ofDays(MINIMUM_EXPIRY_PERIOD_IN_DAYS),
+                LifetimeActionTriggerType.TIME_AFTER_CREATE);
+        final Period expiryTime = Period.ofDays(MINIMUM_EXPIRY_PERIOD_IN_DAYS + MINIMUM_THRESHOLD_BEFORE_EXPIRY);
+        underTest.setRotationPolicy(new KeyRotationPolicy(keyEntityId, expiryTime,
+                Map.of(LifetimeActionType.ROTATE, new KeyLifetimeAction(LifetimeActionType.ROTATE, trigger))));
+        final ReadOnlyRotationPolicy beforePolicy = underTest.rotationPolicy(keyEntityId);
+        final OffsetDateTime createdPolicyOriginal = beforePolicy.getCreatedOn();
+        final OffsetDateTime updatedPolicyOriginal = beforePolicy.getUpdatedOn();
+
+        final int sizeBefore = underTest.getEntities().getVersions(keyEntityId).size();
+
+        //when
+        underTest.timeShift(OFFSET_SECONDS_120_DAYS);
+
+        //then
+        final int sizeAfter = underTest.getEntities().getVersions(keyEntityId).size();
+        final ReadOnlyKeyVaultKeyEntity after = underTest.getEntities().getReadOnlyEntity(keyEntityId);
+        Assertions.assertEquals(createdOriginal.minusSeconds(OFFSET_SECONDS_120_DAYS), after.getCreated());
+        Assertions.assertEquals(updatedOriginal.minusSeconds(OFFSET_SECONDS_120_DAYS), after.getUpdated());
+        Assertions.assertEquals(NOW.minusSeconds(OFFSET_SECONDS_120_DAYS), after.getNotBefore().orElse(null));
+        Assertions.assertEquals(TIME_IN_10_MINUTES.minusSeconds(OFFSET_SECONDS_120_DAYS), after.getExpiry().orElse(null));
+        Assertions.assertNotEquals(sizeAfter, sizeBefore);
+        Assertions.assertEquals(ROTATIONS_UNDER_120_DAYS, sizeAfter - sizeBefore);
+        final ReadOnlyRotationPolicy afterPolicy = underTest.rotationPolicy(keyEntityId);
+        Assertions.assertEquals(createdPolicyOriginal.minusSeconds(OFFSET_SECONDS_120_DAYS), afterPolicy.getCreatedOn());
+        Assertions.assertEquals(updatedPolicyOriginal.minusSeconds(OFFSET_SECONDS_120_DAYS), afterPolicy.getUpdatedOn());
     }
 
     @Test

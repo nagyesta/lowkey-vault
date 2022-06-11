@@ -1,7 +1,6 @@
 package com.github.nagyesta.lowkeyvault.steps;
 
-import com.azure.security.keyvault.keys.models.KeyCurveName;
-import com.azure.security.keyvault.keys.models.KeyOperation;
+import com.azure.security.keyvault.keys.models.*;
 import com.github.nagyesta.lowkeyvault.context.KeyTestContext;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
@@ -183,6 +182,24 @@ public class KeysStepDefsAssertions extends CommonAssertions {
     public void theLengthOfTheRandomDataIsBytes(final int count) {
         final int actual = context.getBackupBytes("random").length;
         assertEquals(count, actual);
-        ;
+    }
+
+    @Then("the key named auto-rotate has {int} versions")
+    public void theKeyNamedAutoRotateHasVersions(final int versions) {
+        final List<KeyProperties> keyVersions = context.getClient(context.getKeyServiceVersion())
+                .listPropertiesOfKeyVersions(context.getLastResult().getName())
+                .stream()
+                .collect(Collectors.toList());
+        assertEquals(versions, keyVersions.size());
+    }
+
+    @And("the rotation policy of {name} is rotating after {int} days with expiry of {int} days")
+    public void theRotationPolicyOfKeyIsRotatingAfterDaysWithExpiryOfDays(final String keyName, final int rotate, final int expiry) {
+        final KeyRotationPolicy keyRotationPolicy = context.getClient(context.getKeyServiceVersion()).getKeyRotationPolicy(keyName);
+        assertEquals("P" + expiry + "D", keyRotationPolicy.getExpiresIn());
+        assertEquals(1, keyRotationPolicy.getLifetimeActions().size());
+        final KeyRotationLifetimeAction action = keyRotationPolicy.getLifetimeActions().get(0);
+        assertEquals("P" + rotate + "D", action.getTimeAfterCreate());
+        assertEquals(KeyRotationPolicyAction.ROTATE, action.getAction());
     }
 }

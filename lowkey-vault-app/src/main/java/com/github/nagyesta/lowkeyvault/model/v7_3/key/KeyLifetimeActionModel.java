@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.github.nagyesta.lowkeyvault.model.v7_3.key.validator.Restore;
+import com.github.nagyesta.lowkeyvault.model.v7_3.key.validator.Update;
 import lombok.Data;
 
 import javax.validation.Valid;
@@ -14,11 +16,11 @@ import javax.validation.constraints.NotNull;
 @JsonPropertyOrder({"trigger", "action"})
 public class KeyLifetimeActionModel {
 
-    @NotNull
+    @NotNull(groups = {Restore.class, Update.class})
     @Valid
     @JsonProperty("trigger")
     private KeyLifetimeActionTriggerModel trigger;
-    @NotNull
+    @NotNull(groups = {Restore.class, Update.class})
     @Valid
     @JsonProperty("action")
     private KeyLifetimeActionTypeModel action;

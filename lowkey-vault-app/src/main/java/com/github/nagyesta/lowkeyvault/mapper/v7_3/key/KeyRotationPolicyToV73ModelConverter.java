@@ -34,8 +34,8 @@ public class KeyRotationPolicyToV73ModelConverter implements Converter<ReadOnlyR
     private KeyRotationPolicyAttributes convertAttributes(final ReadOnlyRotationPolicy readOnlyRotationPolicy) {
         final KeyRotationPolicyAttributes attributes = new KeyRotationPolicyAttributes();
         attributes.setExpiryTime(readOnlyRotationPolicy.getExpiryTime());
-        attributes.setCreatedOn(readOnlyRotationPolicy.getCreatedOn());
-        attributes.setUpdatedOn(readOnlyRotationPolicy.getUpdatedOn());
+        attributes.setCreated(readOnlyRotationPolicy.getCreatedOn());
+        attributes.setUpdated(readOnlyRotationPolicy.getUpdatedOn());
         return attributes;
     }
 

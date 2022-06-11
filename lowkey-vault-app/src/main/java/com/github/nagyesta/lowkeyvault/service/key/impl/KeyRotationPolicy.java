@@ -10,6 +10,9 @@ import org.springframework.util.Assert;
 
 import java.time.OffsetDateTime;
 import java.time.Period;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class KeyRotationPolicy implements RotationPolicy {
@@ -48,6 +51,19 @@ public class KeyRotationPolicy implements RotationPolicy {
     @Override
     public Period getExpiryTime() {
         return expiryTime;
+    }
+
+    @Override
+    public boolean isAutoRotate() {
+        return lifetimeActions.containsKey(LifetimeActionType.ROTATE);
+    }
+
+    @Override
+    public List<OffsetDateTime> missedRotations(@NonNull final OffsetDateTime keyCreation) {
+        Assert.isTrue(isAutoRotate(), "Cannot have missed rotations without a \"rotate\" lifetime action.");
+        final long rotateAfterDays = lifetimeActions.get(LifetimeActionType.ROTATE).getTrigger().rotateAfterDays(expiryTime);
+        final OffsetDateTime startPoint = findRotationTimeOffset(keyCreation, rotateAfterDays);
+        return collectMissedRotationDays(rotateAfterDays, startPoint);
     }
 
     @Override
@@ -95,6 +111,24 @@ public class KeyRotationPolicy implements RotationPolicy {
         Assert.isTrue(offsetSeconds > 0, "Offset must be positive.");
         createdOn = createdOn.minusSeconds(offsetSeconds);
         updatedOn = updatedOn.minusSeconds(offsetSeconds);
+    }
+
+    private List<OffsetDateTime> collectMissedRotationDays(final long rotateAfterDays, final OffsetDateTime startPoint) {
+        final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+        final List<OffsetDateTime> rotationTimes = new ArrayList<>();
+        for (int i = 1; startPoint.plusDays(i * rotateAfterDays).isBefore(now); i++) {
+            rotationTimes.add(startPoint.plusDays(i * rotateAfterDays));
+        }
+        return List.copyOf(rotationTimes);
+    }
+
+    private OffsetDateTime findRotationTimeOffset(final OffsetDateTime keyCreation, final long rotateAfterDays) {
+        final OffsetDateTime relativeToRotationPolicy = createdOn.minusDays(rotateAfterDays);
+        OffsetDateTime startPoint = keyCreation;
+        if (keyCreation.isBefore(relativeToRotationPolicy)) {
+            startPoint = relativeToRotationPolicy;
+        }
+        return startPoint;
     }
 
     private boolean notifyIsNotRemoved(final Map<LifetimeActionType, LifetimeAction> lifetimeActions) {

@@ -44,7 +44,7 @@ public final class ApacheHttpClient implements HttpClient {
         this.authorityOverrideFunction = Objects.requireNonNull(authorityOverrideFunction);
     }
 
-    @SuppressWarnings("BlockingMethodInNonBlockingContext")
+    @SuppressWarnings({"ReactiveStreamsUnusedPublisher"})
     public Mono<HttpResponse> send(final HttpRequest azureRequest) {
         try {
             final ApacheHttpRequest apacheRequest = new ApacheHttpRequest(azureRequest.getHttpMethod(),

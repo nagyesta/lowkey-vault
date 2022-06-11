@@ -28,3 +28,15 @@ Feature: Vault Management
     # Then
     And vault list is saved as updated
     And the time stamps of original and updated differ by 42 days
+
+  @CreateVault @TimeShift @Key @KeyCreate @EC
+  Scenario: MANAGEMENT_04 A vault is created with a key rotation policy then time is shifted by 91 days to trigger auto rotate.
+    Given a vault is created with name vault-management-time-auto-rotate
+    And key API version 7.3 is used
+    And a key client is created with the vault named vault-management-time-auto-rotate
+    And an EC key named auto-rotate is prepared with P-256K and with HSM
+    And 1 version of the EC key is created
+    And the rotation policy is set to rotate after 30 days with expiry of 37 days
+    When the time of the vault named vault-management-time-auto-rotate is shifted by 91 days
+    Then the key named auto-rotate has 4 versions
+    And the rotation policy of auto-rotate is rotating after 30 days with expiry of 37 days

@@ -12,4 +12,6 @@ public interface LifetimeActionTrigger {
     LifetimeActionTriggerType getTriggerType();
 
     boolean shouldTrigger(OffsetDateTime created, OffsetDateTime expiry);
+
+    long rotateAfterDays(Period expiryPeriod);
 }

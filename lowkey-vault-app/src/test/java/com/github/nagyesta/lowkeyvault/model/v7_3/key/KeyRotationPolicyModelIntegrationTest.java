@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nagyesta.lowkeyvault.ResourceUtils;
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.constants.LifetimeActionType;
+import com.github.nagyesta.lowkeyvault.model.v7_3.key.validator.Restore;
 import com.github.nagyesta.lowkeyvault.service.key.constants.LifetimeActionTriggerType;
 import com.github.nagyesta.lowkeyvault.service.key.impl.KeyLifetimeActionTrigger;
 import org.junit.jupiter.api.Assertions;
@@ -60,6 +61,8 @@ class KeyRotationPolicyModelIntegrationTest {
                 .add(Arguments.of("/key/rotation/invalid-rotation-policy-empty-actions.json", "lifetimeActions"))
                 .add(Arguments.of("/key/rotation/invalid-rotation-policy-missing-attributes.json", "attributes"))
                 .add(Arguments.of("/key/rotation/invalid-rotation-policy-missing-expiry.json", "attributes.expiryTime"))
+                .add(Arguments.of("/key/rotation/invalid-rotation-policy-missing-created.json", "attributes.created"))
+                .add(Arguments.of("/key/rotation/invalid-rotation-policy-missing-updated.json", "attributes.updated"))
                 .add(Arguments.of("/key/rotation/invalid-rotation-policy-missing-actions.json", "lifetimeActions"))
                 .add(Arguments.of("/key/rotation/invalid-rotation-policy-null-action-type.json", "lifetimeActions[0].action.type"))
                 .add(Arguments.of("/key/rotation/invalid-rotation-policy-null-trigger.json", "lifetimeActions[0].trigger"))
@@ -108,8 +111,8 @@ class KeyRotationPolicyModelIntegrationTest {
         //then
         Assertions.assertEquals(POLICY_URI_STRING, actual.getId().toString());
         Assertions.assertEquals(EXPIRY_PERIOD_4M, actual.getAttributes().getExpiryTime());
-        Assertions.assertEquals(CREATED_ON, actual.getAttributes().getCreatedOn());
-        Assertions.assertEquals(UPDATED_ON, actual.getAttributes().getUpdatedOn());
+        Assertions.assertEquals(CREATED_ON, actual.getAttributes().getCreated());
+        Assertions.assertEquals(UPDATED_ON, actual.getAttributes().getUpdated());
         Assertions.assertIterableEquals(List.of(ROTATE_ACTION, NOTIFY_ACTION), actual.getLifetimeActions());
     }
 
@@ -124,8 +127,8 @@ class KeyRotationPolicyModelIntegrationTest {
         //then
         Assertions.assertEquals(POLICY_URI_STRING, actual.getId().toString());
         Assertions.assertNull(actual.getAttributes().getExpiryTime());
-        Assertions.assertEquals(CREATED_ON, actual.getAttributes().getCreatedOn());
-        Assertions.assertEquals(UPDATED_ON, actual.getAttributes().getUpdatedOn());
+        Assertions.assertEquals(CREATED_ON, actual.getAttributes().getCreated());
+        Assertions.assertEquals(UPDATED_ON, actual.getAttributes().getUpdated());
         Assertions.assertIterableEquals(List.of(ROTATE_ACTION), actual.getLifetimeActions());
     }
 
@@ -137,7 +140,7 @@ class KeyRotationPolicyModelIntegrationTest {
         final KeyRotationPolicyModel underTest = loadResourceAsObject(resource);
 
         //when
-        final Set<ConstraintViolation<KeyRotationPolicyModel>> violations = validator.validate(underTest);
+        final Set<ConstraintViolation<KeyRotationPolicyModel>> violations = validator.validate(underTest, Restore.class);
 
         //then
         Assertions.assertEquals(1, violations.size());
@@ -148,8 +151,8 @@ class KeyRotationPolicyModelIntegrationTest {
             final Period expiryTime) {
         final KeyRotationPolicyAttributes attributes = new KeyRotationPolicyAttributes();
         attributes.setExpiryTime(expiryTime);
-        attributes.setCreatedOn(CREATED_ON);
-        attributes.setUpdatedOn(UPDATED_ON);
+        attributes.setCreated(CREATED_ON);
+        attributes.setUpdated(UPDATED_ON);
         return attributes;
     }
 

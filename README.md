@@ -117,7 +117,11 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
         - ```ES512```
 - Backup and restore keys
 - Get random bytes
-- Rotate keys (manually)
+- Rotate keys
+  - Manually
+  - Automatically when time-shift is used with an applicable rotation policy
+- Get rotation policy
+- Update rotation policy
 
 ### Secrets
 

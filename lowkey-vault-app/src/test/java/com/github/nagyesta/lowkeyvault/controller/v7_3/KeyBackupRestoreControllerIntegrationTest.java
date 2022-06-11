@@ -331,8 +331,8 @@ class KeyBackupRestoreControllerIntegrationTest {
 
     private KeyRotationPolicyAttributes rotationPolicyAttributes() {
         final KeyRotationPolicyAttributes attributes = new KeyRotationPolicyAttributes();
-        attributes.setCreatedOn(TIME_10_MINUTES_AGO);
-        attributes.setUpdatedOn(NOW);
+        attributes.setCreated(TIME_10_MINUTES_AGO);
+        attributes.setUpdated(NOW);
         attributes.setExpiryTime(EXPIRY_TIME);
         return attributes;
     }

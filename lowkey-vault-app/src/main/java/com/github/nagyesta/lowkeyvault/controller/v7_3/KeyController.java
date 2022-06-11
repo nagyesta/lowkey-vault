@@ -50,9 +50,10 @@ public class KeyController extends CommonKeyController {
             params = API_VERSION_7_3,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<KeyVaultKeyModel> create(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
-                                                   @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
-                                                   @Valid @RequestBody final CreateKeyRequest request) {
+    public ResponseEntity<KeyVaultKeyModel> create(
+            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
+            @Valid @RequestBody final CreateKeyRequest request) {
         return super.create(keyName, baseUri, request);
     }
 
@@ -61,9 +62,10 @@ public class KeyController extends CommonKeyController {
             params = API_VERSION_7_3,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<KeyVaultKeyModel> importKey(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
-                                                      @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
-                                                      @Valid @RequestBody final ImportKeyRequest request) {
+    public ResponseEntity<KeyVaultKeyModel> importKey(
+            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
+            @Valid @RequestBody final ImportKeyRequest request) {
         return super.importKey(keyName, baseUri, request);
     }
 
@@ -71,8 +73,9 @@ public class KeyController extends CommonKeyController {
     @DeleteMapping(value = "/keys/{keyName}",
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<KeyVaultKeyModel> delete(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
-                                                   @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
+    public ResponseEntity<KeyVaultKeyModel> delete(
+            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
         return super.delete(keyName, baseUri);
     }
 
@@ -147,8 +150,9 @@ public class KeyController extends CommonKeyController {
     @PostMapping(value = "/keys/{keyName}/rotate",
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<KeyVaultKeyModel> rotateKey(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
-                                          @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
+    public ResponseEntity<KeyVaultKeyModel> rotateKey(
+            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
         log.info("Received request to {} rotate key: {} using API version: {}",
                 baseUri.toString(), keyName, apiVersion());
 
@@ -161,8 +165,9 @@ public class KeyController extends CommonKeyController {
     @GetMapping(value = "/deletedkeys/{keyName}",
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<KeyVaultKeyModel> getDeletedKey(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
-                                                          @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
+    public ResponseEntity<KeyVaultKeyModel> getDeletedKey(
+            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
         return super.getDeletedKey(keyName, baseUri);
     }
 
@@ -170,8 +175,9 @@ public class KeyController extends CommonKeyController {
     @PostMapping(value = "/deletedkeys/{keyName}/recover",
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<KeyVaultKeyModel> recoverDeletedKey(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
-                                                              @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
+    public ResponseEntity<KeyVaultKeyModel> recoverDeletedKey(
+            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
         return super.recoverDeletedKey(keyName, baseUri);
     }
 
@@ -179,8 +185,9 @@ public class KeyController extends CommonKeyController {
     @DeleteMapping(value = "/deletedkeys/{keyName}",
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> purgeDeleted(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
-                                             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
+    public ResponseEntity<Void> purgeDeleted(
+            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
         return super.purgeDeleted(keyName, baseUri);
     }
 

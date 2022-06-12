@@ -78,6 +78,8 @@ test {
     systemProperty("cucumber.filter.tags", "not @ignore")
     useTestNG {
         systemProperty("abort-mission.report.directory", file("${buildDir}/reports/abort-mission/"))
+        systemProperty("abort-mission.force.abort.evaluators", rootProject.ext.dockerAbortGroups)
+        systemProperty("abort-mission.suppress.abort.evaluators", rootProject.ext.dockerSuppressGroups)
     }
 }
 test.outputs.upToDateWhen { false }

@@ -95,7 +95,7 @@ class LowkeyVaultManagementClientImplTest {
     }
 
     @Nested
-    class FunctionalTests {
+    class FunctionalTest {
 
         @Mock
         private ObjectReader objectReader;

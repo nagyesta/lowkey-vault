@@ -72,7 +72,7 @@ class VaultManagementControllerTest {
     }
 
     @Nested
-    class FunctionalTests {
+    class FunctionalTest {
         @Mock
         private VaultService vaultService;
         @Mock

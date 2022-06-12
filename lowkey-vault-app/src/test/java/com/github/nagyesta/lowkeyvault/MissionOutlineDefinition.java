@@ -17,10 +17,18 @@ public class MissionOutlineDefinition extends MissionOutline {
         return Map.of(SHARED_CONTEXT, ops -> {
             final MissionHealthCheckMatcher integrationTestMatcher = matcher().classNamePattern(".*IntegrationTest").build();
             final MissionHealthCheckEvaluator integrationTests = percentageBasedEvaluator(integrationTestMatcher)
+                    .overrideKeyword("IT")
+                    .build();
+            final MissionHealthCheckMatcher notIntegrationTest = matcher().not(integrationTestMatcher).build();
+            final MissionHealthCheckMatcher test = matcher().classNamePattern(".*Test").build();
+            final MissionHealthCheckEvaluator unitTests = reportOnlyEvaluator(matcher().and(notIntegrationTest).andAtLast(test).build())
+                    .overrideKeyword("UT")
                     .build();
             final MissionHealthCheckEvaluator reportOnly = reportOnlyEvaluator(matcher().anyClass().build())
+                    .overrideKeyword("all")
                     .build();
             ops.registerHealthCheck(integrationTests);
+            ops.registerHealthCheck(unitTests);
             ops.registerHealthCheck(reportOnly);
         });
     }

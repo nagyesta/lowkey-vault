@@ -15,6 +15,8 @@ project.ext {
     ossIndexPass = project.hasProperty('ossIndexPassword') ? (project.property('ossIndexPassword') as String) : ''
     ossIndexExclusions = ["CVE-2016-1000027"]
     keyToolDir = project.hasProperty('keyToolDir') ? (project.property('keyToolDir') as String) : ''
+    dockerAbortGroups = project.hasProperty('dockerSuppressGroups') ? 'all' : ''
+    dockerSuppressGroups = project.hasProperty('dockerSuppressGroups') ? (project.property('dockerSuppressGroups') as String) : ''
     repoUrl = 'https://github.com/nagyesta/lowkey-vault'
     licenseName = 'MIT License'
     licenseUrl = 'https://raw.githubusercontent.com/nagyesta/lowkey-vault/main/LICENSE'

@@ -14,8 +14,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import static com.github.nagyesta.abortmission.core.MissionControl.matcher;
-import static com.github.nagyesta.abortmission.core.MissionControl.percentageBasedEvaluator;
+import static com.github.nagyesta.abortmission.core.MissionControl.*;
 import static com.github.nagyesta.abortmission.core.outline.MissionOutline.SHARED_CONTEXT;
 
 public class MissionOutlineDefinition extends LaunchAbortHook {
@@ -28,11 +27,13 @@ public class MissionOutlineDefinition extends LaunchAbortHook {
     protected Map<String, Consumer<AbortMissionCommandOps>> defineOutline() {
         return Map.of(SHARED_CONTEXT, ops -> {
             final TagDependencyNameExtractor extractor = new TagDependencyNameExtractor();
+            ops.registerHealthCheck(reportOnlyEvaluator(anyScenarioMatcher()).overrideKeyword("all").build());
             Stream.of("Key", "Secret").forEach(type -> {
                 final MissionHealthCheckMatcher typeMatcher = matcher().dependencyWith(type).extractor(extractor).build();
                 final MissionHealthCheckEvaluator featurePercentage = percentageBasedEvaluator(typeMatcher)
                         .abortThreshold(ABORT_THRESHOLD)
                         .burnInTestCount(TOTAL_BURN_IN_TEST_COUNT)
+                        .overrideKeyword(type)
                         .build();
                 ops.registerHealthCheck(featurePercentage);
 
@@ -43,6 +44,7 @@ public class MissionOutlineDefinition extends LaunchAbortHook {
                             final MissionHealthCheckEvaluator subFeaturePercentage = percentageBasedEvaluator(subTypeMatcher)
                                     .abortThreshold(ABORT_THRESHOLD)
                                     .burnInTestCount(BURN_IN_TEST_COUNT)
+                                    .overrideKeyword(type + subtype)
                                     .build();
                             ops.registerHealthCheck(subFeaturePercentage);
                         });
@@ -53,6 +55,7 @@ public class MissionOutlineDefinition extends LaunchAbortHook {
                 final MissionHealthCheckEvaluator tagPercentage = percentageBasedEvaluator(matcher)
                         .abortThreshold(ABORT_THRESHOLD)
                         .burnInTestCount(BURN_IN_TEST_COUNT)
+                        .overrideKeyword(tag)
                         .build();
                 ops.registerHealthCheck(tagPercentage);
             });

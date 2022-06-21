@@ -12,15 +12,18 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.util.Collections;
 
+import static com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContainerBuilder.lowkeyVault;
+
 @Testcontainers
 class LowkeyVaultContainerJupiterTest extends AbstractLowkeyVaultContainerTest {
 
     private static final String VAULT_NAME = "jupiter";
 
     @Container
-    private final LowkeyVaultContainer underTest = new LowkeyVaultContainer(DockerImageName
+    private final LowkeyVaultContainer underTest = lowkeyVault(DockerImageName
             .parse(getCurrentLowkeyVaultImageName())
-            .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME), Collections.singleton(VAULT_NAME))
+            .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME))
+            .vaultNames(Collections.singleton(VAULT_NAME)).build()
             .withImagePullPolicy(PullPolicy.defaultPolicy());
 
     @Test

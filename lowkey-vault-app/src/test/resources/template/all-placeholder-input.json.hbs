@@ -1,0 +1,18 @@
+{
+  "vaults": [
+    {
+      "baseUri": "https://vault-a.{{host}}:{{port}}/",
+      "recoveryLevel": "CustomizedRecoverable+Purgeable",
+      "recoverableDays": 42,
+      "created": {{now 1}},
+      "deleted": null
+    },
+    {
+      "baseUri": "https://vault-b.{{host}}:{{port}}/",
+      "recoveryLevel": "CustomizedRecoverable",
+      "recoverableDays": 10,
+      "created": {{now -100}},
+      "deleted": {{now 200}}
+    }
+  ]
+}

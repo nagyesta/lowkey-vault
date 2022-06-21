@@ -7,6 +7,7 @@ bouncycastle = "1.70"
 hibernateValidator = "6.2.3.Final"
 findbugs = "3.0.2"
 lombok = "1.18.24"
+handlebars="4.3.0"
 httpClient = "4.5.13"
 commonsCodec = "1.15"
 azureKeyVaultClient = "4.4.3"
@@ -53,6 +54,8 @@ tomcat-embed-websocket = { module = "org.apache.tomcat.embed:tomcat-embed-websoc
 
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
+
+handlebars = { module = "com.github.jknack:handlebars", version.ref = "handlebars" }
 
 bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk15on", version.ref = "bouncycastle" }
 

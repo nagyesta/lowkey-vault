@@ -457,6 +457,29 @@ class LowkeyVaultManagementClientImplTest {
         }
 
         @Test
+        void testExportActiveShouldReturnFullResponseWhenCalledOnRunningServer() {
+            //given
+            final String expected = "value";
+            final HttpResponse response = mock(HttpResponse.class);
+            when(httpClient.send(httpRequestArgumentCaptor.capture())).thenReturn(Mono.just(response));
+            when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.just(expected));
+            when(response.getStatusCode()).thenReturn(HttpStatus.SC_OK);
+
+            //when
+            final String actual = underTest.exportActive();
+
+            //then
+            Assertions.assertEquals(expected, actual);
+            verify(httpClient, atMostOnce()).send(any());
+            final HttpRequest request = httpRequestArgumentCaptor.getValue();
+            Assertions.assertEquals("/management/vault/export", request.getUrl().getPath());
+            Assertions.assertEquals(HttpMethod.GET, request.getHttpMethod());
+            Assertions.assertEquals(APPLICATION_JSON, request.getHeaders().getValue(HttpHeaders.CONTENT_TYPE));
+            verify(response).getStatusCode();
+            verify(response).getBodyAsString(eq(StandardCharsets.UTF_8));
+        }
+
+        @Test
         void testSendAndProcessShouldThrowExceptionWhenResponseCodeIsNot2xx() throws JsonProcessingException {
             //given
             final VaultModel vaultModel = new VaultModel();

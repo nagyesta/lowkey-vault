@@ -49,7 +49,63 @@ testImplementation 'com.github.nagyesta.lowkey-vault:lowkey-vault-testcontainers
 testImplementation 'com.github.nagyesta.lowkey-vault:lowkey-vault-client:+'
 ```
 
-### Examples
+### Creating a container
+
+The recommended way of creating a container is by using [LowkeyVaultContainerBuilder](src/main/java/com/github/nagyesta/lowkeyvault/testcontainers/LowkeyVaultContainerBuilder.java).
+
+#### Example auto-registering a vault
+
+In this example we would like to register the ```https://default.localhost:8443``` vault and let the container start using a random
+port on the host machine.
+
+```java
+import org.testcontainers.utility.DockerImageName;
+import com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContainer;
+import static com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContainerBuilder.lowkeyVault;
+
+class Test {
+    public LowkeyVaultContainer startVault() {
+        final DockerImageName imageName = DockerImageName.parse("nagyesta/lowkey-vault:1.8.0");
+        final LowkeyVaultContainer lowkeyVaultContainer = lowkeyVault(imageName)
+                .vaultNames(Set.of("default"))
+                .build()
+                .withImagePullPolicy(PullPolicy.defaultPolicy());
+        lowkeyVaultContainer.start();
+        return lowkeyVaultContainer;
+    }
+}
+
+```
+
+#### Example importing contents from file
+
+In this example we are importing a file including the placeholder specific configuration and setting additional parameters 
+to use a specific port on the host machine and disable automatic vault registration.
+
+```java
+import org.testcontainers.utility.DockerImageName;
+import com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContainer;
+import static com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContainerBuilder.lowkeyVault;
+
+class Test {
+    public LowkeyVaultContainer startVault(final File importFile) {
+        final DockerImageName imageName = DockerImageName.parse("nagyesta/lowkey-vault:1.8.0");
+        final LowkeyVaultContainer lowkeyVaultContainer = lowkeyVault(imageName)
+                .noAutoRegistration()  
+                .importFile(importFile)
+                .logicalPort(8443)
+                .logicalHost("127.0.0.1")
+                .hostPort(8443)
+                .build()
+                .withImagePullPolicy(PullPolicy.defaultPolicy());
+        lowkeyVaultContainer.start();
+        return lowkeyVaultContainer;
+    }
+}
+
+```
+
+### Other examples
 
 * [Generic](src/test/java/com/github/nagyesta/lowkeyvault/testcontainers/LowkeyVaultContainerVanillaTest.java)
 * [JUnit Jupiter](src/test/java/com/github/nagyesta/lowkeyvault/testcontainers/LowkeyVaultContainerJupiterTest.java)

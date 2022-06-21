@@ -18,6 +18,7 @@ dependencies {
     implementation libs.bundles.tomcat
     implementation libs.bouncycastle.bcpkix
     implementation libs.hibernate.validator
+    implementation libs.handlebars
     implementation libs.findbugs.jsr305
     implementation libs.springdoc.openapi.ui
     annotationProcessor libs.lombok

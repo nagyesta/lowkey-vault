@@ -49,6 +49,10 @@ final class ResponseEntity {
         }
     }
 
+    public String getResponseBodyAsString() {
+        return responseBody;
+    }
+
     private static class ListTypeReference extends TypeReference<List<VaultModel>> {
 
     }

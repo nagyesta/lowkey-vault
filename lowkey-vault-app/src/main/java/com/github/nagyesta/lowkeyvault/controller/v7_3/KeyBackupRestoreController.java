@@ -44,7 +44,7 @@ public class KeyBackupRestoreController
     private final KeyRotationPolicyV73ModelToEntityConverter rotationV73ModelToEntityConverter;
 
     @Autowired
-    protected KeyBackupRestoreController(@NonNull final KeyEntityToV72ModelConverter modelConverter,
+    public KeyBackupRestoreController(@NonNull final KeyEntityToV72ModelConverter modelConverter,
                                          @NonNull final KeyEntityToV72BackupConverter backupConverter,
                                          @NonNull final VaultService vaultService,
                                          @NonNull final KeyRotationPolicyToV73ModelConverter keyRotationPolicyToV73ModelConverter,

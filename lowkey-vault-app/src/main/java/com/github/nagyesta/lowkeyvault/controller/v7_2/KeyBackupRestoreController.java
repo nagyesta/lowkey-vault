@@ -33,7 +33,7 @@ public class KeyBackupRestoreController
         extends CommonKeyBackupRestoreController<KeyBackupListItem, KeyBackupList, KeyBackupModel, KeyEntityToV72BackupConverter> {
 
     @Autowired
-    protected KeyBackupRestoreController(final KeyEntityToV72ModelConverter modelConverter,
+    public KeyBackupRestoreController(final KeyEntityToV72ModelConverter modelConverter,
                                          final KeyEntityToV72BackupConverter backupConverter,
                                          final VaultService vaultService) {
         super(modelConverter, backupConverter, vaultService);

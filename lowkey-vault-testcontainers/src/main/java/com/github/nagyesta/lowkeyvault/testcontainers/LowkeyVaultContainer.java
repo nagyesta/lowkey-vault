@@ -1,25 +1,24 @@
 package com.github.nagyesta.lowkeyvault.testcontainers;
 
+import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
+import static com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContainerBuilder.lowkeyVault;
+
+@SuppressWarnings("resource")
 public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer> {
 
     static final DockerImageName DEFAULT_IMAGE_NAME = DockerImageName.parse("nagyesta/lowkey-vault");
     private static final String DUMMY_USERNAME = "DUMMY";
     private static final String DUMMY_PASSWORD = "DUMMY";
     private static final int CONTAINER_PORT = 8443;
-    private static final Pattern NAME_PATTERN = Pattern.compile("^[0-9a-zA-Z-]+$");
     private static final String HTTPS = "https://";
-    private static final String EMPTY = "";
     private static final String PORT_SEPARATOR = ":";
     private static final String LOCALHOST = "localhost";
     private static final String DOT = ".";
@@ -28,9 +27,11 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
      * Creates a new instance.
      *
      * @param dockerImageName specified docker image name to run
+     * @deprecated Use {@link LowkeyVaultContainerBuilder} instead
      */
+    @Deprecated
     public LowkeyVaultContainer(final DockerImageName dockerImageName) {
-        this(dockerImageName, Collections.emptySet());
+        this(lowkeyVault(dockerImageName));
     }
 
     /**
@@ -38,17 +39,44 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
      *
      * @param dockerImageName specified docker image name to run
      * @param vaultNames      The names of the vaults we want to initialize at startup
+     * @deprecated Use {@link LowkeyVaultContainerBuilder} instead
      */
+    @Deprecated
     public LowkeyVaultContainer(final DockerImageName dockerImageName, final Set<String> vaultNames) {
-        super(dockerImageName);
-        assertVaultNamesAreValid(vaultNames);
+        this(lowkeyVault(dockerImageName).vaultNames(vaultNames));
+    }
 
-        dockerImageName.assertCompatibleWith(DEFAULT_IMAGE_NAME);
-        addExposedPort(CONTAINER_PORT);
+    /**
+     * Constructor for builder.
+     *
+     * @param containerBuilder Builder instance with the set data.
+     */
+    LowkeyVaultContainer(final LowkeyVaultContainerBuilder containerBuilder) {
+        super(containerBuilder.getDockerImageName());
 
-        final Set<String> names = Objects.requireNonNullElse(vaultNames, Collections.emptySet());
-        if (!names.isEmpty()) {
-            withEnv("LOWKEY_ARGS", "--LOWKEY_VAULT_NAMES=" + String.join(",", names));
+        containerBuilder.getDockerImageName().assertCompatibleWith(DEFAULT_IMAGE_NAME);
+        if (containerBuilder.getHostPort() != null) {
+            addFixedExposedPort(containerBuilder.getHostPort(), CONTAINER_PORT);
+        } else {
+            addExposedPort(CONTAINER_PORT);
+        }
+
+        if (containerBuilder.getImportFile() != null) {
+            final String absolutePath = containerBuilder.getImportFile().getAbsolutePath();
+            logger().info("Using path: '{}'", absolutePath);
+            withFileSystemBind(absolutePath, "/import/vaults.json", BindMode.READ_ONLY);
+        }
+
+        final List<String> args = new LowkeyVaultArgLineBuilder()
+                .vaultNames(Objects.requireNonNullElse(containerBuilder.getVaultNames(), Set.of()))
+                .logicalHost(containerBuilder.getLogicalHost())
+                .logicalPort(containerBuilder.getLogicalPort())
+                .debug(containerBuilder.isDebug())
+                .importFile(containerBuilder.getImportFile())
+                .build();
+
+        if (!args.isEmpty()) {
+            withEnv("LOWKEY_ARGS", String.join(" ", args));
         }
         waitingFor(Wait.forLogMessage("(?s).*Started LowkeyVaultApp.*$", 1));
     }
@@ -117,17 +145,5 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
      */
     public String getUsername() {
         return DUMMY_USERNAME;
-    }
-
-    private void assertVaultNamesAreValid(final Set<String> vaultNames) {
-        if (vaultNames == null) {
-            throw new IllegalArgumentException("VaultNames must not be null.");
-        }
-        final Collection<String> invalid = vaultNames.stream()
-                .filter(s -> !NAME_PATTERN.matcher(Objects.requireNonNullElse(s, EMPTY)).matches())
-                .collect(Collectors.toList());
-        if (!invalid.isEmpty()) {
-            throw new IllegalArgumentException("VaultNames contains invalid values: " + invalid);
-        }
     }
 }

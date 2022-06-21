@@ -30,7 +30,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class SecretBackupRestoreController extends CommonSecretBackupRestoreController {
 
     @Autowired
-    protected SecretBackupRestoreController(
+    public SecretBackupRestoreController(
             @NonNull final SecretEntityToV72ModelConverter modelConverter,
             @NonNull final SecretEntityToV72BackupConverter backupConverter,
             @NonNull final VaultService vaultService) {

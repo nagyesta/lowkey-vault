@@ -38,6 +38,7 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
     private static final String MANAGEMENT_VAULT_PURGE_PATH = MANAGEMENT_VAULT_PATH + "/purge";
     private static final String MANAGEMENT_VAULT_TIME_PATH = MANAGEMENT_VAULT_PATH + "/time";
     private static final String MANAGEMENT_VAULT_TIME_ALL_PATH = MANAGEMENT_VAULT_TIME_PATH + "/all";
+    private static final String MANAGEMENT_VAULT_EXPORT_ACTIVE_PATH = MANAGEMENT_VAULT_PATH + "/export";
     private static final String BASE_URI_QUERY_PARAM = "baseUri";
     private static final String SECONDS_QUERY_PARAM = "seconds";
     private final String vaultUrl;
@@ -133,6 +134,14 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
         final HttpRequest request = new HttpRequest(HttpMethod.PUT, uri.toString())
                 .setHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON);
         sendRaw(request);
+    }
+
+    @Override
+    public String exportActive() {
+        final URI uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_EXPORT_ACTIVE_PATH);
+        final HttpRequest request = new HttpRequest(HttpMethod.GET, uri.toString())
+                .setHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON);
+        return sendRaw(request).getResponseBodyAsString();
     }
 
     @Override

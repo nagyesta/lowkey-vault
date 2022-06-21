@@ -28,6 +28,8 @@ public interface LowkeyVaultManagementClient {
 
     void timeShift(@NonNull TimeShiftContext context);
 
+    String exportActive();
+
     String unpackBackup(byte[] backup) throws IOException;
 
     byte[] compressBackup(String backup) throws IOException;

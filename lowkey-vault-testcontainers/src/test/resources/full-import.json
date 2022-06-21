@@ -1,0 +1,107 @@
+{
+  "vaults": [
+    {
+      "attributes": {
+        "baseUri": "https://localhost:8443",
+        "recoveryLevel": "Recoverable+Purgeable",
+        "recoverableDays": 90,
+        "created": 1647809444,
+        "deleted": null
+      },
+      "keys": {
+        "test-key": {
+          "versions": [
+            {
+              "vaultBaseUri": "https://localhost:8443",
+              "entityId": "test-key",
+              "entityVersion": "c1b1abd7f3494996b22a6920589581e9",
+              "attributes": {
+                "enabled": true,
+                "created": 1652993445,
+                "updated": 1652993445,
+                "recoveryLevel": "Recoverable+Purgeable",
+                "exp": 1656190245,
+                "recoverableDays": 90
+              },
+              "tags": {},
+              "managed": false,
+              "keyMaterial": {
+                "crv": "P-256K",
+                "d": "X93qqv8xjSOIyt3hlMBbAVBN2s2q0bNZqcxn7xRYLnU",
+                "key_ops": [],
+                "kid": "https://localhost:8443/keys/test-key/c1b1abd7f3494996b22a6920589581e9",
+                "kty": "EC-HSM",
+                "x": "UYU4scAK3yX4GMFtKtLWWVvRNFCl7Dfrw2xNsLbpzqQ",
+                "y": "AOhW7In6P4A6YItUUxm6okeV0Z0grvVMJzcgWQAbWbQH"
+              }
+            },
+            {
+              "vaultBaseUri": "https://localhost:8443",
+              "entityId": "test-key",
+              "entityVersion": "b578bbb88e464576be39eb795f209a47",
+              "attributes": {
+                "enabled": true,
+                "created": 1655585445,
+                "updated": 1655585445,
+                "recoveryLevel": "Recoverable+Purgeable",
+                "exp": 1658782245,
+                "recoverableDays": 90
+              },
+              "tags": {},
+              "managed": false,
+              "keyMaterial": {
+                "crv": "P-256K",
+                "d": "AMg5R-4cLnZgzQDygNP5eTq14F0qWuPiK0YqP8Kt6PeD",
+                "key_ops": [],
+                "kid": "https://localhost:8443/keys/test-key/b578bbb88e464576be39eb795f209a47",
+                "kty": "EC-HSM",
+                "x": "KkAzT5EIahJb39x0Nd3dVA4QxybmacqGkTD9fPmRu9E",
+                "y": "AJ2Px-7kzbFaRlaEcZdTgSQMfSUZ5RLYWfehWal-bGiV"
+              }
+            }
+          ],
+          "rotationPolicy": {
+            "id": "https://localhost:8443/keys/test-key/rotationpolicy",
+            "lifetimeActions": [
+              {
+                "trigger": {
+                  "timeAfterCreate": "P30D"
+                },
+                "action": {
+                  "type": "rotate"
+                }
+              }
+            ],
+            "attributes": {
+              "expiryTime": "P37D",
+              "created": 1647809445,
+              "updated": 1647809445
+            }
+          }
+        }
+      },
+      "secrets": {
+        "test-secret": {
+          "versions": [
+            {
+              "vaultBaseUri": "https://localhost:8443",
+              "entityId": "test-secret",
+              "entityVersion": "387e6991114c67cd9c8a7f7c8eb2f469",
+              "attributes": {
+                "enabled": true,
+                "created": 1647809445,
+                "updated": 1647809445,
+                "recoveryLevel": "Recoverable+Purgeable",
+                "recoverableDays": 90
+              },
+              "tags": {},
+              "managed": false,
+              "value": "$3cret",
+              "contentType": "text/plain"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

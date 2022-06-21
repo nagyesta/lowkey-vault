@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -20,14 +21,22 @@ import java.util.stream.Stream;
 public class AppConfiguration {
 
     private static final int PAYLOAD_LENGTH_BYTES = 512 * 1024;
+    private static final String SKIP_AUTO_REGISTRATION = "-";
     @Value("${LOWKEY_VAULT_NAMES:primary,secondary}")
     private String autoRegisterVaults;
     @Value("${server.port}")
     private int port;
 
     @Bean
-    public VaultService vaultService() {
+    public VaultService vaultService() throws IOException {
         final VaultServiceImpl service = new VaultServiceImpl();
+        if (!SKIP_AUTO_REGISTRATION.equals(autoRegisterVaults)) {
+            autoRegisterVaults(service);
+        }
+        return service;
+    }
+
+    private void autoRegisterVaults(final VaultServiceImpl service) {
         log.info("Starting up vault with port: {} , auto-registering vaults: '{}'", port, autoRegisterVaults);
         Stream.of(
                         VaultUriUtil.vaultUri("localhost", port),
@@ -44,8 +53,6 @@ public class AppConfiguration {
                         .map(vaultName -> VaultUriUtil.vaultUri(vaultName + ".localhost", port)))
                 .orElse(Stream.of()).forEach(service::create);
         log.info("Vaults registered!");
-
-        return service;
     }
 
     @Bean

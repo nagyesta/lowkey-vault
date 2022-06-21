@@ -155,6 +155,7 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 - Time-shift (simulate the passing of time)
   - A single vault
   - All vaults
+- Export vault contents (to be able to import it at startup later)
 
 #### Swagger
 
@@ -162,50 +163,9 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 
 ## Startup parameters
 
-### Log requests
-
-In order to support debugging integration, Lowkey Vault can log request data. To turn on this feature, 
-you must pass ```--LOWKEY_DEBUG_REQUEST_LOG=true``` as startup argument in the
-```LOWKEY_ARGS``` env variable when starting the Docker container. [Example](lowkey-vault-docker/build.gradle#L64)
-
-### Non-default vaults
-
-In case you wish to use more than one vaults, you should consider registering additional vaults using
-the ```--LOWKEY_VAULT_NAMES=name1,name2``` comma separated format passed in the
-```LOWKEY_ARGS``` env variable when starting the Docker container. This will register the ```https://name1.localhost:8443```
-and ```https://name2.localhost:8443```
-vaults in the aforementioned example. You can pass any number of vault prefixes (as long as you have enough RAM)
-. [Example](lowkey-vault-docker/build.gradle#L65)
-
-A handful of default vaults are available by default. These are
-configured [here](lowkey-vault-app/src/main/java/com/github/nagyesta/lowkeyvault/AppConfiguration.java).
-
-### Custom port use on host machine
-
-In order to avoid using the reserved `8443` port, we need to tell Lowkey Vault to use a different one instead.
-We need to solve different issues depending on the tool we are using.
-
-##### Using the `.jar`
-
-Set `--server.port=<portNumber>` as an argument as usual with Spring Boot apps.
-
-##### Using Docker
-
-In this case the issue is probably just exposing the `8443` port of the container as `8443` when starting it. Adding `-p <portNumber>:8443`
-when starting the container should do the trick.
-[Example](lowkey-vault-docker/build.gradle#L61)
-
-In case you need to change both the internal and the external port numbers, you can try using the ```LOWKEY_ARGS``` environment variable with 
-```--server.port=<portNumber>``` such as:
-
-```shell
-export LOWKEY_ARGS="--server.port=443"
-docker run --rm --name lowkey -e LOWKEY_ARGS -d -p 443:443 nagyesta/lowkey-vault:1.4.0
-```
-
-##### Using Testcontainers
-
-This issue should not happen while using Testcontainers. See examples under [Lowkey Vault Testcontainers](lowkey-vault-testcontainers/README.md).
+1. Using the `.jar`: [Lowkey Vault App](lowkey-vault-app/README.md).
+2. Using Docker: [Lowkey Vault Docker](lowkey-vault-docker/README.md).
+3. Using Testcontainers: [Lowkey Vault Testcontainers](lowkey-vault-testcontainers/README.md).
 
 # Example projects
 

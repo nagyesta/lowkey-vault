@@ -172,6 +172,7 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 1. [Java](https://github.com/nagyesta/lowkey-vault-example)
 2. [.Net](https://github.com/nagyesta/lowkey-vault-example-dotnet)
 3. [Python](https://github.com/nagyesta/lowkey-vault-example-python)
+4. [Go](https://github.com/nagyesta/lowkey-vault-example-go)
 
 # Limitations
 

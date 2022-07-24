@@ -53,6 +53,8 @@ I have an app using Azure Key Vault and:
 
 ### Docker
 
+Note: a complex example is available [here](https://github.com/nagyesta/lowkey-vault-example-docker)
+
 1. Pull the most recent version from ```nagyesta/lowkey-vault```
    - You can find a list of all the available tags [here](https://hub.docker.com/r/nagyesta/lowkey-vault/tags)
 2. ```docker run --rm  -p 8443:8443 nagyesta/lowkey-vault:<version>```
@@ -174,6 +176,7 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 2. [.Net](https://github.com/nagyesta/lowkey-vault-example-dotnet)
 3. [Python](https://github.com/nagyesta/lowkey-vault-example-python)
 4. [Go](https://github.com/nagyesta/lowkey-vault-example-go)
+5. [Docker](https://github.com/nagyesta/lowkey-vault-example-docker)
 
 # Limitations
 

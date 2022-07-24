@@ -54,6 +54,7 @@ I have an app using Azure Key Vault and:
 ### Docker
 
 1. Pull the most recent version from ```nagyesta/lowkey-vault```
+   - You can find a list of all the available tags [here](https://hub.docker.com/r/nagyesta/lowkey-vault/tags)
 2. ```docker run --rm  -p 8443:8443 nagyesta/lowkey-vault:<version>```
 3. Use ```https://localhost:8443``` as key vault URI when using
    the [Azure Key Vault Key client](https://docs.microsoft.com/en-us/azure/key-vault/keys/quick-create-java)

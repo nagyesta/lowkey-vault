@@ -15,7 +15,7 @@ testcontainers = "1.17.3"
 cucumber = "7.6.0"
 mockitoCore = "4.6.1"
 jupiter = "5.9.0"
-abortMission = "3.4.1"
+abortMission = "3.4.2"
 checkstyle = "9.2.1"
 jacoco = "0.8.2"
 jacksonBom = { strictly = "2.13.3" }

@@ -54,6 +54,27 @@ jobs:
       - name: Build with Gradle
         run: >
           ./gradlew printVersion build
+      - name: 'Upload Test reports - App'
+        if: always()
+        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8 #tag=v3.1.0
+        with:
+          name: test-report-lowkey-vault-app
+          path: lowkey-vault-app/build/reports/tests/test
+          retention-days: 5
+      - name: 'Upload Test reports - Docker'
+        if: always()
+        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8 #tag=v3.1.0
+        with:
+          name: test-report-lowkey-vault-docker
+          path: lowkey-vault-docker/build/reports/cucumber
+          retention-days: 5
+      - name: 'Upload Test reports - Testcontainers'
+        if: always()
+        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8 #tag=v3.1.0
+        with:
+          name: test-report-lowkey-vault-testcontainers
+          path: lowkey-vault-testcontainers/build/reports/tests/test
+          retention-days: 5
       - name: Upload coverage to Codecov - App
         uses: codecov/codecov-action@11d69070bf0bb19a473235e011c7890707db52de # tag=v2.1
         with:

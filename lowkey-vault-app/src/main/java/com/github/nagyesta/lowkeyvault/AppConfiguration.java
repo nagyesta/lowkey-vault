@@ -39,6 +39,7 @@ public class AppConfiguration {
     private void autoRegisterVaults(final VaultServiceImpl service) {
         log.info("Starting up vault with port: {} , auto-registering vaults: '{}'", port, autoRegisterVaults);
         Stream.of(
+                        VaultUriUtil.vaultUri("127.0.0.1", port),
                         VaultUriUtil.vaultUri("localhost", port),
                         VaultUriUtil.vaultUri("default.lowkey-vault", port),
                         VaultUriUtil.vaultUri("default.lowkey-vault.local", port)

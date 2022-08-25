@@ -5,6 +5,7 @@ import com.github.nagyesta.lowkeyvault.service.exception.AlreadyExistsException;
 import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
 import java.net.URI;
@@ -16,6 +17,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class VaultServiceImpl implements VaultService {
 
     private final Set<VaultFake> vaultFakes = new CopyOnWriteArraySet<>();
@@ -64,6 +66,7 @@ public class VaultServiceImpl implements VaultService {
             boolean deleted = false;
             if (vaultFake.isPresent()) {
                 final VaultFake found = vaultFake.get();
+                log.info("Deleting vault with URI: {}", uri);
                 found.delete();
                 deleted = true;
             }
@@ -78,6 +81,7 @@ public class VaultServiceImpl implements VaultService {
             final Optional<VaultFake> vaultFake = findByUriAndDeleteStatus(uri, VaultFake::isDeleted);
             final VaultFake found = vaultFake
                     .orElseThrow(() -> new NotFoundException("Unable to find deleted vault: " + uri));
+            log.info("Recovering vault with URI: {}", uri);
             found.recover();
         }
     }
@@ -89,6 +93,7 @@ public class VaultServiceImpl implements VaultService {
             final Optional<VaultFake> vaultFake = findByUriAndDeleteStatus(uri, VaultFake::isDeleted);
             final VaultFake found = vaultFake
                     .orElseThrow(() -> new NotFoundException("Unable to find deleted vault: " + uri));
+            log.info("Purging vault with URI: {}", uri);
             return vaultFakes.remove(found);
         }
     }
@@ -96,6 +101,7 @@ public class VaultServiceImpl implements VaultService {
     @Override
     public void timeShift(final int offsetSeconds)  {
         Assert.isTrue(offsetSeconds > 0, "Offset must be positive.");
+        log.info("Performing time shift with {} seconds for all vaults.", offsetSeconds);
         vaultFakes.forEach(vaultFake -> vaultFake.timeShift(offsetSeconds));
         purgeExpired();
     }
@@ -112,6 +118,7 @@ public class VaultServiceImpl implements VaultService {
             if (exists(uri)) {
                 throw new AlreadyExistsException("Vault is already created with uri: " + uri);
             }
+            log.info("Creating vault for URI: {}", uri);
             final VaultFake vaultFake = vaultFakeSupplier.get();
             vaultFakes.add(vaultFake);
             return vaultFake;

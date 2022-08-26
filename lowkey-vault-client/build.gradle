@@ -17,6 +17,7 @@ dependencies {
     implementation(libs.azure.security.keyvault.secrets) {
         exclude(group: "io.netty")
     }
+    implementation "com.fasterxml.jackson:jackson-bom:${libs.versions.jacksonBom.get()}@pom"
     implementation libs.bundles.jackson
     implementation libs.httpclient
     implementation libs.commons.codec

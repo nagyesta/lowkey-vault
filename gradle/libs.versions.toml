@@ -100,7 +100,7 @@ spring-boot-app = [
 spring-test = ["spring-boot-starter-test", "spring-test"]
 logback = ["logback-classic", "logback-core"]
 cucumber = ["cucumber-java", "cucumber-testng", "cucumber-spring"]
-jackson = ["jackson-bom", "jackson-core", "jackson-annotations", "jackson-databind", "jackson-dataformat-xml", "jackson-datatype-jsr310"]
+jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-dataformat-xml", "jackson-datatype-jsr310"]
 tomcat = [
     "tomcat-annotations-api", "tomcat-jsp-api", "tomcat-embed-core", "tomcat-embed-el", "tomcat-embed-jasper", "tomcat-embed-websocket"
 ]

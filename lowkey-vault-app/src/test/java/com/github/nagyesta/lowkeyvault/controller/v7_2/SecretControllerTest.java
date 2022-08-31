@@ -540,7 +540,7 @@ class SecretControllerTest {
                 .thenReturn(recoverableDays);
         final CreateSecretRequest request = createRequest(expiry, notBefore);
         final ReadOnlyKeyVaultSecretEntity entity = createEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, request);
-        when(entities.listLatestEntities())
+        when(entities.listLatestNonManagedEntities())
                 .thenReturn(List.of(entity));
         final KeyVaultSecretItemModel secretItemModel = keyVaultSecretItemModel(baseUri.asUri(), Map.of());
         when(secretEntityToV72SecretItemModelConverter.convert(same(entity)))
@@ -563,7 +563,7 @@ class SecretControllerTest {
         verify(vaultFake).getRecoverableDays();
         verify(secretVaultFake, atLeastOnce()).getEntities();
         verify(secretVaultFake, never()).getDeletedEntities();
-        verify(entities).listLatestEntities();
+        verify(entities).listLatestNonManagedEntities();
         verify(secretEntityToV72SecretItemModelConverter).convert(same(entity));
     }
 
@@ -583,7 +583,7 @@ class SecretControllerTest {
                 .thenReturn(recoverableDays);
         final CreateSecretRequest request = createRequest(expiry, notBefore);
         final ReadOnlyKeyVaultSecretEntity entity = createEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, request);
-        when(entities.listLatestEntities())
+        when(entities.listLatestNonManagedEntities())
                 .thenReturn(List.of(entity, entity, entity));
         final KeyVaultSecretItemModel secretItemModel = keyVaultSecretItemModel(baseUri.asUri(), Map.of());
         when(secretEntityToV72SecretItemModelConverter.convert(same(entity)))
@@ -608,7 +608,7 @@ class SecretControllerTest {
         verify(vaultFake).getRecoverableDays();
         verify(secretVaultFake, atLeastOnce()).getEntities();
         verify(secretVaultFake, never()).getDeletedEntities();
-        verify(entities).listLatestEntities();
+        verify(entities).listLatestNonManagedEntities();
         verify(secretEntityToV72SecretItemModelConverter).convert(same(entity));
     }
 
@@ -631,7 +631,7 @@ class SecretControllerTest {
         final ReadOnlyKeyVaultSecretEntity entity = createEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, request);
         entity.setDeletedDate(TIME_10_MINUTES_AGO);
         entity.setScheduledPurgeDate(TIME_IN_10_MINUTES);
-        when(entities.listLatestEntities())
+        when(entities.listLatestNonManagedEntities())
                 .thenReturn(List.of(entity));
         final DeletedKeyVaultSecretItemModel secretItemModel = deletedKeyVaultSecretItemModel(baseUri, Map.of());
         when(secretEntityToV72SecretItemModelConverter.convertDeleted(same(entity)))
@@ -654,7 +654,7 @@ class SecretControllerTest {
         verify(vaultFake).getRecoverableDays();
         verify(secretVaultFake, atLeastOnce()).getDeletedEntities();
         verify(secretVaultFake, never()).getEntities();
-        verify(entities).listLatestEntities();
+        verify(entities).listLatestNonManagedEntities();
         verify(secretEntityToV72SecretItemModelConverter).convertDeleted(same(entity));
     }
 
@@ -676,7 +676,7 @@ class SecretControllerTest {
         final ReadOnlyKeyVaultSecretEntity entity = createEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, request);
         entity.setDeletedDate(TIME_10_MINUTES_AGO);
         entity.setScheduledPurgeDate(TIME_IN_10_MINUTES);
-        when(entities.listLatestEntities())
+        when(entities.listLatestNonManagedEntities())
                 .thenReturn(List.of(entity, entity, entity));
         final DeletedKeyVaultSecretItemModel secretItemModel = deletedKeyVaultSecretItemModel(baseUri, Map.of());
         when(secretEntityToV72SecretItemModelConverter.convertDeleted(same(entity)))
@@ -701,7 +701,7 @@ class SecretControllerTest {
         verify(vaultFake).getRecoverableDays();
         verify(secretVaultFake, atLeastOnce()).getDeletedEntities();
         verify(secretVaultFake, never()).getEntities();
-        verify(entities).listLatestEntities();
+        verify(entities).listLatestNonManagedEntities();
         verify(secretEntityToV72SecretItemModelConverter).convertDeleted(same(entity));
     }
 

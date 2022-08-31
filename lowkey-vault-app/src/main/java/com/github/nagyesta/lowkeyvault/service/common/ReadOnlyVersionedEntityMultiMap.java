@@ -11,6 +11,8 @@ public interface ReadOnlyVersionedEntityMultiMap<K extends EntityId, V extends K
 
     List<RE> listLatestEntities();
 
+    List<RE> listLatestNonManagedEntities();
+
     Deque<String> getVersions(K entityId);
 
     boolean containsName(String name);

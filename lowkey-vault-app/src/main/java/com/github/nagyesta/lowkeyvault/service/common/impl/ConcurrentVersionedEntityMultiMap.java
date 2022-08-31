@@ -15,6 +15,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ConcurrentVersionedEntityMultiMap<K extends EntityId, V extends K, RE extends BaseVaultEntity<V>, ME extends RE>
         implements VersionedEntityMultiMap<K, V, RE, ME> {
@@ -39,13 +40,16 @@ public class ConcurrentVersionedEntityMultiMap<K extends EntityId, V extends K, 
         versions = new ConcurrentHashMap<>();
     }
 
-
     @Override
     public List<RE> listLatestEntities() {
-        return entities.keySet().stream()
-                .map(name -> versionCreateFunction.apply(name, versions.get(name).getLast()))
-                .sorted(Comparator.comparing(EntityId::id))
-                .map(this::getEntity)
+        return streamAllLatestEntities()
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<RE> listLatestNonManagedEntities() {
+        return streamAllLatestEntities()
+                .filter(entity -> !entity.isManaged())
                 .collect(Collectors.toList());
     }
 
@@ -155,5 +159,12 @@ public class ConcurrentVersionedEntityMultiMap<K extends EntityId, V extends K, 
     @Override
     public void forEachEntity(@NonNull final Consumer<ME> entityConsumer) {
         entities.values().forEach(entityVersions -> entityVersions.values().forEach(entityConsumer));
+    }
+
+    private Stream<ME> streamAllLatestEntities() {
+        return entities.keySet().stream()
+                .map(name -> versionCreateFunction.apply(name, versions.get(name).getLast()))
+                .sorted(Comparator.comparing(EntityId::id))
+                .map(this::getEntity);
     }
 }

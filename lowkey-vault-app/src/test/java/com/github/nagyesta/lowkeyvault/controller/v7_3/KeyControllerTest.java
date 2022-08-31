@@ -576,7 +576,7 @@ class KeyControllerTest {
                 .thenReturn(recoverableDays);
         final CreateKeyRequest request = createRequest(operations, expiry, notBefore);
         final ReadOnlyKeyVaultKeyEntity entity = createEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, request);
-        when(entities.listLatestEntities())
+        when(entities.listLatestNonManagedEntities())
                 .thenReturn(List.of(entity));
         final KeyVaultKeyItemModel keyItemModel = keyVaultKeyItemModel(baseUri.asUri(), Map.of());
         when(keyEntityToV72KeyItemModelConverter.convert(same(entity)))
@@ -599,7 +599,7 @@ class KeyControllerTest {
         verify(vaultFake).getRecoverableDays();
         verify(keyVaultFake, atLeastOnce()).getEntities();
         verify(keyVaultFake, never()).getDeletedEntities();
-        verify(entities).listLatestEntities();
+        verify(entities).listLatestNonManagedEntities();
         verify(keyEntityToV72KeyItemModelConverter).convert(same(entity));
     }
 
@@ -619,7 +619,7 @@ class KeyControllerTest {
                 .thenReturn(recoverableDays);
         final CreateKeyRequest request = createRequest(operations, expiry, notBefore);
         final ReadOnlyKeyVaultKeyEntity entity = createEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, request);
-        when(entities.listLatestEntities())
+        when(entities.listLatestNonManagedEntities())
                 .thenReturn(List.of(entity, entity, entity));
         final KeyVaultKeyItemModel keyItemModel = keyVaultKeyItemModel(baseUri.asUri(), Map.of());
         when(keyEntityToV72KeyItemModelConverter.convert(same(entity)))
@@ -644,7 +644,7 @@ class KeyControllerTest {
         verify(vaultFake).getRecoverableDays();
         verify(keyVaultFake, atLeastOnce()).getEntities();
         verify(keyVaultFake, never()).getDeletedEntities();
-        verify(entities).listLatestEntities();
+        verify(entities).listLatestNonManagedEntities();
         verify(keyEntityToV72KeyItemModelConverter).convert(same(entity));
     }
 
@@ -666,7 +666,7 @@ class KeyControllerTest {
         final ReadOnlyKeyVaultKeyEntity entity = createEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, request);
         entity.setDeletedDate(TIME_10_MINUTES_AGO);
         entity.setScheduledPurgeDate(TIME_IN_10_MINUTES);
-        when(entities.listLatestEntities())
+        when(entities.listLatestNonManagedEntities())
                 .thenReturn(List.of(entity));
         final DeletedKeyVaultKeyItemModel keyItemModel = deletedKeyVaultKeyItemModel(baseUri, Map.of());
         when(keyEntityToV72KeyItemModelConverter.convertDeleted(same(entity)))
@@ -689,7 +689,7 @@ class KeyControllerTest {
         verify(vaultFake).getRecoverableDays();
         verify(keyVaultFake, atLeastOnce()).getDeletedEntities();
         verify(keyVaultFake, never()).getEntities();
-        verify(entities).listLatestEntities();
+        verify(entities).listLatestNonManagedEntities();
         verify(keyEntityToV72KeyItemModelConverter).convertDeleted(same(entity));
     }
 
@@ -732,7 +732,7 @@ class KeyControllerTest {
         verify(keyVaultFake, never()).getDeletedEntities();
         verify(keyVaultFake, atLeastOnce()).purge(eq(UNVERSIONED_KEY_ENTITY_ID_1));
         verify(keyVaultFake, never()).getEntities();
-        verify(entities, never()).listLatestEntities();
+        verify(entities, never()).listLatestNonManagedEntities();
         verify(keyEntityToV72KeyItemModelConverter, never()).convertDeleted(same(entity));
     }
 
@@ -754,7 +754,7 @@ class KeyControllerTest {
         final ReadOnlyKeyVaultKeyEntity entity = createEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, request);
         entity.setDeletedDate(TIME_10_MINUTES_AGO);
         entity.setScheduledPurgeDate(TIME_IN_10_MINUTES);
-        when(entities.listLatestEntities())
+        when(entities.listLatestNonManagedEntities())
                 .thenReturn(List.of(entity, entity, entity));
         final DeletedKeyVaultKeyItemModel keyItemModel = deletedKeyVaultKeyItemModel(baseUri, Map.of());
         when(keyEntityToV72KeyItemModelConverter.convertDeleted(same(entity)))
@@ -779,7 +779,7 @@ class KeyControllerTest {
         verify(vaultFake).getRecoverableDays();
         verify(keyVaultFake, atLeastOnce()).getDeletedEntities();
         verify(keyVaultFake, never()).getEntities();
-        verify(entities).listLatestEntities();
+        verify(entities).listLatestNonManagedEntities();
         verify(keyEntityToV72KeyItemModelConverter).convertDeleted(same(entity));
     }
 

@@ -148,6 +148,23 @@ class ConcurrentVersionedEntityMultiMapTest {
         Assertions.assertSame(key3Version2Mock, actual.get(2));
     }
 
+    @SuppressWarnings("checkstyle:MagicNumber")
+    @Test
+    void testListLatestNonManagedEntitiesShouldReturnOnlyTheNotManagedEntitiesWhenMultipleVersionsWerePut() {
+        //given
+        putAllMocks();
+        when(key1Version3Mock.isManaged()).thenReturn(true);
+
+        //when
+        final List<ReadOnlyKeyVaultKeyEntity> actual = underTest.listLatestNonManagedEntities();
+
+        //then
+        Assertions.assertNotNull(actual);
+        Assertions.assertEquals(2, actual.size());
+        Assertions.assertSame(key2Version2Mock, actual.get(0));
+        Assertions.assertSame(key3Version2Mock, actual.get(1));
+    }
+
     @Test
     void testListLatestEntitiesShouldReturnEmptyListWhenEmpty() {
         //given

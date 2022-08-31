@@ -97,7 +97,7 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
     @SuppressWarnings("SameParameterValue")
     protected KeyVaultItemListModel<I> getPageOfItems(final URI baseUri, final int limit, final int offset, final String uriPath) {
         final S entityVaultFake = getVaultByUri(baseUri);
-        final List<E> allItems = entityVaultFake.getEntities().listLatestEntities();
+        final List<E> allItems = entityVaultFake.getEntities().listLatestNonManagedEntities();
         final List<I> items = filterList(limit, offset, allItems, itemConverter::convert);
         final URI nextUri = getNextUri(baseUri + uriPath, allItems, items, limit, offset);
         return listModel(items, nextUri);
@@ -106,7 +106,7 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
     @SuppressWarnings("SameParameterValue")
     protected KeyVaultItemListModel<I> getPageOfDeletedItems(final URI baseUri, final int limit, final int offset, final String uriPath) {
         final S entityVaultFake = getVaultByUri(baseUri);
-        final List<E> allItems = entityVaultFake.getDeletedEntities().listLatestEntities();
+        final List<E> allItems = entityVaultFake.getDeletedEntities().listLatestNonManagedEntities();
         final List<I> items = filterList(limit, offset, allItems, itemConverter::convertDeleted);
         final URI nextUri = getNextUri(baseUri + uriPath, allItems, items, limit, offset);
         return listModel(items, nextUri);

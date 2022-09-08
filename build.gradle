@@ -13,7 +13,7 @@ project.ext {
     ossrhPass = project.hasProperty('ossrhPassword') ? (project.property('ossrhPassword') as String) : ''
     ossIndexUser = project.hasProperty('ossIndexUsername') ? (project.property('ossIndexUsername') as String) : ''
     ossIndexPass = project.hasProperty('ossIndexPassword') ? (project.property('ossIndexPassword') as String) : ''
-    ossIndexExclusions = ["CVE-2016-1000027"]
+    ossIndexExclusions = ["CVE-2016-1000027", "CVE-2022-38752"]
     keyToolDir = project.hasProperty('keyToolDir') ? (project.property('keyToolDir') as String) : ''
     dockerAbortGroups = project.hasProperty('dockerSuppressGroups') ? 'all' : ''
     dockerSuppressGroups = project.hasProperty('dockerSuppressGroups') ? (project.property('dockerSuppressGroups') as String) : ''

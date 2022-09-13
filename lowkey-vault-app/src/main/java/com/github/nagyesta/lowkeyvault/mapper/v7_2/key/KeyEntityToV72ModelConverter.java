@@ -33,6 +33,7 @@ public class KeyEntityToV72ModelConverter
         model.setKey(mapJsonWebKey(source, vaultUri));
         model.setAttributes(keyEntityToV72PropertiesModelConverter.convert(source, vaultUri));
         model.setTags(source.getTags());
+        model.setManaged(source.isManaged());
         return model;
     }
 

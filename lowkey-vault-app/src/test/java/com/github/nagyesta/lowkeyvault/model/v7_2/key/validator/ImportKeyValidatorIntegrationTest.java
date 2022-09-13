@@ -1,6 +1,7 @@
 package com.github.nagyesta.lowkeyvault.model.v7_2.key.validator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.nagyesta.abortmission.booster.jupiter.annotation.LaunchAbortArmed;
 import com.github.nagyesta.lowkeyvault.ResourceUtils;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.ImportKeyRequest;
 import org.junit.jupiter.api.Assertions;
@@ -21,6 +22,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@LaunchAbortArmed
 @SpringBootTest
 @TestPropertySource(locations = "classpath:test-application.properties")
 class ImportKeyValidatorIntegrationTest {

@@ -4,7 +4,6 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRequest;
 import com.github.nagyesta.lowkeyvault.service.exception.CryptoException;
 import com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.lang.NonNull;
 
 import java.security.KeyFactory;
@@ -27,7 +26,8 @@ public class EcJsonWebKeyImportRequestConverter extends BaseJsonWebKeyImportRequ
     public KeyPair convert(@NonNull final JsonWebKeyImportRequest source) {
         try {
             final ECParameterSpec spec = parameterSpec(source);
-            final KeyFactory factory = KeyFactory.getInstance(source.getKeyType().getAlgorithmName(), new BouncyCastleProvider());
+            final KeyFactory factory = KeyFactory.getInstance(source.getKeyType().getAlgorithmName(),
+                    KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
             final PrivateKey privateKey = factory.generatePrivate(ecPrivateKeySpec(spec, source));
             final PublicKey publicKey = factory.generatePublic(ecPublicKeySpec(spec, source));
             return new KeyPair(publicKey, privateKey);

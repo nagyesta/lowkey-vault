@@ -2,6 +2,7 @@ package com.github.nagyesta.lowkeyvault.model.v7_3.key;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.nagyesta.abortmission.booster.jupiter.annotation.LaunchAbortArmed;
 import com.github.nagyesta.lowkeyvault.ResourceUtils;
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.constants.LifetimeActionType;
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.validator.Restore;
@@ -29,6 +30,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
+@LaunchAbortArmed
 @SpringBootTest
 @TestPropertySource(locations = "classpath:test-application.properties")
 class KeyRotationPolicyModelIntegrationTest {

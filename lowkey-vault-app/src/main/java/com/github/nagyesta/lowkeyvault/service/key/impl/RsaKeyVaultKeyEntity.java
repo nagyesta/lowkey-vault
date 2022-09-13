@@ -6,9 +6,9 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.SignatureAlgorithm;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyRsaKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
+import com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
@@ -105,7 +105,7 @@ public class RsaKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, Integer> im
         Assert.state(getOperations().contains(KeyOperation.WRAP_KEY), getId() + " does not have WRAP_KEY operation assigned.");
         Assert.state(isEnabled(), getId() + " is not enabled.");
         return doCrypto(() -> {
-            final Cipher cipher = Cipher.getInstance(encryptionAlgorithm.getAlg(), new BouncyCastleProvider());
+            final Cipher cipher = Cipher.getInstance(encryptionAlgorithm.getAlg(), KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
             cipher.init(Cipher.ENCRYPT_MODE, getKey().getPublic());
             return cipher.doFinal(clear);
         }, "Cannot encrypt message.", log);
@@ -117,7 +117,7 @@ public class RsaKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, Integer> im
         Assert.state(getOperations().contains(KeyOperation.UNWRAP_KEY), getId() + " does not have UNWRAP_KEY operation assigned.");
         Assert.state(isEnabled(), getId() + " is not enabled.");
         return doCrypto(() -> {
-            final Cipher cipher = Cipher.getInstance(encryptionAlgorithm.getAlg(), new BouncyCastleProvider());
+            final Cipher cipher = Cipher.getInstance(encryptionAlgorithm.getAlg(), KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
             cipher.init(Cipher.DECRYPT_MODE, getKey().getPrivate());
             return cipher.doFinal(encrypted);
         }, "Cannot decrypt message.", log);
@@ -128,7 +128,7 @@ public class RsaKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, Integer> im
         Assert.state(getOperations().contains(KeyOperation.SIGN), getId() + " does not have SIGN operation assigned.");
         Assert.state(isEnabled(), getId() + " is not enabled.");
         return doCrypto(() -> {
-            final Signature rsaSign = Signature.getInstance(signatureAlgorithm.getAlg(), new BouncyCastleProvider());
+            final Signature rsaSign = Signature.getInstance(signatureAlgorithm.getAlg(), KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
             rsaSign.initSign(getKey().getPrivate());
             rsaSign.update(digest);
             return rsaSign.sign();
@@ -142,7 +142,7 @@ public class RsaKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, Integer> im
         Assert.state(getOperations().contains(KeyOperation.VERIFY), getId() + " does not have VERIFY operation assigned.");
         Assert.state(isEnabled(), getId() + " is not enabled.");
         return doCrypto(() -> {
-            final Signature rsaVerify = Signature.getInstance(signatureAlgorithm.getAlg(), new BouncyCastleProvider());
+            final Signature rsaVerify = Signature.getInstance(signatureAlgorithm.getAlg(), KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
             rsaVerify.initVerify(getKey().getPublic());
             rsaVerify.update(digest);
             return rsaVerify.verify(signature);

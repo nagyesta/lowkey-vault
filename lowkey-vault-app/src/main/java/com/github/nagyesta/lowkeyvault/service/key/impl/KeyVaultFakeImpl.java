@@ -57,6 +57,23 @@ public class KeyVaultFakeImpl
     }
 
     @Override
+    public <E, T extends KeyCreationInput<E>> VersionedKeyEntityId createKeyVersionForCertificate(
+            @NonNull final String keyName,
+            @NonNull final T input,
+            @NonNull final OffsetDateTime notBefore,
+            @NonNull final OffsetDateTime expiry) {
+        final VersionedKeyEntityId entityId = this.createKeyVersion(keyName, input);
+        this.setKeyOperations(entityId, List.of(
+                KeyOperation.SIGN, KeyOperation.VERIFY,
+                KeyOperation.ENCRYPT, KeyOperation.DECRYPT,
+                KeyOperation.WRAP_KEY, KeyOperation.UNWRAP_KEY));
+        this.setEnabled(entityId, true);
+        this.setExpiry(entityId, notBefore, expiry);
+        this.setManaged(entityId, true);
+        return entityId;
+    }
+
+    @Override
     public VersionedKeyEntityId importKeyVersion(
             final String keyName, final JsonWebKeyImportRequest key) {
         final VersionedKeyEntityId keyEntityId = new VersionedKeyEntityId(vaultFake().baseUri(), keyName);

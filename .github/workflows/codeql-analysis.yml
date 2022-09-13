@@ -66,16 +66,16 @@ jobs:
         language: [ 'java' ]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # tag=v2.4.0
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # tag=v3.1.0
       - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b # tag=v1.0.4
+        uses: gradle/wrapper-validation-action@55e685c48d84285a5b0418cd094606e199cca3b6 # tag=v1.0.5
       - name: Set up JDK 11
-        uses: actions/setup-java@f0bb91606209742fe3ea40199be2f3ef195ecabf # tag=v2.5.0
+        uses: actions/setup-java@19eeec562b37d29a1ad055b7de9c280bd0906d8d # tag=v3.7.0
         with:
           distribution: temurin
           java-version: 11
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@d39d5d5c9707b926d517b1b292905ef4c03aa777 # tag=v1.1.2
+        uses: github/codeql-action/init@4238421316c33d73aeea2801274dd286f157c2bb # tag=v2.1.32
         with:
           languages: ${{ matrix.language }}
           # If you wish to specify custom queries, you can do so here or in a config file.
@@ -85,6 +85,6 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build -x test -x dockerClean -x dockerPrepare -x dockerRun -x dockerRunStatus -x dockerStop
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@d39d5d5c9707b926d517b1b292905ef4c03aa777 # tag=v1.1.2
+        uses: github/codeql-action/analyze@4238421316c33d73aeea2801274dd286f157c2bb # tag=v2.1.32
       - name: Check dependencies with Gradle
         run: ./gradlew ossIndexAudit -PossIndexUsername=${{ secrets.OSS_INDEX_USER }} -PossIndexPassword=${{ secrets.OSS_INDEX_PASSWORD }}

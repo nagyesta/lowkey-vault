@@ -145,6 +145,29 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 - Purge deleted secret
 - Backup and restore secrets
 
+### Certificates
+
+![https://img.shields.io/badge/status-experimental-red](https://img.shields.io/badge/status-experimental-red)
+
+- API version supported: ```7.3```
+- Create certificate
+    - Self-signed only
+    - Password used for PKCS12 stores: `lowkey-vault`
+- Get certificate operation
+    - Get pending create operation results
+- Get certificate
+    - Latest version of a single certificate
+    - Specific version of a single certificate
+
+#### Warning!
+
+Certificate API features are work in progress, many Lowkey Vault features might 
+not work or are known to be broken, for example but not limited to the following:
+
+- Certificate lifetime policy is missing
+- Import and export ignores certificates
+- Time shift is not supported for certificates
+
 ### Management API
 
 #### Functionality

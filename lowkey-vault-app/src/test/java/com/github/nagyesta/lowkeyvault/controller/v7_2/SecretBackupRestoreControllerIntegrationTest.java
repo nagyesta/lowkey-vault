@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.controller.v7_2;
 
+import com.github.nagyesta.abortmission.booster.jupiter.annotation.LaunchAbortArmed;
 import com.github.nagyesta.lowkeyvault.TestConstantsUri;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72ModelConverter;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
@@ -33,6 +34,7 @@ import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsSecrets.*;
 import static org.mockito.Mockito.mock;
 
+@LaunchAbortArmed
 @SpringBootTest
 class SecretBackupRestoreControllerIntegrationTest {
 

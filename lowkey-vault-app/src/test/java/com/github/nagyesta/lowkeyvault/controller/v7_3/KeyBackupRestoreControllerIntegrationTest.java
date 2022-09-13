@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.controller.v7_3;
 
+import com.github.nagyesta.abortmission.booster.jupiter.annotation.LaunchAbortArmed;
 import com.github.nagyesta.lowkeyvault.TestConstantsUri;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72BackupConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ModelConverter;
@@ -50,6 +51,7 @@ import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.*;
 import static com.github.nagyesta.lowkeyvault.model.v7_3.key.constants.LifetimeActionType.ROTATE;
 import static org.mockito.Mockito.mock;
 
+@LaunchAbortArmed
 @SpringBootTest
 class KeyBackupRestoreControllerIntegrationTest {
 

@@ -1,6 +1,7 @@
 package com.github.nagyesta.lowkeyvault.model.json.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.nagyesta.abortmission.booster.jupiter.annotation.LaunchAbortArmed;
 import com.github.nagyesta.lowkeyvault.TestConstantsSecrets;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.SecretBackupList;
@@ -20,6 +21,7 @@ import java.util.Map;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 
+@LaunchAbortArmed
 @SpringBootTest
 class Base64ZipSecretSerializerDeserializerIntegrationTest {
 

@@ -19,7 +19,8 @@ import static com.github.nagyesta.lowkeyvault.context.TestContextConfig.DEFAULT_
                 "com.github.nagyesta.lowkeyvault.steps",
                 "com.github.nagyesta.lowkeyvault.context"},
         features = {"classpath:/com/github/nagyesta/lowkeyvault/keys",
-                "classpath:/com/github/nagyesta/lowkeyvault/secrets"},
+                "classpath:/com/github/nagyesta/lowkeyvault/secrets",
+                "classpath:/com/github/nagyesta/lowkeyvault/certificates"},
         plugin = {"com.github.nagyesta.abortmission.booster.cucumber.AbortMissionPlugin",
                 "html:build/reports/cucumber/cucumber-parallel-report.html"})
 @CucumberContextConfiguration

@@ -28,7 +28,7 @@ public class MissionOutlineDefinition extends LaunchAbortHook {
         return Map.of(SHARED_CONTEXT, ops -> {
             final TagDependencyNameExtractor extractor = new TagDependencyNameExtractor();
             ops.registerHealthCheck(reportOnlyEvaluator(anyScenarioMatcher()).overrideKeyword("all").build());
-            Stream.of("Key", "Secret").forEach(type -> {
+            Stream.of("Key", "Secret", "Certificate").forEach(type -> {
                 final MissionHealthCheckMatcher typeMatcher = matcher().dependencyWith(type).extractor(extractor).build();
                 final MissionHealthCheckEvaluator featurePercentage = percentageBasedEvaluator(typeMatcher)
                         .abortThreshold(ABORT_THRESHOLD)

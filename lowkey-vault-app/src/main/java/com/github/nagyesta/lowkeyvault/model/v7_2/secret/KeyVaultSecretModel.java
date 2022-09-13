@@ -13,6 +13,9 @@ public class KeyVaultSecretModel {
     @JsonProperty("id")
     private String id;
 
+    @JsonProperty("kid")
+    private String kid;
+
     @JsonProperty("value")
     private String value;
 

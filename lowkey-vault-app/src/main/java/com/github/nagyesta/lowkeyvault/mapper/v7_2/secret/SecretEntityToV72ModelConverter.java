@@ -3,6 +3,7 @@ package com.github.nagyesta.lowkeyvault.mapper.v7_2.secret;
 import com.github.nagyesta.lowkeyvault.mapper.common.BaseRecoveryAwareConverter;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.DeletedKeyVaultSecretModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.KeyVaultSecretModel;
+import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.secret.ReadOnlyKeyVaultSecretEntity;
 import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId;
 import lombok.NonNull;
@@ -33,6 +34,11 @@ public class SecretEntityToV72ModelConverter
         model.setValue(source.getValue());
         model.setAttributes(secretEntityToV72PropertiesModelConverter.convert(source, vaultUri));
         model.setTags(source.getTags());
+        model.setManaged(source.isManaged());
+        if (source.isManaged()) {
+            final VersionedSecretEntityId id = source.getId();
+            model.setKid(new VersionedKeyEntityId(id.vault(), id.id(), id.version()).asUri(vaultUri).toString());
+        }
         return model;
     }
 }

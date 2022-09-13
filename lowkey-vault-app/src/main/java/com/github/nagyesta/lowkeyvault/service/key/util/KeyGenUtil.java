@@ -23,6 +23,11 @@ import java.util.Objects;
 @Slf4j
 public final class KeyGenUtil {
 
+    /**
+     * The single instance of the Bouncy Castle provider we need.
+     */
+    public static final BouncyCastleProvider BOUNCY_CASTLE_PROVIDER = new BouncyCastleProvider();
+
     private KeyGenUtil() {
         throw new IllegalCallerException("Utility cannot be instantiated.");
     }
@@ -67,7 +72,7 @@ public final class KeyGenUtil {
     static KeyPairGenerator keyPairGenerator(final String algorithmName,
                                              final AlgorithmParameterSpec algSpec) {
         try {
-            final KeyPairGenerator keyGen = KeyPairGenerator.getInstance(algorithmName, new BouncyCastleProvider());
+            final KeyPairGenerator keyGen = KeyPairGenerator.getInstance(algorithmName, BOUNCY_CASTLE_PROVIDER);
             keyGen.initialize(algSpec);
             return keyGen;
         } catch (final Exception e) {

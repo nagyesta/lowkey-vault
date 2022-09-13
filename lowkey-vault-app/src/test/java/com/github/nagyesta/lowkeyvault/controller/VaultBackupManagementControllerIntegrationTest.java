@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.controller;
 
+import com.github.nagyesta.abortmission.booster.jupiter.annotation.LaunchAbortArmed;
 import com.github.nagyesta.lowkeyvault.controller.v7_3.KeyBackupRestoreController;
 import com.github.nagyesta.lowkeyvault.controller.v7_3.SecretBackupRestoreController;
 import com.github.nagyesta.lowkeyvault.model.management.VaultBackupListModel;
@@ -27,6 +28,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.net.URI;
 import java.util.List;
 
+@LaunchAbortArmed
 @SpringBootTest(properties = {"LOWKEY_VAULT_NAMES=-"}, classes = VaultBackupConfiguration.class)
 @ActiveProfiles("vault")
 class VaultBackupManagementControllerIntegrationTest {

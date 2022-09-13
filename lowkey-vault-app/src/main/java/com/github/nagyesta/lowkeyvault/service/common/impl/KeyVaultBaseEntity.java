@@ -94,6 +94,7 @@ public abstract class KeyVaultBaseEntity<V extends EntityId> extends KeyVaultLif
         return managed;
     }
 
+    @Override
     public void setManaged(final boolean managed) {
         this.managed = managed;
     }

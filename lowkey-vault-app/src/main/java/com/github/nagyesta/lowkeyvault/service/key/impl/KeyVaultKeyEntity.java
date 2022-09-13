@@ -15,6 +15,7 @@ import java.util.concurrent.Callable;
 
 /**
  * Common Key entity base class.
+ *
  * @param <T> The type of the key.
  * @param <S> The type of the key parameter.
  */
@@ -39,7 +40,7 @@ public abstract class KeyVaultKeyEntity<T, S> extends KeyVaultBaseEntity<Version
         this.operations = Collections.emptyList();
     }
 
-    protected T getKey() {
+    public T getKey() {
         return key;
     }
 

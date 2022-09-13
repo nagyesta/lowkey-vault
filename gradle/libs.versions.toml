@@ -12,6 +12,7 @@ handlebars="4.3.1"
 httpClient = "4.5.13"
 commonsCodec = "1.15"
 azureKeyVaultClient = "4.5.2"
+azureKeyVaultCertClient = "4.4.2"
 testcontainers = "1.17.6"
 cucumber = "7.9.0"
 mockitoCore = "4.9.0"
@@ -73,6 +74,7 @@ mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore
 
 azure-security-keyvault-secrets = { module = "com.azure:azure-security-keyvault-secrets", version.ref = "azureKeyVaultClient" }
 azure-security-keyvault-keys = { module = "com.azure:azure-security-keyvault-keys", version.ref = "azureKeyVaultClient" }
+azure-security-keyvault-certificates = { module = "com.azure:azure-security-keyvault-certificates", version.ref = "azureKeyVaultCertClient" }
 
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 

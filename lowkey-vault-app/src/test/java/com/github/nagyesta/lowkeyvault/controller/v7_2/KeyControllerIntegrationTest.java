@@ -1,6 +1,7 @@
 package com.github.nagyesta.lowkeyvault.controller.v7_2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.nagyesta.abortmission.booster.jupiter.annotation.LaunchAbortArmed;
 import com.github.nagyesta.lowkeyvault.ResourceUtils;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.EncryptionAlgorithm;
@@ -34,6 +35,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.stream.Stream;
 
+@LaunchAbortArmed
 @SpringBootTest
 class KeyControllerIntegrationTest {
 

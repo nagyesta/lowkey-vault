@@ -34,3 +34,7 @@ match the two (as the example shows below), or you need to start using the logic
 export LOWKEY_ARGS="--server.port=8444"
 docker run --rm --name lowkey -e LOWKEY_ARGS -d -p 8444:8444 nagyesta/lowkey-vault:<version>
 ```
+
+## ARM builds
+
+Lowkey Vault offers a multi-arch variant using Buildx. You can find the relevant project [here](https://github.com/nagyesta/lowkey-vault-docker-buildx).

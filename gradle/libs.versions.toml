@@ -100,7 +100,7 @@ spring-boot-app = [
     "spring-boot-starter", "spring-boot-starter-json", "spring-boot-starter-web", "spring-boot-starter-tomcat",
     "spring-boot-starter-validation", "spring-core", "spring-context", "spring-web", "spring-webmvc", "snake-yaml"
 ]
-spring-test = ["spring-boot-starter-test", "spring-test"]
+spring-test = ["spring-boot-starter-test", "spring-test", "snake-yaml"]
 logback = ["logback-classic", "logback-core"]
 cucumber = ["cucumber-java", "cucumber-testng", "cucumber-spring"]
 jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-dataformat-xml", "jackson-datatype-jsr310"]

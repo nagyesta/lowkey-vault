@@ -38,7 +38,7 @@ public class CommonAuthHeaderFilter extends OncePerRequestFilter {
         final URI baseUri = URI.create(HTTPS + request.getServerName() + port);
         request.setAttribute(ApiConstants.REQUEST_BASE_URI, baseUri);
         response.setHeader(HttpHeaders.WWW_AUTHENTICATE,
-                String.format(BEARER_FAKE_TOKEN, request.getRequestURI(), baseUri + request.getRequestURI()));
+                String.format(BEARER_FAKE_TOKEN, baseUri, baseUri + request.getRequestURI()));
         if (!StringUtils.hasText(request.getHeader(HttpHeaders.AUTHORIZATION))) {
             log.info("Sending token to client without processing payload: {}", request.getRequestURI());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

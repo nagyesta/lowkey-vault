@@ -26,7 +26,8 @@ public class AbstractLowkeyVaultContainerTest {
                 .vaultUrl(vaultUrl)
                 .credential(credential)
                 .httpClient(httpClient)
-                .serviceVersion(SecretServiceVersion.V7_2)
+                .serviceVersion(SecretServiceVersion.V7_3)
+                .disableChallengeResourceVerification()
                 .retryPolicy(new RetryPolicy(new FixedDelay(0, Duration.ZERO)))
                 .buildClient();
 

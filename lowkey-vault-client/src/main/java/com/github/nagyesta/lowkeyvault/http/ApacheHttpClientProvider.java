@@ -116,6 +116,7 @@ public final class ApacheHttpClientProvider {
                 .vaultUrl(getVaultUrl())
                 .credential(new BasicAuthenticationCredential(DUMMY, DUMMY))
                 .httpClient(createInstance())
+                .disableChallengeResourceVerification()
                 .retryPolicy(new RetryPolicy(new FixedDelay(0, Duration.ZERO)));
     }
 
@@ -124,6 +125,7 @@ public final class ApacheHttpClientProvider {
                 .vaultUrl(getVaultUrl())
                 .credential(new BasicAuthenticationCredential(DUMMY, DUMMY))
                 .httpClient(createInstance())
+                .disableChallengeResourceVerification()
                 .retryPolicy(new RetryPolicy(new FixedDelay(0, Duration.ZERO)));
     }
 
@@ -132,6 +134,7 @@ public final class ApacheHttpClientProvider {
                 .keyIdentifier(Objects.requireNonNull(webKeyId))
                 .credential(new BasicAuthenticationCredential(DUMMY, DUMMY))
                 .httpClient(createInstance())
+                .disableChallengeResourceVerification()
                 .retryPolicy(new RetryPolicy(new FixedDelay(0, Duration.ZERO)));
     }
 

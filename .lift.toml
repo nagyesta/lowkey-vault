@@ -10,7 +10,7 @@ build = "./gradlew build -x test -x dockerClean -x dockerPrepare -x dockerRun -x
 # ignoreFiles = <gitignore format string of files to ignore>
 
 ## tools = <infer | errorprone | eslint | hlint | findsecbugs >
-tools = ["infer", "findsecbugs", "open source vulnerabilities", "bill of materials"]
+tools = ["infer", "findsecbugs"]
 
 # disableTools = <list of tools to not run on the project>
 disableTools = ["errorprone"]

@@ -78,7 +78,7 @@ public class KeyBackupRestoreController
         final KeyBackupModel keyBackupModel = super.backupEntity(entityId);
         final KeyBackupList value = keyBackupModel.getValue();
         final ReadOnlyRotationPolicy rotationPolicy = getVaultByUri(entityId.vault()).rotationPolicy(entityId);
-        value.setKeyRotationPolicy(keyRotationPolicyToV73ModelConverter.convert(rotationPolicy));
+        value.setKeyRotationPolicy(keyRotationPolicyToV73ModelConverter.convert(rotationPolicy, entityId.vault()));
         return keyBackupModel;
     }
 

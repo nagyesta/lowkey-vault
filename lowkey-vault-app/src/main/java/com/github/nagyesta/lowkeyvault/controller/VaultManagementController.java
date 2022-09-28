@@ -24,8 +24,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.github.nagyesta.lowkeyvault.openapi.Examples.BASE_URI;
-import static com.github.nagyesta.lowkeyvault.openapi.Examples.ONE;
+import static com.github.nagyesta.lowkeyvault.openapi.Examples.*;
 
 @Slf4j
 @RestController
@@ -76,7 +75,8 @@ public class VaultManagementController extends ErrorHandlingAwareController {
     public ResponseEntity<VaultModel> createVault(@Valid @org.springframework.web.bind.annotation.RequestBody final VaultModel model) {
         log.info("Received request to create vault with uri: {}, recovery level: {}, recoverable days: {}",
                 model.getBaseUri(), model.getRecoveryLevel(), model.getRecoverableDays());
-        final VaultFake vaultFake = vaultService.create(model.getBaseUri(), model.getRecoveryLevel(), model.getRecoverableDays());
+        final VaultFake vaultFake = vaultService
+                .create(model.getBaseUri(), model.getRecoveryLevel(), model.getRecoverableDays(), model.getAliases());
         return ResponseEntity.ok(vaultFakeToVaultModelConverter.convert(vaultFake));
     }
 
@@ -226,6 +226,46 @@ public class VaultManagementController extends ErrorHandlingAwareController {
     public ResponseEntity<Boolean> purgeVault(@RequestParam final URI baseUri) {
         log.info("Received request to purge deleted vault with uri: {}", baseUri);
         return ResponseEntity.ok(vaultService.purge(baseUri));
+    }
+
+    @Operation(
+            summary = "Update aliases of a vault",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Operation completed (result in response body)",
+                            content = @Content(
+                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = VaultModel.class)
+                            )),
+                    @ApiResponse(responseCode = "404", description = "Vault not found",
+                            content = @Content(
+                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorModel.class)
+                            )),
+                    @ApiResponse(responseCode = "400", description = "Validation Failure",
+                            content = @Content(
+                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorModel.class)
+                            )),
+                    @ApiResponse(responseCode = "500", description = "Internal error",
+                            content = @Content(
+                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorModel.class)
+                            ))},
+            parameters = {
+                    @Parameter(name = "baseUri", example = BASE_URI,
+                            description = "The base URI of the vault we want to update."),
+                    @Parameter(name = "add", example = ALIAS1,
+                            description = "The base URI we want to add to the aliases of the vault.", required = false),
+                    @Parameter(name = "remove", example = ALIAS2,
+                            description = "The base URI we want to remove from the aliases of the vault.", required = false)},
+            requestBody = @RequestBody(content = @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE)))
+    @PatchMapping("/alias")
+    public ResponseEntity<VaultModel> aliasUpdate(@RequestParam final URI baseUri,
+                                                  @RequestParam(required = false) final URI add,
+                                                  @RequestParam(required = false) final URI remove) {
+        log.info("Received request to update alias of vault with uri: {}", baseUri);
+        final VaultFake fake = vaultService.updateAlias(baseUri, add, remove);
+        return ResponseEntity.ok(vaultFakeToVaultModelConverter.convert(fake));
     }
 
     @Operation(

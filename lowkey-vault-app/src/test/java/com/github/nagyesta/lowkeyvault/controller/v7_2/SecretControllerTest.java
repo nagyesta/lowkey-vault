@@ -84,7 +84,7 @@ class SecretControllerTest {
         model.setTags(Map.of());
         model.setDeletedDate(TIME_10_MINUTES_AGO);
         model.setScheduledPurgeDate(TIME_IN_10_MINUTES);
-        model.setRecoveryId(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1.asRecoveryUri().toString());
+        model.setRecoveryId(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1.asRecoveryUri(HTTPS_LOCALHOST_8443).toString());
         return model;
     }
 
@@ -185,7 +185,7 @@ class SecretControllerTest {
                 .thenReturn(recoverableDays);
         when(entities.getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1)))
                 .thenReturn(entity);
-        when(secretEntityToV72ModelConverter.convert(same(entity)))
+        when(secretEntityToV72ModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(RESPONSE);
 
         //when
@@ -203,7 +203,7 @@ class SecretControllerTest {
         verify(secretVaultFake).setExpiry(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1), eq(notBefore), eq(expiry));
         verify(secretVaultFake).setEnabled(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1), eq(true));
         verify(secretVaultFake).addTags(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1), same(TAGS_TWO_KEYS));
-        verify(secretEntityToV72ModelConverter).convert(same(entity));
+        verify(secretEntityToV72ModelConverter).convert(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
     @Test
@@ -230,7 +230,8 @@ class SecretControllerTest {
                 .mapToObj(i -> UUID.randomUUID().toString().replaceAll("-", ""))
                 .collect(Collectors.toCollection(LinkedList::new));
         final SecretEntityId baseUri = new SecretEntityId(HTTPS_LOCALHOST_8443, SECRET_NAME_1, null);
-        final String expectedNextUri = baseUri.asUri("versions?api-version=7.2&$skiptoken=31&maxresults=1").toString();
+        final String expectedNextUri = baseUri.asUri(HTTPS_LOCALHOST_8443, "versions?api-version=7.2&$skiptoken=31&maxresults=1")
+                .toString();
         when(secretVaultFake.getEntities())
                 .thenReturn(entities);
         when(entities.getVersions(eq(baseUri))).thenReturn(fullList);
@@ -238,11 +239,12 @@ class SecretControllerTest {
             final VersionedSecretEntityId secretEntityId = invocation.getArgument(0, VersionedSecretEntityId.class);
             return createEntity(secretEntityId, createRequest(null, null));
         });
-        when(secretEntityToV72SecretVersionItemModelConverter.convert(any())).thenAnswer(invocation -> {
+        when(secretEntityToV72SecretVersionItemModelConverter.convert(any(), any())).thenAnswer(invocation -> {
             final KeyVaultSecretEntity entity = invocation.getArgument(0, KeyVaultSecretEntity.class);
-            return keyVaultSecretItemModel(entity.getId().asUri(), Map.of());
+            return keyVaultSecretItemModel(entity.getId().asUri(HTTPS_LOCALHOST_8443), Map.of());
         });
-        final URI expected = new VersionedSecretEntityId(HTTPS_LOCALHOST_8443, SECRET_NAME_1, fullList.get(index)).asUri();
+        final URI expected = new VersionedSecretEntityId(HTTPS_LOCALHOST_8443, SECRET_NAME_1,
+                fullList.get(index)).asUri(HTTPS_LOCALHOST_8443);
 
         //when
         final ResponseEntity<KeyVaultItemListModel<KeyVaultSecretItemModel>> actual =
@@ -273,12 +275,12 @@ class SecretControllerTest {
             final VersionedSecretEntityId secretEntityId = invocation.getArgument(0, VersionedSecretEntityId.class);
             return createEntity(secretEntityId, createRequest(null, null));
         });
-        when(secretEntityToV72SecretVersionItemModelConverter.convert(any())).thenAnswer(invocation -> {
+        when(secretEntityToV72SecretVersionItemModelConverter.convert(any(), any())).thenAnswer(invocation -> {
             final KeyVaultSecretEntity entity = invocation.getArgument(0, KeyVaultSecretEntity.class);
-            return keyVaultSecretItemModel(entity.getId().asUri(), Map.of());
+            return keyVaultSecretItemModel(entity.getId().asUri(HTTPS_LOCALHOST_8443), Map.of());
         });
         final List<URI> expected = fullList.stream()
-                .map(e -> new VersionedSecretEntityId(HTTPS_LOCALHOST_8443, SECRET_NAME_1, e).asUri())
+                .map(e -> new VersionedSecretEntityId(HTTPS_LOCALHOST_8443, SECRET_NAME_1, e).asUri(HTTPS_LOCALHOST_8443))
                 .collect(Collectors.toList());
 
         //when
@@ -323,7 +325,7 @@ class SecretControllerTest {
         entity.setScheduledPurgeDate(TIME_IN_10_MINUTES);
         when(deletedEntities.getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3)))
                 .thenReturn(entity);
-        when(secretEntityToV72ModelConverter.convertDeleted(same(entity)))
+        when(secretEntityToV72ModelConverter.convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(DELETED_RESPONSE);
 
         //when
@@ -343,7 +345,7 @@ class SecretControllerTest {
         verify(secretVaultFake, never()).getEntities();
         verify(deletedEntities).getLatestVersionOfEntity(eq(baseUri));
         verify(deletedEntities).getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3));
-        verify(secretEntityToV72ModelConverter).convertDeleted(same(entity));
+        verify(secretEntityToV72ModelConverter).convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")
@@ -371,7 +373,7 @@ class SecretControllerTest {
         entity.setScheduledPurgeDate(TIME_IN_10_MINUTES);
         when(entities.getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3)))
                 .thenReturn(entity);
-        when(secretEntityToV72ModelConverter.convert(same(entity)))
+        when(secretEntityToV72ModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(RESPONSE);
 
         //when
@@ -391,7 +393,7 @@ class SecretControllerTest {
         verify(secretVaultFake, never()).getDeletedEntities();
         verify(entities).getLatestVersionOfEntity(eq(baseUri));
         verify(entities).getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3));
-        verify(secretEntityToV72ModelConverter).convert(same(entity));
+        verify(secretEntityToV72ModelConverter).convert(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")
@@ -416,7 +418,7 @@ class SecretControllerTest {
         entity.setScheduledPurgeDate(TIME_IN_10_MINUTES);
         when(entities.getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3)))
                 .thenReturn(entity);
-        when(secretEntityToV72ModelConverter.convertDeleted(same(entity)))
+        when(secretEntityToV72ModelConverter.convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(DELETED_RESPONSE);
 
         //when
@@ -434,7 +436,7 @@ class SecretControllerTest {
         verify(secretVaultFake, atLeastOnce()).getDeletedEntities();
         verify(entities).getLatestVersionOfEntity(eq(baseUri));
         verify(entities).getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3));
-        verify(secretEntityToV72ModelConverter).convertDeleted(same(entity));
+        verify(secretEntityToV72ModelConverter).convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")
@@ -481,7 +483,7 @@ class SecretControllerTest {
         verify(secretVaultFake, atLeastOnce()).purge(eq(UNVERSIONED_SECRET_ENTITY_ID_1));
         verify(entities, never()).getLatestVersionOfEntity(eq(baseUri));
         verify(entities, never()).getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3));
-        verify(secretEntityToV72ModelConverter, never()).convertDeleted(same(entity));
+        verify(secretEntityToV72ModelConverter, never()).convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")
@@ -504,7 +506,7 @@ class SecretControllerTest {
         final ReadOnlyKeyVaultSecretEntity entity = createEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, request);
         when(entities.getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3)))
                 .thenReturn(entity);
-        when(secretEntityToV72ModelConverter.convert(same(entity)))
+        when(secretEntityToV72ModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(RESPONSE);
 
         //when
@@ -521,7 +523,7 @@ class SecretControllerTest {
         verify(secretVaultFake, atLeastOnce()).getEntities();
         verify(entities).getLatestVersionOfEntity(eq(baseUri));
         verify(entities).getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3));
-        verify(secretEntityToV72ModelConverter).convert(same(entity));
+        verify(secretEntityToV72ModelConverter).convert(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")
@@ -542,8 +544,8 @@ class SecretControllerTest {
         final ReadOnlyKeyVaultSecretEntity entity = createEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, request);
         when(entities.listLatestNonManagedEntities())
                 .thenReturn(List.of(entity));
-        final KeyVaultSecretItemModel secretItemModel = keyVaultSecretItemModel(baseUri.asUri(), Map.of());
-        when(secretEntityToV72SecretItemModelConverter.convert(same(entity)))
+        final KeyVaultSecretItemModel secretItemModel = keyVaultSecretItemModel(baseUri.asUri(HTTPS_LOCALHOST_8443), Map.of());
+        when(secretEntityToV72SecretItemModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(secretItemModel);
 
         //when
@@ -564,7 +566,7 @@ class SecretControllerTest {
         verify(secretVaultFake, atLeastOnce()).getEntities();
         verify(secretVaultFake, never()).getDeletedEntities();
         verify(entities).listLatestNonManagedEntities();
-        verify(secretEntityToV72SecretItemModelConverter).convert(same(entity));
+        verify(secretEntityToV72SecretItemModelConverter).convert(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")
@@ -585,8 +587,8 @@ class SecretControllerTest {
         final ReadOnlyKeyVaultSecretEntity entity = createEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, request);
         when(entities.listLatestNonManagedEntities())
                 .thenReturn(List.of(entity, entity, entity));
-        final KeyVaultSecretItemModel secretItemModel = keyVaultSecretItemModel(baseUri.asUri(), Map.of());
-        when(secretEntityToV72SecretItemModelConverter.convert(same(entity)))
+        final KeyVaultSecretItemModel secretItemModel = keyVaultSecretItemModel(baseUri.asUri(HTTPS_LOCALHOST_8443), Map.of());
+        when(secretEntityToV72SecretItemModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(secretItemModel);
 
         //when
@@ -609,7 +611,7 @@ class SecretControllerTest {
         verify(secretVaultFake, atLeastOnce()).getEntities();
         verify(secretVaultFake, never()).getDeletedEntities();
         verify(entities).listLatestNonManagedEntities();
-        verify(secretEntityToV72SecretItemModelConverter).convert(same(entity));
+        verify(secretEntityToV72SecretItemModelConverter).convert(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
 
@@ -634,7 +636,7 @@ class SecretControllerTest {
         when(entities.listLatestNonManagedEntities())
                 .thenReturn(List.of(entity));
         final DeletedKeyVaultSecretItemModel secretItemModel = deletedKeyVaultSecretItemModel(baseUri, Map.of());
-        when(secretEntityToV72SecretItemModelConverter.convertDeleted(same(entity)))
+        when(secretEntityToV72SecretItemModelConverter.convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(secretItemModel);
 
         //when
@@ -655,7 +657,7 @@ class SecretControllerTest {
         verify(secretVaultFake, atLeastOnce()).getDeletedEntities();
         verify(secretVaultFake, never()).getEntities();
         verify(entities).listLatestNonManagedEntities();
-        verify(secretEntityToV72SecretItemModelConverter).convertDeleted(same(entity));
+        verify(secretEntityToV72SecretItemModelConverter).convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")
@@ -679,7 +681,7 @@ class SecretControllerTest {
         when(entities.listLatestNonManagedEntities())
                 .thenReturn(List.of(entity, entity, entity));
         final DeletedKeyVaultSecretItemModel secretItemModel = deletedKeyVaultSecretItemModel(baseUri, Map.of());
-        when(secretEntityToV72SecretItemModelConverter.convertDeleted(same(entity)))
+        when(secretEntityToV72SecretItemModelConverter.convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(secretItemModel);
 
         //when
@@ -702,7 +704,7 @@ class SecretControllerTest {
         verify(secretVaultFake, atLeastOnce()).getDeletedEntities();
         verify(secretVaultFake, never()).getEntities();
         verify(entities).listLatestNonManagedEntities();
-        verify(secretEntityToV72SecretItemModelConverter).convertDeleted(same(entity));
+        verify(secretEntityToV72SecretItemModelConverter).convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")
@@ -723,7 +725,7 @@ class SecretControllerTest {
                 .thenReturn(recoverableDays);
         when(entities.getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3)))
                 .thenReturn(entity);
-        when(secretEntityToV72ModelConverter.convert(same(entity)))
+        when(secretEntityToV72ModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(RESPONSE);
 
         //when
@@ -740,7 +742,7 @@ class SecretControllerTest {
         verify(secretVaultFake).getEntities();
         verify(entities, never()).getLatestVersionOfEntity(eq(baseUri));
         verify(entities).getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3));
-        verify(secretEntityToV72ModelConverter).convert(same(entity));
+        verify(secretEntityToV72ModelConverter).convert(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")
@@ -770,7 +772,7 @@ class SecretControllerTest {
                 .thenReturn(RecoveryLevel.PURGEABLE);
         when(entities.getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3)))
                 .thenReturn(entity);
-        when(secretEntityToV72ModelConverter.convert(same(entity)))
+        when(secretEntityToV72ModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(RESPONSE);
 
         //when
@@ -814,7 +816,7 @@ class SecretControllerTest {
                     .addTags(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3), anyMap());
         }
         inOrder.verify(entities).getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3));
-        verify(secretEntityToV72ModelConverter).convert(same(entity));
+        verify(secretEntityToV72ModelConverter).convert(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
     @NonNull
@@ -847,11 +849,11 @@ class SecretControllerTest {
     private DeletedKeyVaultSecretItemModel deletedKeyVaultSecretItemModel(final SecretEntityId id, final Map<String, String> tags) {
         final DeletedKeyVaultSecretItemModel model = new DeletedKeyVaultSecretItemModel();
         model.setAttributes(new SecretPropertiesModel());
-        model.setId(id.asUriNoVersion().toString());
+        model.setId(id.asUriNoVersion(id.vault()).toString());
         model.setTags(tags);
         model.setDeletedDate(TIME_10_MINUTES_AGO);
         model.setScheduledPurgeDate(TIME_IN_10_MINUTES);
-        model.setRecoveryId(id.asRecoveryUri().toString());
+        model.setRecoveryId(id.asRecoveryUri(id.vault()).toString());
         return model;
     }
 }

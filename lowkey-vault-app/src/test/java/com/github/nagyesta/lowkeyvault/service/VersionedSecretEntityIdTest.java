@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 import static com.github.nagyesta.lowkeyvault.TestConstantsSecrets.SECRET_NAME_1;
 import static com.github.nagyesta.lowkeyvault.TestConstantsSecrets.SECRET_VERSION_1;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST;
+import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
 
 class VersionedSecretEntityIdTest {
 
@@ -84,28 +85,64 @@ class VersionedSecretEntityIdTest {
         //then + exception
     }
 
+    @SuppressWarnings("ConstantConditions")
+    @Test
+    void testAsUriNoVersionShouldThrowExceptionWhenCalledWithNull() {
+        //given
+        final VersionedSecretEntityId underTest = new VersionedSecretEntityId(HTTPS_LOCALHOST, SECRET_NAME_1, SECRET_VERSION_1);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asUriNoVersion(null));
+
+        //then + exception
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Test
+    void testAsUriShouldThrowExceptionWhenCalledWithNull() {
+        //given
+        final VersionedSecretEntityId underTest = new VersionedSecretEntityId(HTTPS_LOCALHOST, SECRET_NAME_1, SECRET_VERSION_1);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asUri(null));
+
+        //then + exception
+    }
+
     @Test
     void testAsUriShouldGenerateUriWhenCalledBasedOnProvidedValues() {
         //given
         final VersionedSecretEntityId underTest = new VersionedSecretEntityId(HTTPS_LOCALHOST, SECRET_NAME_1, SECRET_VERSION_1);
 
         //when
-        final URI actual = underTest.asUri();
+        final URI actual = underTest.asUri(HTTPS_LOCALHOST_8443);
 
         //then
-        Assertions.assertEquals(URI.create("https://localhost/secrets/" + SECRET_NAME_1 + "/" + SECRET_VERSION_1), actual);
+        Assertions.assertEquals(URI.create("https://localhost:8443/secrets/" + SECRET_NAME_1 + "/" + SECRET_VERSION_1), actual);
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Test
-    void testAsUriShouldGenerateRecoveryUriWhenCalledBasedOnProvidedValues() {
+    void testAsRecoveryUriShouldThrowExceptionWhenCalledWithNull() {
         //given
         final VersionedSecretEntityId underTest = new VersionedSecretEntityId(HTTPS_LOCALHOST, SECRET_NAME_1, SECRET_VERSION_1);
 
         //when
-        final URI actual = underTest.asRecoveryUri();
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asRecoveryUri(null));
+
+        //then + exception
+    }
+
+    @Test
+    void testAsRecoveryUriShouldGenerateRecoveryUriWhenCalledBasedOnProvidedValues() {
+        //given
+        final VersionedSecretEntityId underTest = new VersionedSecretEntityId(HTTPS_LOCALHOST, SECRET_NAME_1, SECRET_VERSION_1);
+
+        //when
+        final URI actual = underTest.asRecoveryUri(HTTPS_LOCALHOST_8443);
 
         //then
-        Assertions.assertEquals(URI.create("https://localhost/deletedsecrets/" + SECRET_NAME_1), actual);
+        Assertions.assertEquals(URI.create("https://localhost:8443/deletedsecrets/" + SECRET_NAME_1), actual);
     }
 
     @Test
@@ -115,10 +152,10 @@ class VersionedSecretEntityIdTest {
         final String query = "?query=true";
 
         //when
-        final URI actual = underTest.asUri(query);
+        final URI actual = underTest.asUri(HTTPS_LOCALHOST_8443, query);
 
         //then
-        Assertions.assertEquals(URI.create("https://localhost/secrets/" + SECRET_NAME_1 + "/" + SECRET_VERSION_1 + query), actual);
+        Assertions.assertEquals(URI.create("https://localhost:8443/secrets/" + SECRET_NAME_1 + "/" + SECRET_VERSION_1 + query), actual);
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -128,7 +165,19 @@ class VersionedSecretEntityIdTest {
         final VersionedSecretEntityId underTest = new VersionedSecretEntityId(HTTPS_LOCALHOST, SECRET_NAME_1, SECRET_VERSION_1);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asUri(null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asUri(HTTPS_LOCALHOST_8443, null));
+
+        //then + exception;
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Test
+    void testAsUriShouldThrowExceptionWhenCalledWithNullWithBaseUri() {
+        //given
+        final VersionedSecretEntityId underTest = new VersionedSecretEntityId(HTTPS_LOCALHOST, SECRET_NAME_1, SECRET_VERSION_1);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asUri(null, "?query"));
 
         //then + exception;
     }

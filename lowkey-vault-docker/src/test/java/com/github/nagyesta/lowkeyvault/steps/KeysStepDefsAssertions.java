@@ -45,7 +45,7 @@ public class KeysStepDefsAssertions extends CommonAssertions {
     }
 
     @Then("the key URL contains the vault url and {name}")
-    public void theKeyURLContainsHttpsLocalhostVaultKeysCreateAndKeyName(final String keyName) {
+    public void theKeyURLContainsVaultUrlAndKeyName(final String keyName) {
         assertTrue(context.getLastResult().getId().startsWith(context.getProvider().getVaultUrl()));
         assertTrue(context.getLastResult().getId().contains(keyName));
     }

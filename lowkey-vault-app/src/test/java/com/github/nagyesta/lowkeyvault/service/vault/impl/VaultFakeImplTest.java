@@ -13,6 +13,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.URI;
 import java.time.OffsetDateTime;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.NUMBER_OF_SECONDS_IN_10_MINUTES;
@@ -75,6 +77,20 @@ class VaultFakeImplTest {
         Assertions.assertEquals(self.equals(other), actual);
     }
 
+    @ParameterizedTest
+    @MethodSource("uriPairProvider")
+    void testMatchesShouldUseFullMatchWithAnyOfTheAliasesWhenCalled(final URI self, final URI other) {
+        //given
+        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
+        underTest.setAliases(Set.of(self, HTTPS_DEFAULT_LOWKEY_VAULT));
+
+        //when
+        final boolean actual = underTest.matches(other);
+
+        //then
+        Assertions.assertEquals(self.equals(other), actual);
+    }
+
     @SuppressWarnings("ConstantConditions")
     @Test
     void testMatchesShouldThrowExceptionWhenCalledWithNull() {
@@ -83,6 +99,18 @@ class VaultFakeImplTest {
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.matches(null));
+
+        //then + exception
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Test
+    void testSetAliasesShouldThrowExceptionWhenCalledWithNull() {
+        //given
+        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setAliases(null));
 
         //then + exception
     }
@@ -98,6 +126,36 @@ class VaultFakeImplTest {
 
         //then
         Assertions.assertEquals(self, actual);
+    }
+
+    @ParameterizedTest
+    @MethodSource("uriProvider")
+    void testAliasesShouldReturnNewSetOfUrisPassedToSetAliasesWhenCalled(final URI self) {
+        //given
+        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_DEFAULT_LOWKEY_VAULT);
+        final Set<URI> expected = new TreeSet<>();
+        expected.add(self);
+        underTest.setAliases(expected);
+
+        //when
+        final Set<URI> actual = underTest.aliases();
+
+        //then
+        Assertions.assertIterableEquals(expected, actual);
+        Assertions.assertNotSame(expected, actual);
+    }
+
+    @ParameterizedTest
+    @MethodSource("uriProvider")
+    void testSetAliasesShouldThrowExceptionWhenBaseUriIsInTheAliasSet(final URI self) {
+        //given
+        final VaultFakeImpl underTest = new VaultFakeImpl(self);
+        final Set<URI> expected = Set.of(self);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setAliases(expected));
+
+        //then + exception
     }
 
     @Test

@@ -1,31 +1,33 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_3.key;
 
+import com.github.nagyesta.lowkeyvault.mapper.AliasAwareConverter;
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.*;
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.constants.LifetimeActionType;
 import com.github.nagyesta.lowkeyvault.service.key.LifetimeAction;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyRotationPolicy;
-import org.springframework.core.convert.converter.Converter;
+import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
-public class KeyRotationPolicyToV73ModelConverter implements Converter<ReadOnlyRotationPolicy, KeyRotationPolicyModel> {
+public class KeyRotationPolicyToV73ModelConverter implements AliasAwareConverter<ReadOnlyRotationPolicy, KeyRotationPolicyModel> {
 
     @Override
-    public KeyRotationPolicyModel convert(@Nullable final ReadOnlyRotationPolicy source) {
+    public KeyRotationPolicyModel convert(@Nullable final ReadOnlyRotationPolicy source, @NonNull final URI vaultUri) {
         return Optional.ofNullable(source)
-                .map(this::convertNonNull)
+                .map(readOnlyRotationPolicy -> convertNonNull(readOnlyRotationPolicy, vaultUri))
                 .orElse(null);
     }
 
-    private KeyRotationPolicyModel convertNonNull(final ReadOnlyRotationPolicy readOnlyRotationPolicy) {
+    private KeyRotationPolicyModel convertNonNull(final ReadOnlyRotationPolicy readOnlyRotationPolicy, final URI vaultUri) {
         final KeyRotationPolicyModel model = new KeyRotationPolicyModel();
-        model.setId(readOnlyRotationPolicy.getId().asRotationPolicyUri());
+        model.setId(readOnlyRotationPolicy.getId().asRotationPolicyUri(vaultUri));
         model.setAttributes(convertAttributes(readOnlyRotationPolicy));
         model.setLifetimeActions(convertLifetimeActions(readOnlyRotationPolicy.getLifetimeActions()));
         return model;

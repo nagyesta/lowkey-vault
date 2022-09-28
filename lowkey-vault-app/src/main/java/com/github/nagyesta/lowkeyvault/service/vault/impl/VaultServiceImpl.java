@@ -9,9 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
 import java.net.URI;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -40,8 +38,17 @@ public class VaultServiceImpl implements VaultService {
     }
 
     @Override
-    public VaultFake create(final URI uri, final RecoveryLevel recoveryLevel, final Integer recoverableDays) {
-        return create(uri, () -> new VaultFakeImpl(uri, recoveryLevel, recoverableDays));
+    public VaultFake create(final URI uri, final RecoveryLevel recoveryLevel, final Integer recoverableDays, final Set<URI> aliases) {
+        final Optional<Set<URI>> optionalAliases = Optional.ofNullable(aliases);
+        optionalAliases.stream().flatMap(Set::stream).forEach(alias -> {
+            Assert.isTrue(!uri.equals(alias), "Base URI cannot match alias: " + alias);
+            if (findByUriAndDeleteStatus(alias, v -> true).isPresent()) {
+                throw new AlreadyExistsException("Vault alias already exists: " + alias);
+            }
+        });
+        final VaultFake vaultFake = create(uri, () -> new VaultFakeImpl(uri, recoveryLevel, recoverableDays));
+        optionalAliases.ifPresent(vaultFake::setAliases);
+        return vaultFake;
     }
 
     @Override
@@ -99,11 +106,30 @@ public class VaultServiceImpl implements VaultService {
     }
 
     @Override
-    public void timeShift(final int offsetSeconds)  {
+    public void timeShift(final int offsetSeconds) {
         Assert.isTrue(offsetSeconds > 0, "Offset must be positive.");
         log.info("Performing time shift with {} seconds for all vaults.", offsetSeconds);
         vaultFakes.forEach(vaultFake -> vaultFake.timeShift(offsetSeconds));
         purgeExpired();
+    }
+
+    @Override
+    public VaultFake updateAlias(final URI baseUri, final URI add, final URI remove) {
+        log.info("Updating aliases of: {} , adding: {}, removing: {}", baseUri, add, remove);
+        Assert.isTrue(add != null || remove != null, "At least one of the add/remove parameters needs to be populated.");
+        Assert.isTrue(!Objects.equals(add, remove), "The URL we want to add and remove, must be different.");
+        final VaultFake fake = findByUriIncludeDeleted(baseUri);
+
+        final TreeSet<URI> aliases = new TreeSet<>(fake.aliases());
+        Optional.ofNullable(add).ifPresent(alias -> {
+            if (findByUriAndDeleteStatus(add, v -> true).isPresent()) {
+                throw new AlreadyExistsException("Vault alias already exists: " + add);
+            }
+            aliases.add(alias);
+        });
+        Optional.ofNullable(remove).ifPresent(aliases::remove);
+        fake.setAliases(aliases);
+        return fake;
     }
 
     private Optional<VaultFake> findByUriAndDeleteStatus(final URI uri, final Predicate<VaultFake> deletedPredicate) {

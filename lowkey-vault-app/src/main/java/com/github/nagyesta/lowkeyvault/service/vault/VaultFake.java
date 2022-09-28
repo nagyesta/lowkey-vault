@@ -7,6 +7,7 @@ import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultFake;
 
 import java.net.URI;
 import java.time.OffsetDateTime;
+import java.util.Set;
 
 public interface VaultFake {
 
@@ -14,6 +15,9 @@ public interface VaultFake {
 
     URI baseUri();
 
+    Set<URI> aliases();
+
+    void setAliases(Set<URI> aliases);
     KeyVaultFake keyVaultFake();
 
     SecretVaultFake secretVaultFake();

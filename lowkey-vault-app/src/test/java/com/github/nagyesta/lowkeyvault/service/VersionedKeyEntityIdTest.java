@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.KEY_NAME_1;
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.KEY_VERSION_1;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST;
+import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
 
 class VersionedKeyEntityIdTest {
 
@@ -84,28 +85,76 @@ class VersionedKeyEntityIdTest {
         //then + exception
     }
 
+    @SuppressWarnings("ConstantConditions")
+    @Test
+    void testAsRotationPolicyUriShouldThrowExceptionWhenCalledWithNull() {
+        //given
+        final VersionedKeyEntityId underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asRotationPolicyUri(null));
+
+        //then + exception
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Test
+    void testAsUriNoversionShouldThrowExceptionWhenCalledWithNull() {
+        //given
+        final VersionedKeyEntityId underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asUriNoVersion(null));
+
+        //then + exception
+    }
+
     @Test
     void testAsUriShouldGenerateUriWhenCalledBasedOnProvidedValues() {
         //given
         final VersionedKeyEntityId underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
 
         //when
-        final URI actual = underTest.asUri();
+        final URI actual = underTest.asUri(HTTPS_LOCALHOST_8443);
 
         //then
-        Assertions.assertEquals(URI.create("https://localhost/keys/" + KEY_NAME_1 + "/" + KEY_VERSION_1), actual);
+        Assertions.assertEquals(URI.create("https://localhost:8443/keys/" + KEY_NAME_1 + "/" + KEY_VERSION_1), actual);
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Test
-    void testAsUriShouldGenerateRecoveryUriWhenCalledBasedOnProvidedValues() {
+    void testAsUriShouldThrowExceptionWhenCalledWithNull() {
         //given
         final VersionedKeyEntityId underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
 
         //when
-        final URI actual = underTest.asRecoveryUri();
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asUri(null));
+
+        //then + exception
+    }
+
+    @Test
+    void testAsRecoveryUriShouldGenerateRecoveryUriWhenCalledBasedOnProvidedValues() {
+        //given
+        final VersionedKeyEntityId underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
+
+        //when
+        final URI actual = underTest.asRecoveryUri(HTTPS_LOCALHOST_8443);
 
         //then
-        Assertions.assertEquals(URI.create("https://localhost/deletedkeys/" + KEY_NAME_1), actual);
+        Assertions.assertEquals(URI.create("https://localhost:8443/deletedkeys/" + KEY_NAME_1), actual);
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Test
+    void testAsRecoveryUriShouldThrowExceptionWhenCalledWithNull() {
+        //given
+        final VersionedKeyEntityId underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asRecoveryUri(null));
+
+        //then + exception
     }
 
     @Test
@@ -115,10 +164,10 @@ class VersionedKeyEntityIdTest {
         final String query = "?query=true";
 
         //when
-        final URI actual = underTest.asUri(query);
+        final URI actual = underTest.asUri(HTTPS_LOCALHOST_8443, query);
 
         //then
-        Assertions.assertEquals(URI.create("https://localhost/keys/" + KEY_NAME_1 + "/" + KEY_VERSION_1 + query), actual);
+        Assertions.assertEquals(URI.create("https://localhost:8443/keys/" + KEY_NAME_1 + "/" + KEY_VERSION_1 + query), actual);
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -128,7 +177,19 @@ class VersionedKeyEntityIdTest {
         final VersionedKeyEntityId underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asUri(null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asUri(HTTPS_LOCALHOST_8443, (String) null));
+
+        //then + exception;
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Test
+    void testAsUriShouldThrowExceptionWhenCalledWithNullWithBaseUri() {
+        //given
+        final VersionedKeyEntityId underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asUri(null, "?query"));
 
         //then + exception;
     }

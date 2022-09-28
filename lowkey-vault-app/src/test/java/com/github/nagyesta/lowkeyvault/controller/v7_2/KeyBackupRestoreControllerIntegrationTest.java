@@ -68,7 +68,7 @@ class KeyBackupRestoreControllerIntegrationTest {
     void setUp() {
         final String name = UUID.randomUUID().toString();
         uri = URI.create("https://" + name + ".localhost");
-        vaultService.create(uri, RecoveryLevel.RECOVERABLE_AND_PURGEABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
+        vaultService.create(uri, RecoveryLevel.RECOVERABLE_AND_PURGEABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE, null);
     }
 
     @AfterEach
@@ -228,7 +228,7 @@ class KeyBackupRestoreControllerIntegrationTest {
     private void assertRestoredKeyMatchesExpectations(
             final KeyVaultKeyModel actualBody, final ECPublicKey publicKey,
             final String version, final Map<String, String> expectedTags) {
-        Assertions.assertEquals(new VersionedKeyEntityId(uri, KEY_NAME_1, version).asUri().toString(), actualBody.getKey().getId());
+        Assertions.assertEquals(new VersionedKeyEntityId(uri, KEY_NAME_1, version).asUri(uri).toString(), actualBody.getKey().getId());
         Assertions.assertEquals(KeyCurveName.P_256, actualBody.getKey().getCurveName());
         Assertions.assertEquals(KeyType.EC, actualBody.getKey().getKeyType());
         Assertions.assertIterableEquals(List.of(KeyOperation.SIGN, KeyOperation.VERIFY), actualBody.getKey().getKeyOps());
@@ -256,7 +256,7 @@ class KeyBackupRestoreControllerIntegrationTest {
         keyMaterial.setD(((ECPrivateKey) keyPair.getPrivate()).getS().toByteArray());
         keyMaterial.setX(((ECPublicKey) keyPair.getPublic()).getW().getAffineX().toByteArray());
         keyMaterial.setY(((ECPublicKey) keyPair.getPublic()).getW().getAffineY().toByteArray());
-        keyMaterial.setId(new VersionedKeyEntityId(baseUri, name, version).asUri().toString());
+        keyMaterial.setId(new VersionedKeyEntityId(baseUri, name, version).asUri(uri).toString());
         final KeyBackupListItem listItem = new KeyBackupListItem();
         listItem.setKeyMaterial(keyMaterial);
         listItem.setVaultBaseUri(baseUri);

@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_2.key;
 
+import com.github.nagyesta.lowkeyvault.mapper.AliasAwareConverter;
 import com.github.nagyesta.lowkeyvault.mapper.common.BackupConverter;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyBackupListItem;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyPropertiesModel;
@@ -10,7 +11,6 @@ import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyRsaKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -21,7 +21,7 @@ public class KeyEntityToV72BackupConverter
 
     @Autowired
     public KeyEntityToV72BackupConverter(
-            @NonNull final Converter<ReadOnlyKeyVaultKeyEntity, KeyPropertiesModel> propertiesConverter) {
+            @NonNull final AliasAwareConverter<ReadOnlyKeyVaultKeyEntity, KeyPropertiesModel> propertiesConverter) {
         super(propertiesConverter);
     }
 
@@ -70,7 +70,7 @@ public class KeyEntityToV72BackupConverter
 
     private JsonWebKeyImportRequest populateCommonKeyFields(
             final ReadOnlyKeyVaultKeyEntity source, final JsonWebKeyImportRequest keyMaterial) {
-        keyMaterial.setId(source.getId().asUri().toString());
+        keyMaterial.setId(source.getId().asUri(source.getId().vault()).toString());
         keyMaterial.setKeyType(source.getKeyType());
         keyMaterial.setKeyOps(source.getOperations());
         keyMaterial.setKeyHsm(null);

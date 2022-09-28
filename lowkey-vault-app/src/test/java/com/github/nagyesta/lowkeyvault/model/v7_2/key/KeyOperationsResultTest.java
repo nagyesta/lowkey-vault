@@ -8,6 +8,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
@@ -17,6 +18,11 @@ import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
 
 class KeyOperationsResultTest {
+
+    private static final int ID = 0;
+    private static final int TEXT = 1;
+    private static final int OPS = 2;
+    private static final int BASE_URI = 3;
 
     public static Stream<Arguments> validStringProvider() {
         final KeyOperationsParameters fullOps = new KeyOperationsParameters();
@@ -36,11 +42,11 @@ class KeyOperationsResultTest {
         return invalidStringProvider()
                 .map(a -> {
                     final Object[] args = a.get();
-                    final byte[] bytes = Optional.ofNullable(args[1])
+                    final byte[] bytes = Optional.ofNullable(args[TEXT])
                             .map(String.class::cast)
                             .map(s -> s.getBytes(StandardCharsets.UTF_8))
                             .orElse(null);
-                    return Arguments.of(args[0], bytes, args[2]);
+                    return Arguments.of(args[ID], bytes, args[OPS], args[BASE_URI]);
                 });
     }
 
@@ -48,13 +54,15 @@ class KeyOperationsResultTest {
         final KeyOperationsParameters parameters = new KeyOperationsParameters();
         final VersionedKeyEntityId keyId = VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null))
-                .add(Arguments.of(keyId, null, null))
-                .add(Arguments.of(null, BLANK, null))
-                .add(Arguments.of(null, null, parameters))
-                .add(Arguments.of(null, BLANK, parameters))
-                .add(Arguments.of(keyId, null, parameters))
-                .add(Arguments.of(keyId, BLANK, null))
+                .add(Arguments.of(null, null, null, null))
+                .add(Arguments.of(keyId, null, null, null))
+                .add(Arguments.of(null, BLANK, null, null))
+                .add(Arguments.of(null, null, parameters, null))
+                .add(Arguments.of(null, null, null, keyId.vault()))
+                .add(Arguments.of(null, BLANK, parameters, keyId.vault()))
+                .add(Arguments.of(keyId, null, parameters, keyId.vault()))
+                .add(Arguments.of(keyId, BLANK, null, keyId.vault()))
+                .add(Arguments.of(keyId, BLANK, parameters, null))
                 .build();
     }
 
@@ -68,7 +76,7 @@ class KeyOperationsResultTest {
         final String encoded = encoder.encodeToString(bytes);
 
         //when
-        final KeyOperationsResult actual = KeyOperationsResult.forBytes(id, bytes, params);
+        final KeyOperationsResult actual = KeyOperationsResult.forBytes(id, bytes, params, id.vault());
 
         //then
         assertResultMatches(id, encoded, params, actual);
@@ -81,7 +89,7 @@ class KeyOperationsResultTest {
         //given
 
         //when
-        final KeyOperationsResult actual = KeyOperationsResult.forString(id, value, params);
+        final KeyOperationsResult actual = KeyOperationsResult.forString(id, value, params, id.vault());
 
         //then
         assertResultMatches(id, value, params, actual);
@@ -90,7 +98,7 @@ class KeyOperationsResultTest {
     private void assertResultMatches(final VersionedKeyEntityId id, final String value,
                                      final KeyOperationsParameters params, final KeyOperationsResult actual) {
         Assertions.assertEquals(value, actual.getValue());
-        Assertions.assertEquals(id.asUri(), actual.getId());
+        Assertions.assertEquals(id.asUri(id.vault()), actual.getId());
         Assertions.assertEquals(params.getInitializationVector(), actual.getInitializationVector());
         Assertions.assertEquals(params.getAdditionalAuthData(), actual.getAdditionalAuthData());
         Assertions.assertEquals(params.getAuthenticationTag(), actual.getAuthenticationTag());
@@ -99,13 +107,13 @@ class KeyOperationsResultTest {
     @ParameterizedTest
     @MethodSource("invalidBytesProvider")
     void testForBytesShouldThrowExceptionWhenCalledWitInvalidInput(
-            final VersionedKeyEntityId id, final byte[] value, final KeyOperationsParameters params
+            final VersionedKeyEntityId id, final byte[] value, final KeyOperationsParameters params, final URI vault
     ) {
         //given
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> KeyOperationsResult.forBytes(id, value, params));
+                () -> KeyOperationsResult.forBytes(id, value, params, vault));
 
         //then exception
     }
@@ -113,13 +121,13 @@ class KeyOperationsResultTest {
     @ParameterizedTest
     @MethodSource("invalidStringProvider")
     void testForStringShouldThrowExceptionWhenCalledWitInvalidInput(
-            final VersionedKeyEntityId id, final String value, final KeyOperationsParameters params
+            final VersionedKeyEntityId id, final String value, final KeyOperationsParameters params, final URI vault
     ) {
         //given
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> KeyOperationsResult.forString(id, value, params));
+                () -> KeyOperationsResult.forString(id, value, params, vault));
 
         //then exception
     }

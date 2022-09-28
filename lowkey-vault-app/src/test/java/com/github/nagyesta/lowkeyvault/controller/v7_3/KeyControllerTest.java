@@ -92,7 +92,7 @@ class KeyControllerTest {
         model.setTags(Map.of());
         model.setDeletedDate(TIME_10_MINUTES_AGO);
         model.setScheduledPurgeDate(TIME_IN_10_MINUTES);
-        model.setRecoveryId(VERSIONED_KEY_ENTITY_ID_1_VERSION_1.asRecoveryUri().toString());
+        model.setRecoveryId(VERSIONED_KEY_ENTITY_ID_1_VERSION_1.asRecoveryUri(HTTPS_LOCALHOST_8443).toString());
         return model;
     }
 
@@ -266,7 +266,7 @@ class KeyControllerTest {
                 .thenReturn(recoverableDays);
         when(entities.getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_1)))
                 .thenReturn(entity);
-        when(keyEntityToV72ModelConverter.convert(same(entity)))
+        when(keyEntityToV72ModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(RESPONSE);
 
         //when
@@ -286,7 +286,7 @@ class KeyControllerTest {
         verify(keyVaultFake).setExpiry(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_1), eq(notBefore), eq(expiry));
         verify(keyVaultFake).setEnabled(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_1), eq(true));
         verify(keyVaultFake).addTags(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_1), same(TAGS_TWO_KEYS));
-        verify(keyEntityToV72ModelConverter).convert(same(entity));
+        verify(keyEntityToV72ModelConverter).convert(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
     @Test
@@ -313,7 +313,8 @@ class KeyControllerTest {
                 .mapToObj(i -> UUID.randomUUID().toString().replaceAll("-", ""))
                 .collect(Collectors.toCollection(LinkedList::new));
         final KeyEntityId baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
-        final String expectedNextUri = baseUri.asUri("versions?api-version=7.3&$skiptoken=31&maxresults=1").toString();
+        final String expectedNextUri = baseUri.asUri(HTTPS_LOCALHOST_8443, "versions?api-version=7.3&$skiptoken=31&maxresults=1")
+                .toString();
         when(keyVaultFake.getEntities())
                 .thenReturn(entities);
         when(entities.getVersions(eq(baseUri))).thenReturn(fullList);
@@ -321,11 +322,11 @@ class KeyControllerTest {
             final VersionedKeyEntityId keyEntityId = invocation.getArgument(0, VersionedKeyEntityId.class);
             return createEntity(keyEntityId, createRequest(null, null, null));
         });
-        when(keyEntityToV72KeyVersionItemModelConverter.convert(any())).thenAnswer(invocation -> {
+        when(keyEntityToV72KeyVersionItemModelConverter.convert(any(), any())).thenAnswer(invocation -> {
             final KeyVaultKeyEntity<?, ?> entity = invocation.getArgument(0, KeyVaultKeyEntity.class);
-            return keyVaultKeyItemModel(entity.getId().asUri(), Map.of());
+            return keyVaultKeyItemModel(entity.getId().asUri(HTTPS_LOCALHOST_8443), Map.of());
         });
-        final URI expected = new VersionedKeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, fullList.get(index)).asUri();
+        final URI expected = new VersionedKeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, fullList.get(index)).asUri(HTTPS_LOCALHOST_8443);
 
         //when
         final ResponseEntity<KeyVaultItemListModel<KeyVaultKeyItemModel>> actual =
@@ -356,12 +357,12 @@ class KeyControllerTest {
             final VersionedKeyEntityId keyEntityId = invocation.getArgument(0, VersionedKeyEntityId.class);
             return createEntity(keyEntityId, createRequest(null, null, null));
         });
-        when(keyEntityToV72KeyVersionItemModelConverter.convert(any())).thenAnswer(invocation -> {
+        when(keyEntityToV72KeyVersionItemModelConverter.convert(any(), any())).thenAnswer(invocation -> {
             final KeyVaultKeyEntity<?, ?> entity = invocation.getArgument(0, KeyVaultKeyEntity.class);
-            return keyVaultKeyItemModel(entity.getId().asUri(), Map.of());
+            return keyVaultKeyItemModel(entity.getId().asUri(HTTPS_LOCALHOST_8443), Map.of());
         });
         final List<URI> expected = fullList.stream()
-                .map(e -> new VersionedKeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, e).asUri())
+                .map(e -> new VersionedKeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, e).asUri(HTTPS_LOCALHOST_8443))
                 .collect(Collectors.toList());
 
         //when
@@ -406,7 +407,7 @@ class KeyControllerTest {
         entity.setScheduledPurgeDate(TIME_IN_10_MINUTES);
         when(deletedEntities.getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3)))
                 .thenReturn(entity);
-        when(keyEntityToV72ModelConverter.convertDeleted(same(entity)))
+        when(keyEntityToV72ModelConverter.convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(DELETED_RESPONSE);
 
         //when
@@ -426,7 +427,7 @@ class KeyControllerTest {
         verify(keyVaultFake, never()).getEntities();
         verify(deletedEntities).getLatestVersionOfEntity(eq(baseUri));
         verify(deletedEntities).getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3));
-        verify(keyEntityToV72ModelConverter).convertDeleted(same(entity));
+        verify(keyEntityToV72ModelConverter).convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")
@@ -454,7 +455,7 @@ class KeyControllerTest {
         entity.setScheduledPurgeDate(TIME_IN_10_MINUTES);
         when(entities.getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3)))
                 .thenReturn(entity);
-        when(keyEntityToV72ModelConverter.convert(same(entity)))
+        when(keyEntityToV72ModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(RESPONSE);
 
         //when
@@ -474,7 +475,7 @@ class KeyControllerTest {
         verify(keyVaultFake, never()).getDeletedEntities();
         verify(entities).getLatestVersionOfEntity(eq(baseUri));
         verify(entities).getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3));
-        verify(keyEntityToV72ModelConverter).convert(same(entity));
+        verify(keyEntityToV72ModelConverter).convert(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")
@@ -499,7 +500,7 @@ class KeyControllerTest {
         entity.setScheduledPurgeDate(TIME_IN_10_MINUTES);
         when(entities.getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3)))
                 .thenReturn(entity);
-        when(keyEntityToV72ModelConverter.convertDeleted(same(entity)))
+        when(keyEntityToV72ModelConverter.convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(DELETED_RESPONSE);
 
         //when
@@ -517,7 +518,7 @@ class KeyControllerTest {
         verify(keyVaultFake, atLeastOnce()).getDeletedEntities();
         verify(entities).getLatestVersionOfEntity(eq(baseUri));
         verify(entities).getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3));
-        verify(keyEntityToV72ModelConverter).convertDeleted(same(entity));
+        verify(keyEntityToV72ModelConverter).convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")
@@ -540,7 +541,7 @@ class KeyControllerTest {
         final ReadOnlyKeyVaultKeyEntity entity = createEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, request);
         when(entities.getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3)))
                 .thenReturn(entity);
-        when(keyEntityToV72ModelConverter.convert(same(entity)))
+        when(keyEntityToV72ModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(RESPONSE);
 
         //when
@@ -557,7 +558,7 @@ class KeyControllerTest {
         verify(keyVaultFake, atLeastOnce()).getEntities();
         verify(entities).getLatestVersionOfEntity(eq(baseUri));
         verify(entities).getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3));
-        verify(keyEntityToV72ModelConverter).convert(same(entity));
+        verify(keyEntityToV72ModelConverter).convert(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")
@@ -578,8 +579,8 @@ class KeyControllerTest {
         final ReadOnlyKeyVaultKeyEntity entity = createEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, request);
         when(entities.listLatestNonManagedEntities())
                 .thenReturn(List.of(entity));
-        final KeyVaultKeyItemModel keyItemModel = keyVaultKeyItemModel(baseUri.asUri(), Map.of());
-        when(keyEntityToV72KeyItemModelConverter.convert(same(entity)))
+        final KeyVaultKeyItemModel keyItemModel = keyVaultKeyItemModel(baseUri.asUri(HTTPS_LOCALHOST_8443), Map.of());
+        when(keyEntityToV72KeyItemModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(keyItemModel);
 
         //when
@@ -600,7 +601,7 @@ class KeyControllerTest {
         verify(keyVaultFake, atLeastOnce()).getEntities();
         verify(keyVaultFake, never()).getDeletedEntities();
         verify(entities).listLatestNonManagedEntities();
-        verify(keyEntityToV72KeyItemModelConverter).convert(same(entity));
+        verify(keyEntityToV72KeyItemModelConverter).convert(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")
@@ -621,8 +622,8 @@ class KeyControllerTest {
         final ReadOnlyKeyVaultKeyEntity entity = createEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, request);
         when(entities.listLatestNonManagedEntities())
                 .thenReturn(List.of(entity, entity, entity));
-        final KeyVaultKeyItemModel keyItemModel = keyVaultKeyItemModel(baseUri.asUri(), Map.of());
-        when(keyEntityToV72KeyItemModelConverter.convert(same(entity)))
+        final KeyVaultKeyItemModel keyItemModel = keyVaultKeyItemModel(baseUri.asUri(HTTPS_LOCALHOST_8443), Map.of());
+        when(keyEntityToV72KeyItemModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(keyItemModel);
 
         //when
@@ -645,7 +646,7 @@ class KeyControllerTest {
         verify(keyVaultFake, atLeastOnce()).getEntities();
         verify(keyVaultFake, never()).getDeletedEntities();
         verify(entities).listLatestNonManagedEntities();
-        verify(keyEntityToV72KeyItemModelConverter).convert(same(entity));
+        verify(keyEntityToV72KeyItemModelConverter).convert(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")
@@ -669,7 +670,7 @@ class KeyControllerTest {
         when(entities.listLatestNonManagedEntities())
                 .thenReturn(List.of(entity));
         final DeletedKeyVaultKeyItemModel keyItemModel = deletedKeyVaultKeyItemModel(baseUri, Map.of());
-        when(keyEntityToV72KeyItemModelConverter.convertDeleted(same(entity)))
+        when(keyEntityToV72KeyItemModelConverter.convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(keyItemModel);
 
         //when
@@ -690,7 +691,7 @@ class KeyControllerTest {
         verify(keyVaultFake, atLeastOnce()).getDeletedEntities();
         verify(keyVaultFake, never()).getEntities();
         verify(entities).listLatestNonManagedEntities();
-        verify(keyEntityToV72KeyItemModelConverter).convertDeleted(same(entity));
+        verify(keyEntityToV72KeyItemModelConverter).convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")
@@ -733,7 +734,7 @@ class KeyControllerTest {
         verify(keyVaultFake, atLeastOnce()).purge(eq(UNVERSIONED_KEY_ENTITY_ID_1));
         verify(keyVaultFake, never()).getEntities();
         verify(entities, never()).listLatestNonManagedEntities();
-        verify(keyEntityToV72KeyItemModelConverter, never()).convertDeleted(same(entity));
+        verify(keyEntityToV72KeyItemModelConverter, never()).convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")
@@ -757,7 +758,7 @@ class KeyControllerTest {
         when(entities.listLatestNonManagedEntities())
                 .thenReturn(List.of(entity, entity, entity));
         final DeletedKeyVaultKeyItemModel keyItemModel = deletedKeyVaultKeyItemModel(baseUri, Map.of());
-        when(keyEntityToV72KeyItemModelConverter.convertDeleted(same(entity)))
+        when(keyEntityToV72KeyItemModelConverter.convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(keyItemModel);
 
         //when
@@ -780,7 +781,7 @@ class KeyControllerTest {
         verify(keyVaultFake, atLeastOnce()).getDeletedEntities();
         verify(keyVaultFake, never()).getEntities();
         verify(entities).listLatestNonManagedEntities();
-        verify(keyEntityToV72KeyItemModelConverter).convertDeleted(same(entity));
+        verify(keyEntityToV72KeyItemModelConverter).convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")
@@ -801,7 +802,7 @@ class KeyControllerTest {
                 .thenReturn(recoverableDays);
         when(entities.getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3)))
                 .thenReturn(entity);
-        when(keyEntityToV72ModelConverter.convert(same(entity)))
+        when(keyEntityToV72ModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(RESPONSE);
 
         //when
@@ -818,7 +819,7 @@ class KeyControllerTest {
         verify(keyVaultFake).getEntities();
         verify(entities, never()).getLatestVersionOfEntity(eq(baseUri));
         verify(entities).getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3));
-        verify(keyEntityToV72ModelConverter).convert(same(entity));
+        verify(keyEntityToV72ModelConverter).convert(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")
@@ -851,7 +852,7 @@ class KeyControllerTest {
                 .thenReturn(RecoveryLevel.PURGEABLE);
         when(entities.getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3)))
                 .thenReturn(entity);
-        when(keyEntityToV72ModelConverter.convert(same(entity)))
+        when(keyEntityToV72ModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(RESPONSE);
 
         //when
@@ -902,7 +903,7 @@ class KeyControllerTest {
                     .addTags(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3), anyMap());
         }
         inOrder.verify(entities).getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3));
-        verify(keyEntityToV72ModelConverter).convert(same(entity));
+        verify(keyEntityToV72ModelConverter).convert(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
     @Test
@@ -918,7 +919,7 @@ class KeyControllerTest {
                 .thenReturn(entities);
         when(entities.getReadOnlyEntity(eq(newKeyId)))
                 .thenReturn(entity);
-        when(keyEntityToV72ModelConverter.convert(same(entity)))
+        when(keyEntityToV72ModelConverter.convert(same(entity), eq(newKeyId.vault())))
                 .thenReturn(RESPONSE);
 
         //when
@@ -935,7 +936,7 @@ class KeyControllerTest {
         inOrder.verify(entities)
                 .getReadOnlyEntity(eq(newKeyId));
         inOrder.verify(keyEntityToV72ModelConverter)
-                .convert(same(entity));
+                .convert(same(entity), eq(newKeyId.vault()));
     }
 
     @NonNull
@@ -970,11 +971,11 @@ class KeyControllerTest {
     private DeletedKeyVaultKeyItemModel deletedKeyVaultKeyItemModel(final KeyEntityId id, final Map<String, String> tags) {
         final DeletedKeyVaultKeyItemModel model = new DeletedKeyVaultKeyItemModel();
         model.setAttributes(new KeyPropertiesModel());
-        model.setKeyId(id.asUriNoVersion().toString());
+        model.setKeyId(id.asUriNoVersion(id.vault()).toString());
         model.setTags(tags);
         model.setDeletedDate(TIME_10_MINUTES_AGO);
         model.setScheduledPurgeDate(TIME_IN_10_MINUTES);
-        model.setRecoveryId(id.asRecoveryUri().toString());
+        model.setRecoveryId(id.asRecoveryUri(id.vault()).toString());
         return model;
     }
 }

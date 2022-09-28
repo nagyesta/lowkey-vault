@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
+import java.net.URI;
+
 @Component
 public class KeyEntityToV72KeyVersionItemModelConverter
         extends KeyEntityToV72KeyItemModelConverter {
@@ -16,7 +18,7 @@ public class KeyEntityToV72KeyVersionItemModelConverter
     }
 
     @Override
-    protected String convertKeyId(final ReadOnlyKeyVaultKeyEntity source) {
-        return source.getId().asUri().toString();
+    protected String convertKeyId(final ReadOnlyKeyVaultKeyEntity source, final URI vaultUri) {
+        return source.getId().asUri(vaultUri).toString();
     }
 }

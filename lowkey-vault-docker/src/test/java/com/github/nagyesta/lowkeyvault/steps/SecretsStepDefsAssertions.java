@@ -31,7 +31,7 @@ public class SecretsStepDefsAssertions extends CommonAssertions {
     }
 
     @Then("the secret URL contains the vault url and {name}")
-    public void theSecretURLContainsHttpsLocalhostVaultSecretsCreateAndSecretName(final String secretName) {
+    public void theSecretURLContainsVaultUrlAndSecretName(final String secretName) {
         assertTrue(context.getLastResult().getId().startsWith(context.getProvider().getVaultUrl()));
         assertTrue(context.getLastResult().getId().contains(secretName));
     }

@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
+import java.net.URI;
+
 @Component
 public class SecretEntityToV72SecretVersionItemModelConverter
         extends SecretEntityToV72SecretItemModelConverter {
@@ -16,7 +18,7 @@ public class SecretEntityToV72SecretVersionItemModelConverter
     }
 
     @Override
-    protected String convertSecretId(final ReadOnlyKeyVaultSecretEntity source) {
-        return source.getId().asUri().toString();
+    protected String convertSecretId(final ReadOnlyKeyVaultSecretEntity source, final URI vaultUri) {
+        return source.getId().asUri(vaultUri).toString();
     }
 }

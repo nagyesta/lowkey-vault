@@ -23,6 +23,8 @@ import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.*;
+import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
+import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOWKEY_VAULT;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -44,15 +46,15 @@ class KeyEntityToV72KeyVersionItemModelConverterTest {
     public static Stream<Arguments> validInputProvider() {
         return Stream.<Arguments>builder()
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, MIN_RSA_KEY_SIZE, TAGS_EMPTY,
-                        keyVaultKeyItemModel(VERSIONED_KEY_ENTITY_ID_1_VERSION_1.asUri(), TAGS_EMPTY)))
+                        keyVaultKeyItemModel(VERSIONED_KEY_ENTITY_ID_1_VERSION_1.asUri(HTTPS_LOCALHOST_8443), TAGS_EMPTY)))
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_2, MIN_RSA_KEY_SIZE, TAGS_ONE_KEY,
-                        keyVaultKeyItemModel(VERSIONED_KEY_ENTITY_ID_1_VERSION_2.asUri(), TAGS_ONE_KEY)))
+                        keyVaultKeyItemModel(VERSIONED_KEY_ENTITY_ID_1_VERSION_2.asUri(HTTPS_LOCALHOST_8443), TAGS_ONE_KEY)))
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_3, MIN_RSA_KEY_SIZE, TAGS_TWO_KEYS,
-                        keyVaultKeyItemModel(VERSIONED_KEY_ENTITY_ID_1_VERSION_3.asUri(), TAGS_TWO_KEYS)))
+                        keyVaultKeyItemModel(VERSIONED_KEY_ENTITY_ID_1_VERSION_3.asUri(HTTPS_LOCALHOST_8443), TAGS_TWO_KEYS)))
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_2_VERSION_1, MIN_RSA_KEY_SIZE, TAGS_EMPTY,
-                        keyVaultKeyItemModel(VERSIONED_KEY_ENTITY_ID_2_VERSION_1.asUri(), TAGS_EMPTY)))
+                        keyVaultKeyItemModel(VERSIONED_KEY_ENTITY_ID_2_VERSION_1.asUri(HTTPS_LOWKEY_VAULT), TAGS_EMPTY)))
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_2_VERSION_2, MIN_RSA_KEY_SIZE, TAGS_THREE_KEYS,
-                        keyVaultKeyItemModel(VERSIONED_KEY_ENTITY_ID_2_VERSION_2.asUri(), TAGS_THREE_KEYS)))
+                        keyVaultKeyItemModel(VERSIONED_KEY_ENTITY_ID_2_VERSION_2.asUri(HTTPS_LOWKEY_VAULT), TAGS_THREE_KEYS)))
                 .build();
     }
 
@@ -60,7 +62,7 @@ class KeyEntityToV72KeyVersionItemModelConverterTest {
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
         when(vault.keyVaultFake()).thenReturn(keyVault);
-        when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultKeyEntity.class))).thenReturn(PROPERTIES_MODEL);
+        when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultKeyEntity.class), any(URI.class))).thenReturn(PROPERTIES_MODEL);
     }
 
     @AfterEach
@@ -81,11 +83,11 @@ class KeyEntityToV72KeyVersionItemModelConverterTest {
         input.setTags(tags);
 
         //when
-        final KeyVaultKeyItemModel actual = underTest.convert(input);
+        final KeyVaultKeyItemModel actual = underTest.convert(input, vault.baseUri());
 
         //then
         Assertions.assertEquals(expected, actual);
-        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class));
+        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class), any(URI.class));
     }
 
     @Test

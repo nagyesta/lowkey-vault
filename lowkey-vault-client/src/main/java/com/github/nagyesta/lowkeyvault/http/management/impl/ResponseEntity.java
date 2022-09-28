@@ -53,7 +53,7 @@ final class ResponseEntity {
         return responseBody;
     }
 
-    private static class ListTypeReference extends TypeReference<List<VaultModel>> {
+    public static class ListTypeReference extends TypeReference<List<VaultModel>> {
 
     }
 }

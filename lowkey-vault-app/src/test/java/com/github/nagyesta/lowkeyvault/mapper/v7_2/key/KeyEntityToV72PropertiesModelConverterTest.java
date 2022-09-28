@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST;
+import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOWKEY_VAULT;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -81,7 +82,7 @@ class KeyEntityToV72PropertiesModelConverterTest {
         input.setRecoveryLevel(recoveryLevel);
 
         //when
-        final KeyPropertiesModel actual = underTest.convert(input);
+        final KeyPropertiesModel actual = underTest.convert(input, HTTPS_LOWKEY_VAULT);
 
         //then
         Assertions.assertNotNull(actual);

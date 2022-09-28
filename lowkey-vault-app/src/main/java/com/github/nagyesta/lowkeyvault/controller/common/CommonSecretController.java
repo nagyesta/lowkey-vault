@@ -111,7 +111,7 @@ public abstract class CommonSecretController extends GenericEntityController<Sec
                 baseUri.toString(), secretName, secretVersion, apiVersion());
 
         final ReadOnlyKeyVaultSecretEntity keyVaultSecretEntity = getEntityByNameAndVersion(baseUri, secretName, secretVersion);
-        return ResponseEntity.ok(convertDetails(keyVaultSecretEntity));
+        return ResponseEntity.ok(convertDetails(keyVaultSecretEntity, baseUri));
     }
 
     public ResponseEntity<KeyVaultSecretModel> updateVersion(

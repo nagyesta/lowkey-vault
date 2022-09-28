@@ -1,10 +1,10 @@
 package com.github.nagyesta.lowkeyvault.model.v7_2.secret;
 
+import com.github.nagyesta.lowkeyvault.mapper.AliasAwareConverter;
 import com.github.nagyesta.lowkeyvault.mapper.common.BackupConverter;
 import com.github.nagyesta.lowkeyvault.service.secret.ReadOnlyKeyVaultSecretEntity;
 import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +14,7 @@ public class SecretEntityToV72BackupConverter
 
     @Autowired
     public SecretEntityToV72BackupConverter(
-            @NonNull final Converter<ReadOnlyKeyVaultSecretEntity, SecretPropertiesModel> propertiesConverter) {
+            @NonNull final AliasAwareConverter<ReadOnlyKeyVaultSecretEntity, SecretPropertiesModel> propertiesConverter) {
         super(propertiesConverter);
     }
 

@@ -69,16 +69,16 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
 
     protected M getModelById(final S entityVaultFake, final V entityId) {
         final E entity = entityVaultFake.getEntities().getReadOnlyEntity(entityId);
-        return modelConverter.convert(entity);
+        return modelConverter.convert(entity, entityId.vault());
     }
 
     protected DM getDeletedModelById(final S entityVaultFake, final V entityId) {
         final E entity = entityVaultFake.getDeletedEntities().getReadOnlyEntity(entityId);
-        return modelConverter.convertDeleted(entity);
+        return modelConverter.convertDeleted(entity, entityId.vault());
     }
 
-    protected M convertDetails(final E entity) {
-        return modelConverter.convert(entity);
+    protected M convertDetails(final E entity, final URI vaultUri) {
+        return modelConverter.convert(entity, vaultUri);
     }
 
     protected KeyVaultItemListModel<I> getPageOfItemVersions(
@@ -88,7 +88,7 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
         final Deque<String> allItems = entityVaultFake.getEntities().getVersions(entityId);
         final List<I> items = filterList(limit, offset, allItems, v -> {
             final E entity = getEntityByNameAndVersion(baseUri, name, v);
-            return versionedItemConverter.convert(entity);
+            return versionedItemConverter.convert(entity, baseUri);
         });
         final URI nextUri = getNextUri(baseUri + uriPath, allItems, items, limit, offset);
         return listModel(items, nextUri);
@@ -98,7 +98,7 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
     protected KeyVaultItemListModel<I> getPageOfItems(final URI baseUri, final int limit, final int offset, final String uriPath) {
         final S entityVaultFake = getVaultByUri(baseUri);
         final List<E> allItems = entityVaultFake.getEntities().listLatestNonManagedEntities();
-        final List<I> items = filterList(limit, offset, allItems, itemConverter::convert);
+        final List<I> items = filterList(limit, offset, allItems, source -> itemConverter.convert(source, baseUri));
         final URI nextUri = getNextUri(baseUri + uriPath, allItems, items, limit, offset);
         return listModel(items, nextUri);
     }
@@ -107,7 +107,7 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
     protected KeyVaultItemListModel<I> getPageOfDeletedItems(final URI baseUri, final int limit, final int offset, final String uriPath) {
         final S entityVaultFake = getVaultByUri(baseUri);
         final List<E> allItems = entityVaultFake.getDeletedEntities().listLatestNonManagedEntities();
-        final List<I> items = filterList(limit, offset, allItems, itemConverter::convertDeleted);
+        final List<I> items = filterList(limit, offset, allItems, source -> itemConverter.convertDeleted(source, baseUri));
         final URI nextUri = getNextUri(baseUri + uriPath, allItems, items, limit, offset);
         return listModel(items, nextUri);
     }

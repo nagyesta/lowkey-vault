@@ -17,7 +17,7 @@ public class LowkeyVaultArgLineBuilder {
         if (!NO_AUTO_REGISTRATION.equals(vaultNames)) {
             assertVaultNamesAreValid(vaultNames);
         }
-        if (!Objects.requireNonNullElse(vaultNames, Collections.emptySet()).isEmpty()) {
+        if (!vaultNames.isEmpty()) {
             args.add("--LOWKEY_VAULT_NAMES=" + String.join(",", vaultNames));
         }
         return this;
@@ -47,6 +47,33 @@ public class LowkeyVaultArgLineBuilder {
     public LowkeyVaultArgLineBuilder importFile(final File file) {
         if (file != null) {
             args.add("--LOWKEY_IMPORT_LOCATION=/import/vaults.json");
+        }
+        return this;
+    }
+
+    public LowkeyVaultArgLineBuilder customSSLCertificate(final File file, final String password, final StoreType type) {
+        if (file != null) {
+            args.add("--server.ssl.key-store=/import/cert.store");
+            args.add("--server.ssl.key-store-type=" + Optional.ofNullable(type).orElse(StoreType.PKCS12).name());
+            args.add("--server.ssl.key-store-password=" + Optional.ofNullable(password).orElse(""));
+        }
+        return this;
+    }
+
+    public LowkeyVaultArgLineBuilder aliases(final Map<String, Set<String>> aliases) {
+        if (aliases != null && !aliases.isEmpty()) {
+            final String aliasMappings = new TreeMap<>(aliases).entrySet()
+                    .stream()
+                    .flatMap(e -> new TreeSet<>(e.getValue()).stream().map(alias -> e.getKey() + "=" + alias))
+                    .collect(Collectors.joining(","));
+            args.add("--LOWKEY_VAULT_ALIASES=" + aliasMappings);
+        }
+        return this;
+    }
+
+    public LowkeyVaultArgLineBuilder additionalArgs(final List<String> additionalArgs) {
+        if (additionalArgs != null && !additionalArgs.isEmpty()) {
+            args.addAll(additionalArgs);
         }
         return this;
     }

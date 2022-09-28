@@ -50,22 +50,22 @@ public class SecretEntityId implements EntityId {
     }
 
     @Override
-    public URI asUriNoVersion() {
-        return URI.create(vault + "/secrets/" + id());
+    public URI asUriNoVersion(@NonNull final URI vaultUri) {
+        return URI.create(vaultUri + "/secrets/" + id());
     }
 
     @Override
-    public URI asUri() {
-        return URI.create(vault + "/secrets/" + id() + "/" + Optional.ofNullable(version()).orElse(""));
+    public URI asUri(@NonNull final URI vaultUri) {
+        return URI.create(vaultUri + "/secrets/" + id() + "/" + Optional.ofNullable(version()).orElse(""));
     }
 
     @Override
-    public URI asRecoveryUri() {
-        return URI.create(vault + "/deletedsecrets/" + id());
+    public URI asRecoveryUri(@NonNull final URI vaultUri) {
+        return URI.create(vaultUri + "/deletedsecrets/" + id());
     }
 
     @Override
-    public URI asUri(@NonNull final String query) {
-        return URI.create(asUri().toString() + query);
+    public URI asUri(@NonNull final URI vaultUri, @NonNull final String query) {
+        return URI.create(asUri(vaultUri).toString() + query);
     }
 }

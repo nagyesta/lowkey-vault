@@ -63,16 +63,27 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
 
         if (containerBuilder.getImportFile() != null) {
             final String absolutePath = containerBuilder.getImportFile().getAbsolutePath();
-            logger().info("Using path: '{}'", absolutePath);
+            logger().info("Using path for import file: '{}'", absolutePath);
             withFileSystemBind(absolutePath, "/import/vaults.json", BindMode.READ_ONLY);
+        }
+
+        if (containerBuilder.getCustomSslCertStore() != null) {
+            final String absolutePath = containerBuilder.getCustomSslCertStore().getAbsolutePath();
+            logger().info("Using path for custom certificate: '{}'", absolutePath);
+            withFileSystemBind(absolutePath, "/import/cert.store", BindMode.READ_ONLY);
         }
 
         final List<String> args = new LowkeyVaultArgLineBuilder()
                 .vaultNames(Objects.requireNonNullElse(containerBuilder.getVaultNames(), Set.of()))
+                .aliases(containerBuilder.getAliasMap())
                 .logicalHost(containerBuilder.getLogicalHost())
                 .logicalPort(containerBuilder.getLogicalPort())
                 .debug(containerBuilder.isDebug())
                 .importFile(containerBuilder.getImportFile())
+                .customSSLCertificate(containerBuilder.getCustomSslCertStore(),
+                        containerBuilder.getCustomSslCertPassword(),
+                        containerBuilder.getCustomSslCertType())
+                .additionalArgs(containerBuilder.getAdditionalArgs())
                 .build();
 
         if (!args.isEmpty()) {

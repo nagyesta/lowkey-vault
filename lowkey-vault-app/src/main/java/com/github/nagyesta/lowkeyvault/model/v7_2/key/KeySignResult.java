@@ -21,14 +21,15 @@ public class KeySignResult {
     private String value;
 
     public static KeySignResult forBytes(@org.springframework.lang.NonNull final VersionedKeyEntityId keyEntityId,
-                                         @org.springframework.lang.NonNull final byte[] value) {
+                                         @org.springframework.lang.NonNull final byte[] value,
+                                         @org.springframework.lang.NonNull final URI vaultUri) {
         Assert.notNull(value, "Value must not be null.");
-        return forString(keyEntityId, ENCODER.encodeToString(value));
+        return forString(keyEntityId, ENCODER.encodeToString(value), vaultUri);
     }
 
-    private static KeySignResult forString(final VersionedKeyEntityId keyEntityId, final String value) {
+    private static KeySignResult forString(final VersionedKeyEntityId keyEntityId, final String value, final URI vaultUri) {
         final KeySignResult result = new KeySignResult();
-        result.setId(keyEntityId.asUri());
+        result.setId(keyEntityId.asUri(vaultUri));
         result.setValue(value);
         return result;
     }

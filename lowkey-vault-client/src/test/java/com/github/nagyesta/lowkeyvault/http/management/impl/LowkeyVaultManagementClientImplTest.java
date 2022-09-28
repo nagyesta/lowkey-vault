@@ -25,6 +25,7 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
@@ -41,6 +42,7 @@ class LowkeyVaultManagementClientImplTest {
     public static final String SIMPLE_JSON = "{\"property\":42}";
     public static final String SIMPLE_JSON_PRETTY = "{\n\t\"property\": 42\n}";
     private static final String HTTPS_LOCALHOST = "https://localhost";
+    private static final String HTTPS_ALIAS_LOCALHOST = "https://alias.localhost";
     private static final String JSON = "{}";
     private static final int RECOVERABLE_DAYS = 90;
 
@@ -188,7 +190,7 @@ class LowkeyVaultManagementClientImplTest {
             when(response.getStatusCode()).thenReturn(HttpStatus.SC_OK);
             when(objectReader.forType(eq(VaultModel.class))).thenReturn(objectReader);
             when(objectReader.readValue(eq(JSON))).thenReturn(result);
-            final VaultModel expectedRequestVault = new VaultModel(baseUri, recoveryLevel, recoverableDays, null, null);
+            final VaultModel expectedRequestVault = new VaultModel(baseUri, null, recoveryLevel, recoverableDays, null, null);
             when(objectWriter.writeValueAsString(eq(expectedRequestVault))).thenReturn(JSON);
 
             //when
@@ -338,6 +340,122 @@ class LowkeyVaultManagementClientImplTest {
 
             //when
             Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.recover(uri));
+
+            //then
+            verifyNoInteractions(httpClient);
+        }
+
+        @Test
+        void testAddAliasShouldReturnVaultModelStatusWhenCalled() throws JsonProcessingException {
+            //given
+            final VaultModel vaultModel = new VaultModel();
+            final HttpResponse response = mock(HttpResponse.class);
+            when(httpClient.send(httpRequestArgumentCaptor.capture())).thenReturn(Mono.just(response));
+            when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.just(JSON));
+            when(response.getStatusCode()).thenReturn(HttpStatus.SC_OK);
+            when(objectReader.forType(eq(VaultModel.class))).thenReturn(objectReader);
+            when(objectReader.readValue(eq(JSON))).thenReturn(vaultModel);
+
+            //when
+            final VaultModel actual = underTest.addAlias(URI.create(HTTPS_LOCALHOST), URI.create(HTTPS_ALIAS_LOCALHOST));
+
+            //then
+            Assertions.assertEquals(vaultModel, actual);
+            verify(httpClient, atMostOnce()).send(any());
+            final HttpRequest request = httpRequestArgumentCaptor.getValue();
+            Assertions.assertEquals("/management/vault/alias", request.getUrl().getPath());
+            final String queryString = "add=" + URLEncoder.encode(HTTPS_ALIAS_LOCALHOST, StandardCharsets.UTF_8)
+                    + "&baseUri=" + URLEncoder.encode(HTTPS_LOCALHOST, StandardCharsets.UTF_8);
+            Assertions.assertEquals(queryString, request.getUrl().getQuery());
+            Assertions.assertEquals(HttpMethod.PATCH, request.getHttpMethod());
+            Assertions.assertEquals(APPLICATION_JSON, request.getHeaders().getValue(HttpHeaders.CONTENT_TYPE));
+            verify(response).getStatusCode();
+            verify(response).getBodyAsString(eq(StandardCharsets.UTF_8));
+            verify(objectReader).forType(eq(VaultModel.class));
+            verify(objectReader).readValue(anyString());
+        }
+
+        @SuppressWarnings("ConstantConditions")
+        @Test
+        void testAddAliasShouldThrowExceptionWhenBaseUriIsNull() {
+            //given
+            final URI uri = null;
+            final URI alias = URI.create(HTTPS_ALIAS_LOCALHOST);
+
+            //when
+            Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.addAlias(uri, alias));
+
+            //then
+            verifyNoInteractions(httpClient);
+        }
+
+        @SuppressWarnings("ConstantConditions")
+        @Test
+        void testAddAliasShouldThrowExceptionWhenAliasIsNull() {
+            //given
+            final URI uri = URI.create(HTTPS_LOCALHOST);
+            final URI alias = null;
+
+            //when
+            Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.addAlias(uri, alias));
+
+            //then
+            verifyNoInteractions(httpClient);
+        }
+
+        @Test
+        void testRemoveAliasShouldReturnVaultModelStatusWhenCalled() throws JsonProcessingException {
+            //given
+            final VaultModel vaultModel = new VaultModel();
+            final HttpResponse response = mock(HttpResponse.class);
+            when(httpClient.send(httpRequestArgumentCaptor.capture())).thenReturn(Mono.just(response));
+            when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.just(JSON));
+            when(response.getStatusCode()).thenReturn(HttpStatus.SC_OK);
+            when(objectReader.forType(eq(VaultModel.class))).thenReturn(objectReader);
+            when(objectReader.readValue(eq(JSON))).thenReturn(vaultModel);
+
+            //when
+            final VaultModel actual = underTest.removeAlias(URI.create(HTTPS_LOCALHOST), URI.create(HTTPS_ALIAS_LOCALHOST));
+
+            //then
+            Assertions.assertEquals(vaultModel, actual);
+            verify(httpClient, atMostOnce()).send(any());
+            final HttpRequest request = httpRequestArgumentCaptor.getValue();
+            Assertions.assertEquals("/management/vault/alias", request.getUrl().getPath());
+            final String queryString = "baseUri=" + URLEncoder.encode(HTTPS_LOCALHOST, StandardCharsets.UTF_8)
+                    + "&remove=" + URLEncoder.encode(HTTPS_ALIAS_LOCALHOST, StandardCharsets.UTF_8);
+            Assertions.assertEquals(queryString, request.getUrl().getQuery());
+            Assertions.assertEquals(HttpMethod.PATCH, request.getHttpMethod());
+            Assertions.assertEquals(APPLICATION_JSON, request.getHeaders().getValue(HttpHeaders.CONTENT_TYPE));
+            verify(response).getStatusCode();
+            verify(response).getBodyAsString(eq(StandardCharsets.UTF_8));
+            verify(objectReader).forType(eq(VaultModel.class));
+            verify(objectReader).readValue(anyString());
+        }
+
+        @SuppressWarnings("ConstantConditions")
+        @Test
+        void testRemoveAliasShouldThrowExceptionWhenBaseUriIsNull() {
+            //given
+            final URI uri = null;
+            final URI alias = URI.create(HTTPS_ALIAS_LOCALHOST);
+
+            //when
+            Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.removeAlias(uri, alias));
+
+            //then
+            verifyNoInteractions(httpClient);
+        }
+
+        @SuppressWarnings("ConstantConditions")
+        @Test
+        void testAddRemoveShouldThrowExceptionWhenAliasIsNull() {
+            //given
+            final URI uri = URI.create(HTTPS_LOCALHOST);
+            final URI alias = null;
+
+            //when
+            Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.removeAlias(uri, alias));
 
             //then
             verifyNoInteractions(httpClient);

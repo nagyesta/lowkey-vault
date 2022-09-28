@@ -102,7 +102,7 @@ class SecretVaultFakeImplTest {
         final ReadOnlyKeyVaultSecretEntity actual = underTest.getEntities().getReadOnlyEntity(secretVersion);
         Assertions.assertNull(actual.getContentType());
         Assertions.assertEquals(LOWKEY_VAULT, actual.getValue());
-        Assertions.assertEquals(secretVersion.asUri(), actual.getUri());
+        Assertions.assertEquals(secretVersion.asUri(HTTPS_LOCALHOST_8443), actual.getId().asUri(HTTPS_LOCALHOST_8443));
     }
 
     @Test

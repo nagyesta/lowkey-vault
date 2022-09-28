@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.mapper.common;
 
+import com.github.nagyesta.lowkeyvault.mapper.AliasAwareConverter;
 import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.BaseBackupListItem;
 import com.github.nagyesta.lowkeyvault.service.EntityId;
@@ -12,9 +13,9 @@ import java.util.Map;
 public abstract class BackupConverter<V extends EntityId, E extends BaseVaultEntity<? extends V>, P extends BasePropertiesModel,
         BLI extends BaseBackupListItem<P>> implements Converter<E, BLI> {
 
-    private final Converter<E, P> propertiesConverter;
+    private final AliasAwareConverter<E, P> propertiesConverter;
 
-    protected BackupConverter(@lombok.NonNull final Converter<E, P> propertiesConverter) {
+    protected BackupConverter(@lombok.NonNull final AliasAwareConverter<E, P> propertiesConverter) {
         this.propertiesConverter = propertiesConverter;
     }
 
@@ -32,7 +33,7 @@ public abstract class BackupConverter<V extends EntityId, E extends BaseVaultEnt
         item.setVaultBaseUri(entityId.vault());
         item.setId(entityId.id());
         item.setVersion(entityId.version());
-        item.setAttributes(propertiesConverter.convert(source));
+        item.setAttributes(propertiesConverter.convert(source, entityId.vault()));
         item.setTags(Map.copyOf(source.getTags()));
         item.setManaged(source.isManaged());
         return item;

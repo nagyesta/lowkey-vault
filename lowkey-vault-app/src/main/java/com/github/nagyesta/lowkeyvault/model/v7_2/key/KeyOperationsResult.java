@@ -40,16 +40,18 @@ public class KeyOperationsResult {
 
     public static KeyOperationsResult forBytes(@org.springframework.lang.NonNull final VersionedKeyEntityId keyEntityId,
                                                @org.springframework.lang.NonNull final byte[] value,
-                                               @org.springframework.lang.NonNull final KeyOperationsParameters input) {
+                                               @org.springframework.lang.NonNull final KeyOperationsParameters input,
+                                               @org.springframework.lang.NonNull final URI vaultUri) {
         Assert.notNull(value, "Value must not be null.");
-        return forString(keyEntityId, ENCODER.encodeToString(value), input);
+        return forString(keyEntityId, ENCODER.encodeToString(value), input, vaultUri);
     }
 
     public static KeyOperationsResult forString(@NonNull final VersionedKeyEntityId keyEntityId,
                                                 @NonNull final String value,
-                                                @NonNull final KeyOperationsParameters input) {
+                                                @NonNull final KeyOperationsParameters input,
+                                                @NonNull final URI vaultUri) {
         final KeyOperationsResult result = new KeyOperationsResult();
-        result.setId(keyEntityId.asUri());
+        result.setId(keyEntityId.asUri(vaultUri));
         result.setValue(value);
         result.setInitializationVector(input.getInitializationVector());
         result.setAdditionalAuthData(input.getAdditionalAuthData());

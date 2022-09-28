@@ -55,7 +55,7 @@ public class KeyPolicyController
             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
         log.info("Received request to {} get rotation policy: {} using API version: {}",
                 baseUri.toString(), keyName, apiVersion());
-        return getRotationPolicyResponseEntity(getVaultByUri(baseUri), entityId(baseUri, keyName));
+        return getRotationPolicyResponseEntity(getVaultByUri(baseUri), entityId(baseUri, keyName), baseUri);
     }
 
     @PutMapping(value = "/keys/{keyName}/rotationpolicy",
@@ -72,7 +72,7 @@ public class KeyPolicyController
         final RotationPolicy rotationPolicy = rotationV73ModelToEntityConverter.convert(keyEntityId, request);
         final KeyVaultFake keyVaultFake = getVaultByUri(baseUri);
         keyVaultFake.setRotationPolicy(rotationPolicy);
-        return getRotationPolicyResponseEntity(keyVaultFake, keyEntityId);
+        return getRotationPolicyResponseEntity(keyVaultFake, keyEntityId, baseUri);
     }
 
     @Override
@@ -91,8 +91,8 @@ public class KeyPolicyController
     }
 
     private ResponseEntity<KeyRotationPolicyModel> getRotationPolicyResponseEntity(
-            final KeyVaultFake keyVaultFake, final KeyEntityId keyEntityId) {
+            final KeyVaultFake keyVaultFake, final KeyEntityId keyEntityId, final URI baseUri) {
         final ReadOnlyRotationPolicy policy = keyVaultFake.rotationPolicy(keyEntityId);
-        return ResponseEntity.ok(keyRotationPolicyToV73ModelConverter.convert(policy));
+        return ResponseEntity.ok(keyRotationPolicyToV73ModelConverter.convert(policy, baseUri));
     }
 }

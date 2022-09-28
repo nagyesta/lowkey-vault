@@ -145,7 +145,7 @@ class KeyCryptoControllerTest {
                 .thenReturn(entities);
         when(entities.getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3)))
                 .thenReturn(entity);
-        when(keyEntityToV72ModelConverter.convert(same(entity)))
+        when(keyEntityToV72ModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(RESPONSE);
         final KeyOperationsParameters encryptParameters = new KeyOperationsParameters();
         encryptParameters.setAlgorithm(EncryptionAlgorithm.RSA_OAEP_256);
@@ -194,7 +194,7 @@ class KeyCryptoControllerTest {
                 .thenReturn(entities);
         when(entities.getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3)))
                 .thenReturn(entity);
-        when(keyEntityToV72ModelConverter.convert(same(entity)))
+        when(keyEntityToV72ModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(RESPONSE);
         final KeySignParameters keySignParameters = new KeySignParameters();
         keySignParameters.setAlgorithm(SignatureAlgorithm.PS256);

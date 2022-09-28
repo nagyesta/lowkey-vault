@@ -4,14 +4,14 @@ import com.azure.core.http.HttpClient;
 import com.azure.core.http.HttpRequest;
 import com.azure.core.http.HttpResponse;
 import com.azure.core.util.FluxUtil;
-import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
+import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
 import reactor.core.publisher.Mono;
 
+import javax.net.ssl.HostnameVerifier;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -25,12 +25,14 @@ public final class ApacheHttpClient implements HttpClient {
     private final org.apache.http.client.HttpClient httpClient;
     private final Function<URI, URI> authorityOverrideFunction;
 
-    public ApacheHttpClient(final Function<URI, URI> authorityOverrideFunction) {
+    public ApacheHttpClient(final Function<URI, URI> authorityOverrideFunction,
+                            final TrustStrategy trustStrategy,
+                            final HostnameVerifier hostnameVerifier) {
         try {
             this.authorityOverrideFunction = Objects.requireNonNull(authorityOverrideFunction);
             final SSLContextBuilder builder = new SSLContextBuilder();
-            builder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
-            final SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(builder.build(), new DefaultHostnameVerifier());
+            builder.loadTrustMaterial(null, trustStrategy);
+            final SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(builder.build(), hostnameVerifier);
             this.httpClient = HttpClients.custom()
                     .addInterceptorFirst(new ContentLengthHeaderRemover())
                     .setSSLSocketFactory(socketFactory).build();

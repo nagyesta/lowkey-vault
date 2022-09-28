@@ -3,17 +3,21 @@ package com.github.nagyesta.lowkeyvault.testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import java.io.File;
-import java.util.Set;
+import java.util.*;
 
 public final class LowkeyVaultContainerBuilder {
 
     private final DockerImageName dockerImageName;
     private Set<String> vaultNames = Set.of();
+    private Map<String, Set<String>> aliasMap = Map.of();
     private File importFile;
+    private File customSslCertStore;
+    private String customSslCertPassword;
+    private StoreType customSslCertType;
     private Integer hostPort;
     private Integer logicalPort;
     private String logicalHost;
-
+    private List<String> additionalArgs = List.of();
     private boolean debug;
 
     public static LowkeyVaultContainerBuilder lowkeyVault(final DockerImageName dockerImageName) {
@@ -43,11 +47,41 @@ public final class LowkeyVaultContainerBuilder {
         return this;
     }
 
+    public LowkeyVaultContainerBuilder vaultAliases(final Map<String, Set<String>> aliasMap) {
+        if (aliasMap == null) {
+            throw new IllegalArgumentException("Alias map cannot be null.");
+        }
+        aliasMap.keySet().forEach(host -> {
+            if (!host.matches("^[0-9a-z\\-_.]+$")) {
+                throw new IllegalArgumentException("Vault host names must match '^[0-9a-z\\-_.]+$'. Found: " + host);
+            }
+        });
+        aliasMap.values().stream().flatMap(Collection::stream).forEach(host -> {
+            if (!host.matches("^[0-9a-z\\-_.]+(:[0-9]+|:<port>)?$")) {
+                throw new IllegalArgumentException("Vault aliases must match '^[0-9a-z\\-_.]+(:[0-9]+|:<port>)?$'. Found: " + host);
+            }
+        });
+        final Map<String, Set<String>> temp = new TreeMap<>();
+        aliasMap.forEach((key, value) -> temp.put(key, Set.copyOf(value)));
+        this.aliasMap = Map.copyOf(temp);
+        return this;
+    }
+
     public LowkeyVaultContainerBuilder importFile(final File importFile) {
         if (importFile == null) {
             throw new IllegalArgumentException("Import file cannot be null.");
         }
         this.importFile = importFile;
+        return this;
+    }
+
+    public LowkeyVaultContainerBuilder customSslCertificate(final File customSslCert, final String password, final StoreType type) {
+        if (customSslCert == null) {
+            throw new IllegalArgumentException("SSL certificate file cannot be null.");
+        }
+        this.customSslCertStore = customSslCert;
+        this.customSslCertPassword = password;
+        this.customSslCertType = type;
         return this;
     }
 
@@ -75,6 +109,14 @@ public final class LowkeyVaultContainerBuilder {
         return this;
     }
 
+    public LowkeyVaultContainerBuilder additionalArgs(final List<String> additionalArgs) {
+        if (additionalArgs == null) {
+            throw new IllegalArgumentException("Additional argument collection cannot be null.");
+        }
+        this.additionalArgs = List.copyOf(additionalArgs);
+        return this;
+    }
+
     public LowkeyVaultContainerBuilder debug() {
         this.debug = true;
         return this;
@@ -92,8 +134,24 @@ public final class LowkeyVaultContainerBuilder {
         return vaultNames;
     }
 
+    public Map<String, Set<String>> getAliasMap() {
+        return aliasMap;
+    }
+
     public File getImportFile() {
         return importFile;
+    }
+
+    public File getCustomSslCertStore() {
+        return customSslCertStore;
+    }
+
+    public String getCustomSslCertPassword() {
+        return customSslCertPassword;
+    }
+
+    public StoreType getCustomSslCertType() {
+        return customSslCertType;
     }
 
     public Integer getHostPort() {
@@ -106,6 +164,10 @@ public final class LowkeyVaultContainerBuilder {
 
     public String getLogicalHost() {
         return logicalHost;
+    }
+
+    public List<String> getAdditionalArgs() {
+        return additionalArgs;
     }
 
     public boolean isDebug() {

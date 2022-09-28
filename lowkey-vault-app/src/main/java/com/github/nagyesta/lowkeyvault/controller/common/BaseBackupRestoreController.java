@@ -69,7 +69,7 @@ public abstract class BaseBackupRestoreController<K extends EntityId, V extends 
         });
         final V latestVersionOfEntity = vault.getEntities().getLatestVersionOfEntity(entityId);
         final E readOnlyEntity = vault.getEntities().getReadOnlyEntity(latestVersionOfEntity);
-        return modelConverter.convert(readOnlyEntity);
+        return modelConverter.convert(readOnlyEntity, baseUri);
     }
 
     protected abstract void restoreVersion(S vault, V versionedEntityId, BLI entityVersion);

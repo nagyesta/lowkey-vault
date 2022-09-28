@@ -59,7 +59,7 @@ class SecretBackupRestoreControllerIntegrationTest {
     void setUp() {
         final String name = UUID.randomUUID().toString();
         uri = URI.create("https://" + name + ".localhost");
-        vaultService.create(uri, RecoveryLevel.RECOVERABLE_AND_PURGEABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
+        vaultService.create(uri, RecoveryLevel.RECOVERABLE_AND_PURGEABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE, null);
     }
 
     @AfterEach
@@ -218,7 +218,7 @@ class SecretBackupRestoreControllerIntegrationTest {
             final KeyVaultSecretModel actualBody, final String version, final Map<String, String> expectedTags) {
         Assertions.assertEquals(LOWKEY_VAULT, actualBody.getValue());
         Assertions.assertEquals(MimeTypeUtils.TEXT_PLAIN_VALUE, actualBody.getContentType());
-        Assertions.assertEquals(new VersionedSecretEntityId(uri, SECRET_NAME_1, version).asUri().toString(), actualBody.getId());
+        Assertions.assertEquals(new VersionedSecretEntityId(uri, SECRET_NAME_1, version).asUri(uri).toString(), actualBody.getId());
         Assertions.assertEquals(TIME_10_MINUTES_AGO, actualBody.getAttributes().getCreatedOn());
         Assertions.assertEquals(NOW, actualBody.getAttributes().getUpdatedOn());
         Assertions.assertEquals(TIME_IN_10_MINUTES, actualBody.getAttributes().getNotBefore());

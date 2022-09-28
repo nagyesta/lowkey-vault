@@ -16,12 +16,15 @@ import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, doNotUseGetters = true)
 public class VaultFakeImpl implements VaultFake {
 
     @EqualsAndHashCode.Include
     private final URI vaultUri;
+    @EqualsAndHashCode.Include
+    private Set<URI> aliases;
     private final KeyVaultFake keys;
     private final SecretVaultFake secrets;
     private final CertificateVaultFake certificates;
@@ -43,16 +46,28 @@ public class VaultFakeImpl implements VaultFake {
         this.recoveryLevel = recoveryLevel;
         this.recoverableDays = recoverableDays;
         this.createdOn = OffsetDateTime.now();
+        this.aliases = Set.of();
     }
 
     @Override
     public boolean matches(@NonNull final URI vaultUri) {
-        return this.vaultUri.equals(vaultUri);
+        return this.vaultUri.equals(vaultUri) || this.aliases.contains(vaultUri);
     }
 
     @Override
     public URI baseUri() {
         return vaultUri;
+    }
+
+    @Override
+    public Set<URI> aliases() {
+        return aliases;
+    }
+
+    @Override
+    public void setAliases(@NonNull final Set<URI> aliases) {
+        Assert.isTrue(!aliases.contains(baseUri()), "The base URI cannot be an alias as well.");
+        this.aliases = Set.copyOf(aliases);
     }
 
     @Override

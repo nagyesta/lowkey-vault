@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.model.management;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -12,6 +13,7 @@ import lombok.Data;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.time.OffsetDateTime;
+import java.util.Set;
 
 import static com.github.nagyesta.lowkeyvault.openapi.Examples.*;
 
@@ -21,6 +23,11 @@ public class VaultModel {
     @NotNull
     @JsonProperty("baseUri")
     private URI baseUri;
+    @Schema(example = ALIASES,
+    description = "Optional Vault base URIs that can be used as aliases to access this vault.")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    @JsonProperty("aliases")
+    private Set<URI> aliases;
     @Schema(example = CUSTOMIZED_RECOVERABLE_PURGEABLE,
             description = "Recovery level of the vault. See: "
                     + "https://docs.microsoft.com/en-us/rest/api/keyvault/secrets/set-secret/set-secret#deletionrecoverylevel")

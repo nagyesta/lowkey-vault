@@ -35,6 +35,7 @@ import java.util.stream.Stream;
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST;
+import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
 import static com.github.nagyesta.lowkeyvault.service.key.constants.LifetimeActionTriggerType.MINIMUM_EXPIRY_PERIOD_IN_DAYS;
 import static com.github.nagyesta.lowkeyvault.service.key.constants.LifetimeActionTriggerType.MINIMUM_THRESHOLD_BEFORE_EXPIRY;
 import static org.mockito.Mockito.mock;
@@ -501,7 +502,7 @@ class KeyVaultFakeImplTest {
 
         //then
         Assertions.assertNotNull(actual);
-        Assertions.assertEquals(keyEntityId.asUri(), actual.getUri());
+        Assertions.assertEquals(keyEntityId.asUri(HTTPS_LOCALHOST_8443), actual.getId().asUri(HTTPS_LOCALHOST_8443));
     }
 
     @Test

@@ -47,7 +47,7 @@ public abstract class CommonKeyCryptoController extends GenericEntityController<
         final ReadOnlyKeyVaultKeyEntity keyVaultKeyEntity = getEntityByNameAndVersion(baseUri, keyName, keyVersion);
         final byte[] encrypted = keyVaultKeyEntity.encryptBytes(request.getValueAsBase64DecodedBytes(), request.getAlgorithm(),
                 request.getInitializationVector());
-        return ResponseEntity.ok(KeyOperationsResult.forBytes(keyVaultKeyEntity.getId(), encrypted, request));
+        return ResponseEntity.ok(KeyOperationsResult.forBytes(keyVaultKeyEntity.getId(), encrypted, request, baseUri));
     }
 
     public ResponseEntity<KeyOperationsResult> decrypt(
@@ -61,7 +61,7 @@ public abstract class CommonKeyCryptoController extends GenericEntityController<
         final ReadOnlyKeyVaultKeyEntity keyVaultKeyEntity = getEntityByNameAndVersion(baseUri, keyName, keyVersion);
         final byte[] decrypted = keyVaultKeyEntity.decryptToBytes(request.getValueAsBase64DecodedBytes(), request.getAlgorithm(),
                 request.getInitializationVector());
-        return ResponseEntity.ok(KeyOperationsResult.forBytes(keyVaultKeyEntity.getId(), decrypted, request));
+        return ResponseEntity.ok(KeyOperationsResult.forBytes(keyVaultKeyEntity.getId(), decrypted, request, baseUri));
     }
 
     public ResponseEntity<KeySignResult> sign(
@@ -74,7 +74,7 @@ public abstract class CommonKeyCryptoController extends GenericEntityController<
 
         final ReadOnlyKeyVaultKeyEntity keyVaultKeyEntity = getEntityByNameAndVersion(baseUri, keyName, keyVersion);
         final byte[] signature = keyVaultKeyEntity.signBytes(request.getValueAsBase64DecodedBytes(), request.getAlgorithm());
-        return ResponseEntity.ok(KeySignResult.forBytes(keyVaultKeyEntity.getId(), signature));
+        return ResponseEntity.ok(KeySignResult.forBytes(keyVaultKeyEntity.getId(), signature, baseUri));
     }
 
     public ResponseEntity<KeyVerifyResult> verify(

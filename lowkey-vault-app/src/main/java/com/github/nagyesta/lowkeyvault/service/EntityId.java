@@ -17,11 +17,11 @@ public interface EntityId {
         return entityType() + ":" + vault() + "/" + id() + "/" + Optional.ofNullable(version()).orElse("--");
     }
 
-    URI asUriNoVersion();
+    URI asUriNoVersion(URI vaultUri);
 
-    URI asUri();
+    URI asUri(URI vaultUri);
 
-    URI asRecoveryUri();
+    URI asRecoveryUri(URI vaultUri);
 
-    URI asUri(String query);
+    URI asUri(URI vaultUri, String query);
 }

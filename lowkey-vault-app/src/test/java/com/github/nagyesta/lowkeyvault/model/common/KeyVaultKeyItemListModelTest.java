@@ -12,13 +12,14 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
+import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
 
 class KeyVaultKeyItemListModelTest {
 
     public static Stream<Arguments> invalidInputProvider() {
         return Stream.<Arguments>builder()
                 .add(Arguments.of(null, null))
-                .add(Arguments.of(null, VERSIONED_KEY_ENTITY_ID_1_VERSION_1.asUri()))
+                .add(Arguments.of(null, VERSIONED_KEY_ENTITY_ID_1_VERSION_1.asUri(HTTPS_LOCALHOST_8443)))
                 .build();
     }
 
@@ -38,7 +39,7 @@ class KeyVaultKeyItemListModelTest {
     void testConstructorShouldCreateNewInstanceWhenCalledWithValidData() {
         //given
         final List<KeyVaultKeyItemModel> list = List.of(
-                keyVaultKeyItemModel(VERSIONED_KEY_ENTITY_ID_1_VERSION_1.asUri()));
+                keyVaultKeyItemModel(VERSIONED_KEY_ENTITY_ID_1_VERSION_1.asUri(HTTPS_LOCALHOST_8443)));
 
         //when
         final KeyVaultItemListModel<KeyVaultKeyItemModel> actual = new KeyVaultItemListModel<>(list, null);

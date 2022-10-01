@@ -46,8 +46,10 @@ public class KeysStepDefsAssertions extends CommonAssertions {
 
     @Then("the key URL contains the vault url and {name}")
     public void theKeyURLContainsVaultUrlAndKeyName(final String keyName) {
-        assertTrue(context.getLastResult().getId().startsWith(context.getProvider().getVaultUrl()));
-        assertTrue(context.getLastResult().getId().contains(keyName));
+        assertTrue(context.getLastResult().getId() + " did not start with " + context.getProvider().getVaultUrl(),
+                context.getLastResult().getId().startsWith(context.getProvider().getVaultUrl()));
+        assertTrue(context.getLastResult().getId() + " did not contain " + keyName,
+                context.getLastResult().getId().contains(keyName));
     }
 
     @Then("the key enabled status is {enabled}")
@@ -121,8 +123,10 @@ public class KeysStepDefsAssertions extends CommonAssertions {
     @Then("the deleted key recovery id contains the vault url and {name}")
     public void theDeletedKeyRecoveryIdContainsTheVaultUrlAndKeyName(final String keyName) {
         final String recoveryId = context.getLastDeleted().getRecoveryId();
-        assertTrue(recoveryId.startsWith(context.getProvider().getVaultUrl()));
-        assertTrue(recoveryId.contains(keyName));
+        assertTrue(recoveryId + " did not start with " + context.getProvider().getVaultUrl(),
+                recoveryId.startsWith(context.getProvider().getVaultUrl()));
+        assertTrue(recoveryId + " did not contain " + keyName,
+                recoveryId.contains(keyName));
     }
 
     @Then("the key recovery timestamps are default")

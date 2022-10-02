@@ -46,7 +46,7 @@ public abstract class CommonSecretController extends GenericEntityController<Sec
 
         final SecretVaultFake secretVaultFake = getVaultByUri(baseUri);
         final VersionedSecretEntityId secretEntityId = createSecretWithAttributes(secretVaultFake, secretName, request);
-        return ResponseEntity.ok(getModelById(secretVaultFake, secretEntityId));
+        return ResponseEntity.ok(getModelById(secretVaultFake, secretEntityId, baseUri));
     }
 
     public ResponseEntity<KeyVaultSecretModel> delete(
@@ -59,7 +59,7 @@ public abstract class CommonSecretController extends GenericEntityController<Sec
         final SecretEntityId entityId = new SecretEntityId(baseUri, secretName);
         secretVaultFake.delete(entityId);
         final VersionedSecretEntityId latestVersion = secretVaultFake.getDeletedEntities().getLatestVersionOfEntity(entityId);
-        return ResponseEntity.ok(getDeletedModelById(secretVaultFake, latestVersion));
+        return ResponseEntity.ok(getDeletedModelById(secretVaultFake, latestVersion, baseUri));
     }
 
     public ResponseEntity<KeyVaultItemListModel<KeyVaultSecretItemModel>> versions(
@@ -126,7 +126,7 @@ public abstract class CommonSecretController extends GenericEntityController<Sec
         final VersionedSecretEntityId entityId = versionedEntityId(baseUri, secretName, secretVersion);
         updateAttributes(secretVaultFake, entityId, request.getProperties());
         updateTags(secretVaultFake, entityId, request.getTags());
-        return ResponseEntity.ok(getModelById(secretVaultFake, entityId));
+        return ResponseEntity.ok(getModelById(secretVaultFake, entityId, baseUri));
     }
 
     public ResponseEntity<KeyVaultSecretModel> getDeletedSecret(
@@ -138,7 +138,7 @@ public abstract class CommonSecretController extends GenericEntityController<Sec
         final SecretVaultFake secretVaultFake = getVaultByUri(baseUri);
         final SecretEntityId entityId = new SecretEntityId(baseUri, secretName);
         final VersionedSecretEntityId latestVersion = secretVaultFake.getDeletedEntities().getLatestVersionOfEntity(entityId);
-        return ResponseEntity.ok(getDeletedModelById(secretVaultFake, latestVersion));
+        return ResponseEntity.ok(getDeletedModelById(secretVaultFake, latestVersion, baseUri));
     }
 
     public ResponseEntity<Void> purgeDeleted(
@@ -163,7 +163,7 @@ public abstract class CommonSecretController extends GenericEntityController<Sec
         final SecretEntityId entityId = new SecretEntityId(baseUri, secretName);
         secretVaultFake.recover(entityId);
         final VersionedSecretEntityId latestVersion = secretVaultFake.getEntities().getLatestVersionOfEntity(entityId);
-        return ResponseEntity.ok(getModelById(secretVaultFake, latestVersion));
+        return ResponseEntity.ok(getModelById(secretVaultFake, latestVersion, baseUri));
     }
 
     @Override

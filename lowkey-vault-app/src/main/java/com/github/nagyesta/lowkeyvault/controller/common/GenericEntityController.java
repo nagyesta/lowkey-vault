@@ -67,14 +67,14 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
         this.versionedItemConverter = versionedItemConverter;
     }
 
-    protected M getModelById(final S entityVaultFake, final V entityId) {
+    protected M getModelById(final S entityVaultFake, final V entityId, final URI baseUri) {
         final E entity = entityVaultFake.getEntities().getReadOnlyEntity(entityId);
-        return modelConverter.convert(entity, entityId.vault());
+        return modelConverter.convert(entity, baseUri);
     }
 
-    protected DM getDeletedModelById(final S entityVaultFake, final V entityId) {
+    protected DM getDeletedModelById(final S entityVaultFake, final V entityId, final URI baseUri) {
         final E entity = entityVaultFake.getDeletedEntities().getReadOnlyEntity(entityId);
-        return modelConverter.convertDeleted(entity, entityId.vault());
+        return modelConverter.convertDeleted(entity, baseUri);
     }
 
     protected M convertDetails(final E entity, final URI vaultUri) {
@@ -115,7 +115,7 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
     protected M getLatestEntityModel(final URI baseUri, final String name) {
         final S vaultFake = getVaultByUri(baseUri);
         final V entityId = vaultFake.getEntities().getLatestVersionOfEntity(entityId(baseUri, name));
-        return getModelById(vaultFake, entityId);
+        return getModelById(vaultFake, entityId, baseUri);
     }
 
     protected void updateAttributes(final BaseVaultFake<K, V, ?> vaultFake, final V entityId, final BasePropertiesUpdateModel properties) {

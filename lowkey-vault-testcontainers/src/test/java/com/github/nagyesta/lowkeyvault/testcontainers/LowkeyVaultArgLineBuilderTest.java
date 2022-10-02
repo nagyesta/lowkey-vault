@@ -5,11 +5,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.File;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 class LowkeyVaultArgLineBuilderTest {
@@ -137,6 +137,96 @@ class LowkeyVaultArgLineBuilderTest {
 
         //when
         final List<String> actual = underTest.importFile(null).build();
+
+        //then
+        Assertions.assertIterableEquals(List.of(), actual);
+    }
+
+    @Test
+    void testCustomSslCertificateShouldSetArgumentWhenCalledWithValidFile() {
+        //given
+        final LowkeyVaultArgLineBuilder underTest = new LowkeyVaultArgLineBuilder();
+        final List<String> expected = List.of("--server.ssl.key-store=/import/cert.store",
+                "--server.ssl.key-store-type=JKS",
+                "--server.ssl.key-store-password=pass");
+
+        //when
+        final List<String> actual = underTest.customSSLCertificate(new File("."), "pass", StoreType.JKS).build();
+
+        //then
+        Assertions.assertIterableEquals(expected, actual);
+    }
+
+    @Test
+    void testCustomSslCertificateShouldNotSetArgumentWhenCalledWithNull() {
+        //given
+        final LowkeyVaultArgLineBuilder underTest = new LowkeyVaultArgLineBuilder();
+
+        //when
+        final List<String> actual = underTest.customSSLCertificate(null, "pass", StoreType.JKS).build();
+
+        //then
+        Assertions.assertIterableEquals(List.of(), actual);
+    }
+
+    @Test
+    void testAliasesShouldSetArgumentWhenCalledWithValidMap() {
+        //given
+        final LowkeyVaultArgLineBuilder underTest = new LowkeyVaultArgLineBuilder();
+        final Map<String, Set<String>> aliases = new TreeMap<>(Map.of(
+                "localhost", new TreeSet<>(Set.of("alias.localhost", "alias.localhost:<port>")),
+                "lowkey-vault", Set.of("alias.localhost:30443")));
+        final List<String> expected = List.of("--LOWKEY_VAULT_ALIASES="
+                + "localhost=alias.localhost,"
+                + "localhost=alias.localhost:<port>,"
+                + "lowkey-vault=alias.localhost:30443"
+        );
+
+        //when
+        final List<String> actual = underTest.aliases(aliases).build();
+
+        //then
+        Assertions.assertIterableEquals(expected, actual);
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    void testAliasesShouldNotSetArgumentWhenCalledWithNullOrEmptyMap(final Map<String, Set<String>> map) {
+        //given
+        final LowkeyVaultArgLineBuilder underTest = new LowkeyVaultArgLineBuilder();
+
+        //when
+        final List<String> actual = underTest.aliases(map).build();
+
+        //then
+        Assertions.assertIterableEquals(List.of(), actual);
+    }
+
+    @Test
+    void testAdditionalArgsShouldSetArgumentWhenCalledWithValidMap() {
+        //given
+        final LowkeyVaultArgLineBuilder underTest = new LowkeyVaultArgLineBuilder();
+        final List<String> expected = List.of("--LOWKEY_VAULT_ALIASES=\""
+                + "localhost=alias.localhost,"
+                + "localhost=alias.localhost:<port>,"
+                + "lowkey-vault=alias.localhost:30443"
+                + "\"");
+
+        //when
+        final List<String> actual = underTest.additionalArgs(expected).build();
+
+        //then
+        Assertions.assertIterableEquals(expected, actual);
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    void testAdditionalArgsShouldNotSetArgumentWhenCalledWithNullOrEmptyMap(final List<String> list) {
+        //given
+        final LowkeyVaultArgLineBuilder underTest = new LowkeyVaultArgLineBuilder();
+
+        //when
+        final List<String> actual = underTest.additionalArgs(list).build();
 
         //then
         Assertions.assertIterableEquals(List.of(), actual);

@@ -98,7 +98,7 @@ class KeyPolicyControllerTest {
         final KeyRotationPolicyModel model = mock(KeyRotationPolicyModel.class);
         when(keyVaultFake.rotationPolicy(eq(entityId)))
                 .thenReturn(rotationPolicy);
-        when(keyRotationPolicyToV73ModelConverter.convert(same(rotationPolicy)))
+        when(keyRotationPolicyToV73ModelConverter.convert(same(rotationPolicy), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(model);
 
         //when
@@ -109,7 +109,7 @@ class KeyPolicyControllerTest {
         Assertions.assertSame(model, actual.getBody());
         final InOrder inOrder = inOrder(keyVaultFake, keyRotationPolicyToV73ModelConverter);
         inOrder.verify(keyVaultFake).rotationPolicy(eq(entityId));
-        inOrder.verify(keyRotationPolicyToV73ModelConverter).convert(same(rotationPolicy));
+        inOrder.verify(keyRotationPolicyToV73ModelConverter).convert(same(rotationPolicy), eq(HTTPS_LOCALHOST_8443));
     }
 
     @Test
@@ -123,7 +123,7 @@ class KeyPolicyControllerTest {
                 .thenReturn(rotationPolicy);
         when(rotationV73ModelToEntityConverter.convert(eq(entityId), same(input)))
                 .thenReturn(rotationPolicy);
-        when(keyRotationPolicyToV73ModelConverter.convert(same(rotationPolicy)))
+        when(keyRotationPolicyToV73ModelConverter.convert(same(rotationPolicy), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(output);
 
         //when
@@ -136,7 +136,7 @@ class KeyPolicyControllerTest {
         inOrder.verify(rotationV73ModelToEntityConverter).convert(eq(entityId), same(input));
         inOrder.verify(keyVaultFake).setRotationPolicy(same(rotationPolicy));
         inOrder.verify(keyVaultFake).rotationPolicy(eq(entityId));
-        inOrder.verify(keyRotationPolicyToV73ModelConverter).convert(same(rotationPolicy));
+        inOrder.verify(keyRotationPolicyToV73ModelConverter).convert(same(rotationPolicy), eq(HTTPS_LOCALHOST_8443));
     }
 
     @Test

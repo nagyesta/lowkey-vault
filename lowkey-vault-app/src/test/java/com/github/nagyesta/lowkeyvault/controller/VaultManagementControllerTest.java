@@ -25,8 +25,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.NUMBER_OF_SECONDS_IN_10_MINUTES;
-import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_DEFAULT_LOWKEY_VAULT;
-import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_DEFAULT_LOWKEY_VAULT_8443;
+import static com.github.nagyesta.lowkeyvault.TestConstantsUri.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.*;
@@ -92,7 +91,8 @@ class VaultManagementControllerTest {
             when(vaultService.create(
                     eq(HTTPS_DEFAULT_LOWKEY_VAULT),
                     eq(RecoveryLevel.CUSTOMIZED_RECOVERABLE),
-                    eq(RecoveryLevel.MIN_RECOVERABLE_DAYS_INCLUSIVE))).thenReturn(vaultFakeActive);
+                    eq(RecoveryLevel.MIN_RECOVERABLE_DAYS_INCLUSIVE),
+                    isNull())).thenReturn(vaultFakeActive);
             when(vaultService.findByUri(eq(HTTPS_DEFAULT_LOWKEY_VAULT))).thenReturn(vaultFakeActive);
             when(vaultService.findByUri(eq(HTTPS_DEFAULT_LOWKEY_VAULT_8443))).thenReturn(vaultFakeDeleted);
             when(vaultService.list()).thenReturn(Collections.singletonList(vaultFakeActive));
@@ -123,7 +123,8 @@ class VaultManagementControllerTest {
             inOrder.verify(vaultService)
                     .create(eq(HTTPS_DEFAULT_LOWKEY_VAULT),
                             eq(VAULT_MODEL.getRecoveryLevel()),
-                            eq(VAULT_MODEL.getRecoverableDays()));
+                            eq(VAULT_MODEL.getRecoverableDays()),
+                            isNull());
             inOrder.verify(converter).convert(eq(vaultFakeActive));
             verifyNoMoreInteractions(vaultService, converter);
         }
@@ -203,6 +204,25 @@ class VaultManagementControllerTest {
             Assertions.assertEquals(true, actual.getBody());
             Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
             verify(vaultService).purge(eq(HTTPS_DEFAULT_LOWKEY_VAULT_8443));
+            verifyNoMoreInteractions(vaultService, converter);
+        }
+
+        @Test
+        void testAliasUpdateShouldCallServiceWhenCalled() {
+            //given
+            when(vaultService.updateAlias(eq(HTTPS_DEFAULT_LOWKEY_VAULT_8443), eq(HTTPS_LOCALHOST_80), eq(HTTPS_LOOP_BACK_IP)))
+                    .thenReturn(vaultFakeActive);
+            when(converter.convert(eq(vaultFakeActive))).thenReturn(VAULT_MODEL);
+
+            //when
+            final ResponseEntity<VaultModel> actual = underTest
+                    .aliasUpdate(HTTPS_DEFAULT_LOWKEY_VAULT_8443, HTTPS_LOCALHOST_80, HTTPS_LOOP_BACK_IP);
+
+            //then
+            Assertions.assertSame(VAULT_MODEL, actual.getBody());
+            Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
+            verify(vaultService).updateAlias(eq(HTTPS_DEFAULT_LOWKEY_VAULT_8443), eq(HTTPS_LOCALHOST_80), eq(HTTPS_LOOP_BACK_IP));
+            verify(converter).convert(eq(vaultFakeActive));
             verifyNoMoreInteractions(vaultService, converter);
         }
 

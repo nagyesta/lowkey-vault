@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import javax.crypto.SecretKey;
+import java.net.URI;
 import java.security.KeyPair;
 import java.util.Collections;
 import java.util.Map;
@@ -45,7 +46,7 @@ class KeyEntityToV72BackupConverterTest {
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
-        when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultKeyEntity.class))).thenReturn(KEY_PROPERTIES_MODEL);
+        when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultKeyEntity.class), any(URI.class))).thenReturn(KEY_PROPERTIES_MODEL);
     }
 
     @AfterEach
@@ -82,7 +83,7 @@ class KeyEntityToV72BackupConverterTest {
         assertRsaPropertiesAreEqual(input, keyMaterial);
         assertMinimalPropertiesPopulated(actual);
         assertIdsEqual(input.getId(), actual);
-        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class));
+        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class), any(URI.class));
         verifyNoMoreInteractions(propertiesModelConverter);
     }
 
@@ -104,7 +105,7 @@ class KeyEntityToV72BackupConverterTest {
         assertOctPropertiesAreEqual(input, keyMaterial);
         assertMinimalPropertiesPopulated(actual);
         assertIdsEqual(input.getId(), actual);
-        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class));
+        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class), any(URI.class));
         verifyNoMoreInteractions(propertiesModelConverter);
     }
 
@@ -125,7 +126,7 @@ class KeyEntityToV72BackupConverterTest {
         assertEcPropertiesAreEqual(input, keyMaterial);
         assertMinimalPropertiesPopulated(actual);
         assertIdsEqual(input.getId(), actual);
-        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class));
+        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class), any(URI.class));
         verifyNoMoreInteractions(propertiesModelConverter);
     }
 
@@ -151,7 +152,7 @@ class KeyEntityToV72BackupConverterTest {
         Assertions.assertEquals(tagMap, actual.getTags());
         Assertions.assertTrue(actual.isManaged());
         assertIdsEqual(input.getId(), actual);
-        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class));
+        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class), any(URI.class));
         verifyNoMoreInteractions(propertiesModelConverter);
     }
 

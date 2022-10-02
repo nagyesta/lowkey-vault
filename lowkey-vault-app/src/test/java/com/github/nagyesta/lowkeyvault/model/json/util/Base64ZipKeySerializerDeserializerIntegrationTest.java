@@ -116,7 +116,7 @@ class Base64ZipKeySerializerDeserializerIntegrationTest {
         keyMaterial.setY(((BCECPublicKey) expected.getPublic()).getQ().getAffineYCoord().getEncoded());
         keyMaterial.setD(((BCECPrivateKey) expected.getPrivate()).getD().toByteArray());
         keyMaterial.setCurveName(KeyCurveName.P_256);
-        keyMaterial.setId(id.asString());
+        keyMaterial.setId(id.asUri(id.vault()).toString());
         return keyMaterial;
     }
 }

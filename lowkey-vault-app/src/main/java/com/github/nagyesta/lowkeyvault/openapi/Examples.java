@@ -6,6 +6,18 @@ public final class Examples {
      */
     public static final String BASE_URI = "https://vault.localhost:8443";
     /**
+     * Example alias URL.
+     */
+    public static final String ALIAS1 = "https://alias1.localhost:8443";
+    /**
+     * Example alias URL.
+     */
+    public static final String ALIAS2 = "https://alias2.localhost:8443";
+    /**
+     * Example alias base URIs in a collection.
+     */
+    public static final String ALIASES = "[\"" + ALIAS1 + "\",\"" + ALIAS2 + "\"]";
+    /**
      * The literal 1 as a String.
      */
     public static final String ONE = "1";

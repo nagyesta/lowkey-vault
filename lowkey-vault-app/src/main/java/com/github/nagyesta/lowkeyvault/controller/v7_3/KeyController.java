@@ -158,7 +158,7 @@ public class KeyController extends CommonKeyController {
 
         final VersionedKeyEntityId rotatedKeyId = getVaultByUri(baseUri).rotateKey(entityId(baseUri, keyName));
         final ReadOnlyKeyVaultKeyEntity keyVaultKeyEntity = getEntityByNameAndVersion(baseUri, keyName, rotatedKeyId.version());
-        return ResponseEntity.ok(convertDetails(keyVaultKeyEntity));
+        return ResponseEntity.ok(convertDetails(keyVaultKeyEntity, baseUri));
     }
 
     @Override

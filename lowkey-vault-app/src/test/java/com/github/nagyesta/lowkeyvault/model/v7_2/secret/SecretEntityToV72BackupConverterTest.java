@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.util.MimeTypeUtils;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
 
@@ -35,7 +36,8 @@ class SecretEntityToV72BackupConverterTest {
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
-        when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultSecretEntity.class))).thenReturn(SECRET_PROPERTIES_MODEL);
+        when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultSecretEntity.class), any(URI.class)))
+                .thenReturn(SECRET_PROPERTIES_MODEL);
     }
 
     @AfterEach
@@ -74,7 +76,7 @@ class SecretEntityToV72BackupConverterTest {
         Assertions.assertEquals(input.getId().vault(), actual.getVaultBaseUri());
         Assertions.assertEquals(input.getId().id(), actual.getId());
         Assertions.assertEquals(input.getId().version(), actual.getVersion());
-        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultSecretEntity.class));
+        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultSecretEntity.class), any(URI.class));
         verifyNoMoreInteractions(propertiesModelConverter);
     }
 
@@ -102,7 +104,7 @@ class SecretEntityToV72BackupConverterTest {
         Assertions.assertEquals(input.getId().vault(), actual.getVaultBaseUri());
         Assertions.assertEquals(input.getId().id(), actual.getId());
         Assertions.assertEquals(input.getId().version(), actual.getVersion());
-        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultSecretEntity.class));
+        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultSecretEntity.class), any(URI.class));
         verifyNoMoreInteractions(propertiesModelConverter);
     }
 }

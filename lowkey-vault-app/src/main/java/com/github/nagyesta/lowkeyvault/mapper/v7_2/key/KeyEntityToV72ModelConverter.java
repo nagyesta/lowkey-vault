@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import java.net.URI;
+
 @Component
 public class KeyEntityToV72ModelConverter
         extends BaseRecoveryAwareConverter<VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity, KeyVaultKeyModel, DeletedKeyVaultKeyModel> {
@@ -27,49 +29,49 @@ public class KeyEntityToV72ModelConverter
     }
 
     @Override
-    protected <M extends KeyVaultKeyModel> M mapActiveFields(final ReadOnlyKeyVaultKeyEntity source, final M model) {
-        model.setKey(mapJsonWebKey(source));
-        model.setAttributes(keyEntityToV72PropertiesModelConverter.convert(source));
+    protected <M extends KeyVaultKeyModel> M mapActiveFields(final ReadOnlyKeyVaultKeyEntity source, final M model, final URI vaultUri) {
+        model.setKey(mapJsonWebKey(source, vaultUri));
+        model.setAttributes(keyEntityToV72PropertiesModelConverter.convert(source, vaultUri));
         model.setTags(source.getTags());
         return model;
     }
 
-    private JsonWebKeyModel mapJsonWebKey(final ReadOnlyKeyVaultKeyEntity source) {
+    private JsonWebKeyModel mapJsonWebKey(final ReadOnlyKeyVaultKeyEntity source, final URI vaultUri) {
         final JsonWebKeyModel jsonWebKeyModel;
         if (source.getKeyType().isRsa()) {
-            jsonWebKeyModel = mapRsaFields((ReadOnlyRsaKeyVaultKeyEntity) source);
+            jsonWebKeyModel = mapRsaFields((ReadOnlyRsaKeyVaultKeyEntity) source, vaultUri);
         } else if (source.getKeyType().isEc()) {
-            jsonWebKeyModel = mapEcFields((ReadOnlyEcKeyVaultKeyEntity) source);
+            jsonWebKeyModel = mapEcFields((ReadOnlyEcKeyVaultKeyEntity) source, vaultUri);
         } else {
             Assert.isTrue(source.getKeyType().isOct(), "Unknown key type found: " + source.getKeyType());
-            jsonWebKeyModel = mapOctFields((ReadOnlyAesKeyVaultKeyEntity) source);
+            jsonWebKeyModel = mapOctFields((ReadOnlyAesKeyVaultKeyEntity) source, vaultUri);
         }
         return jsonWebKeyModel;
     }
 
-    private JsonWebKeyModel mapRsaFields(final ReadOnlyRsaKeyVaultKeyEntity entity) {
-        final JsonWebKeyModel jsonWebKeyModel = mapCommonKeyProperties(entity);
+    private JsonWebKeyModel mapRsaFields(final ReadOnlyRsaKeyVaultKeyEntity entity, final URI vaultUri) {
+        final JsonWebKeyModel jsonWebKeyModel = mapCommonKeyProperties(entity, vaultUri);
         jsonWebKeyModel.setN(entity.getN());
         jsonWebKeyModel.setE(entity.getE());
         return jsonWebKeyModel;
     }
 
-    private JsonWebKeyModel mapEcFields(final ReadOnlyEcKeyVaultKeyEntity entity) {
-        final JsonWebKeyModel jsonWebKeyModel = mapCommonKeyProperties(entity);
+    private JsonWebKeyModel mapEcFields(final ReadOnlyEcKeyVaultKeyEntity entity, final URI vaultUri) {
+        final JsonWebKeyModel jsonWebKeyModel = mapCommonKeyProperties(entity, vaultUri);
         jsonWebKeyModel.setCurveName(entity.getKeyCurveName());
         jsonWebKeyModel.setX(entity.getX());
         jsonWebKeyModel.setY(entity.getY());
         return jsonWebKeyModel;
     }
 
-    private JsonWebKeyModel mapOctFields(final ReadOnlyAesKeyVaultKeyEntity entity) {
+    private JsonWebKeyModel mapOctFields(final ReadOnlyAesKeyVaultKeyEntity entity, final URI vaultUri) {
         //Do not map K to avoid exposing key material
-        return mapCommonKeyProperties(entity);
+        return mapCommonKeyProperties(entity, vaultUri);
     }
 
-    private JsonWebKeyModel mapCommonKeyProperties(final ReadOnlyKeyVaultKeyEntity entity) {
+    private JsonWebKeyModel mapCommonKeyProperties(final ReadOnlyKeyVaultKeyEntity entity, final URI vaultUri) {
         final JsonWebKeyModel jsonWebKeyModel = new JsonWebKeyModel();
-        jsonWebKeyModel.setId(entity.getUri().toString());
+        jsonWebKeyModel.setId(entity.getId().asUri(vaultUri).toString());
         jsonWebKeyModel.setKeyType(entity.getKeyType());
         jsonWebKeyModel.setKeyOps(entity.getOperations());
         return jsonWebKeyModel;

@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.*;
-import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST;
+import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOWKEY_VAULT;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -50,30 +50,30 @@ class KeyEntityToV72ModelConverterTest {
 
     public static Stream<Arguments> validRsaInputProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, MIN_RSA_KEY_SIZE, HTTPS_LOCALHOST, true, TAGS_EMPTY))
-                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_2, MIN_RSA_KEY_SIZE, HTTPS_LOCALHOST, true, TAGS_ONE_KEY))
-                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_3, MIN_RSA_KEY_SIZE, HTTPS_LOCALHOST, true, TAGS_TWO_KEYS))
-                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, MIN_RSA_KEY_SIZE, HTTPS_LOWKEY_VAULT, false, TAGS_EMPTY))
+                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, MIN_RSA_KEY_SIZE, HTTPS_LOCALHOST_8443, true, TAGS_EMPTY))
+                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_2, MIN_RSA_KEY_SIZE, HTTPS_LOCALHOST_8443, true, TAGS_ONE_KEY))
+                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_3, MIN_RSA_KEY_SIZE, HTTPS_LOCALHOST_8443, true, TAGS_TWO_KEYS))
+                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, MIN_RSA_KEY_SIZE, HTTPS_LOCALHOST_8443, false, TAGS_EMPTY))
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_2_VERSION_1, MIN_RSA_KEY_SIZE, HTTPS_LOWKEY_VAULT, false, TAGS_THREE_KEYS))
                 .build();
     }
 
     public static Stream<Arguments> validEcInputProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, KeyCurveName.P_256, HTTPS_LOCALHOST, true, TAGS_EMPTY))
-                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_2, KeyCurveName.P_256, HTTPS_LOCALHOST, true, TAGS_ONE_KEY))
-                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_3, KeyCurveName.P_256, HTTPS_LOCALHOST, true, TAGS_TWO_KEYS))
-                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, KeyCurveName.P_256, HTTPS_LOWKEY_VAULT, false, TAGS_EMPTY))
+                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, KeyCurveName.P_256, HTTPS_LOCALHOST_8443, true, TAGS_EMPTY))
+                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_2, KeyCurveName.P_256, HTTPS_LOCALHOST_8443, true, TAGS_ONE_KEY))
+                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_3, KeyCurveName.P_256, HTTPS_LOCALHOST_8443, true, TAGS_TWO_KEYS))
+                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, KeyCurveName.P_256, HTTPS_LOCALHOST_8443, false, TAGS_EMPTY))
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_2_VERSION_1, KeyCurveName.P_256, HTTPS_LOWKEY_VAULT, false, TAGS_THREE_KEYS))
                 .build();
     }
 
     public static Stream<Arguments> validOctInputProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, MIN_AES_KEY_SIZE, HTTPS_LOCALHOST, true, TAGS_EMPTY))
-                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_2, MIN_AES_KEY_SIZE, HTTPS_LOCALHOST, true, TAGS_ONE_KEY))
-                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_3, MIN_AES_KEY_SIZE, HTTPS_LOCALHOST, true, TAGS_TWO_KEYS))
-                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, MIN_AES_KEY_SIZE, HTTPS_LOWKEY_VAULT, true, TAGS_EMPTY))
+                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, MIN_AES_KEY_SIZE, HTTPS_LOCALHOST_8443, true, TAGS_EMPTY))
+                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_2, MIN_AES_KEY_SIZE, HTTPS_LOCALHOST_8443, true, TAGS_ONE_KEY))
+                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_3, MIN_AES_KEY_SIZE, HTTPS_LOCALHOST_8443, true, TAGS_TWO_KEYS))
+                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, MIN_AES_KEY_SIZE, HTTPS_LOCALHOST_8443, true, TAGS_EMPTY))
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_2_VERSION_1, MIN_AES_KEY_SIZE, HTTPS_LOWKEY_VAULT, true, TAGS_THREE_KEYS))
                 .build();
     }
@@ -82,7 +82,7 @@ class KeyEntityToV72ModelConverterTest {
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
         when(vault.keyVaultFake()).thenReturn(keyVault);
-        when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultKeyEntity.class))).thenReturn(PROPERTIES_MODEL);
+        when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultKeyEntity.class), any(URI.class))).thenReturn(PROPERTIES_MODEL);
     }
 
     @AfterEach
@@ -98,12 +98,12 @@ class KeyEntityToV72ModelConverterTest {
 
         //given
         prepareVaultMock(baseUri);
-        final String expectedUri = keyEntityId.asUri().toString();
+        final String expectedUri = keyEntityId.asUri(baseUri).toString();
         final RsaKeyVaultKeyEntity input = new RsaKeyVaultKeyEntity(keyEntityId, vault, keyParam, null, hsm);
         input.setTags(tags);
 
         //when
-        final KeyVaultKeyModel actual = underTest.convert(input);
+        final KeyVaultKeyModel actual = underTest.convert(input, keyEntityId.vault());
 
         //then
         assertCommonFieldsMatch(tags, input, expectedUri, actual);
@@ -117,7 +117,7 @@ class KeyEntityToV72ModelConverterTest {
         assertEcFieldsAreNull(actual);
         assertOctFieldsAreNull(actual);
 
-        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class));
+        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class), any(URI.class));
     }
 
     @ParameterizedTest
@@ -128,12 +128,12 @@ class KeyEntityToV72ModelConverterTest {
 
         //given
         prepareVaultMock(baseUri);
-        final String expectedUri = keyEntityId.asUri().toString();
+        final String expectedUri = keyEntityId.asUri(baseUri).toString();
         final EcKeyVaultKeyEntity input = new EcKeyVaultKeyEntity(keyEntityId, vault, keyParam, hsm);
         input.setTags(tags);
 
         //when
-        final KeyVaultKeyModel actual = underTest.convert(input);
+        final KeyVaultKeyModel actual = underTest.convert(input, keyEntityId.vault());
 
         //then
         assertCommonFieldsMatch(tags, input, expectedUri, actual);
@@ -148,7 +148,7 @@ class KeyEntityToV72ModelConverterTest {
         assertRsaFieldsAreNull(actual);
         assertOctFieldsAreNull(actual);
 
-        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class));
+        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class), any(URI.class));
     }
 
     @ParameterizedTest
@@ -159,12 +159,12 @@ class KeyEntityToV72ModelConverterTest {
 
         //given
         prepareVaultMock(baseUri);
-        final String expectedUri = keyEntityId.asUri().toString();
+        final String expectedUri = keyEntityId.asUri(baseUri).toString();
         final AesKeyVaultKeyEntity input = new AesKeyVaultKeyEntity(keyEntityId, vault, keyParam, hsm);
         input.setTags(tags);
 
         //when
-        final KeyVaultKeyModel actual = underTest.convert(input);
+        final KeyVaultKeyModel actual = underTest.convert(input, keyEntityId.vault());
 
         //then
         assertCommonFieldsMatch(tags, input, expectedUri, actual);
@@ -177,7 +177,6 @@ class KeyEntityToV72ModelConverterTest {
         assertRsaFieldsAreNull(actual);
         assertEcFieldsAreNull(actual);
 
-        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class));
     }
 
     private void assertRsaFieldsAreNull(final KeyVaultKeyModel actual) {

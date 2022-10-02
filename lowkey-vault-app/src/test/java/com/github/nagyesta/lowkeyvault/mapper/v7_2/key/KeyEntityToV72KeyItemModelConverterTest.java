@@ -26,6 +26,8 @@ import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.*;
+import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
+import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOWKEY_VAULT;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -47,15 +49,15 @@ class KeyEntityToV72KeyItemModelConverterTest {
     public static Stream<Arguments> validInputProvider() {
         return Stream.<Arguments>builder()
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, MIN_RSA_KEY_SIZE, TAGS_EMPTY,
-                        keyVaultKeyItemModel(UNVERSIONED_KEY_ENTITY_ID_1.asUriNoVersion(), TAGS_EMPTY)))
+                        keyVaultKeyItemModel(UNVERSIONED_KEY_ENTITY_ID_1.asUriNoVersion(HTTPS_LOCALHOST_8443), TAGS_EMPTY)))
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_2, MIN_RSA_KEY_SIZE, TAGS_ONE_KEY,
-                        keyVaultKeyItemModel(UNVERSIONED_KEY_ENTITY_ID_1.asUriNoVersion(), TAGS_ONE_KEY)))
+                        keyVaultKeyItemModel(UNVERSIONED_KEY_ENTITY_ID_1.asUriNoVersion(HTTPS_LOCALHOST_8443), TAGS_ONE_KEY)))
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_3, MIN_RSA_KEY_SIZE, TAGS_TWO_KEYS,
-                        keyVaultKeyItemModel(UNVERSIONED_KEY_ENTITY_ID_1.asUriNoVersion(), TAGS_TWO_KEYS)))
+                        keyVaultKeyItemModel(UNVERSIONED_KEY_ENTITY_ID_1.asUriNoVersion(HTTPS_LOCALHOST_8443), TAGS_TWO_KEYS)))
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_2_VERSION_1, MIN_RSA_KEY_SIZE, TAGS_EMPTY,
-                        keyVaultKeyItemModel(UNVERSIONED_KEY_ENTITY_ID_2.asUriNoVersion(), TAGS_EMPTY)))
+                        keyVaultKeyItemModel(UNVERSIONED_KEY_ENTITY_ID_2.asUriNoVersion(HTTPS_LOWKEY_VAULT), TAGS_EMPTY)))
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_2_VERSION_2, MIN_RSA_KEY_SIZE, TAGS_THREE_KEYS,
-                        keyVaultKeyItemModel(UNVERSIONED_KEY_ENTITY_ID_2.asUriNoVersion(), TAGS_THREE_KEYS)))
+                        keyVaultKeyItemModel(UNVERSIONED_KEY_ENTITY_ID_2.asUriNoVersion(HTTPS_LOWKEY_VAULT), TAGS_THREE_KEYS)))
                 .build();
     }
 
@@ -97,11 +99,11 @@ class KeyEntityToV72KeyItemModelConverterTest {
             final OffsetDateTime deleted, final OffsetDateTime scheduledPurge) {
         final DeletedKeyVaultKeyItemModel model = new DeletedKeyVaultKeyItemModel();
         model.setAttributes(TestConstants.PROPERTIES_MODEL);
-        model.setKeyId(id.asUriNoVersion().toString());
+        model.setKeyId(id.asUriNoVersion(id.vault()).toString());
         model.setTags(tags);
         model.setDeletedDate(deleted);
         model.setScheduledPurgeDate(scheduledPurge);
-        model.setRecoveryId(id.asRecoveryUri().toString());
+        model.setRecoveryId(id.asRecoveryUri(id.vault()).toString());
         return model;
     }
 
@@ -109,7 +111,7 @@ class KeyEntityToV72KeyItemModelConverterTest {
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
         when(vault.keyVaultFake()).thenReturn(keyVault);
-        when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultKeyEntity.class))).thenReturn(PROPERTIES_MODEL);
+        when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultKeyEntity.class), any(URI.class))).thenReturn(PROPERTIES_MODEL);
     }
 
     @AfterEach
@@ -130,11 +132,11 @@ class KeyEntityToV72KeyItemModelConverterTest {
         input.setTags(tags);
 
         //when
-        final KeyVaultKeyItemModel actual = underTest.convert(input);
+        final KeyVaultKeyItemModel actual = underTest.convert(input, vault.baseUri());
 
         //then
         Assertions.assertEquals(expected, actual);
-        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class));
+        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class), any(URI.class));
     }
 
     @Test
@@ -165,10 +167,10 @@ class KeyEntityToV72KeyItemModelConverterTest {
         input.setTags(tags);
 
         //when
-        final DeletedKeyVaultKeyItemModel actual = underTest.convertDeleted(input);
+        final DeletedKeyVaultKeyItemModel actual = underTest.convertDeleted(input, vault.baseUri());
 
         //then
         Assertions.assertEquals(expected, actual);
-        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class));
+        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class), any(URI.class));
     }
 }

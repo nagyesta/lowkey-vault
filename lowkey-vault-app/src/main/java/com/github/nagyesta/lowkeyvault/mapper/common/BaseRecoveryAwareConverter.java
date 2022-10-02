@@ -5,6 +5,7 @@ import com.github.nagyesta.lowkeyvault.service.EntityId;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyDeletedEntity;
 import org.springframework.util.Assert;
 
+import java.net.URI;
 import java.util.function.Supplier;
 
 /**
@@ -27,25 +28,25 @@ public abstract class BaseRecoveryAwareConverter<V extends EntityId, S extends R
         Assert.isInstanceOf(DeletedModel.class, deletedModelSupplier.get());
     }
 
-    protected void mapDeletedFields(final S source, final DeletedModel model) {
-        model.setRecoveryId(source.getId().asRecoveryUri().toString());
+    protected void mapDeletedFields(final S source, final DeletedModel model, final URI vaultUri) {
+        model.setRecoveryId(source.getId().asRecoveryUri(vaultUri).toString());
         model.setDeletedDate(source.getDeletedDate().orElseThrow());
         model.setScheduledPurgeDate(source.getScheduledPurgeDate().orElseThrow());
     }
 
     @Override
     @org.springframework.lang.NonNull
-    public T convert(@org.springframework.lang.NonNull final S source) {
-        return mapActiveFields(source, modelSupplier.get());
+    public T convert(@org.springframework.lang.NonNull final S source, @org.springframework.lang.NonNull final URI vaultUri) {
+        return mapActiveFields(source, modelSupplier.get(), vaultUri);
     }
 
     @Override
     @org.springframework.lang.NonNull
-    public DT convertDeleted(@org.springframework.lang.NonNull final S source) {
+    public DT convertDeleted(@org.springframework.lang.NonNull final S source, @org.springframework.lang.NonNull final URI vaultUri) {
         final DT model = deletedModelSupplier.get();
-        mapDeletedFields(source, (DeletedModel) model);
-        return mapActiveFields(source, model);
+        mapDeletedFields(source, (DeletedModel) model, vaultUri);
+        return mapActiveFields(source, model, vaultUri);
     }
 
-    protected abstract <M extends T> M mapActiveFields(S source, M model);
+    protected abstract <M extends T> M mapActiveFields(S source, M model, URI vaultUri);
 }

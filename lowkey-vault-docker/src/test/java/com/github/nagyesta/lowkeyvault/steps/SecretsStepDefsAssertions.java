@@ -31,9 +31,11 @@ public class SecretsStepDefsAssertions extends CommonAssertions {
     }
 
     @Then("the secret URL contains the vault url and {name}")
-    public void theSecretURLContainsHttpsLocalhostVaultSecretsCreateAndSecretName(final String secretName) {
-        assertTrue(context.getLastResult().getId().startsWith(context.getProvider().getVaultUrl()));
-        assertTrue(context.getLastResult().getId().contains(secretName));
+    public void theSecretURLContainsVaultUrlAndSecretName(final String secretName) {
+        assertTrue(context.getLastResult().getId() + " did not start with " + context.getProvider().getVaultUrl(),
+                context.getLastResult().getId().startsWith(context.getProvider().getVaultUrl()));
+        assertTrue(context.getLastResult().getId() + " did not contain " + secretName,
+                context.getLastResult().getId().contains(secretName));
     }
 
     @Then("the secret enabled status is {enabled}")
@@ -83,8 +85,10 @@ public class SecretsStepDefsAssertions extends CommonAssertions {
     @Then("the deleted secret recovery id contains the vault url and {name}")
     public void theDeletedSecretRecoveryIdContainsTheVaultUrlAndSecretName(final String secretName) {
         final String recoveryId = context.getLastDeleted().getRecoveryId();
-        assertTrue(recoveryId.startsWith(context.getProvider().getVaultUrl()));
-        assertTrue(recoveryId.contains(secretName));
+        assertTrue(recoveryId + " did not start with " + context.getProvider().getVaultUrl(),
+                recoveryId.startsWith(context.getProvider().getVaultUrl()));
+        assertTrue(recoveryId + " did not contain " + secretName,
+                recoveryId.contains(secretName));
     }
 
     @Then("the secret recovery timestamps are default")

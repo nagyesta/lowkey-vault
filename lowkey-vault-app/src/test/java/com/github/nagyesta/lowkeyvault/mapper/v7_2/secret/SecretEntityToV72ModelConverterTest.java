@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsSecrets.*;
-import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST;
+import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOWKEY_VAULT;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -47,10 +47,10 @@ class SecretEntityToV72ModelConverterTest {
 
     public static Stream<Arguments> validInputProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, LOWKEY_VAULT, HTTPS_LOCALHOST, TAGS_EMPTY))
-                .add(Arguments.of(VERSIONED_SECRET_ENTITY_ID_1_VERSION_2, LOWKEY_VAULT, HTTPS_LOCALHOST, TAGS_ONE_KEY))
-                .add(Arguments.of(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3, LOWKEY_VAULT, HTTPS_LOCALHOST, TAGS_TWO_KEYS))
-                .add(Arguments.of(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, LOWKEY_VAULT, HTTPS_LOWKEY_VAULT, TAGS_EMPTY))
+                .add(Arguments.of(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, LOWKEY_VAULT, HTTPS_LOCALHOST_8443, TAGS_EMPTY))
+                .add(Arguments.of(VERSIONED_SECRET_ENTITY_ID_1_VERSION_2, LOWKEY_VAULT, HTTPS_LOCALHOST_8443, TAGS_ONE_KEY))
+                .add(Arguments.of(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3, LOWKEY_VAULT, HTTPS_LOCALHOST_8443, TAGS_TWO_KEYS))
+                .add(Arguments.of(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, LOWKEY_VAULT, HTTPS_LOCALHOST_8443, TAGS_EMPTY))
                 .add(Arguments.of(VERSIONED_SECRET_ENTITY_ID_2_VERSION_1, LOWKEY_VAULT, HTTPS_LOWKEY_VAULT, TAGS_THREE_KEYS))
                 .build();
     }
@@ -59,7 +59,8 @@ class SecretEntityToV72ModelConverterTest {
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
         when(vault.secretVaultFake()).thenReturn(secretVault);
-        when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultSecretEntity.class))).thenReturn(SECRET_PROPERTIES_MODEL);
+        when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultSecretEntity.class), any(URI.class)))
+                .thenReturn(SECRET_PROPERTIES_MODEL);
     }
 
     @AfterEach
@@ -74,16 +75,16 @@ class SecretEntityToV72ModelConverterTest {
 
         //given
         prepareVaultMock(baseUri);
-        final String expectedUri = secretEntityId.asUri().toString();
+        final String expectedUri = secretEntityId.asUri(baseUri).toString();
         final KeyVaultSecretEntity input = new KeyVaultSecretEntity(secretEntityId, vault, value, APPLICATION_XML.toString());
         input.setTags(tags);
 
         //when
-        final KeyVaultSecretModel actual = underTest.convert(input);
+        final KeyVaultSecretModel actual = underTest.convert(input, secretEntityId.vault());
 
         //then
         assertFieldsMatch(tags, input, expectedUri, actual);
-        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultSecretEntity.class));
+        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultSecretEntity.class), any(URI.class));
     }
 
     @Test

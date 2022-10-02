@@ -19,7 +19,11 @@ import com.azure.security.keyvault.secrets.SecretServiceVersion;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nagyesta.lowkeyvault.http.management.LowkeyVaultManagementClient;
 import com.github.nagyesta.lowkeyvault.http.management.impl.LowkeyVaultManagementClientImpl;
+import org.apache.http.conn.ssl.DefaultHostnameVerifier;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
+import org.apache.http.conn.ssl.TrustStrategy;
 
+import javax.net.ssl.HostnameVerifier;
 import java.net.URI;
 import java.time.Duration;
 import java.util.Objects;
@@ -36,6 +40,10 @@ public final class ApacheHttpClientProvider {
     private final String vaultUrl;
     private final Function<URI, URI> hostOverrideFunction;
 
+    private final TrustStrategy trustStrategy;
+
+    private final HostnameVerifier hostnameVerifier;
+
     public ApacheHttpClientProvider(final String vaultUrl) {
         this(vaultUrl, null);
     }
@@ -50,13 +58,36 @@ public final class ApacheHttpClientProvider {
      * @see ApacheHttpRequest#ApacheHttpRequest(com.azure.core.http.HttpMethod, java.net.URL, com.azure.core.http.HttpHeaders, Function)
      */
     public ApacheHttpClientProvider(final String vaultUrl, final Function<URI, URI> hostOverrideFunction) {
+        this(vaultUrl, hostOverrideFunction, null, null);
+    }
+
+    /**
+     * Creates a new provider instance setting the vault URL and the host override function as well as SSL certificate
+     * verification parameters.
+     *
+     * @param vaultUrl             The vault URL.
+     * @param hostOverrideFunction The function mapping between the logical host name used by vault URLs
+     *                             and the host name used by the host machine for accessing Lowkey Vault.
+     *                             e.g. Maps from *.localhost:8443 to localhost:30443.
+     * @param trustStrategy        The trust strategy we will use for SSL cert verification.
+     *                             Defaults to {@link TrustSelfSignedStrategy} when null.
+     * @param hostnameVerifier     The host name verifier we are using when the SSL certs are verified.
+     *                             Defaults to {@link DefaultHostnameVerifier} when null.
+     * @see ApacheHttpRequest#ApacheHttpRequest(com.azure.core.http.HttpMethod, java.net.URL, com.azure.core.http.HttpHeaders, Function)
+     */
+    public ApacheHttpClientProvider(final String vaultUrl,
+                                    final Function<URI, URI> hostOverrideFunction,
+                                    final TrustStrategy trustStrategy,
+                                    final HostnameVerifier hostnameVerifier) {
         this.vaultUrl = vaultUrl;
         this.hostOverrideFunction = Optional.ofNullable(hostOverrideFunction)
                 .orElse(Function.identity());
+        this.trustStrategy = Optional.ofNullable(trustStrategy).orElse(new TrustSelfSignedStrategy());
+        this.hostnameVerifier = Optional.ofNullable(hostnameVerifier).orElse(new DefaultHostnameVerifier());
     }
 
     public HttpClient createInstance() {
-        return new ApacheHttpClient(hostOverrideFunction);
+        return new ApacheHttpClient(hostOverrideFunction, trustStrategy, hostnameVerifier);
     }
 
     public LowkeyVaultManagementClient getLowkeyVaultManagementClient(final ObjectMapper objectMapper) {

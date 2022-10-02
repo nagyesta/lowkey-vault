@@ -35,11 +35,14 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
     private static final String MANAGEMENT_VAULT_PATH = "/management/vault";
     private static final String MANAGEMENT_VAULT_DELETED_PATH = MANAGEMENT_VAULT_PATH + "/deleted";
     private static final String MANAGEMENT_VAULT_RECOVERY_PATH = MANAGEMENT_VAULT_PATH + "/recover";
+    private static final String MANAGEMENT_VAULT_ALIAS_PATH = MANAGEMENT_VAULT_PATH + "/alias";
     private static final String MANAGEMENT_VAULT_PURGE_PATH = MANAGEMENT_VAULT_PATH + "/purge";
     private static final String MANAGEMENT_VAULT_TIME_PATH = MANAGEMENT_VAULT_PATH + "/time";
     private static final String MANAGEMENT_VAULT_TIME_ALL_PATH = MANAGEMENT_VAULT_TIME_PATH + "/all";
     private static final String MANAGEMENT_VAULT_EXPORT_ACTIVE_PATH = MANAGEMENT_VAULT_PATH + "/export";
     private static final String BASE_URI_QUERY_PARAM = "baseUri";
+    private static final String ALIAS_URI_ADD_QUERY_PARAM = "add";
+    private static final String ALIAS_URI_REMOVE_QUERY_PARAM = "remove";
     private static final String SECONDS_QUERY_PARAM = "seconds";
     private final String vaultUrl;
     private final HttpClient instance;
@@ -115,6 +118,20 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
     }
 
     @Override
+    public VaultModel addAlias(@NonNull final URI baseUri, @NonNull final URI alias) {
+        return performAliasUpdate(new TreeMap<>(
+                Map.of(BASE_URI_QUERY_PARAM, baseUri.toString(), ALIAS_URI_ADD_QUERY_PARAM, alias.toString())
+        ));
+    }
+
+    @Override
+    public VaultModel removeAlias(@NonNull final URI baseUri, @NonNull final URI alias) {
+        return performAliasUpdate(new TreeMap<>(
+                Map.of(BASE_URI_QUERY_PARAM, baseUri.toString(), ALIAS_URI_REMOVE_QUERY_PARAM, alias.toString())
+        ));
+    }
+
+    @Override
     public boolean purge(@NonNull final URI baseUri) {
         final Map<String, String> parameters = Map.of(BASE_URI_QUERY_PARAM, baseUri.toString());
         final URI uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_PURGE_PATH, parameters);
@@ -168,9 +185,16 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
         }
     }
 
+    private VaultModel performAliasUpdate(final Map<String, String> parameters) {
+        final URI uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_ALIAS_PATH, parameters);
+        final HttpRequest request = new HttpRequest(HttpMethod.PATCH, uri.toString())
+                .setHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON);
+        return sendAndProcess(request, r -> r.getResponseObject(VaultModel.class));
+    }
+
     String vaultModelAsString(final URI baseUri, final RecoveryLevel recoveryLevel, final Integer recoverableDays) {
         try {
-            return objectWriter.writeValueAsString(new VaultModel(baseUri, recoveryLevel, recoverableDays, null, null));
+            return objectWriter.writeValueAsString(new VaultModel(baseUri, null, recoveryLevel, recoverableDays, null, null));
         } catch (final JsonProcessingException e) {
             throw new LowkeyVaultException("Cannot serialize model:", e);
         }

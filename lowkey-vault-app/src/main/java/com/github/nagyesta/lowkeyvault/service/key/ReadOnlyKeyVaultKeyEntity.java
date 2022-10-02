@@ -9,7 +9,6 @@ import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.impl.KeyCreationInput;
 import org.springframework.util.Assert;
 
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -37,8 +36,6 @@ public interface ReadOnlyKeyVaultKeyEntity extends BaseVaultEntity<VersionedKeyE
     boolean verifySignedBytes(byte[] digest, SignatureAlgorithm encryptionAlgorithm, byte[] signature);
 
     VersionedKeyEntityId getId();
-
-    URI getUri();
 
     List<KeyOperation> getOperations();
 

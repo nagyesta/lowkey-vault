@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.net.URI;
 import java.time.OffsetDateTime;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -16,6 +17,8 @@ import java.time.OffsetDateTime;
 public class VaultModel {
     @JsonProperty("baseUri")
     private URI baseUri;
+    @JsonProperty("aliases")
+    private Set<URI> aliases;
     @JsonProperty("recoveryLevel")
     private RecoveryLevel recoveryLevel;
     @JsonProperty("recoverableDays")

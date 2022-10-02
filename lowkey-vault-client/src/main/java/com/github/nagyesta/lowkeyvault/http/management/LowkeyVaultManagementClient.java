@@ -24,6 +24,10 @@ public interface LowkeyVaultManagementClient {
 
     VaultModel recover(@NonNull URI baseUri);
 
+    VaultModel addAlias(@NonNull URI baseUri, @NonNull URI alias);
+
+    VaultModel removeAlias(@NonNull URI baseUri, @NonNull URI alias);
+
     boolean purge(@NonNull URI baseUri);
 
     void timeShift(@NonNull TimeShiftContext context);

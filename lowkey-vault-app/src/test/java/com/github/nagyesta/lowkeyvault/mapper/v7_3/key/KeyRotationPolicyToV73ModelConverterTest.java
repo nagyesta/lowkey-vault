@@ -17,6 +17,7 @@ import java.util.Map;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.TIME_10_MINUTES_AGO;
 import static com.github.nagyesta.lowkeyvault.TestConstants.TIME_IN_10_MINUTES;
+import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
 
 class KeyRotationPolicyToV73ModelConverterTest {
 
@@ -36,11 +37,11 @@ class KeyRotationPolicyToV73ModelConverterTest {
         final KeyRotationPolicyToV73ModelConverter underTest = new KeyRotationPolicyToV73ModelConverter();
 
         //when
-        final KeyRotationPolicyModel actual = underTest.convert(source);
+        final KeyRotationPolicyModel actual = underTest.convert(source, HTTPS_LOCALHOST_8443);
 
         //then
         Assertions.assertNotNull(actual);
-        Assertions.assertEquals(keyEntityId.asRotationPolicyUri(), actual.getId());
+        Assertions.assertEquals(keyEntityId.asRotationPolicyUri(HTTPS_LOCALHOST_8443), actual.getId());
         Assertions.assertEquals(TIME_10_MINUTES_AGO, actual.getAttributes().getCreated());
         Assertions.assertEquals(TIME_IN_10_MINUTES, actual.getAttributes().getUpdated());
         Assertions.assertEquals(expiryTime, actual.getAttributes().getExpiryTime());

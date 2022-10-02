@@ -9,6 +9,8 @@ import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.net.URI;
+
 @Component
 public class SecretEntityToV72ModelConverter
         extends BaseRecoveryAwareConverter<VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity, KeyVaultSecretModel,
@@ -24,11 +26,12 @@ public class SecretEntityToV72ModelConverter
     }
 
     @Override
-    protected <M extends KeyVaultSecretModel> M mapActiveFields(final ReadOnlyKeyVaultSecretEntity source, final M model) {
-        model.setId(source.getUri().toString());
+    protected <M extends KeyVaultSecretModel> M mapActiveFields(
+            final ReadOnlyKeyVaultSecretEntity source, final M model, final URI vaultUri) {
+        model.setId(source.getId().asUri(vaultUri).toString());
         model.setContentType(source.getContentType());
         model.setValue(source.getValue());
-        model.setAttributes(secretEntityToV72PropertiesModelConverter.convert(source));
+        model.setAttributes(secretEntityToV72PropertiesModelConverter.convert(source, vaultUri));
         model.setTags(source.getTags());
         return model;
     }

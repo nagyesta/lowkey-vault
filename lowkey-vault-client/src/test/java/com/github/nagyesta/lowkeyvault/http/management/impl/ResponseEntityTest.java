@@ -99,7 +99,7 @@ class ResponseEntityTest {
     @Test
     void testGetResponseObjectShouldMapResponseBodyUsingObjectReaderWhenCalledWithSingleObject() {
         //given
-        final VaultModel expected = new VaultModel(URI.create(HTTPS_DEFAULT_LOCALHOST_8443), null, null, null, null);
+        final VaultModel expected = new VaultModel(URI.create(HTTPS_DEFAULT_LOCALHOST_8443), null, null, null, null, null);
         final HttpResponse response = mock(HttpResponse.class);
         when(response.getStatusCode()).thenReturn(HttpStatus.SC_OK);
         when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.just(VAULT_MODEL));
@@ -118,7 +118,7 @@ class ResponseEntityTest {
     @Test
     void testGetResponseObjectShouldMapResponseBodyUsingObjectReaderWhenCalledWithList() {
         //given
-        final VaultModel vaultModel = new VaultModel(URI.create(HTTPS_DEFAULT_LOCALHOST_8443), null, null, null, null);
+        final VaultModel vaultModel = new VaultModel(URI.create(HTTPS_DEFAULT_LOCALHOST_8443), null, null, null, null, null);
         final List<VaultModel> expected = Collections.singletonList(vaultModel);
         final HttpResponse response = mock(HttpResponse.class);
         when(response.getStatusCode()).thenReturn(HttpStatus.SC_OK);

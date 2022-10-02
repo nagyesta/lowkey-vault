@@ -15,6 +15,7 @@ import java.util.List;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.NOW;
 import static com.github.nagyesta.lowkeyvault.TestConstants.TIME_10_MINUTES_AGO;
+import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
 
 class KeyRotationPolicyV73ModelToEntityConverterTest {
 
@@ -26,7 +27,7 @@ class KeyRotationPolicyV73ModelToEntityConverterTest {
         final Period expiryTime = Period.ofDays(LifetimeActionTriggerType.MINIMUM_EXPIRY_PERIOD_IN_DAYS);
 
         final KeyRotationPolicyModel model = new KeyRotationPolicyModel();
-        model.setId(keyEntityId.asRotationPolicyUri());
+        model.setId(keyEntityId.asRotationPolicyUri(HTTPS_LOCALHOST_8443));
         model.setAttributes(attributes(expiryTime));
         model.setLifetimeActions(List.of(notifyAction(timeBeforeExpiry)));
 
@@ -54,7 +55,7 @@ class KeyRotationPolicyV73ModelToEntityConverterTest {
         final Period timeBeforeExpiry = Period.ofDays(LifetimeActionTriggerType.MINIMUM_THRESHOLD_BEFORE_EXPIRY);
 
         final KeyRotationPolicyModel model = new KeyRotationPolicyModel();
-        model.setId(keyEntityId.asRotationPolicyUri());
+        model.setId(keyEntityId.asRotationPolicyUri(HTTPS_LOCALHOST_8443));
         model.setLifetimeActions(List.of(notifyAction(timeBeforeExpiry)));
         final KeyRotationPolicyAttributes attributes = new KeyRotationPolicyAttributes();
         attributes.setExpiryTime(expiryTime);
@@ -83,7 +84,7 @@ class KeyRotationPolicyV73ModelToEntityConverterTest {
         final Period timeBeforeExpiry = Period.ofDays(LifetimeActionTriggerType.MINIMUM_THRESHOLD_BEFORE_EXPIRY);
 
         final KeyRotationPolicyModel model = new KeyRotationPolicyModel();
-        model.setId(keyEntityId.asRotationPolicyUri());
+        model.setId(keyEntityId.asRotationPolicyUri(HTTPS_LOCALHOST_8443));
         model.setLifetimeActions(List.of(notifyAction(timeBeforeExpiry)));
 
         final KeyRotationPolicyV73ModelToEntityConverter underTest = new KeyRotationPolicyV73ModelToEntityConverter();
@@ -100,7 +101,7 @@ class KeyRotationPolicyV73ModelToEntityConverterTest {
         final KeyEntityId keyEntityId = TestConstantsKeys.UNVERSIONED_KEY_ENTITY_ID_1;
 
         final KeyRotationPolicyModel model = new KeyRotationPolicyModel();
-        model.setId(keyEntityId.asRotationPolicyUri());
+        model.setId(keyEntityId.asRotationPolicyUri(HTTPS_LOCALHOST_8443));
 
         final KeyRotationPolicyV73ModelToEntityConverter underTest = new KeyRotationPolicyV73ModelToEntityConverter();
 
@@ -118,7 +119,7 @@ class KeyRotationPolicyV73ModelToEntityConverterTest {
         final Period expiryTime = Period.ofDays(LifetimeActionTriggerType.MINIMUM_EXPIRY_PERIOD_IN_DAYS);
 
         final KeyRotationPolicyModel model = new KeyRotationPolicyModel();
-        model.setId(keyEntityId.asRotationPolicyUri());
+        model.setId(keyEntityId.asRotationPolicyUri(HTTPS_LOCALHOST_8443));
         model.setAttributes(attributes(expiryTime));
 
         final KeyRotationPolicyV73ModelToEntityConverter underTest = new KeyRotationPolicyV73ModelToEntityConverter();
@@ -135,7 +136,7 @@ class KeyRotationPolicyV73ModelToEntityConverterTest {
         final KeyEntityId keyEntityId = TestConstantsKeys.UNVERSIONED_KEY_ENTITY_ID_1;
 
         final KeyRotationPolicyModel model = new KeyRotationPolicyModel();
-        model.setId(keyEntityId.asRotationPolicyUri());
+        model.setId(keyEntityId.asRotationPolicyUri(HTTPS_LOCALHOST_8443));
         model.setLifetimeActions(List.of());
 
         final KeyRotationPolicyV73ModelToEntityConverter underTest = new KeyRotationPolicyV73ModelToEntityConverter();

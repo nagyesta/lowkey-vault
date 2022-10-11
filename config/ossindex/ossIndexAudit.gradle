@@ -1,0 +1,10 @@
+def readExclusions() {
+    return rootProject.file("config/ossindex/exclusions.txt").readLines()
+            .stream()
+            .filter(s -> !s.isBlank())
+            .toArray()
+}
+
+project.ext {
+    ossIndexExclusions = readExclusions()
+}

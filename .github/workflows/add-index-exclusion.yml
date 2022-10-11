@@ -1,0 +1,42 @@
+name: AddOssIndexExclusion
+on:
+  workflow_dispatch:
+    inputs:
+      exclusion:
+        description: 'Vulnerability to exclude'
+        required: true
+        type: text
+
+permissions: read-all
+
+jobs:
+  build:
+    name: Add OSS Index Exclusion action
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # tag=v2.4.0
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PUBLISH_KEY }}
+      - name: "Add exclusion"
+        run: |
+          echo "${{ github.event.inputs.exclusion }}" >> config/ossindex/exclusions.txt
+      - name: "git branch"
+        run: |
+          git config --global user.name 'Esta Nagy'
+          git config --global user.email 'nagyesta@gmail.com'
+          git checkout -b feature/exclude-vulnerability-run-${{ github.run_number }}
+          git add config/ossindex/exclusions.txt
+          git commit -asm "Excluding vulnerability ${{ github.event.inputs.exclusion }} {patch}"
+          git push -f --set-upstream origin feature/exclude-vulnerability-run-${{ github.run_number }}
+      - uses: actions/github-script@9ac08808f993958e9de277fe43a64532a609130e  # tag=v6.0.0
+        with:
+          github-token: ${{ secrets.PUBLISH_KEY }}
+          script: |
+            github.rest.pulls.create({
+              owner: "${{ github.repository_owner }}",
+              repo: "lowkey-vault",
+              head: "feature/exclude-vulnerability-run-${{ github.run_number }}",
+              base: "main",
+              title: "Excluding vulnerability ${{ github.event.inputs.exclusion }} {patch}"
+            });

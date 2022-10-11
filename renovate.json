@@ -8,6 +8,8 @@
   ],
   "assigneesSampleSize": 1,
   "commitMessageSuffix": "{patch}",
+  "separateMajorMinor": true,
+  "separateMinorPatch": true,
   "docker": {
     "pinDigests": true
   },

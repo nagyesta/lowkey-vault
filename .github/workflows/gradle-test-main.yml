@@ -11,6 +11,7 @@ on:
       - 'gradle/verification-metadata.xml'
       - 'lowkey-vault-docker/src/docker/Dockerfile'
       - 'gradle/wrapper/gradle-wrapper.properties'
+      - 'config/ossindex/exclusions.txt'
 
 permissions: read-all
 

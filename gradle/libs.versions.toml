@@ -20,7 +20,7 @@ abortMission = "3.4.40"
 checkstyle = "9.2.1"
 jacoco = "0.8.2"
 jacksonBom = { strictly = "2.14.0" }
-jackson = { strictly = "2.13.4" }
+jackson = { strictly = "2.13.4.2" }
 openApiUi = "1.6.11"
 
 abortMissionPlugin = "3.1.10"

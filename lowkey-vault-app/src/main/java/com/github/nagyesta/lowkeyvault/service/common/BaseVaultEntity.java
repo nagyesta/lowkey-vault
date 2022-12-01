@@ -57,4 +57,6 @@ public interface BaseVaultEntity<V extends EntityId> extends TimeAware {
     void setCreatedOn(OffsetDateTime createdOn);
 
     void setUpdatedOn(OffsetDateTime updatedOn);
+
+    void setManaged(boolean managed);
 }

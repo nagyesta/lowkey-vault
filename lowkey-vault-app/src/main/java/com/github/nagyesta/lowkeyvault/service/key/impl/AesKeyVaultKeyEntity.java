@@ -6,9 +6,9 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.SignatureAlgorithm;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyAesKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
+import com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
@@ -68,7 +68,7 @@ public class AesKeyVaultKeyEntity extends KeyVaultKeyEntity<SecretKey, Integer> 
                         + encryptionAlgorithm.getValue());
         Assert.isTrue(iv != null, "IV must not be null.");
         return doCrypto(() -> {
-            final Cipher cipher = Cipher.getInstance(encryptionAlgorithm.getAlg(), new BouncyCastleProvider());
+            final Cipher cipher = Cipher.getInstance(encryptionAlgorithm.getAlg(), KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
             cipher.init(Cipher.ENCRYPT_MODE, this.getKey(), new IvParameterSpec(iv));
             return cipher.doFinal(clear);
         }, "Cannot encrypt message.", log);
@@ -85,7 +85,7 @@ public class AesKeyVaultKeyEntity extends KeyVaultKeyEntity<SecretKey, Integer> 
                         + encryptionAlgorithm.getValue());
         Assert.isTrue(iv != null, "IV must not be null.");
         return doCrypto(() -> {
-            final Cipher cipher = Cipher.getInstance(encryptionAlgorithm.getAlg(), new BouncyCastleProvider());
+            final Cipher cipher = Cipher.getInstance(encryptionAlgorithm.getAlg(), KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
             cipher.init(Cipher.DECRYPT_MODE, this.getKey(), new IvParameterSpec(iv));
             return cipher.doFinal(encrypted);
         }, "Cannot decrypt message.", log);

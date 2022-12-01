@@ -133,7 +133,12 @@ configure(subprojects.findAll({
                         'com.github.nagyesta.lowkeyvault.service.exception.AlreadyExistsException',
                         'com.github.nagyesta.lowkeyvault.service.exception.NotFoundException',
                         'com.github.nagyesta.lowkeyvault.service.exception.CryptoException',
-                        'com.github.nagyesta.lowkeyvault.exception.VaultNotFoundException'
+                        'com.github.nagyesta.lowkeyvault.exception.VaultNotFoundException',
+                        //until Cert features are implemented
+                        'com.github.nagyesta.lowkeyvault.model.v7_3.certificate.KeyVaultCertificateItemModel',
+                        'com.github.nagyesta.lowkeyvault.model.v7_3.certificate.DeletedKeyVaultCertificateItemModel',
+                        'com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntityToV73CertificateItemModelConverter',
+                        'com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntityToV73CertificateVersionItemModelConverter'
                 ]
             }
         }

@@ -1,6 +1,6 @@
 package com.github.nagyesta.lowkeyvault.service.key;
 
-public interface ReadOnlyRsaKeyVaultKeyEntity extends ReadOnlyKeyVaultKeyEntity {
+public interface ReadOnlyRsaKeyVaultKeyEntity extends ReadOnlyAsymmetricKeyVaultKeyEntity {
 
     byte[] getN();
 

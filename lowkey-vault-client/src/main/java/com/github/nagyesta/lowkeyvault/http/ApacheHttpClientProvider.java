@@ -4,6 +4,10 @@ import com.azure.core.credential.BasicAuthenticationCredential;
 import com.azure.core.http.HttpClient;
 import com.azure.core.http.policy.FixedDelay;
 import com.azure.core.http.policy.RetryPolicy;
+import com.azure.security.keyvault.certificates.CertificateAsyncClient;
+import com.azure.security.keyvault.certificates.CertificateClient;
+import com.azure.security.keyvault.certificates.CertificateClientBuilder;
+import com.azure.security.keyvault.certificates.CertificateServiceVersion;
 import com.azure.security.keyvault.keys.KeyAsyncClient;
 import com.azure.security.keyvault.keys.KeyClient;
 import com.azure.security.keyvault.keys.KeyClientBuilder;
@@ -110,6 +114,22 @@ public final class ApacheHttpClientProvider {
         return getKeyBuilder().serviceVersion(version).buildClient();
     }
 
+    public CertificateAsyncClient getCertificateAsyncClient() {
+        return getCertificateAsyncClient(CertificateServiceVersion.V7_3);
+    }
+
+    public CertificateAsyncClient getCertificateAsyncClient(final CertificateServiceVersion version) {
+        return getCertificateBuilder().serviceVersion(version).buildAsyncClient();
+    }
+
+    public CertificateClient getCertificateClient() {
+        return getCertificateClient(CertificateServiceVersion.V7_3);
+    }
+
+    public CertificateClient getCertificateClient(final CertificateServiceVersion version) {
+        return getCertificateBuilder().serviceVersion(version).buildClient();
+    }
+
     public SecretAsyncClient getSecretAsyncClient() {
         return getSecretAsyncClient(SecretServiceVersion.V7_3);
     }
@@ -144,6 +164,15 @@ public final class ApacheHttpClientProvider {
 
     private KeyClientBuilder getKeyBuilder() {
         return new KeyClientBuilder()
+                .vaultUrl(getVaultUrl())
+                .credential(new BasicAuthenticationCredential(DUMMY, DUMMY))
+                .httpClient(createInstance())
+                .disableChallengeResourceVerification()
+                .retryPolicy(new RetryPolicy(new FixedDelay(0, Duration.ZERO)));
+    }
+
+    private CertificateClientBuilder getCertificateBuilder() {
+        return new CertificateClientBuilder()
                 .vaultUrl(getVaultUrl())
                 .credential(new BasicAuthenticationCredential(DUMMY, DUMMY))
                 .httpClient(createInstance())

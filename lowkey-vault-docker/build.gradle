@@ -30,6 +30,9 @@ dependencies {
     testImplementation(libs.azure.security.keyvault.secrets) {
         exclude(group: "io.netty")
     }
+    testImplementation(libs.azure.security.keyvault.certificates) {
+        exclude(group: "io.netty")
+    }
     testImplementation libs.bundles.spring.test
     testImplementation libs.bundles.cucumber
     testImplementation libs.abort.mission.cucumber
@@ -67,7 +70,7 @@ dockerRun {
     daemonize true
     arguments '--rm'
     env 'LOWKEY_ARGS': '--LOWKEY_DEBUG_REQUEST_LOG=false ' +
-            '--LOWKEY_VAULT_NAMES=keys-generic,keys-delete,secrets-generic,secrets-delete ' +
+            '--LOWKEY_VAULT_NAMES=certs-generic,keys-generic,keys-delete,secrets-generic,secrets-delete ' +
             '--LOWKEY_VAULT_ALIASES=keys-delete.localhost=keys-alias-delete.localhost:<port>,' +
             'secrets-delete.localhost=secrets-alias-delete.localhost:<port>'
 }

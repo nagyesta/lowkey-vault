@@ -11,11 +11,15 @@ import com.github.nagyesta.lowkeyvault.service.key.impl.KeyCreationInput;
 import com.github.nagyesta.lowkeyvault.service.key.impl.OctKeyCreationInput;
 import com.github.nagyesta.lowkeyvault.service.key.impl.RsaKeyCreationInput;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 public interface KeyVaultFake extends BaseVaultFake<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> {
 
     <E, T extends KeyCreationInput<E>> VersionedKeyEntityId createKeyVersion(String keyName, T input);
+
+    <E, T extends KeyCreationInput<E>> VersionedKeyEntityId createKeyVersionForCertificate(
+            String keyName, T input, OffsetDateTime notBefore, OffsetDateTime expiry);
 
     VersionedKeyEntityId createRsaKeyVersion(String keyName, RsaKeyCreationInput input);
 

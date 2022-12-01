@@ -1,5 +1,8 @@
 package com.github.nagyesta.lowkeyvault.steps;
 
+import com.azure.security.keyvault.certificates.models.CertificateContentType;
+import com.azure.security.keyvault.certificates.models.CertificateKeyCurveName;
+import com.azure.security.keyvault.certificates.models.SubjectAlternativeNames;
 import com.azure.security.keyvault.keys.cryptography.models.EncryptionAlgorithm;
 import com.azure.security.keyvault.keys.cryptography.models.SignatureAlgorithm;
 import com.azure.security.keyvault.keys.models.KeyCurveName;
@@ -45,6 +48,16 @@ public class ParameterTypeDefs {
         return KeyCurveName.fromString(name);
     }
 
+    @ParameterType("(P-256|P-256K|P-384|P-521)")
+    public CertificateKeyCurveName ecCertCurveName(final String name) {
+        return CertificateKeyCurveName.fromString(name);
+    }
+
+    @ParameterType("(PEM|PKCS12)")
+    public CertificateContentType certContentType(final String name) {
+        return "PEM".equals(name) ? CertificateContentType.PEM : CertificateContentType.PKCS12;
+    }
+
     @ParameterType("(128|192|256)")
     public int octKeySize(final String size) {
         return Integer.parseInt(size);
@@ -58,6 +71,19 @@ public class ParameterTypeDefs {
     @ParameterType("[0-9a-zA-Z\\-_]+")
     public String name(final String name) {
         return name;
+    }
+
+    @ParameterType("(CN=[0-9a-zA-Z\\-_\\.]+)")
+    public String subject(final String subject) {
+        return subject;
+    }
+
+    @ParameterType("[0-9a-zA-Z\\*\\-_\\.,]+")
+    public SubjectAlternativeNames sans(final String san) {
+        final SubjectAlternativeNames names = new SubjectAlternativeNames();
+        final List<String> dnsNames = Arrays.stream(san.split(",")).collect(Collectors.toList());
+        names.setDnsNames(dnsNames);
+        return names;
     }
 
     @ParameterType("[0-9a-zA-Z]+/[0-9a-zA-Z]+")

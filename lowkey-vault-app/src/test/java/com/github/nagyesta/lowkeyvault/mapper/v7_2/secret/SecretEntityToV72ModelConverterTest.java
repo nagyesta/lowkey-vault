@@ -70,7 +70,7 @@ class SecretEntityToV72ModelConverterTest {
 
     @ParameterizedTest
     @MethodSource("validInputProvider")
-    void testConvertShouldConvertAllRsaFieldsWhenCalledWithRsaSecretEntity(
+    void testConvertShouldConvertAllFieldsWhenCalledWithSecretEntity(
             final VersionedSecretEntityId secretEntityId, final String value, final URI baseUri, final Map<String, String> tags) {
 
         //given
@@ -84,6 +84,27 @@ class SecretEntityToV72ModelConverterTest {
 
         //then
         assertFieldsMatch(tags, input, expectedUri, actual);
+        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultSecretEntity.class), any(URI.class));
+    }
+
+    @ParameterizedTest
+    @MethodSource("validInputProvider")
+    void testConvertShouldConvertManagedFieldsWhenCalledWithManagedSecretEntity(
+            final VersionedSecretEntityId secretEntityId, final String value, final URI baseUri, final Map<String, String> tags) {
+
+        //given
+        prepareVaultMock(baseUri);
+        final String expectedUri = secretEntityId.asUri(baseUri).toString();
+        final KeyVaultSecretEntity input = new KeyVaultSecretEntity(secretEntityId, vault, value, APPLICATION_XML.toString());
+        input.setTags(tags);
+        input.setManaged(true);
+
+        //when
+        final KeyVaultSecretModel actual = underTest.convert(input, secretEntityId.vault());
+
+        //then
+        assertFieldsMatch(tags, input, expectedUri, actual);
+        Assertions.assertEquals(actual.getId().replaceAll("/secrets/", "/keys/"), actual.getKid());
         verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultSecretEntity.class), any(URI.class));
     }
 
@@ -113,6 +134,5 @@ class SecretEntityToV72ModelConverterTest {
         Assertions.assertEquals(expectedUri, actual.getId());
         Assertions.assertEquals(input.getValue(), actual.getValue());
         Assertions.assertEquals(input.getContentType(), actual.getContentType());
-
     }
 }

@@ -38,6 +38,12 @@ public class TestContextConfig {
 
     @Bean
     @ScenarioScope
+    public CertificateTestContext certificateContext() {
+        return new CertificateTestContext(provider());
+    }
+
+    @Bean
+    @ScenarioScope
     public SecretTestContext secretContext() {
         return new SecretTestContext(provider());
     }

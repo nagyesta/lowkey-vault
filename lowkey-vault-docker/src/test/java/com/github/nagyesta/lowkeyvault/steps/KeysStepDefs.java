@@ -36,6 +36,7 @@ import static com.github.nagyesta.lowkeyvault.context.TestContextConfig.CONTAINE
 
 public class KeysStepDefs extends CommonAssertions {
 
+    private static final BouncyCastleProvider BOUNCY_CASTLE_PROVIDER = new BouncyCastleProvider();
     @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     @Autowired
     private KeyTestContext context;
@@ -123,7 +124,7 @@ public class KeysStepDefs extends CommonAssertions {
     public void ecKeyImportedWithNameAndParameters(final String name, final KeyCurveName curveName, final boolean hsm) {
         final KeyPair keyPair = KeyGenUtil.generateEc(curveName);
         context.setKeyPair(keyPair);
-        final JsonWebKey key = JsonWebKey.fromEc(keyPair, new BouncyCastleProvider())
+        final JsonWebKey key = JsonWebKey.fromEc(keyPair, BOUNCY_CASTLE_PROVIDER)
                 .setKeyOps(List.of(KeyOperation.SIGN, KeyOperation.ENCRYPT, KeyOperation.WRAP_KEY));
         if (hsm) {
             key.setKeyType(KeyType.EC_HSM);
@@ -366,7 +367,7 @@ public class KeysStepDefs extends CommonAssertions {
 
     @And("the encrypted value is decrypted using the original OCT key using {algorithm}")
     public void theEncryptedValueIsDecryptedUsingTheOriginalOctKeyWithAlgorithm(final EncryptionAlgorithm algorithm) throws Exception {
-        final Cipher cipher = Cipher.getInstance(getSymmetricalEncryptionAlgName(algorithm), new BouncyCastleProvider());
+        final Cipher cipher = Cipher.getInstance(getSymmetricalEncryptionAlgName(algorithm), BOUNCY_CASTLE_PROVIDER);
         final EncryptResult encryptResult = context.getEncryptResult();
         cipher.init(Cipher.DECRYPT_MODE, context.getSecretKey(), new IvParameterSpec(encryptResult.getIv()));
         final byte[] plain = cipher.doFinal(encryptResult.getCipherText());
@@ -397,7 +398,7 @@ public class KeysStepDefs extends CommonAssertions {
     public void theRsaSignValueIsVerifiedUsingOriginalPublicKeyWithAlgorithm(final byte[] text, final SignatureAlgorithm algorithm)
             throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         final byte[] digest = hash(text, algorithm.toString());
-        final Signature rsaVerify = Signature.getInstance(getAsymmetricSignatureAlgorithm(algorithm), new BouncyCastleProvider());
+        final Signature rsaVerify = Signature.getInstance(getAsymmetricSignatureAlgorithm(algorithm), BOUNCY_CASTLE_PROVIDER);
         rsaVerify.initVerify(context.getKeyPair().getPublic());
         rsaVerify.update(digest);
         final boolean result = rsaVerify.verify(context.getSignatureResult());

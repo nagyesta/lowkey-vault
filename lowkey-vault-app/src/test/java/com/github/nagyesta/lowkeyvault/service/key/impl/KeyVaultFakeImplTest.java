@@ -86,6 +86,20 @@ class KeyVaultFakeImplTest {
                 .build();
     }
 
+    public static Stream<Arguments> certificateNullProvider() {
+        final RsaKeyCreationInput input = new RsaKeyCreationInput(KeyType.RSA, null, null);
+        return Stream.<Arguments>builder()
+                .add(Arguments.of(KEY_NAME_1, null, null, null))
+                .add(Arguments.of(null, input, null, null))
+                .add(Arguments.of(null, null, TIME_10_MINUTES_AGO, null))
+                .add(Arguments.of(null, null, null, TIME_IN_10_MINUTES))
+                .add(Arguments.of(null, input, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES))
+                .add(Arguments.of(KEY_NAME_1, null, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES))
+                .add(Arguments.of(KEY_NAME_1, input, null, TIME_IN_10_MINUTES))
+                .add(Arguments.of(KEY_NAME_1, input, TIME_10_MINUTES_AGO, null))
+                .build();
+    }
+
     @ParameterizedTest
     @MethodSource("nullProvider")
     void testConstructorShouldThrowExceptionWhenCalledWithNull(
@@ -873,6 +887,45 @@ class KeyVaultFakeImplTest {
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.rotateKey(null));
+
+        //then + exception
+    }
+
+    @Test
+    void testCreateKeyVersionForCertificateShouldSetFieldsAndManagedFlagWhenCalledWithValidRsaParameter() {
+        //given
+        final KeyVaultFake underTest = createUnderTest();
+        final RsaKeyCreationInput input = new RsaKeyCreationInput(KeyType.RSA_HSM, null, null);
+
+        //when
+        final VersionedKeyEntityId actual = underTest
+                .createKeyVersionForCertificate(KEY_NAME_1, input, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES);
+
+        //then
+        final ReadOnlyKeyVaultKeyEntity entity = underTest.getEntities().getReadOnlyEntity(actual);
+        Assertions.assertEquals(KEY_NAME_1, entity.getId().id());
+        Assertions.assertEquals(TIME_10_MINUTES_AGO, entity.getNotBefore().orElse(null));
+        Assertions.assertEquals(TIME_IN_10_MINUTES, entity.getExpiry().orElse(null));
+        Assertions.assertTrue(entity.isEnabled());
+        Assertions.assertTrue(entity.isManaged());
+        final List<KeyOperation> keyOperations = List.of(
+                KeyOperation.SIGN, KeyOperation.VERIFY,
+                KeyOperation.ENCRYPT, KeyOperation.DECRYPT,
+                KeyOperation.WRAP_KEY, KeyOperation.UNWRAP_KEY);
+        Assertions.assertIterableEquals(keyOperations, entity.getOperations());
+    }
+
+    @ParameterizedTest
+    @MethodSource("certificateNullProvider")
+    void testCreateKeyVersionForCertificateShouldThrowExceptionWhenCalledWithNulls(
+            final String name, final KeyCreationInput<? extends Object> input,
+            final OffsetDateTime notBefore, final OffsetDateTime expiry) {
+        //given
+        final KeyVaultFake underTest = createUnderTest();
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> underTest.createKeyVersionForCertificate(name, input, notBefore, expiry));
 
         //then + exception
     }

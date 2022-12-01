@@ -119,6 +119,10 @@ public abstract class BaseVaultFakeImpl<K extends EntityId, V extends K, RE exte
         this.deletedEntities.purgeExpired();
     }
 
+    protected void setManaged(@NonNull final V entityId, final boolean managed) {
+        entities.getEntity(entityId).setManaged(managed);
+    }
+
     protected abstract V createVersionedId(String id, String version);
 
     protected VersionedEntityMultiMap<K, V, RE, ME> getEntitiesInternal() {

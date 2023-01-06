@@ -57,21 +57,21 @@ jobs:
           ./gradlew printVersion build
       - name: 'Upload Test reports - App'
         if: always()
-        uses: actions/upload-artifact@83fd05a356d7e2593de66fc9913b3002723633cb #tag=v3.1.1
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           name: test-report-lowkey-vault-app
           path: lowkey-vault-app/build/reports/tests/test
           retention-days: 5
       - name: 'Upload Test reports - Docker'
         if: always()
-        uses: actions/upload-artifact@83fd05a356d7e2593de66fc9913b3002723633cb #tag=v3.1.1
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           name: test-report-lowkey-vault-docker
           path: lowkey-vault-docker/build/reports/cucumber
           retention-days: 5
       - name: 'Upload Test reports - Testcontainers'
         if: always()
-        uses: actions/upload-artifact@83fd05a356d7e2593de66fc9913b3002723633cb #tag=v3.1.1
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           name: test-report-lowkey-vault-testcontainers
           path: lowkey-vault-testcontainers/build/reports/tests/test

@@ -7,15 +7,15 @@ import com.github.nagyesta.lowkeyvault.service.certificate.id.CertificateEntityI
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.common.impl.BaseVaultFakeImpl;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
-import org.springframework.lang.NonNull;
+import lombok.NonNull;
 
 public class CertificateVaultFakeImpl
         extends BaseVaultFakeImpl<CertificateEntityId, VersionedCertificateEntityId,
         ReadOnlyKeyVaultCertificateEntity, KeyVaultCertificateEntity>
         implements CertificateVaultFake {
 
-    public CertificateVaultFakeImpl(@NonNull final VaultFake vaultFake,
-                                    @NonNull final RecoveryLevel recoveryLevel,
+    public CertificateVaultFakeImpl(@org.springframework.lang.NonNull final VaultFake vaultFake,
+                                    @org.springframework.lang.NonNull final RecoveryLevel recoveryLevel,
                                     final Integer recoverableDays) {
         super(vaultFake, recoveryLevel, recoverableDays);
     }
@@ -26,8 +26,17 @@ public class CertificateVaultFakeImpl
     }
 
     @Override
-    public VersionedCertificateEntityId createCertificateVersion(final String name, final CertificateCreationInput input) {
+    public VersionedCertificateEntityId createCertificateVersion(
+            @NonNull final String name, @NonNull final CertificateCreationInput input) {
         final KeyVaultCertificateEntity entity = new KeyVaultCertificateEntity(name, input, vaultFake());
+        return addVersion(entity.getId(), entity);
+    }
+
+    @Override
+    public VersionedCertificateEntityId importCertificateVersion(
+            @NonNull final String name, @NonNull final CertificateImportInput input) {
+        final KeyVaultCertificateEntity entity = new KeyVaultCertificateEntity(
+                name, input.getCertificateData(), input.getCertificate(), input.getKeyData(), vaultFake());
         return addVersion(entity.getId(), entity);
     }
 }

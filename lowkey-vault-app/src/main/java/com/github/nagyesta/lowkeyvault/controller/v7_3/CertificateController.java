@@ -6,6 +6,7 @@ import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntity
 import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntityToV73ModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntityToV73PendingCertificateOperationModelConverter;
 import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
+import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificateImportRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CreateCertificateRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.KeyVaultCertificateModel;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.KeyVaultPendingCertificateModel;
@@ -62,6 +63,18 @@ public class CertificateController extends CommonCertificateController {
             @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
         return super.pendingCreate(certificateName, baseUri);
+    }
+
+    @Override
+    @PostMapping(value = "/certificates/{certificateName}/import",
+            params = API_VERSION_7_3,
+            consumes = APPLICATION_JSON_VALUE,
+            produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<KeyVaultCertificateModel> importCertificate(
+            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
+            @Valid @RequestBody final CertificateImportRequest request) {
+        return super.importCertificate(certificateName, baseUri, request);
     }
 
     @Override

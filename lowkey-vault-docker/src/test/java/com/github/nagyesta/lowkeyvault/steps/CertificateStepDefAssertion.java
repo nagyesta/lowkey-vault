@@ -17,6 +17,8 @@ import java.io.ByteArrayInputStream;
 import java.security.KeyStore;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Enumeration;
 
 public class CertificateStepDefAssertion extends CommonAssertions {
@@ -60,6 +62,15 @@ public class CertificateStepDefAssertion extends CommonAssertions {
         final String value = secretContext.getLastResult().getValue();
         final X509Certificate certificate = getX509Certificate(contentType, value);
         assertEquals(subject, certificate.getSubjectX500Principal().toString());
+    }
+
+    @And("the downloaded {certContentType} certificate store expires on {expiry}")
+    public void theDownloadedTypeCertificateStoreExpiresOnExpiry(
+            final CertificateContentType contentType, final OffsetDateTime expiry) throws Exception {
+        final String value = secretContext.getLastResult().getValue();
+        final X509Certificate certificate = getX509Certificate(contentType, value);
+        assertEquals(expiry.toInstant().truncatedTo(ChronoUnit.DAYS),
+                certificate.getNotAfter().toInstant().truncatedTo(ChronoUnit.DAYS));
     }
 
     private X509Certificate getX509Certificate(final CertificateContentType contentType, final String value) throws Exception {

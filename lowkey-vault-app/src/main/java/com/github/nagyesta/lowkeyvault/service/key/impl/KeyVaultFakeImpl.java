@@ -81,6 +81,13 @@ public class KeyVaultFakeImpl
     }
 
     @Override
+    public VersionedKeyEntityId importManagedKeyVersion(final String keyName, final JsonWebKeyImportRequest key) {
+        final VersionedKeyEntityId keyEntityId = importKeyVersion(keyName, key);
+        this.setManaged(keyEntityId, true);
+        return keyEntityId;
+    }
+
+    @Override
     public VersionedKeyEntityId importKeyVersion(
             final VersionedKeyEntityId keyEntityId, final JsonWebKeyImportRequest key) {
         final KeyType keyType = Objects.requireNonNull(key).getKeyType();

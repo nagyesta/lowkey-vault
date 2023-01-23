@@ -12,11 +12,14 @@ import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertifica
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertAuthorityType;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertContentType;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateCreationInput;
+import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateImportInput;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
+import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
@@ -90,6 +93,19 @@ public abstract class CommonCertificateController extends GenericEntityControlle
         return ResponseEntity.ok(convertDetails(keyVaultCertificateEntity, baseUri));
     }
 
+    public ResponseEntity<KeyVaultCertificateModel> importCertificate(
+            @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
+            final URI baseUri,
+            @Valid @RequestBody final CertificateImportRequest request) {
+        log.info("Received request to {} import certificate: {} using API version: {}",
+                baseUri.toString(), certificateName, apiVersion());
+
+        final CertificateVaultFake vaultFake = getVaultByUri(baseUri);
+        final VersionedCertificateEntityId entityId = importCertificateWithAttributes(vaultFake, certificateName, request);
+        final ReadOnlyKeyVaultCertificateEntity readOnlyEntity = vaultFake.getEntities().getReadOnlyEntity(entityId);
+        return ResponseEntity.ok().body(convertDetails(readOnlyEntity, baseUri));
+    }
+
     @Override
     protected VersionedCertificateEntityId versionedEntityId(final URI baseUri, final String name, final String version) {
         return new VersionedCertificateEntityId(baseUri, name, version);
@@ -106,7 +122,19 @@ public abstract class CommonCertificateController extends GenericEntityControlle
         final VersionedCertificateEntityId certificateEntityId = certificateVaultFake
                 .createCertificateVersion(certificateName, toCertificateCreationInput(certificateName, request));
         certificateVaultFake.addTags(certificateEntityId, request.getTags());
-        //no need to set expiry, the generation should take care of it based on the X509 propoerties
+        //no need to set expiry, the generation should take care of it based on the X509 properties
+        certificateVaultFake.setEnabled(certificateEntityId, properties.isEnabled());
+        //no need to set managed property as this endpoint cannot create managed entities by definition
+        return certificateEntityId;
+    }
+
+    private VersionedCertificateEntityId importCertificateWithAttributes(
+            final CertificateVaultFake certificateVaultFake, final String certificateName, final CertificateImportRequest request) {
+        final CertificatePropertiesModel properties = Objects.requireNonNullElse(request.getAttributes(), new CertificatePropertiesModel());
+        final VersionedCertificateEntityId certificateEntityId = certificateVaultFake
+                .importCertificateVersion(certificateName, toCertificateImportInput(certificateName, request));
+        certificateVaultFake.addTags(certificateEntityId, request.getTags());
+        //no need to set expiry, the generation should take care of it based on the X509 properties
         certificateVaultFake.setEnabled(certificateEntityId, properties.isEnabled());
         //no need to set managed property as this endpoint cannot create managed entities by definition
         return certificateEntityId;
@@ -141,5 +169,30 @@ public abstract class CommonCertificateController extends GenericEntityControlle
                 .keySize(keyProperties.getKeySize())
                 //build
                 .build();
+    }
+
+    private CertificateImportInput toCertificateImportInput(
+            final String certificateName, final CertificateImportRequest request) {
+        final CertificatePolicyModel policyModel = Objects.requireNonNullElse(request.getPolicy(), new CertificatePolicyModel());
+        return new CertificateImportInput(
+                certificateName,
+                request.getCertificateAsString(),
+                request.getPassword(),
+                determineContentType(request),
+                policyModel);
+    }
+
+    private CertContentType determineContentType(final CertificateImportRequest request) {
+        CertContentType parsed = CertContentType.PKCS12;
+        if (request.getCertificateAsString().contains("BEGIN")) {
+            parsed = CertContentType.PEM;
+        }
+        if (request.getPolicy() != null
+                && request.getPolicy().getSecretProperties() != null
+                && request.getPolicy().getSecretProperties().getContentType() != null) {
+            final String contentType = request.getPolicy().getSecretProperties().getContentType();
+            Assert.isTrue(parsed.getMimeType().equals(contentType), "Content type must match certificate content when provided.");
+        }
+        return parsed;
     }
 }

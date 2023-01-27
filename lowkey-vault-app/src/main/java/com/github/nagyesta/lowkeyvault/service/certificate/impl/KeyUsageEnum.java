@@ -2,6 +2,8 @@ package com.github.nagyesta.lowkeyvault.service.certificate.impl;
 
 import org.bouncycastle.asn1.x509.KeyUsage;
 
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
@@ -9,52 +11,55 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public enum KeyUsageEnum {
 
     /**
      * Digital signature key usage.
      */
-    DIGITAL_SIGNATURE("digitalSignature", KeyUsage.digitalSignature),
+    DIGITAL_SIGNATURE("digitalSignature", KeyUsage.digitalSignature, 0),
     /**
      * Non repudiation key usage.
      */
-    NON_REPUDIATION("nonRepudiation", KeyUsage.nonRepudiation),
+    NON_REPUDIATION("nonRepudiation", KeyUsage.nonRepudiation, 1),
     /**
      * Key encipherment key usage.
      */
-    KEY_ENCIPHERMENT("keyEncipherment", KeyUsage.keyEncipherment),
+    KEY_ENCIPHERMENT("keyEncipherment", KeyUsage.keyEncipherment, 2),
     /**
      * Data encipherment key usage.
      */
-    DATA_ENCIPHERMENT("dataEncipherment", KeyUsage.dataEncipherment),
+    DATA_ENCIPHERMENT("dataEncipherment", KeyUsage.dataEncipherment, 3),
     /**
      * Key agreement key usage.
      */
-    KEY_AGREEMENT("keyAgreement", KeyUsage.keyAgreement),
+    KEY_AGREEMENT("keyAgreement", KeyUsage.keyAgreement, 4),
     /**
      * Key certificate sign key usage.
      */
-    KEY_CERT_SIGN("keyCertSign", KeyUsage.keyCertSign),
+    KEY_CERT_SIGN("keyCertSign", KeyUsage.keyCertSign, 5),
     /**
      * CRL sign key usage.
      */
-    CRL_SIGN("cRLSign", KeyUsage.cRLSign),
-    /**
-     * Decipher only key usage.
-     */
-    DECIPHER_ONLY("decipherOnly", KeyUsage.decipherOnly),
+    CRL_SIGN("cRLSign", KeyUsage.cRLSign, 6),
     /**
      * Encipher only key usage.
      */
-    ENCIPHER_ONLY("encipherOnly", KeyUsage.encipherOnly);
+    ENCIPHER_ONLY("encipherOnly", KeyUsage.encipherOnly, 7),
+    /**
+     * Decipher only key usage.
+     */
+    DECIPHER_ONLY("decipherOnly", KeyUsage.decipherOnly, 8);
 
     private final String value;
     private final int code;
+    private final int position;
 
-    KeyUsageEnum(final String value, final int code) {
+    KeyUsageEnum(final String value, final int code, final int position) {
         this.value = value;
         this.code = code;
+        this.position = position;
     }
 
     public String getValue() {
@@ -63,6 +68,13 @@ public enum KeyUsageEnum {
 
     public int getCode() {
         return code;
+    }
+
+    public static Set<KeyUsageEnum> parseBitString(final boolean[] usage) {
+        final boolean[] bitString = Optional.ofNullable(usage).orElse(new boolean[0]);
+        return Arrays.stream(values())
+                .filter(e -> bitString.length > e.position && bitString[e.position])
+                .collect(Collectors.toSet());
     }
 
     public static Collector<KeyUsageEnum, AtomicInteger, KeyUsage> toKeyUsage() {

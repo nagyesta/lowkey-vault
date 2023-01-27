@@ -11,6 +11,7 @@ import org.apache.tomcat.util.codec.binary.Base64;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.openssl.jcajce.JcaPKCS8Generator;
+import org.springframework.util.Assert;
 import org.springframework.util.Base64Utils;
 
 import java.io.ByteArrayInputStream;
@@ -96,8 +97,9 @@ public enum CertContentType {
      */
     PEM("application/x-pem-file") {
         @Override
-        public List<Certificate> getCertificateChain(@NonNull final String certificateContent, @NonNull final String password) {
+        public List<Certificate> getCertificateChain(@NonNull final String certificateContent, final String password) {
             try {
+                validatePem(certificateContent);
                 final byte[] encodedCertificate = extractByteArray(certificateContent,
                         "-----BEGIN CERTIFICATE-----", "-----END CERTIFICATE-----");
                 final CertificateFactory fact = CertificateFactory.getInstance("X.509", KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
@@ -109,8 +111,9 @@ public enum CertContentType {
 
         @Override
         public JsonWebKeyImportRequest getKey(@NonNull final String certificateContent,
-                                              @NonNull final String password) {
+                                              final String password) {
             try {
+                validatePem(certificateContent);
                 final byte[] encodedKey = extractByteArray(certificateContent,
                         "-----BEGIN PRIVATE KEY-----", "-----END PRIVATE KEY-----");
                 final KeyType keyType = assumeKeyType(encodedKey.length);
@@ -134,6 +137,10 @@ public enum CertContentType {
             return key + "\n" + cert;
         }
 
+        private void validatePem(final String certificateContent) {
+            Assert.isTrue(certificateContent.startsWith(BEGIN), "PEM should start with '-----BEGIN'");
+        }
+
         private String toPemString(final Object object) {
             //noinspection LocalCanBeFinal
             try (StringWriter stringWriter = new StringWriter();
@@ -144,7 +151,7 @@ public enum CertContentType {
                     pemWriter.writeObject(object);
                 }
                 pemWriter.close();
-                return stringWriter.toString();
+                return stringWriter.toString().replaceAll(ANYTHING_BEFORE_BEGIN, BEGIN);
             } catch (final IOException e) {
                 throw new CryptoException("Failed to convert to PEM.", e);
             }
@@ -158,6 +165,8 @@ public enum CertContentType {
         }
     };
 
+    private static final String BEGIN = "-----BEGIN";
+    private static final String ANYTHING_BEFORE_BEGIN = "^.*-----BEGIN";
     private static final int EC_RSA_KEY_SIZE_THRESHOLD = 150;
 
     private static KeyType assumeKeyType(final int size) {

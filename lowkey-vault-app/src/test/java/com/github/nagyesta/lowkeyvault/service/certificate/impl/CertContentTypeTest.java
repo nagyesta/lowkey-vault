@@ -21,6 +21,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertContentType.PEM;
+import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertContentType.PKCS12;
 
 @SuppressWarnings("UnnecessaryLocalVariable")
 class CertContentTypeTest {
@@ -107,6 +108,18 @@ class CertContentTypeTest {
     }
 
     @Test
+    void testGetCertificateChainShouldThrowExceptionWhenPemCalledWithInvalidPemStore() {
+        //given
+        final String store = ResourceUtils.loadResourceAsString("/cert/invalid-ec.pem");
+        final CertContentType underTest = CertContentType.PEM;
+
+        //when
+        Assertions.assertThrows(CryptoException.class, () -> underTest.getCertificateChain(store, "changeit"));
+
+        //then + exception
+    }
+
+    @Test
     void testGetCertificateChainShouldLoadCertificateChainWhenCalledWithEcPkcs12Store() throws CertificateEncodingException {
         //given
         final String store = ResourceUtils.loadResourceAsBase64String("/cert/ec.p12");
@@ -142,6 +155,18 @@ class CertContentTypeTest {
     void testGetKeyShouldThrowExceptionWhenPemCalledWithPkcs12Store() {
         //given
         final String store = ResourceUtils.loadResourceAsBase64String("/cert/ec.p12");
+        final CertContentType underTest = CertContentType.PEM;
+
+        //when
+        Assertions.assertThrows(CryptoException.class, () -> underTest.getKey(store, "changeit"));
+
+        //then + exception
+    }
+
+    @Test
+    void testGetKeyShouldThrowExceptionWhenPemCalledWithInvalidPemStore() {
+        //given
+        final String store = ResourceUtils.loadResourceAsBase64String("/cert/invalid-ec.pem");
         final CertContentType underTest = CertContentType.PEM;
 
         //when
@@ -259,14 +284,26 @@ class CertContentTypeTest {
         //then + exception
     }
 
-    @ParameterizedTest
-    @MethodSource("instanceProvider")
-    void testGetKeyShouldThrowExceptionWhenCalledWithNullPassword(final CertContentType underTest) {
+    @Test
+    void testGetKeyShouldThrowExceptionWhenCalledWithNullPasswordAndPkcs12() {
         //given
-        final String store = ResourceUtils.loadResourceAsString("/cert/rsa.pem");
+        final CertContentType underTest = PKCS12;
+        final String store = ResourceUtils.loadResourceAsString("/cert/rsa.p12");
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.getKey(store, null));
+
+        //then + exception
+    }
+
+    @Test
+    void testGetKeyShouldNotThrowExceptionWhenCalledWithNullPasswordAndPem() {
+        //given
+        final CertContentType underTest = PEM;
+        final String store = ResourceUtils.loadResourceAsString("/cert/rsa.pem");
+
+        //when
+        Assertions.assertDoesNotThrow(() -> underTest.getKey(store, null));
 
         //then + exception
     }
@@ -283,16 +320,28 @@ class CertContentTypeTest {
         //then + exception
     }
 
-    @ParameterizedTest
-    @MethodSource("instanceProvider")
-    void testGetCertificateChainShouldThrowExceptionWhenCalledWithNullPassword(final CertContentType underTest) {
+    @Test
+    void testGetCertificateChainShouldThrowExceptionWhenCalledWithNullPasswordAndPkcs12() {
         //given
-        final String store = ResourceUtils.loadResourceAsString("/cert/rsa.pem");
+        final CertContentType underTest = PKCS12;
+        final String store = ResourceUtils.loadResourceAsString("/cert/rsa.p12");
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.getCertificateChain(store, null));
 
         //then + exception
+    }
+
+    @Test
+    void testGetCertificateChainShouldNotThrowExceptionWhenCalledWithNullPasswordAndPem() {
+        //given
+        final CertContentType underTest = PEM;
+        final String store = ResourceUtils.loadResourceAsString("/cert/rsa.pem");
+
+        //when
+        Assertions.assertDoesNotThrow(() -> underTest.getCertificateChain(store, null));
+
+        //then + NO exception
     }
 
     @ParameterizedTest

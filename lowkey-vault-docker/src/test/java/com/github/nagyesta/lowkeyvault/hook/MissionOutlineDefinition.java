@@ -50,15 +50,16 @@ public class MissionOutlineDefinition extends LaunchAbortHook {
                         });
             });
 
-            Stream.of("CreateVault", "KeyRotate", "KeyImport", "KeyEncrypt", "KeySign", "RSA", "EC", "OCT").forEach(tag -> {
-                final MissionHealthCheckMatcher matcher = matcher().dependencyWith(tag).extractor(extractor).build();
-                final MissionHealthCheckEvaluator tagPercentage = percentageBasedEvaluator(matcher)
-                        .abortThreshold(ABORT_THRESHOLD)
-                        .burnInTestCount(BURN_IN_TEST_COUNT)
-                        .overrideKeyword(tag)
-                        .build();
-                ops.registerHealthCheck(tagPercentage);
-            });
+            Stream.of("CreateVault", "KeyRotate", "KeyImport", "KeyEncrypt", "KeySign", "CertificateImport", "RSA", "EC", "OCT")
+                    .forEach(tag -> {
+                        final MissionHealthCheckMatcher matcher = matcher().dependencyWith(tag).extractor(extractor).build();
+                        final MissionHealthCheckEvaluator tagPercentage = percentageBasedEvaluator(matcher)
+                                .abortThreshold(ABORT_THRESHOLD)
+                                .burnInTestCount(BURN_IN_TEST_COUNT)
+                                .overrideKeyword(tag)
+                                .build();
+                        ops.registerHealthCheck(tagPercentage);
+                    });
         });
     }
 

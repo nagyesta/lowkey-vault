@@ -12,7 +12,10 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import static com.github.nagyesta.lowkeyvault.context.TestContextConfig.CONTAINER_AUTHORITY;
 
@@ -118,4 +121,15 @@ public class CertificatesStepDefs extends CommonAssertions {
         context.getPolicy().setEnabled(enabledStatus);
     }
 
+    @When("a certificate named {name} is imported from the resource named {fileName} using {password} as password")
+    public void aCertificateIsImportedWithNameFromTheResourceUsingPassword(
+            final String name, final String resource, final String password) throws IOException {
+        final byte[] content = Objects.requireNonNull(getClass().getResourceAsStream("/certs/" + resource)).readAllBytes();
+        final ImportCertificateOptions options = new ImportCertificateOptions(name, content);
+        Optional.ofNullable(password).ifPresent(options::setPassword);
+        final KeyVaultCertificateWithPolicy certificate = context
+                .getClient(context.getCertificateServiceVersion())
+                .importCertificate(options);
+        context.addCreatedEntity(name, certificate);
+    }
 }

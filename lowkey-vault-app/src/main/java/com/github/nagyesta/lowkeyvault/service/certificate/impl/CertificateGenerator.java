@@ -149,8 +149,7 @@ public class CertificateGenerator {
         final RDN[] rdns = IETFUtils.rDNsFromString(input.getSubject(), BCStyle.INSTANCE);
         final X500NameBuilder x500NameBuilder = new X500NameBuilder(BCStyle.INSTANCE);
         Arrays.stream(rdns).map(RDN::getTypesAndValues).forEach(x500NameBuilder::addMultiValuedRDN);
-        return x500NameBuilder
-                .build();
+        return x500NameBuilder.build();
     }
 
     GeneralNames generateSubjectAlternativeNames(final CertificateCreationInput input) {

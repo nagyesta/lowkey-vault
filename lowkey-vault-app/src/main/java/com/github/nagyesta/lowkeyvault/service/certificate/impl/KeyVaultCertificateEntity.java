@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.service.certificate.impl;
 
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRequest;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.common.impl.KeyVaultBaseEntity;
@@ -17,6 +18,7 @@ import org.springframework.util.Assert;
 import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
@@ -57,6 +59,33 @@ public class KeyVaultCertificateEntity
         this.setEnabled(true);
     }
 
+    public KeyVaultCertificateEntity(@NonNull final String name,
+                                     @NonNull final CertificateCreationInput input,
+                                     @NonNull final X509Certificate certificate,
+                                     @NonNull final JsonWebKeyImportRequest keyImportRequest,
+                                     @org.springframework.lang.NonNull final VaultFake vault) {
+        super(vault);
+        Assert.state(name.equals(input.getName()),
+                "Certificate name (" + name + ") did not match name from certificate creation input: " + input.getName());
+        final KeyEntityId kid = new KeyEntityId(vault.baseUri(), name);
+        final SecretEntityId sid = new SecretEntityId(vault.baseUri(), name);
+        Assert.state(!vault.keyVaultFake().getEntities().containsName(kid.id()),
+                "Key must not exist to be able to store certificate data in it. " + kid.asUriNoVersion(vault.baseUri()));
+        Assert.state(!vault.secretVaultFake().getEntities().containsName(sid.id()),
+                "Secret must not exist to be able to store certificate data in it. " + sid.asUriNoVersion(vault.baseUri()));
+        this.generator = input;
+        this.kid = importKeyPair(input, keyImportRequest, vault);
+        //reuse the generated key version to produce matching version numbers in all keys
+        this.id = new VersionedCertificateEntityId(vault.baseUri(), name, this.kid.version());
+        final CertificateGenerator certificateGenerator = new CertificateGenerator(vault, this.kid);
+        this.certificate = certificate;
+        this.csr = certificateGenerator.generateCertificateSigningRequest(input);
+        this.sid = generateSecret(input, vault, this.certificate, this.kid);
+        this.setNotBefore(input.getValidityStart());
+        this.setExpiry(input.getValidityStart().plusMonths(input.getValidityMonths()));
+        this.setEnabled(true);
+    }
+
     private VersionedSecretEntityId generateSecret(final CertificateCreationInput input,
                                                    final VaultFake vault,
                                                    final Certificate certificate,
@@ -73,6 +102,11 @@ public class KeyVaultCertificateEntity
         final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
         final OffsetDateTime expiry = now.plusMonths(input.getValidityMonths());
         return vault.keyVaultFake().createKeyVersionForCertificate(input.getName(), input.toKeyCreationInput(), now, expiry);
+    }
+
+    private VersionedKeyEntityId importKeyPair(
+            final CertificateCreationInput input, final JsonWebKeyImportRequest keyImportRequest, final VaultFake vault) {
+        return vault.keyVaultFake().importManagedKeyVersion(input.getName(), keyImportRequest);
     }
 
     @Override

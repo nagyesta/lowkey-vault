@@ -1,6 +1,7 @@
 package com.github.nagyesta.lowkeyvault.controller.v7_3;
 
 import com.github.nagyesta.abortmission.booster.jupiter.annotation.LaunchAbortArmed;
+import com.github.nagyesta.lowkeyvault.ResourceUtils;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.*;
@@ -141,6 +142,119 @@ class CertificateControllerIntegrationTest {
 
         //then
         Assertions.assertEquals(V_7_3, actual);
+    }
+
+    @Test
+    void testImportCertificateShouldReturnModelWhenCalledWithValidPemData() {
+        //given
+        final CertificateImportRequest request = getCreateImportRequest("/cert/ec.pem", CertContentType.PEM);
+        final String name = CERT_NAME_3 + "-import-pem";
+
+        //when
+        final ResponseEntity<KeyVaultCertificateModel> actual = underTest
+                .importCertificate(name, HTTPS_LOCALHOST_8443, request);
+
+        //then
+        Assertions.assertEquals(OK, actual.getStatusCode());
+        final KeyVaultCertificateModel body = actual.getBody();
+        Assertions.assertNotNull(body);
+        Assertions.assertNotNull(body.getCertificate());
+        Assertions.assertNotNull(body.getThumbprint());
+        Assertions.assertEquals(Collections.emptyMap(), body.getTags());
+        Assertions.assertTrue(body.getId().startsWith(HTTPS_LOCALHOST_8443.toString()));
+        Assertions.assertTrue(body.getId().contains(name));
+    }
+
+    @Test
+    void testImportCertificateShouldReturnModelWhenCalledWithValidPkcs12Data() {
+        //given
+        final CertificateImportRequest request = getCreateImportRequest("/cert/ec.p12", CertContentType.PKCS12);
+        final String name = CERT_NAME_3 + "-import-pkcs";
+
+        //when
+        final ResponseEntity<KeyVaultCertificateModel> actual = underTest
+                .importCertificate(name, HTTPS_LOCALHOST_8443, request);
+
+        //then
+        Assertions.assertEquals(OK, actual.getStatusCode());
+        final KeyVaultCertificateModel body = actual.getBody();
+        Assertions.assertNotNull(body);
+        Assertions.assertNotNull(body.getCertificate());
+        Assertions.assertNotNull(body.getThumbprint());
+        Assertions.assertEquals(Collections.emptyMap(), body.getTags());
+        Assertions.assertTrue(body.getId().startsWith(HTTPS_LOCALHOST_8443.toString()));
+        Assertions.assertTrue(body.getId().contains(name));
+    }
+
+    @Test
+    void testImportCertificateShouldReturnModelWhenCalledWithValidPemDataAndNoType() {
+        //given
+        final CertificateImportRequest request = getCreateImportRequest("/cert/ec.pem", null);
+        final String name = CERT_NAME_3 + "-import-pem-auto";
+
+        //when
+        final ResponseEntity<KeyVaultCertificateModel> actual = underTest
+                .importCertificate(name, HTTPS_LOCALHOST_8443, request);
+
+        //then
+        Assertions.assertEquals(OK, actual.getStatusCode());
+        final KeyVaultCertificateModel body = actual.getBody();
+        Assertions.assertNotNull(body);
+        Assertions.assertNotNull(body.getCertificate());
+        Assertions.assertNotNull(body.getThumbprint());
+        Assertions.assertEquals(Collections.emptyMap(), body.getTags());
+        Assertions.assertTrue(body.getId().startsWith(HTTPS_LOCALHOST_8443.toString()));
+        Assertions.assertTrue(body.getId().contains(name));
+    }
+
+    @Test
+    void testImportCertificateShouldReturnModelWhenCalledWithValidPkcs12DataAndNoType() {
+        //given
+        final CertificateImportRequest request = getCreateImportRequest("/cert/ec.p12", null);
+        final String name = CERT_NAME_3 + "-import-pkcs-auto";
+
+        //when
+        final ResponseEntity<KeyVaultCertificateModel> actual = underTest
+                .importCertificate(name, HTTPS_LOCALHOST_8443, request);
+
+        //then
+        Assertions.assertEquals(OK, actual.getStatusCode());
+        final KeyVaultCertificateModel body = actual.getBody();
+        Assertions.assertNotNull(body);
+        Assertions.assertNotNull(body.getCertificate());
+        Assertions.assertNotNull(body.getThumbprint());
+        Assertions.assertEquals(Collections.emptyMap(), body.getTags());
+        Assertions.assertTrue(body.getId().startsWith(HTTPS_LOCALHOST_8443.toString()));
+        Assertions.assertTrue(body.getId().contains(name));
+    }
+
+    @Test
+    void testImportCertificateShouldThrowExceptionWhenCalledWithNotMatchingCertTypes() {
+        //given
+        final CertificateImportRequest request = getCreateImportRequest("/cert/ec.p12", CertContentType.PEM);
+        final String name = CERT_NAME_3 + "-import-invalid";
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> underTest.importCertificate(name, HTTPS_LOCALHOST_8443, request));
+
+        //then + exception
+    }
+
+    private CertificateImportRequest getCreateImportRequest(final String resource, final CertContentType type) {
+        final CertificateImportRequest request = new CertificateImportRequest();
+        request.setCertificate(ResourceUtils.loadResourceAsByteArray(resource));
+        if (resource.endsWith("p12")) {
+            request.setPassword("changeit");
+        }
+        if (type != null) {
+            final CertificateSecretModel secretProperties = new CertificateSecretModel();
+            secretProperties.setContentType(type.getMimeType());
+            final CertificatePolicyModel policy = new CertificatePolicyModel();
+            policy.setSecretProperties(secretProperties);
+            request.setPolicy(policy);
+        }
+        return request;
     }
 
     private CreateCertificateRequest getCreateCertificateRequest() {

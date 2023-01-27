@@ -10,6 +10,9 @@ import com.azure.security.keyvault.keys.models.KeyOperation;
 import io.cucumber.java.ParameterType;
 
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -68,9 +71,27 @@ public class ParameterTypeDefs {
         return Integer.parseInt(size);
     }
 
+    @ParameterType("([0-9]{4}-[0-9]{2}-[0-9]{2})")
+    public OffsetDateTime expiry(final String date) throws ParseException {
+        return OffsetDateTime.parse(date+"T00:00:00+00:00", DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+    }
+
     @ParameterType("[0-9a-zA-Z\\-_]+")
     public String name(final String name) {
         return name;
+    }
+
+    @ParameterType("[0-9a-zA-Z\\-_]+\\.[0-9a-zA-Z\\-_]+")
+    public String fileName(final String fileName) {
+        return fileName;
+    }
+
+    @ParameterType("(-|.+)")
+    public String password(final String password) {
+        if (password.equals("-")) {
+            return null;
+        }
+        return password;
     }
 
     @ParameterType("(CN=[0-9a-zA-Z\\-_\\.]+)")

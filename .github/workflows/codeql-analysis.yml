@@ -75,7 +75,7 @@ jobs:
           distribution: temurin
           java-version: 11
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@436dbd9100756e97f42f45da571adeebf8270723 # v2.2.0
+        uses: github/codeql-action/init@3ebbd71c74ef574dbc558c82f70e52732c8b44fe # v2.2.1
         with:
           languages: ${{ matrix.language }}
           # If you wish to specify custom queries, you can do so here or in a config file.
@@ -85,6 +85,6 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build -x test -x dockerClean -x dockerPrepare -x dockerRun -x dockerRunStatus -x dockerStop
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@436dbd9100756e97f42f45da571adeebf8270723 # v2.2.0
+        uses: github/codeql-action/analyze@3ebbd71c74ef574dbc558c82f70e52732c8b44fe # v2.2.1
       - name: Check dependencies with Gradle
         run: ./gradlew ossIndexAudit -PossIndexUsername=${{ secrets.OSS_INDEX_USER }} -PossIndexPassword=${{ secrets.OSS_INDEX_PASSWORD }}

@@ -202,7 +202,8 @@ not work or are known to be broken, for example but not limited to the following
 2. [.Net](https://github.com/nagyesta/lowkey-vault-example-dotnet)
 3. [Python](https://github.com/nagyesta/lowkey-vault-example-python)
 4. [Go](https://github.com/nagyesta/lowkey-vault-example-go)
-5. [Docker](https://github.com/nagyesta/lowkey-vault-example-docker)
+5. [Node.js](https://github.com/nagyesta/lowkey-vault-example-nodejs)
+6. [Docker](https://github.com/nagyesta/lowkey-vault-example-docker)
 
 # Limitations
 

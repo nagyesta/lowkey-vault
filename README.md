@@ -155,9 +155,11 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
     - Password used for PKCS12 stores: `lowkey-vault`
 - Get certificate operation
     - Get pending create operation results
+- Get available certificate versions
 - Get certificate
     - Latest version of a single certificate
     - Specific version of a single certificate
+    - List of all certificates
 - Import certificate
     - Self-signed only
     - The downloadable certificate is protected using `lowkey-vault` as password for PKCS12 stores

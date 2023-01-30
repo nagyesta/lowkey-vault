@@ -1,27 +1,23 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate;
 
-import com.github.nagyesta.lowkeyvault.mapper.common.RecoveryAwareConverter;
-import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.DeletedKeyVaultCertificateItemModel;
-import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.KeyVaultCertificateItemModel;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
-import lombok.NonNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
 
 @Component
 public class CertificateEntityToV73CertificateVersionItemModelConverter
-        implements RecoveryAwareConverter<ReadOnlyKeyVaultCertificateEntity,
-        KeyVaultCertificateItemModel, DeletedKeyVaultCertificateItemModel> {
-    @Override
-    public KeyVaultCertificateItemModel convert(
-            final ReadOnlyKeyVaultCertificateEntity source, final @NonNull URI vaultUri) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        extends CertificateEntityToV73CertificateItemModelConverter {
+    @Autowired
+    public CertificateEntityToV73CertificateVersionItemModelConverter(
+            @NonNull final CertificateEntityToV73PropertiesModelConverter certificateEntityToV73PropertiesModelConverter) {
+        super(certificateEntityToV73PropertiesModelConverter);
     }
 
     @Override
-    public @NonNull DeletedKeyVaultCertificateItemModel convertDeleted(
-            final @NonNull ReadOnlyKeyVaultCertificateEntity source, final @NonNull URI vaultUri) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    protected String convertCertificateId(final ReadOnlyKeyVaultCertificateEntity source, final URI vaultUri) {
+        return source.getId().asUri(vaultUri).toString();
     }
 }

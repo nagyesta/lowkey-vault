@@ -6,13 +6,12 @@ import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntity
 import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntityToV73ModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntityToV73PendingCertificateOperationModelConverter;
 import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
-import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificateImportRequest;
-import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CreateCertificateRequest;
-import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.KeyVaultCertificateModel;
-import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.KeyVaultPendingCertificateModel;
+import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
+import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.*;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
@@ -32,10 +31,10 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Validated
 @Component("CertificateControllerV73")
 public class CertificateController extends CommonCertificateController {
-
     @Autowired
     public CertificateController(
             @NonNull final CertificateEntityToV73ModelConverter modelConverter,
+            @Qualifier("certificateEntityToV73CertificateItemModelConverter")
             @NonNull final CertificateEntityToV73CertificateItemModelConverter itemModelConverter,
             @NonNull final CertificateEntityToV73CertificateVersionItemModelConverter versionItemModelConverter,
             @NonNull final CertificateEntityToV73PendingCertificateOperationModelConverter pendingModelConverter,
@@ -96,6 +95,30 @@ public class CertificateController extends CommonCertificateController {
             @PathVariable @Valid @Pattern(regexp = VERSION_NAME_PATTERN) final String certificateVersion,
             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
         return super.getWithVersion(certificateName, certificateVersion, baseUri);
+    }
+
+    @Override
+    @GetMapping(value = "/certificates/{certificateName}/versions",
+            params = API_VERSION_7_3,
+            produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<KeyVaultItemListModel<KeyVaultCertificateItemModel>> versions(
+            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
+            @RequestParam(name = MAX_RESULTS_PARAM, required = false, defaultValue = DEFAULT_MAX) final int maxResults,
+            @RequestParam(name = SKIP_TOKEN_PARAM, required = false, defaultValue = SKIP_ZERO) final int skipToken) {
+        return super.versions(certificateName, baseUri, maxResults, skipToken);
+    }
+
+    @Override
+    @GetMapping(value = "/certificates",
+            params = API_VERSION_7_3,
+            produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<KeyVaultItemListModel<KeyVaultCertificateItemModel>> listCertificates(
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
+            @RequestParam(name = MAX_RESULTS_PARAM, required = false, defaultValue = DEFAULT_MAX) final int maxResults,
+            @RequestParam(name = SKIP_TOKEN_PARAM, required = false, defaultValue = SKIP_ZERO) final int skipToken,
+            @RequestParam(name = INCLUDE_PENDING_PARAM, required = false, defaultValue = TRUE) final boolean includePending) {
+        return super.listCertificates(baseUri, maxResults, skipToken, includePending);
     }
 
     @Override

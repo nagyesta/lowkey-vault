@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.github.nagyesta.lowkeyvault.context.TestContextConfig.CONTAINER_AUTHORITY;
 
@@ -131,5 +133,38 @@ public class CertificatesStepDefs extends CommonAssertions {
                 .getClient(context.getCertificateServiceVersion())
                 .importCertificate(options);
         context.addCreatedEntity(name, certificate);
+    }
+
+    @And("{int} certificates are imported from the resource named {fileName} using {password} as password")
+    public void countCertificatesAreImportedFromTheGivenResourceUsingPassword(
+            final int count, final String resource, final String password) throws IOException {
+        final byte[] content = Objects.requireNonNull(getClass().getResourceAsStream("/certs/" + resource)).readAllBytes();
+        final CertificateClient client = context.getClient(context.getCertificateServiceVersion());
+        IntStream.range(0, count).forEach(i -> {
+            final String name = "multi-import-" + i;
+            final ImportCertificateOptions options = new ImportCertificateOptions(name, content);
+            Optional.ofNullable(password).ifPresent(options::setPassword);
+            final KeyVaultCertificateWithPolicy certificate = client
+                    .importCertificate(options);
+            context.addCreatedEntity(name, certificate);
+        });
+    }
+
+    @When("the certificates are listed")
+    public void theCertificatesAreListed() {
+        final CertificateClient client = context.getClient(context.getCertificateServiceVersion());
+        final List<String> actual = client.listPropertiesOfCertificates()
+                .mapPage(CertificateProperties::getId)
+                .stream().collect(Collectors.toList());
+        context.setListedIds(actual);
+    }
+
+    @When("the certificate versions are listed")
+    public void theCertificateVersionsAreListed() {
+        final CertificateClient client = context.getClient(context.getCertificateServiceVersion());
+        final List<String> actual = client.listPropertiesOfCertificateVersions(context.getLastResult().getName())
+                .mapPage(CertificateProperties::getId)
+                .stream().collect(Collectors.toList());
+        context.setListedIds(actual);
     }
 }

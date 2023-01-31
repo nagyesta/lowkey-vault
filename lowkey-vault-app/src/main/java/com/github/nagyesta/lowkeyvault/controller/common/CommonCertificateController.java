@@ -4,6 +4,7 @@ import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntity
 import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntityToV73CertificateVersionItemModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntityToV73ModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntityToV73PendingCertificateOperationModelConverter;
+import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.*;
 import com.github.nagyesta.lowkeyvault.service.certificate.CertificateVaultFake;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
@@ -26,6 +27,7 @@ import javax.validation.constraints.Pattern;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateCreationInput.DEFAULT_VALIDITY_MONTHS;
@@ -36,6 +38,14 @@ public abstract class CommonCertificateController extends GenericEntityControlle
         DeletedKeyVaultCertificateItemModel, CertificateEntityToV73ModelConverter, CertificateEntityToV73CertificateItemModelConverter,
         CertificateEntityToV73CertificateVersionItemModelConverter, CertificateVaultFake> {
 
+    /**
+     * Default parameter value for including the pending certificates.
+     */
+    protected static final String TRUE = "true";
+    /**
+     * Parameter name for including the pending certificates.
+     */
+    protected static final String INCLUDE_PENDING_PARAM = "includePending";
     private final CertificateEntityToV73PendingCertificateOperationModelConverter pendingModelConverter;
 
     protected CommonCertificateController(
@@ -104,6 +114,39 @@ public abstract class CommonCertificateController extends GenericEntityControlle
         final VersionedCertificateEntityId entityId = importCertificateWithAttributes(vaultFake, certificateName, request);
         final ReadOnlyKeyVaultCertificateEntity readOnlyEntity = vaultFake.getEntities().getReadOnlyEntity(entityId);
         return ResponseEntity.ok().body(convertDetails(readOnlyEntity, baseUri));
+    }
+
+    public ResponseEntity<KeyVaultItemListModel<KeyVaultCertificateItemModel>> versions(
+            @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
+            final URI baseUri,
+            final int maxResults,
+            final int skipToken) {
+        log.info("Received request to {} list certificate versions: {} , (max results: {}, skip: {}) using API version: {}",
+                baseUri.toString(), certificateName, maxResults, skipToken, apiVersion());
+
+        return ResponseEntity.ok(getPageOfItemVersions(
+                baseUri, certificateName, maxResults, skipToken, "/certificates/" + certificateName + "/versions"));
+    }
+
+    public ResponseEntity<KeyVaultItemListModel<KeyVaultCertificateItemModel>> listCertificates(
+            final URI baseUri,
+            final int maxResults,
+            final int skipToken,
+            final boolean includePending) {
+        log.info("Received request to {} list certificates, (max results: {}, skip: {}, includePending: {}) using API version: {}",
+                baseUri.toString(), maxResults, skipToken, includePending, apiVersion());
+
+        return ResponseEntity.ok(getPageOfItems(baseUri, maxResults, skipToken, includePending));
+    }
+
+    private KeyVaultItemListModel<KeyVaultCertificateItemModel> getPageOfItems(
+            final URI baseUri, final int limit, final int offset, final boolean includePending) {
+        final KeyVaultItemListModel<KeyVaultCertificateItemModel> page = super.getPageOfItems(baseUri, limit, offset, "/certificates");
+        final String nextLink = Optional.ofNullable(page.getNextLink())
+                .map(next -> next + "&" + INCLUDE_PENDING_PARAM + "=" + includePending)
+                .orElse(null);
+        page.setNextLink(nextLink);
+        return page;
     }
 
     @Override

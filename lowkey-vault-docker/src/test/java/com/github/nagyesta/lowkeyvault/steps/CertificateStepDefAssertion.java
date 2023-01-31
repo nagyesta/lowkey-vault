@@ -20,6 +20,7 @@ import java.security.cert.X509Certificate;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Enumeration;
+import java.util.List;
 
 public class CertificateStepDefAssertion extends CommonAssertions {
 
@@ -71,6 +72,12 @@ public class CertificateStepDefAssertion extends CommonAssertions {
         final X509Certificate certificate = getX509Certificate(contentType, value);
         assertEquals(expiry.toInstant().truncatedTo(ChronoUnit.DAYS),
                 certificate.getNotAfter().toInstant().truncatedTo(ChronoUnit.DAYS));
+    }
+
+    @Then("the list should contain {int} items")
+    public void theListShouldContainCountItems(final int count) {
+        final List<String> ids = context.getListedIds();
+        assertEquals(count, ids.size());
     }
 
     private X509Certificate getX509Certificate(final CertificateContentType contentType, final String value) throws Exception {

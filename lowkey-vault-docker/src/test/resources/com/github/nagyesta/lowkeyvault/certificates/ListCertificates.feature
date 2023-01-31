@@ -36,7 +36,7 @@ Feature: Certificate list
     Scenario Outline: RSA_CERT_LIST_02 A single version of an RSA certificate is imported then versions listed with the certificate client
         Given certificate API version <api> is used
         And a vault is created with name cert-list-rsa-ver-<index>
-        And a certificate client is created with the vault named cert-list-rsa-<index>
+        And a certificate client is created with the vault named cert-list-rsa-ver-<index>
         And 1 certificates are imported from the resource named <fileName> using - as password
         When the certificate versions are listed
         Then the list should contain 1 items
@@ -49,7 +49,7 @@ Feature: Certificate list
     Scenario Outline: EC_CERT_LIST_02 A single version of an EC certificate is imported then versions listed with the certificate client
         Given certificate API version <api> is used
         And a vault is created with name cert-list-ec-ver-<index>
-        And a certificate client is created with the vault named cert-list-ec-<index>
+        And a certificate client is created with the vault named cert-list-ec-ver-<index>
         And 1 certificates are imported from the resource named <fileName> using - as password
         When the certificate versions are listed
         Then the list should contain 1 items

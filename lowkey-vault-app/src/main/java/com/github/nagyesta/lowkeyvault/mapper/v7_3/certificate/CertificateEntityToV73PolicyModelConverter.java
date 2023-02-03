@@ -3,7 +3,7 @@ package com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate;
 import com.github.nagyesta.lowkeyvault.mapper.AliasAwareConverter;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.*;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
-import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateCreationInput;
+import com.github.nagyesta.lowkeyvault.service.certificate.impl.ReadOnlyCertificatePolicy;
 import lombok.NonNull;
 import org.springframework.stereotype.Component;
 
@@ -46,26 +46,26 @@ public class CertificateEntityToV73PolicyModelConverter
 
     private IssuerParameterModel convertIssuer(final ReadOnlyKeyVaultCertificateEntity source) {
         final IssuerParameterModel issuerParameterModel = new IssuerParameterModel();
-        issuerParameterModel.setIssuer(source.getGenerator().getCertAuthorityType().getValue());
+        issuerParameterModel.setIssuer(source.getPolicy().getCertAuthorityType().getValue());
         issuerParameterModel.setCertType(null);
-        issuerParameterModel.setCertTransparency(source.getGenerator().isEnableTransparency());
+        issuerParameterModel.setCertTransparency(source.getPolicy().isEnableTransparency());
         return issuerParameterModel;
     }
 
     private X509CertificateModel convertX509Properties(final ReadOnlyKeyVaultCertificateEntity source) {
         final X509CertificateModel model = new X509CertificateModel();
-        final CertificateCreationInput generator = source.getGenerator();
-        model.setSubject(generator.getSubject());
-        model.setKeyUsage(generator.getKeyUsage());
-        model.setValidityMonths(generator.getValidityMonths());
-        model.setExtendedKeyUsage(generator.getExtendedKeyUsage());
-        model.setSubjectAlternativeNames(new SubjectAlternativeNames(generator.getDnsNames(), generator.getEmails(), generator.getIps()));
+        final ReadOnlyCertificatePolicy policy = source.getPolicy();
+        model.setSubject(policy.getSubject());
+        model.setKeyUsage(policy.getKeyUsage());
+        model.setValidityMonths(policy.getValidityMonths());
+        model.setExtendedKeyUsage(policy.getExtendedKeyUsage());
+        model.setSubjectAlternativeNames(new SubjectAlternativeNames(policy.getDnsNames(), policy.getEmails(), policy.getIps()));
         return model;
     }
 
     private CertificateSecretModel convertSecretProperties(final ReadOnlyKeyVaultCertificateEntity source) {
         final CertificateSecretModel model = new CertificateSecretModel();
-        model.setContentType(source.getGenerator().getContentType().getMimeType());
+        model.setContentType(source.getPolicy().getContentType().getMimeType());
         return model;
     }
 
@@ -78,13 +78,13 @@ public class CertificateEntityToV73PolicyModelConverter
     }
 
     private CertificateKeyModel convertKeyProperties(final ReadOnlyKeyVaultCertificateEntity source) {
-        final CertificateCreationInput generator = source.getGenerator();
+        final ReadOnlyCertificatePolicy policy = source.getPolicy();
         final CertificateKeyModel model = new CertificateKeyModel();
-        model.setExportable(generator.isExportablePrivateKey());
-        model.setReuseKey(generator.isReuseKeyOnRenewal());
-        model.setKeySize(generator.getKeySize());
-        model.setKeyCurveName(generator.getKeyCurveName());
-        model.setKeyType(generator.getKeyType());
+        model.setExportable(policy.isExportablePrivateKey());
+        model.setReuseKey(policy.isReuseKeyOnRenewal());
+        model.setKeySize(policy.getKeySize());
+        model.setKeyCurveName(policy.getKeyCurveName());
+        model.setKeyType(policy.getKeyType());
         return model;
     }
 

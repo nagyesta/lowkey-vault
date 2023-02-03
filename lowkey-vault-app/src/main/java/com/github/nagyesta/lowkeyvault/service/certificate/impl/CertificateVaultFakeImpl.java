@@ -36,7 +36,7 @@ public class CertificateVaultFakeImpl
     public VersionedCertificateEntityId importCertificateVersion(
             @NonNull final String name, @NonNull final CertificateImportInput input) {
         final KeyVaultCertificateEntity entity = new KeyVaultCertificateEntity(
-                name, input.getCertificateData(), input.getCertificate(), input.getKeyData(), vaultFake());
+                name, input, vaultFake());
         return addVersion(entity.getId(), entity);
     }
 }

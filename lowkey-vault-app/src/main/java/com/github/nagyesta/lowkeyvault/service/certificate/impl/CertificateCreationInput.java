@@ -2,19 +2,15 @@ package com.github.nagyesta.lowkeyvault.service.certificate.impl;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.CreateKeyRequest;
-import com.github.nagyesta.lowkeyvault.service.key.impl.KeyCreationInput;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.ToString;
 
 import java.time.OffsetDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.Set;
 
 @Data
-public class CertificateCreationInput {
+public class CertificateCreationInput implements ReadOnlyCertificatePolicy {
 
     /**
      * Default number of months used for certificate validity.
@@ -62,23 +58,6 @@ public class CertificateCreationInput {
 
     public static CertificateCreationInputBuilder builder() {
         return new CertificateCreationInputBuilder();
-    }
-
-    public KeyCreationInput<?> toKeyCreationInput() {
-        final CreateKeyRequest request = new CreateKeyRequest();
-        request.setKeyType(getKeyType());
-        request.setKeySize(getKeySize());
-        request.setKeyCurveName(getKeyCurveName());
-        return request.toKeyCreationInput();
-    }
-
-    public Date certNotBefore() {
-        return Date.from(validityStart.truncatedTo(ChronoUnit.DAYS).toInstant());
-    }
-
-
-    public Date certExpiry() {
-        return Date.from(validityStart.plusMonths(validityMonths).truncatedTo(ChronoUnit.DAYS).toInstant());
     }
 
     @ToString

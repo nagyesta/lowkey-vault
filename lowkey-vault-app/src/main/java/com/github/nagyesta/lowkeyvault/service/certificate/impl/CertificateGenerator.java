@@ -63,7 +63,7 @@ public class CertificateGenerator {
     }
 
     public PKCS10CertificationRequest generateCertificateSigningRequest(
-            @NonNull final CertificateCreationInput input) throws CryptoException {
+            @NonNull final ReadOnlyCertificatePolicy input) throws CryptoException {
         try {
             final ReadOnlyAsymmetricKeyVaultKeyEntity readOnlyKeyVaultKey = vault.keyVaultFake().getEntities()
                     .getEntity(kid, ReadOnlyAsymmetricKeyVaultKeyEntity.class);
@@ -145,7 +145,7 @@ public class CertificateGenerator {
         return certificate.build(signer);
     }
 
-    X500Name generateSubject(final CertificateCreationInput input) {
+    X500Name generateSubject(final ReadOnlyCertificatePolicy input) {
         final RDN[] rdns = IETFUtils.rDNsFromString(input.getSubject(), BCStyle.INSTANCE);
         final X500NameBuilder x500NameBuilder = new X500NameBuilder(BCStyle.INSTANCE);
         Arrays.stream(rdns).map(RDN::getTypesAndValues).forEach(x500NameBuilder::addMultiValuedRDN);

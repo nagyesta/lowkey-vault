@@ -3,7 +3,6 @@ package com.github.nagyesta.lowkeyvault.service.certificate.impl;
 import com.github.nagyesta.lowkeyvault.ResourceUtils;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificatePolicyModel;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.SubjectAlternativeNames;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.X509CertificateModel;
@@ -14,18 +13,23 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.MimeTypeUtils;
 
-import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 
-import static com.github.nagyesta.lowkeyvault.TestConstants.LOWKEY_VAULT;
+import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificateKeys.EMPTY_PASSWORD;
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.CERT_NAME_1;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
+import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertAuthorityType.SELF_SIGNED;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
 class KeyVaultCertificateEntityIntegrationTest {
     public static final int TWO_YEARS_IN_MONTHS = 24;
+    //precision of the parsing is low, at 30 years, the difference adds up
+    public static final int THIRTY_YEARS_IN_MONTHS_APPROX = 361;
 
     @Test
     void testImportConstructorShouldGenerateMatchingVersionsWhenCalledWithValidInput() {
@@ -33,13 +37,10 @@ class KeyVaultCertificateEntityIntegrationTest {
         final String certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsBase64String("/cert/rsa.p12"));
         final CertificateImportInput input = new CertificateImportInput(
                 CERT_NAME_1, certContent, EMPTY_PASSWORD, CertContentType.PKCS12, new CertificatePolicyModel());
-        final JsonWebKeyImportRequest keyData = input.getKeyData();
-        final CertificateCreationInput certificateData = input.getCertificateData();
-        final X509Certificate certificate = input.getCertificate();
         final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
 
         //when
-        final KeyVaultCertificateEntity entity = new KeyVaultCertificateEntity(CERT_NAME_1, certificateData, certificate, keyData, vault);
+        final KeyVaultCertificateEntity entity = new KeyVaultCertificateEntity(CERT_NAME_1, input, vault);
 
         //then
         Assertions.assertEquals(entity.getId().vault(), entity.getKid().vault());
@@ -51,7 +52,7 @@ class KeyVaultCertificateEntityIntegrationTest {
     }
 
     @Test
-    void testImportConstructorShouldOverrideCertificatePolicyDataWhenProvided() throws CertificateParsingException {
+    void testImportConstructorShouldOverrideCertificatePolicyDataWhenProvided() {
         //given
         final String certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsBase64String("/cert/rsa.p12"));
         final String expectedSubject = "CN=example.com";
@@ -69,23 +70,21 @@ class KeyVaultCertificateEntityIntegrationTest {
 
         final CertificateImportInput input = new CertificateImportInput(
                 CERT_NAME_1, certContent, EMPTY_PASSWORD, CertContentType.PKCS12, policyModel);
-        final JsonWebKeyImportRequest keyData = input.getKeyData();
-        final CertificateCreationInput certificateData = input.getCertificateData();
         final X509Certificate certificate = input.getCertificate();
         final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
 
         //when
-        final KeyVaultCertificateEntity actual = new KeyVaultCertificateEntity(CERT_NAME_1, certificateData, certificate, keyData, vault);
+        final KeyVaultCertificateEntity actual = new KeyVaultCertificateEntity(CERT_NAME_1, input, vault);
 
         //then
         Assertions.assertEquals(certificate, actual.getCertificate());
-        Assertions.assertEquals(expectedSubject, actual.getGenerator().getSubject());
-        Assertions.assertIterableEquals(Set.of(expectedSan), actual.getGenerator().getDnsNames());
-        Assertions.assertIterableEquals(Set.of(), actual.getGenerator().getIps());
-        Assertions.assertIterableEquals(Set.of(), actual.getGenerator().getEmails());
-        Assertions.assertIterableEquals(Set.of(), actual.getGenerator().getExtendedKeyUsage());
-        Assertions.assertIterableEquals(Set.of(KeyUsageEnum.ENCIPHER_ONLY), actual.getGenerator().getKeyUsage());
-        Assertions.assertEquals(TWO_YEARS_IN_MONTHS, actual.getGenerator().getValidityMonths());
+        Assertions.assertEquals(expectedSubject, actual.getPolicy().getSubject());
+        Assertions.assertIterableEquals(Set.of(expectedSan), actual.getPolicy().getDnsNames());
+        Assertions.assertIterableEquals(Set.of(), actual.getPolicy().getIps());
+        Assertions.assertIterableEquals(Set.of(), actual.getPolicy().getEmails());
+        Assertions.assertIterableEquals(Set.of(), actual.getPolicy().getExtendedKeyUsage());
+        Assertions.assertIterableEquals(Set.of(KeyUsageEnum.ENCIPHER_ONLY), actual.getPolicy().getKeyUsage());
+        Assertions.assertEquals(TWO_YEARS_IN_MONTHS, actual.getPolicy().getValidityMonths());
     }
 
     @Test
@@ -94,15 +93,12 @@ class KeyVaultCertificateEntityIntegrationTest {
         final String certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsBase64String("/cert/rsa.p12"));
         final CertificateImportInput input = new CertificateImportInput(
                 CERT_NAME_1, certContent, EMPTY_PASSWORD, CertContentType.PKCS12, new CertificatePolicyModel());
-        final JsonWebKeyImportRequest keyData = input.getKeyData();
-        final CertificateCreationInput certificateData = input.getCertificateData();
-        final X509Certificate certificate = input.getCertificate();
         final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
         vault.secretVaultFake().createSecretVersion(CERT_NAME_1, LOWKEY_VAULT, MimeTypeUtils.TEXT_PLAIN.getType());
 
         //when
         Assertions.assertThrows(IllegalStateException.class,
-                () -> new KeyVaultCertificateEntity(CERT_NAME_1, certificateData, certificate, keyData, vault));
+                () -> new KeyVaultCertificateEntity(CERT_NAME_1, input, vault));
 
         //then + exception
     }
@@ -113,15 +109,12 @@ class KeyVaultCertificateEntityIntegrationTest {
         final String certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsBase64String("/cert/rsa.p12"));
         final CertificateImportInput input = new CertificateImportInput(
                 CERT_NAME_1, certContent, EMPTY_PASSWORD, CertContentType.PKCS12, new CertificatePolicyModel());
-        final JsonWebKeyImportRequest keyData = input.getKeyData();
-        final CertificateCreationInput certificateData = input.getCertificateData();
-        final X509Certificate certificate = input.getCertificate();
         final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
         vault.keyVaultFake().createEcKeyVersion(CERT_NAME_1, new EcKeyCreationInput(KeyType.EC, KeyCurveName.P_256));
 
         //when
         Assertions.assertThrows(IllegalStateException.class,
-                () -> new KeyVaultCertificateEntity(CERT_NAME_1, certificateData, certificate, keyData, vault));
+                () -> new KeyVaultCertificateEntity(CERT_NAME_1, input, vault));
 
         //then + exception
     }
@@ -133,69 +126,158 @@ class KeyVaultCertificateEntityIntegrationTest {
         final String certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsBase64String("/cert/rsa.p12"));
         final CertificateImportInput input = new CertificateImportInput(
                 CERT_NAME_1, certContent, EMPTY_PASSWORD, CertContentType.PKCS12, new CertificatePolicyModel());
-        final JsonWebKeyImportRequest keyData = input.getKeyData();
-        final CertificateCreationInput certificateData = input.getCertificateData();
-        final X509Certificate certificate = input.getCertificate();
         final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new KeyVaultCertificateEntity(null, certificateData, certificate, keyData, vault));
+                () -> new KeyVaultCertificateEntity(null, input, vault));
 
         //then + exception
     }
 
     @SuppressWarnings("DataFlowIssue")
+    @Test
+    void testImportConstructorShouldThrowExceptionWhenCalledWithNullCertificateImportInput() {
+        //given
+        final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> new KeyVaultCertificateEntity(CERT_NAME_1, (CertificateImportInput) null, vault));
+
+        //then + exception
+    }
+
     @Test
     void testImportConstructorShouldThrowExceptionWhenCalledWithNullCertificateData() {
         //given
         final String certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsBase64String("/cert/rsa.p12"));
-        final CertificateImportInput input = new CertificateImportInput(
-                CERT_NAME_1, certContent, EMPTY_PASSWORD, CertContentType.PKCS12, new CertificatePolicyModel());
-        final JsonWebKeyImportRequest keyData = input.getKeyData();
-        final X509Certificate certificate = input.getCertificate();
+        final CertificateImportInput input = spy(new CertificateImportInput(
+                CERT_NAME_1, certContent, EMPTY_PASSWORD, CertContentType.PKCS12, new CertificatePolicyModel()));
+        doReturn(null).when(input).getCertificateData();
         final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new KeyVaultCertificateEntity(CERT_NAME_1, null, certificate, keyData, vault));
+                () -> new KeyVaultCertificateEntity(CERT_NAME_1, input, vault));
 
         //then + exception
     }
 
-    @SuppressWarnings("DataFlowIssue")
+    @Test
+    void testImportConstructorShouldThrowExceptionWhenCalledWithNullParsedCertificateData() {
+        //given
+        final String certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsBase64String("/cert/rsa.p12"));
+        final CertificateImportInput input = spy(new CertificateImportInput(
+                CERT_NAME_1, certContent, EMPTY_PASSWORD, CertContentType.PKCS12, new CertificatePolicyModel()));
+        doReturn(null).when(input).getParsedCertificateData();
+        final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> new KeyVaultCertificateEntity(CERT_NAME_1, input, vault));
+
+        //then + exception
+    }
+
     @Test
     void testImportConstructorShouldThrowExceptionWhenCalledWithNullCertificate() {
         //given
         final String certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsBase64String("/cert/rsa.p12"));
-        final CertificateImportInput input = new CertificateImportInput(
-                CERT_NAME_1, certContent, EMPTY_PASSWORD, CertContentType.PKCS12, new CertificatePolicyModel());
-        final JsonWebKeyImportRequest keyData = input.getKeyData();
-        final CertificateCreationInput certificateData = input.getCertificateData();
+        final CertificateImportInput input = spy(new CertificateImportInput(
+                CERT_NAME_1, certContent, EMPTY_PASSWORD, CertContentType.PKCS12, new CertificatePolicyModel()));
+        doReturn(null).when(input).getCertificate();
         final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new KeyVaultCertificateEntity(CERT_NAME_1, certificateData, null, keyData, vault));
+                () -> new KeyVaultCertificateEntity(CERT_NAME_1, input, vault));
 
         //then + exception
     }
 
-    @SuppressWarnings("DataFlowIssue")
     @Test
     void testImportConstructorShouldThrowExceptionWhenCalledWithNullKeyData() {
         //given
         final String certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsBase64String("/cert/rsa.p12"));
-        final CertificateImportInput input = new CertificateImportInput(
-                CERT_NAME_1, certContent, EMPTY_PASSWORD, CertContentType.PKCS12, new CertificatePolicyModel());
-        final X509Certificate certificate = input.getCertificate();
-        final CertificateCreationInput certificateData = input.getCertificateData();
+        final CertificateImportInput input = spy(new CertificateImportInput(
+                CERT_NAME_1, certContent, EMPTY_PASSWORD, CertContentType.PKCS12, new CertificatePolicyModel()));
+        doReturn(null).when(input).getKeyData();
         final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new KeyVaultCertificateEntity(CERT_NAME_1, certificateData, certificate, null, vault));
+                () -> new KeyVaultCertificateEntity(CERT_NAME_1, input, vault));
 
         //then + exception
+    }
+
+    @Test
+    void testImportConstructorShouldSetOriginalCertificateWhenCalledWithValidInput() {
+        //given
+        final String certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsBase64String("/cert/rsa.p12"));
+
+        final X509CertificateModel x509Properties = new X509CertificateModel();
+        x509Properties.setSubject("CN=example.com");
+        x509Properties.setSubjectAlternativeNames(new SubjectAlternativeNames(Set.of("*.localhost"), Set.of(), Set.of()));
+        x509Properties.setExtendedKeyUsage(Set.of());
+        x509Properties.setKeyUsage(Set.of(KeyUsageEnum.ENCIPHER_ONLY));
+        x509Properties.setValidityMonths(TWO_YEARS_IN_MONTHS);
+
+        final CertificatePolicyModel policyModel = new CertificatePolicyModel();
+        policyModel.setX509Properties(x509Properties);
+
+        final CertificateImportInput input = new CertificateImportInput(
+                CERT_NAME_1, certContent, EMPTY_PASSWORD, CertContentType.PKCS12, policyModel);
+        final X509Certificate certificate = input.getCertificate();
+        final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
+
+        //when
+        final KeyVaultCertificateEntity actual = new KeyVaultCertificateEntity(CERT_NAME_1, input, vault);
+
+        //then
+        Assertions.assertEquals(certificate, actual.getCertificate());
+        final ReadOnlyCertificatePolicy originalPolicy = actual.getOriginalCertificateData();
+        Assertions.assertEquals("CN=localhost", originalPolicy.getSubject());
+        Assertions.assertIterableEquals(
+                new TreeSet<>(Set.of("localhost", "127.0.0.1")),
+                new TreeSet<>(originalPolicy.getDnsNames()));
+        Assertions.assertIterableEquals(Set.of(), originalPolicy.getIps());
+        Assertions.assertIterableEquals(Set.of(), originalPolicy.getEmails());
+        Assertions.assertIterableEquals(
+                new TreeSet<>(Set.of("1.3.6.1.5.5.7.3.1", "1.3.6.1.5.5.7.3.2")),
+                new TreeSet<>(originalPolicy.getExtendedKeyUsage()));
+        Assertions.assertIterableEquals(
+                new TreeSet<>(Set.of(KeyUsageEnum.KEY_ENCIPHERMENT, KeyUsageEnum.DIGITAL_SIGNATURE)),
+                new TreeSet<>(originalPolicy.getKeyUsage()));
+        Assertions.assertEquals(THIRTY_YEARS_IN_MONTHS_APPROX, originalPolicy.getValidityMonths());
+        Assertions.assertNotNull(actual.getOriginalCertificateContents());
+    }
+
+    @Test
+    void testCreateConstructorShouldSetOriginalCertificateWhenCalledWithValidInput() {
+        //given
+        final CertificateCreationInput input = CertificateCreationInput.builder()
+                .validityStart(NOW)
+                .subject("CN=" + LOCALHOST)
+                .name(CERT_NAME_1)
+                .enableTransparency(false)
+                .certAuthorityType(SELF_SIGNED)
+                .contentType(CertContentType.PKCS12)
+                .keyCurveName(KeyCurveName.P_521)
+                .keyType(KeyType.EC)
+                .validityMonths(TWO_YEARS_IN_MONTHS)
+                .build();
+
+        final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
+
+        //when
+        final KeyVaultCertificateEntity actual = new KeyVaultCertificateEntity(CERT_NAME_1, input, vault);
+
+        //then
+        final ReadOnlyCertificatePolicy currentPolicy = actual.getPolicy();
+        final ReadOnlyCertificatePolicy originalPolicy = actual.getOriginalCertificateData();
+        Assertions.assertEquals(currentPolicy, originalPolicy);
+        Assertions.assertNotNull(actual.getOriginalCertificateContents());
     }
 }

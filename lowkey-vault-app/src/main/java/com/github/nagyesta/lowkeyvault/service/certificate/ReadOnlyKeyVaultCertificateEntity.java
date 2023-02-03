@@ -1,7 +1,7 @@
 package com.github.nagyesta.lowkeyvault.service.certificate;
 
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
-import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateCreationInput;
+import com.github.nagyesta.lowkeyvault.service.certificate.impl.ReadOnlyCertificatePolicy;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultEntity;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyDeletedEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
@@ -21,7 +21,11 @@ public interface ReadOnlyKeyVaultCertificateEntity
 
     Certificate getCertificate();
 
-    CertificateCreationInput getGenerator();
+    ReadOnlyCertificatePolicy getPolicy();
+
+    ReadOnlyCertificatePolicy getOriginalCertificateData();
+
+    String getOriginalCertificateContents();
 
     PKCS10CertificationRequest getCertificateSigningRequest();
 

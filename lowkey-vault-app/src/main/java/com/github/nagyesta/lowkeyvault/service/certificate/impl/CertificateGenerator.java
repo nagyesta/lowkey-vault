@@ -10,6 +10,7 @@ import lombok.NonNull;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.DERSequence;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
@@ -32,10 +33,12 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.SecureRandom;
-import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -51,7 +54,7 @@ public class CertificateGenerator {
         this.kid = kid;
     }
 
-    public Certificate generateCertificate(
+    public X509Certificate generateCertificate(
             @NonNull final CertificateCreationInput input) throws CryptoException {
         try {
             final ReadOnlyAsymmetricKeyVaultKeyEntity readOnlyKeyVaultKey = vault.keyVaultFake().getEntities()
@@ -63,20 +66,31 @@ public class CertificateGenerator {
     }
 
     public PKCS10CertificationRequest generateCertificateSigningRequest(
-            @NonNull final ReadOnlyCertificatePolicy input) throws CryptoException {
+            @NonNull final String name,
+            @NonNull final X509Certificate certificate) throws CryptoException {
         try {
             final ReadOnlyAsymmetricKeyVaultKeyEntity readOnlyKeyVaultKey = vault.keyVaultFake().getEntities()
                     .getEntity(kid, ReadOnlyAsymmetricKeyVaultKeyEntity.class);
-            final X500Name subject = generateSubject(input);
+            final X500Name subject = generateSubject(certificate.getSubjectX500Principal().getName());
             final KeyPair keyPair = readOnlyKeyVaultKey.getKey();
             final CertificateAlgorithm algorithm = CertificateAlgorithm.forKeyType(readOnlyKeyVaultKey.getKeyType());
             final ContentSigner signer = new JcaContentSignerBuilder(algorithm.getAlgorithm())
                     .setProvider(KeyGenUtil.BOUNCY_CASTLE_PROVIDER)
                     .build(keyPair.getPrivate());
             final PKCS10CertificationRequestBuilder builder = new JcaPKCS10CertificationRequestBuilder(subject, keyPair.getPublic());
+
+            Stream.<ASN1ObjectIdentifier>builder()
+                    .add(Extension.subjectAlternativeName)
+                    .add(Extension.keyUsage)
+                    .add(Extension.extendedKeyUsage)
+                    .add(Extension.subjectKeyIdentifier)
+                    .add(Extension.authorityKeyIdentifier)
+                    .add(Extension.basicConstraints)
+                    .build().forEach(e -> addAttributeBasedOnCertificate(builder, certificate, e));
+
             return builder.build(signer);
         } catch (final Exception e) {
-            throw new CryptoException("Failed to generate CSR for certificate with name: " + input.getName(), e);
+            throw new CryptoException("Failed to generate CSR for certificate with name: " + name, e);
         }
     }
 
@@ -85,14 +99,9 @@ public class CertificateGenerator {
 
         final X509v3CertificateBuilder builder = createCertificateBuilder(input, keyPair);
 
-        final KeyUsage usage = Objects.requireNonNullElse(input.getKeyUsage(), Collections.<KeyUsageEnum>emptyList())
-                .stream().collect(KeyUsageEnum.toKeyUsage());
-        addExtensionQuietly(builder, Extension.keyUsage, false, usage.getEncoded());
-
-        Optional.ofNullable(convertUsageExtensions(input))
-                .ifPresent(value -> addExtensionQuietly(builder, Extension.extendedKeyUsage, false, value));
-        Optional.ofNullable(generateSubjectAlternativeNames(input))
-                .ifPresent(value -> addExtensionQuietly(builder, Extension.subjectAlternativeName, false, value));
+        addExtensionOptionally(builder, Extension.subjectAlternativeName, false, generateSubjectAlternativeNames(input));
+        addExtensionQuietly(builder, Extension.keyUsage, true, generateKeyUsage(input).getEncoded());
+        addExtensionOptionally(builder, Extension.extendedKeyUsage, false, convertUsageExtensions(input));
 
         final X509CertificateHolder holder = buildCertificate(builder, input.getKeyType(), keyPair);
 
@@ -101,7 +110,13 @@ public class CertificateGenerator {
         return converter.getCertificate(holder);
     }
 
-    private ExtendedKeyUsage convertUsageExtensions(final CertificateCreationInput input) {
+    @org.springframework.lang.NonNull
+    private KeyUsage generateKeyUsage(final ReadOnlyCertificatePolicy input) {
+        return Objects.requireNonNullElse(input.getKeyUsage(), Collections.<KeyUsageEnum>emptyList())
+                .stream().collect(KeyUsageEnum.toKeyUsage());
+    }
+
+    private ExtendedKeyUsage convertUsageExtensions(final ReadOnlyCertificatePolicy input) {
         ExtendedKeyUsage result = null;
         if (input.getExtendedKeyUsage() != null && !input.getExtendedKeyUsage().isEmpty()) {
             result = new ExtendedKeyUsage(input.getExtendedKeyUsage()
@@ -114,15 +129,16 @@ public class CertificateGenerator {
         return result;
     }
 
-    private X509v3CertificateBuilder createCertificateBuilder(final CertificateCreationInput input, final KeyPair keyPair) {
-        final X500Name subject = generateSubject(input);
+    private X509v3CertificateBuilder createCertificateBuilder(
+            final CertificateCreationInput input, final KeyPair keyPair) throws IOException {
+        final X500Name subject = generateSubject(input.getSubject());
         final X509v3CertificateBuilder certificate = new JcaX509v3CertificateBuilder(
                 subject, generateSerial(), input.certNotBefore(), input.certExpiry(), subject, keyPair.getPublic());
 
         final byte[] cid = generateCid();
         addExtensionQuietly(certificate, Extension.subjectKeyIdentifier, false, cid);
         addExtensionQuietly(certificate, Extension.authorityKeyIdentifier, false, cid);
-        addExtensionQuietly(certificate, Extension.basicConstraints, true, new BasicConstraints(true));
+        addExtensionOptionally(certificate, Extension.basicConstraints, true, new BasicConstraints(true));
         return certificate;
     }
 
@@ -145,14 +161,23 @@ public class CertificateGenerator {
         return certificate.build(signer);
     }
 
-    X500Name generateSubject(final ReadOnlyCertificatePolicy input) {
-        final RDN[] rdns = IETFUtils.rDNsFromString(input.getSubject(), BCStyle.INSTANCE);
+    private X500Name generateSubject(final String nameAsString) {
+        final RDN[] rdns = IETFUtils.rDNsFromString(nameAsString, BCStyle.INSTANCE);
         final X500NameBuilder x500NameBuilder = new X500NameBuilder(BCStyle.INSTANCE);
         Arrays.stream(rdns).map(RDN::getTypesAndValues).forEach(x500NameBuilder::addMultiValuedRDN);
         return x500NameBuilder.build();
     }
 
-    GeneralNames generateSubjectAlternativeNames(final CertificateCreationInput input) {
+    private GeneralNames generateSubjectAlternativeNames(final ReadOnlyCertificatePolicy input) {
+        final GeneralName[] names = generateSubjectAlternativeNamesArray(input);
+        GeneralNames result = null;
+        if (names.length > 0) {
+            result = GeneralNames.getInstance(new DERSequence(names));
+        }
+        return result;
+    }
+
+    private GeneralName[] generateSubjectAlternativeNamesArray(final ReadOnlyCertificatePolicy input) {
         final List<GeneralName> emails = Objects.requireNonNullElse(input.getEmails(), Collections.<String>emptyList()).stream()
                 .map(email -> new GeneralName(GeneralName.rfc822Name, email))
                 .collect(Collectors.toList());
@@ -165,22 +190,17 @@ public class CertificateGenerator {
         final List<GeneralName> subjectAlternativeNames = Stream.of(emails, dnsNames, ips)
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
-        GeneralNames result = null;
-        if (!subjectAlternativeNames.isEmpty()) {
-            result = GeneralNames.getInstance(new DERSequence(subjectAlternativeNames.toArray(new GeneralName[]{})));
-        }
-        return result;
+        return subjectAlternativeNames.toArray(new GeneralName[]{});
     }
 
-    private void addExtensionQuietly(final X509v3CertificateBuilder builder,
-                                     final ASN1ObjectIdentifier name,
-                                     final boolean isCritical,
-                                     final ASN1Encodable value) {
-        try {
+    private void addExtensionOptionally(final X509v3CertificateBuilder builder,
+                                        final ASN1ObjectIdentifier name,
+                                        final boolean isCritical,
+                                        final ASN1Encodable value) throws IOException {
+            if (value == null) {
+                return;
+            }
             addExtensionQuietly(builder, name, isCritical, value.toASN1Primitive().getEncoded());
-        } catch (final Exception e) {
-            throw new CryptoException("Failed to add extension: " + name, e);
-        }
     }
 
     private void addExtensionQuietly(final X509v3CertificateBuilder builder,
@@ -191,6 +211,30 @@ public class CertificateGenerator {
             builder.addExtension(name, isCritical, value);
         } catch (final CertIOException e) {
             throw new CryptoException("Failed to add extension: " + name, e);
+        }
+    }
+
+    private void addAttributeBasedOnCertificate(
+            final PKCS10CertificationRequestBuilder builder,
+            final X509Certificate certificate,
+            final ASN1ObjectIdentifier extension) {
+        addAttributeQuietly(builder, extension, certificate.getCriticalExtensionOIDs().contains(extension.getId()),
+                certificate.getExtensionValue(extension.getId()));
+    }
+
+    private void addAttributeQuietly(final PKCS10CertificationRequestBuilder builder,
+                              final ASN1ObjectIdentifier name,
+                              final boolean isCritical,
+                              final byte[] value) {
+        try {
+            if (value == null) {
+                return;
+            }
+            final ExtensionsGenerator generator = new ExtensionsGenerator();
+            generator.addExtension(name, isCritical, value);
+            builder.addAttribute(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest, generator.generate());
+        } catch (final Exception e) {
+            throw new CryptoException("Failed to add attribute: " + name, e);
         }
     }
 }

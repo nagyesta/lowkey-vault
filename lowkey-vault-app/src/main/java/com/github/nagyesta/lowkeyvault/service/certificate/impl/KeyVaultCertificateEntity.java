@@ -31,7 +31,7 @@ public class KeyVaultCertificateEntity
     private final VersionedKeyEntityId kid;
     private final VersionedSecretEntityId sid;
 
-    private final Certificate certificate;
+    private final X509Certificate certificate;
     private final ReadOnlyCertificatePolicy originalCertificateData;
     private final String originalCertificateContents;
     private final CertificatePolicy policy;
@@ -55,7 +55,7 @@ public class KeyVaultCertificateEntity
         this.id = new VersionedCertificateEntityId(vault.baseUri(), name, this.kid.version());
         final CertificateGenerator certificateGenerator = new CertificateGenerator(vault, this.kid);
         this.certificate = certificateGenerator.generateCertificate(input);
-        this.csr = certificateGenerator.generateCertificateSigningRequest(input);
+        this.csr = certificateGenerator.generateCertificateSigningRequest(name, this.certificate);
         this.sid = generateSecret(input, vault, this.certificate, this.kid);
         this.setNotBefore(input.getValidityStart());
         this.setExpiry(input.getValidityStart().plusMonths(input.getValidityMonths()));
@@ -90,7 +90,7 @@ public class KeyVaultCertificateEntity
         this.id = new VersionedCertificateEntityId(vault.baseUri(), name, this.kid.version());
         final CertificateGenerator certificateGenerator = new CertificateGenerator(vault, this.kid);
         this.certificate = certificate;
-        this.csr = certificateGenerator.generateCertificateSigningRequest(policy);
+        this.csr = certificateGenerator.generateCertificateSigningRequest(name, this.certificate);
         this.sid = generateSecret(policy, vault, this.certificate, this.kid);
         this.setNotBefore(policy.getValidityStart());
         this.setExpiry(policy.getValidityStart().plusMonths(policy.getValidityMonths()));

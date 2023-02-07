@@ -9,6 +9,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.security.cert.X509Certificate;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.KEY_NAME_1;
@@ -69,11 +70,11 @@ class CertificateGeneratorTest {
         //given
         final VaultFake vault = mock(VaultFake.class);
         when(vault.keyVaultFake()).thenThrow(new IllegalStateException());
-        final CertificateCreationInput input = CertificateCreationInput.builder().name(KEY_NAME_1).build();
+        final X509Certificate certificate = mock(X509Certificate.class);
         final CertificateGenerator underTest = new CertificateGenerator(vault, VERSIONED_KEY_ENTITY_ID_1_VERSION_1);
 
         //when
-        Assertions.assertThrows(CryptoException.class, () -> underTest.generateCertificateSigningRequest(input));
+        Assertions.assertThrows(CryptoException.class, () -> underTest.generateCertificateSigningRequest(KEY_NAME_1, certificate));
 
         //then + exception
         verify(vault).keyVaultFake();
@@ -81,13 +82,27 @@ class CertificateGeneratorTest {
 
     @SuppressWarnings("ConstantConditions")
     @Test
-    void testGenerateCertificateSigningRequestShouldThrowExceptionWhenCalledWithNull() {
+    void testGenerateCertificateSigningRequestShouldThrowExceptionWhenCalledWithNullName() {
+        //given
+        final VaultFake vault = mock(VaultFake.class);
+        final CertificateGenerator underTest = new CertificateGenerator(vault, VERSIONED_KEY_ENTITY_ID_1_VERSION_1);
+        final X509Certificate certificate = mock(X509Certificate.class);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.generateCertificateSigningRequest(null, certificate));
+
+        //then + exception
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Test
+    void testGenerateCertificateSigningRequestShouldThrowExceptionWhenCalledWithNullCertificate() {
         //given
         final VaultFake vault = mock(VaultFake.class);
         final CertificateGenerator underTest = new CertificateGenerator(vault, VERSIONED_KEY_ENTITY_ID_1_VERSION_1);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.generateCertificateSigningRequest(null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.generateCertificateSigningRequest(KEY_NAME_1, null));
 
         //then + exception
     }

@@ -26,6 +26,7 @@ on:
       - '.github/ISSUE_TEMPLATE/**'
       - '.github/assets/**'
       - '.github/workflows/**'
+      - '!.github/workflows/codeql-analysis.yml'
       - '.github/pr-labeler.yml'
       - 'renovate.json'
       - '.whitesource'
@@ -43,6 +44,7 @@ on:
       - '.github/ISSUE_TEMPLATE/**'
       - '.github/assets/**'
       - '.github/workflows/**'
+      - '!.github/workflows/codeql-analysis.yml'
       - '.github/pr-labeler.yml'
       - 'renovate.json'
       - '.whitesource'
@@ -60,10 +62,6 @@ jobs:
     name: Analyze
     runs-on: ubuntu-latest
 
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'java' ]
     steps:
       - name: Checkout repository
         uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
@@ -77,14 +75,15 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@39d8d7e78f59cf6b40ac3b9fbebef0c753d7c9e5 # v2.2.2
         with:
-          languages: ${{ matrix.language }}
-          # If you wish to specify custom queries, you can do so here or in a config file.
-          # By default, queries listed here will override any specified in a config file.
-          # Prefix the list here with "+" to use these queries and those in the config file.
-          # queries: ./path/to/local/query, your-org/your-repo/queries@main
+          languages: 'java'
       - name: Build with Gradle
-        run: ./gradlew build -x test -x dockerClean -x dockerPrepare -x dockerRun -x dockerRunStatus -x dockerStop
+        uses: gradle/gradle-build-action@3fbe033aaae657f011f88f29be9e65ed26bd29ef # v2.3.3
+        with:
+          cache-disabled: true
+          arguments: build -x test -x dockerClean -x dockerPrepare -x dockerRun -x dockerRunStatus -x dockerStop
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@39d8d7e78f59cf6b40ac3b9fbebef0c753d7c9e5 # v2.2.2
       - name: Check dependencies with Gradle
-        run: ./gradlew ossIndexAudit -PossIndexUsername=${{ secrets.OSS_INDEX_USER }} -PossIndexPassword=${{ secrets.OSS_INDEX_PASSWORD }}
+        uses: gradle/gradle-build-action@3fbe033aaae657f011f88f29be9e65ed26bd29ef # v2.3.3
+        with:
+          arguments: ossIndexAudit -PossIndexUsername=${{ secrets.OSS_INDEX_USER }} -PossIndexPassword=${{ secrets.OSS_INDEX_PASSWORD }}

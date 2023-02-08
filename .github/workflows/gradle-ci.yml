@@ -4,6 +4,15 @@
 name: JavaCI-PR
 
 on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'gradle/libs.versions.toml'
+      - 'gradle/verification-metadata.xml'
+      - 'lowkey-vault-docker/src/docker/Dockerfile'
+      - 'gradle/wrapper/gradle-wrapper.properties'
+      - 'config/ossindex/exclusions.txt'
+      - '.github/workflows/gradle-ci.yml'
   pull_request:
     branches: [ main ]
     paths-ignore:
@@ -19,6 +28,7 @@ on:
       - '.github/ISSUE_TEMPLATE/**'
       - '.github/assets/**'
       - '.github/workflows/**'
+      - '!.github/workflows/gradle-ci.yml'
       - '.github/pr-labeler.yml'
       - 'renovate.json'
       - '.whitesource'
@@ -41,20 +51,14 @@ jobs:
         with:
           distribution: temurin
           java-version: 11
-      - uses: actions/cache@627f0f41f6904a5b1efbaed9f96d9eb58e92e920 # v3.2.4
-        with:
-          path: |
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-wrapper-
       - name: Decode key
         run: |
           mkdir -p ~/.gnupg/
           echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}" | base64 --decode > ~/.gnupg/secring.gpg
       - name: Build with Gradle
-        run: >
-          ./gradlew printVersion build
+        uses: gradle/gradle-build-action@3fbe033aaae657f011f88f29be9e65ed26bd29ef # v2.3.3
+        with:
+          arguments: printVersion build
       - name: 'Upload Test reports - App'
         if: always()
         uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2

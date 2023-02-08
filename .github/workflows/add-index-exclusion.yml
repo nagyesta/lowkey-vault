@@ -5,7 +5,7 @@ on:
       exclusion:
         description: 'Vulnerability to exclude'
         required: true
-        type: text
+        type: string
 
 permissions: read-all
 

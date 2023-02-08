@@ -44,18 +44,13 @@ jobs:
         with:
           distribution: temurin
           java-version: 11
-      - uses: actions/cache@627f0f41f6904a5b1efbaed9f96d9eb58e92e920 # v3.2.4
+      - uses: gradle/gradle-build-action@3fbe033aaae657f011f88f29be9e65ed26bd29ef # v2.3.3
         with:
-          path: |
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-wrapper-
-      - name: Build with Gradle
-        run: >
-          ./gradlew tagVersion build
-          -PgithubUser=${{ secrets.PUBLISH_USER_NAME }}
-          -PgithubToken=${{ secrets.PUBLISH_KEY }}
+          gradle-home-cache-cleanup: true
+          arguments: |
+            tagVersion build
+            -PgithubUser=${{ secrets.PUBLISH_USER_NAME }}
+            -PgithubToken=${{ secrets.PUBLISH_KEY }}
       - name: Decode key
         run: |
           mkdir -p ~/.gnupg/
@@ -65,16 +60,17 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Publish with Gradle
-        run: >
-          ./gradlew publish -x test -x dockerClean -x dockerPrepare -x dockerRun -x dockerRunStatus -x dockerStop
-          -PgithubUser=${{ secrets.PUBLISH_USER_NAME }}
-          -PgithubToken=${{ secrets.PUBLISH_KEY }}
-          -PossrhUsername=${{ secrets.OSSRH_USER }}
-          -PossrhPassword=${{ secrets.OSSRH_PASS }}
-          -Psigning.keyId=${{ secrets.SIGNING_KEY_ID }}
-          -Psigning.password=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
-          -Psigning.secretKeyRingFile=$(echo ~/.gnupg/secring.gpg)
+      - uses: gradle/gradle-build-action@3fbe033aaae657f011f88f29be9e65ed26bd29ef # v2.3.3
+        with:
+          arguments: |
+            publish -x test -x dockerClean -x dockerPrepare -x dockerRun -x dockerRunStatus -x dockerStop
+            -PgithubUser=${{ secrets.PUBLISH_USER_NAME }}
+            -PgithubToken=${{ secrets.PUBLISH_KEY }}
+            -PossrhUsername=${{ secrets.OSSRH_USER }}
+            -PossrhPassword=${{ secrets.OSSRH_PASS }}
+            -Psigning.keyId=${{ secrets.SIGNING_KEY_ID }}
+            -Psigning.password=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
+            -Psigning.secretKeyRingFile=$(echo ~/.gnupg/secring.gpg)
       - name: Upload coverage to Codecov - App
         uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # tag=v3.1.1
         with:

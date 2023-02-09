@@ -21,17 +21,12 @@ jobs:
         with:
           distribution: temurin
           java-version: 11
-      - uses: actions/cache@627f0f41f6904a5b1efbaed9f96d9eb58e92e920 # v3.2.4
-        with:
-          path: |
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-wrapper-
       - name: "Remove previous version"
         run: cp gradle/verification-metadata-clean.xml gradle/verification-metadata.xml
       - name: "Update checksums"
-        run: ./gradlew --write-verification-metadata sha256
+        uses: gradle/gradle-build-action@3fbe033aaae657f011f88f29be9e65ed26bd29ef # v2.3.3
+        with:
+          arguments: --write-verification-metadata sha256
       - name: "Git commit"
         run: |
           git config --global user.name 'Esta Nagy'

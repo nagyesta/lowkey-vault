@@ -58,7 +58,15 @@ jobs:
       - name: Build with Gradle
         uses: gradle/gradle-build-action@3fbe033aaae657f011f88f29be9e65ed26bd29ef # v2.3.3
         with:
-          arguments: printVersion build
+          arguments: |
+            printVersion build sign
+            -Psigning.keyId=${{ secrets.SIGNING_KEY_ID }}
+            -Psigning.password=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
+            -Psigning.secretKeyRingFile=~/.gnupg/secring.gpg
+      - name: 'Clean-up GPG key'
+        if: always()
+        run: |
+          rm -rf ~/.gnupg/
       - name: 'Upload Test reports - App'
         if: always()
         uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2

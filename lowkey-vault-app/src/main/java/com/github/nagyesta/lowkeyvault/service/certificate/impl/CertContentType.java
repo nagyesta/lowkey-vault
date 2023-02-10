@@ -134,7 +134,7 @@ public enum CertContentType {
                                                  @NonNull final KeyPair keyPair) throws CryptoException {
             final String key = toPemString(keyPair.getPrivate());
             final String cert = toPemString(certificate);
-            return key + "\n" + cert;
+            return key + cert;
         }
 
         private void validatePem(final String certificateContent) {

@@ -135,6 +135,14 @@ public class CertificatesStepDefs extends CommonAssertions {
         context.addCreatedEntity(name, certificate);
     }
 
+    @When("the certificate policy named {name} is downloaded")
+    public void theCertificatePolicyNamedCertNameIsDownloaded(final String name) {
+        final CertificatePolicy policy = context
+                .getClient(context.getCertificateServiceVersion())
+                .getCertificatePolicy(name);
+        context.setDownloadedPolicy(policy);
+    }
+
     @And("{int} certificates are imported from the resource named {fileName} using {password} as password")
     public void countCertificatesAreImportedFromTheGivenResourceUsingPassword(
             final int count, final String resource, final String password) throws IOException {

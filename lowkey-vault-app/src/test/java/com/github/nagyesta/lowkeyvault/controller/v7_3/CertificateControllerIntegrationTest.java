@@ -317,6 +317,34 @@ class CertificateControllerIntegrationTest {
         }
     }
 
+    @Test
+    void testGetPolicyShouldReturnModelWhenCalledWithValidData() {
+        //given
+        final CreateCertificateRequest request = getCreateCertificateRequest();
+        final String certificateName = CERT_NAME_2 + "policy";
+        underTest.create(certificateName, HTTPS_LOCALHOST_8443, request);
+        final Deque<String> versions = vaultService.findByUri(HTTPS_LOCALHOST_8443)
+                .certificateVaultFake()
+                .getEntities()
+                .getVersions(new CertificateEntityId(HTTPS_LOCALHOST_8443, certificateName));
+
+        //when
+        final ResponseEntity<CertificatePolicyModel> actual = underTest.getPolicy(certificateName, HTTPS_LOCALHOST_8443);
+
+        //then
+        Assertions.assertEquals(OK, actual.getStatusCode());
+        final CertificatePolicyModel body = actual.getBody();
+        Assertions.assertNotNull(body);
+        final URI id = new VersionedCertificateEntityId(HTTPS_LOCALHOST_8443, certificateName, versions.getFirst())
+                .asPolicyUri(HTTPS_LOCALHOST_8443);
+        Assertions.assertEquals(request.getPolicy().getSecretProperties(), body.getSecretProperties());
+        Assertions.assertEquals(request.getPolicy().getKeyProperties(), body.getKeyProperties());
+        Assertions.assertEquals(request.getPolicy().getX509Properties(), body.getX509Properties());
+        Assertions.assertTrue(body.getAttributes().isEnabled());
+        Assertions.assertTrue(body.getAttributes().getRecoveryLevel().isPurgeable());
+        Assertions.assertEquals(id.toString(), body.getId());
+    }
+
     private CertificateImportRequest getCreateImportRequest(final String resource, final CertContentType type) {
         final CertificateImportRequest request = new CertificateImportRequest();
         request.setCertificate(ResourceUtils.loadResourceAsByteArray(resource));
@@ -348,6 +376,8 @@ class CertificateControllerIntegrationTest {
         x509Properties.setSubject("CN=example.com");
         x509Properties.setValidityMonths(VALIDITY_MONTHS);
         x509Properties.setSubjectAlternativeNames(new SubjectAlternativeNames(Set.of("*.example.com"), Set.of(), Set.of()));
+        x509Properties.setKeyUsage(Set.of());
+        x509Properties.setExtendedKeyUsage(Set.of());
 
         final CertificatePolicyModel policy = new CertificatePolicyModel();
         policy.setKeyProperties(keyProperties);

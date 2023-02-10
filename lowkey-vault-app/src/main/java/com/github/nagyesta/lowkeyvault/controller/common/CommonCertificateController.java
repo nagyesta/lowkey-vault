@@ -90,6 +90,14 @@ public abstract class CommonCertificateController extends GenericEntityControlle
 
         return ResponseEntity.ok(getLatestEntityModel(baseUri, certificateName));
     }
+    public ResponseEntity<CertificatePolicyModel> getPolicy(
+            @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
+            final URI baseUri) {
+        log.info("Received request to {} get certificate policy: {} with version: -LATEST- using API version: {}",
+                baseUri.toString(), certificateName, apiVersion());
+
+        return ResponseEntity.ok(getLatestEntityModel(baseUri, certificateName).getPolicy());
+    }
 
     public ResponseEntity<KeyVaultCertificateModel> getWithVersion(
             @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,

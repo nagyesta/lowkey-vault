@@ -160,6 +160,7 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
     - Latest version of a single certificate
     - Specific version of a single certificate
     - List of all certificates
+- Get certificate policy
 - Import certificate
     - Self-signed only
     - The downloadable certificate is protected using `lowkey-vault` as password for PKCS12 stores

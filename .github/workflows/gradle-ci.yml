@@ -53,8 +53,8 @@ jobs:
           java-version: 11
       - name: Decode key
         run: |
-          mkdir -p ${{ env.HOME }}/.gnupg/
-          echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}" | base64 --decode > ${{ env.HOME }}/.gnupg/secring.gpg
+          mkdir -p ${{ runner.temp }}/.gnupg/
+          echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}" | base64 --decode > ${{ runner.temp }}/.gnupg/secring.gpg
       - name: Build with Gradle
         uses: gradle/gradle-build-action@3fbe033aaae657f011f88f29be9e65ed26bd29ef # v2.3.3
         with:
@@ -62,11 +62,11 @@ jobs:
             printVersion build sign
             -Psigning.keyId=${{ secrets.SIGNING_KEY_ID }}
             -Psigning.password=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
-            -Psigning.secretKeyRingFile=${{ env.HOME }}/.gnupg/secring.gpg
+            -Psigning.secretKeyRingFile=${{ runner.temp }}/.gnupg/secring.gpg
       - name: 'Clean-up GPG key'
         if: always()
         run: |
-          rm -rf ${{ env.HOME }}/.gnupg/
+          rm -rf ${{ runner.temp }}/.gnupg/
       - name: 'Upload Test reports - App'
         if: always()
         uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2

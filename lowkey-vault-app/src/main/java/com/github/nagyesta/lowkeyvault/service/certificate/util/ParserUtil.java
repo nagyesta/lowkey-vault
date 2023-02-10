@@ -12,6 +12,7 @@ import org.bouncycastle.asn1.x509.GeneralName;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -21,8 +22,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class ParserUtil {
-
-    private static final long HOURS_IN_MONTH = 730L;
 
     private ParserUtil() {
         throw new IllegalCallerException("Utility cannot be instantiated.");
@@ -65,15 +64,16 @@ public final class ParserUtil {
     }
 
     private static int validityMonths(final X509Certificate certificate) {
-        final Instant notAfter = certificate.getNotAfter().toInstant();
-        final Instant notBefore = certificate.getNotBefore().toInstant();
-        return calculateValidityMonths(notAfter, notBefore);
+        final Instant notAfter = certificate.getNotAfter().toInstant().truncatedTo(ChronoUnit.DAYS);
+        final Instant notBefore = certificate.getNotBefore().toInstant().truncatedTo(ChronoUnit.DAYS);
+        return calculateValidityMonths(notBefore, notAfter);
     }
 
-    private static int calculateValidityMonths(final Instant notAfter, final Instant notBefore) {
-        final Instant end = notAfter.minusSeconds(1);
-        int count = 1;
-        while (end.minus(count * HOURS_IN_MONTH, ChronoUnit.HOURS).isAfter(notBefore)) {
+    static int calculateValidityMonths(final Instant notBefore, final Instant notAfter) {
+        final OffsetDateTime start = OffsetDateTime.ofInstant(notBefore, ZoneOffset.UTC);
+        final OffsetDateTime end = OffsetDateTime.ofInstant(notAfter, ZoneOffset.UTC);
+        int count = 0;
+        while (end.minusMonths(count).isAfter(start)) {
             count++;
         }
         return count;

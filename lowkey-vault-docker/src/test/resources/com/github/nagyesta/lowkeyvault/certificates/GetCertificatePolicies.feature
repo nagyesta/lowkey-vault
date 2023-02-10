@@ -12,7 +12,7 @@ Feature: Get certificate policy
     Examples:
       | api | certName                | fileName            | password | subject        | validity |
       | 7.3 | 73-policyRsaCert2048Pem | rsa-localhost.pem   | -        | CN=localhost   | 360      |
-      | 7.3 | 73-policyRsaCert4096Pem | rsa-example-com.pem | -        | CN=example.com | 30       |
+      | 7.3 | 73-policyRsaCert4096Pem | rsa-example-com.pem | -        | CN=example.com | 12       |
 
   @Certificate @CertificateImport @CertificateGetPolicy @EC
   Scenario Outline: EC_CERT_GET_POLICY_01 Policy data of EC certificates can be accessed with the certificate client

@@ -14,16 +14,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Base64Utils;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Objects;
 
 public class CertificateStepDefAssertion extends CommonAssertions {
 
+    private static final String DEFAULT_PASSWORD = "lowkey-vault";
     @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     @Autowired
     private CertificateTestContext context;
@@ -74,10 +82,44 @@ public class CertificateStepDefAssertion extends CommonAssertions {
                 certificate.getNotAfter().toInstant().truncatedTo(ChronoUnit.DAYS));
     }
 
+    @And("the downloaded {certContentType} certificate store content matches store from {fileName} using {password} as password")
+    public void theDownloadedTypeCertificateStoreContentMatchesStoreFromFileNameUsingPassword(
+            final CertificateContentType contentType, final String resource, final String password) throws Exception {
+        final byte[] content = Objects.requireNonNull(getClass().getResourceAsStream("/certs/" + resource)).readAllBytes();
+        final String value = secretContext.getLastResult().getValue();
+        final X509Certificate certificate = getX509Certificate(contentType, value);
+        if (contentType == CertificateContentType.PEM) {
+            final String expected = new String(content, StandardCharsets.UTF_8);
+            assertEquals(expected, value);
+        } else {
+            final KeyStore keyStore = getKeyStore(content, password);
+            final String alias = findAlias(keyStore);
+            final X509Certificate expectedCertificate = (X509Certificate) keyStore.getCertificate(alias);
+            assertEquals(expectedCertificate, certificate);
+            final Key key = keyStore.getKey(alias, password.toCharArray());
+            final KeyStore expectedKeyStore = getKeyStore(Base64Utils.decodeFromString(value), DEFAULT_PASSWORD);
+            final String expectedAlias = findAlias(expectedKeyStore);
+            final Key expectedKey = expectedKeyStore.getKey(expectedAlias, DEFAULT_PASSWORD.toCharArray());
+            assertEquals(expectedKey, key);
+        }
+    }
+
     @Then("the list should contain {int} items")
     public void theListShouldContainCountItems(final int count) {
         final List<String> ids = context.getListedIds();
         assertEquals(count, ids.size());
+    }
+
+    @And("the downloaded certificate policy has {int} months validity")
+    public void theDownloadedCertificatePolicyHasMonthsValidity(final int validity) {
+        final Integer actual = context.getDownloadedPolicy().getValidityInMonths();
+        assertEquals(validity, actual);
+    }
+
+    @And("the downloaded certificate policy has {subject} as subject")
+    public void theDownloadedCertificatePolicyHasSubjectAsSubject(final String subject) {
+        final String actual = context.getDownloadedPolicy().getSubject();
+        assertEquals(subject, actual);
     }
 
     private X509Certificate getX509Certificate(final CertificateContentType contentType, final String value) throws Exception {
@@ -88,14 +130,24 @@ public class CertificateStepDefAssertion extends CommonAssertions {
             certificate = (X509Certificate) fact.generateCertificate(new ByteArrayInputStream(encodedCertificate));
         } else {
             final byte[] bytes = Base64Utils.decodeFromString(value);
-            final KeyStore keyStore = KeyStore.getInstance("pkcs12", KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
-            keyStore.load(new ByteArrayInputStream(bytes), "lowkey-vault".toCharArray());
-            final Enumeration<String> aliases = keyStore.aliases();
-            final String alias = aliases.nextElement();
+            final KeyStore keyStore = getKeyStore(bytes, DEFAULT_PASSWORD);
+            final String alias = findAlias(keyStore);
             certificate = (X509Certificate) keyStore.getCertificate(alias);
-            assertNotNull(keyStore.getKey(alias, "lowkey-vault".toCharArray()));
+            assertNotNull(keyStore.getKey(alias, DEFAULT_PASSWORD.toCharArray()));
         }
         return certificate;
+    }
+
+    private static String findAlias(final KeyStore keyStore) throws KeyStoreException {
+        final Enumeration<String> aliases = keyStore.aliases();
+        return aliases.nextElement();
+    }
+
+    private static KeyStore getKeyStore(final byte[] content, final String password)
+            throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
+        final KeyStore keyStore = KeyStore.getInstance("pkcs12", KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
+        keyStore.load(new ByteArrayInputStream(content), password.toCharArray());
+        return keyStore;
     }
 
     private byte[] extractByteArray(final String certificateContent) {

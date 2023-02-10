@@ -28,8 +28,7 @@ import static org.mockito.Mockito.spy;
 
 class KeyVaultCertificateEntityIntegrationTest {
     public static final int TWO_YEARS_IN_MONTHS = 24;
-    //precision of the parsing is low, at 30 years, the difference adds up
-    public static final int THIRTY_YEARS_IN_MONTHS_APPROX = 361;
+    public static final int THIRTY_YEARS_IN_MONTHS = 360;
 
     @Test
     void testImportConstructorShouldGenerateMatchingVersionsWhenCalledWithValidInput() {
@@ -250,7 +249,7 @@ class KeyVaultCertificateEntityIntegrationTest {
         Assertions.assertIterableEquals(
                 new TreeSet<>(Set.of(KeyUsageEnum.KEY_ENCIPHERMENT, KeyUsageEnum.DIGITAL_SIGNATURE)),
                 new TreeSet<>(originalPolicy.getKeyUsage()));
-        Assertions.assertEquals(THIRTY_YEARS_IN_MONTHS_APPROX, originalPolicy.getValidityMonths());
+        Assertions.assertEquals(THIRTY_YEARS_IN_MONTHS, originalPolicy.getValidityMonths());
         Assertions.assertNotNull(actual.getOriginalCertificateContents());
     }
 

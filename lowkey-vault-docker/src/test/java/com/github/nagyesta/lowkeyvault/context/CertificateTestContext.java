@@ -25,6 +25,7 @@ public class CertificateTestContext extends
     private CertificateServiceVersion certificateServiceVersion = CertificateServiceVersion.getLatest();
     private Map<String, String> tags;
     private CertificatePolicy policy;
+    private CertificatePolicy downloadedPolicy;
 
     public CertificateTestContext(final ApacheHttpClientProvider provider) {
         super(provider);
@@ -77,6 +78,14 @@ public class CertificateTestContext extends
 
     public void setPolicy(final CertificatePolicy policy) {
         this.policy = policy;
+    }
+
+    public CertificatePolicy getDownloadedPolicy() {
+        return downloadedPolicy;
+    }
+
+    public void setDownloadedPolicy(final CertificatePolicy downloadedPolicy) {
+        this.downloadedPolicy = downloadedPolicy;
     }
 
     public Map<String, String> getTags() {

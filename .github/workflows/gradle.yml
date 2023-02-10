@@ -70,7 +70,7 @@ jobs:
             -PossrhPassword=${{ secrets.OSSRH_PASS }}
             -Psigning.keyId=${{ secrets.SIGNING_KEY_ID }}
             -Psigning.password=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
-            -Psigning.secretKeyRingFile=$(echo ~/.gnupg/secring.gpg)
+            -Psigning.secretKeyRingFile=~/.gnupg/secring.gpg
       - name: Upload coverage to Codecov - App
         uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # tag=v3.1.1
         with:

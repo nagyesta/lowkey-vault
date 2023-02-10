@@ -53,8 +53,8 @@ jobs:
             -PgithubToken=${{ secrets.PUBLISH_KEY }}
       - name: Decode key
         run: |
-          mkdir -p ~/.gnupg/
-          echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}" | base64 --decode > ~/.gnupg/secring.gpg
+          mkdir -p ${{ env.HOME }}/.gnupg/
+          echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}" | base64 --decode > ${{ env.HOME }}/.gnupg/secring.gpg
       - name: Docker Login
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # tag=v2.1.0
         with:
@@ -70,11 +70,11 @@ jobs:
             -PossrhPassword=${{ secrets.OSSRH_PASS }}
             -Psigning.keyId=${{ secrets.SIGNING_KEY_ID }}
             -Psigning.password=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
-            -Psigning.secretKeyRingFile=~/.gnupg/secring.gpg
+            -Psigning.secretKeyRingFile=${{ env.HOME }}/.gnupg/secring.gpg
       - name: 'Clean-up GPG key'
         if: always()
         run: |
-          rm -rf ~/.gnupg/
+          rm -rf ${{ env.HOME }}/.gnupg/
       - name: Upload coverage to Codecov - App
         uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # tag=v3.1.1
         with:

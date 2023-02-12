@@ -30,6 +30,7 @@ on:
       - '.github/pr-labeler.yml'
       - 'renovate.json'
       - '.whitesource'
+      - 'lowkey-vault-docker/src/docker/Dockerfile'
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ main ]
@@ -48,6 +49,8 @@ on:
       - '.github/pr-labeler.yml'
       - 'renovate.json'
       - '.whitesource'
+      - 'gradle/libs.versions.toml'
+      - 'lowkey-vault-docker/src/docker/Dockerfile'
 
 permissions:
   # required for all workflows

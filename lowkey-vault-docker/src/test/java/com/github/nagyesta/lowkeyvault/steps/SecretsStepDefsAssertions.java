@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.steps;
 
+import com.azure.core.exception.ResourceNotFoundException;
 import com.github.nagyesta.lowkeyvault.context.SecretTestContext;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
@@ -117,5 +118,15 @@ public class SecretsStepDefsAssertions extends CommonAssertions {
     @And("the listed deleted secrets are empty")
     public void theListedDeletedSecretsAreEmpty() {
         assertEquals(Collections.emptyList(), context.getListedIds());
+    }
+
+    @Then("the last secret version of {name} cannot be fetched as it is not enabled")
+    public void theLastSecretVersionOfSecretNameCannotBeFetchedAsItIsNotEnabled(final String secretName) {
+        try {
+            context.getClient(context.getSecretServiceVersion()).getSecret(secretName);
+            assertFail("Should not be possible to get disabled secret: " + secretName);
+        } catch (final ResourceNotFoundException expected) {
+            assertNotNull(expected);
+        }
     }
 }

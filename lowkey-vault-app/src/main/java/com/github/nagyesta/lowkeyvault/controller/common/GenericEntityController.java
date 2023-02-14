@@ -6,12 +6,16 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesUpdateModel;
 import com.github.nagyesta.lowkeyvault.service.EntityId;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultEntity;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultFake;
+import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import lombok.NonNull;
 
 import java.net.URI;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -67,13 +71,19 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
         this.versionedItemConverter = versionedItemConverter;
     }
 
-    protected M getModelById(final S entityVaultFake, final V entityId, final URI baseUri) {
+    protected M getModelById(final S entityVaultFake, final V entityId, final URI baseUri, final boolean includeDisabled) {
         final E entity = entityVaultFake.getEntities().getReadOnlyEntity(entityId);
+        if (!includeDisabled && !entity.isEnabled()) {
+            throw new NotFoundException("Operation get is not allowed on a disabled entity.");
+        }
         return modelConverter.convert(entity, baseUri);
     }
 
-    protected DM getDeletedModelById(final S entityVaultFake, final V entityId, final URI baseUri) {
+    protected DM getDeletedModelById(final S entityVaultFake, final V entityId, final URI baseUri, final boolean includeDisabled) {
         final E entity = entityVaultFake.getDeletedEntities().getReadOnlyEntity(entityId);
+        if (!includeDisabled && !entity.isEnabled()) {
+            throw new NotFoundException("Operation get is not allowed on a disabled entity.");
+        }
         return modelConverter.convertDeleted(entity, baseUri);
     }
 
@@ -85,7 +95,10 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
             final URI baseUri, final String name, final int limit, final int offset, final String uriPath) {
         final S entityVaultFake = getVaultByUri(baseUri);
         final K entityId = entityId(baseUri, name);
-        final Deque<String> allItems = entityVaultFake.getEntities().getVersions(entityId);
+        final List<String> allItems = entityVaultFake.getEntities().getVersions(entityId)
+                .stream()
+                .sorted()
+                .collect(Collectors.toList());
         final List<I> items = filterList(limit, offset, allItems, v -> {
             final E entity = getEntityByNameAndVersion(baseUri, name, v);
             return versionedItemConverter.convert(entity, baseUri);
@@ -115,7 +128,13 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
     protected M getLatestEntityModel(final URI baseUri, final String name) {
         final S vaultFake = getVaultByUri(baseUri);
         final V entityId = vaultFake.getEntities().getLatestVersionOfEntity(entityId(baseUri, name));
-        return getModelById(vaultFake, entityId, baseUri);
+        return getModelById(vaultFake, entityId, baseUri, false);
+    }
+
+    protected M getSpecificEntityModel(final URI baseUri, final String name, final String version) {
+        final S vaultFake = getVaultByUri(baseUri);
+        final V entityId = versionedEntityId(baseUri, name, version);
+        return getModelById(vaultFake, entityId, baseUri, false);
     }
 
     protected void updateAttributes(final BaseVaultFake<K, V, ?> vaultFake, final V entityId, final BasePropertiesUpdateModel properties) {

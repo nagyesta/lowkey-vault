@@ -83,10 +83,10 @@ configure(subprojects.findAll({
     jacocoTestReport {
         reports {
             xml.required.set(true)
-            xml.destination file("$buildDir/reports/jacoco/report.xml")
+            xml.outputLocation.set(file("$buildDir/reports/jacoco/report.xml"))
             csv.required.set(false)
             html.required.set(true)
-            html.destination file("$buildDir/reports/jacoco/html")
+            html.outputLocation.set(file("$buildDir/reports/jacoco/html"))
         }
     }
 
@@ -145,7 +145,7 @@ configure(subprojects.findAll({
     }
     jar.dependsOn check
 
-    tasks.withType(Checkstyle) {
+    tasks.withType(Checkstyle).configureEach {
         configProperties = [base_dir: rootDir.toString(), cache_file: file("${buildDir}/checkstyle/cacheFile")]
         reports {
             xml.required.set(false)
@@ -178,7 +178,7 @@ configure(subprojects.findAll({
     }
 
     //Disable metadata publishing and rely on Maven only
-    tasks.withType(GenerateModuleMetadata) {
+    tasks.withType(GenerateModuleMetadata).configureEach {
         enabled = false
     }
 

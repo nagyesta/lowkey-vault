@@ -23,6 +23,10 @@ public class CommonAssertions {
         Assert.assertTrue(actual);
     }
 
+    protected <T> void assertFail(final String message) {
+        Assert.fail(message);
+    }
+
     protected <T> void assertNull(final T actual) {
         Assert.assertNull(actual);
     }

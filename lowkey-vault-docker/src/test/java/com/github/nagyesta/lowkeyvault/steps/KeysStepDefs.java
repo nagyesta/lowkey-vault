@@ -319,10 +319,10 @@ public class KeysStepDefs extends CommonAssertions {
 
     @When("the key update request is sent")
     public void theUpdateRequestIsSent() {
-        final KeyProperties properties = context.getClient(context.getKeyServiceVersion())
-                .updateKeyProperties(context.getUpdateProperties(), context.getUpdateKeyOperations())
-                .getProperties();
-        fetchLatestKeyVersion(properties.getName());
+        final KeyVaultKey key = context.getClient(context.getKeyServiceVersion())
+                .updateKeyProperties(context.getUpdateProperties(), context.getUpdateKeyOperations());
+        final KeyProperties properties = key.getProperties();
+        context.addFetchedKey(properties.getName(), key);
     }
 
     @When("the created key is used to encrypt {clearText} with {algorithm}")

@@ -197,7 +197,8 @@ public class SecretsStepDefs extends CommonAssertions {
     public void theUpdateRequestIsSent() {
         final SecretProperties properties = context.getClient(context.getSecretServiceVersion())
                 .updateSecretProperties(context.getUpdateProperties());
-        fetchLatestSecretVersion(properties.getName());
+        //only update properties as the secret might be disabled due to our actions
+        context.getLastResult().setProperties(properties);
     }
 
     @And("the secret named {name} is backed up")

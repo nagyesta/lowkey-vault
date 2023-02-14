@@ -27,6 +27,8 @@ on:
       - 'gradle/verification-metadata-clean.xml'
       - 'lowkey-vault-docker/src/docker/Dockerfile'
       - 'gradle/wrapper/gradle-wrapper.properties'
+      - 'gradlew'
+      - 'gradlew.bat'
       - 'config/ossindex/exclusions.txt'
 
 permissions: read-all

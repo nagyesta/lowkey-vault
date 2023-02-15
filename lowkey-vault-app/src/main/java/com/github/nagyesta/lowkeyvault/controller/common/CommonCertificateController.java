@@ -106,9 +106,7 @@ public abstract class CommonCertificateController extends GenericEntityControlle
         log.info("Received request to {} get certificate: {} with version: {} using API version: {}",
                 baseUri.toString(), certificateName, certificateVersion, apiVersion());
 
-        final ReadOnlyKeyVaultCertificateEntity keyVaultCertificateEntity =
-                getEntityByNameAndVersion(baseUri, certificateName, certificateVersion);
-        return ResponseEntity.ok(convertDetails(keyVaultCertificateEntity, baseUri));
+        return ResponseEntity.ok(getSpecificEntityModel(baseUri, certificateName, certificateVersion));
     }
 
     public ResponseEntity<KeyVaultCertificateModel> importCertificate(

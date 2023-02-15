@@ -39,10 +39,10 @@ dependencies {
     testImplementation libs.findbugs.jsr305
 }
 
-task copyAppJar(type: Copy) {
-    inputs.file(rootProject.project(":lowkey-vault-app").tasks.getByPath("bootJar").outputs.files.singleFile)
+tasks.register('copyAppJar', Copy.class) {
+    inputs.file(rootProject.project(":lowkey-vault-app").tasks.named("bootJar").get().outputs.files.singleFile)
     outputs.file("${buildDir}/app/lowkey-vault.jar")
-    from rootProject.project(":lowkey-vault-app").tasks.getByPath("bootJar").outputs.files.singleFile
+    from rootProject.project(":lowkey-vault-app").tasks.named("bootJar").get().outputs.files.singleFile
     into file("${buildDir}/app/")
     rename {
         'lowkey-vault.jar'
@@ -77,6 +77,7 @@ dockerRun {
 tasks.dockerRun.dependsOn tasks.docker
 
 test {
+    inputs.file(rootProject.project(":lowkey-vault-app").tasks.named("bootJar").get().outputs.files.singleFile)
     outputs.file(file("$buildDir/reports/abort-mission/abort-mission-report.json"))
     outputs.dir(file("$buildDir/reports/cucumber"))
     systemProperty("cucumber.execution.parallel.enabled", System.getProperty("test.parallel"))
@@ -87,7 +88,7 @@ test {
         systemProperty("abort-mission.suppress.abort.evaluators", rootProject.ext.dockerSuppressGroups)
     }
 }
-test.outputs.upToDateWhen { false }
+test.dependsOn tasks.cleanTest
 test.dependsOn tasks.dockerRun
 test.finalizedBy tasks.dockerStop
 
@@ -95,7 +96,7 @@ abortMission {
     toolVersion libs.versions.abortMission.get()
 }
 
-task publish {
+tasks.register('publish') {
     dependsOn(build)
     dependsOn("dockerPushDockerNagyesta")
 }

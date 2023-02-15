@@ -311,6 +311,7 @@ class KeyControllerTest {
         final int index = 30;
         final LinkedList<String> fullList = IntStream.range(0, 42)
                 .mapToObj(i -> UUID.randomUUID().toString().replaceAll("-", ""))
+                .sorted()
                 .collect(Collectors.toCollection(LinkedList::new));
         final KeyEntityId baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
         final String expectedNextUri = baseUri.asUri(HTTPS_LOCALHOST_8443, "versions?api-version=7.3&$skiptoken=31&maxresults=1")
@@ -348,6 +349,7 @@ class KeyControllerTest {
         //given
         final LinkedList<String> fullList = IntStream.range(0, 25)
                 .mapToObj(i -> UUID.randomUUID().toString().replaceAll("-", ""))
+                .sorted()
                 .collect(Collectors.toCollection(LinkedList::new));
         final KeyEntityId baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
         when(keyVaultFake.getEntities())

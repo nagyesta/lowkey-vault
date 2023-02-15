@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.steps;
 
+import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.security.keyvault.keys.models.*;
 import com.github.nagyesta.lowkeyvault.context.KeyTestContext;
 import io.cucumber.java.en.And;
@@ -205,5 +206,15 @@ public class KeysStepDefsAssertions extends CommonAssertions {
         final KeyRotationLifetimeAction action = keyRotationPolicy.getLifetimeActions().get(0);
         assertEquals("P" + rotate + "D", action.getTimeAfterCreate());
         assertEquals(KeyRotationPolicyAction.ROTATE, action.getAction());
+    }
+
+    @Then("the last key version of {name} cannot be fetched as it is not enabled")
+    public void theLastKeyVersionOfKeyNameCannotBeFetchedAsItIsNotEnabled(final String keyName) {
+        try {
+            context.getClient(context.getKeyServiceVersion()).getKey(keyName);
+            assertFail("Should not be possible to get disabled key: " + keyName);
+        } catch (final ResourceNotFoundException expected) {
+            assertNotNull(expected);
+        }
     }
 }

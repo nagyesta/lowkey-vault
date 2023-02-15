@@ -228,6 +228,7 @@ class SecretControllerTest {
         final int index = 30;
         final LinkedList<String> fullList = IntStream.range(0, 42)
                 .mapToObj(i -> UUID.randomUUID().toString().replaceAll("-", ""))
+                .sorted()
                 .collect(Collectors.toCollection(LinkedList::new));
         final SecretEntityId baseUri = new SecretEntityId(HTTPS_LOCALHOST_8443, SECRET_NAME_1, null);
         final String expectedNextUri = baseUri.asUri(HTTPS_LOCALHOST_8443, "versions?api-version=7.2&$skiptoken=31&maxresults=1")
@@ -266,6 +267,7 @@ class SecretControllerTest {
         //given
         final LinkedList<String> fullList = IntStream.range(0, 25)
                 .mapToObj(i -> UUID.randomUUID().toString().replaceAll("-", ""))
+                .sorted()
                 .collect(Collectors.toCollection(LinkedList::new));
         final SecretEntityId baseUri = new SecretEntityId(HTTPS_LOCALHOST_8443, SECRET_NAME_1, null);
         when(secretVaultFake.getEntities())

@@ -50,7 +50,7 @@ public abstract class CommonKeyController extends GenericEntityController<KeyEnt
 
         final KeyVaultFake keyVaultFake = getVaultByUri(baseUri);
         final VersionedKeyEntityId keyEntityId = createKeyWithAttributes(keyVaultFake, keyName, request);
-        return ResponseEntity.ok(getModelById(keyVaultFake, keyEntityId, baseUri));
+        return ResponseEntity.ok(getModelById(keyVaultFake, keyEntityId, baseUri, true));
     }
 
     public ResponseEntity<KeyVaultKeyModel> importKey(
@@ -62,7 +62,7 @@ public abstract class CommonKeyController extends GenericEntityController<KeyEnt
 
         final KeyVaultFake keyVaultFake = getVaultByUri(baseUri);
         final VersionedKeyEntityId keyEntityId = importKeyWithAttributes(keyVaultFake, keyName, request);
-        return ResponseEntity.ok(getModelById(keyVaultFake, keyEntityId, baseUri));
+        return ResponseEntity.ok(getModelById(keyVaultFake, keyEntityId, baseUri, true));
     }
 
     public ResponseEntity<KeyVaultKeyModel> delete(
@@ -75,7 +75,7 @@ public abstract class CommonKeyController extends GenericEntityController<KeyEnt
         final KeyEntityId entityId = new KeyEntityId(baseUri, keyName);
         keyVaultFake.delete(entityId);
         final VersionedKeyEntityId latestVersion = keyVaultFake.getDeletedEntities().getLatestVersionOfEntity(entityId);
-        return ResponseEntity.ok(getDeletedModelById(keyVaultFake, latestVersion, baseUri));
+        return ResponseEntity.ok(getDeletedModelById(keyVaultFake, latestVersion, baseUri, true));
     }
 
     public ResponseEntity<KeyVaultItemListModel<KeyVaultKeyItemModel>> versions(
@@ -125,8 +125,7 @@ public abstract class CommonKeyController extends GenericEntityController<KeyEnt
         log.info("Received request to {} get key: {} with version: {} using API version: {}",
                 baseUri.toString(), keyName, keyVersion, apiVersion());
 
-        final ReadOnlyKeyVaultKeyEntity keyVaultKeyEntity = getEntityByNameAndVersion(baseUri, keyName, keyVersion);
-        return ResponseEntity.ok(convertDetails(keyVaultKeyEntity, baseUri));
+        return ResponseEntity.ok(getSpecificEntityModel(baseUri, keyName, keyVersion));
     }
 
     public ResponseEntity<KeyVaultKeyModel> updateVersion(
@@ -143,7 +142,7 @@ public abstract class CommonKeyController extends GenericEntityController<KeyEnt
                 .ifPresent(operations -> keyVaultFake.setKeyOperations(entityId, operations));
         updateAttributes(keyVaultFake, entityId, request.getProperties());
         updateTags(keyVaultFake, entityId, request.getTags());
-        return ResponseEntity.ok(getModelById(keyVaultFake, entityId, baseUri));
+        return ResponseEntity.ok(getModelById(keyVaultFake, entityId, baseUri, true));
     }
 
     public ResponseEntity<KeyVaultKeyModel> getDeletedKey(
@@ -155,7 +154,7 @@ public abstract class CommonKeyController extends GenericEntityController<KeyEnt
         final KeyVaultFake keyVaultFake = getVaultByUri(baseUri);
         final KeyEntityId entityId = new KeyEntityId(baseUri, keyName);
         final VersionedKeyEntityId latestVersion = keyVaultFake.getDeletedEntities().getLatestVersionOfEntity(entityId);
-        return ResponseEntity.ok(getDeletedModelById(keyVaultFake, latestVersion, baseUri));
+        return ResponseEntity.ok(getDeletedModelById(keyVaultFake, latestVersion, baseUri, false));
     }
 
     public ResponseEntity<KeyVaultKeyModel> recoverDeletedKey(
@@ -168,7 +167,7 @@ public abstract class CommonKeyController extends GenericEntityController<KeyEnt
         final KeyEntityId entityId = new KeyEntityId(baseUri, keyName);
         keyVaultFake.recover(entityId);
         final VersionedKeyEntityId latestVersion = keyVaultFake.getEntities().getLatestVersionOfEntity(entityId);
-        return ResponseEntity.ok(getModelById(keyVaultFake, latestVersion, baseUri));
+        return ResponseEntity.ok(getModelById(keyVaultFake, latestVersion, baseUri, true));
     }
 
     public ResponseEntity<Void> purgeDeleted(

@@ -94,8 +94,8 @@ public abstract class CommonTestContext<E, D, P, C, V extends ServiceVersion> {
         return listedIds;
     }
 
-    public void setListedIds(final List<String> listedKeyNames) {
-        this.listedIds = listedKeyNames;
+    public void setListedIds(final List<String> listedIds) {
+        this.listedIds = listedIds;
     }
 
     public List<String> getDeletedRecoveryIds() {

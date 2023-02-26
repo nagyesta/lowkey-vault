@@ -506,7 +506,7 @@ class KeyControllerTest {
                 .thenReturn(DELETED_RESPONSE);
 
         //when
-        final ResponseEntity<KeyVaultKeyModel> actual = underTest.getDeletedKey(KEY_NAME_1, HTTPS_LOCALHOST_8443);
+        final ResponseEntity<DeletedKeyVaultKeyModel> actual = underTest.getDeletedKey(KEY_NAME_1, HTTPS_LOCALHOST_8443);
 
         //then
         Assertions.assertNotNull(actual);
@@ -676,7 +676,7 @@ class KeyControllerTest {
                 .thenReturn(keyItemModel);
 
         //when
-        final ResponseEntity<KeyVaultItemListModel<KeyVaultKeyItemModel>> actual =
+        final ResponseEntity<KeyVaultItemListModel<DeletedKeyVaultKeyItemModel>> actual =
                 underTest.listDeletedKeys(HTTPS_LOCALHOST_8443, 1, 0);
 
         //then
@@ -764,7 +764,7 @@ class KeyControllerTest {
                 .thenReturn(keyItemModel);
 
         //when
-        final ResponseEntity<KeyVaultItemListModel<KeyVaultKeyItemModel>> actual =
+        final ResponseEntity<KeyVaultItemListModel<DeletedKeyVaultKeyItemModel>> actual =
                 underTest.listDeletedKeys(HTTPS_LOCALHOST_8443, 1, 0);
 
         //then

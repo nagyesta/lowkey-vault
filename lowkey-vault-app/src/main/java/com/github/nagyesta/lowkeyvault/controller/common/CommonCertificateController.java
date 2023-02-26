@@ -77,8 +77,23 @@ public abstract class CommonCertificateController extends GenericEntityControlle
         log.info("Received request to {} get pending create certificate: {} using API version: {}",
                 baseUri.toString(), certificateName, apiVersion());
         final CertificateVaultFake vaultFake = getVaultByUri(baseUri);
-        final VersionedCertificateEntityId entityId = vaultFake.getEntities().getLatestVersionOfEntity(entityId(baseUri, certificateName));
-        final ReadOnlyKeyVaultCertificateEntity readOnlyEntity = vaultFake.getEntities().getReadOnlyEntity(entityId);
+        final VersionedCertificateEntityId entityId = vaultFake
+                .getEntities().getLatestVersionOfEntity(entityId(baseUri, certificateName));
+        final ReadOnlyKeyVaultCertificateEntity readOnlyEntity = vaultFake
+                .getEntities().getReadOnlyEntity(entityId);
+        return ResponseEntity.ok(pendingModelConverter.convert(readOnlyEntity, baseUri));
+    }
+
+    public ResponseEntity<KeyVaultPendingCertificateModel> pendingDelete(
+            @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
+            final URI baseUri) {
+        log.info("Received request to {} get pending delete certificate: {} using API version: {}",
+                baseUri.toString(), certificateName, apiVersion());
+        final CertificateVaultFake vaultFake = getVaultByUri(baseUri);
+        final VersionedCertificateEntityId entityId = vaultFake.getDeletedEntities()
+                .getLatestVersionOfEntity(entityId(baseUri, certificateName));
+        final ReadOnlyKeyVaultCertificateEntity readOnlyEntity = vaultFake
+                .getDeletedEntities().getReadOnlyEntity(entityId);
         return ResponseEntity.ok(pendingModelConverter.convert(readOnlyEntity, baseUri));
     }
 
@@ -90,6 +105,7 @@ public abstract class CommonCertificateController extends GenericEntityControlle
 
         return ResponseEntity.ok(getLatestEntityModel(baseUri, certificateName));
     }
+
     public ResponseEntity<CertificatePolicyModel> getPolicy(
             @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
             final URI baseUri) {
@@ -122,6 +138,56 @@ public abstract class CommonCertificateController extends GenericEntityControlle
         return ResponseEntity.ok().body(convertDetails(readOnlyEntity, baseUri));
     }
 
+    public ResponseEntity<DeletedKeyVaultCertificateModel> delete(
+            @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
+            final URI baseUri) {
+        log.info("Received request to {} delete certificate: {} using API version: {}",
+                baseUri.toString(), certificateName, apiVersion());
+
+        final CertificateVaultFake vaultFake = getVaultByUri(baseUri);
+        final CertificateEntityId entityId = new CertificateEntityId(baseUri, certificateName);
+        vaultFake.delete(entityId);
+        final VersionedCertificateEntityId latestVersion = vaultFake.getDeletedEntities().getLatestVersionOfEntity(entityId);
+        return ResponseEntity.ok(getDeletedModelById(vaultFake, latestVersion, baseUri, true));
+    }
+
+    public ResponseEntity<DeletedKeyVaultCertificateModel> getDeletedCertificate(
+            @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
+            final URI baseUri) {
+        log.info("Received request to {} get deleted certificate: {} using API version: {}",
+                baseUri.toString(), certificateName, apiVersion());
+
+        final CertificateVaultFake vaultFake = getVaultByUri(baseUri);
+        final CertificateEntityId entityId = new CertificateEntityId(baseUri, certificateName);
+        final VersionedCertificateEntityId latestVersion = vaultFake.getDeletedEntities().getLatestVersionOfEntity(entityId);
+        return ResponseEntity.ok(getDeletedModelById(vaultFake, latestVersion, baseUri, false));
+    }
+
+    public ResponseEntity<KeyVaultCertificateModel> recoverDeletedCertificate(
+            @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
+            final URI baseUri) {
+        log.info("Received request to {} recover deleted certificate: {} using API version: {}",
+                baseUri.toString(), certificateName, apiVersion());
+
+        final CertificateVaultFake vaultFake = getVaultByUri(baseUri);
+        final CertificateEntityId entityId = new CertificateEntityId(baseUri, certificateName);
+        vaultFake.recover(entityId);
+        final VersionedCertificateEntityId latestVersion = vaultFake.getEntities().getLatestVersionOfEntity(entityId);
+        return ResponseEntity.ok(getModelById(vaultFake, latestVersion, baseUri, true));
+    }
+
+    public ResponseEntity<Void> purgeDeleted(
+            @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
+            final URI baseUri) {
+        log.info("Received request to {} purge deleted certificate: {} using API version: {}",
+                baseUri.toString(), certificateName, apiVersion());
+
+        final CertificateVaultFake vaultFake = getVaultByUri(baseUri);
+        final CertificateEntityId entityId = new CertificateEntityId(baseUri, certificateName);
+        vaultFake.purge(entityId);
+        return ResponseEntity.noContent().build();
+    }
+
     public ResponseEntity<KeyVaultItemListModel<KeyVaultCertificateItemModel>> versions(
             @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
             final URI baseUri,
@@ -145,14 +211,29 @@ public abstract class CommonCertificateController extends GenericEntityControlle
         return ResponseEntity.ok(getPageOfItems(baseUri, maxResults, skipToken, includePending));
     }
 
+    public ResponseEntity<KeyVaultItemListModel<DeletedKeyVaultCertificateItemModel>> listDeletedCertificates(
+            final URI baseUri,
+            final int maxResults,
+            final int skipToken,
+            final boolean includePending) {
+        log.info("Received request to {} list deleted certificates, (max results: {}, skip: {}, includePending: {}) using API version: {}",
+                baseUri.toString(), maxResults, skipToken, includePending, apiVersion());
+
+        return ResponseEntity.ok(getPageOfDeletedItems(baseUri, maxResults, skipToken, includePending));
+    }
+
     private KeyVaultItemListModel<KeyVaultCertificateItemModel> getPageOfItems(
             final URI baseUri, final int limit, final int offset, final boolean includePending) {
-        final KeyVaultItemListModel<KeyVaultCertificateItemModel> page = super.getPageOfItems(baseUri, limit, offset, "/certificates");
-        final String nextLink = Optional.ofNullable(page.getNextLink())
-                .map(next -> next + "&" + INCLUDE_PENDING_PARAM + "=" + includePending)
-                .orElse(null);
-        page.setNextLink(nextLink);
-        return page;
+        final KeyVaultItemListModel<KeyVaultCertificateItemModel> page =
+                super.getPageOfItems(baseUri, limit, offset, "/certificates");
+        return fixNextLink(page, includePending);
+    }
+
+    private KeyVaultItemListModel<DeletedKeyVaultCertificateItemModel> getPageOfDeletedItems(
+            final URI baseUri, final int limit, final int offset, final boolean includePending) {
+        final KeyVaultItemListModel<DeletedKeyVaultCertificateItemModel> page =
+                super.getPageOfDeletedItems(baseUri, limit, offset, "/deletedcertificates");
+        return fixNextLink(page, includePending);
     }
 
     @Override
@@ -163,6 +244,16 @@ public abstract class CommonCertificateController extends GenericEntityControlle
     @Override
     protected CertificateEntityId entityId(final URI baseUri, final String name) {
         return new CertificateEntityId(baseUri, name);
+    }
+
+    private <LI> KeyVaultItemListModel<LI> fixNextLink(
+            final KeyVaultItemListModel<LI> page,
+            final boolean includePending) {
+        final String nextLink = Optional.ofNullable(page.getNextLink())
+                .map(next -> next + "&" + INCLUDE_PENDING_PARAM + "=" + includePending)
+                .orElse(null);
+        page.setNextLink(nextLink);
+        return page;
     }
 
     private VersionedCertificateEntityId createCertificateWithAttributes(

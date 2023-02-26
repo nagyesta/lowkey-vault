@@ -6,6 +6,8 @@ import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyVersionI
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ModelConverter;
 import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
 import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.DeletedKeyVaultKeyItemModel;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.DeletedKeyVaultKeyModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyItemModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.CreateKeyRequest;
@@ -106,7 +108,7 @@ public class KeyController extends CommonKeyController {
     @GetMapping(value = "/deletedkeys",
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<KeyVaultItemListModel<KeyVaultKeyItemModel>> listDeletedKeys(
+    public ResponseEntity<KeyVaultItemListModel<DeletedKeyVaultKeyItemModel>> listDeletedKeys(
             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
             @RequestParam(name = MAX_RESULTS_PARAM, required = false, defaultValue = DEFAULT_MAX) final int maxResults,
             @RequestParam(name = SKIP_TOKEN_PARAM, required = false, defaultValue = SKIP_ZERO) final int skipToken) {
@@ -165,7 +167,7 @@ public class KeyController extends CommonKeyController {
     @GetMapping(value = "/deletedkeys/{keyName}",
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<KeyVaultKeyModel> getDeletedKey(
+    public ResponseEntity<DeletedKeyVaultKeyModel> getDeletedKey(
             @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
         return super.getDeletedKey(keyName, baseUri);

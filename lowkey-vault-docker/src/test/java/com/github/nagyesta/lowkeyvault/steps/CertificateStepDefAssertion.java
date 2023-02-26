@@ -1,6 +1,8 @@
 package com.github.nagyesta.lowkeyvault.steps;
 
+import com.azure.security.keyvault.certificates.CertificateClient;
 import com.azure.security.keyvault.certificates.models.CertificateContentType;
+import com.azure.security.keyvault.certificates.models.DeletedCertificate;
 import com.azure.security.keyvault.keys.models.KeyVaultKey;
 import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
 import com.github.nagyesta.lowkeyvault.KeyGenUtil;
@@ -110,6 +112,12 @@ public class CertificateStepDefAssertion extends CommonAssertions {
         assertEquals(count, ids.size());
     }
 
+    @Then("the deleted list should contain {int} items")
+    public void theDeletedListShouldContainCountItems(final int count) {
+        final List<String> ids = context.getDeletedRecoveryIds();
+        assertEquals(count, ids.size());
+    }
+
     @And("the downloaded certificate policy has {int} months validity")
     public void theDownloadedCertificatePolicyHasMonthsValidity(final int validity) {
         final Integer actual = context.getDownloadedPolicy().getValidityInMonths();
@@ -120,6 +128,14 @@ public class CertificateStepDefAssertion extends CommonAssertions {
     public void theDownloadedCertificatePolicyHasSubjectAsSubject(final String subject) {
         final String actual = context.getDownloadedPolicy().getSubject();
         assertEquals(subject, actual);
+    }
+
+    @And("the deleted certificate policy named {name} is downloaded")
+    public void theDeletedCertificatePolicyNamedMultiImportIsDownloaded(final String name) {
+        final CertificateClient client = context.getClient(context.getCertificateServiceVersion());
+        final DeletedCertificate deletedCertificate = client.getDeletedCertificate(name);
+        context.setLastDeleted(deletedCertificate);
+        assertNotNull(deletedCertificate);
     }
 
     private X509Certificate getX509Certificate(final CertificateContentType contentType, final String value) throws Exception {

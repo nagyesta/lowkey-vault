@@ -175,4 +175,40 @@ public class CertificatesStepDefs extends CommonAssertions {
                 .stream().collect(Collectors.toList());
         context.setListedIds(actual);
     }
+
+    @And("{int} certificates with {name} prefix are deleted")
+    public void certificatesWithMultiImportPrefixAreDeleted(final int count, final String prefix) {
+        final CertificateClient client = context.getClient(context.getCertificateServiceVersion());
+        IntStream.range(0, count).forEach(i -> {
+            final DeletedCertificate deletedCertificate = client.beginDeleteCertificate(prefix + i)
+                    .waitForCompletion().getValue();
+            context.setLastDeleted(deletedCertificate);
+        });
+    }
+
+    @And("{int} certificates with {name} prefix are purged")
+    public void certificatesWithMultiImportPrefixArePurged(final int count, final String prefix) {
+        final CertificateClient client = context.getClient(context.getCertificateServiceVersion());
+        IntStream.range(0, count).forEach(i -> {
+            client.purgeDeletedCertificate(prefix + i);
+        });
+    }
+
+    @And("{int} certificates with {name} prefix are recovered")
+    public void certificatesWithMultiImportPrefixAreRecovered(final int count, final String prefix) {
+        final CertificateClient client = context.getClient(context.getCertificateServiceVersion());
+        IntStream.range(0, count).forEach(i -> {
+            client.beginRecoverDeletedCertificate(prefix + i).waitForCompletion();
+        });
+    }
+
+    @When("the deleted certificates are listed")
+    public void theDeletedCertificatesAreListed() {
+        final List<String> recoveryIds = context.getClient(context.getCertificateServiceVersion())
+                .listDeletedCertificates()
+                .stream()
+                .map(DeletedCertificate::getRecoveryId)
+                .collect(Collectors.toList());
+        context.setDeletedRecoveryIds(recoveryIds);
+    }
 }

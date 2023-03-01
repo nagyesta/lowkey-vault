@@ -6,6 +6,8 @@ import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72Secre
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72SecretVersionItemModelConverter;
 import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
 import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
+import com.github.nagyesta.lowkeyvault.model.v7_2.secret.DeletedKeyVaultSecretItemModel;
+import com.github.nagyesta.lowkeyvault.model.v7_2.secret.DeletedKeyVaultSecretModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.KeyVaultSecretItemModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.KeyVaultSecretModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.request.CreateSecretRequest;
@@ -48,9 +50,10 @@ public class SecretController extends CommonSecretController {
             params = API_VERSION_7_3,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<KeyVaultSecretModel> create(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String secretName,
-                                                      @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
-                                                      @Valid @RequestBody final CreateSecretRequest request) {
+    public ResponseEntity<KeyVaultSecretModel> create(
+            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String secretName,
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
+            @Valid @RequestBody final CreateSecretRequest request) {
         return super.create(secretName, baseUri, request);
     }
 
@@ -58,8 +61,9 @@ public class SecretController extends CommonSecretController {
     @DeleteMapping(value = "/secrets/{secretName}",
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<KeyVaultSecretModel> delete(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String secretName,
-                                                      @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
+    public ResponseEntity<DeletedKeyVaultSecretModel> delete(
+            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String secretName,
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
         return super.delete(secretName, baseUri);
     }
 
@@ -90,7 +94,7 @@ public class SecretController extends CommonSecretController {
     @GetMapping(value = "/deletedsecrets",
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<KeyVaultItemListModel<KeyVaultSecretItemModel>> listDeletedSecrets(
+    public ResponseEntity<KeyVaultItemListModel<DeletedKeyVaultSecretItemModel>> listDeletedSecrets(
             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
             @RequestParam(name = MAX_RESULTS_PARAM, required = false, defaultValue = DEFAULT_MAX) final int maxResults,
             @RequestParam(name = SKIP_TOKEN_PARAM, required = false, defaultValue = SKIP_ZERO) final int skipToken) {

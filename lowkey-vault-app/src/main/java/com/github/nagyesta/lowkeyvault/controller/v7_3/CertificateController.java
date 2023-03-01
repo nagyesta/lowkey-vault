@@ -65,6 +65,16 @@ public class CertificateController extends CommonCertificateController {
     }
 
     @Override
+    @DeleteMapping(value = "/certificates/{certificateName}/pending",
+            params = API_VERSION_7_3,
+            produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<KeyVaultPendingCertificateModel> pendingDelete(
+            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
+        return super.pendingDelete(certificateName, baseUri);
+    }
+
+    @Override
     @PostMapping(value = "/certificates/{certificateName}/import",
             params = API_VERSION_7_3,
             consumes = APPLICATION_JSON_VALUE,
@@ -108,6 +118,46 @@ public class CertificateController extends CommonCertificateController {
     }
 
     @Override
+    @DeleteMapping(value = "/certificates/{certificateName}",
+            params = API_VERSION_7_3,
+            produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<DeletedKeyVaultCertificateModel> delete(
+            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
+        return super.delete(certificateName, baseUri);
+    }
+
+    @Override
+    @GetMapping(value = "/deletedcertificates/{certificateName}",
+            params = API_VERSION_7_3,
+            produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<DeletedKeyVaultCertificateModel> getDeletedCertificate(
+            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
+        return super.getDeletedCertificate(certificateName, baseUri);
+    }
+
+    @Override
+    @PostMapping(value = "/deletedcertificates/{certificateName}/recover",
+            params = API_VERSION_7_3,
+            produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<KeyVaultCertificateModel> recoverDeletedCertificate(
+            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
+        return super.recoverDeletedCertificate(certificateName, baseUri);
+    }
+
+    @Override
+    @DeleteMapping(value = "/deletedcertificates/{certificateName}",
+            params = API_VERSION_7_3,
+            produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> purgeDeleted(
+            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
+        return super.purgeDeleted(certificateName, baseUri);
+    }
+
+    @Override
     @GetMapping(value = "/certificates/{certificateName}/versions",
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
@@ -129,6 +179,18 @@ public class CertificateController extends CommonCertificateController {
             @RequestParam(name = SKIP_TOKEN_PARAM, required = false, defaultValue = SKIP_ZERO) final int skipToken,
             @RequestParam(name = INCLUDE_PENDING_PARAM, required = false, defaultValue = TRUE) final boolean includePending) {
         return super.listCertificates(baseUri, maxResults, skipToken, includePending);
+    }
+
+    @Override
+    @GetMapping(value = "/deletedcertificates",
+            params = API_VERSION_7_3,
+            produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<KeyVaultItemListModel<DeletedKeyVaultCertificateItemModel>> listDeletedCertificates(
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
+            @RequestParam(name = MAX_RESULTS_PARAM, required = false, defaultValue = DEFAULT_MAX) final int maxResults,
+            @RequestParam(name = SKIP_TOKEN_PARAM, required = false, defaultValue = SKIP_ZERO) final int skipToken,
+            @RequestParam(name = INCLUDE_PENDING_PARAM, required = false, defaultValue = TRUE) final boolean includePending) {
+        return super.listDeletedCertificates(baseUri, maxResults, skipToken, includePending);
     }
 
     @Override

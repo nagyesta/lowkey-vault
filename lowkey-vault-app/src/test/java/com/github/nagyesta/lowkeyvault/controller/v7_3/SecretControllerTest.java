@@ -331,7 +331,7 @@ class SecretControllerTest {
                 .thenReturn(DELETED_RESPONSE);
 
         //when
-        final ResponseEntity<KeyVaultSecretModel> actual = underTest.delete(SECRET_NAME_1, HTTPS_LOCALHOST_8443);
+        final ResponseEntity<DeletedKeyVaultSecretModel> actual = underTest.delete(SECRET_NAME_1, HTTPS_LOCALHOST_8443);
 
         //then
         Assertions.assertNotNull(actual);
@@ -683,7 +683,7 @@ class SecretControllerTest {
                 .thenReturn(secretItemModel);
 
         //when
-        final ResponseEntity<KeyVaultItemListModel<KeyVaultSecretItemModel>> actual =
+        final ResponseEntity<KeyVaultItemListModel<DeletedKeyVaultSecretItemModel>> actual =
                 underTest.listDeletedSecrets(HTTPS_LOCALHOST_8443, 1, 0);
 
         //then
@@ -728,7 +728,7 @@ class SecretControllerTest {
                 .thenReturn(secretItemModel);
 
         //when
-        final ResponseEntity<KeyVaultItemListModel<KeyVaultSecretItemModel>> actual =
+        final ResponseEntity<KeyVaultItemListModel<DeletedKeyVaultSecretItemModel>> actual =
                 underTest.listDeletedSecrets(HTTPS_LOCALHOST_8443, 1, 0);
 
         //then

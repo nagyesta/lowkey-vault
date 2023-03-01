@@ -117,10 +117,10 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
     }
 
     @SuppressWarnings("SameParameterValue")
-    protected KeyVaultItemListModel<I> getPageOfDeletedItems(final URI baseUri, final int limit, final int offset, final String uriPath) {
+    protected KeyVaultItemListModel<DI> getPageOfDeletedItems(final URI baseUri, final int limit, final int offset, final String uriPath) {
         final S entityVaultFake = getVaultByUri(baseUri);
         final List<E> allItems = entityVaultFake.getDeletedEntities().listLatestNonManagedEntities();
-        final List<I> items = filterList(limit, offset, allItems, source -> itemConverter.convertDeleted(source, baseUri));
+        final List<DI> items = filterList(limit, offset, allItems, source -> itemConverter.convertDeleted(source, baseUri));
         final URI nextUri = getNextUri(baseUri + uriPath, allItems, items, limit, offset);
         return listModel(items, nextUri);
     }
@@ -156,7 +156,7 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
                 });
     }
 
-    protected KeyVaultItemListModel<I> listModel(final List<I> items, final URI nextUri) {
+    protected <LI> KeyVaultItemListModel<LI> listModel(final List<LI> items, final URI nextUri) {
         return new KeyVaultItemListModel<>(items, nextUri);
     }
 
@@ -169,8 +169,8 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
         return nextUri;
     }
 
-    private <FR> List<I> filterList(
-            final int limit, final int offset, final Collection<FR> allItems, final Function<FR, I> mapper) {
+    private <FR, LI> List<LI> filterList(
+            final int limit, final int offset, final Collection<FR> allItems, final Function<FR, LI> mapper) {
         return allItems.stream()
                 .skip(offset)
                 .limit(limit)

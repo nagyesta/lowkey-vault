@@ -6,6 +6,8 @@ import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCerti
 import com.github.nagyesta.lowkeyvault.service.certificate.id.CertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.common.impl.BaseVaultFakeImpl;
+import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
+import com.github.nagyesta.lowkeyvault.service.secret.id.SecretEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.NonNull;
 
@@ -38,5 +40,34 @@ public class CertificateVaultFakeImpl
         final KeyVaultCertificateEntity entity = new KeyVaultCertificateEntity(
                 name, input, vaultFake());
         return addVersion(entity.getId(), entity);
+    }
+
+    @Override
+    public void delete(@NonNull final CertificateEntityId entityId) {
+        super.delete(entityId);
+        vaultFake().keyVaultFake().delete(toKeyEntityId(entityId));
+        vaultFake().secretVaultFake().delete(toSecretEntityId(entityId));
+    }
+
+    @Override
+    public void recover(@NonNull final CertificateEntityId entityId) {
+        super.recover(entityId);
+        vaultFake().keyVaultFake().recover(toKeyEntityId(entityId));
+        vaultFake().secretVaultFake().recover(toSecretEntityId(entityId));
+    }
+
+    @Override
+    public void purge(@NonNull final CertificateEntityId entityId) {
+        super.purge(entityId);
+        vaultFake().keyVaultFake().purge(toKeyEntityId(entityId));
+        vaultFake().secretVaultFake().purge(toSecretEntityId(entityId));
+    }
+
+    private KeyEntityId toKeyEntityId(final CertificateEntityId entityId) {
+        return new KeyEntityId(entityId.vault(), entityId.id());
+    }
+
+    private SecretEntityId toSecretEntityId(final CertificateEntityId entityId) {
+        return new SecretEntityId(entityId.vault(), entityId.id());
     }
 }

@@ -7,7 +7,10 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificatePolicyModel;
 import com.github.nagyesta.lowkeyvault.service.certificate.CertificateVaultFake;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
+import com.github.nagyesta.lowkeyvault.service.certificate.id.CertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
+import com.github.nagyesta.lowkeyvault.service.key.impl.KeyVaultFakeImpl;
+import com.github.nagyesta.lowkeyvault.service.secret.impl.SecretVaultFakeImpl;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultFakeImpl;
 import org.junit.jupiter.api.Assertions;
@@ -24,6 +27,8 @@ import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificateKeys.EMPTY_PASSWORD;
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
+import static com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE;
+import static com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel.RECOVERABLE_AND_PURGEABLE;
 import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertAuthorityType.UNKNOWN;
 import static com.github.nagyesta.lowkeyvault.service.certificate.impl.KeyVaultCertificateEntityTest.VALIDITY_MONTHS;
 import static org.mockito.Mockito.*;
@@ -167,5 +172,148 @@ class CertificateVaultFakeImplTest {
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.importCertificateVersion(name, input));
 
         //then + exception
+    }
+
+    @Test
+    void testDeleteShouldPropagateDeletionToTheManagedKeyAndSecretWithTheSameNameWhenCalledWithValidInput() {
+        //given
+        final CertificateEntityId entityId = new CertificateEntityId(HTTPS_LOCALHOST_8443, CERT_NAME_1);
+        final VaultFake vault = mock(VaultFake.class);
+        when(vault.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
+        final CertificateVaultFakeImpl underTest = prepareWithCertificateCreated(vault);
+
+        //when
+        underTest.delete(entityId);
+
+        //then
+        verify(vault, atLeastOnce()).baseUri();
+        verify(vault, atLeastOnce()).secretVaultFake();
+        verify(vault, atLeastOnce()).keyVaultFake();
+        Assertions.assertTrue(vault.certificateVaultFake().getEntities().listLatestEntities().isEmpty());
+        Assertions.assertTrue(vault.certificateVaultFake().getDeletedEntities().containsName(CERT_NAME_1));
+        Assertions.assertTrue(vault.keyVaultFake().getEntities().listLatestEntities().isEmpty());
+        Assertions.assertTrue(vault.keyVaultFake().getDeletedEntities().containsName(CERT_NAME_1));
+        Assertions.assertTrue(vault.secretVaultFake().getEntities().listLatestEntities().isEmpty());
+        Assertions.assertTrue(vault.secretVaultFake().getDeletedEntities().containsName(CERT_NAME_1));
+    }
+
+    @SuppressWarnings("DataFlowIssue")
+    @Test
+    void testDeleteShouldShouldThrowExceptionWhenCalledWithNull() {
+        //given
+        final CertificateEntityId entityId = new CertificateEntityId(HTTPS_LOCALHOST_8443, CERT_NAME_1);
+        final VaultFake vault = mock(VaultFake.class);
+        when(vault.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
+        final CertificateVaultFakeImpl underTest = prepareWithCertificateCreated(vault);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.delete(null));
+
+        //then + exception
+    }
+
+    @Test
+    void testPurgeShouldPropagateDeletionToTheManagedKeyAndSecretWithTheSameNameWhenCalledWithValidInput() {
+        //given
+        final CertificateEntityId entityId = new CertificateEntityId(HTTPS_LOCALHOST_8443, CERT_NAME_1);
+        final VaultFake vault = mock(VaultFake.class);
+        when(vault.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
+        final CertificateVaultFakeImpl underTest = prepareWithCertificateCreated(vault);
+        underTest.delete(entityId);
+
+        //when
+        underTest.purge(entityId);
+
+        //then
+        verify(vault, atLeastOnce()).baseUri();
+        verify(vault, atLeastOnce()).secretVaultFake();
+        verify(vault, atLeastOnce()).keyVaultFake();
+        Assertions.assertTrue(vault.certificateVaultFake().getEntities().listLatestEntities().isEmpty());
+        Assertions.assertTrue(vault.certificateVaultFake().getDeletedEntities().listLatestEntities().isEmpty());
+        Assertions.assertTrue(vault.keyVaultFake().getEntities().listLatestEntities().isEmpty());
+        Assertions.assertTrue(vault.keyVaultFake().getDeletedEntities().listLatestEntities().isEmpty());
+        Assertions.assertTrue(vault.secretVaultFake().getEntities().listLatestEntities().isEmpty());
+        Assertions.assertTrue(vault.secretVaultFake().getDeletedEntities().listLatestEntities().isEmpty());
+    }
+
+    @SuppressWarnings("DataFlowIssue")
+    @Test
+    void testPurgeShouldShouldThrowExceptionWhenCalledWithNull() {
+        //given
+        final CertificateEntityId entityId = new CertificateEntityId(HTTPS_LOCALHOST_8443, CERT_NAME_1);
+        final VaultFake vault = mock(VaultFake.class);
+        when(vault.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
+        final CertificateVaultFakeImpl underTest = prepareWithCertificateCreated(vault);
+        underTest.delete(entityId);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.purge(null));
+
+        //then + exception
+    }
+
+    @Test
+    void testRecoverShouldPropagateDeletionToTheManagedKeyAndSecretWithTheSameNameWhenCalledWithValidInput() {
+        //given
+        final CertificateEntityId entityId = new CertificateEntityId(HTTPS_LOCALHOST_8443, CERT_NAME_1);
+        final VaultFake vault = mock(VaultFake.class);
+        when(vault.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
+        final CertificateVaultFakeImpl underTest = prepareWithCertificateCreated(vault);
+        underTest.delete(entityId);
+
+        //when
+        underTest.recover(entityId);
+
+        //then
+        verify(vault, atLeastOnce()).baseUri();
+        verify(vault, atLeastOnce()).secretVaultFake();
+        verify(vault, atLeastOnce()).keyVaultFake();
+        Assertions.assertTrue(vault.certificateVaultFake().getEntities().containsName(CERT_NAME_1));
+        Assertions.assertTrue(vault.certificateVaultFake().getDeletedEntities().listLatestEntities().isEmpty());
+        Assertions.assertTrue(vault.keyVaultFake().getEntities().containsName(CERT_NAME_1));
+        Assertions.assertTrue(vault.keyVaultFake().getDeletedEntities().listLatestEntities().isEmpty());
+        Assertions.assertTrue(vault.secretVaultFake().getEntities().containsName(CERT_NAME_1));
+        Assertions.assertTrue(vault.secretVaultFake().getDeletedEntities().listLatestEntities().isEmpty());
+    }
+
+    @SuppressWarnings("DataFlowIssue")
+    @Test
+    void testRecoverShouldShouldThrowExceptionWhenCalledWithNull() {
+        //given
+        final CertificateEntityId entityId = new CertificateEntityId(HTTPS_LOCALHOST_8443, CERT_NAME_1);
+        final VaultFake vault = mock(VaultFake.class);
+        when(vault.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
+        final CertificateVaultFakeImpl underTest = prepareWithCertificateCreated(vault);
+        underTest.delete(entityId);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.recover(null));
+
+        //then + exception
+    }
+
+    private CertificateVaultFakeImpl prepareWithCertificateCreated(final VaultFake vault) {
+        final CertificateCreationInput cert = CertificateCreationInput.builder()
+                .subject("CN=" + LOCALHOST)
+                .name(CERT_NAME_1)
+                .keyType(KeyType.EC)
+                .keyCurveName(KeyCurveName.P_256)
+                .validityStart(NOW)
+                .validityMonths(VALIDITY_MONTHS)
+                .contentType(CertContentType.PEM)
+                .build();
+        when(vault.getRecoveryLevel()).thenReturn(RECOVERABLE_AND_PURGEABLE);
+        when(vault.getRecoverableDays()).thenReturn(MAX_RECOVERABLE_DAYS_INCLUSIVE);
+        final KeyVaultFakeImpl keyVaultFake = new KeyVaultFakeImpl(
+                vault, RECOVERABLE_AND_PURGEABLE, MAX_RECOVERABLE_DAYS_INCLUSIVE);
+        when(vault.keyVaultFake()).thenReturn(keyVaultFake);
+        final SecretVaultFakeImpl secretVaultFake = new SecretVaultFakeImpl(
+                vault, RECOVERABLE_AND_PURGEABLE, MAX_RECOVERABLE_DAYS_INCLUSIVE);
+        when(vault.secretVaultFake()).thenReturn(secretVaultFake);
+        final CertificateVaultFakeImpl underTest = new CertificateVaultFakeImpl(
+                vault, RECOVERABLE_AND_PURGEABLE, MAX_RECOVERABLE_DAYS_INCLUSIVE);
+        when(vault.certificateVaultFake()).thenReturn(underTest);
+        underTest.createCertificateVersion(CERT_NAME_1, cert);
+        return underTest;
     }
 }

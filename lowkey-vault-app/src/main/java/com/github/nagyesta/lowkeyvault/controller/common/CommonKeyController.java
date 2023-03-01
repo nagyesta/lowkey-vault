@@ -99,7 +99,7 @@ public abstract class CommonKeyController extends GenericEntityController<KeyEnt
         return ResponseEntity.ok(getPageOfItems(baseUri, maxResults, skipToken, "/keys"));
     }
 
-    public ResponseEntity<KeyVaultItemListModel<KeyVaultKeyItemModel>> listDeletedKeys(
+    public ResponseEntity<KeyVaultItemListModel<DeletedKeyVaultKeyItemModel>> listDeletedKeys(
             final URI baseUri,
             final int maxResults,
             final int skipToken) {
@@ -145,7 +145,7 @@ public abstract class CommonKeyController extends GenericEntityController<KeyEnt
         return ResponseEntity.ok(getModelById(keyVaultFake, entityId, baseUri, true));
     }
 
-    public ResponseEntity<KeyVaultKeyModel> getDeletedKey(
+    public ResponseEntity<DeletedKeyVaultKeyModel> getDeletedKey(
             @Valid @Pattern(regexp = NAME_PATTERN) final String keyName,
             final URI baseUri) {
         log.info("Received request to {} get deleted key: {} using API version: {}",

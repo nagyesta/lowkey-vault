@@ -49,7 +49,7 @@ public abstract class CommonSecretController extends GenericEntityController<Sec
         return ResponseEntity.ok(getModelById(secretVaultFake, secretEntityId, baseUri, true));
     }
 
-    public ResponseEntity<KeyVaultSecretModel> delete(
+    public ResponseEntity<DeletedKeyVaultSecretModel> delete(
             @Valid @Pattern(regexp = NAME_PATTERN) final String secretName,
             final URI baseUri) {
         log.info("Received request to {} delete secret: {} using API version: {}",
@@ -84,7 +84,7 @@ public abstract class CommonSecretController extends GenericEntityController<Sec
         return ResponseEntity.ok(getPageOfItems(baseUri, maxResults, skipToken, "/secrets"));
     }
 
-    public ResponseEntity<KeyVaultItemListModel<KeyVaultSecretItemModel>> listDeletedSecrets(
+    public ResponseEntity<KeyVaultItemListModel<DeletedKeyVaultSecretItemModel>> listDeletedSecrets(
             final URI baseUri,
             final int maxResults,
             final int skipToken) {

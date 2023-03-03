@@ -4,7 +4,7 @@
 [![Java version](https://img.shields.io/badge/Java%20version-11-yellow?logo=java)](https://img.shields.io/badge/Java%20version-11-yellow?logo=java)
 [![latest-release](https://img.shields.io/github/v/tag/nagyesta/lowkey-vault?color=blue&logo=git&label=releases&sort=semver)](https://github.com/nagyesta/lowkey-vault/releases)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.nagyesta.lowkey-vault/lowkey-vault-app?logo=apache-maven)](https://search.maven.org/search?q=com.github.nagyesta.lowkey-vault)
-[![Docker Hub](https://img.shields.io/docker/v/nagyesta/lowkey-vault?label=docker%20hub&logo=docker&sort=semver)](https://hub.docker.com/repository/docker/nagyesta/lowkey-vault)
+[![Docker Hub](https://img.shields.io/docker/v/nagyesta/lowkey-vault?label=docker%20hub&logo=docker&sort=semver)](https://hub.docker.com/r/nagyesta/lowkey-vault)
 [![JavaCI](https://img.shields.io/github/actions/workflow/status/nagyesta/lowkey-vault/gradle.yml?logo=github&branch=main)](https://github.com/nagyesta/lowkey-vault/actions/workflows/gradle.yml)
 
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/5577/badge)](https://bestpractices.coreinfrastructure.org/projects/5577)
@@ -152,7 +152,8 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 - API version supported: ```7.3```
 - Create certificate
     - Self-signed only
-    - Password used for PKCS12 stores: `lowkey-vault`
+    - Using `PKCS12` (`.pfx`) or `PEM` (`.pem`) formats
+    - The downloadable certificate is protected using a blank (`""`) password for `PKCS12` stores
 - Get certificate operation
     - Get pending create operation results
     - Get pending delete operation results
@@ -164,7 +165,8 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 - Get certificate policy
 - Import certificate
     - Self-signed only
-    - The downloadable certificate is protected using `lowkey-vault` as password for PKCS12 stores
+    - Using `PKCS12` (`.pfx`) or `PEM` (`.pem`) formats
+    - The downloadable certificate is protected using a blank (`""`) password for `PKCS12` stores
 - Get deleted certificate
     - Latest version of a single certificate
     - List of all certificate

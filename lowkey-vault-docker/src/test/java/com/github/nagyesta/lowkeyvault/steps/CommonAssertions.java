@@ -35,6 +35,10 @@ public class CommonAssertions {
         Assert.assertEquals(actual, expected);
     }
 
+    protected void assertArrayEquals(final byte[] expected, final byte[] actual) {
+        Assert.assertEquals(actual, expected);
+    }
+
     protected <K, V> void assertContainsEqualEntries(final Map<K, V> expected, final Map<K, V> actual) {
         assertEquals(expected.size(), actual.size());
         expected.forEach((key, value) -> assertEquals(value, actual.get(key)));

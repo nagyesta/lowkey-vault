@@ -37,7 +37,7 @@ public enum CertContentType {
      * Certificate in PKCS12 format.
      */
     PKCS12("application/x-pkcs12") {
-        private static final String DEFAULT_PASSWORD = "lowkey-vault";
+        private static final String DEFAULT_PASSWORD = "";
         private static final String KEY_STORE_TYPE_PKCS12 = "PKCS12";
 
         @Override

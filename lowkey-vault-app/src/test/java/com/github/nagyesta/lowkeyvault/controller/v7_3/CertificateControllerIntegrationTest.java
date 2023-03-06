@@ -8,6 +8,7 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.*;
+import com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionActivity;
 import com.github.nagyesta.lowkeyvault.service.certificate.CertificateVaultFake;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.CertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
@@ -27,6 +28,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 
+import javax.validation.ConstraintViolationException;
 import java.net.URI;
 import java.util.*;
 import java.util.function.Function;
@@ -37,6 +39,8 @@ import java.util.stream.Stream;
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.*;
 import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.V_7_3;
+import static com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionActivity.AUTO_RENEW;
+import static com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionActivity.EMAIL_CONTACTS;
 import static org.springframework.http.HttpStatus.*;
 
 @LaunchAbortArmed
@@ -44,6 +48,8 @@ import static org.springframework.http.HttpStatus.*;
 class CertificateControllerIntegrationTest {
 
     private static final int VALIDITY_MONTHS = 12;
+    private static final int A_HUNDRED_YEARS = 36500;
+    private static final int ONE_HUNDRED = 100;
     @Autowired
     @Qualifier("CertificateControllerV73")
     private CertificateController underTest;
@@ -82,6 +88,69 @@ class CertificateControllerIntegrationTest {
         //when
         final ResponseEntity<KeyVaultPendingCertificateModel> actual = underTest
                 .create("create-" + CERT_NAME_1, HTTPS_DEFAULT_LOWKEY_VAULT_80, request);
+
+        //then
+        Assertions.assertEquals(ACCEPTED, actual.getStatusCode());
+        final KeyVaultPendingCertificateModel body = actual.getBody();
+        assertPendingCreateResponseIsAsExpected(body);
+    }
+
+    @Test
+    void testCreateShouldThrowExceptionWhenCalledWithInvalidLifetimeActionsWithZeroPercentageTrigger() {
+        //given
+        final CreateCertificateRequest request = getCreateCertificateRequest();
+        final List<CertificateLifetimeActionModel> actions = List.of(
+                lifetimeActivity(EMAIL_CONTACTS, lifeTimePercentageTrigger(0)));
+        request.getPolicy().setLifetimeActions(actions);
+
+        //when
+        Assertions.assertThrows(ConstraintViolationException.class, () -> underTest
+                .create("create-invalid-" + CERT_NAME_1, HTTPS_DEFAULT_LOWKEY_VAULT_80, request));
+
+        //then + exception
+    }
+
+    @Test
+    void testCreateShouldThrowExceptionWhenCalledWithInvalidLifetimeActionsWithTriggerUsingTooManyDaysBeforeExpiry() {
+        //given
+        final CreateCertificateRequest request = getCreateCertificateRequest();
+        final List<CertificateLifetimeActionModel> actions = List.of(
+                lifetimeActivity(EMAIL_CONTACTS, daysBeforeExpiryTrigger(A_HUNDRED_YEARS)));
+        request.getPolicy().setLifetimeActions(actions);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest
+                .create("create-invalid-" + CERT_NAME_1, HTTPS_DEFAULT_LOWKEY_VAULT_80, request));
+
+        //then + exception
+    }
+
+    @Test
+    void testCreateShouldThrowExceptionWhenCalledWithInvalidLifetimeActionsUsingTwoTriggers() {
+        //given
+        final CreateCertificateRequest request = getCreateCertificateRequest();
+        final List<CertificateLifetimeActionModel> actions = List.of(
+                lifetimeActivity(AUTO_RENEW, daysBeforeExpiryTrigger(1)),
+                lifetimeActivity(EMAIL_CONTACTS, daysBeforeExpiryTrigger(1))
+        );
+        request.getPolicy().setLifetimeActions(actions);
+
+        //when
+        Assertions.assertThrows(ConstraintViolationException.class, () -> underTest
+                .create("create-invalid-" + CERT_NAME_1, HTTPS_DEFAULT_LOWKEY_VAULT_80, request));
+
+        //then + exception
+    }
+
+    @Test
+    void testCreateShouldReturnPendingCertificateWhenCalledWithValidLifetimeActions() {
+        //given
+        final CreateCertificateRequest request = getCreateCertificateRequest();
+        request.getPolicy().setLifetimeActions(List.of(lifetimeActivity(EMAIL_CONTACTS, daysBeforeExpiryTrigger(1))));
+
+        //when
+        final ResponseEntity<KeyVaultPendingCertificateModel> actual = underTest
+                .create("create-lifetime-" + CERT_NAME_1, HTTPS_DEFAULT_LOWKEY_VAULT_80, request);
 
         //then
         Assertions.assertEquals(ACCEPTED, actual.getStatusCode());
@@ -292,10 +361,124 @@ class CertificateControllerIntegrationTest {
     }
 
     @Test
+    void testImportCertificateShouldReturnModelWhenCalledWithValidPkcs12DataAndLifetimeAction() {
+        //given
+        final CertificateImportRequest request = getCreateImportRequest("/cert/ec.p12", null);
+        final String name = CERT_NAME_3 + "-import-pkcs-lifetime";
+        final CertificatePolicyModel policy = new CertificatePolicyModel();
+        policy.setLifetimeActions(List.of(lifetimeActivity(EMAIL_CONTACTS, daysBeforeExpiryTrigger(ONE_HUNDRED))));
+        request.setPolicy(policy);
+
+        //when
+        final ResponseEntity<KeyVaultCertificateModel> actual = underTest
+                .importCertificate(name, HTTPS_DEFAULT_LOWKEY_VAULT_80, request);
+
+        //then
+        Assertions.assertEquals(OK, actual.getStatusCode());
+        final KeyVaultCertificateModel body = actual.getBody();
+        Assertions.assertNotNull(body);
+        Assertions.assertNotNull(body.getCertificate());
+        Assertions.assertNotNull(body.getThumbprint());
+        final List<CertificateLifetimeActionModel> lifetimeActions = body.getPolicy().getLifetimeActions();
+        Assertions.assertNotNull(lifetimeActions);
+        Assertions.assertEquals(1, lifetimeActions.size());
+        final CertificateLifetimeActionModel lifetimeActionModel = lifetimeActions.get(0);
+        Assertions.assertEquals(EMAIL_CONTACTS, lifetimeActionModel.getAction());
+        Assertions.assertEquals(ONE_HUNDRED, lifetimeActionModel.getTrigger().getDaysBeforeExpiry());
+    }
+
+    @Test
     void testImportCertificateShouldThrowExceptionWhenCalledWithNotMatchingCertTypes() {
         //given
         final CertificateImportRequest request = getCreateImportRequest("/cert/ec.p12", CertContentType.PEM);
         final String name = CERT_NAME_3 + "-import-invalid";
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> underTest.importCertificate(name, HTTPS_DEFAULT_LOWKEY_VAULT_80, request));
+
+        //then + exception
+    }
+
+    @Test
+    void testImportCertificateShouldThrowExceptionWhenCalledWithInvalidLifetimeActionsTriggeringZeroDaysBeforeExpiry() {
+        //given
+        final CertificateImportRequest request = getCreateImportRequest("/cert/ec.p12", CertContentType.PKCS12);
+        final String name = CERT_NAME_3 + "-import-invalid";
+        request.getPolicy().setLifetimeActions(List.of(lifetimeActivity(EMAIL_CONTACTS, daysBeforeExpiryTrigger(0))));
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> underTest.importCertificate(name, HTTPS_DEFAULT_LOWKEY_VAULT_80, request));
+
+        //then + exception
+    }
+
+    @Test
+    void testImportCertificateShouldThrowExceptionWhenCalledWithInvalidLifetimeActionsTriggeringTooManyDaysBeforeExpiry() {
+        //given
+        final CertificateImportRequest request = getCreateImportRequest("/cert/ec.p12", CertContentType.PKCS12);
+        final String name = CERT_NAME_3 + "-import-invalid";
+        request.getPolicy().setLifetimeActions(List.of(lifetimeActivity(EMAIL_CONTACTS, daysBeforeExpiryTrigger(A_HUNDRED_YEARS))));
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> underTest.importCertificate(name, HTTPS_DEFAULT_LOWKEY_VAULT_80, request));
+
+        //then + exception
+    }
+
+    @Test
+    void testImportCertificateShouldThrowExceptionWhenCalledWithInvalidLifetimeActionsAskingForAutoRenewal() {
+        //given
+        final CertificateImportRequest request = getCreateImportRequest("/cert/ec.p12", CertContentType.PKCS12);
+        final String name = CERT_NAME_3 + "-import-invalid";
+        request.getPolicy().setLifetimeActions(List.of(lifetimeActivity(AUTO_RENEW, daysBeforeExpiryTrigger(ONE_HUNDRED))));
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> underTest.importCertificate(name, HTTPS_DEFAULT_LOWKEY_VAULT_80, request));
+
+        //then + exception
+    }
+
+    @Test
+    void testImportCertificateShouldThrowExceptionWhenCalledWithInvalidLifetimeActionsTriggeringAtZeroPercent() {
+        //given
+        final CertificateImportRequest request = getCreateImportRequest("/cert/ec.p12", CertContentType.PKCS12);
+        final String name = CERT_NAME_3 + "-import-invalid";
+        request.getPolicy().setLifetimeActions(List.of(lifetimeActivity(EMAIL_CONTACTS, lifeTimePercentageTrigger(0))));
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> underTest.importCertificate(name, HTTPS_DEFAULT_LOWKEY_VAULT_80, request));
+
+        //then + exception
+    }
+
+    @Test
+    void testImportCertificateShouldThrowExceptionWhenCalledWithInvalidLifetimeActionsTriggeringAtAHundredPercents() {
+        //given
+        final CertificateImportRequest request = getCreateImportRequest("/cert/ec.p12", CertContentType.PKCS12);
+        final String name = CERT_NAME_3 + "-import-invalid";
+        request.getPolicy().setLifetimeActions(List.of(lifetimeActivity(EMAIL_CONTACTS, lifeTimePercentageTrigger(ONE_HUNDRED))));
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> underTest.importCertificate(name, HTTPS_DEFAULT_LOWKEY_VAULT_80, request));
+
+        //then + exception
+    }
+
+    @Test
+    void testImportCertificateShouldThrowExceptionWhenCalledWithInvalidLifetimeActionsWithTwoActions() {
+        //given
+        final CertificateImportRequest request = getCreateImportRequest("/cert/ec.p12", CertContentType.PKCS12);
+        final String name = CERT_NAME_3 + "-import-invalid";
+        request.getPolicy().setLifetimeActions(List.of(
+                lifetimeActivity(AUTO_RENEW, daysBeforeExpiryTrigger(1)),
+                lifetimeActivity(EMAIL_CONTACTS, daysBeforeExpiryTrigger(1))
+        ));
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
@@ -597,5 +780,25 @@ class CertificateControllerIntegrationTest {
         Assertions.assertEquals(recoveryUri.toString(), body.getRecoveryId());
         Assertions.assertNotNull(body.getDeletedDate());
         Assertions.assertNotNull(body.getScheduledPurgeDate());
+    }
+
+    private CertificateLifetimeActionModel lifetimeActivity(
+            final CertificateLifetimeActionActivity action, final CertificateLifetimeActionTriggerModel trigger) {
+        final CertificateLifetimeActionModel activity = new CertificateLifetimeActionModel();
+        activity.setAction(action);
+        activity.setTrigger(trigger);
+        return activity;
+    }
+
+    private CertificateLifetimeActionTriggerModel lifeTimePercentageTrigger(final int value) {
+        final CertificateLifetimeActionTriggerModel trigger = new CertificateLifetimeActionTriggerModel();
+        trigger.setLifetimePercentage(value);
+        return trigger;
+    }
+
+    private CertificateLifetimeActionTriggerModel daysBeforeExpiryTrigger(final int value) {
+        final CertificateLifetimeActionTriggerModel trigger = new CertificateLifetimeActionTriggerModel();
+        trigger.setDaysBeforeExpiry(value);
+        return trigger;
     }
 }

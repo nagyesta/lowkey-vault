@@ -179,7 +179,7 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 Certificate API features are work in progress, many Lowkey Vault features might 
 not work or are known to be broken, for example but not limited to the following:
 
-- Certificate lifetime policy is missing
+- Certificate lifetime policy does not have any effect
 - Import and export ignores certificates
 - Time shift is not supported for certificates
 

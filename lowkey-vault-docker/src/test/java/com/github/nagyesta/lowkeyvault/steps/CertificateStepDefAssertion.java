@@ -1,8 +1,7 @@
 package com.github.nagyesta.lowkeyvault.steps;
 
 import com.azure.security.keyvault.certificates.CertificateClient;
-import com.azure.security.keyvault.certificates.models.CertificateContentType;
-import com.azure.security.keyvault.certificates.models.DeletedCertificate;
+import com.azure.security.keyvault.certificates.models.*;
 import com.azure.security.keyvault.keys.models.KeyVaultKey;
 import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
 import com.github.nagyesta.lowkeyvault.KeyGenUtil;
@@ -145,6 +144,25 @@ public class CertificateStepDefAssertion extends CommonAssertions {
         final DeletedCertificate deletedCertificate = client.getDeletedCertificate(name);
         context.setLastDeleted(deletedCertificate);
         assertNotNull(deletedCertificate);
+    }
+
+    @And("the lifetime action triggers {certAction} when {int} {certLifetimePercentageTrigger} reached")
+    public void theLifetimeActionTriggersActionWhenTriggerValueTriggerTypeReached(
+            final CertificatePolicyAction action, final int triggerValue, final boolean isPercentage) {
+        final CertificatePolicy policy = context.getClient(context.getCertificateServiceVersion())
+                .getCertificatePolicy(context.getLastResult().getName());
+        final List<LifetimeAction> actions = policy.getLifetimeActions();
+        assertNotNull(actions);
+        assertEquals(1, actions.size());
+        final LifetimeAction actual = actions.get(0);
+        assertEquals(action, actual.getAction());
+        if (isPercentage) {
+            assertEquals(triggerValue, actual.getLifetimePercentage());
+            assertNull(actual.getDaysBeforeExpiry());
+        } else {
+            assertEquals(triggerValue, actual.getDaysBeforeExpiry());
+            assertNull(actual.getLifetimePercentage());
+        }
     }
 
     private PrivateKey getKeyFromPem(final byte[] content, final X509Certificate certificate) throws CryptoException {

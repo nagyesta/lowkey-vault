@@ -2,6 +2,7 @@ package com.github.nagyesta.lowkeyvault.service.certificate.impl;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.service.certificate.CertificateVaultFake;
+import com.github.nagyesta.lowkeyvault.service.certificate.LifetimeActionPolicy;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.CertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
@@ -11,10 +12,15 @@ import com.github.nagyesta.lowkeyvault.service.secret.id.SecretEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.NonNull;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 public class CertificateVaultFakeImpl
         extends BaseVaultFakeImpl<CertificateEntityId, VersionedCertificateEntityId,
         ReadOnlyKeyVaultCertificateEntity, KeyVaultCertificateEntity>
         implements CertificateVaultFake {
+
+    private final ConcurrentMap<String, LifetimeActionPolicy> lifetimeActionPolicies = new ConcurrentHashMap<>();
 
     public CertificateVaultFakeImpl(@org.springframework.lang.NonNull final VaultFake vaultFake,
                                     @org.springframework.lang.NonNull final RecoveryLevel recoveryLevel,
@@ -61,6 +67,34 @@ public class CertificateVaultFakeImpl
         super.purge(entityId);
         vaultFake().keyVaultFake().purge(toKeyEntityId(entityId));
         vaultFake().secretVaultFake().purge(toSecretEntityId(entityId));
+    }
+
+    @Override
+    public LifetimeActionPolicy lifetimeActionPolicy(@NonNull final CertificateEntityId certificateEntityId) {
+        purgeDeletedPolicies();
+        return lifetimeActionPolicies.get(certificateEntityId.id());
+    }
+
+    @Override
+    public void setLifetimeActionPolicy(@NonNull final LifetimeActionPolicy lifetimeActionPolicy) {
+        final ReadOnlyKeyVaultCertificateEntity readOnlyEntity = latestReadOnlyCertificateVersion(lifetimeActionPolicy.getId());
+        lifetimeActionPolicy.validate(readOnlyEntity.getPolicy().getValidityMonths());
+        final LifetimeActionPolicy existingPolicy = lifetimeActionPolicy(lifetimeActionPolicy.getId());
+        if (existingPolicy == null) {
+            lifetimeActionPolicies.put(lifetimeActionPolicy.getId().id(), lifetimeActionPolicy);
+        } else {
+            existingPolicy.setLifetimeActions(lifetimeActionPolicy.getLifetimeActions());
+        }
+    }
+
+    private void purgeDeletedPolicies() {
+        keepNamesReadyForRemoval(lifetimeActionPolicies.keySet())
+                .forEach(lifetimeActionPolicies::remove);
+    }
+
+    private ReadOnlyKeyVaultCertificateEntity latestReadOnlyCertificateVersion(final CertificateEntityId certificateEntityId) {
+        final VersionedCertificateEntityId latestVersionOfEntity = getEntities().getLatestVersionOfEntity(certificateEntityId);
+        return getEntities().getReadOnlyEntity(latestVersionOfEntity);
     }
 
     private KeyEntityId toKeyEntityId(final CertificateEntityId entityId) {

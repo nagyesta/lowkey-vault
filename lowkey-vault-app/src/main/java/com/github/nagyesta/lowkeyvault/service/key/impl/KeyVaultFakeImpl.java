@@ -181,6 +181,7 @@ public class KeyVaultFakeImpl
 
     @Override
     public RotationPolicy rotationPolicy(@NonNull final KeyEntityId keyEntityId) {
+        purgeDeletedPolicies();
         return rotationPolicies.get(keyEntityId.id());
     }
 
@@ -234,5 +235,10 @@ public class KeyVaultFakeImpl
         final int diffSeconds = (int) (now.toEpochSecond() - rotationTime.toEpochSecond());
         final VersionedKeyEntityId versionedKeyEntityId = rotateKey(keyEntityId);
         getEntities().getEntity(versionedKeyEntityId, KeyVaultKeyEntity.class).timeShift(diffSeconds);
+    }
+
+    private void purgeDeletedPolicies() {
+        keepNamesReadyForRemoval(rotationPolicies.keySet())
+                .forEach(rotationPolicies::remove);
     }
 }

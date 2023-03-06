@@ -12,4 +12,8 @@ public interface CertificateVaultFake
     VersionedCertificateEntityId createCertificateVersion(@NonNull String name, @NonNull CertificateCreationInput input);
 
     VersionedCertificateEntityId importCertificateVersion(@NonNull String name, @NonNull CertificateImportInput input);
+
+    LifetimeActionPolicy lifetimeActionPolicy(@NonNull CertificateEntityId certificateEntityId);
+
+    void setLifetimeActionPolicy(@NonNull LifetimeActionPolicy lifetimeActionPolicy);
 }

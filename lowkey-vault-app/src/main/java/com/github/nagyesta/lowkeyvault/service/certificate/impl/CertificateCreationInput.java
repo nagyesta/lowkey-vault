@@ -15,7 +15,7 @@ public class CertificateCreationInput implements ReadOnlyCertificatePolicy {
     /**
      * Default number of months used for certificate validity.
      */
-    public static final int DEFAULT_VALIDITY_MONTHS = 120;
+    public static final int DEFAULT_VALIDITY_MONTHS = 12;
     private final String name;
     private final CertAuthorityType certAuthorityType;
     private final String subject;

@@ -2,6 +2,7 @@ package com.github.nagyesta.lowkeyvault.steps;
 
 import com.azure.security.keyvault.certificates.models.CertificateContentType;
 import com.azure.security.keyvault.certificates.models.CertificateKeyCurveName;
+import com.azure.security.keyvault.certificates.models.CertificatePolicyAction;
 import com.azure.security.keyvault.certificates.models.SubjectAlternativeNames;
 import com.azure.security.keyvault.keys.cryptography.models.EncryptionAlgorithm;
 import com.azure.security.keyvault.keys.cryptography.models.SignatureAlgorithm;
@@ -135,6 +136,21 @@ public class ParameterTypeDefs {
     @ParameterType("(with|without)")
     public boolean hsm(final String hsm) {
         return "with".equals(hsm);
+    }
+
+    @ParameterType("(using|not using)")
+    public boolean isUsing(final String using) {
+        return "using".equals(using);
+    }
+
+    @ParameterType("(percent lifetime|days before expiry)")
+    public boolean certLifetimePercentageTrigger(final String trigger) {
+        return "percent lifetime".equals(trigger);
+    }
+
+    @ParameterType("(EmailContacts|AutoRenew)")
+    public CertificatePolicyAction certAction(final String action) {
+        return CertificatePolicyAction.fromString(action);
     }
 
     @ParameterType("(enabled|not enabled)")

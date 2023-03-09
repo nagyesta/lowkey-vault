@@ -15,10 +15,8 @@ import org.springframework.util.Assert;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Objects;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * The base interface of the vault fakes.
@@ -117,6 +115,13 @@ public abstract class BaseVaultFakeImpl<K extends EntityId, V extends K, RE exte
         this.entities.forEachEntity(entity -> entity.timeShift(offsetSeconds));
         this.deletedEntities.forEachEntity(entity -> entity.timeShift(offsetSeconds));
         this.deletedEntities.purgeExpired();
+    }
+
+    protected Set<String> keepNamesReadyForRemoval(final Set<String> names) {
+        return names.stream()
+                .filter(n -> !this.getEntities().containsName(n))
+                .filter(n -> !this.getDeletedEntities().containsName(n))
+                .collect(Collectors.toSet());
     }
 
     protected void setManaged(@NonNull final V entityId, final boolean managed) {

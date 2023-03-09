@@ -658,6 +658,27 @@ class KeyVaultFakeImplTest {
     }
 
     @Test
+    void testGetRotationPolicyShouldReturnNullWhenCalledWithPurgedKey() {
+        //given
+        final KeyVaultFake underTest = createUnderTest();
+        insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
+        insertMultipleVersionsOfSameKey(underTest, KEY_NAME_2);
+        insertMultipleVersionsOfSameKey(underTest, KEY_NAME_3);
+        underTest.setRotationPolicy(new KeyRotationPolicy(UNVERSIONED_KEY_ENTITY_ID_1, Period.ofYears(1),
+                Map.of(LifetimeActionType.ROTATE, new KeyLifetimeAction(LifetimeActionType.ROTATE,
+                        new KeyLifetimeActionTrigger(Period.ofMonths(1), LifetimeActionTriggerType.TIME_AFTER_CREATE)))));
+        underTest.delete(UNVERSIONED_KEY_ENTITY_ID_1);
+        Assertions.assertNotNull(underTest.rotationPolicy(UNVERSIONED_KEY_ENTITY_ID_1));
+        underTest.purge(UNVERSIONED_KEY_ENTITY_ID_1);
+
+        //when
+        final ReadOnlyRotationPolicy actual = underTest.rotationPolicy(UNVERSIONED_KEY_ENTITY_ID_1);
+
+        //then
+        Assertions.assertNull(actual);
+    }
+
+    @Test
     void testPurgeShouldThrowExceptionWhenCalledWithNullKey() {
         //given
         final KeyVaultFake underTest = createUnderTest();

@@ -7,11 +7,15 @@ import com.github.nagyesta.lowkeyvault.service.certificate.util.ParserUtil;
 import lombok.Data;
 import lombok.NonNull;
 import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
 
 import java.security.cert.X509Certificate;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
+import static com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionActivity.EMAIL_CONTACTS;
 
 @Data
 public class CertificateImportInput {
@@ -35,9 +39,22 @@ public class CertificateImportInput {
         this.certificate = (X509Certificate) contentType.getCertificateChain(certificateContent, password).get(0);
         this.keyData = contentType.getKey(certificateContent, password);
         this.policyModel = policyModel;
-        final CertificateCreationInputBuilder builder = parsedInputBuilder(name, contentType, certificate, keyData, policyModel);
-        this.parsedCertificateData = builder.build();
+        this.parsedCertificateData = parsedInputBuilder(name, contentType, certificate, keyData, policyModel).build();
         this.certificateData = mergePolicies(this.parsedCertificateData, policyModel);
+        final int validityMonths = certificateData.getValidityMonths();
+        Optional.ofNullable(policyModel.getLifetimeActions())
+                .ifPresent(actions -> validateLifetimeActionList(validityMonths, actions));
+    }
+
+    private static void validateLifetimeActionList(final int validityMonths, final List<CertificateLifetimeActionModel> actions) {
+        Assert.isTrue(actions.size() < 2, "Only 0 or 1 lifetime actions are allowed.");
+        actions.forEach(a -> validateAction(validityMonths, a));
+    }
+
+    private static void validateAction(final int validityMonths, final CertificateLifetimeActionModel actionModel) {
+        Assert.isTrue(actionModel.getAction() == EMAIL_CONTACTS,
+                "Only EmailContacts action allowed for imported certificates.");
+        actionModel.getTrigger().validate(validityMonths);
     }
 
     private static CertificateCreationInputBuilder parsedInputBuilder(

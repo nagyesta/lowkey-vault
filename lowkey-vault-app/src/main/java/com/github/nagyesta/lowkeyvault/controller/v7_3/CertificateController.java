@@ -1,10 +1,7 @@
 package com.github.nagyesta.lowkeyvault.controller.v7_3;
 
 import com.github.nagyesta.lowkeyvault.controller.common.CommonCertificateController;
-import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntityToV73CertificateItemModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntityToV73CertificateVersionItemModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntityToV73ModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntityToV73PendingCertificateOperationModelConverter;
+import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.*;
 import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
 import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.*;
@@ -38,8 +35,10 @@ public class CertificateController extends CommonCertificateController {
             @NonNull final CertificateEntityToV73CertificateItemModelConverter itemModelConverter,
             @NonNull final CertificateEntityToV73CertificateVersionItemModelConverter versionItemModelConverter,
             @NonNull final CertificateEntityToV73PendingCertificateOperationModelConverter pendingModelConverter,
+            @NonNull final LifetimeActionsPolicyToV73ModelConverter lifetimeActionsModelConverter,
             @NonNull final VaultService vaultService) {
-        super(modelConverter, itemModelConverter, versionItemModelConverter, pendingModelConverter, vaultService);
+        super(modelConverter, itemModelConverter, versionItemModelConverter,
+                pendingModelConverter, lifetimeActionsModelConverter, vaultService);
     }
 
     @Override

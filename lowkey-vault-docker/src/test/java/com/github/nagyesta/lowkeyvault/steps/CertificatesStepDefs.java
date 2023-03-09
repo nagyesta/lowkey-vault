@@ -23,6 +23,7 @@ import static com.github.nagyesta.lowkeyvault.context.TestContextConfig.CONTAINE
 
 public class CertificatesStepDefs extends CommonAssertions {
 
+    public static final int DEFAULT_LIFETIME_PERCENTAGE = 80;
     @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     @Autowired
     private CertificateTestContext context;
@@ -135,6 +136,24 @@ public class CertificatesStepDefs extends CommonAssertions {
         context.addCreatedEntity(name, certificate);
     }
 
+    @When("a certificate named {name} is imported from the resource named {fileName} covering {subject} {isUsing} a lifetime action")
+    public void aCertificateIsImportedWithNameFromTheResourceWithLifetimeAction(
+            final String name, final String resource, final String subject, final boolean using) throws IOException {
+        final byte[] content = Objects.requireNonNull(getClass().getResourceAsStream("/certs/" + resource)).readAllBytes();
+        final ImportCertificateOptions options = new ImportCertificateOptions(name, content);
+        final CertificatePolicy policy = new CertificatePolicy(name, subject);
+        if (using) {
+            final LifetimeAction lifetimeAction = new LifetimeAction(CertificatePolicyAction.EMAIL_CONTACTS);
+            lifetimeAction.setLifetimePercentage(DEFAULT_LIFETIME_PERCENTAGE);
+            policy.setLifetimeActions(lifetimeAction);
+        }
+        options.setPolicy(policy);
+        final KeyVaultCertificateWithPolicy certificate = context
+                .getClient(context.getCertificateServiceVersion())
+                .importCertificate(options);
+        context.addCreatedEntity(name, certificate);
+    }
+
     @When("the certificate policy named {name} is downloaded")
     public void theCertificatePolicyNamedCertNameIsDownloaded(final String name) {
         final CertificatePolicy policy = context
@@ -210,5 +229,19 @@ public class CertificatesStepDefs extends CommonAssertions {
                 .map(DeletedCertificate::getRecoveryId)
                 .collect(Collectors.toList());
         context.setDeletedRecoveryIds(recoveryIds);
+    }
+
+    @And("the lifetime action trigger is set to {certAction} when {int} {certLifetimePercentageTrigger} reached")
+    public void theLifetimeActionTriggerIsSetToActionWhenTriggerValueTriggerTypeReached(
+            final CertificatePolicyAction action, final int triggerValue, final boolean isPercentage) {
+        final CertificatePolicy policy = context.getPolicy();
+        final LifetimeAction lifetimeAction = new LifetimeAction(action);
+        if (isPercentage) {
+            lifetimeAction.setLifetimePercentage(triggerValue);
+        } else {
+            lifetimeAction.setDaysBeforeExpiry(triggerValue);
+        }
+        policy.setLifetimeActions(lifetimeAction);
+        context.setPolicy(policy);
     }
 }

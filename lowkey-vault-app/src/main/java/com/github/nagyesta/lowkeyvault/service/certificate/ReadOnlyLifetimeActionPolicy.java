@@ -5,6 +5,7 @@ import com.github.nagyesta.lowkeyvault.service.certificate.id.CertificateEntityI
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 public interface ReadOnlyLifetimeActionPolicy {
 
@@ -20,5 +21,5 @@ public interface ReadOnlyLifetimeActionPolicy {
 
     void validate(int validityMonths);
 
-    List<OffsetDateTime> missedRenewalDays(OffsetDateTime validityStart, OffsetDateTime expiry);
+    List<OffsetDateTime> missedRenewalDays(OffsetDateTime validityStart, Function<OffsetDateTime, OffsetDateTime> createdToExpiryFunction);
 }

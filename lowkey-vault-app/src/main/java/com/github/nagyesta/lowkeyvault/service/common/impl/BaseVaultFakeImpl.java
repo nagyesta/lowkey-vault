@@ -134,6 +134,10 @@ public abstract class BaseVaultFakeImpl<K extends EntityId, V extends K, RE exte
         return entities;
     }
 
+    protected VersionedEntityMultiMap<K, V, RE, ME> getDeletedEntitiesInternal() {
+        return deletedEntities;
+    }
+
     protected VaultFake vaultFake() {
         return vaultFake;
     }

@@ -179,9 +179,7 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 Certificate API features are work in progress, many Lowkey Vault features might 
 not work or are known to be broken, for example but not limited to the following:
 
-- Certificate lifetime policy does not have any effect
 - Import and export ignores certificates
-- Time shift is not supported for certificates
 
 ### Management API
 
@@ -220,5 +218,6 @@ not work or are known to be broken, for example but not limited to the following
 # Limitations
 
 - Some encryption/signature algorithms are not supported. Please refer to the ["Features"](#features) section for the up-to-date list of supported algorithms.
-- Certificate Vault features are not supported at the moment
+- Only self-signed certificates are supported by the certificate API.
+- Time shift cannot renew/recreate deleted certificates. Please consider performing deletions after time shift as a work around.
 - Recovery options cannot be configured for vaults created during start-up

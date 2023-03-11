@@ -197,5 +197,8 @@ class SecretVaultFakeImplTest {
         Assertions.assertEquals(expiry, entity.getExpiry().orElse(null));
         Assertions.assertTrue(entity.isEnabled());
         Assertions.assertTrue(entity.isManaged());
+        //created and updated must be set to the same value as not before in case of new certificate backing secrets
+        Assertions.assertEquals(notBefore, entity.getCreated());
+        Assertions.assertEquals(notBefore, entity.getUpdated());
     }
 }

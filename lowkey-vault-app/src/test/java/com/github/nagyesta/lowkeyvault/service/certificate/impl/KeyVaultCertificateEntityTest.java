@@ -28,6 +28,7 @@ import java.util.stream.Stream;
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.CERT_NAME_1;
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.VERSIONED_CERT_ENTITY_ID_1_VERSION_1;
+import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
 import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertAuthorityType.UNKNOWN;
 import static org.mockito.ArgumentMatchers.eq;
@@ -49,6 +50,24 @@ class KeyVaultCertificateEntityTest {
                 .build();
     }
 
+    public static Stream<Arguments> nullRenewalProvider() {
+        final VersionedKeyEntityId kid = VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
+        final VersionedCertificateEntityId cid = VERSIONED_CERT_ENTITY_ID_1_VERSION_1;
+        final VaultFake vaultFake = mock(VaultFake.class);
+        final CertificateCreationInput input = CertificateCreationInput.builder().build();
+        return Stream.<Arguments>builder()
+                .add(Arguments.of(null, null, null, null))
+                .add(Arguments.of(input, null, null, null))
+                .add(Arguments.of(null, kid, null, null))
+                .add(Arguments.of(null, null, cid, null))
+                .add(Arguments.of(null, null, null, vaultFake))
+                .add(Arguments.of(null, kid, cid, vaultFake))
+                .add(Arguments.of(input, null, cid, vaultFake))
+                .add(Arguments.of(input, kid, null, vaultFake))
+                .add(Arguments.of(input, kid, cid, null))
+                .build();
+    }
+
     @ParameterizedTest
     @MethodSource("nullProvider")
     void testConstructorShouldThrowExceptionWhenCalledWithNulls(
@@ -58,6 +77,20 @@ class KeyVaultCertificateEntityTest {
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> new KeyVaultCertificateEntity(id, input, vault));
+
+        //then + exception
+    }
+
+    @ParameterizedTest
+    @MethodSource("nullRenewalProvider")
+    void testRenewalConstructorShouldThrowExceptionWhenCalledWithNulls(
+            final ReadOnlyCertificatePolicy input, final VersionedKeyEntityId kid,
+            final VersionedCertificateEntityId id, final VaultFake vault) {
+        //given
+
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new KeyVaultCertificateEntity(input, kid, id, vault));
 
         //then + exception
     }
@@ -288,5 +321,69 @@ class KeyVaultCertificateEntityTest {
         Assertions.assertThrows(CryptoException.class, entity::getEncodedCertificate);
 
         //then + exception
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void testRenewalConstructorShouldThrowExceptionWhenCalledWithNotExistingKeyId() {
+        //given
+        final VersionedKeyEntityId kid = VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
+        final VersionedCertificateEntityId id = VERSIONED_CERT_ENTITY_ID_1_VERSION_1;
+        final CertificateCreationInput input = CertificateCreationInput.builder().name(id.id()).build();
+
+        final ReadOnlyVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> keyMap
+                = mock(ReadOnlyVersionedEntityMultiMap.class);
+        when(keyMap.containsEntity(eq(kid))).thenReturn(false);
+
+        final KeyVaultFake keyFake = mock(KeyVaultFake.class);
+        when(keyFake.getEntities()).thenReturn(keyMap);
+
+        final VaultFake vault = mock(VaultFake.class);
+        when(vault.baseUri()).thenReturn(id.vault());
+        when(vault.keyVaultFake()).thenReturn(keyFake);
+
+        //when
+        Assertions.assertThrows(IllegalStateException.class, () -> new KeyVaultCertificateEntity(input, kid, id, vault));
+
+        //then + exception
+        verify(vault).keyVaultFake();
+        verify(keyFake).getEntities();
+        verify(keyMap).containsEntity(eq(kid));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void testRenewalConstructorShouldThrowExceptionWhenNoMatchingSecretNameFound() {
+        //given
+        final VersionedKeyEntityId kid = VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
+        final VersionedCertificateEntityId id = VERSIONED_CERT_ENTITY_ID_1_VERSION_1;
+        final CertificateCreationInput input = CertificateCreationInput.builder().name(id.id()).build();
+
+        final ReadOnlyVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> keyMap
+                = mock(ReadOnlyVersionedEntityMultiMap.class);
+        when(keyMap.containsEntity(eq(kid))).thenReturn(true);
+        final KeyVaultFake keyFake = mock(KeyVaultFake.class);
+        when(keyFake.getEntities()).thenReturn(keyMap);
+
+        final ReadOnlyVersionedEntityMultiMap<SecretEntityId, VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity> secretMap
+                = mock(ReadOnlyVersionedEntityMultiMap.class);
+        when(keyMap.containsName(eq(id.id()))).thenReturn(false);
+        final SecretVaultFake secretFake = mock(SecretVaultFake.class);
+        when(secretFake.getEntities()).thenReturn(secretMap);
+
+        final VaultFake vault = mock(VaultFake.class);
+        when(vault.baseUri()).thenReturn(id.vault());
+        when(vault.keyVaultFake()).thenReturn(keyFake);
+        when(vault.secretVaultFake()).thenReturn(secretFake);
+
+        //when
+        Assertions.assertThrows(IllegalStateException.class, () -> new KeyVaultCertificateEntity(input, kid, id, vault));
+
+        //then + exception
+        verify(vault).keyVaultFake();
+        verify(keyFake).getEntities();
+        verify(keyMap).containsEntity(eq(kid));
+        verify(secretFake).getEntities();
+        verify(secretMap).containsName(eq(id.id()));
     }
 }

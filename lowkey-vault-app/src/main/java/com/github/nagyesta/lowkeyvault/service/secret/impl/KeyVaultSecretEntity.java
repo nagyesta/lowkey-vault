@@ -10,7 +10,7 @@ import org.springframework.util.Assert;
 
 public class KeyVaultSecretEntity extends KeyVaultBaseEntity<VersionedSecretEntityId> implements ReadOnlyKeyVaultSecretEntity {
 
-    private final String value;
+    private String value;
     private final String contentType;
     private final VersionedSecretEntityId id;
 
@@ -28,6 +28,10 @@ public class KeyVaultSecretEntity extends KeyVaultBaseEntity<VersionedSecretEnti
     @Override
     public String getValue() {
         return value;
+    }
+
+    public void setValue(final String value) {
+        this.value = value;
     }
 
     @Override

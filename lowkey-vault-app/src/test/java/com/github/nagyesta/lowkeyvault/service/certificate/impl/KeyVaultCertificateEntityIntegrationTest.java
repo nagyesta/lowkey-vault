@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.util.MimeTypeUtils;
 
 import java.security.cert.X509Certificate;
+import java.time.Duration;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
@@ -278,5 +279,61 @@ class KeyVaultCertificateEntityIntegrationTest {
         final ReadOnlyCertificatePolicy originalPolicy = actual.getOriginalCertificateData();
         Assertions.assertEquals(currentPolicy, originalPolicy);
         Assertions.assertNotNull(actual.getOriginalCertificateContents());
+    }
+
+    @Test
+    void testRegenerateCertificateShouldRegenerateCertificateWhenTheValidityIsNoLongerAccurate() {
+        //given
+        final CertificateCreationInput input = CertificateCreationInput.builder()
+                .validityStart(NOW)
+                .subject("CN=" + LOCALHOST)
+                .name(CERT_NAME_1)
+                .enableTransparency(false)
+                .certAuthorityType(SELF_SIGNED)
+                .contentType(CertContentType.PKCS12)
+                .keyCurveName(KeyCurveName.P_521)
+                .keyType(KeyType.EC)
+                .validityMonths(TWO_YEARS_IN_MONTHS)
+                .build();
+
+        final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
+        final KeyVaultCertificateEntity underTest = new KeyVaultCertificateEntity(CERT_NAME_1, input, vault);
+        underTest.timeShift((int) Duration.ofDays(1).toSeconds());
+        final X509Certificate original = (X509Certificate) underTest.getCertificate();
+
+        //when
+        underTest.regenerateCertificate(vault);
+
+        //then
+        final X509Certificate actual = (X509Certificate) underTest.getCertificate();
+        Assertions.assertNotEquals(original, actual);
+    }
+
+    @Test
+    void testRegenerateCertificateShouldNotRegenerateCertificateWhenTheValidityIsStillAccurate() {
+        //given
+        final CertificateCreationInput input = CertificateCreationInput.builder()
+                .validityStart(NOW)
+                .subject("CN=" + LOCALHOST)
+                .name(CERT_NAME_1)
+                .enableTransparency(false)
+                .certAuthorityType(SELF_SIGNED)
+                .contentType(CertContentType.PKCS12)
+                .keyCurveName(KeyCurveName.P_521)
+                .keyType(KeyType.EC)
+                .validityMonths(TWO_YEARS_IN_MONTHS)
+                .build();
+
+        final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
+        final KeyVaultCertificateEntity underTest = new KeyVaultCertificateEntity(CERT_NAME_1, input, vault);
+        underTest.timeShift((int) Duration.ofHours(1).toSeconds());
+        final X509Certificate original = (X509Certificate) underTest.getCertificate();
+
+        //when
+        underTest.regenerateCertificate(vault);
+
+        //then
+        final X509Certificate actual = (X509Certificate) underTest.getCertificate();
+        Assertions.assertSame(original, actual);
     }
 }

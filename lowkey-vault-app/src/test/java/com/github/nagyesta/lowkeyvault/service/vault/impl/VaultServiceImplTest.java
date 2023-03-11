@@ -333,7 +333,7 @@ class VaultServiceImplTest {
         final VaultServiceImpl underTest = new VaultServiceImpl();
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.timeShift(value));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.timeShift(value, false));
 
         //then + exception
     }
@@ -346,7 +346,7 @@ class VaultServiceImplTest {
         final OffsetDateTime createdOriginal = vaultFake.getCreatedOn();
 
         //when
-        underTest.timeShift(TestConstants.NUMBER_OF_SECONDS_IN_10_MINUTES);
+        underTest.timeShift(TestConstants.NUMBER_OF_SECONDS_IN_10_MINUTES, false);
 
         //then
         Assertions.assertEquals(createdOriginal.minusSeconds(TestConstants.NUMBER_OF_SECONDS_IN_10_MINUTES), vaultFake.getCreatedOn());

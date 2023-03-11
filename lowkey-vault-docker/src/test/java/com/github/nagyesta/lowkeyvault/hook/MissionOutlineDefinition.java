@@ -51,7 +51,7 @@ public class MissionOutlineDefinition extends LaunchAbortHook {
             });
 
             Stream.of("CreateVault", "KeyRotate", "KeyImport", "KeyEncrypt", "KeySign", "CertificateImport",
-                            "CertificateGetPolicy", "RSA", "EC", "OCT")
+                            "CertificateGetPolicy", "CertificateTimeShift", "RSA", "EC", "OCT")
                     .forEach(tag -> {
                         final MissionHealthCheckMatcher matcher = matcher().dependencyWith(tag).extractor(extractor).build();
                         final MissionHealthCheckEvaluator tagPercentage = percentageBasedEvaluator(matcher)

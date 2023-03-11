@@ -52,6 +52,9 @@ public class SecretVaultFakeImpl
         setExpiry(secretEntityId, notBefore, expiry);
         setManaged(secretEntityId, true);
         setEnabled(secretEntityId, true);
+        final KeyVaultSecretEntity secretEntity = getEntities().getEntity(secretEntityId, KeyVaultSecretEntity.class);
+        secretEntity.setCreatedOn(notBefore);
+        secretEntity.setUpdatedOn(notBefore);
         return secretEntityId;
     }
 }

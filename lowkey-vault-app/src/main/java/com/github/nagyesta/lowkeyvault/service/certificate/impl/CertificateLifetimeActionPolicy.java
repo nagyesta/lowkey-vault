@@ -11,6 +11,7 @@ import org.springframework.util.Assert;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 public class CertificateLifetimeActionPolicy extends BaseLifetimePolicy<CertificateEntityId> implements LifetimeActionPolicy {
 
@@ -45,12 +46,14 @@ public class CertificateLifetimeActionPolicy extends BaseLifetimePolicy<Certific
     }
 
     @Override
-    public List<OffsetDateTime> missedRenewalDays(final OffsetDateTime validityStart, final OffsetDateTime expiry) {
+    public List<OffsetDateTime> missedRenewalDays(final OffsetDateTime validityStart,
+                                                  final Function<OffsetDateTime, OffsetDateTime> createdToExpiryFunction) {
         Assert.isTrue(isAutoRenew(), "Cannot have missed renewals without an \"AutoRenew\" lifetime action.");
-        final long triggersAfterDays = lifetimeActions.get(CertificateLifetimeActionActivity.AUTO_RENEW)
-                .triggersAfterDays(validityStart, expiry);
-        final OffsetDateTime startPoint = findTriggerTimeOffset(validityStart, triggersAfterDays);
-        return collectMissedTriggerDays(triggersAfterDays, startPoint);
+        final CertificateLifetimeActionTrigger trigger = lifetimeActions.get(CertificateLifetimeActionActivity.AUTO_RENEW);
+        final Function<OffsetDateTime, Long> triggerAfterDaysFunction = s -> trigger
+                .triggersAfterDays(s, createdToExpiryFunction.apply(s));
+        final OffsetDateTime startPoint = findTriggerTimeOffset(validityStart, triggerAfterDaysFunction);
+        return collectMissedTriggerDays(triggerAfterDaysFunction, startPoint);
     }
 
 }

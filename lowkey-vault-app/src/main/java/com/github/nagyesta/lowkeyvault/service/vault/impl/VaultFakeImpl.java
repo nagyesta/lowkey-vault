@@ -10,6 +10,7 @@ import com.github.nagyesta.lowkeyvault.service.secret.impl.SecretVaultFakeImpl;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
 import java.net.URI;
@@ -18,6 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+@Slf4j
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, doNotUseGetters = true)
 public class VaultFakeImpl implements VaultFake {
 
@@ -140,7 +142,7 @@ public class VaultFakeImpl implements VaultFake {
     }
 
     @Override
-    public void timeShift(final int offsetSeconds) {
+    public void timeShift(final int offsetSeconds, final boolean regenerateCertificates) {
         Assert.isTrue(offsetSeconds > 0, "Offset must be positive.");
         createdOn = createdOn.minusSeconds(offsetSeconds);
         deletedOn = Optional.ofNullable(deletedOn)
@@ -148,5 +150,10 @@ public class VaultFakeImpl implements VaultFake {
                 .orElse(null);
         keyVaultFake().timeShift(offsetSeconds);
         secretVaultFake().timeShift(offsetSeconds);
+        certificateVaultFake().timeShift(offsetSeconds);
+        if (regenerateCertificates) {
+            log.info("Regenerating certificates of vault: {}", baseUri());
+            certificateVaultFake().regenerateCertificates();
+        }
     }
 }

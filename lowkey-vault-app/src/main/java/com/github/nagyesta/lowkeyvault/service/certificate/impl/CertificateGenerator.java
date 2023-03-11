@@ -55,7 +55,7 @@ public class CertificateGenerator {
     }
 
     public X509Certificate generateCertificate(
-            @NonNull final CertificateCreationInput input) throws CryptoException {
+            @NonNull final ReadOnlyCertificatePolicy input) throws CryptoException {
         try {
             final ReadOnlyAsymmetricKeyVaultKeyEntity readOnlyKeyVaultKey = vault.keyVaultFake().getEntities()
                     .getEntity(kid, ReadOnlyAsymmetricKeyVaultKeyEntity.class);
@@ -94,7 +94,7 @@ public class CertificateGenerator {
         }
     }
 
-    private X509Certificate generateCertificate(final CertificateCreationInput input, final KeyPair keyPair)
+    private X509Certificate generateCertificate(final ReadOnlyCertificatePolicy input, final KeyPair keyPair)
             throws IOException, OperatorCreationException, CertificateException {
 
         final X509v3CertificateBuilder builder = createCertificateBuilder(input, keyPair);
@@ -130,7 +130,7 @@ public class CertificateGenerator {
     }
 
     private X509v3CertificateBuilder createCertificateBuilder(
-            final CertificateCreationInput input, final KeyPair keyPair) throws IOException {
+            final ReadOnlyCertificatePolicy input, final KeyPair keyPair) throws IOException {
         final X500Name subject = generateSubject(input.getSubject());
         final X509v3CertificateBuilder certificate = new JcaX509v3CertificateBuilder(
                 subject, generateSerial(), input.certNotBefore(), input.certExpiry(), subject, keyPair.getPublic());

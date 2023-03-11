@@ -3,6 +3,7 @@ package com.github.nagyesta.lowkeyvault.service.key.impl;
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.constants.LifetimeActionType;
 import com.github.nagyesta.lowkeyvault.service.common.impl.BaseLifetimePolicy;
 import com.github.nagyesta.lowkeyvault.service.key.LifetimeAction;
+import com.github.nagyesta.lowkeyvault.service.key.LifetimeActionTrigger;
 import com.github.nagyesta.lowkeyvault.service.key.RotationPolicy;
 import com.github.nagyesta.lowkeyvault.service.key.constants.LifetimeActionTriggerType;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
@@ -39,9 +40,9 @@ public class KeyRotationPolicy extends BaseLifetimePolicy<KeyEntityId> implement
     @Override
     public List<OffsetDateTime> missedRotations(@NonNull final OffsetDateTime keyCreation) {
         Assert.isTrue(isAutoRotate(), "Cannot have missed rotations without a \"rotate\" lifetime action.");
-        final long rotateAfterDays = lifetimeActions.get(LifetimeActionType.ROTATE).getTrigger().rotateAfterDays(expiryTime);
-        final OffsetDateTime startPoint = findTriggerTimeOffset(keyCreation, rotateAfterDays);
-        return collectMissedTriggerDays(rotateAfterDays, startPoint);
+        final LifetimeActionTrigger trigger = lifetimeActions.get(LifetimeActionType.ROTATE).getTrigger();
+        final OffsetDateTime startPoint = findTriggerTimeOffset(keyCreation, s -> trigger.rotateAfterDays(expiryTime));
+        return collectMissedTriggerDays(s -> trigger.rotateAfterDays(expiryTime), startPoint);
     }
 
     @Override

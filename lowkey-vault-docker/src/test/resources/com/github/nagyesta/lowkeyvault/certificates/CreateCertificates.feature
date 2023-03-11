@@ -73,9 +73,10 @@ Feature: Certificate creation
         And the downloaded <type> certificate store has a certificate with CN=localhost as subject
 
         Examples:
-            | api | certName                   | triggerValue | triggerType        | action        | type   |
-            | 7.3 | 73-createRsaCertPemAction  | 20           | days before expiry | EmailContacts | PEM    |
-            | 7.3 | 73-createRsaCertPkcsAction | 75           | percent lifetime   | AutoRenew     | PKCS12 |
+            | api | certName                       | triggerValue | triggerType        | action        | type   |
+            | 7.3 | 73-createRsaCertPemAction      | 20           | days before expiry | EmailContacts | PEM    |
+            | 7.3 | 73-createRsaCertPkcsAction     | 75           | percent lifetime   | AutoRenew     | PKCS12 |
+            | 7.3 | 73-createRsaCertPemRenewAction | 75           | percent lifetime   | AutoRenew     | PEM    |
 
     @Certificate @CertificateCreate @EC
     Scenario Outline: EC_CERT_CREATE_02 Single versions of EC certificates can be created using lifetime actions

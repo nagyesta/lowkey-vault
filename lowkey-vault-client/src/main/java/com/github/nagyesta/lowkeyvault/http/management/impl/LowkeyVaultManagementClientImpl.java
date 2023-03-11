@@ -44,6 +44,7 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
     private static final String ALIAS_URI_ADD_QUERY_PARAM = "add";
     private static final String ALIAS_URI_REMOVE_QUERY_PARAM = "remove";
     private static final String SECONDS_QUERY_PARAM = "seconds";
+    private static final String REGENERATE_CERTS_QUERY_PARAM = "regenerateCertificates";
     private final String vaultUrl;
     private final HttpClient instance;
     private final ObjectReader objectReader;
@@ -144,6 +145,9 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
     public void timeShift(@NonNull final TimeShiftContext context) {
         final Map<String, String> parameters = new TreeMap<>();
         parameters.put(SECONDS_QUERY_PARAM, Integer.toString(context.getSeconds()));
+        if (context.isRegenerateCertificates()) {
+            parameters.put(REGENERATE_CERTS_QUERY_PARAM, Boolean.TRUE.toString());
+        }
         final Optional<URI> optionalURI = Optional.ofNullable(context.getVaultBaseUri());
         optionalURI.ifPresent(uri -> parameters.put(BASE_URI_QUERY_PARAM, uri.toString()));
         final String path = optionalURI.map(u -> MANAGEMENT_VAULT_TIME_PATH).orElse(MANAGEMENT_VAULT_TIME_ALL_PATH);

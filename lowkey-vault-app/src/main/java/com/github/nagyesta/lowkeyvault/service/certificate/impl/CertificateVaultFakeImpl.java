@@ -6,14 +6,20 @@ import com.github.nagyesta.lowkeyvault.service.certificate.LifetimeActionPolicy;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.CertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
+import com.github.nagyesta.lowkeyvault.service.common.ReadOnlyVersionedEntityMultiMap;
 import com.github.nagyesta.lowkeyvault.service.common.impl.BaseVaultFakeImpl;
+import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
+import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
+import com.github.nagyesta.lowkeyvault.service.key.impl.KeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.secret.id.SecretEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.NonNull;
 
+import java.time.OffsetDateTime;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
 
 public class CertificateVaultFakeImpl
         extends BaseVaultFakeImpl<CertificateEntityId, VersionedCertificateEntityId,
@@ -46,6 +52,74 @@ public class CertificateVaultFakeImpl
         final KeyVaultCertificateEntity entity = new KeyVaultCertificateEntity(
                 name, input, vaultFake());
         return addVersion(entity.getId(), entity);
+    }
+
+    @Override
+    public void timeShift(final int offsetSeconds) {
+        super.timeShift(offsetSeconds);
+        lifetimeActionPolicies.values().forEach(p -> p.timeShift(offsetSeconds));
+        performPastRenewals();
+    }
+
+    private void performPastRenewals() {
+        purgeDeletedPolicies();
+        lifetimeActionPolicies.values().stream()
+                .filter(LifetimeActionPolicy::isAutoRenew)
+                .filter(l -> getEntities().containsEntity(l.getId()))
+                .forEach(this::performMissedRenewalsOfPolicy);
+    }
+
+    private void performMissedRenewalsOfPolicy(final LifetimeActionPolicy lifetimeActionPolicy) {
+        final CertificateEntityId certificateEntityId = lifetimeActionPolicy.getId();
+        final VersionedCertificateEntityId latestVersionOfEntity = getEntities().getLatestVersionOfEntity(certificateEntityId);
+        final ReadOnlyKeyVaultCertificateEntity readOnlyEntity = getEntities().getReadOnlyEntity(latestVersionOfEntity);
+        final Function<OffsetDateTime, OffsetDateTime> createdToExpiryFunction = s -> s
+                .plusMonths(readOnlyEntity.getPolicy().getValidityMonths());
+        lifetimeActionPolicy.missedRenewalDays(readOnlyEntity.getCreated(), createdToExpiryFunction)
+                .forEach(renewalTime -> simulatePointInTimeRotation(certificateEntityId, renewalTime));
+    }
+
+    private void simulatePointInTimeRotation(final CertificateEntityId certificateEntityId, final OffsetDateTime renewalTime) {
+        final ReadOnlyKeyVaultCertificateEntity latest = latestReadOnlyCertificateVersion(certificateEntityId);
+        final CertificatePolicy input = new CertificatePolicy(latest.getPolicy());
+        input.setValidityStart(renewalTime);
+        final VersionedKeyEntityId kid = rotateIfNeededAndGetLastKeyId(input);
+        final VersionedCertificateEntityId id = generateIdOfNewCertificateEntity(input, kid);
+        final KeyVaultCertificateEntity entity = new KeyVaultCertificateEntity(input, kid, id, vaultFake());
+        addVersion(entity.getId(), entity);
+    }
+
+    private VersionedCertificateEntityId generateIdOfNewCertificateEntity(
+            final ReadOnlyCertificatePolicy input, final VersionedKeyEntityId kid) {
+        final VersionedCertificateEntityId id;
+        if (input.isReuseKeyOnRenewal()) {
+            id = new VersionedCertificateEntityId(vaultFake().baseUri(), input.getName());
+        } else {
+            id = new VersionedCertificateEntityId(vaultFake().baseUri(), input.getName(), kid.version());
+        }
+        return id;
+    }
+
+    private VersionedKeyEntityId rotateIfNeededAndGetLastKeyId(final ReadOnlyCertificatePolicy input) {
+        final ReadOnlyVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> entities = vaultFake()
+                .keyVaultFake().getEntities();
+        final VersionedKeyEntityId versionedKeyEntityId;
+        if (input.isReuseKeyOnRenewal()) {
+            final String lastVersion = entities.getVersions(new KeyEntityId(vaultFake().baseUri(), input.getName())).getLast();
+            versionedKeyEntityId = new VersionedKeyEntityId(vaultFake().baseUri(), input.getName(), lastVersion);
+        } else {
+            versionedKeyEntityId = vaultFake().keyVaultFake().rotateKey(new KeyEntityId(vaultFake().baseUri(), input.getName()));
+            //update timestamps
+            final OffsetDateTime notBefore = input.getValidityStart();
+            final OffsetDateTime expiry = notBefore.plusMonths(input.getValidityMonths());
+            vaultFake().keyVaultFake().setExpiry(versionedKeyEntityId, notBefore, expiry);
+            final KeyVaultKeyEntity<?, ?> entity = vaultFake()
+                    .keyVaultFake().getEntities().getEntity(versionedKeyEntityId, KeyVaultKeyEntity.class);
+            entity.setManaged(true);
+            entity.setCreatedOn(notBefore);
+            entity.setUpdatedOn(notBefore);
+        }
+        return versionedKeyEntityId;
     }
 
     @Override
@@ -85,6 +159,12 @@ public class CertificateVaultFakeImpl
         } else {
             existingPolicy.setLifetimeActions(lifetimeActionPolicy.getLifetimeActions());
         }
+    }
+
+    @Override
+    public void regenerateCertificates() {
+        this.getEntitiesInternal().forEachEntity(entity -> entity.regenerateCertificate(this.vaultFake()));
+        this.getDeletedEntitiesInternal().forEachEntity(entity -> entity.regenerateCertificate(this.vaultFake()));
     }
 
     private void purgeDeletedPolicies() {

@@ -106,10 +106,10 @@ public class VaultServiceImpl implements VaultService {
     }
 
     @Override
-    public void timeShift(final int offsetSeconds) {
+    public void timeShift(final int offsetSeconds, final boolean regenerateCertificates) {
         Assert.isTrue(offsetSeconds > 0, "Offset must be positive.");
         log.info("Performing time shift with {} seconds for all vaults.", offsetSeconds);
-        vaultFakes.forEach(vaultFake -> vaultFake.timeShift(offsetSeconds));
+        vaultFakes.forEach(vaultFake -> vaultFake.timeShift(offsetSeconds, regenerateCertificates));
         purgeExpired();
     }
 

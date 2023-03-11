@@ -42,5 +42,5 @@ public interface VaultFake {
 
     void recover();
 
-    void timeShift(int offsetSeconds);
+    void timeShift(int offsetSeconds, boolean regenerateCertificates);
 }

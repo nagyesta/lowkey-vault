@@ -84,6 +84,16 @@ public class CertificateStepDefAssertion extends CommonAssertions {
                 certificate.getNotAfter().toInstant().truncatedTo(ChronoUnit.DAYS));
     }
 
+    @And("the downloaded {certContentType} certificate store expires in {int} months - {int} days")
+    public void theDownloadedTypeCertificateStoreExpiresInMonthsMinusDays(
+            final CertificateContentType contentType, final int months, final int days) throws Exception {
+        final String value = secretContext.getLastResult().getValue();
+        final X509Certificate certificate = getX509Certificate(contentType, value);
+        final OffsetDateTime expiry = OffsetDateTime.now().minusDays(days).plusMonths(months);
+        assertEquals(expiry.toInstant().truncatedTo(ChronoUnit.DAYS),
+                certificate.getNotAfter().toInstant().truncatedTo(ChronoUnit.DAYS));
+    }
+
     @And("the downloaded {certContentType} certificate store content matches store from {fileName} using {password} as password")
     public void theDownloadedTypeCertificateStoreContentMatchesStoreFromFileNameUsingPassword(
             final CertificateContentType contentType, final String resource, final String password) throws Exception {

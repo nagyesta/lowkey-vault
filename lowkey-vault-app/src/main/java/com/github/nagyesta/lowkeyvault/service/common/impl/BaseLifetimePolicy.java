@@ -10,6 +10,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 @Data
 public class BaseLifetimePolicy<E extends EntityId> implements TimeAware {
@@ -37,17 +38,23 @@ public class BaseLifetimePolicy<E extends EntityId> implements TimeAware {
         updatedOn = OffsetDateTime.now();
     }
 
-    protected List<OffsetDateTime> collectMissedTriggerDays(final long triggerAfterDays, final OffsetDateTime startPoint) {
+    protected List<OffsetDateTime> collectMissedTriggerDays(
+            final Function<OffsetDateTime, Long> triggerAfterDaysFunction,
+            final OffsetDateTime startPoint) {
         final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
         final List<OffsetDateTime> rotationTimes = new ArrayList<>();
-        for (int i = 1; startPoint.plusDays(i * triggerAfterDays).isBefore(now); i++) {
-            rotationTimes.add(startPoint.plusDays(i * triggerAfterDays));
+        OffsetDateTime latestDay = startPoint;
+        while (latestDay.plusDays(triggerAfterDaysFunction.apply(latestDay)).isBefore(now)) {
+            latestDay = latestDay.plusDays(triggerAfterDaysFunction.apply(latestDay));
+            rotationTimes.add(latestDay);
         }
         return List.copyOf(rotationTimes);
     }
 
-    protected OffsetDateTime findTriggerTimeOffset(final OffsetDateTime entityCreation, final long triggerAfterDays) {
-        final OffsetDateTime relativeToLifetimeActionPolicy = createdOn.minusDays(triggerAfterDays);
+    protected OffsetDateTime findTriggerTimeOffset(
+            final OffsetDateTime entityCreation,
+            final Function<OffsetDateTime, Long> triggerAfterDaysFunction) {
+        final OffsetDateTime relativeToLifetimeActionPolicy = createdOn.minusDays(triggerAfterDaysFunction.apply(createdOn));
         OffsetDateTime startPoint = entityCreation;
         if (entityCreation.isBefore(relativeToLifetimeActionPolicy)) {
             startPoint = relativeToLifetimeActionPolicy;

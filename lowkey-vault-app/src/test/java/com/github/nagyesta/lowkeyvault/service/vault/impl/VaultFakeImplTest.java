@@ -282,7 +282,7 @@ class VaultFakeImplTest {
                 RecoveryLevel.RECOVERABLE_AND_PROTECTED_SUBSCRIPTION, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.timeShift(value));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.timeShift(value, false));
 
         //then + exception
     }
@@ -298,7 +298,7 @@ class VaultFakeImplTest {
         final OffsetDateTime deletedOriginal = underTest.getDeletedOn();
 
         //when
-        underTest.timeShift(NUMBER_OF_SECONDS_IN_10_MINUTES);
+        underTest.timeShift(NUMBER_OF_SECONDS_IN_10_MINUTES, false);
 
         //then
         Assertions.assertEquals(createdOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), underTest.getCreatedOn());

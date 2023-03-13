@@ -101,6 +101,7 @@ public class ManagementStepDefs extends CommonAssertions {
         final String vaultUrl = vaultNameToUrl(vaultName);
         context.getClient().timeShift(TimeShiftContext.builder()
                 .vaultBaseUri(URI.create(vaultUrl))
+                .regenerateCertificates()
                 .addDays(timeShiftDays)
                 .build());
     }

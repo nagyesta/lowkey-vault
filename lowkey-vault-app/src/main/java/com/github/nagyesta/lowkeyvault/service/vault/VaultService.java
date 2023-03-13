@@ -26,7 +26,7 @@ public interface VaultService {
 
     boolean purge(URI uri);
 
-    void timeShift(int offsetSeconds);
+    void timeShift(int offsetSeconds, boolean regenerateCertificates);
 
     VaultFake updateAlias(URI baseUri, URI add, URI remove);
 }

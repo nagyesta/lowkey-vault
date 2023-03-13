@@ -16,4 +16,6 @@ public interface CertificateVaultFake
     LifetimeActionPolicy lifetimeActionPolicy(@NonNull CertificateEntityId certificateEntityId);
 
     void setLifetimeActionPolicy(@NonNull LifetimeActionPolicy lifetimeActionPolicy);
+
+    void regenerateCertificates();
 }

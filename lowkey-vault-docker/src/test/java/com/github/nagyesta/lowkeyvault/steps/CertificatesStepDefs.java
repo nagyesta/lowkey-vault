@@ -124,6 +124,11 @@ public class CertificatesStepDefs extends CommonAssertions {
         context.getPolicy().setEnabled(enabledStatus);
     }
 
+    @Given("the certificate is set to expire in {int} months")
+    public void theKeyIsSetToBeEnabledStatus(final int expiryMonths) {
+        context.getPolicy().setValidityInMonths(expiryMonths);
+    }
+
     @When("a certificate named {name} is imported from the resource named {fileName} using {password} as password")
     public void aCertificateIsImportedWithNameFromTheResourceUsingPassword(
             final String name, final String resource, final String password) throws IOException {

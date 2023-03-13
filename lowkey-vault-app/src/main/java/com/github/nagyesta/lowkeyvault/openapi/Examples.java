@@ -18,6 +18,10 @@ public final class Examples {
      */
     public static final String ALIASES = "[\"" + ALIAS1 + "\",\"" + ALIAS2 + "\"]";
     /**
+     * The literal false as a String.
+     */
+    public static final String FALSE = "false";
+    /**
      * The literal 1 as a String.
      */
     public static final String ONE = "1";

@@ -286,12 +286,17 @@ public class VaultManagementController extends ErrorHandlingAwareController {
                                     schema = @Schema(implementation = ErrorModel.class)
                             ))},
             parameters = {
-                    @Parameter(name = "seconds", example = ONE, description = "The number of seconds we want to shift.")},
+                    @Parameter(name = "seconds", example = ONE, description = "The number of seconds we want to shift."),
+                    @Parameter(name = "regenerateCertificates", example = FALSE,
+                            description = "Whether we allow regeneration of certificates to let their validity match the new time-frame.")},
             requestBody = @RequestBody(content = @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE)))
     @PutMapping(value = "/time/all", params = {"seconds"})
-    public ResponseEntity<Void> timeShiftAll(@RequestParam final int seconds) {
-        log.info("Received request to shift time of ALL vaults by {} seconds.", seconds);
-        vaultService.timeShift(seconds);
+    public ResponseEntity<Void> timeShiftAll(
+            @RequestParam final int seconds,
+            @RequestParam(required = false, defaultValue = "false") final boolean regenerateCertificates) {
+        log.info("Received request to shift time of ALL vaults by {} seconds, regenerate certificates: {}.",
+                seconds, regenerateCertificates);
+        vaultService.timeShift(seconds, regenerateCertificates);
         return ResponseEntity.noContent().build();
     }
 
@@ -319,12 +324,17 @@ public class VaultManagementController extends ErrorHandlingAwareController {
                             ))},
             parameters = {
                     @Parameter(name = "seconds", example = ONE, description = "The number of seconds we want to shift."),
-                    @Parameter(name = "baseUri", example = BASE_URI, description = "The base URI of the vault we want to shift.")},
+                    @Parameter(name = "baseUri", example = BASE_URI, description = "The base URI of the vault we want to shift."),
+                    @Parameter(name = "regenerateCertificates", example = FALSE,
+                            description = "Whether we allow regeneration of certificates to let their validity match the new time-frame.")},
             requestBody = @RequestBody(content = @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE)))
     @PutMapping(value = "/time", params = {"baseUri", "seconds"})
-    public ResponseEntity<Void> timeShiftSingle(@RequestParam final URI baseUri, @RequestParam final int seconds) {
-        log.info("Received request to shift time of vault with uri: {} by {} seconds.", baseUri, seconds);
-        vaultService.findByUriIncludeDeleted(baseUri).timeShift(seconds);
+    public ResponseEntity<Void> timeShiftSingle(
+            @RequestParam final URI baseUri, @RequestParam final int seconds,
+            @RequestParam(required = false, defaultValue = "false") final boolean regenerateCertificates) {
+        log.info("Received request to shift time of vault with uri: {}, by {} seconds, regenerate certificates: {}.",
+                baseUri, seconds, regenerateCertificates);
+        vaultService.findByUriIncludeDeleted(baseUri).timeShift(seconds, regenerateCertificates);
         return ResponseEntity.noContent().build();
     }
 }

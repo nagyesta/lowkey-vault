@@ -35,7 +35,6 @@ public class KeyVaultCertificateEntity
     private final VersionedCertificateEntityId id;
     private final VersionedKeyEntityId kid;
     private final VersionedSecretEntityId sid;
-
     private X509Certificate certificate;
     private ReadOnlyCertificatePolicy originalCertificatePolicy;
     private final String originalCertificateContents;
@@ -71,13 +70,8 @@ public class KeyVaultCertificateEntity
         this.csr = certificateGenerator.generateCertificateSigningRequest(name, this.certificate);
         final VersionedSecretEntityId secretEntityId = new VersionedSecretEntityId(vault.baseUri(), input.getName(), this.kid.version());
         this.sid = generateSecret(this.originalCertificatePolicy, vault, this.certificate, this.kid, secretEntityId);
-        this.setNotBefore(input.getValidityStart());
-        this.setExpiry(input.getValidityStart().plusMonths(input.getValidityMonths()));
-        this.setEnabled(true);
         this.originalCertificateContents = vault.secretVaultFake().getEntities().getReadOnlyEntity(this.sid).getValue();
-        //update timestamps of certificate as the constructor can run for more than a second
-        this.setCreatedOn(now());
-        this.setUpdatedOn(now());
+        normalizeCoreTimeStamps(input, now());
     }
 
 
@@ -118,13 +112,8 @@ public class KeyVaultCertificateEntity
         this.csr = certificateGenerator.generateCertificateSigningRequest(name, this.certificate);
         final VersionedSecretEntityId secretEntityId = new VersionedSecretEntityId(vault.baseUri(), input.getName(), this.kid.version());
         this.sid = generateSecret(this.originalCertificatePolicy, vault, this.certificate, this.kid, secretEntityId);
-        this.setNotBefore(policy.getValidityStart());
-        this.setExpiry(policy.getValidityStart().plusMonths(policy.getValidityMonths()));
-        this.setEnabled(true);
         this.originalCertificateContents = vault.secretVaultFake().getEntities().getReadOnlyEntity(this.sid).getValue();
-        //update timestamps of certificate as the constructor can run for more than a second
-        this.setCreatedOn(now());
-        this.setUpdatedOn(now());
+        normalizeCoreTimeStamps(policy, now());
     }
 
     /**
@@ -154,14 +143,8 @@ public class KeyVaultCertificateEntity
         this.csr = certificateGenerator.generateCertificateSigningRequest(input.getName(), this.certificate);
         final VersionedSecretEntityId secretEntityId = new VersionedSecretEntityId(vault.baseUri(), input.getName(), id.version());
         this.sid = generateSecret(this.originalCertificatePolicy, vault, this.certificate, this.kid, secretEntityId);
-        this.setNotBefore(input.getValidityStart());
-        final OffsetDateTime expiry = input.getValidityStart().plusMonths(input.getValidityMonths());
-        this.setExpiry(expiry);
-        this.setEnabled(true);
         this.originalCertificateContents = vault.secretVaultFake().getEntities().getReadOnlyEntity(this.sid).getValue();
-        //update timestamps of certificate
-        this.setCreatedOn(input.getValidityStart());
-        this.setUpdatedOn(input.getValidityStart());
+        normalizeCoreTimeStamps(input, input.getValidityStart());
     }
 
     private VersionedSecretEntityId generateSecret(final ReadOnlyCertificatePolicy input,
@@ -285,6 +268,15 @@ public class KeyVaultCertificateEntity
         } else {
             log.debug("Validity start date is still accurate certificate won't be changed: {}", id);
         }
+    }
+
+    private void normalizeCoreTimeStamps(final ReadOnlyCertificatePolicy certPolicy, final OffsetDateTime createOrUpdate) {
+        this.setNotBefore(certPolicy.getValidityStart());
+        this.setExpiry(certPolicy.getValidityStart().plusMonths(certPolicy.getValidityMonths()));
+        this.setEnabled(true);
+        //update timestamps of certificate as the constructor can run for more than a second
+        this.setCreatedOn(createOrUpdate);
+        this.setUpdatedOn(createOrUpdate);
     }
 
     private void updateSecretValueWithNewCertificate(final VaultFake vault, final CertificatePolicy updated) {

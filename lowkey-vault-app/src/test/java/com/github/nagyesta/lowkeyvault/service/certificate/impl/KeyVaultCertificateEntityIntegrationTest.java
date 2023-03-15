@@ -52,7 +52,7 @@ class KeyVaultCertificateEntityIntegrationTest {
     }
 
     @Test
-    void testImportConstructorShouldOverrideCertificatePolicyDataWhenProvided() {
+    void testImportConstructorShouldIgnoreMismatchInCertificatePolicyDataWhenProvided() {
         //given
         final String certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsBase64String("/cert/rsa.p12"));
         final String expectedSubject = "CN=example.com";
@@ -78,13 +78,21 @@ class KeyVaultCertificateEntityIntegrationTest {
 
         //then
         Assertions.assertEquals(certificate, actual.getCertificate());
-        Assertions.assertEquals(expectedSubject, actual.getPolicy().getSubject());
-        Assertions.assertIterableEquals(Set.of(expectedSan), actual.getPolicy().getDnsNames());
-        Assertions.assertIterableEquals(Set.of(), actual.getPolicy().getIps());
-        Assertions.assertIterableEquals(Set.of(), actual.getPolicy().getEmails());
-        Assertions.assertIterableEquals(Set.of(), actual.getPolicy().getExtendedKeyUsage());
-        Assertions.assertIterableEquals(Set.of(KeyUsageEnum.ENCIPHER_ONLY), actual.getPolicy().getKeyUsage());
-        Assertions.assertEquals(TWO_YEARS_IN_MONTHS, actual.getPolicy().getValidityMonths());
+        final ReadOnlyCertificatePolicy originalPolicy = actual.getOriginalCertificatePolicy();
+        Assertions.assertEquals("CN=localhost", originalPolicy.getSubject());
+        Assertions.assertIterableEquals(
+                new TreeSet<>(Set.of("localhost", "127.0.0.1")),
+                new TreeSet<>(originalPolicy.getDnsNames()));
+        Assertions.assertIterableEquals(Set.of(), originalPolicy.getUpns());
+        Assertions.assertIterableEquals(Set.of(), originalPolicy.getEmails());
+        Assertions.assertIterableEquals(
+                new TreeSet<>(Set.of("1.3.6.1.5.5.7.3.1", "1.3.6.1.5.5.7.3.2")),
+                new TreeSet<>(originalPolicy.getExtendedKeyUsage()));
+        Assertions.assertIterableEquals(
+                new TreeSet<>(Set.of(KeyUsageEnum.KEY_ENCIPHERMENT, KeyUsageEnum.DIGITAL_SIGNATURE)),
+                new TreeSet<>(originalPolicy.getKeyUsage()));
+        Assertions.assertEquals(THIRTY_YEARS_IN_MONTHS, originalPolicy.getValidityMonths());
+        Assertions.assertNotNull(actual.getOriginalCertificateContents());
     }
 
     @Test
@@ -237,12 +245,12 @@ class KeyVaultCertificateEntityIntegrationTest {
 
         //then
         Assertions.assertEquals(certificate, actual.getCertificate());
-        final ReadOnlyCertificatePolicy originalPolicy = actual.getOriginalCertificateData();
+        final ReadOnlyCertificatePolicy originalPolicy = actual.getOriginalCertificatePolicy();
         Assertions.assertEquals("CN=localhost", originalPolicy.getSubject());
         Assertions.assertIterableEquals(
                 new TreeSet<>(Set.of("localhost", "127.0.0.1")),
                 new TreeSet<>(originalPolicy.getDnsNames()));
-        Assertions.assertIterableEquals(Set.of(), originalPolicy.getIps());
+        Assertions.assertIterableEquals(Set.of(), originalPolicy.getUpns());
         Assertions.assertIterableEquals(Set.of(), originalPolicy.getEmails());
         Assertions.assertIterableEquals(
                 new TreeSet<>(Set.of("1.3.6.1.5.5.7.3.1", "1.3.6.1.5.5.7.3.2")),
@@ -275,8 +283,8 @@ class KeyVaultCertificateEntityIntegrationTest {
         final KeyVaultCertificateEntity actual = new KeyVaultCertificateEntity(CERT_NAME_1, input, vault);
 
         //then
-        final ReadOnlyCertificatePolicy currentPolicy = actual.getPolicy();
-        final ReadOnlyCertificatePolicy originalPolicy = actual.getOriginalCertificateData();
+        final ReadOnlyCertificatePolicy currentPolicy = actual.getIssuancePolicy();
+        final ReadOnlyCertificatePolicy originalPolicy = actual.getOriginalCertificatePolicy();
         Assertions.assertEquals(currentPolicy, originalPolicy);
         Assertions.assertNotNull(actual.getOriginalCertificateContents());
     }

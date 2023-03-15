@@ -54,26 +54,6 @@ public class CertificateController extends CommonCertificateController {
     }
 
     @Override
-    @GetMapping(value = "/certificates/{certificateName}/pending",
-            params = API_VERSION_7_3,
-            produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<KeyVaultPendingCertificateModel> pendingCreate(
-            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
-            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
-        return super.pendingCreate(certificateName, baseUri);
-    }
-
-    @Override
-    @DeleteMapping(value = "/certificates/{certificateName}/pending",
-            params = API_VERSION_7_3,
-            produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<KeyVaultPendingCertificateModel> pendingDelete(
-            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
-            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
-        return super.pendingDelete(certificateName, baseUri);
-    }
-
-    @Override
     @PostMapping(value = "/certificates/{certificateName}/import",
             params = API_VERSION_7_3,
             consumes = APPLICATION_JSON_VALUE,
@@ -93,16 +73,6 @@ public class CertificateController extends CommonCertificateController {
             @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
             @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
         return super.get(certificateName, baseUri);
-    }
-
-    @Override
-    @GetMapping(value = "/certificates/{certificateName}/policy",
-            params = API_VERSION_7_3,
-            produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<CertificatePolicyModel> getPolicy(
-            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
-            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
-        return super.getPolicy(certificateName, baseUri);
     }
 
     @Override

@@ -1,7 +1,10 @@
 package com.github.nagyesta.lowkeyvault.service.certificate.impl;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRequest;
-import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.*;
+import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificateKeyModel;
+import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificateLifetimeActionModel;
+import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificatePolicyModel;
+import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.IssuerParameterModel;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateCreationInput.CertificateCreationInputBuilder;
 import com.github.nagyesta.lowkeyvault.service.certificate.util.ParserUtil;
 import lombok.Data;
@@ -41,19 +44,25 @@ public class CertificateImportInput {
         this.policyModel = policyModel;
         this.parsedCertificateData = parsedInputBuilder(name, contentType, certificate, keyData, policyModel).build();
         this.certificateData = mergePolicies(this.parsedCertificateData, policyModel);
+        final CertAuthorityType certAuthorityType = Optional.ofNullable(policyModel.getIssuer())
+                .map(IssuerParameterModel::getIssuer)
+                .map(CertAuthorityType::byValue)
+                .orElse(CertAuthorityType.UNKNOWN);
         final int validityMonths = certificateData.getValidityMonths();
         Optional.ofNullable(policyModel.getLifetimeActions())
-                .ifPresent(actions -> validateLifetimeActionList(validityMonths, actions));
+                .ifPresent(actions -> validateLifetimeActionList(validityMonths, actions, certAuthorityType));
     }
 
-    private static void validateLifetimeActionList(final int validityMonths, final List<CertificateLifetimeActionModel> actions) {
+    private static void validateLifetimeActionList(
+            final int validityMonths, final List<CertificateLifetimeActionModel> actions, final CertAuthorityType certAuthorityType) {
         Assert.isTrue(actions.size() < 2, "Only 0 or 1 lifetime actions are allowed.");
-        actions.forEach(a -> validateAction(validityMonths, a));
+        actions.forEach(a -> validateAction(validityMonths, a, certAuthorityType));
     }
 
-    private static void validateAction(final int validityMonths, final CertificateLifetimeActionModel actionModel) {
-        Assert.isTrue(actionModel.getAction() == EMAIL_CONTACTS,
-                "Only EmailContacts action allowed for imported certificates.");
+    private static void validateAction(
+            final int validityMonths, final CertificateLifetimeActionModel actionModel, final CertAuthorityType certAuthorityType) {
+        Assert.isTrue(certAuthorityType == CertAuthorityType.SELF_SIGNED || actionModel.getAction() == EMAIL_CONTACTS,
+                "Only EmailContacts action allowed for imported certificates with UNKNOWN issuer.");
         actionModel.getTrigger().validate(validityMonths);
     }
 
@@ -82,8 +91,6 @@ public class CertificateImportInput {
         final CertificatePolicy policy = new CertificatePolicy(parsedCertificateData);
         Optional.ofNullable(policyModel.getKeyProperties())
                 .ifPresent(overrideKeyProperties(policy));
-        Optional.ofNullable(policyModel.getX509Properties())
-                .ifPresent(overrideX509Properties(policy));
         return policy;
     }
 
@@ -92,19 +99,6 @@ public class CertificateImportInput {
             Optional.ofNullable(k.getKeyType()).ifPresent(policy::setKeyType);
             Optional.ofNullable(k.getKeyCurveName()).ifPresent(policy::setKeyCurveName);
             Optional.ofNullable(k.getKeySize()).ifPresent(policy::setKeySize);
-        };
-    }
-
-    private static Consumer<X509CertificateModel> overrideX509Properties(final CertificatePolicy policy) {
-        return x -> {
-            Optional.ofNullable(x.getSubject()).ifPresent(policy::setSubject);
-            final Optional<SubjectAlternativeNames> subjectAlternativeNames = Optional.ofNullable(x.getSubjectAlternativeNames());
-            subjectAlternativeNames.map(SubjectAlternativeNames::getDnsNames).ifPresent(policy::setDnsNames);
-            subjectAlternativeNames.map(SubjectAlternativeNames::getUpns).ifPresent(policy::setIps);
-            subjectAlternativeNames.map(SubjectAlternativeNames::getEmails).ifPresent(policy::setEmails);
-            Optional.ofNullable(x.getValidityMonths()).ifPresent(policy::setValidityMonths);
-            Optional.ofNullable(x.getKeyUsage()).ifPresent(policy::setKeyUsage);
-            Optional.ofNullable(x.getExtendedKeyUsage()).ifPresent(policy::setExtendedKeyUsage);
         };
     }
 

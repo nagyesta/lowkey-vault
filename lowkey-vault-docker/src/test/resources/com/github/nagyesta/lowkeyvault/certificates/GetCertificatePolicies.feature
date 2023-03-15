@@ -7,6 +7,8 @@ Feature: Get certificate policy
         And a certificate named <certName> is imported from the resource named <fileName> covering <subject> using a lifetime action
         When the certificate policy named <certName> is downloaded
         Then the downloaded certificate policy has <validity> months validity
+        And the downloaded certificate policy has keyEncipherment and digitalSignature as key usages
+        And the downloaded certificate policy has 1.3.6.1.5.5.7.3.1 and 1.3.6.1.5.5.7.3.2 as enhanced key usages
         And the downloaded certificate policy has <subject> as subject
         And the lifetime action triggers EmailContacts when 80 percent lifetime reached
 

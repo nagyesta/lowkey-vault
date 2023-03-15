@@ -1,9 +1,6 @@
 package com.github.nagyesta.lowkeyvault.steps;
 
-import com.azure.security.keyvault.certificates.models.CertificateContentType;
-import com.azure.security.keyvault.certificates.models.CertificateKeyCurveName;
-import com.azure.security.keyvault.certificates.models.CertificatePolicyAction;
-import com.azure.security.keyvault.certificates.models.SubjectAlternativeNames;
+import com.azure.security.keyvault.certificates.models.*;
 import com.azure.security.keyvault.keys.cryptography.models.EncryptionAlgorithm;
 import com.azure.security.keyvault.keys.cryptography.models.SignatureAlgorithm;
 import com.azure.security.keyvault.keys.models.KeyCurveName;
@@ -19,6 +16,10 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ParameterTypeDefs {
+
+    private static final String KEY_USAGES =
+            "(digitalSignature|nonRepudiation|(key|data)Encipherment|keyAgreement|(keyCert|cRL)Sign|(encipher|decipher)Only)";
+    private static final String ENHANCED_KEY_USAGES = "([0-9](\\.[0-9]){8})";
 
     @ParameterType("(null|(.+:.+)(,.+:.+)*)")
     public Map<String, String> tagMap(final String map) {
@@ -74,7 +75,7 @@ public class ParameterTypeDefs {
 
     @ParameterType("([0-9]{4}-[0-9]{2}-[0-9]{2})")
     public OffsetDateTime expiry(final String date) throws ParseException {
-        return OffsetDateTime.parse(date+"T00:00:00+00:00", DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+        return OffsetDateTime.parse(date + "T00:00:00+00:00", DateTimeFormatter.ISO_OFFSET_DATE_TIME);
     }
 
     @ParameterType("[0-9a-zA-Z\\-_]+")
@@ -151,6 +152,16 @@ public class ParameterTypeDefs {
     @ParameterType("(EmailContacts|AutoRenew)")
     public CertificatePolicyAction certAction(final String action) {
         return CertificatePolicyAction.fromString(action);
+    }
+
+    @ParameterType(KEY_USAGES)
+    public CertificateKeyUsage keyUsage(final String rawString) {
+        return CertificateKeyUsage.fromString(rawString);
+    }
+
+    @ParameterType(ENHANCED_KEY_USAGES)
+    public String enhancedKeyUsage(final String rawString) {
+        return rawString;
     }
 
     @ParameterType("(enabled|not enabled)")

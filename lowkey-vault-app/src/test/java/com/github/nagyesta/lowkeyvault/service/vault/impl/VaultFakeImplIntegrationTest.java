@@ -7,9 +7,8 @@ import com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeAc
 import com.github.nagyesta.lowkeyvault.service.certificate.CertificateVaultFake;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
-import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertContentType;
-import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateCreationInput;
-import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateLifetimeActionPolicy;
+import com.github.nagyesta.lowkeyvault.service.certificate.impl.*;
+import com.github.nagyesta.lowkeyvault.service.secret.impl.KeyVaultSecretEntity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -78,6 +77,46 @@ class VaultFakeImplIntegrationTest {
         assertTimestampsAreAdjustedAsExpected(approxNow, secondRenewal, DAYS.between(secondRenewalDay, approxNow));
         Assertions.assertNotEquals(recreatedOriginal.getKid(), firstRenewal.getKid());
         Assertions.assertNotEquals(recreatedOriginal.getKid(), secondRenewal.getKid());
+    }
+
+    @Test
+    void testTimeShiftShouldCreateNewVersionsWhenAutoRotateIsTriggeredWithDifferentContentTypeInIssuancePolicy() {
+        //given
+        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
+        final CertificateVaultFake certificateVaultFake = underTest.certificateVaultFake();
+        final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+        final OffsetDateTime approxNow = now.plusMinutes(1);
+        final VersionedCertificateEntityId originalCertId = certificateVaultFake
+                .createCertificateVersion(CERT_NAME_1, CertificateCreationInput.builder()
+                        .contentType(CertContentType.PKCS12)
+                        .name(CERT_NAME_1)
+                        .keyType(KeyType.EC)
+                        .validityStart(approxNow)
+                        .validityMonths(DEFAULT_VALIDITY_MONTHS)
+                        .keyCurveName(KeyCurveName.P_521)
+                        .subject("CN=localhost")
+                        .build());
+        final int triggerThresholdDays = 1;
+        certificateVaultFake.setLifetimeActionPolicy(new CertificateLifetimeActionPolicy(
+                originalCertId, Map.of(AUTO_RENEW, new CertificateLifetimeActionTrigger(DAYS_BEFORE_EXPIRY, triggerThresholdDays))
+        ));
+        final CertificatePolicy issuancePolicy = certificateVaultFake.getEntities()
+                .getEntity(originalCertId, KeyVaultCertificateEntity.class)
+                .getMutableIssuancePolicy();
+        issuancePolicy.setContentType(CertContentType.PEM);
+
+        //when
+        underTest.timeShift(SECONDS_IN_800_DAYS, true);
+
+        //then
+        final Deque<String> versions = underTest.certificateVaultFake().getEntities().getVersions(originalCertId);
+        final List<ReadOnlyKeyVaultCertificateEntity> entities = versions.stream()
+                .map(v -> new VersionedCertificateEntityId(originalCertId.vault(), originalCertId.id(), v))
+                .map(certificateVaultFake.getEntities()::getReadOnlyEntity)
+                .collect(Collectors.toList());
+        Assertions.assertEquals(EXPECTED_VERSIONS_AFTER_RENEWAL, entities.size());
+        assertRenewalUsedPem(underTest, entities.get(1));
+        assertRenewalUsedPem(underTest, entities.get(2));
     }
 
     @Test
@@ -187,6 +226,14 @@ class VaultFakeImplIntegrationTest {
         //then
         final Deque<String> versions = underTest.certificateVaultFake().getDeletedEntities().getVersions(originalCertId);
         Assertions.assertIterableEquals(Set.of(originalCertId.version()), versions);
+    }
+
+    private static void assertRenewalUsedPem(final VaultFakeImpl underTest, final ReadOnlyKeyVaultCertificateEntity certificateEntity) {
+        Assertions.assertEquals(CertContentType.PEM, certificateEntity.getOriginalCertificatePolicy().getContentType());
+        final KeyVaultSecretEntity secretEntity = underTest.secretVaultFake().getEntities()
+                .getEntity(certificateEntity.getSid(), KeyVaultSecretEntity.class);
+        Assertions.assertEquals(CertContentType.PEM.getMimeType(), secretEntity.getContentType());
+        Assertions.assertNotNull(CertContentType.PEM.getCertificateChain(secretEntity.getValue(), ""));
     }
 
     private static void assertTimestampsAreAdjustedAsExpected(

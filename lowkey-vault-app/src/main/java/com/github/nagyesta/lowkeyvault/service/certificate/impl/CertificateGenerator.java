@@ -184,7 +184,7 @@ public class CertificateGenerator {
         final List<GeneralName> dnsNames = Objects.requireNonNullElse(input.getDnsNames(), Collections.<String>emptyList()).stream()
                 .map(dns -> new GeneralName(GeneralName.dNSName, dns))
                 .collect(Collectors.toList());
-        final List<GeneralName> ips = Objects.requireNonNullElse(input.getIps(), Collections.<String>emptyList()).stream()
+        final List<GeneralName> ips = Objects.requireNonNullElse(input.getUpns(), Collections.<String>emptyList()).stream()
                 .map(ip -> new GeneralName(GeneralName.iPAddress, ip))
                 .collect(Collectors.toList());
         final List<GeneralName> subjectAlternativeNames = Stream.of(emails, dnsNames, ips)

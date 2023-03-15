@@ -63,7 +63,7 @@ class CertificateImportInputTest {
         Assertions.assertEquals(KeyCurveName.P_256, actual.getCertificateData().getKeyCurveName());
         Assertions.assertNull(actual.getCertificateData().getKeySize());
         Assertions.assertIterableEquals(Set.of(), actual.getCertificateData().getDnsNames());
-        Assertions.assertIterableEquals(Set.of(), actual.getCertificateData().getIps());
+        Assertions.assertIterableEquals(Set.of(), actual.getCertificateData().getUpns());
         Assertions.assertIterableEquals(Set.of(), actual.getCertificateData().getEmails());
         Assertions.assertEquals(MONTHS_1_YEAR, actual.getCertificateData().getValidityMonths());
         Assertions.assertEquals(CertContentType.PKCS12, actual.getCertificateData().getContentType());
@@ -88,7 +88,7 @@ class CertificateImportInputTest {
         Assertions.assertEquals(KeyCurveName.P_256, actual.getCertificateData().getKeyCurveName());
         Assertions.assertNull(actual.getCertificateData().getKeySize());
         Assertions.assertIterableEquals(Set.of(), actual.getCertificateData().getDnsNames());
-        Assertions.assertIterableEquals(Set.of(), actual.getCertificateData().getIps());
+        Assertions.assertIterableEquals(Set.of(), actual.getCertificateData().getUpns());
         Assertions.assertIterableEquals(Set.of(), actual.getCertificateData().getEmails());
         Assertions.assertEquals(MONTHS_1_YEAR, actual.getCertificateData().getValidityMonths());
         Assertions.assertEquals(CertContentType.PEM, actual.getCertificateData().getContentType());
@@ -98,7 +98,7 @@ class CertificateImportInputTest {
     }
 
     @Test
-    void testConstructorShouldUseValuesFromBothSourcesWhenCalledWithMixedEcDataUsingPem() throws CertificateParsingException {
+    void testConstructorShouldUseValuesFromParsedCertOnlyWhenCalledWithMixedEcDataUsingPem() throws CertificateParsingException {
         //given
         final String certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsString("/cert/ec.pem"));
 
@@ -133,16 +133,16 @@ class CertificateImportInputTest {
 
         //then
         Assertions.assertEquals(CERT_NAME_1, actual.getCertificateData().getName());
-        Assertions.assertEquals(CN_ALT_EC_LOCALHOST, actual.getCertificateData().getSubject());
+        Assertions.assertEquals(CN_EC_LOCALHOST, actual.getCertificateData().getSubject());
         Assertions.assertEquals(KeyType.EC_HSM, actual.getCertificateData().getKeyType());
         Assertions.assertEquals(KeyCurveName.P_256K, actual.getCertificateData().getKeyCurveName());
         Assertions.assertNull(actual.getCertificateData().getKeySize());
-        Assertions.assertIterableEquals(Set.of(DNS_WILDCARD_LOCALHOST), actual.getCertificateData().getDnsNames());
-        Assertions.assertIterableEquals(Set.of(IP_LOCALHOST), actual.getCertificateData().getIps());
-        Assertions.assertIterableEquals(Set.of(EMAIL_JOHN_DOE), actual.getCertificateData().getEmails());
-        Assertions.assertIterableEquals(Set.of(KeyUsageEnum.ENCIPHER_ONLY), actual.getCertificateData().getKeyUsage());
-        Assertions.assertIterableEquals(Set.of(EKU_1), actual.getCertificateData().getExtendedKeyUsage());
-        Assertions.assertEquals(MONTHS_10_YEARS, actual.getCertificateData().getValidityMonths());
+        Assertions.assertIterableEquals(Set.of(), actual.getCertificateData().getDnsNames());
+        Assertions.assertIterableEquals(Set.of(), actual.getCertificateData().getUpns());
+        Assertions.assertIterableEquals(Set.of(), actual.getCertificateData().getEmails());
+        Assertions.assertIterableEquals(Set.of(), actual.getCertificateData().getKeyUsage());
+        Assertions.assertIterableEquals(Set.of(), actual.getCertificateData().getExtendedKeyUsage());
+        Assertions.assertEquals(MONTHS_1_YEAR, actual.getCertificateData().getValidityMonths());
         Assertions.assertEquals(CertContentType.PEM, actual.getCertificateData().getContentType());
         Assertions.assertTrue(actual.getCertificateData().isReuseKeyOnRenewal());
         Assertions.assertTrue(actual.getCertificateData().isExportablePrivateKey());

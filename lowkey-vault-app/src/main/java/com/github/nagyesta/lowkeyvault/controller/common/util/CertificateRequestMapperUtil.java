@@ -12,6 +12,8 @@ import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateCreationInput.*;
+
 public final class CertificateRequestMapperUtil {
     private CertificateRequestMapperUtil() {
         throw new IllegalCallerException("Utility cannot be instantiated.");
@@ -28,7 +30,7 @@ public final class CertificateRequestMapperUtil {
         //no need to set expiry, the generation should take care of it based on the X509 properties
         certificateVaultFake.setEnabled(certificateEntityId, properties.isEnabled());
         //no need to set managed property as this endpoint cannot create managed entities by definition
-        setLifetimeActions(certificateVaultFake, request.getPolicy(), certificateEntityId);
+        setLifetimeActions(certificateVaultFake, request.getPolicy(), certificateEntityId, CertAuthorityType.SELF_SIGNED);
         return certificateEntityId;
     }
 
@@ -42,8 +44,10 @@ public final class CertificateRequestMapperUtil {
         //no need to set expiry, the generation should take care of it based on the X509 properties
         certificateVaultFake.setEnabled(certificateEntityId, properties.isEnabled());
         //no need to set managed property as this endpoint cannot create managed entities by definition
-        Optional.ofNullable(request.getPolicy())
-                .ifPresent(policyModel -> setLifetimeActions(certificateVaultFake, policyModel, certificateEntityId));
+        final CertAuthorityType certAuthorityType = certificateVaultFake.getEntities()
+                .getReadOnlyEntity(certificateEntityId).getOriginalCertificatePolicy().getCertAuthorityType();
+        final CertificatePolicyModel policyModel = Objects.requireNonNullElse(request.getPolicy(), new CertificatePolicyModel());
+        setLifetimeActions(certificateVaultFake, policyModel, certificateEntityId, certAuthorityType);
         return certificateEntityId;
     }
 
@@ -53,7 +57,7 @@ public final class CertificateRequestMapperUtil {
 
     private static void validateLifetimeActions(final CertificatePolicyModel policy) {
         final Integer validityMonths = Objects.requireNonNullElse(policy.getX509Properties().getValidityMonths(),
-                CertificateCreationInput.DEFAULT_VALIDITY_MONTHS);
+                DEFAULT_VALIDITY_MONTHS);
         Optional.ofNullable(policy.getLifetimeActions())
                 .ifPresent(actions -> actions.forEach(a -> a.getTrigger().validate(validityMonths)));
     }
@@ -61,10 +65,12 @@ public final class CertificateRequestMapperUtil {
     private static void setLifetimeActions(
             final CertificateVaultFake certificateVaultFake,
             final CertificatePolicyModel policy,
-            final VersionedCertificateEntityId certificateEntityId) {
-        Optional.ofNullable(policy.getLifetimeActions())
-                .ifPresent(actions -> certificateVaultFake.setLifetimeActionPolicy(
-                        new CertificateLifetimeActionPolicy(certificateEntityId, convertActivityMap(actions))));
+            final VersionedCertificateEntityId certificateEntityId,
+            final CertAuthorityType certAuthorityType) {
+        final CertificateLifetimeActionPolicy lifetimeActionPolicy = Optional.ofNullable(policy.getLifetimeActions())
+                .map(actions -> new CertificateLifetimeActionPolicy(certificateEntityId, convertActivityMap(actions)))
+                .orElse(new DefaultCertificateLifetimeActionPolicy(certificateEntityId, certAuthorityType));
+        certificateVaultFake.setLifetimeActionPolicy(lifetimeActionPolicy);
     }
 
     private static Map<CertificateLifetimeActionActivity, CertificateLifetimeActionTrigger> convertActivityMap(
@@ -85,11 +91,10 @@ public final class CertificateRequestMapperUtil {
                 .subject(x509Properties.getSubject())
                 .dnsNames(Objects.requireNonNullElse(x509Properties.getSubjectAlternativeNames().getDnsNames(), Set.of()))
                 .emails(Objects.requireNonNullElse(x509Properties.getSubjectAlternativeNames().getEmails(), Set.of()))
-                .ips(Objects.requireNonNullElse(x509Properties.getSubjectAlternativeNames().getUpns(), Set.of()))
-                .keyUsage(Objects.requireNonNullElse(x509Properties.getKeyUsage(), Set.of()))
-                .extendedKeyUsage(Objects.requireNonNullElse(x509Properties.getExtendedKeyUsage(), Set.of()))
-                .validityMonths(
-                        Objects.requireNonNullElse(x509Properties.getValidityMonths(), CertificateCreationInput.DEFAULT_VALIDITY_MONTHS))
+                .upns(Objects.requireNonNullElse(x509Properties.getSubjectAlternativeNames().getUpns(), Set.of()))
+                .keyUsage(Objects.requireNonNullElse(x509Properties.getKeyUsage(), DEFAULT_KEY_USAGES))
+                .extendedKeyUsage(Objects.requireNonNullElse(x509Properties.getExtendedKeyUsage(), DEFAULT_EXT_KEY_USAGES))
+                .validityMonths(Objects.requireNonNullElse(x509Properties.getValidityMonths(), DEFAULT_VALIDITY_MONTHS))
                 .validityStart(OffsetDateTime.now())
                 //issuer
                 .certificateType(issuer.getCertType())

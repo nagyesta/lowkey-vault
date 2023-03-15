@@ -39,7 +39,7 @@ public interface ReadOnlyCertificatePolicy {
 
     Set<String> getEmails();
 
-    Set<String> getIps();
+    Set<String> getUpns();
 
     int getValidityMonths();
 

@@ -6,7 +6,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 
+import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Stream;
@@ -50,6 +52,11 @@ class KeyUsageEnumTest {
                 .build();
     }
 
+    public static Stream<Arguments> byValueProvider() {
+        return Arrays.stream(KeyUsageEnum.values())
+                .map(e -> Arguments.of(e.getValue(), e));
+    }
+
     @Test
     void testCombiningItemsShouldCreateSingleKeyUsageWhenCalledForValidSetOfUsages() {
         //given
@@ -74,5 +81,28 @@ class KeyUsageEnumTest {
 
         //then
         Assertions.assertIterableEquals(new TreeSet<>(expected), new TreeSet<>(actual));
+    }
+
+    @ParameterizedTest
+    @MethodSource("byValueProvider")
+    void testByValueShouldFindSelectedEnumWhenCalledWithValidData(final String input, final KeyUsageEnum expected) {
+        //given
+
+        //when
+        final KeyUsageEnum actual = KeyUsageEnum.byValue(input);
+
+        //then
+        Assertions.assertEquals(expected, actual);
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    void testByValueShouldThrowExceptionWhenCalledWithInvalidData(final String input) {
+        //given
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> KeyUsageEnum.byValue(input));
+
+        //then + exception
     }
 }

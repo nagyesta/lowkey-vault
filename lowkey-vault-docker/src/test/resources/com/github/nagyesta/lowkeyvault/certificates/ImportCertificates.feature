@@ -11,6 +11,7 @@ Feature: Certificate import
         And the downloaded <type> certificate store expires on <expiry>
         And the downloaded <type> certificate store has a certificate with <subject> as subject
         And the downloaded <type> certificate store content matches store from <fileName> using <password> as password
+        And the lifetime action triggers AutoRenew when 80 percent lifetime reached
 
         Examples:
             | api | certName                 | fileName            | password | type   | subject        | expiry     |
@@ -30,6 +31,7 @@ Feature: Certificate import
         And the downloaded <type> certificate store expires on <expiry>
         And the downloaded <type> certificate store has a certificate with <subject> as subject
         And the downloaded <type> certificate store content matches store from <fileName> using <password> as password
+        And the lifetime action triggers AutoRenew when 80 percent lifetime reached
 
         Examples:
             | api | certName           | fileName               | password | type   | subject         | expiry     |

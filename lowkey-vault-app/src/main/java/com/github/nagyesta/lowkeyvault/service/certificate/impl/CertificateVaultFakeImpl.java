@@ -74,14 +74,14 @@ public class CertificateVaultFakeImpl
         final VersionedCertificateEntityId latestVersionOfEntity = getEntities().getLatestVersionOfEntity(certificateEntityId);
         final ReadOnlyKeyVaultCertificateEntity readOnlyEntity = getEntities().getReadOnlyEntity(latestVersionOfEntity);
         final Function<OffsetDateTime, OffsetDateTime> createdToExpiryFunction = s -> s
-                .plusMonths(readOnlyEntity.getPolicy().getValidityMonths());
+                .plusMonths(readOnlyEntity.getIssuancePolicy().getValidityMonths());
         lifetimeActionPolicy.missedRenewalDays(readOnlyEntity.getCreated(), createdToExpiryFunction)
                 .forEach(renewalTime -> simulatePointInTimeRotation(certificateEntityId, renewalTime));
     }
 
     private void simulatePointInTimeRotation(final CertificateEntityId certificateEntityId, final OffsetDateTime renewalTime) {
         final ReadOnlyKeyVaultCertificateEntity latest = latestReadOnlyCertificateVersion(certificateEntityId);
-        final CertificatePolicy input = new CertificatePolicy(latest.getPolicy());
+        final CertificatePolicy input = new CertificatePolicy(latest.getIssuancePolicy());
         input.setValidityStart(renewalTime);
         final VersionedKeyEntityId kid = rotateIfNeededAndGetLastKeyId(input);
         final VersionedCertificateEntityId id = generateIdOfNewCertificateEntity(input, kid);
@@ -152,7 +152,7 @@ public class CertificateVaultFakeImpl
     @Override
     public void setLifetimeActionPolicy(@NonNull final LifetimeActionPolicy lifetimeActionPolicy) {
         final ReadOnlyKeyVaultCertificateEntity readOnlyEntity = latestReadOnlyCertificateVersion(lifetimeActionPolicy.getId());
-        lifetimeActionPolicy.validate(readOnlyEntity.getPolicy().getValidityMonths());
+        lifetimeActionPolicy.validate(readOnlyEntity.getIssuancePolicy().getValidityMonths());
         final LifetimeActionPolicy existingPolicy = lifetimeActionPolicy(lifetimeActionPolicy.getId());
         if (existingPolicy == null) {
             lifetimeActionPolicies.put(lifetimeActionPolicy.getId().id(), lifetimeActionPolicy);

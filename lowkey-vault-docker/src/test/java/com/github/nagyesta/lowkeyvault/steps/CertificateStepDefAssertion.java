@@ -175,6 +175,26 @@ public class CertificateStepDefAssertion extends CommonAssertions {
         }
     }
 
+    @And("the downloaded certificate policy has {keyUsage} and {keyUsage} as key usages")
+    public void theDownloadedCertificatePolicyHasKeyUsagesAsKeyUsages(
+            final CertificateKeyUsage keyUsage1, final CertificateKeyUsage keyUsage2) {
+        final List<CertificateKeyUsage> expected = List.of(keyUsage1, keyUsage2);
+        final List<CertificateKeyUsage> actual = context.getDownloadedPolicy().getKeyUsage();
+        assertEquals(expected.size(), actual.size());
+        expected.forEach(k ->
+                assertTrue("Key usage not found: " + k + " in list: " + actual, actual.contains(k)));
+    }
+
+    @And("the downloaded certificate policy has {enhancedKeyUsage} and {enhancedKeyUsage} as enhanced key usages")
+    public void theDownloadedCertificatePolicyHasExtendedKeyUsagesAsKeyUsages(
+            final String enhancedKeyUsage1, final String enhancedKeyUsage2) {
+        final List<String> expected = List.of(enhancedKeyUsage1, enhancedKeyUsage2);
+        final List<String> actual = context.getDownloadedPolicy().getEnhancedKeyUsage();
+        assertEquals(expected.size(), actual.size());
+        expected.forEach(k ->
+                assertTrue("Enhanced key usage not found: " + k + " in list: " + actual, actual.contains(k)));
+    }
+
     private PrivateKey getKeyFromPem(final byte[] content, final X509Certificate certificate) throws CryptoException {
         try {
             final KeyFactory kf = KeyFactory.getInstance(certificate.getPublicKey().getAlgorithm(), KeyGenUtil.BOUNCY_CASTLE_PROVIDER);

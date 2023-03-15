@@ -35,11 +35,10 @@ public class KeyVaultCertificateEntity
     private final VersionedCertificateEntityId id;
     private final VersionedKeyEntityId kid;
     private final VersionedSecretEntityId sid;
-
     private X509Certificate certificate;
-    private ReadOnlyCertificatePolicy originalCertificateData;
+    private ReadOnlyCertificatePolicy originalCertificatePolicy;
     private final String originalCertificateContents;
-    private final CertificatePolicy policy;
+    private final CertificatePolicy issuancePolicy;
     private PKCS10CertificationRequest csr;
 
     /**
@@ -61,7 +60,8 @@ public class KeyVaultCertificateEntity
                 "Key must not exist to be able to store certificate data in it. " + kid.asUriNoVersion(vault.baseUri()));
         Assert.state(!vault.secretVaultFake().getEntities().containsName(sid.id()),
                 "Secret must not exist to be able to store certificate data in it. " + sid.asUriNoVersion(vault.baseUri()));
-        this.policy = new CertificatePolicy(input);
+        this.issuancePolicy = new CertificatePolicy(input);
+        this.originalCertificatePolicy = new CertificatePolicy(input);
         this.kid = generateKeyPair(input, vault);
         //reuse the generated key version to produce matching version numbers in all keys
         this.id = new VersionedCertificateEntityId(vault.baseUri(), name, this.kid.version());
@@ -69,15 +69,9 @@ public class KeyVaultCertificateEntity
         this.certificate = certificateGenerator.generateCertificate(input);
         this.csr = certificateGenerator.generateCertificateSigningRequest(name, this.certificate);
         final VersionedSecretEntityId secretEntityId = new VersionedSecretEntityId(vault.baseUri(), input.getName(), this.kid.version());
-        this.sid = generateSecret(this.policy, vault, this.certificate, this.kid, secretEntityId);
-        this.setNotBefore(input.getValidityStart());
-        this.setExpiry(input.getValidityStart().plusMonths(input.getValidityMonths()));
-        this.setEnabled(true);
+        this.sid = generateSecret(this.originalCertificatePolicy, vault, this.certificate, this.kid, secretEntityId);
         this.originalCertificateContents = vault.secretVaultFake().getEntities().getReadOnlyEntity(this.sid).getValue();
-        this.originalCertificateData = new CertificatePolicy(input);
-        //update timestamps of certificate as the constructor can run for more than a second
-        this.setCreatedOn(now());
-        this.setUpdatedOn(now());
+        normalizeCoreTimeStamps(input, now());
     }
 
 
@@ -108,7 +102,8 @@ public class KeyVaultCertificateEntity
                 "Key must not exist to be able to store certificate data in it. " + kid.asUriNoVersion(vault.baseUri()));
         Assert.state(!vault.secretVaultFake().getEntities().containsName(sid.id()),
                 "Secret must not exist to be able to store certificate data in it. " + sid.asUriNoVersion(vault.baseUri()));
-        this.policy = new CertificatePolicy(policy);
+        this.issuancePolicy = new CertificatePolicy(policy);
+        this.originalCertificatePolicy = new CertificatePolicy(originalCertificateData);
         this.kid = importKeyPair(policy, keyImportRequest, vault);
         //reuse the generated key version to produce matching version numbers in all keys
         this.id = new VersionedCertificateEntityId(vault.baseUri(), name, this.kid.version());
@@ -116,15 +111,9 @@ public class KeyVaultCertificateEntity
         this.certificate = certificate;
         this.csr = certificateGenerator.generateCertificateSigningRequest(name, this.certificate);
         final VersionedSecretEntityId secretEntityId = new VersionedSecretEntityId(vault.baseUri(), input.getName(), this.kid.version());
-        this.sid = generateSecret(this.policy, vault, this.certificate, this.kid, secretEntityId);
-        this.setNotBefore(policy.getValidityStart());
-        this.setExpiry(policy.getValidityStart().plusMonths(policy.getValidityMonths()));
-        this.setEnabled(true);
+        this.sid = generateSecret(this.originalCertificatePolicy, vault, this.certificate, this.kid, secretEntityId);
         this.originalCertificateContents = vault.secretVaultFake().getEntities().getReadOnlyEntity(this.sid).getValue();
-        this.originalCertificateData = new CertificatePolicy(originalCertificateData);
-        //update timestamps of certificate as the constructor can run for more than a second
-        this.setCreatedOn(now());
-        this.setUpdatedOn(now());
+        normalizeCoreTimeStamps(policy, now());
     }
 
     /**
@@ -144,7 +133,8 @@ public class KeyVaultCertificateEntity
                 "Key must exist to be able to renew certificate using it. " + kid.asUriNoVersion(vault.baseUri()));
         Assert.state(vault.secretVaultFake().getEntities().containsName(input.getName()),
                 "A version of the Secret must exist to be able to generate a new version using name: " + input.getName());
-        this.policy = new CertificatePolicy(input);
+        this.issuancePolicy = new CertificatePolicy(input);
+        this.originalCertificatePolicy = new CertificatePolicy(input);
         this.kid = kid;
         //use the provided id, it might be different from the key id in case the key is reused.
         this.id = id;
@@ -152,16 +142,9 @@ public class KeyVaultCertificateEntity
         this.certificate = certificateGenerator.generateCertificate(input);
         this.csr = certificateGenerator.generateCertificateSigningRequest(input.getName(), this.certificate);
         final VersionedSecretEntityId secretEntityId = new VersionedSecretEntityId(vault.baseUri(), input.getName(), id.version());
-        this.sid = generateSecret(this.policy, vault, this.certificate, this.kid, secretEntityId);
-        this.setNotBefore(input.getValidityStart());
-        final OffsetDateTime expiry = input.getValidityStart().plusMonths(input.getValidityMonths());
-        this.setExpiry(expiry);
-        this.setEnabled(true);
+        this.sid = generateSecret(this.originalCertificatePolicy, vault, this.certificate, this.kid, secretEntityId);
         this.originalCertificateContents = vault.secretVaultFake().getEntities().getReadOnlyEntity(this.sid).getValue();
-        this.originalCertificateData = new CertificatePolicy(input);
-        //update timestamps of certificate
-        this.setCreatedOn(input.getValidityStart());
-        this.setUpdatedOn(input.getValidityStart());
+        normalizeCoreTimeStamps(input, input.getValidityStart());
     }
 
     private VersionedSecretEntityId generateSecret(final ReadOnlyCertificatePolicy input,
@@ -208,13 +191,18 @@ public class KeyVaultCertificateEntity
     }
 
     @Override
-    public ReadOnlyCertificatePolicy getPolicy() {
-        return policy;
+    public ReadOnlyCertificatePolicy getIssuancePolicy() {
+        return issuancePolicy;
     }
 
     @Override
-    public ReadOnlyCertificatePolicy getOriginalCertificateData() {
-        return originalCertificateData;
+    public CertificatePolicy getMutableIssuancePolicy() {
+        return issuancePolicy;
+    }
+
+    @Override
+    public ReadOnlyCertificatePolicy getOriginalCertificatePolicy() {
+        return originalCertificatePolicy;
     }
 
     @Override
@@ -265,7 +253,7 @@ public class KeyVaultCertificateEntity
         super.timeShift(offsetSeconds);
         //reset expiry as it is measured in months while timeShift is using seconds
         //it is better to stay consistent with the behavior of the certificates
-        this.setExpiry(this.getNotBefore().orElse(this.getCreated()).plusMonths(this.policy.getValidityMonths()));
+        this.setExpiry(this.getNotBefore().orElse(this.getCreated()).plusMonths(this.originalCertificatePolicy.getValidityMonths()));
     }
 
     public void regenerateCertificate(final VaultFake vault) {
@@ -273,13 +261,22 @@ public class KeyVaultCertificateEntity
             log.warn("Deleted certificate is regeneration is skipped for: {}", id);
         } else if (validityStartDateNoLongerAccurate()) {
             log.debug("Regenerating certificate: {}", id);
-            final CertificatePolicy updated = new CertificatePolicy(originalCertificateData);
+            final CertificatePolicy updated = new CertificatePolicy(originalCertificatePolicy);
             updated.setValidityStart(getCreated());
             regenerateCertificateData(vault, updated);
             updateSecretValueWithNewCertificate(vault, updated);
         } else {
             log.debug("Validity start date is still accurate certificate won't be changed: {}", id);
         }
+    }
+
+    private void normalizeCoreTimeStamps(final ReadOnlyCertificatePolicy certPolicy, final OffsetDateTime createOrUpdate) {
+        this.setNotBefore(certPolicy.getValidityStart());
+        this.setExpiry(certPolicy.getValidityStart().plusMonths(certPolicy.getValidityMonths()));
+        this.setEnabled(true);
+        //update timestamps of certificate as the constructor can run for more than a second
+        this.setCreatedOn(createOrUpdate);
+        this.setUpdatedOn(createOrUpdate);
     }
 
     private void updateSecretValueWithNewCertificate(final VaultFake vault, final CertificatePolicy updated) {
@@ -293,7 +290,7 @@ public class KeyVaultCertificateEntity
         final CertificateGenerator certificateGenerator = new CertificateGenerator(vaultFake, this.kid);
         this.certificate = certificateGenerator.generateCertificate(updated);
         this.csr = certificateGenerator.generateCertificateSigningRequest(this.id.id(), this.certificate);
-        this.originalCertificateData = updated;
+        this.originalCertificatePolicy = updated;
     }
 
     private boolean validityStartDateNoLongerAccurate() {

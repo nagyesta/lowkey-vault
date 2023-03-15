@@ -35,7 +35,7 @@ class CertificateCreationInputBuilderTest {
         final CertificateCreationInputBuilder underTest = CertificateCreationInput.builder();
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.ips(null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.upns(null));
 
         //then + exception
     }

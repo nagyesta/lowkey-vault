@@ -12,6 +12,8 @@ Feature: Certificate creation
         And the certificate secret named <certName> is downloaded
         And the downloaded secret contains a <type> certificate
         And the downloaded <type> certificate store has a certificate with <subject> as subject
+        And the last certificate version of <certName> is fetched without providing a version
+        And the lifetime action triggers AutoRenew when 80 percent lifetime reached
 
         Examples:
             | api | hsm     | certName                    | keySize | enabledStatus | type   | subject        |
@@ -36,6 +38,7 @@ Feature: Certificate creation
         And the certificate secret named <certName> is downloaded
         And the downloaded secret contains a <type> certificate
         And the downloaded <type> certificate store has a certificate with <subject> as subject
+        And the lifetime action triggers AutoRenew when 80 percent lifetime reached
 
         Examples:
             | api | hsm     | certName                    | curveName | enabledStatus | type   | subject        |

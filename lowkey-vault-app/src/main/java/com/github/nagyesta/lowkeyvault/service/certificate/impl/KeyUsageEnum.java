@@ -1,5 +1,8 @@
 package com.github.nagyesta.lowkeyvault.service.certificate.impl;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonValue;
 import org.bouncycastle.asn1.x509.KeyUsage;
 
 import java.util.Arrays;
@@ -62,14 +65,17 @@ public enum KeyUsageEnum {
         this.position = position;
     }
 
+    @JsonValue
     public String getValue() {
         return value;
     }
 
+    @JsonIgnore
     public int getCode() {
         return code;
     }
 
+    @JsonIgnore
     public static Set<KeyUsageEnum> parseBitString(final boolean[] usage) {
         final boolean[] bitString = Optional.ofNullable(usage).orElse(new boolean[0]);
         return Arrays.stream(values())
@@ -77,6 +83,15 @@ public enum KeyUsageEnum {
                 .collect(Collectors.toSet());
     }
 
+    @JsonCreator
+    public static KeyUsageEnum byValue(final String usage) {
+        final Optional<KeyUsageEnum> value = Arrays.stream(values())
+                .filter(e -> e.value.equals(usage))
+                .findFirst();
+        return value.orElseThrow(() -> new IllegalArgumentException("Unable to find key usage by value: " + value));
+    }
+
+    @JsonIgnore
     public static Collector<KeyUsageEnum, AtomicInteger, KeyUsage> toKeyUsage() {
         return new MergingKeyUsageCollector();
     }

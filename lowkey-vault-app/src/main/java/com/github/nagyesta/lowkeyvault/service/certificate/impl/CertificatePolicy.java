@@ -16,7 +16,7 @@ public class CertificatePolicy implements ReadOnlyCertificatePolicy {
     private String subject;
     private Set<String> dnsNames;
     private Set<String> emails;
-    private Set<String> ips;
+    private Set<String> upns;
     private int validityMonths;
     private OffsetDateTime validityStart;
     private CertContentType contentType;
@@ -36,7 +36,7 @@ public class CertificatePolicy implements ReadOnlyCertificatePolicy {
         this.subject = source.getSubject();
         this.dnsNames = Set.copyOf(source.getDnsNames());
         this.emails = Set.copyOf(source.getEmails());
-        this.ips = Set.copyOf(source.getIps());
+        this.upns = Set.copyOf(source.getUpns());
         this.validityMonths = source.getValidityMonths();
         this.validityStart = source.getValidityStart();
         this.contentType = source.getContentType();
@@ -59,8 +59,8 @@ public class CertificatePolicy implements ReadOnlyCertificatePolicy {
         this.emails = Set.copyOf(emails);
     }
 
-    public void setIps(@NonNull final Set<String> ips) {
-        this.ips = Set.copyOf(ips);
+    public void setUpns(@NonNull final Set<String> upns) {
+        this.upns = Set.copyOf(upns);
     }
 
     public void setKeyUsage(@NonNull final Set<KeyUsageEnum> keyUsage) {

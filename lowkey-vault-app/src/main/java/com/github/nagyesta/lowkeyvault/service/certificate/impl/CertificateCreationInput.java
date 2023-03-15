@@ -16,12 +16,20 @@ public class CertificateCreationInput implements ReadOnlyCertificatePolicy {
      * Default number of months used for certificate validity.
      */
     public static final int DEFAULT_VALIDITY_MONTHS = 12;
+    /**
+     * Default key usages in case it is not populated during create certificate.
+     */
+    public static final Set<KeyUsageEnum> DEFAULT_KEY_USAGES = Set.of(KeyUsageEnum.DIGITAL_SIGNATURE, KeyUsageEnum.KEY_ENCIPHERMENT);
+    /**
+     * Default extended key usages in case it is not populated during create certificate.
+     */
+    public static final Set<String> DEFAULT_EXT_KEY_USAGES = Set.of("1.3.6.1.5.5.7.3.1", "1.3.6.1.5.5.7.3.2");
     private final String name;
     private final CertAuthorityType certAuthorityType;
     private final String subject;
     private final Set<String> dnsNames;
     private final Set<String> emails;
-    private final Set<String> ips;
+    private final Set<String> upns;
     private final int validityMonths;
     private final OffsetDateTime validityStart;
     private final CertContentType contentType;
@@ -41,7 +49,7 @@ public class CertificateCreationInput implements ReadOnlyCertificatePolicy {
         this.subject = builder.subject;
         this.dnsNames = Set.copyOf(builder.dnsNames);
         this.emails = Set.copyOf(builder.emails);
-        this.ips = Set.copyOf(builder.ips);
+        this.upns = Set.copyOf(builder.upns);
         this.validityMonths = builder.validityMonths;
         this.validityStart = builder.validityStart;
         this.contentType = builder.contentType;
@@ -67,7 +75,7 @@ public class CertificateCreationInput implements ReadOnlyCertificatePolicy {
         private String subject;
         private Set<String> dnsNames;
         private Set<String> emails;
-        private Set<String> ips;
+        private Set<String> upns;
         private int validityMonths;
         private OffsetDateTime validityStart;
         private CertContentType contentType;
@@ -84,7 +92,7 @@ public class CertificateCreationInput implements ReadOnlyCertificatePolicy {
         CertificateCreationInputBuilder() {
             dnsNames = Set.of();
             emails = Set.of();
-            ips = Set.of();
+            upns = Set.of();
             keyUsage = Set.of();
             extendedKeyUsage = Set.of();
         }
@@ -114,8 +122,8 @@ public class CertificateCreationInput implements ReadOnlyCertificatePolicy {
             return this;
         }
 
-        public CertificateCreationInputBuilder ips(@NonNull final Set<String> ips) {
-            this.ips = Set.copyOf(ips);
+        public CertificateCreationInputBuilder upns(@NonNull final Set<String> upns) {
+            this.upns = Set.copyOf(upns);
             return this;
         }
 

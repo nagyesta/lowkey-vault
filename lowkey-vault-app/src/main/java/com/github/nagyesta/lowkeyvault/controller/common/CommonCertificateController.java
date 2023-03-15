@@ -17,9 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 import java.net.URI;
-import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 import static com.github.nagyesta.lowkeyvault.controller.common.util.CertificateRequestMapperUtil.createCertificateWithAttributes;
 import static com.github.nagyesta.lowkeyvault.controller.common.util.CertificateRequestMapperUtil.importCertificateWithAttributes;
@@ -66,31 +64,6 @@ public abstract class CommonCertificateController extends GenericEntityControlle
         return ResponseEntity.accepted().body(pendingModelConverter.convert(readOnlyEntity, baseUri));
     }
 
-    public ResponseEntity<KeyVaultPendingCertificateModel> pendingCreate(
-            @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
-            final URI baseUri) {
-        log.info("Received request to {} get pending create certificate: {} using API version: {}",
-                baseUri.toString(), certificateName, apiVersion());
-        final CertificateVaultFake vaultFake = getVaultByUri(baseUri);
-        final VersionedCertificateEntityId entityId = vaultFake
-                .getEntities().getLatestVersionOfEntity(entityId(baseUri, certificateName));
-        final ReadOnlyKeyVaultCertificateEntity readOnlyEntity = vaultFake
-                .getEntities().getReadOnlyEntity(entityId);
-        return ResponseEntity.ok(pendingModelConverter.convert(readOnlyEntity, baseUri));
-    }
-
-    public ResponseEntity<KeyVaultPendingCertificateModel> pendingDelete(
-            @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
-            final URI baseUri) {
-        log.info("Received request to {} get pending delete certificate: {} using API version: {}",
-                baseUri.toString(), certificateName, apiVersion());
-        final CertificateVaultFake vaultFake = getVaultByUri(baseUri);
-        final VersionedCertificateEntityId entityId = vaultFake.getDeletedEntities()
-                .getLatestVersionOfEntity(entityId(baseUri, certificateName));
-        final ReadOnlyKeyVaultCertificateEntity readOnlyEntity = vaultFake
-                .getDeletedEntities().getReadOnlyEntity(entityId);
-        return ResponseEntity.ok(pendingModelConverter.convert(readOnlyEntity, baseUri));
-    }
 
     public ResponseEntity<KeyVaultCertificateModel> get(
             @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
@@ -99,15 +72,6 @@ public abstract class CommonCertificateController extends GenericEntityControlle
                 baseUri.toString(), certificateName, apiVersion());
 
         return ResponseEntity.ok(getLatestEntityModel(baseUri, certificateName));
-    }
-
-    public ResponseEntity<CertificatePolicyModel> getPolicy(
-            @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
-            final URI baseUri) {
-        log.info("Received request to {} get certificate policy: {} with version: -LATEST- using API version: {}",
-                baseUri.toString(), certificateName, apiVersion());
-
-        return ResponseEntity.ok(getLatestEntityModel(baseUri, certificateName).getPolicy());
     }
 
     public ResponseEntity<KeyVaultCertificateModel> getWithVersion(
@@ -223,7 +187,7 @@ public abstract class CommonCertificateController extends GenericEntityControlle
             final URI baseUri,
             final boolean includeDisabled) {
         final KeyVaultCertificateModel model = super.getModelById(entityVaultFake, entityId, baseUri, includeDisabled);
-        setLifetimeActionModels(entityId, baseUri, model.getPolicy()::setLifetimeActions);
+        lifetimeActionsModelConverter.populateLifetimeActions(entityVaultFake, entityId, model.getPolicy()::setLifetimeActions);
         return model;
     }
 
@@ -234,17 +198,8 @@ public abstract class CommonCertificateController extends GenericEntityControlle
             final URI baseUri,
             final boolean includeDisabled) {
         final DeletedKeyVaultCertificateModel model = super.getDeletedModelById(entityVaultFake, entityId, baseUri, includeDisabled);
-        setLifetimeActionModels(entityId, baseUri, model.getPolicy()::setLifetimeActions);
+        lifetimeActionsModelConverter.populateLifetimeActions(entityVaultFake, entityId, model.getPolicy()::setLifetimeActions);
         return model;
-    }
-
-    private void setLifetimeActionModels(
-            final VersionedCertificateEntityId entityId,
-            final URI baseUri,
-            final Consumer<List<CertificateLifetimeActionModel>> consumer) {
-        Optional.ofNullable(getVaultByUri(baseUri).lifetimeActionPolicy(entityId))
-                .map(lifetimeActionsModelConverter::convert)
-                .ifPresent(consumer);
     }
 
     private KeyVaultItemListModel<KeyVaultCertificateItemModel> getPageOfItems(

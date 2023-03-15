@@ -16,6 +16,14 @@ class CertAuthorityTypeTest {
                 .build();
     }
 
+    public static Stream<Arguments> byValueProvider() {
+        return Stream.<Arguments>builder()
+                .add(Arguments.of(CertAuthorityType.UNKNOWN.getValue(), CertAuthorityType.UNKNOWN))
+                .add(Arguments.of(CertAuthorityType.SELF_SIGNED.getValue(), CertAuthorityType.SELF_SIGNED))
+                .add(Arguments.of(null, CertAuthorityType.UNKNOWN))
+                .build();
+    }
+
     @ParameterizedTest
     @MethodSource("getValueProvider")
     void testGetValueShouldReturnPredefinedValueWhenCalled(final CertAuthorityType underTest, final String expected) {
@@ -23,6 +31,18 @@ class CertAuthorityTypeTest {
 
         //when
         final String actual = underTest.getValue();
+
+        //then
+        Assertions.assertEquals(expected, actual);
+    }
+
+    @ParameterizedTest
+    @MethodSource("byValueProvider")
+    void testByValueShouldReturnMatchingValueWhenCalled(final String input, final CertAuthorityType expected) {
+        //given
+
+        //when
+        final CertAuthorityType actual = CertAuthorityType.byValue(input);
 
         //then
         Assertions.assertEquals(expected, actual);

@@ -46,7 +46,7 @@ class CertificateEntityToV73ModelConverterIntegrationTest {
         final CertificateCreationInput input = CertificateCreationInput.builder()
                 .validityStart(NOW)
                 .subject("CN=" + LOCALHOST)
-                .ips(Set.of(LOOP_BACK_IP))
+                .upns(Set.of(LOOP_BACK_IP))
                 .name(CERT_NAME_1)
                 .dnsNames(Set.of(LOWKEY_VAULT))
                 .emails(Set.of(NAME_AT_EXAMPLE_COM))

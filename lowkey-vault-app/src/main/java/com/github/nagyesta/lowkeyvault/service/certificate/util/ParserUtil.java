@@ -7,6 +7,7 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRe
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertAuthorityType;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateCreationInput;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.KeyUsageEnum;
+import lombok.NonNull;
 import org.bouncycastle.asn1.x509.GeneralName;
 
 import java.security.cert.CertificateParsingException;
@@ -30,15 +31,23 @@ public final class ParserUtil {
     public static CertificateCreationInput.CertificateCreationInputBuilder parseCertProperties(
             final X509Certificate certificate) {
         return CertificateCreationInput.builder()
-                .certAuthorityType(CertAuthorityType.UNKNOWN)
+                .certAuthorityType(parseCertAuthorityType(certificate))
                 .subject(certificate.getSubjectX500Principal().getName())
                 .dnsNames(getCertificateAlternativeNamesByType(certificate, GeneralName.dNSName))
-                .ips(getCertificateAlternativeNamesByType(certificate, GeneralName.iPAddress))
+                .upns(getCertificateAlternativeNamesByType(certificate, GeneralName.iPAddress))
                 .emails(getCertificateAlternativeNamesByType(certificate, GeneralName.rfc822Name))
                 .validityMonths(validityMonths(certificate))
                 .validityStart(certificate.getNotBefore().toInstant().atOffset(ZoneOffset.UTC))
                 .keyUsage(KeyUsageEnum.parseBitString(certificate.getKeyUsage()))
                 .extendedKeyUsage(Set.copyOf(extendedKeyUsage(certificate)));
+    }
+
+    public static CertAuthorityType parseCertAuthorityType(@NonNull final X509Certificate certificate) {
+        if (Objects.equals(certificate.getSubjectX500Principal().getName(), certificate.getIssuerX500Principal().getName())) {
+            return CertAuthorityType.SELF_SIGNED;
+        } else {
+            return CertAuthorityType.UNKNOWN;
+        }
     }
 
     public static KeyCurveName findKeyCurve(final JsonWebKeyImportRequest keyImportRequest) {

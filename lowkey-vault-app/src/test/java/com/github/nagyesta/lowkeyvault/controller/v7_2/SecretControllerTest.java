@@ -1,8 +1,10 @@
 package com.github.nagyesta.lowkeyvault.controller.v7_2;
 
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.SecretConverterRegistry;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72ModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72SecretItemModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72SecretVersionItemModelConverter;
+import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
 import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesUpdateModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
@@ -16,6 +18,7 @@ import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultFake;
 import com.github.nagyesta.lowkeyvault.service.secret.id.SecretEntityId;
 import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId;
 import com.github.nagyesta.lowkeyvault.service.secret.impl.KeyVaultSecretEntity;
+import com.github.nagyesta.lowkeyvault.service.secret.impl.SecretCreateInput;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import org.junit.jupiter.api.AfterEach;
@@ -63,6 +66,8 @@ class SecretControllerTest {
     @Mock
     private SecretVaultFake secretVaultFake;
     @Mock
+    private SecretConverterRegistry registry;
+    @Mock
     private ReadOnlyVersionedEntityMultiMap<SecretEntityId, VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity> entities;
     @Mock
     private ReadOnlyVersionedEntityMultiMap<SecretEntityId, VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity> deletedEntities;
@@ -105,19 +110,10 @@ class SecretControllerTest {
     }
 
     public static Stream<Arguments> nullProvider() {
-        final SecretEntityToV72ModelConverter ec = mock(SecretEntityToV72ModelConverter.class);
-        final SecretEntityToV72SecretItemModelConverter ic = mock(SecretEntityToV72SecretItemModelConverter.class);
-        final SecretEntityToV72SecretVersionItemModelConverter vic = mock(SecretEntityToV72SecretVersionItemModelConverter.class);
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null, null))
-                .add(Arguments.of(ec, null, null, null))
-                .add(Arguments.of(null, ic, null, null))
-                .add(Arguments.of(null, null, vic, null))
-                .add(Arguments.of(null, null, null, mock(VaultService.class)))
-                .add(Arguments.of(null, ic, vic, mock(VaultService.class)))
-                .add(Arguments.of(ec, null, vic, mock(VaultService.class)))
-                .add(Arguments.of(ec, ic, null, mock(VaultService.class)))
-                .add(Arguments.of(ec, ic, vic, null))
+                .add(Arguments.of(null, null))
+                .add(Arguments.of(mock(SecretConverterRegistry.class), null))
+                .add(Arguments.of(null, mock(VaultService.class)))
                 .build();
     }
 
@@ -136,8 +132,12 @@ class SecretControllerTest {
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
-        underTest = new SecretController(secretEntityToV72ModelConverter, secretEntityToV72SecretItemModelConverter,
-                secretEntityToV72SecretVersionItemModelConverter, vaultService);
+        when(registry.modelConverter(eq(ApiConstants.V_7_2))).thenReturn(secretEntityToV72ModelConverter);
+        when(registry.itemConverter(eq(ApiConstants.V_7_2))).thenReturn(secretEntityToV72SecretItemModelConverter);
+        when(registry.versionedItemConverter(eq(ApiConstants.V_7_2))).thenReturn(secretEntityToV72SecretVersionItemModelConverter);
+        when(registry.versionedEntityId(any(URI.class), anyString(), anyString())).thenCallRealMethod();
+        when(registry.entityId(any(URI.class), anyString())).thenCallRealMethod();
+        underTest = new SecretController(registry, vaultService);
         when(vaultService.findByUri(eq(HTTPS_LOCALHOST_8443))).thenReturn(vaultFake);
         when(vaultFake.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
         when(vaultFake.secretVaultFake()).thenReturn(secretVaultFake);
@@ -151,16 +151,13 @@ class SecretControllerTest {
     @ParameterizedTest
     @MethodSource("nullProvider")
     void testConstructorShouldThrowExceptionWhenCalledWithNull(
-            final SecretEntityToV72ModelConverter secretEntityToV72ModelConverter,
-            final SecretEntityToV72SecretItemModelConverter secretEntityToV72SecretItemModelConverter,
-            final SecretEntityToV72SecretVersionItemModelConverter secretEntityToV72SecretVersionItemModelConverter,
+            final SecretConverterRegistry registry,
             final VaultService vaultService) {
         //given
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new SecretController(secretEntityToV72ModelConverter, secretEntityToV72SecretItemModelConverter,
-                        secretEntityToV72SecretVersionItemModelConverter, vaultService));
+                () -> new SecretController(registry, vaultService));
 
         //then + exception
     }
@@ -175,7 +172,7 @@ class SecretControllerTest {
         when(vaultFake.getRecoverableDays()).thenReturn(null);
         final CreateSecretRequest request = createRequest(expiry, notBefore);
         final ReadOnlyKeyVaultSecretEntity entity = createEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, request);
-        when(secretVaultFake.createSecretVersion(eq(SECRET_NAME_1), eq(request.getValue()), eq(request.getContentType())))
+        when(secretVaultFake.createSecretVersion(eq(SECRET_NAME_1), any(SecretCreateInput.class)))
                 .thenReturn(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1);
         when(secretVaultFake.getEntities())
                 .thenReturn(entities);
@@ -197,12 +194,9 @@ class SecretControllerTest {
         Assertions.assertSame(RESPONSE, actual.getBody());
         verify(vaultService).findByUri(eq(HTTPS_LOCALHOST_8443));
         verify(vaultFake).secretVaultFake();
-        verify(secretVaultFake).createSecretVersion(eq(SECRET_NAME_1), eq(request.getValue()), eq(request.getContentType()));
+        verify(secretVaultFake).createSecretVersion(eq(SECRET_NAME_1), any(SecretCreateInput.class));
         verify(vaultFake).getRecoveryLevel();
         verify(vaultFake).getRecoverableDays();
-        verify(secretVaultFake).setExpiry(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1), eq(notBefore), eq(expiry));
-        verify(secretVaultFake).setEnabled(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1), eq(true));
-        verify(secretVaultFake).addTags(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1), same(TAGS_TWO_KEYS));
         verify(secretEntityToV72ModelConverter).convert(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 

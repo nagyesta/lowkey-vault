@@ -1,6 +1,7 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_3.key;
 
 import com.github.nagyesta.lowkeyvault.TestConstantsKeys;
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.*;
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.constants.LifetimeActionType;
 import com.github.nagyesta.lowkeyvault.service.key.LifetimeAction;
@@ -16,9 +17,20 @@ import java.util.List;
 import static com.github.nagyesta.lowkeyvault.TestConstants.NOW;
 import static com.github.nagyesta.lowkeyvault.TestConstants.TIME_10_MINUTES_AGO;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
+import static org.mockito.Mockito.mock;
 
 class KeyRotationPolicyV73ModelToEntityConverterTest {
 
+    @SuppressWarnings("DataFlowIssue")
+    @Test
+    void testConstructorShouldThrowExceptionWhenCalledWithNull() {
+        //given
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new KeyRotationPolicyV73ModelToEntityConverter(null));
+
+        //then + exception
+    }
     @Test
     void testConvertShouldConvertValuableFieldsWhenCalledWithValidData() {
         //given
@@ -30,13 +42,16 @@ class KeyRotationPolicyV73ModelToEntityConverterTest {
         model.setId(keyEntityId.asRotationPolicyUri(HTTPS_LOCALHOST_8443));
         model.setAttributes(attributes(expiryTime));
         model.setLifetimeActions(List.of(notifyAction(timeBeforeExpiry)));
+        model.setKeyEntityId(keyEntityId);
 
-        final KeyRotationPolicyV73ModelToEntityConverter underTest = new KeyRotationPolicyV73ModelToEntityConverter();
+        final KeyConverterRegistry registry = mock(KeyConverterRegistry.class);
+        final KeyRotationPolicyV73ModelToEntityConverter underTest = new KeyRotationPolicyV73ModelToEntityConverter(registry);
 
         //when
-        final RotationPolicy actual = underTest.convert(keyEntityId, model);
+        final RotationPolicy actual = underTest.convert(model);
 
         //then
+        Assertions.assertNotNull(actual);
         Assertions.assertEquals(keyEntityId, actual.getId());
         Assertions.assertEquals(TIME_10_MINUTES_AGO, actual.getCreatedOn());
         Assertions.assertEquals(NOW, actual.getUpdatedOn());
@@ -60,13 +75,16 @@ class KeyRotationPolicyV73ModelToEntityConverterTest {
         final KeyRotationPolicyAttributes attributes = new KeyRotationPolicyAttributes();
         attributes.setExpiryTime(expiryTime);
         model.setAttributes(attributes);
+        model.setKeyEntityId(keyEntityId);
 
-        final KeyRotationPolicyV73ModelToEntityConverter underTest = new KeyRotationPolicyV73ModelToEntityConverter();
+        final KeyConverterRegistry registry = mock(KeyConverterRegistry.class);
+        final KeyRotationPolicyV73ModelToEntityConverter underTest = new KeyRotationPolicyV73ModelToEntityConverter(registry);
 
         //when
-        final RotationPolicy actual = underTest.convert(keyEntityId, model);
+        final RotationPolicy actual = underTest.convert(model);
 
         //then
+        Assertions.assertNotNull(actual);
         Assertions.assertEquals(keyEntityId, actual.getId());
         Assertions.assertTrue(actual.getCreatedOn().isAfter(NOW));
         Assertions.assertTrue(actual.getUpdatedOn().isAfter(NOW));
@@ -86,11 +104,13 @@ class KeyRotationPolicyV73ModelToEntityConverterTest {
         final KeyRotationPolicyModel model = new KeyRotationPolicyModel();
         model.setId(keyEntityId.asRotationPolicyUri(HTTPS_LOCALHOST_8443));
         model.setLifetimeActions(List.of(notifyAction(timeBeforeExpiry)));
+        model.setKeyEntityId(keyEntityId);
 
-        final KeyRotationPolicyV73ModelToEntityConverter underTest = new KeyRotationPolicyV73ModelToEntityConverter();
+        final KeyConverterRegistry registry = mock(KeyConverterRegistry.class);
+        final KeyRotationPolicyV73ModelToEntityConverter underTest = new KeyRotationPolicyV73ModelToEntityConverter(registry);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.convert(keyEntityId, model));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.convert(model));
 
         //then + exception
     }
@@ -102,11 +122,13 @@ class KeyRotationPolicyV73ModelToEntityConverterTest {
 
         final KeyRotationPolicyModel model = new KeyRotationPolicyModel();
         model.setId(keyEntityId.asRotationPolicyUri(HTTPS_LOCALHOST_8443));
+        model.setKeyEntityId(keyEntityId);
 
-        final KeyRotationPolicyV73ModelToEntityConverter underTest = new KeyRotationPolicyV73ModelToEntityConverter();
+        final KeyConverterRegistry registry = mock(KeyConverterRegistry.class);
+        final KeyRotationPolicyV73ModelToEntityConverter underTest = new KeyRotationPolicyV73ModelToEntityConverter(registry);
 
         //when
-        final RotationPolicy actual = underTest.convert(keyEntityId, model);
+        final RotationPolicy actual = underTest.convert(model);
 
         //then
         Assertions.assertNull(actual);
@@ -121,11 +143,13 @@ class KeyRotationPolicyV73ModelToEntityConverterTest {
         final KeyRotationPolicyModel model = new KeyRotationPolicyModel();
         model.setId(keyEntityId.asRotationPolicyUri(HTTPS_LOCALHOST_8443));
         model.setAttributes(attributes(expiryTime));
+        model.setKeyEntityId(keyEntityId);
 
-        final KeyRotationPolicyV73ModelToEntityConverter underTest = new KeyRotationPolicyV73ModelToEntityConverter();
+        final KeyConverterRegistry registry = mock(KeyConverterRegistry.class);
+        final KeyRotationPolicyV73ModelToEntityConverter underTest = new KeyRotationPolicyV73ModelToEntityConverter(registry);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.convert(keyEntityId, model));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.convert(model));
 
         //then + exception
     }
@@ -138,11 +162,13 @@ class KeyRotationPolicyV73ModelToEntityConverterTest {
         final KeyRotationPolicyModel model = new KeyRotationPolicyModel();
         model.setId(keyEntityId.asRotationPolicyUri(HTTPS_LOCALHOST_8443));
         model.setLifetimeActions(List.of());
+        model.setKeyEntityId(keyEntityId);
 
-        final KeyRotationPolicyV73ModelToEntityConverter underTest = new KeyRotationPolicyV73ModelToEntityConverter();
+        final KeyConverterRegistry registry = mock(KeyConverterRegistry.class);
+        final KeyRotationPolicyV73ModelToEntityConverter underTest = new KeyRotationPolicyV73ModelToEntityConverter(registry);
 
         //when
-        final RotationPolicy actual = underTest.convert(keyEntityId, model);
+        final RotationPolicy actual = underTest.convert(model);
 
         //then
         Assertions.assertNull(actual);

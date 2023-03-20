@@ -1,17 +1,16 @@
 package com.github.nagyesta.lowkeyvault.controller.common;
 
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72ModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72SecretItemModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72SecretVersionItemModelConverter;
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.SecretConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
-import com.github.nagyesta.lowkeyvault.model.v7_2.secret.*;
+import com.github.nagyesta.lowkeyvault.model.v7_2.secret.DeletedKeyVaultSecretItemModel;
+import com.github.nagyesta.lowkeyvault.model.v7_2.secret.DeletedKeyVaultSecretModel;
+import com.github.nagyesta.lowkeyvault.model.v7_2.secret.KeyVaultSecretItemModel;
+import com.github.nagyesta.lowkeyvault.model.v7_2.secret.KeyVaultSecretModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.request.CreateSecretRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.request.UpdateSecretRequest;
-import com.github.nagyesta.lowkeyvault.service.secret.ReadOnlyKeyVaultSecretEntity;
 import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultFake;
 import com.github.nagyesta.lowkeyvault.service.secret.id.SecretEntityId;
 import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -20,21 +19,12 @@ import org.springframework.lang.NonNull;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 import java.net.URI;
-import java.util.Objects;
 
 @Slf4j
-public abstract class CommonSecretController extends GenericEntityController<SecretEntityId, VersionedSecretEntityId,
-        ReadOnlyKeyVaultSecretEntity, KeyVaultSecretModel, DeletedKeyVaultSecretModel, KeyVaultSecretItemModel,
-        DeletedKeyVaultSecretItemModel, SecretEntityToV72ModelConverter, SecretEntityToV72SecretItemModelConverter,
-        SecretEntityToV72SecretVersionItemModelConverter, SecretVaultFake> {
+public abstract class CommonSecretController extends BaseSecretController {
 
-    protected CommonSecretController(
-            @NonNull final SecretEntityToV72ModelConverter secretEntityToV72ModelConverter,
-            @NonNull final SecretEntityToV72SecretItemModelConverter secretEntityToV72SecretItemModelConverter,
-            @NonNull final SecretEntityToV72SecretVersionItemModelConverter secretEntityToV72SecretVersionItemModelConverter,
-            @NonNull final VaultService vaultService) {
-        super(secretEntityToV72ModelConverter, secretEntityToV72SecretItemModelConverter,
-                secretEntityToV72SecretVersionItemModelConverter, vaultService, VaultFake::secretVaultFake);
+    protected CommonSecretController(@NonNull final SecretConverterRegistry registry, @NonNull final VaultService vaultService) {
+        super(registry, vaultService);
     }
 
     public ResponseEntity<KeyVaultSecretModel> create(
@@ -70,8 +60,13 @@ public abstract class CommonSecretController extends GenericEntityController<Sec
         log.info("Received request to {} list secret versions: {} , (max results: {}, skip: {}) using API version: {}",
                 baseUri.toString(), secretName, maxResults, skipToken, apiVersion());
 
-        return ResponseEntity
-                .ok(getPageOfItemVersions(baseUri, secretName, maxResults, skipToken, "/secrets/" + secretName + "/versions"));
+        return ResponseEntity.ok(getPageOfItemVersions(baseUri, secretName, PaginationContext
+                .builder()
+                .apiVersion(apiVersion())
+                .limit(maxResults)
+                .offset(skipToken)
+                .base(URI.create(baseUri + ("/secrets/" + secretName + "/versions")))
+                .build()));
     }
 
     public ResponseEntity<KeyVaultItemListModel<KeyVaultSecretItemModel>> listSecrets(
@@ -81,7 +76,13 @@ public abstract class CommonSecretController extends GenericEntityController<Sec
         log.info("Received request to {} list secrets, (max results: {}, skip: {}) using API version: {}",
                 baseUri.toString(), maxResults, skipToken, apiVersion());
 
-        return ResponseEntity.ok(getPageOfItems(baseUri, maxResults, skipToken, "/secrets"));
+        return ResponseEntity.ok(getPageOfItems(baseUri, PaginationContext
+                .builder()
+                .apiVersion(apiVersion())
+                .limit(maxResults)
+                .offset(skipToken)
+                .base(URI.create(baseUri + "/secrets"))
+                .build()));
     }
 
     public ResponseEntity<KeyVaultItemListModel<DeletedKeyVaultSecretItemModel>> listDeletedSecrets(
@@ -91,7 +92,13 @@ public abstract class CommonSecretController extends GenericEntityController<Sec
         log.info("Received request to {} list deleted secrets, (max results: {}, skip: {}) using API version: {}",
                 baseUri.toString(), maxResults, skipToken, apiVersion());
 
-        return ResponseEntity.ok(getPageOfDeletedItems(baseUri, maxResults, skipToken, "/deletedsecrets"));
+        return ResponseEntity.ok(getPageOfDeletedItems(baseUri, PaginationContext
+                .builder()
+                .apiVersion(apiVersion())
+                .limit(maxResults)
+                .offset(skipToken)
+                .base(URI.create(baseUri + "/deletedsecrets"))
+                .build()));
     }
 
     public ResponseEntity<KeyVaultSecretModel> get(
@@ -162,27 +169,5 @@ public abstract class CommonSecretController extends GenericEntityController<Sec
         secretVaultFake.recover(entityId);
         final VersionedSecretEntityId latestVersion = secretVaultFake.getEntities().getLatestVersionOfEntity(entityId);
         return ResponseEntity.ok(getModelById(secretVaultFake, latestVersion, baseUri, true));
-    }
-
-    @Override
-    protected VersionedSecretEntityId versionedEntityId(final URI baseUri, final String name, final String version) {
-        return new VersionedSecretEntityId(baseUri, name, version);
-    }
-
-    @Override
-    protected SecretEntityId entityId(final URI baseUri, final String name) {
-        return new SecretEntityId(baseUri, name);
-    }
-
-    private VersionedSecretEntityId createSecretWithAttributes(
-            final SecretVaultFake secretVaultFake, final String secretName, final CreateSecretRequest request) {
-        final SecretPropertiesModel properties = Objects.requireNonNullElse(request.getProperties(), new SecretPropertiesModel());
-        final VersionedSecretEntityId secretEntityId = secretVaultFake
-                .createSecretVersion(secretName, request.getValue(), request.getContentType());
-        secretVaultFake.addTags(secretEntityId, request.getTags());
-        secretVaultFake.setExpiry(secretEntityId, properties.getNotBefore(), properties.getExpiresOn());
-        secretVaultFake.setEnabled(secretEntityId, properties.isEnabled());
-        //no need to set managed property as this endpoint cannot create managed entities by definition
-        return secretEntityId;
     }
 }

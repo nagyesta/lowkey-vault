@@ -1,9 +1,11 @@
 package com.github.nagyesta.lowkeyvault.model.v7_3.key;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.validator.Restore;
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.validator.Update;
+import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
 import lombok.Data;
 
 import javax.validation.Valid;
@@ -29,4 +31,6 @@ public class KeyRotationPolicyModel {
     @JsonProperty("lifetimeActions")
     private List<KeyLifetimeActionModel> lifetimeActions;
 
+    @JsonIgnore
+    private KeyEntityId keyEntityId;
 }

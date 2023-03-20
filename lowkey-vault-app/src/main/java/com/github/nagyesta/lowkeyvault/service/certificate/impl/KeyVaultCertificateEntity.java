@@ -5,24 +5,20 @@ import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCerti
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.common.impl.KeyVaultBaseEntity;
 import com.github.nagyesta.lowkeyvault.service.exception.CryptoException;
-import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyAsymmetricKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.secret.id.SecretEntityId;
 import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId;
-import com.github.nagyesta.lowkeyvault.service.secret.impl.KeyVaultSecretEntity;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.springframework.util.Assert;
 
-import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Optional;
@@ -35,6 +31,7 @@ public class KeyVaultCertificateEntity
     private final VersionedCertificateEntityId id;
     private final VersionedKeyEntityId kid;
     private final VersionedSecretEntityId sid;
+    private final CertificateBackingEntityGenerator generator;
     private X509Certificate certificate;
     private ReadOnlyCertificatePolicy originalCertificatePolicy;
     private final String originalCertificateContents;
@@ -62,14 +59,15 @@ public class KeyVaultCertificateEntity
                 "Secret must not exist to be able to store certificate data in it. " + sid.asUriNoVersion(vault.baseUri()));
         this.issuancePolicy = new CertificatePolicy(input);
         this.originalCertificatePolicy = new CertificatePolicy(input);
-        this.kid = generateKeyPair(input, vault);
+        this.generator = new CertificateBackingEntityGenerator(vault);
+        this.kid = generator.generateKeyPair(input);
         //reuse the generated key version to produce matching version numbers in all keys
         this.id = new VersionedCertificateEntityId(vault.baseUri(), name, this.kid.version());
         final CertificateGenerator certificateGenerator = new CertificateGenerator(vault, this.kid);
         this.certificate = certificateGenerator.generateCertificate(input);
         this.csr = certificateGenerator.generateCertificateSigningRequest(name, this.certificate);
         final VersionedSecretEntityId secretEntityId = new VersionedSecretEntityId(vault.baseUri(), input.getName(), this.kid.version());
-        this.sid = generateSecret(this.originalCertificatePolicy, vault, this.certificate, this.kid, secretEntityId);
+        this.sid = generator.generateSecret(this.originalCertificatePolicy, this.certificate, this.kid, secretEntityId);
         this.originalCertificateContents = vault.secretVaultFake().getEntities().getReadOnlyEntity(this.sid).getValue();
         normalizeCoreTimeStamps(input, now());
     }
@@ -104,14 +102,15 @@ public class KeyVaultCertificateEntity
                 "Secret must not exist to be able to store certificate data in it. " + sid.asUriNoVersion(vault.baseUri()));
         this.issuancePolicy = new CertificatePolicy(policy);
         this.originalCertificatePolicy = new CertificatePolicy(originalCertificateData);
-        this.kid = importKeyPair(policy, keyImportRequest, vault);
+        this.generator = new CertificateBackingEntityGenerator(vault);
+        this.kid = generator.importKeyPair(policy, keyImportRequest);
         //reuse the generated key version to produce matching version numbers in all keys
         this.id = new VersionedCertificateEntityId(vault.baseUri(), name, this.kid.version());
         final CertificateGenerator certificateGenerator = new CertificateGenerator(vault, this.kid);
         this.certificate = certificate;
         this.csr = certificateGenerator.generateCertificateSigningRequest(name, this.certificate);
         final VersionedSecretEntityId secretEntityId = new VersionedSecretEntityId(vault.baseUri(), input.getName(), this.kid.version());
-        this.sid = generateSecret(this.originalCertificatePolicy, vault, this.certificate, this.kid, secretEntityId);
+        this.sid = generator.generateSecret(this.originalCertificatePolicy, this.certificate, this.kid, secretEntityId);
         this.originalCertificateContents = vault.secretVaultFake().getEntities().getReadOnlyEntity(this.sid).getValue();
         normalizeCoreTimeStamps(policy, now());
     }
@@ -142,33 +141,12 @@ public class KeyVaultCertificateEntity
         this.certificate = certificateGenerator.generateCertificate(input);
         this.csr = certificateGenerator.generateCertificateSigningRequest(input.getName(), this.certificate);
         final VersionedSecretEntityId secretEntityId = new VersionedSecretEntityId(vault.baseUri(), input.getName(), id.version());
-        this.sid = generateSecret(this.originalCertificatePolicy, vault, this.certificate, this.kid, secretEntityId);
+        this.generator = new CertificateBackingEntityGenerator(vault);
+        this.sid = generator.generateSecret(this.originalCertificatePolicy, this.certificate, this.kid, secretEntityId);
         this.originalCertificateContents = vault.secretVaultFake().getEntities().getReadOnlyEntity(this.sid).getValue();
         normalizeCoreTimeStamps(input, input.getValidityStart());
     }
 
-    private VersionedSecretEntityId generateSecret(final ReadOnlyCertificatePolicy input,
-                                                   final VaultFake vault,
-                                                   final Certificate certificate,
-                                                   final VersionedKeyEntityId kid,
-                                                   final VersionedSecretEntityId sid) {
-        final KeyPair key = vault.keyVaultFake().getEntities().getEntity(kid, ReadOnlyAsymmetricKeyVaultKeyEntity.class).getKey();
-        final String value = input.getContentType().asBase64CertificatePackage(certificate, key);
-        final OffsetDateTime start = input.getValidityStart();
-        final OffsetDateTime expiry = start.plusMonths(input.getValidityMonths());
-        return vault.secretVaultFake().createSecretVersionForCertificate(sid, value, input.getContentType(), start, expiry);
-    }
-
-    private VersionedKeyEntityId generateKeyPair(final ReadOnlyCertificatePolicy input, final VaultFake vault) {
-        final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
-        final OffsetDateTime expiry = now.plusMonths(input.getValidityMonths());
-        return vault.keyVaultFake().createKeyVersionForCertificate(input.getName(), input.toKeyCreationInput(), now, expiry);
-    }
-
-    private VersionedKeyEntityId importKeyPair(
-            final ReadOnlyCertificatePolicy input, final JsonWebKeyImportRequest keyImportRequest, final VaultFake vault) {
-        return vault.keyVaultFake().importManagedKeyVersion(input.getName(), keyImportRequest);
-    }
 
     @Override
     public VersionedCertificateEntityId getId() {
@@ -264,7 +242,7 @@ public class KeyVaultCertificateEntity
             final CertificatePolicy updated = new CertificatePolicy(originalCertificatePolicy);
             updated.setValidityStart(getCreated());
             regenerateCertificateData(vault, updated);
-            updateSecretValueWithNewCertificate(vault, updated);
+            generator.updateSecretValueWithNewCertificate(updated, certificate, kid, sid);
         } else {
             log.debug("Validity start date is still accurate certificate won't be changed: {}", id);
         }
@@ -277,13 +255,6 @@ public class KeyVaultCertificateEntity
         //update timestamps of certificate as the constructor can run for more than a second
         this.setCreatedOn(createOrUpdate);
         this.setUpdatedOn(createOrUpdate);
-    }
-
-    private void updateSecretValueWithNewCertificate(final VaultFake vault, final CertificatePolicy updated) {
-        final ReadOnlyAsymmetricKeyVaultKeyEntity key = vault.keyVaultFake().getEntities()
-                .getEntity(kid, ReadOnlyAsymmetricKeyVaultKeyEntity.class);
-        final KeyVaultSecretEntity secret = vault.secretVaultFake().getEntities().getEntity(this.sid, KeyVaultSecretEntity.class);
-        secret.setValue(updated.getContentType().asBase64CertificatePackage(certificate, key.getKey()));
     }
 
     private void regenerateCertificateData(final VaultFake vaultFake, final CertificatePolicy updated) {

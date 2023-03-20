@@ -6,20 +6,13 @@ import com.github.nagyesta.lowkeyvault.service.common.BaseVaultFake;
 import com.github.nagyesta.lowkeyvault.service.exception.CryptoException;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
-import com.github.nagyesta.lowkeyvault.service.key.impl.EcKeyCreationInput;
-import com.github.nagyesta.lowkeyvault.service.key.impl.KeyCreationInput;
-import com.github.nagyesta.lowkeyvault.service.key.impl.OctKeyCreationInput;
-import com.github.nagyesta.lowkeyvault.service.key.impl.RsaKeyCreationInput;
+import com.github.nagyesta.lowkeyvault.service.key.impl.*;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 
 public interface KeyVaultFake extends BaseVaultFake<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> {
 
-    <E, T extends KeyCreationInput<E>> VersionedKeyEntityId createKeyVersion(String keyName, T input);
-
-    <E, T extends KeyCreationInput<E>> VersionedKeyEntityId createKeyVersionForCertificate(
-            String keyName, T input, OffsetDateTime notBefore, OffsetDateTime expiry);
+    VersionedKeyEntityId createKeyVersion(String keyName, KeyCreateDetailedInput input);
 
     VersionedKeyEntityId createRsaKeyVersion(String keyName, RsaKeyCreationInput input);
 
@@ -29,11 +22,9 @@ public interface KeyVaultFake extends BaseVaultFake<KeyEntityId, VersionedKeyEnt
 
     void setKeyOperations(VersionedKeyEntityId keyEntityId, List<KeyOperation> keyOperations);
 
-    VersionedKeyEntityId importKeyVersion(String keyName, JsonWebKeyImportRequest key) throws CryptoException;
+    VersionedKeyEntityId importKeyVersion(String keyName, KeyImportInput key) throws CryptoException;
 
-    VersionedKeyEntityId importManagedKeyVersion(String keyName, JsonWebKeyImportRequest key) throws CryptoException;
-
-    VersionedKeyEntityId importKeyVersion(VersionedKeyEntityId keyEntityId, JsonWebKeyImportRequest key) throws CryptoException;
+    VersionedKeyEntityId importKeyVersion(VersionedKeyEntityId keyEntityId, KeyImportInput key) throws CryptoException;
 
     VersionedKeyEntityId importEcKeyVersion(VersionedKeyEntityId keyEntityId, JsonWebKeyImportRequest key) throws CryptoException;
 

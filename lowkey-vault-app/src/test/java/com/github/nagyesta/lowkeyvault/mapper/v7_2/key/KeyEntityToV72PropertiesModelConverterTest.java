@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_2.key;
 
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyPropertiesModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.EncryptionAlgorithm;
@@ -12,10 +13,10 @@ import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -31,13 +32,13 @@ import static org.mockito.Mockito.when;
 
 class KeyEntityToV72PropertiesModelConverterTest {
 
-    @InjectMocks
     private KeyEntityToV72PropertiesModelConverter underTest;
     @Mock
     private VaultFake vault;
     @Mock
     private KeyVaultFake keyVault;
-
+    @Mock
+    private KeyConverterRegistry registry;
     private AutoCloseable openMocks;
 
     public static Stream<Arguments> validInputProvider() {
@@ -56,6 +57,7 @@ class KeyEntityToV72PropertiesModelConverterTest {
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
+        underTest = new KeyEntityToV72PropertiesModelConverter(registry);
         when(vault.keyVaultFake()).thenReturn(keyVault);
         when(vault.baseUri()).thenReturn(HTTPS_LOCALHOST);
         when(vault.matches(eq(HTTPS_LOCALHOST))).thenReturn(true);
@@ -64,6 +66,17 @@ class KeyEntityToV72PropertiesModelConverterTest {
     @AfterEach
     void tearDown() throws Exception {
         openMocks.close();
+    }
+
+    @SuppressWarnings("DataFlowIssue")
+    @Test
+    void testConstructorShouldThrowExceptionWhenCalledWithNull() {
+        //given
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new KeyEntityToV72PropertiesModelConverter(null));
+
+        //then + exception
     }
 
     @ParameterizedTest

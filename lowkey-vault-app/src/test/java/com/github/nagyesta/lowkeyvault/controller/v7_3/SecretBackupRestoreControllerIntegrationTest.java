@@ -2,12 +2,17 @@ package com.github.nagyesta.lowkeyvault.controller.v7_3;
 
 import com.github.nagyesta.abortmission.booster.jupiter.annotation.LaunchAbortArmed;
 import com.github.nagyesta.lowkeyvault.TestConstantsUri;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72ModelConverter;
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.SecretConverterRegistry;
+import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupList;
+import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupListItem;
+import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
-import com.github.nagyesta.lowkeyvault.model.v7_2.secret.*;
+import com.github.nagyesta.lowkeyvault.model.v7_2.secret.KeyVaultSecretModel;
+import com.github.nagyesta.lowkeyvault.model.v7_2.secret.SecretPropertiesModel;
 import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
 import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultFake;
 import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId;
+import com.github.nagyesta.lowkeyvault.service.secret.impl.SecretCreateInput;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -47,13 +52,9 @@ class SecretBackupRestoreControllerIntegrationTest {
 
     public static Stream<Arguments> nullProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null))
-                .add(Arguments.of(mock(SecretEntityToV72ModelConverter.class), null, null))
-                .add(Arguments.of(null, mock(SecretEntityToV72BackupConverter.class), null))
-                .add(Arguments.of(null, null, mock(VaultService.class)))
-                .add(Arguments.of(null, mock(SecretEntityToV72BackupConverter.class), null))
-                .add(Arguments.of(mock(SecretEntityToV72ModelConverter.class), null, mock(VaultService.class)))
-                .add(Arguments.of(mock(SecretEntityToV72ModelConverter.class), mock(SecretEntityToV72BackupConverter.class), null))
+                .add(Arguments.of(null, null))
+                .add(Arguments.of(mock(SecretConverterRegistry.class), null))
+                .add(Arguments.of(null, mock(VaultService.class)))
                 .build();
     }
 
@@ -73,14 +74,13 @@ class SecretBackupRestoreControllerIntegrationTest {
     @ParameterizedTest
     @MethodSource("nullProvider")
     void testConstructorShouldThrowExceptionWhenCalledWithNulls(
-            final SecretEntityToV72ModelConverter modelConverter,
-            final SecretEntityToV72BackupConverter backupConverter,
+            final SecretConverterRegistry registry,
             final VaultService vaultService) {
         //given
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new SecretBackupRestoreController(modelConverter, backupConverter, vaultService));
+                () -> new SecretBackupRestoreController(registry, vaultService));
 
         //then + exception
     }
@@ -171,7 +171,9 @@ class SecretBackupRestoreControllerIntegrationTest {
         backupModel.setValue(new SecretBackupList());
         addVersionToList(uri, SECRET_NAME_1, SECRET_VERSION_1, backupModel, TAGS_EMPTY);
         addVersionToList(uri, SECRET_NAME_1, SECRET_VERSION_2, backupModel, TAGS_ONE_KEY);
-        vaultService.findByUri(uri).secretVaultFake().createSecretVersion(SECRET_NAME_1, LOWKEY_VAULT, null);
+        vaultService.findByUri(uri).secretVaultFake().createSecretVersion(SECRET_NAME_1, SecretCreateInput.builder()
+                .value(LOWKEY_VAULT)
+                .build());
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.restore(uri, backupModel));
@@ -187,7 +189,9 @@ class SecretBackupRestoreControllerIntegrationTest {
         addVersionToList(uri, SECRET_NAME_1, SECRET_VERSION_1, backupModel, TAGS_EMPTY);
         addVersionToList(uri, SECRET_NAME_1, SECRET_VERSION_2, backupModel, TAGS_ONE_KEY);
         final SecretVaultFake vaultFake = vaultService.findByUri(uri).secretVaultFake();
-        final VersionedSecretEntityId secretVersion = vaultFake.createSecretVersion(SECRET_NAME_1, LOWKEY_VAULT, null);
+        final VersionedSecretEntityId secretVersion = vaultFake.createSecretVersion(SECRET_NAME_1, SecretCreateInput.builder()
+                .value(LOWKEY_VAULT)
+                .build());
         vaultFake.delete(secretVersion);
 
         //when

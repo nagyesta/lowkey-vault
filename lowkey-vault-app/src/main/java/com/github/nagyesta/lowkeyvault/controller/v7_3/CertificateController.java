@@ -1,14 +1,13 @@
 package com.github.nagyesta.lowkeyvault.controller.v7_3;
 
 import com.github.nagyesta.lowkeyvault.controller.common.CommonCertificateController;
-import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.*;
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.CertificateConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
 import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.*;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
@@ -29,16 +28,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Component("CertificateControllerV73")
 public class CertificateController extends CommonCertificateController {
     @Autowired
-    public CertificateController(
-            @NonNull final CertificateEntityToV73ModelConverter modelConverter,
-            @Qualifier("certificateEntityToV73CertificateItemModelConverter")
-            @NonNull final CertificateEntityToV73CertificateItemModelConverter itemModelConverter,
-            @NonNull final CertificateEntityToV73CertificateVersionItemModelConverter versionItemModelConverter,
-            @NonNull final CertificateEntityToV73PendingCertificateOperationModelConverter pendingModelConverter,
-            @NonNull final LifetimeActionsPolicyToV73ModelConverter lifetimeActionsModelConverter,
-            @NonNull final VaultService vaultService) {
-        super(modelConverter, itemModelConverter, versionItemModelConverter,
-                pendingModelConverter, lifetimeActionsModelConverter, vaultService);
+    public CertificateController(@NonNull final CertificateConverterRegistry registry, @NonNull final VaultService vaultService) {
+        super(registry, vaultService);
     }
 
     @Override

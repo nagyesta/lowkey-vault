@@ -1,6 +1,9 @@
 package com.github.nagyesta.lowkeyvault.model.v7_2.secret;
 
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.SecretConverterRegistry;
+import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72BackupConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72PropertiesModelConverter;
+import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupListItem;
 import com.github.nagyesta.lowkeyvault.service.secret.ReadOnlyKeyVaultSecretEntity;
 import com.github.nagyesta.lowkeyvault.service.secret.impl.KeyVaultSecretEntity;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
@@ -29,6 +32,8 @@ class SecretEntityToV72BackupConverterTest {
     private VaultFake vaultFake;
     @Mock
     private SecretEntityToV72PropertiesModelConverter propertiesModelConverter;
+    @Mock
+    private SecretConverterRegistry registry;
     @InjectMocks
     private SecretEntityToV72BackupConverter underTest;
     private AutoCloseable openMocks;
@@ -36,6 +41,7 @@ class SecretEntityToV72BackupConverterTest {
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
+        when(registry.propertiesConverter(anyString())).thenReturn(propertiesModelConverter);
         when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultSecretEntity.class), any(URI.class)))
                 .thenReturn(SECRET_PROPERTIES_MODEL);
     }

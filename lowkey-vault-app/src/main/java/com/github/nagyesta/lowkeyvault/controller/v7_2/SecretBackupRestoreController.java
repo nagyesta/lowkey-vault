@@ -1,11 +1,10 @@
 package com.github.nagyesta.lowkeyvault.controller.v7_2;
 
 import com.github.nagyesta.lowkeyvault.controller.common.CommonSecretBackupRestoreController;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72ModelConverter;
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.SecretConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
+import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.KeyVaultSecretModel;
-import com.github.nagyesta.lowkeyvault.model.v7_2.secret.SecretBackupModel;
-import com.github.nagyesta.lowkeyvault.model.v7_2.secret.SecretEntityToV72BackupConverter;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +29,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class SecretBackupRestoreController extends CommonSecretBackupRestoreController {
 
     @Autowired
-    public SecretBackupRestoreController(
-            @NonNull final SecretEntityToV72ModelConverter modelConverter,
-            @NonNull final SecretEntityToV72BackupConverter backupConverter,
-            @NonNull final VaultService vaultService) {
-        super(modelConverter, backupConverter, vaultService);
+    public SecretBackupRestoreController(@NonNull final SecretConverterRegistry registry, @NonNull final VaultService vaultService) {
+        super(registry, vaultService);
     }
 
     @Override

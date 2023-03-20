@@ -1,13 +1,12 @@
 package com.github.nagyesta.lowkeyvault.controller.common;
 
-import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.*;
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.CertificateConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.*;
 import com.github.nagyesta.lowkeyvault.service.certificate.CertificateVaultFake;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.CertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,38 +16,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 import java.net.URI;
-import java.util.Optional;
+import java.util.Map;
 
 import static com.github.nagyesta.lowkeyvault.controller.common.util.CertificateRequestMapperUtil.createCertificateWithAttributes;
 import static com.github.nagyesta.lowkeyvault.controller.common.util.CertificateRequestMapperUtil.importCertificateWithAttributes;
 
 @Slf4j
-public abstract class CommonCertificateController extends GenericEntityController<CertificateEntityId, VersionedCertificateEntityId,
-        ReadOnlyKeyVaultCertificateEntity, KeyVaultCertificateModel, DeletedKeyVaultCertificateModel, KeyVaultCertificateItemModel,
-        DeletedKeyVaultCertificateItemModel, CertificateEntityToV73ModelConverter, CertificateEntityToV73CertificateItemModelConverter,
-        CertificateEntityToV73CertificateVersionItemModelConverter, CertificateVaultFake> {
-
-    /**
-     * Default parameter value for including the pending certificates.
-     */
-    protected static final String TRUE = "true";
-    /**
-     * Parameter name for including the pending certificates.
-     */
-    protected static final String INCLUDE_PENDING_PARAM = "includePending";
-    private final CertificateEntityToV73PendingCertificateOperationModelConverter pendingModelConverter;
-    private final LifetimeActionsPolicyToV73ModelConverter lifetimeActionsModelConverter;
+public abstract class CommonCertificateController extends BaseCertificateController {
 
     protected CommonCertificateController(
-            @NonNull final CertificateEntityToV73ModelConverter modelConverter,
-            @NonNull final CertificateEntityToV73CertificateItemModelConverter itemModelConverter,
-            @NonNull final CertificateEntityToV73CertificateVersionItemModelConverter versionItemModelConverter,
-            @lombok.NonNull final CertificateEntityToV73PendingCertificateOperationModelConverter pendingModelConverter,
-            @lombok.NonNull final LifetimeActionsPolicyToV73ModelConverter lifetimeActionsModelConverter,
+            @NonNull final CertificateConverterRegistry registry,
             @NonNull final VaultService vaultService) {
-        super(modelConverter, itemModelConverter, versionItemModelConverter, vaultService, VaultFake::certificateVaultFake);
-        this.pendingModelConverter = pendingModelConverter;
-        this.lifetimeActionsModelConverter = lifetimeActionsModelConverter;
+        super(registry, vaultService);
     }
 
     public ResponseEntity<KeyVaultPendingCertificateModel> create(
@@ -61,7 +40,7 @@ public abstract class CommonCertificateController extends GenericEntityControlle
         final CertificateVaultFake vaultFake = getVaultByUri(baseUri);
         final VersionedCertificateEntityId entityId = createCertificateWithAttributes(vaultFake, certificateName, request);
         final ReadOnlyKeyVaultCertificateEntity readOnlyEntity = vaultFake.getEntities().getReadOnlyEntity(entityId);
-        return ResponseEntity.accepted().body(pendingModelConverter.convert(readOnlyEntity, baseUri));
+        return ResponseEntity.accepted().body(registry().pendingOperationConverters(apiVersion()).convert(readOnlyEntity, baseUri));
     }
 
 
@@ -154,8 +133,13 @@ public abstract class CommonCertificateController extends GenericEntityControlle
         log.info("Received request to {} list certificate versions: {} , (max results: {}, skip: {}) using API version: {}",
                 baseUri.toString(), certificateName, maxResults, skipToken, apiVersion());
 
-        return ResponseEntity.ok(getPageOfItemVersions(
-                baseUri, certificateName, maxResults, skipToken, "/certificates/" + certificateName + "/versions"));
+        return ResponseEntity.ok(getPageOfItemVersions(baseUri, certificateName, PaginationContext
+                .builder()
+                .apiVersion(apiVersion())
+                .limit(maxResults)
+                .offset(skipToken)
+                .base(URI.create(baseUri + "/certificates/" + certificateName + "/versions"))
+                .build()));
     }
 
     public ResponseEntity<KeyVaultItemListModel<KeyVaultCertificateItemModel>> listCertificates(
@@ -166,7 +150,14 @@ public abstract class CommonCertificateController extends GenericEntityControlle
         log.info("Received request to {} list certificates, (max results: {}, skip: {}, includePending: {}) using API version: {}",
                 baseUri.toString(), maxResults, skipToken, includePending, apiVersion());
 
-        return ResponseEntity.ok(getPageOfItems(baseUri, maxResults, skipToken, includePending));
+        return ResponseEntity.ok(getPageOfItems(baseUri, PaginationContext
+                .builder()
+                .apiVersion(apiVersion())
+                .limit(maxResults)
+                .offset(skipToken)
+                .base(URI.create(baseUri + "/certificates"))
+                .additionalParameters(Map.of(INCLUDE_PENDING_PARAM, String.valueOf(includePending)))
+                .build()));
     }
 
     public ResponseEntity<KeyVaultItemListModel<DeletedKeyVaultCertificateItemModel>> listDeletedCertificates(
@@ -177,62 +168,13 @@ public abstract class CommonCertificateController extends GenericEntityControlle
         log.info("Received request to {} list deleted certificates, (max results: {}, skip: {}, includePending: {}) using API version: {}",
                 baseUri.toString(), maxResults, skipToken, includePending, apiVersion());
 
-        return ResponseEntity.ok(getPageOfDeletedItems(baseUri, maxResults, skipToken, includePending));
-    }
-
-    @Override
-    protected KeyVaultCertificateModel getModelById(
-            final CertificateVaultFake entityVaultFake,
-            final VersionedCertificateEntityId entityId,
-            final URI baseUri,
-            final boolean includeDisabled) {
-        final KeyVaultCertificateModel model = super.getModelById(entityVaultFake, entityId, baseUri, includeDisabled);
-        lifetimeActionsModelConverter.populateLifetimeActions(entityVaultFake, entityId, model.getPolicy()::setLifetimeActions);
-        return model;
-    }
-
-    @Override
-    protected DeletedKeyVaultCertificateModel getDeletedModelById(
-            final CertificateVaultFake entityVaultFake,
-            final VersionedCertificateEntityId entityId,
-            final URI baseUri,
-            final boolean includeDisabled) {
-        final DeletedKeyVaultCertificateModel model = super.getDeletedModelById(entityVaultFake, entityId, baseUri, includeDisabled);
-        lifetimeActionsModelConverter.populateLifetimeActions(entityVaultFake, entityId, model.getPolicy()::setLifetimeActions);
-        return model;
-    }
-
-    private KeyVaultItemListModel<KeyVaultCertificateItemModel> getPageOfItems(
-            final URI baseUri, final int limit, final int offset, final boolean includePending) {
-        final KeyVaultItemListModel<KeyVaultCertificateItemModel> page =
-                super.getPageOfItems(baseUri, limit, offset, "/certificates");
-        return fixNextLink(page, includePending);
-    }
-
-    private KeyVaultItemListModel<DeletedKeyVaultCertificateItemModel> getPageOfDeletedItems(
-            final URI baseUri, final int limit, final int offset, final boolean includePending) {
-        final KeyVaultItemListModel<DeletedKeyVaultCertificateItemModel> page =
-                super.getPageOfDeletedItems(baseUri, limit, offset, "/deletedcertificates");
-        return fixNextLink(page, includePending);
-    }
-
-    @Override
-    protected VersionedCertificateEntityId versionedEntityId(final URI baseUri, final String name, final String version) {
-        return new VersionedCertificateEntityId(baseUri, name, version);
-    }
-
-    @Override
-    protected CertificateEntityId entityId(final URI baseUri, final String name) {
-        return new CertificateEntityId(baseUri, name);
-    }
-
-    private <LI> KeyVaultItemListModel<LI> fixNextLink(
-            final KeyVaultItemListModel<LI> page,
-            final boolean includePending) {
-        final String nextLink = Optional.ofNullable(page.getNextLink())
-                .map(next -> next + "&" + INCLUDE_PENDING_PARAM + "=" + includePending)
-                .orElse(null);
-        page.setNextLink(nextLink);
-        return page;
+        return ResponseEntity.ok(getPageOfDeletedItems(baseUri, PaginationContext
+                .builder()
+                .apiVersion(apiVersion())
+                .limit(maxResults)
+                .offset(skipToken)
+                .base(URI.create(baseUri + "/deletedcertificates"))
+                .additionalParameters(Map.of(INCLUDE_PENDING_PARAM, String.valueOf(includePending)))
+                .build()));
     }
 }

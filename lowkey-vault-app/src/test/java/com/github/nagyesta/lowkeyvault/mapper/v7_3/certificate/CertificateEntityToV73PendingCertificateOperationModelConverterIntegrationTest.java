@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate;
 
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.CertificateConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.KeyVaultPendingCertificateModel;
@@ -38,12 +39,25 @@ class CertificateEntityToV73PendingCertificateOperationModelConverterIntegration
                 .build();
     }
 
+    @SuppressWarnings("DataFlowIssue")
+    @Test
+    void testConstructorShouldThrowExceptionWhenCalledWithNull() {
+        //given
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> new CertificateEntityToV73PendingCertificateOperationModelConverter(null));
+
+        //then + exception
+    }
+
     @ParameterizedTest
     @MethodSource("nullProvider")
     void testConvertShouldThrowExceptionWhenCalledWithNulls(final ReadOnlyKeyVaultCertificateEntity source, final URI vaultUri) {
         //given
+        final CertificateConverterRegistry registry = mock(CertificateConverterRegistry.class);
         final CertificateEntityToV73PendingCertificateOperationModelConverter underTest =
-                new CertificateEntityToV73PendingCertificateOperationModelConverter();
+                new CertificateEntityToV73PendingCertificateOperationModelConverter(registry);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.convert(source, vaultUri));
@@ -67,8 +81,9 @@ class CertificateEntityToV73PendingCertificateOperationModelConverterIntegration
                 .build();
         final VaultFake vault = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
         final KeyVaultCertificateEntity source = new KeyVaultCertificateEntity(CERT_NAME_1, input, vault);
+        final CertificateConverterRegistry registry = mock(CertificateConverterRegistry.class);
         final CertificateEntityToV73PendingCertificateOperationModelConverter underTest =
-                new CertificateEntityToV73PendingCertificateOperationModelConverter();
+                new CertificateEntityToV73PendingCertificateOperationModelConverter(registry);
 
         //when
         final KeyVaultPendingCertificateModel actual = underTest.convert(source, vault.baseUri());

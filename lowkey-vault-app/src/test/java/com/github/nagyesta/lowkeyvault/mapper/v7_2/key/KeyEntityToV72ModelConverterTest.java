@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_2.key;
 
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
@@ -30,8 +31,7 @@ import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOWKEY_VAULT;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -45,6 +45,8 @@ class KeyEntityToV72ModelConverterTest {
     private VaultFake vault;
     @Mock
     private KeyVaultFake keyVault;
+    @Mock
+    private KeyConverterRegistry registry;
 
     private AutoCloseable openMocks;
 
@@ -81,6 +83,10 @@ class KeyEntityToV72ModelConverterTest {
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
+        //Use any as the converter supports both versions and the internal call might use the latest version
+        when(registry.propertiesConverter(anyString())).thenReturn(propertiesModelConverter);
+        when(registry.versionedEntityId(any(URI.class), anyString(), anyString())).thenCallRealMethod();
+        when(registry.entityId(any(URI.class), anyString())).thenCallRealMethod();
         when(vault.keyVaultFake()).thenReturn(keyVault);
         when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultKeyEntity.class), any(URI.class))).thenReturn(PROPERTIES_MODEL);
     }

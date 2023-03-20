@@ -1,11 +1,14 @@
 package com.github.nagyesta.lowkeyvault.mapper.common;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesModel;
+import com.github.nagyesta.lowkeyvault.service.EntityId;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultEntity;
 
-public class BaseEntityToV72PropertiesModelConverter {
+public abstract class BasePropertiesModelConverter<V extends EntityId,
+        E extends BaseVaultEntity<V>, M extends BasePropertiesModel>
+        implements AliasAwareConverter<E, M> {
 
-    protected <M extends BasePropertiesModel> M mapCommonFields(final BaseVaultEntity<?> entity, final M attributes) {
+    protected M mapCommonFields(final E entity, final M attributes) {
         attributes.setCreatedOn(entity.getCreated());
         attributes.setUpdatedOn(entity.getUpdated());
         attributes.setEnabled(entity.isEnabled());

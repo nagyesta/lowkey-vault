@@ -1,44 +1,33 @@
 package com.github.nagyesta.lowkeyvault.controller.common;
 
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyItemModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyVersionItemModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ModelConverter;
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
-import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesUpdateModel;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.*;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.DeletedKeyVaultKeyItemModel;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.DeletedKeyVaultKeyModel;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyItemModel;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.CreateKeyRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.ImportKeyRequest;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.UpdateKeyRequest;
 import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
-import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
-import org.springframework.util.Assert;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 import java.net.URI;
-import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
-public abstract class CommonKeyController extends GenericEntityController<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity,
-        KeyVaultKeyModel, DeletedKeyVaultKeyModel, KeyVaultKeyItemModel, DeletedKeyVaultKeyItemModel,
-        KeyEntityToV72ModelConverter, KeyEntityToV72KeyItemModelConverter, KeyEntityToV72KeyVersionItemModelConverter,
-        KeyVaultFake> {
+public abstract class CommonKeyController extends BaseKeyController {
 
-    protected CommonKeyController(@NonNull final KeyEntityToV72ModelConverter keyEntityToV72ModelConverter,
-                                  @NonNull final KeyEntityToV72KeyItemModelConverter keyEntityToV72KeyItemModelConverter,
-                                  @NonNull final KeyEntityToV72KeyVersionItemModelConverter keyEntityToV72KeyVersionItemModelConverter,
+    protected CommonKeyController(@NonNull final KeyConverterRegistry registry,
                                   @NonNull final VaultService vaultService) {
-        super(keyEntityToV72ModelConverter, keyEntityToV72KeyItemModelConverter,
-                keyEntityToV72KeyVersionItemModelConverter, vaultService, VaultFake::keyVaultFake);
+        super(registry, vaultService);
     }
 
     public ResponseEntity<KeyVaultKeyModel> create(
@@ -86,7 +75,13 @@ public abstract class CommonKeyController extends GenericEntityController<KeyEnt
         log.info("Received request to {} list key versions: {} , (max results: {}, skip: {}) using API version: {}",
                 baseUri.toString(), keyName, maxResults, skipToken, apiVersion());
 
-        return ResponseEntity.ok(getPageOfItemVersions(baseUri, keyName, maxResults, skipToken, "/keys/" + keyName + "/versions"));
+        return ResponseEntity.ok(getPageOfItemVersions(baseUri, keyName, PaginationContext
+                .builder()
+                .apiVersion(apiVersion())
+                .limit(maxResults)
+                .offset(skipToken)
+                .base(URI.create(baseUri + "/keys/" + keyName + "/versions"))
+                .build()));
     }
 
     public ResponseEntity<KeyVaultItemListModel<KeyVaultKeyItemModel>> listKeys(
@@ -96,7 +91,13 @@ public abstract class CommonKeyController extends GenericEntityController<KeyEnt
         log.info("Received request to {} list keys, (max results: {}, skip: {}) using API version: {}",
                 baseUri.toString(), maxResults, skipToken, apiVersion());
 
-        return ResponseEntity.ok(getPageOfItems(baseUri, maxResults, skipToken, "/keys"));
+        return ResponseEntity.ok(getPageOfItems(baseUri, PaginationContext
+                .builder()
+                .apiVersion(apiVersion())
+                .limit(maxResults)
+                .offset(skipToken)
+                .base(URI.create(baseUri + "/keys"))
+                .build()));
     }
 
     public ResponseEntity<KeyVaultItemListModel<DeletedKeyVaultKeyItemModel>> listDeletedKeys(
@@ -106,7 +107,13 @@ public abstract class CommonKeyController extends GenericEntityController<KeyEnt
         log.info("Received request to {} list deleted keys, (max results: {}, skip: {}) using API version: {}",
                 baseUri.toString(), maxResults, skipToken, apiVersion());
 
-        return ResponseEntity.ok(getPageOfDeletedItems(baseUri, maxResults, skipToken, "/deletedkeys"));
+        return ResponseEntity.ok(getPageOfDeletedItems(baseUri, PaginationContext
+                .builder()
+                .apiVersion(apiVersion())
+                .limit(maxResults)
+                .offset(skipToken)
+                .base(URI.create(baseUri + "/deletedkeys"))
+                .build()));
     }
 
     public ResponseEntity<KeyVaultKeyModel> get(
@@ -180,42 +187,5 @@ public abstract class CommonKeyController extends GenericEntityController<KeyEnt
         final KeyEntityId entityId = new KeyEntityId(baseUri, keyName);
         keyVaultFake.purge(entityId);
         return ResponseEntity.noContent().build();
-    }
-
-    @Override
-    protected VersionedKeyEntityId versionedEntityId(final URI baseUri, final String name, final String version) {
-        return new VersionedKeyEntityId(baseUri, name, version);
-    }
-
-    @Override
-    protected KeyEntityId entityId(final URI baseUri, final String name) {
-        return new KeyEntityId(baseUri, name);
-    }
-
-    private VersionedKeyEntityId createKeyWithAttributes(
-            final KeyVaultFake keyVaultFake, final String keyName, final CreateKeyRequest request) {
-        final KeyPropertiesModel properties = Objects.requireNonNullElse(request.getProperties(), new KeyPropertiesModel());
-        final VersionedKeyEntityId keyEntityId = keyVaultFake.createKeyVersion(keyName, request.toKeyCreationInput());
-        keyVaultFake.setKeyOperations(keyEntityId, request.getKeyOperations());
-        keyVaultFake.addTags(keyEntityId, request.getTags());
-        keyVaultFake.setExpiry(keyEntityId, properties.getNotBefore(), properties.getExpiresOn());
-        keyVaultFake.setEnabled(keyEntityId, properties.isEnabled());
-        //no need to set managed property as this endpoint cannot create managed entities by definition
-        return keyEntityId;
-    }
-
-    private VersionedKeyEntityId importKeyWithAttributes(
-            final KeyVaultFake keyVaultFake, final String keyName, final ImportKeyRequest request) {
-        final BasePropertiesUpdateModel properties = Objects.requireNonNullElse(request.getProperties(), new BasePropertiesUpdateModel());
-        Assert.isTrue(request.getHsm() == null || request.getHsm() == request.getKey().getKeyType().isHsm(),
-                "When HSM property is set in request, key type must match it.");
-        final VersionedKeyEntityId keyEntityId = keyVaultFake.importKeyVersion(keyName, request.getKey());
-        final JsonWebKeyImportRequest keyImport = request.getKey();
-        keyVaultFake.setKeyOperations(keyEntityId, keyImport.getKeyOps());
-        keyVaultFake.addTags(keyEntityId, request.getTags());
-        keyVaultFake.setExpiry(keyEntityId, properties.getNotBefore(), properties.getExpiresOn());
-        keyVaultFake.setEnabled(keyEntityId, Objects.requireNonNullElse(properties.getEnabled(), true));
-        //no need to set managed property as this endpoint cannot create managed entities by definition
-        return keyEntityId;
     }
 }

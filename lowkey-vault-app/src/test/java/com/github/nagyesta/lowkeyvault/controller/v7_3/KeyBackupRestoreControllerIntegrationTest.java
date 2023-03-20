@@ -2,12 +2,11 @@ package com.github.nagyesta.lowkeyvault.controller.v7_3;
 
 import com.github.nagyesta.abortmission.booster.jupiter.annotation.LaunchAbortArmed;
 import com.github.nagyesta.lowkeyvault.TestConstantsUri;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72BackupConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_3.key.KeyRotationPolicyToV73ModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_3.key.KeyRotationPolicyV73ModelToEntityConverter;
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
+import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupList;
+import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupListItem;
+import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyBackupListItem;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyPropertiesModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
@@ -23,6 +22,7 @@ import com.github.nagyesta.lowkeyvault.service.key.constants.LifetimeActionTrigg
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.impl.EcKeyCreationInput;
+import com.github.nagyesta.lowkeyvault.service.key.impl.KeyCreateDetailedInput;
 import com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import org.junit.jupiter.api.AfterEach;
@@ -62,21 +62,13 @@ class KeyBackupRestoreControllerIntegrationTest {
     private KeyBackupRestoreController underTest;
     @Autowired
     private VaultService vaultService;
-    @Autowired
-    private KeyRotationPolicyToV73ModelConverter toModelConverter;
-    @Autowired
-    private KeyRotationPolicyV73ModelToEntityConverter toEntityConverter;
     private URI uri;
 
     public static Stream<Arguments> nullProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null))
-                .add(Arguments.of(mock(KeyEntityToV72ModelConverter.class), null, null))
-                .add(Arguments.of(null, mock(KeyEntityToV72BackupConverter.class), null))
-                .add(Arguments.of(null, null, mock(VaultService.class)))
-                .add(Arguments.of(null, mock(KeyEntityToV72BackupConverter.class), null))
-                .add(Arguments.of(mock(KeyEntityToV72ModelConverter.class), null, mock(VaultService.class)))
-                .add(Arguments.of(mock(KeyEntityToV72ModelConverter.class), mock(KeyEntityToV72BackupConverter.class), null))
+                .add(Arguments.of(null, null))
+                .add(Arguments.of(mock(VaultService.class), null))
+                .add(Arguments.of(null, mock(KeyConverterRegistry.class)))
                 .build();
     }
 
@@ -95,15 +87,12 @@ class KeyBackupRestoreControllerIntegrationTest {
 
     @ParameterizedTest
     @MethodSource("nullProvider")
-    void testConstructorShouldThrowExceptionWhenCalledWithNulls(
-            final KeyEntityToV72ModelConverter modelConverter,
-            final KeyEntityToV72BackupConverter backupConverter,
-            final VaultService vaultService) {
+    void testConstructorShouldThrowExceptionWhenCalledWithNulls(final VaultService vaultService, final KeyConverterRegistry registry) {
         //given
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new KeyBackupRestoreController(modelConverter, backupConverter, vaultService, toModelConverter, toEntityConverter));
+                () -> new KeyBackupRestoreController(registry, vaultService));
 
         //then + exception
     }
@@ -225,7 +214,9 @@ class KeyBackupRestoreControllerIntegrationTest {
         addVersionToList(uri, KEY_NAME_1, KEY_VERSION_1, backupModel, TAGS_EMPTY);
         addVersionToList(uri, KEY_NAME_1, KEY_VERSION_2, backupModel, TAGS_ONE_KEY);
         vaultService.findByUri(uri).keyVaultFake()
-                .createKeyVersion(KEY_NAME_1, new EcKeyCreationInput(KeyType.EC, KeyCurveName.P_256));
+                .createKeyVersion(KEY_NAME_1, KeyCreateDetailedInput.builder()
+                        .key(new EcKeyCreationInput(KeyType.EC, KeyCurveName.P_256))
+                        .build());
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.restore(uri, backupModel));
@@ -242,7 +233,9 @@ class KeyBackupRestoreControllerIntegrationTest {
         addVersionToList(uri, KEY_NAME_1, KEY_VERSION_2, backupModel, TAGS_ONE_KEY);
         final KeyVaultFake vaultFake = vaultService.findByUri(uri).keyVaultFake();
         final VersionedKeyEntityId keyVersion = vaultFake
-                .createKeyVersion(KEY_NAME_1, new EcKeyCreationInput(KeyType.EC, KeyCurveName.P_256));
+                .createKeyVersion(KEY_NAME_1, KeyCreateDetailedInput.builder()
+                        .key(new EcKeyCreationInput(KeyType.EC, KeyCurveName.P_256))
+                        .build());
         vaultFake.delete(keyVersion);
 
         //when

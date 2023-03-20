@@ -1,16 +1,18 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate;
 
-import com.github.nagyesta.lowkeyvault.mapper.AliasAwareConverter;
+import com.github.nagyesta.lowkeyvault.context.ApiVersionAware;
+import com.github.nagyesta.lowkeyvault.mapper.common.AliasAwareConverter;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.*;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.ReadOnlyCertificatePolicy;
 import lombok.NonNull;
 
 import java.net.URI;
+import java.util.SortedSet;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class BaseCertificateEntityToV73PolicyModelConverter
+public abstract class BaseCertificateEntityToV73PolicyModelConverter
         implements AliasAwareConverter<ReadOnlyKeyVaultCertificateEntity, CertificatePolicyModel> {
 
     private final Supplier<CertificatePolicyModel> modelSupplier;
@@ -95,5 +97,8 @@ public class BaseCertificateEntityToV73PolicyModelConverter
         return model;
     }
 
-
+    @Override
+    public SortedSet<String> supportedVersions() {
+        return ApiVersionAware.V7_3;
+    }
 }

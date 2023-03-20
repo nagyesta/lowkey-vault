@@ -1,9 +1,7 @@
 package com.github.nagyesta.lowkeyvault.controller.v7_3;
 
 import com.github.nagyesta.lowkeyvault.controller.common.CommonKeyController;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyItemModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyVersionItemModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ModelConverter;
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
 import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.DeletedKeyVaultKeyItemModel;
@@ -39,12 +37,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class KeyController extends CommonKeyController {
 
     @Autowired
-    public KeyController(@NonNull final KeyEntityToV72ModelConverter keyEntityToV72ModelConverter,
-                         @NonNull final KeyEntityToV72KeyItemModelConverter keyEntityToV72KeyItemModelConverter,
-                         @NonNull final KeyEntityToV72KeyVersionItemModelConverter keyEntityToV72KeyVersionItemModelConverter,
-                         @NonNull final VaultService vaultService) {
-        super(keyEntityToV72ModelConverter, keyEntityToV72KeyItemModelConverter,
-                keyEntityToV72KeyVersionItemModelConverter, vaultService);
+    public KeyController(@NonNull final KeyConverterRegistry registry, @NonNull final VaultService vaultService) {
+        super(registry, vaultService);
     }
 
     @Override

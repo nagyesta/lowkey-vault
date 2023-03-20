@@ -1,8 +1,13 @@
 package com.github.nagyesta.lowkeyvault.controller.common;
 
+import com.github.nagyesta.lowkeyvault.mapper.common.BaseEntityConverterRegistry;
 import com.github.nagyesta.lowkeyvault.mapper.common.RecoveryAwareConverter;
 import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
+import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesUpdateModel;
+import com.github.nagyesta.lowkeyvault.model.v7_2.common.BaseBackupListItem;
+import com.github.nagyesta.lowkeyvault.model.v7_2.common.BaseBackupModel;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.BackupListContainer;
 import com.github.nagyesta.lowkeyvault.service.EntityId;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultEntity;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultFake;
@@ -19,8 +24,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.API_VERSION_PREFIX;
-
 /**
  * The base implementation of the entity controllers.
  *
@@ -35,11 +38,23 @@ import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.API_VERS
  * @param <IC>  The item converter, converting version item entities to item models.
  * @param <VIC> The versioned item converter, converting version item entities to item models.
  * @param <S>   The fake type holding the entities.
+ * @param <PM>  The type of the PropertiesModel.
+ * @param <BLI> The list item type of the backup lists.
+ * @param <BL>  The type of the backup list.
+ * @param <B>   The type of the backup model.
+ * @param <R>   The ConverterRegistry used for conversions.
  */
 public abstract class GenericEntityController<K extends EntityId, V extends K, E extends BaseVaultEntity<V>,
-        M, DM extends M, I, DI extends I, MC extends RecoveryAwareConverter<E, M, DM>,
-        IC extends RecoveryAwareConverter<E, I, DI>, VIC extends RecoveryAwareConverter<E, I, DI>,
-        S extends BaseVaultFake<K, V, E>> extends BaseEntityReadController<K, V, E, S> {
+        M, DM extends M, I, DI extends I,
+        MC extends RecoveryAwareConverter<E, M, DM>,
+        IC extends RecoveryAwareConverter<E, I, DI>,
+        VIC extends RecoveryAwareConverter<E, I, DI>,
+        S extends BaseVaultFake<K, V, E>,
+        PM extends BasePropertiesModel,
+        BLI extends BaseBackupListItem<PM>,
+        BL extends BackupListContainer<BLI>,
+        B extends BaseBackupModel<PM, BLI, BL>,
+        R extends BaseEntityConverterRegistry<K, V, E, M, DM, PM, I, DI, BLI, BL, B>> extends BaseEntityReadController<K, V, E, S> {
     /**
      * Default page size used when returning available versions of an entity.
      */
@@ -56,19 +71,27 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
      * Parameter name for the offset when returning versions of an entity.
      */
     protected static final String SKIP_TOKEN_PARAM = "$skiptoken";
-    private final MC modelConverter;
-    private final IC itemConverter;
-    private final VIC versionedItemConverter;
+    private final R registry;
 
-    protected GenericEntityController(@NonNull final MC modelConverter,
-                                      @NonNull final IC itemConverter,
-                                      @NonNull final VIC versionedItemConverter,
+    protected R registry() {
+        return registry;
+    }
+
+    protected GenericEntityController(@NonNull final R registry,
                                       @org.springframework.lang.NonNull final VaultService vaultService,
                                       @org.springframework.lang.NonNull final Function<VaultFake, S> toEntityVault) {
         super(vaultService, toEntityVault);
-        this.modelConverter = modelConverter;
-        this.itemConverter = itemConverter;
-        this.versionedItemConverter = versionedItemConverter;
+        this.registry = registry;
+    }
+
+    @Override
+    protected final V versionedEntityId(final URI baseUri, final String name, final String version) {
+        return registry.versionedEntityId(baseUri, name, version);
+    }
+
+    @Override
+    protected final K entityId(final URI baseUri, final String name) {
+        return registry.entityId(baseUri, name);
     }
 
     protected M getModelById(final S entityVaultFake, final V entityId, final URI baseUri, final boolean includeDisabled) {
@@ -76,7 +99,7 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
         if (!includeDisabled && !entity.isEnabled()) {
             throw new NotFoundException("Operation get is not allowed on a disabled entity.");
         }
-        return modelConverter.convert(entity, baseUri);
+        return registry.modelConverter(apiVersion()).convert(entity, baseUri);
     }
 
     protected DM getDeletedModelById(final S entityVaultFake, final V entityId, final URI baseUri, final boolean includeDisabled) {
@@ -84,44 +107,73 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
         if (!includeDisabled && !entity.isEnabled()) {
             throw new NotFoundException("Operation get is not allowed on a disabled entity.");
         }
-        return modelConverter.convertDeleted(entity, baseUri);
+        return registry.modelConverter(apiVersion()).convertDeleted(entity, baseUri);
     }
 
     protected M convertDetails(final E entity, final URI vaultUri) {
-        return modelConverter.convert(entity, vaultUri);
+        return registry.modelConverter(apiVersion()).convert(entity, vaultUri);
     }
 
     protected KeyVaultItemListModel<I> getPageOfItemVersions(
-            final URI baseUri, final String name, final int limit, final int offset, final String uriPath) {
+            final URI baseUri, final String name, final PaginationContext pagination) {
         final S entityVaultFake = getVaultByUri(baseUri);
         final K entityId = entityId(baseUri, name);
         final List<String> allItems = entityVaultFake.getEntities().getVersions(entityId)
                 .stream()
                 .sorted()
                 .collect(Collectors.toList());
-        final List<I> items = filterList(limit, offset, allItems, v -> {
+        final List<I> items = filterList(pagination.getLimit(), pagination.getOffset(), allItems, v -> {
             final E entity = getEntityByNameAndVersion(baseUri, name, v);
-            return versionedItemConverter.convert(entity, baseUri);
+            return registry.versionedItemConverter(apiVersion()).convert(entity, baseUri);
         });
-        final URI nextUri = getNextUri(baseUri + uriPath, allItems, items, limit, offset);
+        final URI nextUri = PaginationContext.builder()
+                .base(pagination.getBase())
+                .apiVersion(pagination.getApiVersion())
+                .currentItems(items.size())
+                .totalItems(allItems.size())
+                .limit(pagination.getLimit())
+                .offset(pagination.getOffset())
+                .additionalParameters(pagination.getAdditionalParameters())
+                .build()
+                .asNextUri();
         return listModel(items, nextUri);
     }
 
     @SuppressWarnings("SameParameterValue")
-    protected KeyVaultItemListModel<I> getPageOfItems(final URI baseUri, final int limit, final int offset, final String uriPath) {
+    protected KeyVaultItemListModel<I> getPageOfItems(final URI baseUri, final PaginationContext pagination) {
         final S entityVaultFake = getVaultByUri(baseUri);
         final List<E> allItems = entityVaultFake.getEntities().listLatestNonManagedEntities();
-        final List<I> items = filterList(limit, offset, allItems, source -> itemConverter.convert(source, baseUri));
-        final URI nextUri = getNextUri(baseUri + uriPath, allItems, items, limit, offset);
+        final List<I> items = filterList(pagination.getLimit(), pagination.getOffset(), allItems,
+                source -> registry.itemConverter(apiVersion()).convert(source, baseUri));
+        final URI nextUri = PaginationContext.builder()
+                .base(pagination.getBase())
+                .apiVersion(pagination.getApiVersion())
+                .currentItems(items.size())
+                .totalItems(allItems.size())
+                .limit(pagination.getLimit())
+                .offset(pagination.getOffset())
+                .additionalParameters(pagination.getAdditionalParameters())
+                .build()
+                .asNextUri();
         return listModel(items, nextUri);
     }
 
     @SuppressWarnings("SameParameterValue")
-    protected KeyVaultItemListModel<DI> getPageOfDeletedItems(final URI baseUri, final int limit, final int offset, final String uriPath) {
+    protected KeyVaultItemListModel<DI> getPageOfDeletedItems(final URI baseUri, final PaginationContext pagination) {
         final S entityVaultFake = getVaultByUri(baseUri);
         final List<E> allItems = entityVaultFake.getDeletedEntities().listLatestNonManagedEntities();
-        final List<DI> items = filterList(limit, offset, allItems, source -> itemConverter.convertDeleted(source, baseUri));
-        final URI nextUri = getNextUri(baseUri + uriPath, allItems, items, limit, offset);
+        final List<DI> items = filterList(pagination.getLimit(), pagination.getOffset(), allItems,
+                source -> registry.itemConverter(apiVersion()).convertDeleted(source, baseUri));
+        final URI nextUri = PaginationContext.builder()
+                .base(pagination.getBase())
+                .apiVersion(apiVersion())
+                .currentItems(items.size())
+                .totalItems(allItems.size())
+                .limit(pagination.getLimit())
+                .offset(pagination.getOffset())
+                .additionalParameters(pagination.getAdditionalParameters())
+                .build()
+                .asNextUri();
         return listModel(items, nextUri);
     }
 
@@ -160,15 +212,6 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
         return new KeyVaultItemListModel<>(items, nextUri);
     }
 
-    private URI getNextUri(final String prefix, final Collection<?> allItems,
-                           final Collection<?> items, final int limit, final int offset) {
-        URI nextUri = null;
-        if (hasMorePages(limit, offset, allItems)) {
-            nextUri = URI.create(prefix + pageSuffix(limit, offset + items.size()));
-        }
-        return nextUri;
-    }
-
     private <FR, LI> List<LI> filterList(
             final int limit, final int offset, final Collection<FR> allItems, final Function<FR, LI> mapper) {
         return allItems.stream()
@@ -176,14 +219,6 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
                 .limit(limit)
                 .map(mapper)
                 .collect(Collectors.toList());
-    }
-
-    private boolean hasMorePages(final int limit, final int offset, final Collection<?> allItems) {
-        return limit + offset < allItems.size();
-    }
-
-    private String pageSuffix(final int maxResults, final int skip) {
-        return "?" + API_VERSION_PREFIX + apiVersion() + "&" + SKIP_TOKEN_PARAM + "=" + skip + "&" + MAX_RESULTS_PARAM + "=" + maxResults;
     }
 
 }

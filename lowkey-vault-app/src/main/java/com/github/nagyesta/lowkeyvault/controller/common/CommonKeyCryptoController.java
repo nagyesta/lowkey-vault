@@ -1,17 +1,13 @@
 package com.github.nagyesta.lowkeyvault.controller.common;
 
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyItemModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyVersionItemModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ModelConverter;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.*;
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyOperationsResult;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeySignResult;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVerifyResult;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeyOperationsParameters;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeySignParameters;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeyVerifyParameters;
-import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
-import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
-import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -22,18 +18,10 @@ import javax.validation.constraints.Pattern;
 import java.net.URI;
 
 @Slf4j
-public abstract class CommonKeyCryptoController extends GenericEntityController<KeyEntityId, VersionedKeyEntityId,
-        ReadOnlyKeyVaultKeyEntity, KeyVaultKeyModel, DeletedKeyVaultKeyModel, KeyVaultKeyItemModel, DeletedKeyVaultKeyItemModel,
-        KeyEntityToV72ModelConverter, KeyEntityToV72KeyItemModelConverter, KeyEntityToV72KeyVersionItemModelConverter,
-        KeyVaultFake> {
+public abstract class CommonKeyCryptoController extends BaseKeyController {
 
-    protected CommonKeyCryptoController(
-            @NonNull final KeyEntityToV72ModelConverter keyEntityToV72ModelConverter,
-            @NonNull final KeyEntityToV72KeyItemModelConverter keyEntityToV72KeyItemModelConverter,
-            @NonNull final KeyEntityToV72KeyVersionItemModelConverter keyEntityToV72KeyVersionItemModelConverter,
-            @NonNull final VaultService vaultService) {
-        super(keyEntityToV72ModelConverter, keyEntityToV72KeyItemModelConverter,
-                keyEntityToV72KeyVersionItemModelConverter, vaultService, VaultFake::keyVaultFake);
+    protected CommonKeyCryptoController(@NonNull final KeyConverterRegistry registry, @NonNull final VaultService vaultService) {
+        super(registry, vaultService);
     }
 
     public ResponseEntity<KeyOperationsResult> encrypt(
@@ -89,16 +77,6 @@ public abstract class CommonKeyCryptoController extends GenericEntityController<
         final boolean result = keyVaultKeyEntity.verifySignedBytes(request.getDigestAsBase64DecodedBytes(), request.getAlgorithm(),
                 request.getValueAsBase64DecodedBytes());
         return ResponseEntity.ok(new KeyVerifyResult(result));
-    }
-
-    @Override
-    protected VersionedKeyEntityId versionedEntityId(final URI baseUri, final String name, final String version) {
-        return new VersionedKeyEntityId(baseUri, name, version);
-    }
-
-    @Override
-    protected KeyEntityId entityId(final URI baseUri, final String name) {
-        return new KeyEntityId(baseUri, name);
     }
 
 }

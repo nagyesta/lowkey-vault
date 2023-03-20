@@ -1,9 +1,7 @@
 package com.github.nagyesta.lowkeyvault.controller.v7_2;
 
 import com.github.nagyesta.lowkeyvault.controller.common.CommonSecretController;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72ModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72SecretItemModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72SecretVersionItemModelConverter;
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.SecretConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
 import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.DeletedKeyVaultSecretItemModel;
@@ -36,13 +34,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class SecretController extends CommonSecretController {
 
     @Autowired
-    public SecretController(
-            @NonNull final SecretEntityToV72ModelConverter secretEntityToV72ModelConverter,
-            @NonNull final SecretEntityToV72SecretItemModelConverter secretEntityToV72SecretItemModelConverter,
-            @NonNull final SecretEntityToV72SecretVersionItemModelConverter secretEntityToV72SecretVersionItemModelConverter,
-            @NonNull final VaultService vaultService) {
-        super(secretEntityToV72ModelConverter, secretEntityToV72SecretItemModelConverter,
-                secretEntityToV72SecretVersionItemModelConverter, vaultService);
+    public SecretController(@NonNull final SecretConverterRegistry registry, @NonNull final VaultService vaultService) {
+        super(registry, vaultService);
     }
 
     @Override

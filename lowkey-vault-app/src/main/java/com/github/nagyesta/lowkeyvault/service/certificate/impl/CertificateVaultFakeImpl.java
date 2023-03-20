@@ -8,6 +8,7 @@ import com.github.nagyesta.lowkeyvault.service.certificate.id.CertificateEntityI
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.common.ReadOnlyVersionedEntityMultiMap;
 import com.github.nagyesta.lowkeyvault.service.common.impl.BaseVaultFakeImpl;
+import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
@@ -101,20 +102,25 @@ public class CertificateVaultFakeImpl
     }
 
     private VersionedKeyEntityId rotateIfNeededAndGetLastKeyId(final ReadOnlyCertificatePolicy input) {
-        final ReadOnlyVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> entities = vaultFake()
-                .keyVaultFake().getEntities();
+        final KeyVaultFake keyVaultFake = vaultFake().keyVaultFake();
+        final ReadOnlyVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> entities = keyVaultFake
+                .getEntities();
         final VersionedKeyEntityId versionedKeyEntityId;
         if (input.isReuseKeyOnRenewal()) {
             final String lastVersion = entities.getVersions(new KeyEntityId(vaultFake().baseUri(), input.getName())).getLast();
             versionedKeyEntityId = new VersionedKeyEntityId(vaultFake().baseUri(), input.getName(), lastVersion);
+            final OffsetDateTime notBefore = entities.getReadOnlyEntity(versionedKeyEntityId)
+                    .getNotBefore().orElseThrow(() -> new IllegalStateException("Managed keys should always have notBefore timestamps."));
+            final OffsetDateTime newExpiry = input.getValidityStart().plusMonths(input.getValidityMonths());
+            //extend expiry until the certificate expiry
+            keyVaultFake.setExpiry(versionedKeyEntityId, notBefore, newExpiry);
         } else {
-            versionedKeyEntityId = vaultFake().keyVaultFake().rotateKey(new KeyEntityId(vaultFake().baseUri(), input.getName()));
+            versionedKeyEntityId = keyVaultFake.rotateKey(new KeyEntityId(vaultFake().baseUri(), input.getName()));
             //update timestamps
             final OffsetDateTime notBefore = input.getValidityStart();
             final OffsetDateTime expiry = notBefore.plusMonths(input.getValidityMonths());
-            vaultFake().keyVaultFake().setExpiry(versionedKeyEntityId, notBefore, expiry);
-            final KeyVaultKeyEntity<?, ?> entity = vaultFake()
-                    .keyVaultFake().getEntities().getEntity(versionedKeyEntityId, KeyVaultKeyEntity.class);
+            keyVaultFake.setExpiry(versionedKeyEntityId, notBefore, expiry);
+            final KeyVaultKeyEntity<?, ?> entity = keyVaultFake.getEntities().getEntity(versionedKeyEntityId, KeyVaultKeyEntity.class);
             entity.setManaged(true);
             entity.setCreatedOn(notBefore);
             entity.setUpdatedOn(notBefore);

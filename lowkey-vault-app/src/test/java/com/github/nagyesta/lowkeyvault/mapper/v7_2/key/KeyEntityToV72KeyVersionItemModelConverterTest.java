@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_2.key;
 
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyItemModel;
 import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -25,14 +25,12 @@ import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOWKEY_VAULT;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class KeyEntityToV72KeyVersionItemModelConverterTest {
 
-    @InjectMocks
     private KeyEntityToV72KeyVersionItemModelConverter underTest;
     @Mock
     private KeyEntityToV72PropertiesModelConverter propertiesModelConverter;
@@ -40,6 +38,8 @@ class KeyEntityToV72KeyVersionItemModelConverterTest {
     private VaultFake vault;
     @Mock
     private KeyVaultFake keyVault;
+    @Mock
+    private KeyConverterRegistry registry;
 
     private AutoCloseable openMocks;
 
@@ -61,6 +61,8 @@ class KeyEntityToV72KeyVersionItemModelConverterTest {
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
+        underTest = new KeyEntityToV72KeyVersionItemModelConverter(registry);
+        when(registry.propertiesConverter(anyString())).thenReturn(propertiesModelConverter);
         when(vault.keyVaultFake()).thenReturn(keyVault);
         when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultKeyEntity.class), any(URI.class))).thenReturn(PROPERTIES_MODEL);
     }

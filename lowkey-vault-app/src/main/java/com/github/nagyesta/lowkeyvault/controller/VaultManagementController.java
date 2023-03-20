@@ -16,7 +16,6 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -25,12 +24,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.github.nagyesta.lowkeyvault.openapi.Examples.*;
+import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @RestController
 @RequestMapping(value = "/management/vault",
-        consumes = MimeTypeUtils.APPLICATION_JSON_VALUE,
-        produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
+        consumes = APPLICATION_JSON_VALUE,
+        produces = APPLICATION_JSON_VALUE)
 public class VaultManagementController extends ErrorHandlingAwareController {
 
     private final VaultService vaultService;
@@ -48,29 +48,15 @@ public class VaultManagementController extends ErrorHandlingAwareController {
             summary = "Create a vault",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Operation completed",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = VaultModel.class)
-                            )),
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = VaultModel.class))),
                     @ApiResponse(responseCode = "404", description = "Vault not found",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorModel.class)
-                            )),
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorModel.class))),
                     @ApiResponse(responseCode = "400", description = "Validation Failure",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorModel.class)
-                            )),
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorModel.class))),
                     @ApiResponse(responseCode = "500", description = "Internal error",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorModel.class)
-                            ))},
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorModel.class)))},
             requestBody = @RequestBody(
-                    content = @Content(
-                            mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = VaultModel.class))))
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = VaultModel.class))))
     @PostMapping
     public ResponseEntity<VaultModel> createVault(@Valid @org.springframework.web.bind.annotation.RequestBody final VaultModel model) {
         log.info("Received request to create vault with uri: {}, recovery level: {}, recoverable days: {}",
@@ -84,15 +70,11 @@ public class VaultManagementController extends ErrorHandlingAwareController {
             summary = "List active vaults",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Operation completed (result in response body)",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE,
                                     array = @ArraySchema(schema = @Schema(implementation = VaultModel.class)))),
                     @ApiResponse(responseCode = "500", description = "Internal error",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorModel.class)
-                            ))},
-            requestBody = @RequestBody(content = @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE)))
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorModel.class)))},
+            requestBody = @RequestBody(content = @Content(mediaType = APPLICATION_JSON_VALUE)))
     @GetMapping
     public ResponseEntity<List<VaultModel>> listVaults() {
         log.info("Received request to list vaults.");
@@ -107,15 +89,11 @@ public class VaultManagementController extends ErrorHandlingAwareController {
             summary = "List deleted vaults",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Operation completed (result in response body)",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE,
                                     array = @ArraySchema(schema = @Schema(implementation = VaultModel.class)))),
                     @ApiResponse(responseCode = "500", description = "Internal error",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorModel.class)
-                            ))},
-            requestBody = @RequestBody(content = @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE)))
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorModel.class)))},
+            requestBody = @RequestBody(content = @Content(mediaType = APPLICATION_JSON_VALUE)))
     @GetMapping("/deleted")
     public ResponseEntity<List<VaultModel>> listDeletedVaults() {
         log.info("Received request to list deleted vaults.");
@@ -130,30 +108,17 @@ public class VaultManagementController extends ErrorHandlingAwareController {
             summary = "Delete a vault",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Operation completed (result in response body)",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(
-                                            implementation = Boolean.class,
-                                            description = "True if the operation changed anything.")
-                            )),
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = Boolean.class,
+                                    description = "True if the operation changed something."))),
                     @ApiResponse(responseCode = "404", description = "Vault not found",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorModel.class)
-                            )),
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorModel.class))),
                     @ApiResponse(responseCode = "400", description = "Validation Failure",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorModel.class)
-                            )),
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorModel.class))),
                     @ApiResponse(responseCode = "500", description = "Internal error",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorModel.class)
-                            ))},
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorModel.class)))},
             parameters = {
                     @Parameter(name = "baseUri", example = BASE_URI, description = "The base URI of the vault we want delete.")},
-            requestBody = @RequestBody(content = @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE)))
+            requestBody = @RequestBody(content = @Content(mediaType = APPLICATION_JSON_VALUE)))
     @DeleteMapping
     public ResponseEntity<Boolean> deleteVault(@RequestParam final URI baseUri) {
         log.info("Received request to delete vault with uri: {}", baseUri);
@@ -164,28 +129,16 @@ public class VaultManagementController extends ErrorHandlingAwareController {
             summary = "Recover a deleted vault",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Operation completed",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = VaultModel.class)
-                            )),
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = VaultModel.class))),
                     @ApiResponse(responseCode = "404", description = "Vault not found",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorModel.class)
-                            )),
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorModel.class))),
                     @ApiResponse(responseCode = "400", description = "Validation Failure",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorModel.class)
-                            )),
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorModel.class))),
                     @ApiResponse(responseCode = "500", description = "Internal error",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorModel.class)
-                            ))},
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorModel.class)))},
             parameters = {
                     @Parameter(name = "baseUri", example = BASE_URI, description = "The base URI of the vault we want to recover.")},
-            requestBody = @RequestBody(content = @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE)))
+            requestBody = @RequestBody(content = @Content(mediaType = APPLICATION_JSON_VALUE)))
     @PutMapping("/recover")
     public ResponseEntity<VaultModel> recoverVault(@RequestParam final URI baseUri) {
         log.info("Received request to recover deleted vault with uri: {}", baseUri);
@@ -198,30 +151,17 @@ public class VaultManagementController extends ErrorHandlingAwareController {
             summary = "Purge a deleted vault",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Operation completed (result in response body)",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(
-                                            implementation = Boolean.class,
-                                            description = "True if the operation changed anything.")
-                            )),
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = Boolean.class,
+                                    description = "True if the operation changed something."))),
                     @ApiResponse(responseCode = "404", description = "Vault not found",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorModel.class)
-                            )),
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorModel.class))),
                     @ApiResponse(responseCode = "400", description = "Validation Failure",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorModel.class)
-                            )),
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorModel.class))),
                     @ApiResponse(responseCode = "500", description = "Internal error",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorModel.class)
-                            ))},
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorModel.class)))},
             parameters = {
                     @Parameter(name = "baseUri", example = BASE_URI, description = "The base URI of the vault we want to purge.")},
-            requestBody = @RequestBody(content = @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE)))
+            requestBody = @RequestBody(content = @Content(mediaType = APPLICATION_JSON_VALUE)))
     @DeleteMapping("/purge")
     public ResponseEntity<Boolean> purgeVault(@RequestParam final URI baseUri) {
         log.info("Received request to purge deleted vault with uri: {}", baseUri);
@@ -232,25 +172,13 @@ public class VaultManagementController extends ErrorHandlingAwareController {
             summary = "Update aliases of a vault",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Operation completed (result in response body)",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = VaultModel.class)
-                            )),
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = VaultModel.class))),
                     @ApiResponse(responseCode = "404", description = "Vault not found",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorModel.class)
-                            )),
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorModel.class))),
                     @ApiResponse(responseCode = "400", description = "Validation Failure",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorModel.class)
-                            )),
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorModel.class))),
                     @ApiResponse(responseCode = "500", description = "Internal error",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorModel.class)
-                            ))},
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorModel.class)))},
             parameters = {
                     @Parameter(name = "baseUri", example = BASE_URI,
                             description = "The base URI of the vault we want to update."),
@@ -258,7 +186,7 @@ public class VaultManagementController extends ErrorHandlingAwareController {
                             description = "The base URI we want to add to the aliases of the vault.", required = false),
                     @Parameter(name = "remove", example = ALIAS2,
                             description = "The base URI we want to remove from the aliases of the vault.", required = false)},
-            requestBody = @RequestBody(content = @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE)))
+            requestBody = @RequestBody(content = @Content(mediaType = APPLICATION_JSON_VALUE)))
     @PatchMapping("/alias")
     public ResponseEntity<VaultModel> aliasUpdate(@RequestParam final URI baseUri,
                                                   @RequestParam(required = false) final URI add,
@@ -272,24 +200,16 @@ public class VaultManagementController extends ErrorHandlingAwareController {
             summary = "Time shift for ALL vaults",
             responses = {
                     @ApiResponse(responseCode = "204", description = "Successful Operation",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE
-                            )),
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE)),
                     @ApiResponse(responseCode = "400", description = "Validation Failure",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorModel.class)
-                            )),
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorModel.class))),
                     @ApiResponse(responseCode = "500", description = "Internal error",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorModel.class)
-                            ))},
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorModel.class)))},
             parameters = {
                     @Parameter(name = "seconds", example = ONE, description = "The number of seconds we want to shift."),
                     @Parameter(name = "regenerateCertificates", example = FALSE,
                             description = "Whether we allow regeneration of certificates to let their validity match the new time-frame.")},
-            requestBody = @RequestBody(content = @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE)))
+            requestBody = @RequestBody(content = @Content(mediaType = APPLICATION_JSON_VALUE)))
     @PutMapping(value = "/time/all", params = {"seconds"})
     public ResponseEntity<Void> timeShiftAll(
             @RequestParam final int seconds,
@@ -304,30 +224,19 @@ public class VaultManagementController extends ErrorHandlingAwareController {
             summary = "Time shift for a single vault",
             responses = {
                     @ApiResponse(responseCode = "204", description = "Successful Operation",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE
-                            )),
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE)),
                     @ApiResponse(responseCode = "404", description = "Vault not found",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorModel.class)
-                            )),
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorModel.class))),
                     @ApiResponse(responseCode = "400", description = "Validation Failure",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorModel.class)
-                            )),
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorModel.class))),
                     @ApiResponse(responseCode = "500", description = "Internal error",
-                            content = @Content(
-                                    mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorModel.class)
-                            ))},
+                            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorModel.class)))},
             parameters = {
                     @Parameter(name = "seconds", example = ONE, description = "The number of seconds we want to shift."),
                     @Parameter(name = "baseUri", example = BASE_URI, description = "The base URI of the vault we want to shift."),
                     @Parameter(name = "regenerateCertificates", example = FALSE,
                             description = "Whether we allow regeneration of certificates to let their validity match the new time-frame.")},
-            requestBody = @RequestBody(content = @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE)))
+            requestBody = @RequestBody(content = @Content(mediaType = APPLICATION_JSON_VALUE)))
     @PutMapping(value = "/time", params = {"baseUri", "seconds"})
     public ResponseEntity<Void> timeShiftSingle(
             @RequestParam final URI baseUri, @RequestParam final int seconds,

@@ -1,7 +1,9 @@
 package com.github.nagyesta.lowkeyvault.model.v7_2.key;
 
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72BackupConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72PropertiesModelConverter;
+import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupListItem;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRequest;
@@ -16,7 +18,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -35,17 +36,20 @@ import static org.mockito.Mockito.*;
 class KeyEntityToV72BackupConverterTest {
 
     private static final KeyPropertiesModel KEY_PROPERTIES_MODEL = new KeyPropertiesModel();
+    private KeyEntityToV72BackupConverter underTest;
     @Mock
     private VaultFake vaultFake;
     @Mock
     private KeyEntityToV72PropertiesModelConverter propertiesModelConverter;
-    @InjectMocks
-    private KeyEntityToV72BackupConverter underTest;
+    @Mock
+    private KeyConverterRegistry registry;
     private AutoCloseable openMocks;
 
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
+        underTest = new KeyEntityToV72BackupConverter(registry);
+        when(registry.propertiesConverter(anyString())).thenReturn(propertiesModelConverter);
         when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultKeyEntity.class), any(URI.class))).thenReturn(KEY_PROPERTIES_MODEL);
     }
 

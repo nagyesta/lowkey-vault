@@ -1,20 +1,22 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_2.key;
 
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
-import org.springframework.stereotype.Component;
 
 import java.net.URI;
 
-@Component
-public class KeyEntityToV72KeyVersionItemModelConverter
-        extends KeyEntityToV72KeyItemModelConverter {
+public class KeyEntityToV72KeyVersionItemModelConverter extends KeyEntityToV72KeyItemModelConverter {
 
     @Autowired
-    public KeyEntityToV72KeyVersionItemModelConverter(
-            @NonNull final KeyEntityToV72PropertiesModelConverter keyEntityToV72PropertiesModelConverter) {
-        super(keyEntityToV72PropertiesModelConverter);
+    public KeyEntityToV72KeyVersionItemModelConverter(@NonNull final KeyConverterRegistry registry) {
+        super(registry);
+    }
+
+    @Override
+    protected void register(final KeyConverterRegistry registry) {
+        registry.registerVersionedItemConverter(this);
     }
 
     @Override

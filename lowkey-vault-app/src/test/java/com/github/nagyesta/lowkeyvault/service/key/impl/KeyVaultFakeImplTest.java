@@ -45,6 +45,9 @@ class KeyVaultFakeImplTest {
     private static final int DAYS = 42;
     private static final int COUNT = 10;
     private static final EcKeyCreationInput EC_KEY_CREATION_INPUT = new EcKeyCreationInput(KeyType.EC, KeyCurveName.P_256);
+    private static final KeyCreateDetailedInput DETAILED_EC_KEY_CREATION_INPUT = KeyCreateDetailedInput.builder()
+            .key(EC_KEY_CREATION_INPUT)
+            .build();
     private static final int OFFSET_SECONDS_120_DAYS = 120 * 24 * 60 * 60;
     private static final int ROTATIONS_UNDER_120_DAYS = 120 / MINIMUM_EXPIRY_PERIOD_IN_DAYS;
 
@@ -52,11 +55,21 @@ class KeyVaultFakeImplTest {
         return Stream.<Arguments>builder()
                 .add(Arguments.of(null, null))
                 .add(Arguments.of(KEY_NAME_1, null))
-                .add(Arguments.of(KEY_NAME_1, new KeyCreationInput<Integer>(KeyType.RSA_HSM, null)))
-                .add(Arguments.of(KEY_NAME_1, new KeyCreationInput<Integer>(KeyType.RSA, null)))
-                .add(Arguments.of(KEY_NAME_1, new KeyCreationInput<Integer>(KeyType.OCT_HSM, null)))
-                .add(Arguments.of(KEY_NAME_1, new KeyCreationInput<KeyCurveName>(KeyType.EC, null)))
-                .add(Arguments.of(KEY_NAME_1, new KeyCreationInput<KeyCurveName>(KeyType.EC_HSM, null)))
+                .add(Arguments.of(KEY_NAME_1, KeyCreateDetailedInput.builder()
+                        .key(new KeyCreationInput<Integer>(KeyType.RSA_HSM, null))
+                        .build()))
+                .add(Arguments.of(KEY_NAME_1, KeyCreateDetailedInput.builder()
+                        .key(new KeyCreationInput<Integer>(KeyType.RSA, null))
+                        .build()))
+                .add(Arguments.of(KEY_NAME_1, KeyCreateDetailedInput.builder()
+                        .key(new KeyCreationInput<Integer>(KeyType.OCT_HSM, null))
+                        .build()))
+                .add(Arguments.of(KEY_NAME_1, KeyCreateDetailedInput.builder()
+                        .key(new KeyCreationInput<KeyCurveName>(KeyType.EC, null))
+                        .build()))
+                .add(Arguments.of(KEY_NAME_1, KeyCreateDetailedInput.builder()
+                        .key(new KeyCreationInput<KeyCurveName>(KeyType.EC_HSM, null))
+                        .build()))
                 .build();
     }
 
@@ -91,8 +104,6 @@ class KeyVaultFakeImplTest {
         return Stream.<Arguments>builder()
                 .add(Arguments.of(KEY_NAME_1, null, null, null))
                 .add(Arguments.of(null, input, null, null))
-                .add(Arguments.of(null, null, TIME_10_MINUTES_AGO, null))
-                .add(Arguments.of(null, null, null, TIME_IN_10_MINUTES))
                 .add(Arguments.of(null, input, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES))
                 .add(Arguments.of(KEY_NAME_1, null, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES))
                 .add(Arguments.of(KEY_NAME_1, input, null, TIME_IN_10_MINUTES))
@@ -119,8 +130,8 @@ class KeyVaultFakeImplTest {
         final List<String> expected = insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1).stream()
                 .map(KeyEntityId::version)
                 .collect(Collectors.toList());
-        underTest.createKeyVersion(KEY_NAME_2, EC_KEY_CREATION_INPUT);
-        underTest.createKeyVersion(KEY_NAME_3, EC_KEY_CREATION_INPUT);
+        underTest.createKeyVersion(KEY_NAME_2, DETAILED_EC_KEY_CREATION_INPUT);
+        underTest.createKeyVersion(KEY_NAME_3, DETAILED_EC_KEY_CREATION_INPUT);
 
         final KeyEntityId keyEntityId = new KeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, null);
 
@@ -176,8 +187,8 @@ class KeyVaultFakeImplTest {
                 .map(KeyEntityId::version)
                 .skip(COUNT - 1)
                 .findFirst().orElse(null);
-        underTest.createKeyVersion(KEY_NAME_2, EC_KEY_CREATION_INPUT);
-        underTest.createKeyVersion(KEY_NAME_3, EC_KEY_CREATION_INPUT);
+        underTest.createKeyVersion(KEY_NAME_2, DETAILED_EC_KEY_CREATION_INPUT);
+        underTest.createKeyVersion(KEY_NAME_3, DETAILED_EC_KEY_CREATION_INPUT);
 
         final KeyEntityId keyEntityId = new KeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, null);
 
@@ -190,7 +201,7 @@ class KeyVaultFakeImplTest {
 
     @ParameterizedTest
     @MethodSource("genericKeyCreateInputProvider")
-    void testCreateKeyVersionShouldThrowExceptionWhenCalledWithNull(final String name, final KeyCreationInput<?> input) {
+    void testCreateKeyVersionShouldThrowExceptionWhenCalledWithNull(final String name, final KeyCreateDetailedInput input) {
         //given
         final KeyVaultFake underTest = createUnderTest();
 
@@ -249,7 +260,9 @@ class KeyVaultFakeImplTest {
     void testCreateKeyVersionShouldReturnIdWhenCalledWithValidRsaParameter() {
         //given
         final KeyVaultFake underTest = createUnderTest();
-        final RsaKeyCreationInput input = new RsaKeyCreationInput(KeyType.RSA_HSM, null, null);
+        final KeyCreateDetailedInput input = KeyCreateDetailedInput.builder()
+                .key(new RsaKeyCreationInput(KeyType.RSA_HSM, null, null))
+                .build();
 
         //when
         final VersionedKeyEntityId actual = underTest.createKeyVersion(KEY_NAME_1, input);
@@ -265,7 +278,9 @@ class KeyVaultFakeImplTest {
     void testCreateKeyVersionShouldReturnIdWhenCalledWithValidEcParameter() {
         //given
         final KeyVaultFake underTest = createUnderTest();
-        final EcKeyCreationInput input = new EcKeyCreationInput(KeyType.EC_HSM, KeyCurveName.P_256);
+        final KeyCreateDetailedInput input = KeyCreateDetailedInput.builder()
+                .key(new EcKeyCreationInput(KeyType.EC_HSM, KeyCurveName.P_256))
+                .build();
 
         //when
         final VersionedKeyEntityId actual = underTest.createKeyVersion(KEY_NAME_1, input);
@@ -281,7 +296,9 @@ class KeyVaultFakeImplTest {
     void testCreateKeyVersionShouldReturnIdWhenCalledWithValidOctParameter() {
         //given
         final KeyVaultFake underTest = createUnderTest();
-        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
+        final KeyCreateDetailedInput input = KeyCreateDetailedInput.builder()
+                .key(new OctKeyCreationInput(KeyType.OCT_HSM, null))
+                .build();
 
         //when
         final VersionedKeyEntityId actual = underTest.createKeyVersion(KEY_NAME_1, input);
@@ -299,7 +316,9 @@ class KeyVaultFakeImplTest {
         //given
         final KeyVaultFake underTest = createUnderTest();
         final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
-        final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
+        final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, KeyCreateDetailedInput.builder()
+                .key(input)
+                .build());
 
         //when
         underTest.setKeyOperations(keyEntityId, list);
@@ -327,7 +346,9 @@ class KeyVaultFakeImplTest {
         //given
         final KeyVaultFake underTest = createUnderTest();
         final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
-        final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
+        final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, KeyCreateDetailedInput.builder()
+                .key(input)
+                .build());
 
         //when
         underTest.addTags(keyEntityId, TAGS_TWO_KEYS);
@@ -369,7 +390,9 @@ class KeyVaultFakeImplTest {
         //given
         final KeyVaultFake underTest = createUnderTest();
         final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
-        final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
+        final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, KeyCreateDetailedInput.builder()
+                .key(input)
+                .build());
         final ReadOnlyKeyVaultKeyEntity check = underTest.getEntities().getReadOnlyEntity(keyEntityId);
         Assertions.assertTrue(check.isEnabled());
 
@@ -397,7 +420,9 @@ class KeyVaultFakeImplTest {
         //given
         final KeyVaultFake underTest = createUnderTest();
         final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
-        final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
+        final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, KeyCreateDetailedInput.builder()
+                .key(input)
+                .build());
         final ReadOnlyKeyVaultKeyEntity check = underTest.getEntities().getReadOnlyEntity(keyEntityId);
         Assertions.assertTrue(check.getExpiry().isEmpty());
         Assertions.assertTrue(check.getNotBefore().isEmpty());
@@ -418,7 +443,9 @@ class KeyVaultFakeImplTest {
         //given
         final KeyVaultFake underTest = createUnderTest();
         final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
-        final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
+        final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, KeyCreateDetailedInput.builder()
+                .key(input)
+                .build());
         final ReadOnlyKeyVaultKeyEntity check = underTest.getEntities().getReadOnlyEntity(keyEntityId);
         Assertions.assertTrue(check.getExpiry().isEmpty());
         Assertions.assertTrue(check.getNotBefore().isEmpty());
@@ -438,7 +465,9 @@ class KeyVaultFakeImplTest {
         //given
         final KeyVaultFake underTest = createUnderTest();
         final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
-        final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
+        final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, KeyCreateDetailedInput.builder()
+                .key(input)
+                .build());
         final ReadOnlyKeyVaultKeyEntity check = underTest.getEntities().getReadOnlyEntity(keyEntityId);
         Assertions.assertTrue(check.getExpiry().isEmpty());
         Assertions.assertTrue(check.getNotBefore().isEmpty());
@@ -509,7 +538,9 @@ class KeyVaultFakeImplTest {
         //given
         final KeyVaultFake underTest = createUnderTest();
         final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
-        final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, input);
+        final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, KeyCreateDetailedInput.builder()
+                .key(input)
+                .build());
 
         //when
         final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntities().getReadOnlyEntity(keyEntityId);
@@ -861,7 +892,7 @@ class KeyVaultFakeImplTest {
 
         final KeyVaultFake underTest = createUnderTest();
         final VersionedKeyEntityId keyEntityId = underTest
-                .createKeyVersion(KEY_NAME_1, new EcKeyCreationInput(KeyType.EC, keyParameter));
+                .createEcKeyVersion(KEY_NAME_1, new EcKeyCreationInput(KeyType.EC, keyParameter));
         underTest.setKeyOperations(keyEntityId, operations);
         underTest.addTags(keyEntityId, tags);
         final VersionedKeyEntityId latestBeforeRotate = underTest.getEntities().getLatestVersionOfEntity(keyEntityId);
@@ -888,7 +919,7 @@ class KeyVaultFakeImplTest {
 
         final KeyVaultFake underTest = createUnderTest();
         final VersionedKeyEntityId keyEntityId = underTest
-                .createKeyVersion(KEY_NAME_1, new EcKeyCreationInput(KeyType.EC, keyParameter));
+                .createEcKeyVersion(KEY_NAME_1, new EcKeyCreationInput(KeyType.EC, keyParameter));
         final VersionedKeyEntityId latestBeforeRotate = underTest.getEntities().getLatestVersionOfEntity(keyEntityId);
 
         //when
@@ -916,11 +947,22 @@ class KeyVaultFakeImplTest {
     void testCreateKeyVersionForCertificateShouldSetFieldsAndManagedFlagWhenCalledWithValidRsaParameter() {
         //given
         final KeyVaultFake underTest = createUnderTest();
-        final RsaKeyCreationInput input = new RsaKeyCreationInput(KeyType.RSA_HSM, null, null);
+        final List<KeyOperation> keyOperations = List.of(
+                KeyOperation.SIGN, KeyOperation.VERIFY,
+                KeyOperation.ENCRYPT, KeyOperation.DECRYPT,
+                KeyOperation.WRAP_KEY, KeyOperation.UNWRAP_KEY);
+        final KeyCreateDetailedInput input = KeyCreateDetailedInput.builder()
+                .key(new RsaKeyCreationInput(KeyType.RSA_HSM, null, null))
+                .notBefore(TIME_10_MINUTES_AGO)
+                .expiresOn(TIME_IN_10_MINUTES)
+                .keyOperations(keyOperations)
+                .enabled(true)
+                .managed(true)
+                .build();
 
         //when
         final VersionedKeyEntityId actual = underTest
-                .createKeyVersionForCertificate(KEY_NAME_1, input, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES);
+                .createKeyVersion(KEY_NAME_1, input);
 
         //then
         final ReadOnlyKeyVaultKeyEntity entity = underTest.getEntities().getReadOnlyEntity(actual);
@@ -929,10 +971,6 @@ class KeyVaultFakeImplTest {
         Assertions.assertEquals(TIME_IN_10_MINUTES, entity.getExpiry().orElse(null));
         Assertions.assertTrue(entity.isEnabled());
         Assertions.assertTrue(entity.isManaged());
-        final List<KeyOperation> keyOperations = List.of(
-                KeyOperation.SIGN, KeyOperation.VERIFY,
-                KeyOperation.ENCRYPT, KeyOperation.DECRYPT,
-                KeyOperation.WRAP_KEY, KeyOperation.UNWRAP_KEY);
         Assertions.assertIterableEquals(keyOperations, entity.getOperations());
     }
 
@@ -943,10 +981,19 @@ class KeyVaultFakeImplTest {
             final OffsetDateTime notBefore, final OffsetDateTime expiry) {
         //given
         final KeyVaultFake underTest = createUnderTest();
+        final KeyCreateDetailedInput detailedInput = Optional.ofNullable(input)
+                .map(key -> KeyCreateDetailedInput.builder()
+                        .key(key)
+                        .managed(true)
+                        .notBefore(notBefore)
+                        .expiresOn(expiry)
+                        .enabled(true)
+                        .build())
+                .orElse(null);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.createKeyVersionForCertificate(name, input, notBefore, expiry));
+                () -> underTest.createKeyVersion(name, detailedInput));
 
         //then + exception
     }

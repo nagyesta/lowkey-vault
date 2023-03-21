@@ -1,22 +1,36 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_3.key;
 
-import com.github.nagyesta.lowkeyvault.mapper.AliasAwareConverter;
+import com.github.nagyesta.lowkeyvault.context.ApiVersionAware;
+import com.github.nagyesta.lowkeyvault.mapper.common.AliasAwareConverter;
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.*;
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.constants.LifetimeActionType;
 import com.github.nagyesta.lowkeyvault.service.key.LifetimeAction;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyRotationPolicy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Component;
 
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.SortedSet;
 import java.util.stream.Collectors;
 
-@Component
 public class KeyRotationPolicyToV73ModelConverter implements AliasAwareConverter<ReadOnlyRotationPolicy, KeyRotationPolicyModel> {
+
+    private final KeyConverterRegistry registry;
+
+    @Autowired
+    public KeyRotationPolicyToV73ModelConverter(@lombok.NonNull final KeyConverterRegistry registry) {
+        this.registry = registry;
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+        registry.registerRotationPolicyModelConverter(this);
+    }
 
     @Override
     public KeyRotationPolicyModel convert(@Nullable final ReadOnlyRotationPolicy source, @NonNull final URI vaultUri) {
@@ -52,5 +66,10 @@ public class KeyRotationPolicyToV73ModelConverter implements AliasAwareConverter
         return new KeyLifetimeActionModel(
                 new KeyLifetimeActionTypeModel(lifetimeAction.getActionType()),
                 new KeyLifetimeActionTriggerModel(lifetimeAction.getTrigger()));
+    }
+
+    @Override
+    public SortedSet<String> supportedVersions() {
+        return ApiVersionAware.V7_3;
     }
 }

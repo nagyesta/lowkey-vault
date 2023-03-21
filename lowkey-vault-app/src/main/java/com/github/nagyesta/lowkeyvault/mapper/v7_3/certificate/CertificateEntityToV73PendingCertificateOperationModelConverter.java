@@ -1,18 +1,32 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate;
 
-import com.github.nagyesta.lowkeyvault.mapper.AliasAwareConverter;
+import com.github.nagyesta.lowkeyvault.context.ApiVersionAware;
+import com.github.nagyesta.lowkeyvault.mapper.common.AliasAwareConverter;
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.CertificateConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.IssuerParameterModel;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.KeyVaultPendingCertificateModel;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertAuthorityType;
 import lombok.NonNull;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.URI;
+import java.util.SortedSet;
 
-@Component
 public class CertificateEntityToV73PendingCertificateOperationModelConverter
         implements AliasAwareConverter<ReadOnlyKeyVaultCertificateEntity, KeyVaultPendingCertificateModel> {
+
+    private final CertificateConverterRegistry registry;
+
+    @Autowired
+    public CertificateEntityToV73PendingCertificateOperationModelConverter(@NonNull final CertificateConverterRegistry registry) {
+        this.registry = registry;
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+        registry.registerPendingOperationConverter(this);
+    }
 
     public @org.springframework.lang.NonNull KeyVaultPendingCertificateModel convert(
             final @NonNull ReadOnlyKeyVaultCertificateEntity source, final @NonNull URI baseUri) {
@@ -26,5 +40,10 @@ public class CertificateEntityToV73PendingCertificateOperationModelConverter
         model.setRequestId(source.getId().version());
         model.setTarget(source.getId().asUriNoVersion(baseUri).toString());
         return model;
+    }
+
+    @Override
+    public SortedSet<String> supportedVersions() {
+        return ApiVersionAware.V7_3;
     }
 }

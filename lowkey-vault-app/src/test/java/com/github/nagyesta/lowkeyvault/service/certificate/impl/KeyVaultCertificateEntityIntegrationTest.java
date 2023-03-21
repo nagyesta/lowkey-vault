@@ -7,6 +7,7 @@ import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificatePolicyM
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.SubjectAlternativeNames;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.X509CertificateModel;
 import com.github.nagyesta.lowkeyvault.service.key.impl.EcKeyCreationInput;
+import com.github.nagyesta.lowkeyvault.service.secret.impl.SecretCreateInput;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultFakeImpl;
 import org.junit.jupiter.api.Assertions;
@@ -102,7 +103,10 @@ class KeyVaultCertificateEntityIntegrationTest {
         final CertificateImportInput input = new CertificateImportInput(
                 CERT_NAME_1, certContent, EMPTY_PASSWORD, CertContentType.PKCS12, new CertificatePolicyModel());
         final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
-        vault.secretVaultFake().createSecretVersion(CERT_NAME_1, LOWKEY_VAULT, MimeTypeUtils.TEXT_PLAIN.getType());
+        vault.secretVaultFake().createSecretVersion(CERT_NAME_1, SecretCreateInput.builder()
+                .value(LOWKEY_VAULT)
+                .contentType(MimeTypeUtils.TEXT_PLAIN.getType())
+                .build());
 
         //when
         Assertions.assertThrows(IllegalStateException.class,

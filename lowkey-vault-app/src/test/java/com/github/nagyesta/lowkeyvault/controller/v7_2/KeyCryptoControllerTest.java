@@ -1,8 +1,10 @@
 package com.github.nagyesta.lowkeyvault.controller.v7_2;
 
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyItemModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyVersionItemModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ModelConverter;
+import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.*;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.EncryptionAlgorithm;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
@@ -34,6 +36,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
@@ -65,6 +68,8 @@ class KeyCryptoControllerTest {
     @Mock
     private KeyVaultFake keyVaultFake;
     @Mock
+    private KeyConverterRegistry registry;
+    @Mock
     private ReadOnlyVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> entities;
     private KeyCryptoController underTest;
     private AutoCloseable openMocks;
@@ -78,27 +83,22 @@ class KeyCryptoControllerTest {
     }
 
     public static Stream<Arguments> nullProvider() {
-        final KeyEntityToV72ModelConverter ec = mock(KeyEntityToV72ModelConverter.class);
-        final KeyEntityToV72KeyItemModelConverter ic = mock(KeyEntityToV72KeyItemModelConverter.class);
-        final KeyEntityToV72KeyVersionItemModelConverter vic = mock(KeyEntityToV72KeyVersionItemModelConverter.class);
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null, null))
-                .add(Arguments.of(ec, null, null, null))
-                .add(Arguments.of(null, ic, null, null))
-                .add(Arguments.of(null, null, vic, null))
-                .add(Arguments.of(null, null, null, mock(VaultService.class)))
-                .add(Arguments.of(null, ic, vic, mock(VaultService.class)))
-                .add(Arguments.of(ec, null, vic, mock(VaultService.class)))
-                .add(Arguments.of(ec, ic, null, mock(VaultService.class)))
-                .add(Arguments.of(ec, ic, vic, null))
+                .add(Arguments.of(null, null))
+                .add(Arguments.of(mock(KeyConverterRegistry.class), null))
+                .add(Arguments.of(null, mock(VaultService.class)))
                 .build();
     }
 
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
-        underTest = new KeyCryptoController(keyEntityToV72ModelConverter, keyEntityToV72KeyItemModelConverter,
-                keyEntityToV72KeyVersionItemModelConverter, vaultService);
+        when(registry.modelConverter(eq(ApiConstants.V_7_2))).thenReturn(keyEntityToV72ModelConverter);
+        when(registry.itemConverter(eq(ApiConstants.V_7_2))).thenReturn(keyEntityToV72KeyItemModelConverter);
+        when(registry.versionedItemConverter(eq(ApiConstants.V_7_2))).thenReturn(keyEntityToV72KeyVersionItemModelConverter);
+        when(registry.versionedEntityId(any(URI.class), anyString(), anyString())).thenCallRealMethod();
+        when(registry.entityId(any(URI.class), anyString())).thenCallRealMethod();
+        underTest = new KeyCryptoController(registry, vaultService);
         when(vaultService.findByUri(eq(HTTPS_LOCALHOST_8443))).thenReturn(vaultFake);
         when(vaultFake.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
         when(vaultFake.keyVaultFake()).thenReturn(keyVaultFake);
@@ -112,16 +112,13 @@ class KeyCryptoControllerTest {
     @ParameterizedTest
     @MethodSource("nullProvider")
     void testConstructorShouldThrowExceptionWhenCalledWithNull(
-            final KeyEntityToV72ModelConverter keyEntityToV72ModelConverter,
-            final KeyEntityToV72KeyItemModelConverter keyEntityToV72KeyItemModelConverter,
-            final KeyEntityToV72KeyVersionItemModelConverter keyEntityToV72KeyVersionItemModelConverter,
+            final KeyConverterRegistry registry,
             final VaultService vaultService) {
         //given
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new KeyCryptoController(keyEntityToV72ModelConverter, keyEntityToV72KeyItemModelConverter,
-                        keyEntityToV72KeyVersionItemModelConverter, vaultService));
+                () -> new KeyCryptoController(registry, vaultService));
 
         //then + exception
     }

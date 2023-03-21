@@ -13,6 +13,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.OffsetDateTime;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
@@ -29,9 +30,6 @@ class SecretVaultFakeImplTest {
                 .add(Arguments.of(null, null, null, null, null))
                 .add(Arguments.of(entityId, null, null, null, null))
                 .add(Arguments.of(null, LOWKEY_VAULT, null, null, null))
-                .add(Arguments.of(null, null, CertContentType.PEM, null, null))
-                .add(Arguments.of(null, null, null, TIME_10_MINUTES_AGO, null))
-                .add(Arguments.of(null, null, null, null, TIME_IN_10_MINUTES))
                 .add(Arguments.of(null, LOWKEY_VAULT, CertContentType.PEM, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES))
                 .add(Arguments.of(entityId, null, CertContentType.PEM, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES))
                 .add(Arguments.of(entityId, LOWKEY_VAULT, null, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES))
@@ -69,7 +67,7 @@ class SecretVaultFakeImplTest {
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.createSecretVersion((String) null, LOWKEY_VAULT, null));
+                () -> underTest.createSecretVersion((String) null, null));
 
         //then + exception
     }
@@ -84,7 +82,7 @@ class SecretVaultFakeImplTest {
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.createSecretVersion(SECRET_NAME_1, null, null));
+                () -> underTest.createSecretVersion(SECRET_NAME_1, null));
 
         //then + exception
     }
@@ -99,7 +97,7 @@ class SecretVaultFakeImplTest {
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.createSecretVersion(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, null, null));
+                () -> underTest.createSecretVersion(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, null));
 
         //then + exception
     }
@@ -111,10 +109,13 @@ class SecretVaultFakeImplTest {
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
         final SecretVaultFakeImpl underTest =
                 new SecretVaultFakeImpl(vaultFake, vaultFake.getRecoveryLevel(), vaultFake.getRecoverableDays());
+        final SecretCreateInput secretCreateInput = SecretCreateInput.builder()
+                .value(LOWKEY_VAULT)
+                .build();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.createSecretVersion((VersionedSecretEntityId) null, LOWKEY_VAULT, null));
+                () -> underTest.createSecretVersion((VersionedSecretEntityId) null, secretCreateInput));
 
         //then + exception
     }
@@ -127,7 +128,9 @@ class SecretVaultFakeImplTest {
                 new SecretVaultFakeImpl(vaultFake, vaultFake.getRecoveryLevel(), vaultFake.getRecoverableDays());
 
         //when
-        final VersionedSecretEntityId secretVersion = underTest.createSecretVersion(SECRET_NAME_1, LOWKEY_VAULT, null);
+        final VersionedSecretEntityId secretVersion = underTest.createSecretVersion(SECRET_NAME_1, SecretCreateInput.builder()
+                .value(LOWKEY_VAULT)
+                .build());
 
         //then
         final ReadOnlyKeyVaultSecretEntity actual = underTest.getEntities().getReadOnlyEntity(secretVersion);
@@ -150,6 +153,7 @@ class SecretVaultFakeImplTest {
         Assertions.assertEquals(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, actual);
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @ParameterizedTest
     @MethodSource("certificateCreationNullProvider")
     void testCreateSecretVersionForCertificateShouldThrowExceptionWhenCalledWithNulls(
@@ -162,10 +166,18 @@ class SecretVaultFakeImplTest {
         final VaultFake vaultFake = mock(VaultFake.class);
         when(vaultFake.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
         final SecretVaultFakeImpl underTest = new SecretVaultFakeImpl(vaultFake, RecoveryLevel.PURGEABLE, null);
+        final SecretCreateInput secretCreateInput = Optional.ofNullable(value)
+                .map(v -> SecretCreateInput.builder()
+                        .value(v)
+                        .contentType(Optional.ofNullable(contentType).map(CertContentType::getMimeType).orElse(null))
+                        .notBefore(notBefore)
+                        .expiresOn(expiry)
+                        .managed(true)
+                        .build())
+                .orElse(null);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.createSecretVersionForCertificate(id, value, contentType, notBefore, expiry));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.createSecretVersion(id, secretCreateInput));
 
         //then + exception
     }
@@ -182,10 +194,19 @@ class SecretVaultFakeImplTest {
         final VaultFake vaultFake = mock(VaultFake.class);
         when(vaultFake.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
         final SecretVaultFakeImpl underTest = new SecretVaultFakeImpl(vaultFake, RecoveryLevel.PURGEABLE, null);
+        final SecretCreateInput secretCreateInput = SecretCreateInput.builder()
+                .value(value)
+                .contentType(contentType.getMimeType())
+                .notBefore(notBefore)
+                .createdOn(notBefore)
+                .updatedOn(notBefore)
+                .expiresOn(expiry)
+                .managed(true)
+                .enabled(true)
+                .build();
 
         //when
-        final VersionedSecretEntityId actual = underTest
-                .createSecretVersionForCertificate(id, value, contentType, notBefore, expiry);
+        final VersionedSecretEntityId actual = underTest.createSecretVersion(id, secretCreateInput);
 
         //then
         final ReadOnlyKeyVaultSecretEntity entity = underTest.getEntities().getReadOnlyEntity(actual);
@@ -200,5 +221,85 @@ class SecretVaultFakeImplTest {
         //created and updated must be set to the same value as not before in case of new certificate backing secrets
         Assertions.assertEquals(notBefore, entity.getCreated());
         Assertions.assertEquals(notBefore, entity.getUpdated());
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Test
+    void testCreateSecretVersionShouldThrowExceptionWhenCalledWithUpdatedOnEarlierThanCreatedOn() {
+        //given
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
+        final SecretVaultFakeImpl underTest =
+                new SecretVaultFakeImpl(vaultFake, vaultFake.getRecoveryLevel(), vaultFake.getRecoverableDays());
+        final SecretCreateInput secretCreateInput = SecretCreateInput.builder()
+                .value(LOWKEY_VAULT)
+                .createdOn(TIME_IN_10_MINUTES)
+                .updatedOn(TIME_10_MINUTES_AGO)
+                .build();
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> underTest.createSecretVersion(SECRET_NAME_1, secretCreateInput));
+
+        //then + exception
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Test
+    void testCreateSecretVersionShouldSetBothValuesWhenCalledWithCreatedOnAndNoUpdatedOn() {
+        //given
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
+        final SecretVaultFakeImpl underTest =
+                new SecretVaultFakeImpl(vaultFake, vaultFake.getRecoveryLevel(), vaultFake.getRecoverableDays());
+        final SecretCreateInput secretCreateInput = SecretCreateInput.builder()
+                .value(LOWKEY_VAULT)
+                .createdOn(TIME_10_MINUTES_AGO)
+                .build();
+
+        //when
+        final VersionedSecretEntityId actual = underTest.createSecretVersion(SECRET_NAME_1, secretCreateInput);
+
+        //then
+        final ReadOnlyKeyVaultSecretEntity entity = underTest.getEntities().getReadOnlyEntity(actual);
+        Assertions.assertEquals(TIME_10_MINUTES_AGO, entity.getCreated());
+        Assertions.assertEquals(TIME_10_MINUTES_AGO, entity.getUpdated());
+    }
+
+    @Test
+    void testCreateSecretVersionShouldSetBothValuesWhenCalledWithUpdatedOnFromFutureAndNoCreatedOn() {
+        //given
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
+        final SecretVaultFakeImpl underTest =
+                new SecretVaultFakeImpl(vaultFake, vaultFake.getRecoveryLevel(), vaultFake.getRecoverableDays());
+        final SecretCreateInput secretCreateInput = SecretCreateInput.builder()
+                .value(LOWKEY_VAULT)
+                .updatedOn(TIME_IN_10_MINUTES)
+                .build();
+
+        //when
+        final VersionedSecretEntityId actual = underTest.createSecretVersion(SECRET_NAME_1, secretCreateInput);
+
+        //then
+        final ReadOnlyKeyVaultSecretEntity entity = underTest.getEntities().getReadOnlyEntity(actual);
+        Assertions.assertTrue(entity.getCreated().isAfter(NOW));
+        Assertions.assertTrue(entity.getCreated().isBefore(TIME_IN_10_MINUTES));
+        Assertions.assertEquals(TIME_IN_10_MINUTES, entity.getUpdated());
+    }
+
+    @Test
+    void testCreateSecretVersionShouldThrowExceptionWhenCalledWithUpdatedOnFromThePastAndNoCreatedOn() {
+        //given
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
+        final SecretVaultFakeImpl underTest =
+                new SecretVaultFakeImpl(vaultFake, vaultFake.getRecoveryLevel(), vaultFake.getRecoverableDays());
+        final SecretCreateInput secretCreateInput = SecretCreateInput.builder()
+                .value(LOWKEY_VAULT)
+                .updatedOn(TIME_10_MINUTES_AGO)
+                .build();
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> underTest.createSecretVersion(SECRET_NAME_1, secretCreateInput));
+
+        //then + exception
     }
 }

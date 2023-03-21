@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_2.secret;
 
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.SecretConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.SecretPropertiesModel;
 import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultFake;
@@ -8,10 +9,10 @@ import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -27,12 +28,13 @@ import static org.mockito.Mockito.when;
 
 class SecretEntityToV72PropertiesModelConverterTest {
 
-    @InjectMocks
     private SecretEntityToV72PropertiesModelConverter underTest;
     @Mock
     private VaultFake vault;
     @Mock
     private SecretVaultFake secretVault;
+    @Mock
+    private SecretConverterRegistry registry;
 
     private AutoCloseable openMocks;
 
@@ -52,6 +54,7 @@ class SecretEntityToV72PropertiesModelConverterTest {
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
+        underTest = new SecretEntityToV72PropertiesModelConverter(registry);
         when(vault.secretVaultFake()).thenReturn(secretVault);
         when(vault.baseUri()).thenReturn(HTTPS_LOCALHOST);
         when(vault.matches(eq(HTTPS_LOCALHOST))).thenReturn(true);
@@ -60,6 +63,17 @@ class SecretEntityToV72PropertiesModelConverterTest {
     @AfterEach
     void tearDown() throws Exception {
         openMocks.close();
+    }
+
+    @SuppressWarnings("DataFlowIssue")
+    @Test
+    void testConstructorShouldThrowExceptionWhenCalledWithNull() {
+        //given
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new SecretEntityToV72PropertiesModelConverter(null));
+
+        //then + exception
     }
 
     @ParameterizedTest

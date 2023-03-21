@@ -1,28 +1,37 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_2.key;
 
-import com.github.nagyesta.lowkeyvault.mapper.AliasAwareConverter;
+import com.github.nagyesta.lowkeyvault.context.ApiVersionAware;
+import com.github.nagyesta.lowkeyvault.mapper.common.AliasAwareConverter;
 import com.github.nagyesta.lowkeyvault.mapper.common.BackupConverter;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyBackupListItem;
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
+import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupListItem;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyPropertiesModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRequest;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyAesKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyEcKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyRsaKeyVaultKeyEntity;
+import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-@Component
+import java.util.SortedSet;
+
 public class KeyEntityToV72BackupConverter
-        extends BackupConverter<VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity, KeyPropertiesModel, KeyBackupListItem> {
+        extends BackupConverter<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity, KeyPropertiesModel, KeyBackupListItem> {
+
+    private final KeyConverterRegistry registry;
 
     @Autowired
-    public KeyEntityToV72BackupConverter(
-            @NonNull final AliasAwareConverter<ReadOnlyKeyVaultKeyEntity, KeyPropertiesModel> propertiesConverter) {
-        super(propertiesConverter);
+    public KeyEntityToV72BackupConverter(@lombok.NonNull final KeyConverterRegistry registry) {
+        this.registry = registry;
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+        registry.registerBackupConverter(this);
     }
 
     @Override
@@ -31,6 +40,11 @@ public class KeyEntityToV72BackupConverter
         final KeyBackupListItem listItem = new KeyBackupListItem();
         listItem.setKeyMaterial(populateCommonKeyFields(source, keyMaterial));
         return listItem;
+    }
+
+    @Override
+    protected AliasAwareConverter<ReadOnlyKeyVaultKeyEntity, KeyPropertiesModel> propertiesConverter() {
+        return registry.propertiesConverter(supportedVersions().last());
     }
 
     private JsonWebKeyImportRequest convertKeyMaterial(final ReadOnlyKeyVaultKeyEntity source) {
@@ -75,5 +89,10 @@ public class KeyEntityToV72BackupConverter
         keyMaterial.setKeyOps(source.getOperations());
         keyMaterial.setKeyHsm(null);
         return keyMaterial;
+    }
+
+    @Override
+    public SortedSet<String> supportedVersions() {
+        return ApiVersionAware.V7_2_AND_V7_3;
     }
 }

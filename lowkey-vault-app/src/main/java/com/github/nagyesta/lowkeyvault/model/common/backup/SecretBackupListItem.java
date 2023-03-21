@@ -1,7 +1,8 @@
-package com.github.nagyesta.lowkeyvault.model.v7_2.secret;
+package com.github.nagyesta.lowkeyvault.model.common.backup;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.BaseBackupListItem;
+import com.github.nagyesta.lowkeyvault.model.v7_2.secret.SecretPropertiesModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;

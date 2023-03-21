@@ -2,6 +2,7 @@ package com.github.nagyesta.lowkeyvault.service.common;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.service.EntityId;
+import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyDeletedEntity;
 
 import java.time.OffsetDateTime;
 import java.util.Map;
@@ -12,9 +13,7 @@ import java.util.Optional;
  *
  * @param <V> The type of the versioned Id identifying this entity.
  */
-public interface BaseVaultEntity<V extends EntityId> extends TimeAware {
-
-    V getId();
+public interface BaseVaultEntity<V extends EntityId> extends ReadOnlyDeletedEntity<V>, TimeAware {
 
     boolean isEnabled();
 
@@ -40,11 +39,7 @@ public interface BaseVaultEntity<V extends EntityId> extends TimeAware {
 
     void setTags(Map<String, String> tags);
 
-    Optional<OffsetDateTime> getDeletedDate();
-
     void setDeletedDate(OffsetDateTime deletedDate);
-
-    Optional<OffsetDateTime> getScheduledPurgeDate();
 
     void setScheduledPurgeDate(OffsetDateTime scheduledPurgeDate);
 

@@ -1,7 +1,7 @@
 package com.github.nagyesta.lowkeyvault.model.json.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.nagyesta.lowkeyvault.model.v7_2.secret.SecretBackupList;
+import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupList;
 
 public class Base64ZipSecretDeserializer extends AbstractBase64ZipDeserializer<SecretBackupList> {
 

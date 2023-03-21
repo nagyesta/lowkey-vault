@@ -1,6 +1,8 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_2.secret;
 
+import com.github.nagyesta.lowkeyvault.context.ApiVersionAware;
 import com.github.nagyesta.lowkeyvault.mapper.common.BaseRecoveryAwareConverter;
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.SecretConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.DeletedKeyVaultSecretModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.KeyVaultSecretModel;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
@@ -8,22 +10,24 @@ import com.github.nagyesta.lowkeyvault.service.secret.ReadOnlyKeyVaultSecretEnti
 import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.net.URI;
+import java.util.SortedSet;
 
-@Component
 public class SecretEntityToV72ModelConverter
         extends BaseRecoveryAwareConverter<VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity, KeyVaultSecretModel,
         DeletedKeyVaultSecretModel> {
-
-    private final SecretEntityToV72PropertiesModelConverter secretEntityToV72PropertiesModelConverter;
+    private final SecretConverterRegistry registry;
 
     @Autowired
-    public SecretEntityToV72ModelConverter(
-            @NonNull final SecretEntityToV72PropertiesModelConverter secretEntityToV72PropertiesModelConverter) {
+    public SecretEntityToV72ModelConverter(@NonNull final SecretConverterRegistry registry) {
         super(KeyVaultSecretModel::new, DeletedKeyVaultSecretModel::new);
-        this.secretEntityToV72PropertiesModelConverter = secretEntityToV72PropertiesModelConverter;
+        this.registry = registry;
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+        registry.registerModelConverter(this);
     }
 
     @Override
@@ -32,7 +36,7 @@ public class SecretEntityToV72ModelConverter
         model.setId(source.getId().asUri(vaultUri).toString());
         model.setContentType(source.getContentType());
         model.setValue(source.getValue());
-        model.setAttributes(secretEntityToV72PropertiesModelConverter.convert(source, vaultUri));
+        model.setAttributes(registry.propertiesConverter(supportedVersions().last()).convert(source, vaultUri));
         model.setTags(source.getTags());
         model.setManaged(source.isManaged());
         if (source.isManaged()) {
@@ -40,5 +44,10 @@ public class SecretEntityToV72ModelConverter
             model.setKid(new VersionedKeyEntityId(id.vault(), id.id(), id.version()).asUri(vaultUri).toString());
         }
         return model;
+    }
+
+    @Override
+    public SortedSet<String> supportedVersions() {
+        return ApiVersionAware.V7_2_AND_V7_3;
     }
 }

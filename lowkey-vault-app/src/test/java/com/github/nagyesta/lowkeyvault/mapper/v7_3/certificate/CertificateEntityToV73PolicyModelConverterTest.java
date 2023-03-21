@@ -7,6 +7,17 @@ import org.junit.jupiter.api.Test;
 
 class CertificateEntityToV73PolicyModelConverterTest {
 
+    @SuppressWarnings("DataFlowIssue")
+    @Test
+    void testConstructorShouldThrowExceptionWhenCalledWithNull() {
+        //given
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new CertificateEntityToV73PolicyModelConverter(null));
+
+        //then + exception
+    }
+
     @SuppressWarnings("ConstantConditions")
     @Test
     void testConstructorShouldThrowExceptionWhenCalledWithNullModelSupplier() {
@@ -15,7 +26,11 @@ class CertificateEntityToV73PolicyModelConverterTest {
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> new BaseCertificateEntityToV73PolicyModelConverter(null,
-                        ReadOnlyKeyVaultCertificateEntity::getOriginalCertificatePolicy));
+                        ReadOnlyKeyVaultCertificateEntity::getOriginalCertificatePolicy) {
+                    @Override
+                    public void afterPropertiesSet() {
+                    }
+                });
 
         //then + exceptions
     }
@@ -27,7 +42,11 @@ class CertificateEntityToV73PolicyModelConverterTest {
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new BaseCertificateEntityToV73PolicyModelConverter(CertificatePolicyModel::new, null));
+                () -> new BaseCertificateEntityToV73PolicyModelConverter(CertificatePolicyModel::new, null) {
+                    @Override
+                    public void afterPropertiesSet() {
+                    }
+                });
 
         //then + exceptions
     }

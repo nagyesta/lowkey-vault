@@ -1,6 +1,8 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate;
 
 import com.github.nagyesta.lowkeyvault.TestConstantsCertificates;
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.CertificateConverterRegistry;
+import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificatePropertiesModel;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.KeyVaultCertificateItemModel;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
@@ -35,9 +37,11 @@ class CertificateEntityToV73CertificateItemModelConverterTest {
     @Test
     void testConvertCertificateIdShouldNotContainVersionWhenCalled() {
         //given
-        final CertificateEntityToV73CertificateItemModelConverter underTest
-                = new CertificateEntityToV73CertificateItemModelConverter(
-                mock(CertificateEntityToV73PropertiesModelConverter.class));
+        final CertificateEntityToV73PropertiesModelConverter properties = mock(CertificateEntityToV73PropertiesModelConverter.class);
+        final CertificateConverterRegistry registry = mock(CertificateConverterRegistry.class);
+        when(registry.propertiesConverter(eq(ApiConstants.V_7_3))).thenReturn(properties);
+        final CertificateEntityToV73CertificateItemModelConverter underTest =
+                new CertificateEntityToV73CertificateItemModelConverter(registry);
         final ReadOnlyKeyVaultCertificateEntity input = mock(ReadOnlyKeyVaultCertificateEntity.class);
         when(input.getId()).thenReturn(TestConstantsCertificates.VERSIONED_CERT_ENTITY_ID_1_VERSION_3);
 
@@ -51,15 +55,15 @@ class CertificateEntityToV73CertificateItemModelConverterTest {
     @Test
     void testConvertShouldMapThumbprintWhenCalledWithValidData() {
         //given
-        final CertificateEntityToV73PropertiesModelConverter propertiesModelConverter =
-                mock(CertificateEntityToV73PropertiesModelConverter.class);
-
-        final CertificateEntityToV73CertificateItemModelConverter underTest
-                = new CertificateEntityToV73CertificateItemModelConverter(propertiesModelConverter);
+        final CertificateEntityToV73PropertiesModelConverter properties = mock(CertificateEntityToV73PropertiesModelConverter.class);
+        final CertificateConverterRegistry registry = mock(CertificateConverterRegistry.class);
+        when(registry.propertiesConverter(eq(ApiConstants.V_7_3))).thenReturn(properties);
+        final CertificateEntityToV73CertificateItemModelConverter underTest =
+                new CertificateEntityToV73CertificateItemModelConverter(registry);
         final byte[] expectedThumbprint = THUMBPRINT;
         final ReadOnlyKeyVaultCertificateEntity input = mock(ReadOnlyKeyVaultCertificateEntity.class);
         final CertificatePropertiesModel propertiesModel = new CertificatePropertiesModel();
-        when(propertiesModelConverter.convert(same(input), eq(HTTPS_LOCALHOST_8443))).thenReturn(propertiesModel);
+        when(properties.convert(same(input), eq(HTTPS_LOCALHOST_8443))).thenReturn(propertiesModel);
         when(input.getId()).thenReturn(TestConstantsCertificates.VERSIONED_CERT_ENTITY_ID_1_VERSION_3);
         when(input.getThumbprint()).thenReturn(expectedThumbprint);
         when(input.getTags()).thenReturn(TAGS_ONE_KEY);
@@ -74,6 +78,6 @@ class CertificateEntityToV73CertificateItemModelConverterTest {
         Assertions.assertSame(propertiesModel, actual.getAttributes());
         Assertions.assertTrue(actual.getAttributes().isEnabled());
         Assertions.assertEquals(TAGS_ONE_KEY, actual.getTags());
-        verify(propertiesModelConverter).convert(same(input), eq(HTTPS_LOCALHOST_8443));
+        verify(properties).convert(same(input), eq(HTTPS_LOCALHOST_8443));
     }
 }

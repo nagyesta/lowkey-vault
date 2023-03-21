@@ -1,4 +1,4 @@
-package com.github.nagyesta.lowkeyvault.model.v7_2.secret;
+package com.github.nagyesta.lowkeyvault.model.common.backup;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.BackupListContainer;
@@ -10,19 +10,19 @@ import javax.validation.constraints.Size;
 import java.util.List;
 
 @EqualsAndHashCode
-public class SecretBackupList implements BackupListContainer<SecretBackupListItem> {
+public class CertificateBackupList implements BackupListContainer<CertificateBackupListItem> {
 
     @Valid
     @NotNull
     @Size(min = 1)
     @JsonProperty("versions")
-    private List<SecretBackupListItem> versions = List.of();
+    private List<CertificateBackupListItem> versions = List.of();
 
-    public List<SecretBackupListItem> getVersions() {
+    public List<CertificateBackupListItem> getVersions() {
         return versions;
     }
 
-    public void setVersions(final List<SecretBackupListItem> versions) {
+    public void setVersions(final List<CertificateBackupListItem> versions) {
         this.versions = List.copyOf(versions);
     }
 }

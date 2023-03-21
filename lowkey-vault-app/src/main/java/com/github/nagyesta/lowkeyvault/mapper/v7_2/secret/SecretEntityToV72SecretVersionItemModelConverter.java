@@ -1,20 +1,22 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_2.secret;
 
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.SecretConverterRegistry;
 import com.github.nagyesta.lowkeyvault.service.secret.ReadOnlyKeyVaultSecretEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
-import org.springframework.stereotype.Component;
 
 import java.net.URI;
 
-@Component
 public class SecretEntityToV72SecretVersionItemModelConverter
         extends SecretEntityToV72SecretItemModelConverter {
 
     @Autowired
-    public SecretEntityToV72SecretVersionItemModelConverter(
-            @NonNull final SecretEntityToV72PropertiesModelConverter secretEntityToV72PropertiesModelConverter) {
-        super(secretEntityToV72PropertiesModelConverter);
+    public SecretEntityToV72SecretVersionItemModelConverter(@NonNull final SecretConverterRegistry registry) {
+        super(registry);
+    }
+
+    protected void register(final SecretConverterRegistry registry) {
+        registry.registerVersionedItemConverter(this);
     }
 
     @Override

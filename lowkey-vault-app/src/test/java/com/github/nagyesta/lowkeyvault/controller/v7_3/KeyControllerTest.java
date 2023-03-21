@@ -1,8 +1,10 @@
 package com.github.nagyesta.lowkeyvault.controller.v7_3;
 
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyItemModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyVersionItemModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ModelConverter;
+import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
 import com.github.nagyesta.lowkeyvault.model.common.ErrorMessage;
 import com.github.nagyesta.lowkeyvault.model.common.ErrorModel;
 import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
@@ -21,7 +23,9 @@ import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
+import com.github.nagyesta.lowkeyvault.service.key.impl.KeyCreateDetailedInput;
 import com.github.nagyesta.lowkeyvault.service.key.impl.KeyVaultKeyEntity;
+import com.github.nagyesta.lowkeyvault.service.key.impl.RsaKeyCreationInput;
 import com.github.nagyesta.lowkeyvault.service.key.impl.RsaKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
@@ -70,6 +74,8 @@ class KeyControllerTest {
     private VaultFake vaultFake;
     @Mock
     private KeyVaultFake keyVaultFake;
+    @Mock
+    private KeyConverterRegistry registry;
     @Mock
     private ReadOnlyVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> entities;
     @Mock
@@ -123,19 +129,11 @@ class KeyControllerTest {
     }
 
     public static Stream<Arguments> nullProvider() {
-        final KeyEntityToV72ModelConverter ec = mock(KeyEntityToV72ModelConverter.class);
-        final KeyEntityToV72KeyItemModelConverter ic = mock(KeyEntityToV72KeyItemModelConverter.class);
-        final KeyEntityToV72KeyVersionItemModelConverter vic = mock(KeyEntityToV72KeyVersionItemModelConverter.class);
+        final KeyConverterRegistry registry = mock(KeyConverterRegistry.class);
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null, null))
-                .add(Arguments.of(ec, null, null, null))
-                .add(Arguments.of(null, ic, null, null))
-                .add(Arguments.of(null, null, vic, null))
-                .add(Arguments.of(null, null, null, mock(VaultService.class)))
-                .add(Arguments.of(null, ic, vic, mock(VaultService.class)))
-                .add(Arguments.of(ec, null, vic, mock(VaultService.class)))
-                .add(Arguments.of(ec, ic, null, mock(VaultService.class)))
-                .add(Arguments.of(ec, ic, vic, null))
+                .add(Arguments.of(null, null))
+                .add(Arguments.of(registry, null))
+                .add(Arguments.of(null, mock(VaultService.class)))
                 .build();
     }
 
@@ -170,8 +168,12 @@ class KeyControllerTest {
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
-        underTest = new KeyController(keyEntityToV72ModelConverter, keyEntityToV72KeyItemModelConverter,
-                keyEntityToV72KeyVersionItemModelConverter, vaultService);
+        when(registry.modelConverter(eq(ApiConstants.V_7_3))).thenReturn(keyEntityToV72ModelConverter);
+        when(registry.itemConverter(eq(ApiConstants.V_7_3))).thenReturn(keyEntityToV72KeyItemModelConverter);
+        when(registry.versionedItemConverter(eq(ApiConstants.V_7_3))).thenReturn(keyEntityToV72KeyVersionItemModelConverter);
+        when(registry.versionedEntityId(any(URI.class), anyString(), anyString())).thenCallRealMethod();
+        when(registry.entityId(any(URI.class), anyString())).thenCallRealMethod();
+        underTest = new KeyController(registry, vaultService);
         when(vaultService.findByUri(eq(HTTPS_LOCALHOST_8443))).thenReturn(vaultFake);
         when(vaultFake.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
         when(vaultFake.keyVaultFake()).thenReturn(keyVaultFake);
@@ -232,16 +234,13 @@ class KeyControllerTest {
     @ParameterizedTest
     @MethodSource("nullProvider")
     void testConstructorShouldThrowExceptionWhenCalledWithNull(
-            final KeyEntityToV72ModelConverter keyEntityToV72ModelConverter,
-            final KeyEntityToV72KeyItemModelConverter keyEntityToV72KeyItemModelConverter,
-            final KeyEntityToV72KeyVersionItemModelConverter keyEntityToV72KeyVersionItemModelConverter,
+            final KeyConverterRegistry registry,
             final VaultService vaultService) {
         //given
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new KeyController(keyEntityToV72ModelConverter, keyEntityToV72KeyItemModelConverter,
-                        keyEntityToV72KeyVersionItemModelConverter, vaultService));
+                () -> new KeyController(registry, vaultService));
 
         //then + exception
     }
@@ -255,8 +254,17 @@ class KeyControllerTest {
         when(vaultFake.getRecoveryLevel()).thenReturn(RecoveryLevel.PURGEABLE);
         when(vaultFake.getRecoverableDays()).thenReturn(null);
         final CreateKeyRequest request = createRequest(operations, expiry, notBefore);
+        final KeyCreateDetailedInput input = KeyCreateDetailedInput.builder()
+                .key(request.toKeyCreationInput())
+                .keyOperations(operations)
+                .expiresOn(expiry)
+                .notBefore(notBefore)
+                .managed(false)
+                .enabled(true)
+                .tags(request.getTags())
+                .build();
         final ReadOnlyKeyVaultKeyEntity entity = createEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, request);
-        when(keyVaultFake.createKeyVersion(eq(KEY_NAME_1), eq(request.toKeyCreationInput())))
+        when(keyVaultFake.createKeyVersion(eq(KEY_NAME_1), eq(input)))
                 .thenReturn(VERSIONED_KEY_ENTITY_ID_1_VERSION_1);
         when(keyVaultFake.getEntities())
                 .thenReturn(entities);
@@ -278,14 +286,9 @@ class KeyControllerTest {
         Assertions.assertSame(RESPONSE, actual.getBody());
         verify(vaultService).findByUri(eq(HTTPS_LOCALHOST_8443));
         verify(vaultFake).keyVaultFake();
-        verify(keyVaultFake).createKeyVersion(eq(KEY_NAME_1), eq(request.toKeyCreationInput()));
-        verify(keyVaultFake)
-                .setKeyOperations(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_1), eq(operations));
+        verify(keyVaultFake).createKeyVersion(eq(KEY_NAME_1), eq(input));
         verify(vaultFake).getRecoveryLevel();
         verify(vaultFake).getRecoverableDays();
-        verify(keyVaultFake).setExpiry(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_1), eq(notBefore), eq(expiry));
-        verify(keyVaultFake).setEnabled(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_1), eq(true));
-        verify(keyVaultFake).addTags(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_1), same(TAGS_TWO_KEYS));
         verify(keyEntityToV72ModelConverter).convert(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
@@ -955,6 +958,22 @@ class KeyControllerTest {
         keyRequest.setProperties(properties);
         keyRequest.setTags(TAGS_TWO_KEYS);
         return keyRequest;
+    }
+
+    private KeyCreateDetailedInput detailedInput(
+            final List<KeyOperation> operations,
+            final OffsetDateTime expiry, final OffsetDateTime notBefore) {
+        final RsaKeyCreationInput keyRequest = new RsaKeyCreationInput(KeyType.RSA,
+                KeyType.RSA.getValidKeyParameters(Integer.class).first(), null);
+        return KeyCreateDetailedInput.builder()
+                .key(keyRequest)
+                .managed(false)
+                .keyOperations(operations)
+                .expiresOn(expiry)
+                .notBefore(notBefore)
+                .enabled(true)
+                .tags(TAGS_TWO_KEYS)
+                .build();
     }
 
     @NonNull

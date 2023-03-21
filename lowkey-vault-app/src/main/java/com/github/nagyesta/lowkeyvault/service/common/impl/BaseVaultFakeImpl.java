@@ -83,6 +83,20 @@ public abstract class BaseVaultFakeImpl<K extends EntityId, V extends K, RE exte
         entity.setExpiry(expiry);
     }
 
+    protected void setCreatedAndUpdatedOn(final V entityId, final OffsetDateTime created, final OffsetDateTime updated) {
+        if (created == null && updated == null) {
+            return;
+        }
+        final OffsetDateTime createdOn = Optional.ofNullable(created).orElse(OffsetDateTime.now(ZoneOffset.UTC));
+        final OffsetDateTime updatedOn = Optional.ofNullable(updated).orElse(createdOn);
+        if (createdOn.isAfter(updatedOn)) {
+            throw new IllegalArgumentException("Updated cannot be before created.");
+        }
+        final ME entity = entities.getEntity(entityId);
+        entity.setCreatedOn(createdOn);
+        entity.setUpdatedOn(updatedOn);
+    }
+
     @Override
     public void delete(@NonNull final K entityId) {
         if (!entities.containsName(entityId.id())) {
@@ -124,7 +138,7 @@ public abstract class BaseVaultFakeImpl<K extends EntityId, V extends K, RE exte
                 .collect(Collectors.toSet());
     }
 
-    protected void setManaged(@NonNull final V entityId, final boolean managed) {
+    protected void setManaged(final V entityId, final boolean managed) {
         entities.getEntity(entityId).setManaged(managed);
     }
 

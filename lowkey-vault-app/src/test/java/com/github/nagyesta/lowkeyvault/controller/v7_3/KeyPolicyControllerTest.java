@@ -1,11 +1,12 @@
 package com.github.nagyesta.lowkeyvault.controller.v7_3;
 
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
 import com.github.nagyesta.lowkeyvault.mapper.v7_3.key.KeyRotationPolicyToV73ModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_3.key.KeyRotationPolicyV73ModelToEntityConverter;
+import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.KeyRotationPolicyModel;
 import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
-import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.impl.KeyRotationPolicy;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
@@ -22,10 +23,10 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.net.URI;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.KEY_NAME_1;
-import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.KEY_VERSION_1;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
@@ -40,6 +41,8 @@ class KeyPolicyControllerTest {
     @Mock
     private KeyVaultFake keyVaultFake;
     @Mock
+    private KeyConverterRegistry registry;
+    @Mock
     private KeyRotationPolicyToV73ModelConverter keyRotationPolicyToV73ModelConverter;
     @Mock
     private KeyRotationPolicyV73ModelToEntityConverter rotationV73ModelToEntityConverter;
@@ -48,23 +51,22 @@ class KeyPolicyControllerTest {
 
     public static Stream<Arguments> nullProvider() {
         final VaultService service = mock(VaultService.class);
-        final KeyRotationPolicyToV73ModelConverter entityConverter = mock(KeyRotationPolicyToV73ModelConverter.class);
-        final KeyRotationPolicyV73ModelToEntityConverter modelConverter = mock(KeyRotationPolicyV73ModelToEntityConverter.class);
+        final KeyConverterRegistry registry = mock(KeyConverterRegistry.class);
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null))
-                .add(Arguments.of(service, null, null))
-                .add(Arguments.of(null, entityConverter, null))
-                .add(Arguments.of(null, null, modelConverter))
-                .add(Arguments.of(null, entityConverter, modelConverter))
-                .add(Arguments.of(service, null, modelConverter))
-                .add(Arguments.of(service, entityConverter, null))
+                .add(Arguments.of(null, null))
+                .add(Arguments.of(service, null))
+                .add(Arguments.of(null, registry))
                 .build();
     }
 
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
-        underTest = new KeyPolicyController(vaultService, keyRotationPolicyToV73ModelConverter, rotationV73ModelToEntityConverter);
+        when(registry.rotationPolicyModelConverter(eq(ApiConstants.V_7_3))).thenReturn(keyRotationPolicyToV73ModelConverter);
+        when(registry.rotationPolicyEntityConverter(eq(ApiConstants.V_7_3))).thenReturn(rotationV73ModelToEntityConverter);
+        when(registry.versionedEntityId(any(URI.class), anyString(), anyString())).thenCallRealMethod();
+        when(registry.entityId(any(URI.class), anyString())).thenCallRealMethod();
+        underTest = new KeyPolicyController(registry, vaultService);
         when(vaultService.findByUri(eq(HTTPS_LOCALHOST_8443))).thenReturn(vaultFake);
         when(vaultFake.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
         when(vaultFake.keyVaultFake()).thenReturn(keyVaultFake);
@@ -77,15 +79,12 @@ class KeyPolicyControllerTest {
 
     @ParameterizedTest
     @MethodSource("nullProvider")
-    void testConstructorShouldThrowExceptionWhenCalledWithNull(
-            final VaultService service,
-            final KeyRotationPolicyToV73ModelConverter entityConverter,
-            final KeyRotationPolicyV73ModelToEntityConverter modelConverter) {
+    void testConstructorShouldThrowExceptionWhenCalledWithNull(final VaultService service, final KeyConverterRegistry registry) {
         //given
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new KeyPolicyController(service, entityConverter, modelConverter));
+                () -> new KeyPolicyController(registry, service));
 
         //then + exception
     }
@@ -121,7 +120,7 @@ class KeyPolicyControllerTest {
         final KeyRotationPolicyModel output = mock(KeyRotationPolicyModel.class);
         when(keyVaultFake.rotationPolicy(eq(entityId)))
                 .thenReturn(rotationPolicy);
-        when(rotationV73ModelToEntityConverter.convert(eq(entityId), same(input)))
+        when(rotationV73ModelToEntityConverter.convert(same(input)))
                 .thenReturn(rotationPolicy);
         when(keyRotationPolicyToV73ModelConverter.convert(same(rotationPolicy), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(output);
@@ -133,22 +132,9 @@ class KeyPolicyControllerTest {
         Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
         Assertions.assertSame(output, actual.getBody());
         final InOrder inOrder = inOrder(keyVaultFake, rotationV73ModelToEntityConverter, keyRotationPolicyToV73ModelConverter);
-        inOrder.verify(rotationV73ModelToEntityConverter).convert(eq(entityId), same(input));
+        inOrder.verify(rotationV73ModelToEntityConverter).convert(same(input));
         inOrder.verify(keyVaultFake).setRotationPolicy(same(rotationPolicy));
         inOrder.verify(keyVaultFake).rotationPolicy(eq(entityId));
         inOrder.verify(keyRotationPolicyToV73ModelConverter).convert(same(rotationPolicy), eq(HTTPS_LOCALHOST_8443));
-    }
-
-    @Test
-    void testVersionedEntityIdShouldReturnAVersionedKeyEntityIdWhenCalledWithValidInput() {
-        //given
-
-        //when
-        final VersionedKeyEntityId actual = underTest.versionedEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, KEY_VERSION_1);
-
-        //then
-        Assertions.assertEquals(HTTPS_LOCALHOST_8443, actual.vault());
-        Assertions.assertEquals(KEY_NAME_1, actual.id());
-        Assertions.assertEquals(KEY_VERSION_1, actual.version());
     }
 }

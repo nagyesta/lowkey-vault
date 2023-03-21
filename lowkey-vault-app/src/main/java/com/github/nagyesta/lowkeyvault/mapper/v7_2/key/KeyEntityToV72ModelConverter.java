@@ -1,6 +1,8 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_2.key;
 
+import com.github.nagyesta.lowkeyvault.context.ApiVersionAware;
 import com.github.nagyesta.lowkeyvault.mapper.common.BaseRecoveryAwareConverter;
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.DeletedKeyVaultKeyModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.JsonWebKeyModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyModel;
@@ -11,27 +13,31 @@ import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyRsaKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.net.URI;
+import java.util.SortedSet;
 
-@Component
 public class KeyEntityToV72ModelConverter
         extends BaseRecoveryAwareConverter<VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity, KeyVaultKeyModel, DeletedKeyVaultKeyModel> {
 
-    private final KeyEntityToV72PropertiesModelConverter keyEntityToV72PropertiesModelConverter;
+    private final KeyConverterRegistry registry;
 
     @Autowired
-    public KeyEntityToV72ModelConverter(@NonNull final KeyEntityToV72PropertiesModelConverter keyEntityToV72PropertiesModelConverter) {
+    public KeyEntityToV72ModelConverter(@NonNull final KeyConverterRegistry registry) {
         super(KeyVaultKeyModel::new, DeletedKeyVaultKeyModel::new);
-        this.keyEntityToV72PropertiesModelConverter = keyEntityToV72PropertiesModelConverter;
+        this.registry = registry;
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+        registry.registerModelConverter(this);
     }
 
     @Override
     protected <M extends KeyVaultKeyModel> M mapActiveFields(final ReadOnlyKeyVaultKeyEntity source, final M model, final URI vaultUri) {
         model.setKey(mapJsonWebKey(source, vaultUri));
-        model.setAttributes(keyEntityToV72PropertiesModelConverter.convert(source, vaultUri));
+        model.setAttributes(registry.propertiesConverter(supportedVersions().last()).convert(source, vaultUri));
         model.setTags(source.getTags());
         model.setManaged(source.isManaged());
         return model;
@@ -76,5 +82,10 @@ public class KeyEntityToV72ModelConverter
         jsonWebKeyModel.setKeyType(entity.getKeyType());
         jsonWebKeyModel.setKeyOps(entity.getOperations());
         return jsonWebKeyModel;
+    }
+
+    @Override
+    public SortedSet<String> supportedVersions() {
+        return ApiVersionAware.V7_2_AND_V7_3;
     }
 }

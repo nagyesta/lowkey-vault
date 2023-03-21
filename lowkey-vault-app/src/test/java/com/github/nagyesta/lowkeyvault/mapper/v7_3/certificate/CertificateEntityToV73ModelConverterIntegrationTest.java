@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate;
 
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.CertificateConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificatePolicyModel;
@@ -39,10 +40,10 @@ class CertificateEntityToV73ModelConverterIntegrationTest {
     @Test
     void testConvertShouldConvertValuableFieldsWhenCalledWithValidCertificate() throws CertificateEncodingException {
         //given
-        final CertificateEntityToV73PropertiesModelConverter propertiesConverter = new CertificateEntityToV73PropertiesModelConverter();
-        final CertificateEntityToV73PolicyModelConverter policyConverter = new CertificateEntityToV73PolicyModelConverter();
-        final CertificateEntityToV73ModelConverter underTest =
-                new CertificateEntityToV73ModelConverter(propertiesConverter, policyConverter);
+        final CertificateConverterRegistry registry = new CertificateConverterRegistry();
+        new CertificateEntityToV73PropertiesModelConverter(registry).afterPropertiesSet();
+        new CertificateEntityToV73PolicyModelConverter(registry).afterPropertiesSet();
+        final CertificateEntityToV73ModelConverter underTest = new CertificateEntityToV73ModelConverter(registry);
         final CertificateCreationInput input = CertificateCreationInput.builder()
                 .validityStart(NOW)
                 .subject("CN=" + LOCALHOST)

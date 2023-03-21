@@ -2,13 +2,13 @@ package com.github.nagyesta.lowkeyvault.template.backup;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.jknack.handlebars.internal.Files;
+import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupList;
+import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupModel;
+import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupList;
+import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupModel;
 import com.github.nagyesta.lowkeyvault.model.management.VaultBackupListModel;
 import com.github.nagyesta.lowkeyvault.model.management.VaultBackupModel;
 import com.github.nagyesta.lowkeyvault.model.management.VaultModel;
-import com.github.nagyesta.lowkeyvault.model.v7_2.secret.SecretBackupList;
-import com.github.nagyesta.lowkeyvault.model.v7_2.secret.SecretBackupModel;
-import com.github.nagyesta.lowkeyvault.model.v7_3.key.KeyBackupList;
-import com.github.nagyesta.lowkeyvault.model.v7_3.key.KeyBackupModel;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;

@@ -134,8 +134,9 @@ configure(subprojects.findAll({
                         'com.github.nagyesta.lowkeyvault.service.exception.NotFoundException',
                         'com.github.nagyesta.lowkeyvault.service.exception.CryptoException',
                         'com.github.nagyesta.lowkeyvault.exception.VaultNotFoundException',
-                        //until Cert features are implemented
-                        'com.github.nagyesta.lowkeyvault.model.v7_3.certificate.DeletedKeyVaultCertificateItemModel'
+                        //until Certificate backup features are implemented
+                        'com.github.nagyesta.lowkeyvault.model.common.backup.CertificateBackupModel',
+                        'com.github.nagyesta.lowkeyvault.model.common.backup.CertificateBackupList'
                 ]
             }
         }

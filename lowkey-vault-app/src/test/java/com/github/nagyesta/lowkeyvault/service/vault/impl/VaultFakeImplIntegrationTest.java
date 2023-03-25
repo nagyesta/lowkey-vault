@@ -100,9 +100,9 @@ class VaultFakeImplIntegrationTest {
         certificateVaultFake.setLifetimeActionPolicy(new CertificateLifetimeActionPolicy(
                 originalCertId, Map.of(AUTO_RENEW, new CertificateLifetimeActionTrigger(DAYS_BEFORE_EXPIRY, triggerThresholdDays))
         ));
-        final CertificatePolicy issuancePolicy = certificateVaultFake.getEntities()
+        final CertificatePolicy issuancePolicy = (CertificatePolicy) certificateVaultFake.getEntities()
                 .getEntity(originalCertId, KeyVaultCertificateEntity.class)
-                .getMutableIssuancePolicy();
+                .getIssuancePolicy();
         issuancePolicy.setContentType(CertContentType.PEM);
 
         //when

@@ -17,6 +17,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 import java.net.URI;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.github.nagyesta.lowkeyvault.controller.common.util.CertificateRequestMapperUtil.createCertificateWithAttributes;
 import static com.github.nagyesta.lowkeyvault.controller.common.util.CertificateRequestMapperUtil.importCertificateWithAttributes;
@@ -82,7 +83,7 @@ public abstract class CommonCertificateController extends BaseCertificateControl
                 baseUri.toString(), certificateName, apiVersion());
 
         final CertificateVaultFake vaultFake = getVaultByUri(baseUri);
-        final CertificateEntityId entityId = new CertificateEntityId(baseUri, certificateName);
+        final CertificateEntityId entityId = entityId(baseUri, certificateName);
         vaultFake.delete(entityId);
         final VersionedCertificateEntityId latestVersion = vaultFake.getDeletedEntities().getLatestVersionOfEntity(entityId);
         return ResponseEntity.ok(getDeletedModelById(vaultFake, latestVersion, baseUri, true));
@@ -95,7 +96,7 @@ public abstract class CommonCertificateController extends BaseCertificateControl
                 baseUri.toString(), certificateName, apiVersion());
 
         final CertificateVaultFake vaultFake = getVaultByUri(baseUri);
-        final CertificateEntityId entityId = new CertificateEntityId(baseUri, certificateName);
+        final CertificateEntityId entityId = entityId(baseUri, certificateName);
         final VersionedCertificateEntityId latestVersion = vaultFake.getDeletedEntities().getLatestVersionOfEntity(entityId);
         return ResponseEntity.ok(getDeletedModelById(vaultFake, latestVersion, baseUri, false));
     }
@@ -107,7 +108,7 @@ public abstract class CommonCertificateController extends BaseCertificateControl
                 baseUri.toString(), certificateName, apiVersion());
 
         final CertificateVaultFake vaultFake = getVaultByUri(baseUri);
-        final CertificateEntityId entityId = new CertificateEntityId(baseUri, certificateName);
+        final CertificateEntityId entityId = entityId(baseUri, certificateName);
         vaultFake.recover(entityId);
         final VersionedCertificateEntityId latestVersion = vaultFake.getEntities().getLatestVersionOfEntity(entityId);
         return ResponseEntity.ok(getModelById(vaultFake, latestVersion, baseUri, true));
@@ -120,7 +121,7 @@ public abstract class CommonCertificateController extends BaseCertificateControl
                 baseUri.toString(), certificateName, apiVersion());
 
         final CertificateVaultFake vaultFake = getVaultByUri(baseUri);
-        final CertificateEntityId entityId = new CertificateEntityId(baseUri, certificateName);
+        final CertificateEntityId entityId = entityId(baseUri, certificateName);
         vaultFake.purge(entityId);
         return ResponseEntity.noContent().build();
     }
@@ -176,5 +177,25 @@ public abstract class CommonCertificateController extends BaseCertificateControl
                 .base(URI.create(baseUri + "/deletedcertificates"))
                 .additionalParameters(Map.of(INCLUDE_PENDING_PARAM, String.valueOf(includePending)))
                 .build()));
+    }
+
+    public ResponseEntity<KeyVaultCertificateModel> updateCertificateProperties(
+            @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
+            @Valid @Pattern(regexp = VERSION_NAME_PATTERN) final String certificateVersion,
+            final URI baseUri,
+            @Valid @RequestBody final UpdateCertificateRequest request) {
+        log.info("Received request to {} update certificate: {} with version: {} using API version: {}",
+                baseUri.toString(), certificateName, certificateVersion, apiVersion());
+
+        final CertificateVaultFake vaultFake = getVaultByUri(baseUri);
+        final VersionedCertificateEntityId entityId = versionedEntityId(baseUri, certificateName, certificateVersion);
+        Optional.ofNullable(request.getAttributes())
+                .map(CertificatePropertiesModel::isEnabled)
+                .ifPresent(enabled -> vaultFake.setEnabled(entityId, enabled));
+        vaultFake.clearTags(entityId);
+        vaultFake.addTags(entityId, request.getTags());
+        final KeyVaultCertificateModel model = getModelById(vaultFake, entityId, baseUri, true);
+        model.setPolicy(null);
+        return ResponseEntity.ok(model);
     }
 }

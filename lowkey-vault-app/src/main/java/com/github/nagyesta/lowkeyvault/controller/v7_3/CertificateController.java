@@ -154,6 +154,18 @@ public class CertificateController extends CommonCertificateController {
     }
 
     @Override
+    @PatchMapping(value = "/certificates/{certificateName}/{certificateVersion}",
+            params = API_VERSION_7_3,
+            produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<KeyVaultCertificateModel> updateCertificateProperties(
+            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
+            @PathVariable @Valid @Pattern(regexp = VERSION_NAME_PATTERN) final String certificateVersion,
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
+            @Valid @RequestBody final UpdateCertificateRequest request) {
+        return super.updateCertificateProperties(certificateName, certificateVersion, baseUri, request);
+    }
+
+    @Override
     protected String apiVersion() {
         return V_7_3;
     }

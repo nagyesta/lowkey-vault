@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.controller.common;
 
+import com.github.nagyesta.lowkeyvault.controller.common.util.CertificateRequestMapperUtil;
 import com.github.nagyesta.lowkeyvault.mapper.common.registry.CertificateConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificatePolicyModel;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.KeyVaultPendingCertificateModel;
@@ -65,4 +66,19 @@ public abstract class CommonCertificatePolicyController extends BaseCertificateC
         return ResponseEntity.ok(model);
     }
 
+    public ResponseEntity<CertificatePolicyModel> updatePolicy(
+            @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
+            final URI baseUri,
+            @Valid final CertificatePolicyModel request) {
+        log.info("Received request to {} update certificate issuance policy: {} with version: -LATEST- using API version: {}",
+                baseUri.toString(), certificateName, apiVersion());
+        final CertificateVaultFake vaultFake = getVaultByUri(baseUri);
+        final VersionedCertificateEntityId latest = vaultFake.getEntities()
+                .getLatestVersionOfEntity(entityId(baseUri, certificateName));
+        CertificateRequestMapperUtil.updateIssuancePolicy(vaultFake, latest, request);
+        final ReadOnlyKeyVaultCertificateEntity entity = vaultFake.getEntities().getReadOnlyEntity(latest);
+        final CertificatePolicyModel model = registry().issuancePolicyConverters(apiVersion()).convert(entity, baseUri);
+        populateLifetimeActions(vaultFake, latest, Objects.requireNonNull(model));
+        return ResponseEntity.ok(model);
+    }
 }

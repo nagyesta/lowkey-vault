@@ -23,8 +23,11 @@ import java.util.TreeSet;
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificateKeys.EMPTY_PASSWORD;
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.CERT_NAME_1;
+import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.CERT_NAME_2;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
 import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertAuthorityType.SELF_SIGNED;
+import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertAuthorityType.UNKNOWN;
+import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateCreationInput.DEFAULT_VALIDITY_MONTHS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
@@ -347,5 +350,99 @@ class KeyVaultCertificateEntityIntegrationTest {
         //then
         final X509Certificate actual = (X509Certificate) underTest.getCertificate();
         Assertions.assertSame(original, actual);
+    }
+
+    @Test
+    void testUpdateIssuancePolicyShouldOverwriteIssuancePolicyWhenCalledWithValidInput() {
+        //given
+        final String name = CERT_NAME_1 + "-update";
+        final CertificateCreationInput input = CertificateCreationInput.builder()
+                .validityStart(NOW)
+                .subject("CN=" + LOCALHOST)
+                .name(name)
+                .enableTransparency(false)
+                .certAuthorityType(SELF_SIGNED)
+                .contentType(CertContentType.PKCS12)
+                .keyCurveName(KeyCurveName.P_521)
+                .keyType(KeyType.EC)
+                .validityMonths(TWO_YEARS_IN_MONTHS)
+                .build();
+
+        final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
+        final KeyVaultCertificateEntity underTest = new KeyVaultCertificateEntity(name, input, vault);
+        final ReadOnlyCertificatePolicy updatePolicy = new CertificatePolicy(CertificateCreationInput.builder()
+                .validityStart(TIME_10_MINUTES_AGO)
+                .reuseKeyOnRenewal(true)
+                .name(name)
+                .validityMonths(DEFAULT_VALIDITY_MONTHS)
+                .certAuthorityType(UNKNOWN)
+                .build());
+
+        //when
+        underTest.updateIssuancePolicy(updatePolicy);
+
+        //then
+        final ReadOnlyCertificatePolicy currentPolicy = underTest.getIssuancePolicy();
+        final ReadOnlyCertificatePolicy originalPolicy = underTest.getOriginalCertificatePolicy();
+        Assertions.assertNotEquals(currentPolicy, originalPolicy);
+        Assertions.assertEquals(updatePolicy, currentPolicy);
+    }
+
+    @Test
+    void testUpdateIssuancePolicyShouldThrowExceptionWhenCalledWithInvalidName() {
+        //given
+        final String name = CERT_NAME_1 + "-update-invalid";
+        final CertificateCreationInput input = CertificateCreationInput.builder()
+                .validityStart(NOW)
+                .subject("CN=" + LOCALHOST)
+                .name(name)
+                .enableTransparency(false)
+                .certAuthorityType(SELF_SIGNED)
+                .contentType(CertContentType.PKCS12)
+                .keyCurveName(KeyCurveName.P_521)
+                .keyType(KeyType.EC)
+                .validityMonths(TWO_YEARS_IN_MONTHS)
+                .build();
+
+        final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
+        final KeyVaultCertificateEntity underTest = new KeyVaultCertificateEntity(name, input, vault);
+        final ReadOnlyCertificatePolicy updatePolicy = new CertificatePolicy(CertificateCreationInput.builder()
+                .validityStart(TIME_10_MINUTES_AGO)
+                .reuseKeyOnRenewal(true)
+                .name(CERT_NAME_2)
+                .validityMonths(DEFAULT_VALIDITY_MONTHS)
+                .certAuthorityType(UNKNOWN)
+                .build());
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.updateIssuancePolicy(updatePolicy));
+
+        //then + exception
+    }
+
+    @SuppressWarnings("DataFlowIssue")
+    @Test
+    void testUpdateIssuancePolicyShouldThrowExceptionWhenCalledWithNull() {
+        //given
+        final String name = CERT_NAME_1 + "-update-null";
+        final CertificateCreationInput input = CertificateCreationInput.builder()
+                .validityStart(NOW)
+                .subject("CN=" + LOCALHOST)
+                .name(name)
+                .enableTransparency(false)
+                .certAuthorityType(SELF_SIGNED)
+                .contentType(CertContentType.PKCS12)
+                .keyCurveName(KeyCurveName.P_521)
+                .keyType(KeyType.EC)
+                .validityMonths(TWO_YEARS_IN_MONTHS)
+                .build();
+
+        final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
+        final KeyVaultCertificateEntity underTest = new KeyVaultCertificateEntity(name, input, vault);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.updateIssuancePolicy(null));
+
+        //then + exception
     }
 }

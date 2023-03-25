@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -248,5 +249,25 @@ public class CertificatesStepDefs extends CommonAssertions {
         }
         policy.setLifetimeActions(lifetimeAction);
         context.setPolicy(policy);
+    }
+
+    @When("the certificate named {name} is updated to have {subject} as subject and {certContentType} as type")
+    public void theCertificateNamedCertNameIsUpdatedToHaveUpdatedSubjectAsSubjectAndUpdatedTypeAsType(
+            final String name, final String subject, final CertificateContentType contentType) {
+        final CertificateClient client = context.getClient(context.getCertificateServiceVersion());
+        final CertificatePolicy policy = client.getCertificatePolicy(name).setContentType(contentType).setSubject(subject);
+        final CertificatePolicy updated = client.updateCertificatePolicy(name, policy);
+        context.setPolicy(updated);
+    }
+
+    @And("the certificate named {name} is updated to contain the tag named {} with {} as value")
+    public void theCertificateNamedCertNameIsUpdatedToContainTheTagWithValue(
+            final String name, final String tagName, final String tagValue) {
+        final CertificateClient client = context.getClient(context.getCertificateServiceVersion());
+        final CertificateProperties properties = client.getCertificate(name).getProperties();
+        properties.setTags(Map.of(tagName, tagValue));
+        client.updateCertificateProperties(properties);
+        final KeyVaultCertificateWithPolicy certificate = client.getCertificate(name);
+        context.addFetchedCertificate(name, certificate);
     }
 }

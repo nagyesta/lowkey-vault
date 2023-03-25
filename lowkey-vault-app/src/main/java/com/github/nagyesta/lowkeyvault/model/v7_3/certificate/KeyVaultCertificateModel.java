@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.model.v7_3.certificate;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -36,6 +37,7 @@ public class KeyVaultCertificateModel {
     @JsonProperty("attributes")
     private CertificatePropertiesModel attributes;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("policy")
     private CertificatePolicyModel policy;
 

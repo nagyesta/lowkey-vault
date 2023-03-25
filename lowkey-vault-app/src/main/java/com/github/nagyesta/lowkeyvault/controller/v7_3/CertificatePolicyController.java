@@ -63,6 +63,17 @@ public class CertificatePolicyController extends CommonCertificatePolicyControll
     }
 
     @Override
+    @PatchMapping(value = "/certificates/{certificateName}/policy",
+            params = API_VERSION_7_3,
+            produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<CertificatePolicyModel> updatePolicy(
+            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
+            @Valid @RequestBody final CertificatePolicyModel request) {
+        return super.updatePolicy(certificateName, baseUri, request);
+    }
+
+    @Override
     protected String apiVersion() {
         return V_7_3;
     }

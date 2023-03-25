@@ -35,7 +35,7 @@ public class KeyVaultCertificateEntity
     private X509Certificate certificate;
     private ReadOnlyCertificatePolicy originalCertificatePolicy;
     private final String originalCertificateContents;
-    private final CertificatePolicy issuancePolicy;
+    private CertificatePolicy issuancePolicy;
     private PKCS10CertificationRequest csr;
 
     /**
@@ -174,8 +174,9 @@ public class KeyVaultCertificateEntity
     }
 
     @Override
-    public CertificatePolicy getMutableIssuancePolicy() {
-        return issuancePolicy;
+    public void updateIssuancePolicy(@NonNull final ReadOnlyCertificatePolicy policy) {
+        Assert.isTrue(this.id.id().equals(policy.getName()), "Updated policy must have the same name for: " + this.id);
+        this.issuancePolicy = new CertificatePolicy(policy);
     }
 
     @Override

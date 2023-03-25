@@ -35,7 +35,7 @@ ij_css_use_double_quotes = true
 ij_css_value_alignment = do_not_align
 
 [*.feature]
-indent_size = 2
+indent_size = 4
 ij_visual_guides = none
 ij_gherkin_keep_indents_on_empty_lines = false
 

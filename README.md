@@ -171,6 +171,8 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
     - Latest version of a single certificate
     - List of all certificate
 - Delete certificate
+- Update certificate properties
+- Update certificate issuance policy
 - Recover deleted certificate
 - Purge deleted certificate
 

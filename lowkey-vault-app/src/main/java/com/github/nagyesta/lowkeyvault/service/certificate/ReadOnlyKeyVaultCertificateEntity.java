@@ -1,7 +1,6 @@
 package com.github.nagyesta.lowkeyvault.service.certificate;
 
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
-import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificatePolicy;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.ReadOnlyCertificatePolicy;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultEntity;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyDeletedEntity;
@@ -24,7 +23,7 @@ public interface ReadOnlyKeyVaultCertificateEntity
 
     ReadOnlyCertificatePolicy getIssuancePolicy();
 
-    CertificatePolicy getMutableIssuancePolicy();
+    void updateIssuancePolicy(ReadOnlyCertificatePolicy policy);
 
     ReadOnlyCertificatePolicy getOriginalCertificatePolicy();
 

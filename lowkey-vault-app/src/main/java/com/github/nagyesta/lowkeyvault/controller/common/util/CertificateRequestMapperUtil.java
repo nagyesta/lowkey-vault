@@ -20,35 +20,46 @@ public final class CertificateRequestMapperUtil {
     }
 
     public static VersionedCertificateEntityId createCertificateWithAttributes(
-            final CertificateVaultFake certificateVaultFake, final String certificateName, final CreateCertificateRequest request) {
+            final CertificateVaultFake vault, final String certificateName, final CreateCertificateRequest request) {
         //validate first to avoid creating a cert if lifetime policies are invalid
         validateLifetimeActions(request.getPolicy());
         final CertificatePropertiesModel properties = defaultIfNull(request.getProperties());
-        final VersionedCertificateEntityId certificateEntityId = certificateVaultFake
+        final VersionedCertificateEntityId certificateEntityId = vault
                 .createCertificateVersion(certificateName, toCertificateCreationInput(certificateName, request));
-        certificateVaultFake.addTags(certificateEntityId, request.getTags());
+        vault.addTags(certificateEntityId, request.getTags());
         //no need to set expiry, the generation should take care of it based on the X509 properties
-        certificateVaultFake.setEnabled(certificateEntityId, properties.isEnabled());
+        vault.setEnabled(certificateEntityId, properties.isEnabled());
         //no need to set managed property as this endpoint cannot create managed entities by definition
-        setLifetimeActions(certificateVaultFake, request.getPolicy(), certificateEntityId, CertAuthorityType.SELF_SIGNED);
+        setLifetimeActions(vault, request.getPolicy(), certificateEntityId, CertAuthorityType.SELF_SIGNED);
         return certificateEntityId;
     }
 
     public static VersionedCertificateEntityId importCertificateWithAttributes(
-            final CertificateVaultFake certificateVaultFake, final String certificateName, final CertificateImportRequest request) {
+            final CertificateVaultFake vault, final String certificateName, final CertificateImportRequest request) {
         final CertificatePropertiesModel properties = defaultIfNull(request.getAttributes());
         //conversion must handle validation of lifetime actions as well
-        final VersionedCertificateEntityId certificateEntityId = certificateVaultFake
+        final VersionedCertificateEntityId certificateEntityId = vault
                 .importCertificateVersion(certificateName, toCertificateImportInput(certificateName, request));
-        certificateVaultFake.addTags(certificateEntityId, request.getTags());
+        vault.addTags(certificateEntityId, request.getTags());
         //no need to set expiry, the generation should take care of it based on the X509 properties
-        certificateVaultFake.setEnabled(certificateEntityId, properties.isEnabled());
+        vault.setEnabled(certificateEntityId, properties.isEnabled());
         //no need to set managed property as this endpoint cannot create managed entities by definition
-        final CertAuthorityType certAuthorityType = certificateVaultFake.getEntities()
+        final CertAuthorityType certAuthorityType = vault.getEntities()
                 .getReadOnlyEntity(certificateEntityId).getOriginalCertificatePolicy().getCertAuthorityType();
         final CertificatePolicyModel policyModel = Objects.requireNonNullElse(request.getPolicy(), new CertificatePolicyModel());
-        setLifetimeActions(certificateVaultFake, policyModel, certificateEntityId, certAuthorityType);
+        setLifetimeActions(vault, policyModel, certificateEntityId, certAuthorityType);
         return certificateEntityId;
+    }
+
+
+    public static void updateIssuancePolicy(
+            final CertificateVaultFake vault, final VersionedCertificateEntityId entityId, final CertificatePolicyModel request) {
+        //validate first to avoid updating a cert if lifetime policies are invalid
+        validateLifetimeActions(request);
+        final KeyVaultCertificateEntity entity = vault.getEntities().getEntity(entityId, KeyVaultCertificateEntity.class);
+        entity.updateIssuancePolicy(convertPolicyToCertificateCreationInput(entityId.id(), request));
+        //update lifetime actions
+        setLifetimeActions(vault, request, entityId, entity.getOriginalCertificatePolicy().getCertAuthorityType());
     }
 
     private static CertificatePropertiesModel defaultIfNull(final CertificatePropertiesModel model) {
@@ -81,12 +92,18 @@ public final class CertificateRequestMapperUtil {
 
     private static CertificateCreationInput toCertificateCreationInput(
             final String certificateName, final CreateCertificateRequest request) {
-        final X509CertificateModel x509Properties = request.getPolicy().getX509Properties();
-        final IssuerParameterModel issuer = request.getPolicy().getIssuer();
-        final CertificateKeyModel keyProperties = request.getPolicy().getKeyProperties();
+        final CertificatePolicyModel policy = request.getPolicy();
+        return convertPolicyToCertificateCreationInput(certificateName, policy);
+    }
+
+    private static CertificateCreationInput convertPolicyToCertificateCreationInput(
+            final String certificateName, final CertificatePolicyModel policy) {
+        final X509CertificateModel x509Properties = policy.getX509Properties();
+        final IssuerParameterModel issuer = policy.getIssuer();
+        final CertificateKeyModel keyProperties = policy.getKeyProperties();
         return CertificateCreationInput.builder()
                 .name(certificateName)
-                .contentType(CertContentType.byMimeType(request.getPolicy().getSecretProperties().getContentType()))
+                .contentType(CertContentType.byMimeType(policy.getSecretProperties().getContentType()))
                 //x509
                 .subject(x509Properties.getSubject())
                 .dnsNames(Objects.requireNonNullElse(x509Properties.getSubjectAlternativeNames().getDnsNames(), Set.of()))

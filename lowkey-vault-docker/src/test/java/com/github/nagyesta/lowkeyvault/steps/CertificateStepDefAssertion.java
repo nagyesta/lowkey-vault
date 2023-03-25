@@ -29,6 +29,7 @@ import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class CertificateStepDefAssertion extends CommonAssertions {
@@ -193,6 +194,25 @@ public class CertificateStepDefAssertion extends CommonAssertions {
         assertEquals(expected.size(), actual.size());
         expected.forEach(k ->
                 assertTrue("Enhanced key usage not found: " + k + " in list: " + actual, actual.contains(k)));
+    }
+
+    @And("the certificate has no tags")
+    public void theCertificateHasNoTags() {
+        final Map<String, String> tags = context.getLastResult().getProperties().getTags();
+        assertTrue("The certificate should have no tags, but has: " + tags, tags.isEmpty());
+    }
+
+    @Then("the certificate has a tag named {} with {} as value")
+    public void theCertificateHasATagNamedWithValue(final String name, final String value) {
+        final Map<String, String> tags = context.getLastResult().getProperties().getTags();
+        assertEquals(value, tags.get(name));
+        assertTrue("The certificate should have only 1 tag, but has: " + tags, tags.size() == 1);
+    }
+
+    @And("the downloaded certificate policy has {certContentType} as type")
+    public void theDownloadedCertificatePolicyHasTypeAsType(final CertificateContentType contentType) {
+        final CertificatePolicy certificatePolicy = context.getDownloadedPolicy();
+        assertEquals(contentType, certificatePolicy.getContentType());
     }
 
     private PrivateKey getKeyFromPem(final byte[] content, final X509Certificate certificate) throws CryptoException {

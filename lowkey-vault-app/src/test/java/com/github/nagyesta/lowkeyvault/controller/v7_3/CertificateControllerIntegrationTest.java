@@ -2,6 +2,7 @@ package com.github.nagyesta.lowkeyvault.controller.v7_3;
 
 import com.github.nagyesta.abortmission.booster.jupiter.annotation.LaunchAbortArmed;
 import com.github.nagyesta.lowkeyvault.ResourceUtils;
+import com.github.nagyesta.lowkeyvault.TestConstants;
 import com.github.nagyesta.lowkeyvault.model.common.DeletedModel;
 import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.*;
@@ -602,6 +603,41 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
         final DeletedKeyVaultCertificateItemModel itemModel = body.getValue().get(0);
         Assertions.assertEquals(entityId.asUriNoVersion(HTTPS_LOOP_BACK_IP_80).toString(), itemModel.getCertificateId());
         assertIsDeletedModel(itemModel, entityId);
+    }
+
+    @Test
+    void testUpdateShouldReturnModelWhenCalledWithValidData() {
+        //given
+        final CreateCertificateRequest request = getCreateCertificateRequest();
+        final String certificateName = CERT_NAME_2 + "-update-properties";
+        underTest.create(certificateName, HTTPS_DEFAULT_LOWKEY_VAULT_80, request);
+        final Deque<String> versions = findByUri(HTTPS_DEFAULT_LOWKEY_VAULT_80)
+                .certificateVaultFake()
+                .getEntities()
+                .getVersions(new CertificateEntityId(HTTPS_DEFAULT_LOWKEY_VAULT_80, certificateName));
+        final UpdateCertificateRequest properties = new UpdateCertificateRequest();
+        final CertificatePropertiesModel attributes = new CertificatePropertiesModel();
+        attributes.setEnabled(false);
+        properties.setTags(TestConstants.TAGS_THREE_KEYS);
+        properties.setAttributes(attributes);
+
+        //when
+        final ResponseEntity<KeyVaultCertificateModel> actual = underTest
+                .updateCertificateProperties(certificateName, versions.getLast(), HTTPS_DEFAULT_LOWKEY_VAULT_80, properties);
+
+        //then
+        Assertions.assertEquals(OK, actual.getStatusCode());
+        final KeyVaultCertificateModel body = actual.getBody();
+        Assertions.assertNotNull(body);
+        //policy is removed from the response
+        Assertions.assertNull(body.getPolicy());
+        Assertions.assertEquals(TestConstants.TAGS_THREE_KEYS, body.getTags());
+        Assertions.assertNotEquals(attributes, body.getAttributes());
+        Assertions.assertEquals(attributes.isEnabled(), body.getAttributes().isEnabled());
+        Assertions.assertNotNull(body.getAttributes().getCreatedOn());
+        Assertions.assertNotNull(body.getAttributes().getUpdatedOn());
+        Assertions.assertNotNull(body.getAttributes().getNotBefore());
+        Assertions.assertNotNull(body.getAttributes().getExpiresOn());
     }
 
     private CertificateImportRequest getCreateImportRequest(final String resource, final CertContentType type) {

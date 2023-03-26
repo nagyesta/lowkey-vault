@@ -8,6 +8,7 @@ import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertifica
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.*;
 import org.springframework.util.Assert;
 
+import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -62,41 +63,15 @@ public final class CertificateRequestMapperUtil {
         setLifetimeActions(vault, request, entityId, entity.getOriginalCertificatePolicy().getCertAuthorityType());
     }
 
-    private static CertificatePropertiesModel defaultIfNull(final CertificatePropertiesModel model) {
-        return Objects.requireNonNullElse(model, new CertificatePropertiesModel());
+    public static String getCertificateAsString(final byte[] certificate) {
+        String value = new String(certificate, StandardCharsets.UTF_8);
+        if (!value.contains("BEGIN")) {
+            value = Base64.getMimeEncoder().encodeToString(certificate);
+        }
+        return value;
     }
 
-    private static void validateLifetimeActions(final CertificatePolicyModel policy) {
-        final Integer validityMonths = Objects.requireNonNullElse(policy.getX509Properties().getValidityMonths(),
-                DEFAULT_VALIDITY_MONTHS);
-        Optional.ofNullable(policy.getLifetimeActions())
-                .ifPresent(actions -> actions.forEach(a -> a.getTrigger().validate(validityMonths)));
-    }
-
-    private static void setLifetimeActions(
-            final CertificateVaultFake certificateVaultFake,
-            final CertificatePolicyModel policy,
-            final VersionedCertificateEntityId certificateEntityId,
-            final CertAuthorityType certAuthorityType) {
-        final CertificateLifetimeActionPolicy lifetimeActionPolicy = Optional.ofNullable(policy.getLifetimeActions())
-                .map(actions -> new CertificateLifetimeActionPolicy(certificateEntityId, convertActivityMap(actions)))
-                .orElse(new DefaultCertificateLifetimeActionPolicy(certificateEntityId, certAuthorityType));
-        certificateVaultFake.setLifetimeActionPolicy(lifetimeActionPolicy);
-    }
-
-    private static Map<CertificateLifetimeActionActivity, CertificateLifetimeActionTrigger> convertActivityMap(
-            final List<CertificateLifetimeActionModel> actions) {
-        return actions.stream().collect(Collectors
-                .toMap(CertificateLifetimeActionModel::getAction, c -> c.getTrigger().asTriggerEntity()));
-    }
-
-    private static CertificateCreationInput toCertificateCreationInput(
-            final String certificateName, final CreateCertificateRequest request) {
-        final CertificatePolicyModel policy = request.getPolicy();
-        return convertPolicyToCertificateCreationInput(certificateName, policy);
-    }
-
-    private static CertificateCreationInput convertPolicyToCertificateCreationInput(
+    public static CertificateCreationInput convertPolicyToCertificateCreationInput(
             final String certificateName, final CertificatePolicyModel policy) {
         final X509CertificateModel x509Properties = policy.getX509Properties();
         final IssuerParameterModel issuer = policy.getIssuer();
@@ -126,6 +101,40 @@ public final class CertificateRequestMapperUtil {
                 .keySize(keyProperties.getKeySize())
                 //build
                 .build();
+    }
+
+    public static Map<CertificateLifetimeActionActivity, CertificateLifetimeActionTrigger> convertActivityMap(
+            final List<CertificateLifetimeActionModel> actions) {
+        return actions.stream().collect(Collectors
+                .toMap(CertificateLifetimeActionModel::getAction, c -> c.getTrigger().asTriggerEntity()));
+    }
+
+    private static CertificatePropertiesModel defaultIfNull(final CertificatePropertiesModel model) {
+        return Objects.requireNonNullElse(model, new CertificatePropertiesModel());
+    }
+
+    private static void validateLifetimeActions(final CertificatePolicyModel policy) {
+        final Integer validityMonths = Objects.requireNonNullElse(policy.getX509Properties().getValidityMonths(),
+                DEFAULT_VALIDITY_MONTHS);
+        Optional.ofNullable(policy.getLifetimeActions())
+                .ifPresent(actions -> actions.forEach(a -> a.getTrigger().validate(validityMonths)));
+    }
+
+    private static void setLifetimeActions(
+            final CertificateVaultFake certificateVaultFake,
+            final CertificatePolicyModel policy,
+            final VersionedCertificateEntityId certificateEntityId,
+            final CertAuthorityType certAuthorityType) {
+        final CertificateLifetimeActionPolicy lifetimeActionPolicy = Optional.ofNullable(policy.getLifetimeActions())
+                .map(actions -> new CertificateLifetimeActionPolicy(certificateEntityId, convertActivityMap(actions)))
+                .orElse(new DefaultCertificateLifetimeActionPolicy(certificateEntityId, certAuthorityType));
+        certificateVaultFake.setLifetimeActionPolicy(lifetimeActionPolicy);
+    }
+
+    private static CertificateCreationInput toCertificateCreationInput(
+            final String certificateName, final CreateCertificateRequest request) {
+        final CertificatePolicyModel policy = request.getPolicy();
+        return convertPolicyToCertificateCreationInput(certificateName, policy);
     }
 
     private static CertificateImportInput toCertificateImportInput(

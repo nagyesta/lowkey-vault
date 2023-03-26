@@ -10,6 +10,7 @@ import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId
 import com.github.nagyesta.lowkeyvault.service.secret.impl.KeyVaultSecretEntity;
 import com.github.nagyesta.lowkeyvault.service.secret.impl.SecretCreateInput;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
+import org.springframework.util.Assert;
 
 import java.security.KeyPair;
 import java.security.cert.Certificate;
@@ -42,14 +43,21 @@ public class CertificateBackingEntityGenerator {
 
     public VersionedKeyEntityId importKeyPair(
             final ReadOnlyCertificatePolicy input, final JsonWebKeyImportRequest keyImportRequest) {
-        return vaultFake.keyVaultFake().importKeyVersion(input.getName(), KeyImportInput.builder()
+        return importKeyPair(new VersionedKeyEntityId(vaultFake.baseUri(), input.getName()), input, keyImportRequest, true);
+    }
+
+    public VersionedKeyEntityId importKeyPair(
+            final VersionedKeyEntityId kid, final ReadOnlyCertificatePolicy input,
+            final JsonWebKeyImportRequest keyImportRequest, final boolean enabled) {
+        Assert.isTrue(kid.id().equals(input.getName()), "The key id must match the policy name.");
+        return vaultFake.keyVaultFake().importKeyVersion(kid, KeyImportInput.builder()
                 .key(keyImportRequest)
                 .createdOn(input.getValidityStart())
                 .updatedOn(input.getValidityStart())
                 .expiresOn(input.getValidityStart().plusMonths(input.getValidityMonths()))
                 .notBefore(input.getValidityStart())
                 .managed(true)
-                .enabled(true)
+                .enabled(enabled)
                 .build());
     }
 

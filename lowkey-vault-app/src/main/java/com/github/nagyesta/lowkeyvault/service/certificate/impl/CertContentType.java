@@ -18,6 +18,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -26,7 +27,6 @@ import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import static com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType.EC;
 import static com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType.RSA;
@@ -37,7 +37,6 @@ public enum CertContentType {
      * Certificate in PKCS12 format.
      */
     PKCS12("application/x-pkcs12") {
-        private static final String DEFAULT_PASSWORD = "";
         private static final String KEY_STORE_TYPE_PKCS12 = "PKCS12";
 
         @Override
@@ -71,15 +70,24 @@ public enum CertContentType {
         @Override
         public String asBase64CertificatePackage(@NonNull final Certificate certificate,
                                                  @NonNull final KeyPair keyPair) throws CryptoException {
+            final byte[] bytes = generateCertificatePackage(certificate, keyPair, DEFAULT_PASSWORD);
+            return Base64Utils.encodeToString(bytes);
+        }
+
+        @Override
+        public byte[] certificatePackageForBackup(@NonNull final Certificate certificate,
+                                                  @NonNull final KeyPair keyPair) throws CryptoException {
+            return generateCertificatePackage(certificate, keyPair, BACKUP_PASSWORD);
+        }
+        private byte[] generateCertificatePackage(
+                final Certificate certificate, final KeyPair keyPair, final String password) {
             try {
                 final KeyStore pkcs12 = KeyStore.getInstance(KEY_STORE_TYPE_PKCS12);
-                pkcs12.load(null, DEFAULT_PASSWORD.toCharArray());
-                final String alias = UUID.randomUUID().toString();
-                pkcs12.setKeyEntry(alias, keyPair.getPrivate(), DEFAULT_PASSWORD.toCharArray(), new Certificate[]{certificate});
+                pkcs12.load(null, password.toCharArray());
+                pkcs12.setKeyEntry(DEFAULT_ALIAS, keyPair.getPrivate(), password.toCharArray(), new Certificate[]{certificate});
                 final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                pkcs12.store(byteArrayOutputStream, DEFAULT_PASSWORD.toCharArray());
-                final byte[] byteArray = byteArrayOutputStream.toByteArray();
-                return Base64Utils.encodeToString(byteArray);
+                pkcs12.store(byteArrayOutputStream, password.toCharArray());
+                return byteArrayOutputStream.toByteArray();
             } catch (final Exception e) {
                 throw new CryptoException("Failed to generate PKCS12 certificate.", e);
             }
@@ -137,6 +145,13 @@ public enum CertContentType {
             return key + cert;
         }
 
+        @Override
+        public byte[] certificatePackageForBackup(
+                @org.springframework.lang.NonNull final Certificate certificate,
+                @org.springframework.lang.NonNull final KeyPair keyPair) throws CryptoException {
+            return asBase64CertificatePackage(certificate, keyPair).getBytes(StandardCharsets.UTF_8);
+        }
+
         private void validatePem(final String certificateContent) {
             Assert.isTrue(certificateContent.startsWith(BEGIN), "PEM should start with '-----BEGIN'");
         }
@@ -165,6 +180,18 @@ public enum CertContentType {
         }
     };
 
+    /**
+     * Default alias used for the generated PKCS12 certificates.
+     */
+    public static final String DEFAULT_ALIAS = "certificate";
+    /**
+     * Default password used for the generated certificates.
+     */
+    public static final String DEFAULT_PASSWORD = "";
+    /**
+     * Password used for the backup process.
+     */
+    public static final String BACKUP_PASSWORD = "export-password";
     private static final String BEGIN = "-----BEGIN";
     private static final String ANYTHING_BEFORE_BEGIN = "^.*-----BEGIN";
     private static final int EC_RSA_KEY_SIZE_THRESHOLD = 150;
@@ -206,4 +233,6 @@ public enum CertContentType {
     public abstract JsonWebKeyImportRequest getKey(String certificateContent, String password) throws CryptoException;
 
     public abstract String asBase64CertificatePackage(Certificate certificate, KeyPair keyPair) throws CryptoException;
+
+    public abstract byte[] certificatePackageForBackup(Certificate certificate, KeyPair keyPair) throws CryptoException;
 }

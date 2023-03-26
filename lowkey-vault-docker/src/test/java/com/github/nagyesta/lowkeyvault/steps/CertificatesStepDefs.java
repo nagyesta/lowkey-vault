@@ -270,4 +270,19 @@ public class CertificatesStepDefs extends CommonAssertions {
         final KeyVaultCertificateWithPolicy certificate = client.getCertificate(name);
         context.addFetchedCertificate(name, certificate);
     }
+
+    @And("the certificate named {name} is backed up")
+    public void theCertificateWithNameIsBackedUp(final String name) {
+        final CertificateClient client = context.getClient(context.getCertificateServiceVersion());
+        final byte[] backup = client.backupCertificate(name);
+        context.setBackupBytes(name, backup);
+    }
+
+    @And("the certificate named {name} is restored")
+    public void theCertificateWithNamedIsRestored(final String name) {
+        final CertificateClient client = context.getClient(context.getCertificateServiceVersion());
+        final byte[] backup = context.getBackupBytes(name);
+        final KeyVaultCertificateWithPolicy certificate = client.restoreCertificateBackup(backup);
+        context.addCreatedEntity(name, certificate);
+    }
 }

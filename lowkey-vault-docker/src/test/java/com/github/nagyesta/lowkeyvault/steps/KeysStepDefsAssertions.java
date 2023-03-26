@@ -171,7 +171,7 @@ public class KeysStepDefsAssertions extends CommonAssertions {
     @And("the key named {name} matches the previous backup")
     public void theKeyNamedNameMatchesThePreviousBackup(final String name) {
         final byte[] bytes = context.getClient(context.getKeyServiceVersion()).backupKey(name);
-        assertEquals(context.getBackupBytes(name), bytes);
+        assertArrayEquals(context.getBackupBytes(name), bytes);
     }
 
     @And("the unpacked backup of {name} matches the content of the classpath resource")

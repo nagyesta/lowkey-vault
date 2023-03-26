@@ -1,6 +1,7 @@
 package com.github.nagyesta.lowkeyvault.service.certificate.impl;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
+import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificateRestoreInput;
 import com.github.nagyesta.lowkeyvault.service.certificate.CertificateVaultFake;
 import com.github.nagyesta.lowkeyvault.service.certificate.LifetimeActionPolicy;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
@@ -56,6 +57,13 @@ public class CertificateVaultFakeImpl
     }
 
     @Override
+    public void restoreCertificateVersion(
+            @NonNull final VersionedCertificateEntityId versionedEntityId, @NonNull final CertificateRestoreInput input) {
+        final KeyVaultCertificateEntity entity = new KeyVaultCertificateEntity(versionedEntityId, input, vaultFake());
+        addVersion(entity.getId(), entity);
+    }
+
+    @Override
     public void timeShift(final int offsetSeconds) {
         super.timeShift(offsetSeconds);
         lifetimeActionPolicies.values().forEach(p -> p.timeShift(offsetSeconds));
@@ -66,7 +74,7 @@ public class CertificateVaultFakeImpl
         purgeDeletedPolicies();
         lifetimeActionPolicies.values().stream()
                 .filter(LifetimeActionPolicy::isAutoRenew)
-                .filter(l -> getEntities().containsEntity(l.getId()))
+                .filter(l -> getEntities().containsName(l.getId().id()))
                 .forEach(this::performMissedRenewalsOfPolicy);
     }
 

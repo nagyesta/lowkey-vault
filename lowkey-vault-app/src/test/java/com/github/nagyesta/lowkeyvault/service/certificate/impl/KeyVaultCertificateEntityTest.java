@@ -3,6 +3,7 @@ package com.github.nagyesta.lowkeyvault.service.certificate.impl;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
+import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificateRestoreInput;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.common.ReadOnlyVersionedEntityMultiMap;
 import com.github.nagyesta.lowkeyvault.service.exception.CryptoException;
@@ -65,6 +66,21 @@ class KeyVaultCertificateEntityTest {
                 .add(Arguments.of(input, null, cid, vaultFake))
                 .add(Arguments.of(input, kid, null, vaultFake))
                 .add(Arguments.of(input, kid, cid, null))
+                .build();
+    }
+
+    public static Stream<Arguments> nullRestoreProvider() {
+        final VersionedCertificateEntityId id = VERSIONED_CERT_ENTITY_ID_1_VERSION_1;
+        final CertificateRestoreInput input = mock(CertificateRestoreInput.class);
+        final VaultFake vault = mock(VaultFake.class);
+        return Stream.<Arguments>builder()
+                .add(Arguments.of(null, null, null))
+                .add(Arguments.of(id, null, null))
+                .add(Arguments.of(null, input, null))
+                .add(Arguments.of(null, null, vault))
+                .add(Arguments.of(null, input, vault))
+                .add(Arguments.of(id, null, vault))
+                .add(Arguments.of(id, input, null))
                 .build();
     }
 
@@ -385,5 +401,17 @@ class KeyVaultCertificateEntityTest {
         verify(keyMap).containsEntity(eq(kid));
         verify(secretFake).getEntities();
         verify(secretMap).containsName(eq(id.id()));
+    }
+
+    @ParameterizedTest
+    @MethodSource("nullRestoreProvider")
+    void testRestoreConstructorShouldThrowExceptionWhenCalledWithNull(
+            final VersionedCertificateEntityId id, final CertificateRestoreInput input, final VaultFake vault) {
+        //given
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new KeyVaultCertificateEntity(id, input, vault));
+
+        //then + exception
     }
 }

@@ -2,12 +2,17 @@ package com.github.nagyesta.lowkeyvault.context;
 
 import com.github.nagyesta.lowkeyvault.mapper.common.registry.CertificateConverterRegistry;
 import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.*;
+import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 
 @Configuration
 public class CertificateConverterConfiguration {
+
+    @Autowired
+    private VaultService vaultService;
 
     @Bean
     public CertificateConverterRegistry certificateConverterRegistry() {
@@ -55,5 +60,12 @@ public class CertificateConverterConfiguration {
     @Bean
     public CertificateLifetimeActionsPolicyToV73ModelConverter certificateLifetimeActionConverter() {
         return new CertificateLifetimeActionsPolicyToV73ModelConverter(certificateConverterRegistry());
+    }
+
+    @Bean
+    @DependsOn({"certificatePropertiesConverter", "certificatePolicyConverter", "certificateIssuancePolicyConverter",
+            "certificateLifetimeActionConverter"})
+    public CertificateEntityToV73BackupConverter certificateBackupConverter() {
+        return new CertificateEntityToV73BackupConverter(certificateConverterRegistry(), vaultService);
     }
 }

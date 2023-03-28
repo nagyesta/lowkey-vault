@@ -18,11 +18,14 @@ public class CertificateBackupList implements BackupListContainer<CertificateBac
     @JsonProperty("versions")
     private List<CertificateBackupListItem> versions = List.of();
 
+    @Override
     public List<CertificateBackupListItem> getVersions() {
         return versions;
     }
 
+    @Override
     public void setVersions(final List<CertificateBackupListItem> versions) {
         this.versions = List.copyOf(versions);
     }
+
 }

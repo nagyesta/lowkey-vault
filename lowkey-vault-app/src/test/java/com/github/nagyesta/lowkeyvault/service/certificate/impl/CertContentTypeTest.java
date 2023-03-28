@@ -14,6 +14,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.nio.charset.StandardCharsets;
+import java.security.KeyPair;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertContentType.PEM;
 import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertContentType.PKCS12;
+import static org.mockito.Mockito.mock;
 
 @SuppressWarnings("UnnecessaryLocalVariable")
 class CertContentTypeTest {
@@ -51,6 +53,7 @@ class CertContentTypeTest {
             + "/eGSDWHJ20KDyt98c7QJIjt87KIh3jd1WRzeRZ7YWWdRxigerYlupO2iFSr28seB"
             + "NjuCqPwdGwuYHGe/SskEqjVYxFoFknPhsn5Y64b1RuJe19qjewYl0NBmBjiEexY1"
             + "Tg/nnzqHPv4GAnWcp4e9IOAB00LfXwFj4D/lTOuGpdUFeIhjN0dx";
+    private static final int KEY_SIZE = 2048;
 
     public static Stream<Arguments> instanceProvider() {
         return Stream.<Arguments>builder()
@@ -390,6 +393,44 @@ class CertContentTypeTest {
 
         //then
         Assertions.assertEquals(PEM, actual);
+    }
+
+    @Test
+    void testCertificatePackageForBackupShouldThrowExceptionWhenCalledWithNullKeyAndValidCertificateUsingPkcs12Store() {
+        //given
+        final String store = ResourceUtils.loadResourceAsBase64String("/cert/rsa.p12");
+        final Certificate certificate = PKCS12.getCertificateChain(store, "").get(0);
+        final CertContentType underTest = PKCS12;
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.certificatePackageForBackup(certificate, null));
+
+        //then + exception
+    }
+
+    @Test
+    void testCertificatePackageForBackupShouldThrowExceptionWhenCalledWithValidKeyAndNullCertificateUsingPkcs12Store() {
+        //given
+        final KeyPair keyPair = KeyGenUtil.generateRsa(KEY_SIZE, null);
+        final CertContentType underTest = PKCS12;
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.certificatePackageForBackup(null, keyPair));
+
+        //then + exception
+    }
+
+    @Test
+    void testCertificatePackageForBackupShouldThrowExceptionWhenCalledWithValidKeyAndInvalidCertificateUsingPkcs12Store() {
+        //given
+        final Certificate certificate = mock(Certificate.class);
+        final KeyPair keyPair = KeyGenUtil.generateRsa(KEY_SIZE, null);
+        final CertContentType underTest = PKCS12;
+
+        //when
+        Assertions.assertThrows(CryptoException.class, () -> underTest.certificatePackageForBackup(certificate, keyPair));
+
+        //then + exception
     }
 
     private static String toBase64(final Certificate certificate) throws CertificateEncodingException {

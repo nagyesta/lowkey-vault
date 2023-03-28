@@ -5,6 +5,7 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificatePolicyModel;
+import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificateRestoreInput;
 import com.github.nagyesta.lowkeyvault.service.certificate.*;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.CertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
@@ -50,6 +51,14 @@ class CertificateVaultFakeImplTest {
                 .add(Arguments.of(null, null))
                 .add(Arguments.of(CERT_NAME_1, null))
                 .add(Arguments.of(null, mock(CertificateImportInput.class)))
+                .build();
+    }
+
+    public static Stream<Arguments> restoreNullProvider() {
+        return Stream.<Arguments>builder()
+                .add(Arguments.of(null, null))
+                .add(Arguments.of(VERSIONED_CERT_ENTITY_ID_1_VERSION_1, null))
+                .add(Arguments.of(null, mock(CertificateRestoreInput.class)))
                 .build();
     }
 
@@ -383,6 +392,20 @@ class CertificateVaultFakeImplTest {
 
         //then
         Assertions.assertNull(actual);
+    }
+
+    @ParameterizedTest
+    @MethodSource("restoreNullProvider")
+    void testRestoreCertificateVersionShouldThrowExceptionWhenCalledWithNull(
+            final VersionedCertificateEntityId id, final CertificateRestoreInput input) {
+        //given
+        final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
+        final CertificateVaultFake underTest = vault.certificateVaultFake();
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.restoreCertificateVersion(id, input));
+
+        //then + exception
     }
 
     private CertificateVaultFakeImpl prepareWithCertificateCreated(final VaultFake vault) {

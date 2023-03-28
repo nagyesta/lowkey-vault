@@ -1,12 +1,14 @@
 package com.github.nagyesta.lowkeyvault.service.certificate.impl;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRequest;
+import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificateRestoreInput;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.common.impl.KeyVaultBaseEntity;
 import com.github.nagyesta.lowkeyvault.service.exception.CryptoException;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
+import com.github.nagyesta.lowkeyvault.service.key.impl.KeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.secret.id.SecretEntityId;
 import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
@@ -22,6 +24,8 @@ import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Optional;
+
+import static com.github.nagyesta.lowkeyvault.controller.common.util.CertificateRequestMapperUtil.convertPolicyToCertificateCreationInput;
 
 @Slf4j
 public class KeyVaultCertificateEntity
@@ -148,6 +152,49 @@ public class KeyVaultCertificateEntity
     }
 
 
+    /**
+     * Constructor for certificate restore.
+     *
+     * @param id  The id of the certificate entity.
+     * @param input The input parameters.
+     * @param vault The vault we need to use.
+     */
+    public KeyVaultCertificateEntity(@NonNull final VersionedCertificateEntityId id,
+                                     @NonNull final CertificateRestoreInput input,
+                                     @org.springframework.lang.NonNull final VaultFake vault) {
+        super(vault);
+        final ReadOnlyCertificatePolicy policy = input.getCertificateData();
+        final ReadOnlyCertificatePolicy originalCertificateData = input.getParsedCertificateData();
+        final X509Certificate certificate = input.getCertificate();
+        final JsonWebKeyImportRequest keyImportRequest = input.getKeyData();
+        final VersionedKeyEntityId kid = new VersionedKeyEntityId(vault.baseUri(), id.id(), input.getKeyVersion());
+        final VersionedSecretEntityId sid = new VersionedSecretEntityId(vault.baseUri(), id.id(), id.version());
+        this.issuancePolicy = new CertificatePolicy(policy);
+        this.originalCertificatePolicy = new CertificatePolicy(originalCertificateData);
+        this.generator = new CertificateBackingEntityGenerator(vault);
+        if (vault.keyVaultFake().getEntities().containsEntity(kid)) {
+            //key already exists, just extend expiry
+            this.kid = kid;
+            vault.keyVaultFake().getEntities().getEntity(kid, KeyVaultKeyEntity.class).setExpiry(input.getExpires());
+        } else {
+            this.kid = generator.importKeyPair(kid, policy, keyImportRequest, input.isEnabled());
+        }
+        this.id = new VersionedCertificateEntityId(vault.baseUri(), id.id(), id.version());
+        final CertificateGenerator certificateGenerator = new CertificateGenerator(vault, this.kid);
+        this.certificate = certificate;
+        this.csr = certificateGenerator.generateCertificateSigningRequest(id.id(), this.certificate);
+        this.sid = generator.generateSecret(this.originalCertificatePolicy, this.certificate, this.kid, sid);
+        this.originalCertificateContents = vault.secretVaultFake().getEntities().getReadOnlyEntity(this.sid).getValue();
+        this.updateIssuancePolicy(convertPolicyToCertificateCreationInput(input.getName(), input.getIssuancePolicy()));
+        this.setExpiry(input.getExpires());
+        this.setEnabled(input.isEnabled());
+        this.setTags(input.getTags());
+        this.setNotBefore(input.getNotBefore());
+        this.setCreatedOn(input.getCreated());
+        this.setUpdatedOn(input.getUpdated());
+    }
+
+
     @Override
     public VersionedCertificateEntityId getId() {
         return id;
@@ -177,6 +224,7 @@ public class KeyVaultCertificateEntity
     public void updateIssuancePolicy(@NonNull final ReadOnlyCertificatePolicy policy) {
         Assert.isTrue(this.id.id().equals(policy.getName()), "Updated policy must have the same name for: " + this.id);
         this.issuancePolicy = new CertificatePolicy(policy);
+        this.updatedNow();
     }
 
     @Override

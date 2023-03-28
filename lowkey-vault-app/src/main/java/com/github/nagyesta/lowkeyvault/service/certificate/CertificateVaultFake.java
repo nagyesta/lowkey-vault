@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.service.certificate;
 
+import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificateRestoreInput;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.CertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateCreationInput;
@@ -12,6 +13,8 @@ public interface CertificateVaultFake
     VersionedCertificateEntityId createCertificateVersion(@NonNull String name, @NonNull CertificateCreationInput input);
 
     VersionedCertificateEntityId importCertificateVersion(@NonNull String name, @NonNull CertificateImportInput input);
+
+    void restoreCertificateVersion(@NonNull VersionedCertificateEntityId versionedEntityId, @NonNull CertificateRestoreInput input);
 
     LifetimeActionPolicy lifetimeActionPolicy(@NonNull CertificateEntityId certificateEntityId);
 

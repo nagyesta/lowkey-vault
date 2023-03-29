@@ -39,19 +39,28 @@ class EcJsonWebKeyImportRequestConverterTest {
     void testConvertShouldReturnKeyPairWhenCalledWithValidInput(final KeyCurveName keyCurveName) {
         //given
         final KeyPair expected = KeyGenUtil.generateEc(keyCurveName);
+        final BCECPrivateKey expectedPrivate = (BCECPrivateKey) expected.getPrivate();
+        final BCECPublicKey expectedPublic = (BCECPublicKey) expected.getPublic();
         final JsonWebKeyImportRequest request = new JsonWebKeyImportRequest();
         request.setKeyType(KeyType.EC);
-        request.setX(((BCECPublicKey) expected.getPublic()).getQ().getAffineXCoord().getEncoded());
-        request.setY(((BCECPublicKey) expected.getPublic()).getQ().getAffineYCoord().getEncoded());
-        request.setD(((BCECPrivateKey) expected.getPrivate()).getD().toByteArray());
+        request.setX(expectedPublic.getQ().getAffineXCoord().getEncoded());
+        request.setY(expectedPublic.getQ().getAffineYCoord().getEncoded());
+        request.setD(expectedPrivate.getD().toByteArray());
         request.setCurveName(keyCurveName);
 
         //when
         final KeyPair actual = underTest.convert(request);
 
         //then
-        Assertions.assertEquals(expected.getPrivate(), actual.getPrivate());
-        Assertions.assertEquals(expected.getPublic(), actual.getPublic());
+        final BCECPrivateKey actualPrivate = (BCECPrivateKey) actual.getPrivate();
+        final BCECPublicKey actualPublic = (BCECPublicKey) actual.getPublic();
+        Assertions.assertEquals(expectedPrivate.getD(), actualPrivate.getD());
+        Assertions.assertEquals(expectedPrivate.getParameters(), actualPrivate.getParameters());
+        Assertions.assertEquals(expectedPrivate.getAlgorithm(), actualPrivate.getAlgorithm());
+        Assertions.assertEquals(expectedPublic.getQ(), actualPublic.getQ());
+        Assertions.assertEquals(expectedPublic.getParameters(), actualPublic.getParameters());
+        Assertions.assertEquals(expectedPublic.getAlgorithm(), actualPublic.getAlgorithm());
+
     }
 
     @Test

@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.nagyesta.lowkeyvault.controller.common.util.CertificateRequestMapperUtil;
-import com.github.nagyesta.lowkeyvault.model.json.util.Base64MimeDeserializer;
-import com.github.nagyesta.lowkeyvault.model.json.util.Base64MimeSerializer;
+import com.github.nagyesta.lowkeyvault.model.json.util.Base64CertDeserializer;
+import com.github.nagyesta.lowkeyvault.model.json.util.Base64CertSerializer;
 import lombok.Data;
 
 import javax.validation.Valid;
@@ -19,8 +19,8 @@ public class CertificateImportRequest {
     private String password;
 
     @NotNull
-    @JsonSerialize(using = Base64MimeSerializer.class)
-    @JsonDeserialize(using = Base64MimeDeserializer.class)
+    @JsonSerialize(using = Base64CertSerializer.class)
+    @JsonDeserialize(using = Base64CertDeserializer.class)
     @JsonProperty("value")
     private byte[] certificate;
 

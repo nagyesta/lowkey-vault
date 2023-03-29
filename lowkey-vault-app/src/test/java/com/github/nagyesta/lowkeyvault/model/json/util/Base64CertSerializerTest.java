@@ -22,9 +22,9 @@ import java.util.stream.Stream;
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static org.mockito.Mockito.*;
 
-class Base64MimeSerializerTest {
+class Base64CertSerializerTest {
 
-    private final Base64MimeSerializer underTest = new Base64MimeSerializer();
+    private final Base64CertSerializer underTest = new Base64CertSerializer();
     @Mock
     private JsonGenerator generator;
     @Mock

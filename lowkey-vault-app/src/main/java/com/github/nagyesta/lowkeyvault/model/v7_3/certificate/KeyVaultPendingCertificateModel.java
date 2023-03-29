@@ -3,8 +3,8 @@ package com.github.nagyesta.lowkeyvault.model.v7_3.certificate;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.github.nagyesta.lowkeyvault.model.json.util.Base64MimeDeserializer;
-import com.github.nagyesta.lowkeyvault.model.json.util.Base64MimeSerializer;
+import com.github.nagyesta.lowkeyvault.model.json.util.Base64CertDeserializer;
+import com.github.nagyesta.lowkeyvault.model.json.util.Base64CertSerializer;
 import lombok.Data;
 
 @Data
@@ -14,8 +14,8 @@ public class KeyVaultPendingCertificateModel {
     private boolean cancellationRequested;
 
     @JsonProperty("csr")
-    @JsonDeserialize(using = Base64MimeDeserializer.class)
-    @JsonSerialize(using = Base64MimeSerializer.class)
+    @JsonDeserialize(using = Base64CertDeserializer.class)
+    @JsonSerialize(using = Base64CertSerializer.class)
     private byte[] csr;
 
     @JsonProperty("id")

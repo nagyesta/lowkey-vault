@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.github.nagyesta.lowkeyvault.model.json.util.Base64CertDeserializer;
+import com.github.nagyesta.lowkeyvault.model.json.util.Base64CertSerializer;
 import com.github.nagyesta.lowkeyvault.model.json.util.Base64Deserializer;
-import com.github.nagyesta.lowkeyvault.model.json.util.Base64MimeDeserializer;
-import com.github.nagyesta.lowkeyvault.model.json.util.Base64MimeSerializer;
 import com.github.nagyesta.lowkeyvault.model.json.util.Base64Serializer;
 import lombok.Data;
 
@@ -29,8 +29,8 @@ public class KeyVaultCertificateModel {
     @JsonProperty("x5t")
     private byte[] thumbprint;
 
-    @JsonSerialize(using = Base64MimeSerializer.class)
-    @JsonDeserialize(using = Base64MimeDeserializer.class)
+    @JsonSerialize(using = Base64CertSerializer.class)
+    @JsonDeserialize(using = Base64CertDeserializer.class)
     @JsonProperty("cer")
     private byte[] certificate;
 

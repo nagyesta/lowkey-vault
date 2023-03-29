@@ -76,14 +76,15 @@ public final class CertificateRequestMapperUtil {
         final X509CertificateModel x509Properties = policy.getX509Properties();
         final IssuerParameterModel issuer = policy.getIssuer();
         final CertificateKeyModel keyProperties = policy.getKeyProperties();
+        final Optional<SubjectAlternativeNames> sans = Optional.ofNullable(x509Properties.getSubjectAlternativeNames());
         return CertificateCreationInput.builder()
                 .name(certificateName)
                 .contentType(CertContentType.byMimeType(policy.getSecretProperties().getContentType()))
                 //x509
                 .subject(x509Properties.getSubject())
-                .dnsNames(Objects.requireNonNullElse(x509Properties.getSubjectAlternativeNames().getDnsNames(), Set.of()))
-                .emails(Objects.requireNonNullElse(x509Properties.getSubjectAlternativeNames().getEmails(), Set.of()))
-                .upns(Objects.requireNonNullElse(x509Properties.getSubjectAlternativeNames().getUpns(), Set.of()))
+                .dnsNames(sans.map(SubjectAlternativeNames::getDnsNames).orElse(Set.of()))
+                .emails(sans.map(SubjectAlternativeNames::getEmails).orElse(Set.of()))
+                .upns(sans.map(SubjectAlternativeNames::getUpns).orElse(Set.of()))
                 .keyUsage(Objects.requireNonNullElse(x509Properties.getKeyUsage(), DEFAULT_KEY_USAGES))
                 .extendedKeyUsage(Objects.requireNonNullElse(x509Properties.getExtendedKeyUsage(), DEFAULT_EXT_KEY_USAGES))
                 .validityMonths(Objects.requireNonNullElse(x509Properties.getValidityMonths(), DEFAULT_VALIDITY_MONTHS))

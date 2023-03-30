@@ -21,9 +21,9 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class Base64MimeDeserializerTest {
+class Base64CertDeserializerTest {
 
-    private final Base64MimeDeserializer underTest = new Base64MimeDeserializer();
+    private final Base64CertDeserializer underTest = new Base64CertDeserializer();
     @Mock
     private JsonParser parser;
     @Mock

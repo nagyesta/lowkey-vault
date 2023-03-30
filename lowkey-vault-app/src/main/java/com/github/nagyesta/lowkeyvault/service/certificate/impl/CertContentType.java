@@ -79,6 +79,7 @@ public enum CertContentType {
                                                   @NonNull final KeyPair keyPair) throws CryptoException {
             return generateCertificatePackage(certificate, keyPair, BACKUP_PASSWORD);
         }
+
         private byte[] generateCertificatePackage(
                 final Certificate certificate, final KeyPair keyPair, final String password) {
             try {

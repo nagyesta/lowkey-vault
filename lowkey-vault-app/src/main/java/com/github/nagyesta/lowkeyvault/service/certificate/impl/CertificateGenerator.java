@@ -135,21 +135,12 @@ public class CertificateGenerator {
         final X509v3CertificateBuilder certificate = new JcaX509v3CertificateBuilder(
                 subject, generateSerial(), input.certNotBefore(), input.certExpiry(), subject, keyPair.getPublic());
 
-        final byte[] cid = generateCid();
-        addExtensionQuietly(certificate, Extension.subjectKeyIdentifier, false, cid);
-        addExtensionQuietly(certificate, Extension.authorityKeyIdentifier, false, cid);
         addExtensionOptionally(certificate, Extension.basicConstraints, true, new BasicConstraints(true));
         return certificate;
     }
 
     private BigInteger generateSerial() {
         return new BigInteger(NUMBER_OF_BITS_SERIAL, secureRandom);
-    }
-
-    private byte[] generateCid() {
-        final byte[] cid = new byte[NUMBER_OF_BYTES_CID];
-        secureRandom.nextBytes(cid);
-        return cid;
     }
 
     private X509CertificateHolder buildCertificate(

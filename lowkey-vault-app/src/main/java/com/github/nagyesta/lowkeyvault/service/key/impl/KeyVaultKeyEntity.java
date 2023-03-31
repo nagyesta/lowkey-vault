@@ -8,10 +8,12 @@ import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.NonNull;
 import org.slf4j.Logger;
+import org.springframework.util.Assert;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
 /**
  * Common Key entity base class.
@@ -63,8 +65,14 @@ public abstract class KeyVaultKeyEntity<T, S> extends KeyVaultBaseEntity<Version
     }
 
     public void setOperations(final List<KeyOperation> operations) {
+        final List<KeyOperation> invalid = operations.stream().filter(this.disallowedOperations()::contains).collect(Collectors.toList());
+        Assert.isTrue(invalid.isEmpty(), "Operation not allowed for this key type: " + invalid + ".");
         this.updatedNow();
         this.operations = List.copyOf(operations);
+    }
+
+    protected List<KeyOperation> disallowedOperations() {
+        return Collections.emptyList();
     }
 
     protected <R> R doCrypto(final Callable<R> task, final String message, final Logger log) {

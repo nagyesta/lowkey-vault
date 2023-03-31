@@ -15,6 +15,7 @@ import org.springframework.util.Assert;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
+import java.util.List;
 
 import static com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil.generateAes;
 
@@ -54,6 +55,11 @@ public class AesKeyVaultKeyEntity extends KeyVaultKeyEntity<SecretKey, Integer> 
     @Override
     public int getKeySize() {
         return getKeyParam();
+    }
+
+    @Override
+    protected List<KeyOperation> disallowedOperations() {
+        return List.of(KeyOperation.SIGN, KeyOperation.VERIFY);
     }
 
     @Override

@@ -2,8 +2,10 @@ package com.github.nagyesta.lowkeyvault.service.certificate.impl;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificateRestoreInput;
+import com.github.nagyesta.lowkeyvault.service.EntityId;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
+import com.github.nagyesta.lowkeyvault.service.common.BaseVaultEntity;
 import com.github.nagyesta.lowkeyvault.service.common.impl.KeyVaultBaseEntity;
 import com.github.nagyesta.lowkeyvault.service.exception.CryptoException;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
@@ -41,7 +43,6 @@ public class KeyVaultCertificateEntity
     private final String originalCertificateContents;
     private CertificatePolicy issuancePolicy;
     private PKCS10CertificationRequest csr;
-
     /**
      * Constructor for certificate creation.
      *
@@ -57,10 +58,7 @@ public class KeyVaultCertificateEntity
                 "Certificate name (" + name + ") did not match name from certificate creation input: " + input.getName());
         final KeyEntityId kid = new KeyEntityId(vault.baseUri(), name);
         final SecretEntityId sid = new SecretEntityId(vault.baseUri(), name);
-        Assert.state(!vault.keyVaultFake().getEntities().containsName(kid.id()),
-                "Key must not exist to be able to store certificate data in it. " + kid.asUriNoVersion(vault.baseUri()));
-        Assert.state(!vault.secretVaultFake().getEntities().containsName(sid.id()),
-                "Secret must not exist to be able to store certificate data in it. " + sid.asUriNoVersion(vault.baseUri()));
+        assertNoNameCollisionWithNotManagedEntity(vault, kid, sid);
         this.issuancePolicy = new CertificatePolicy(input);
         this.originalCertificatePolicy = new CertificatePolicy(input);
         this.generator = new CertificateBackingEntityGenerator(vault);
@@ -100,10 +98,7 @@ public class KeyVaultCertificateEntity
                 "Certificate name (" + name + ") did not match name from certificate creation input: " + policy.getName());
         final KeyEntityId kid = new KeyEntityId(vault.baseUri(), name);
         final SecretEntityId sid = new SecretEntityId(vault.baseUri(), name);
-        Assert.state(!vault.keyVaultFake().getEntities().containsName(kid.id()),
-                "Key must not exist to be able to store certificate data in it. " + kid.asUriNoVersion(vault.baseUri()));
-        Assert.state(!vault.secretVaultFake().getEntities().containsName(sid.id()),
-                "Secret must not exist to be able to store certificate data in it. " + sid.asUriNoVersion(vault.baseUri()));
+        assertNoNameCollisionWithNotManagedEntity(vault, kid, sid);
         this.issuancePolicy = new CertificatePolicy(policy);
         this.originalCertificatePolicy = new CertificatePolicy(originalCertificateData);
         this.generator = new CertificateBackingEntityGenerator(vault);
@@ -134,7 +129,7 @@ public class KeyVaultCertificateEntity
         super(vault);
         Assert.state(vault.keyVaultFake().getEntities().containsEntity(kid),
                 "Key must exist to be able to renew certificate using it. " + kid.asUriNoVersion(vault.baseUri()));
-        Assert.state(vault.secretVaultFake().getEntities().containsName(input.getName()),
+        Assert.state(vault.secretVaultFake().getEntities().containsEntityMatching(input.getName(), BaseVaultEntity::isManaged),
                 "A version of the Secret must exist to be able to generate a new version using name: " + input.getName());
         this.issuancePolicy = new CertificatePolicy(input);
         this.originalCertificatePolicy = new CertificatePolicy(input);
@@ -169,6 +164,7 @@ public class KeyVaultCertificateEntity
         final JsonWebKeyImportRequest keyImportRequest = input.getKeyData();
         final VersionedKeyEntityId kid = new VersionedKeyEntityId(vault.baseUri(), id.id(), input.getKeyVersion());
         final VersionedSecretEntityId sid = new VersionedSecretEntityId(vault.baseUri(), id.id(), id.version());
+        assertNoNameCollisionWithNotManagedEntity(vault, kid, sid);
         this.issuancePolicy = new CertificatePolicy(policy);
         this.originalCertificatePolicy = new CertificatePolicy(originalCertificateData);
         this.generator = new CertificateBackingEntityGenerator(vault);
@@ -295,6 +291,18 @@ public class KeyVaultCertificateEntity
         } else {
             log.debug("Validity start date is still accurate certificate won't be changed: {}", id);
         }
+    }
+
+    private static void assertNoNameCollisionWithNotManagedEntity(
+            final VaultFake vault, final KeyEntityId kid, final SecretEntityId sid) {
+        Assert.state(!vault.keyVaultFake().getEntities().containsEntityMatching(kid.id(), KeyVaultCertificateEntity::isNotManaged),
+                "Key must not exist to be able to store certificate data in it. " + kid.asUriNoVersion(vault.baseUri()));
+        Assert.state(!vault.secretVaultFake().getEntities().containsEntityMatching(sid.id(), KeyVaultCertificateEntity::isNotManaged),
+                "Secret must not exist to be able to store certificate data in it. " + sid.asUriNoVersion(vault.baseUri()));
+    }
+
+    private static boolean isNotManaged(final BaseVaultEntity<? extends EntityId> e) {
+        return !e.isManaged();
     }
 
     private void normalizeCoreTimeStamps(final ReadOnlyCertificatePolicy certPolicy, final OffsetDateTime createOrUpdate) {

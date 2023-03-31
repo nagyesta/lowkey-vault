@@ -125,7 +125,7 @@ public class KeysStepDefs extends CommonAssertions {
         final KeyPair keyPair = KeyGenUtil.generateEc(curveName);
         context.setKeyPair(keyPair);
         final JsonWebKey key = JsonWebKey.fromEc(keyPair, BOUNCY_CASTLE_PROVIDER)
-                .setKeyOps(List.of(KeyOperation.SIGN, KeyOperation.ENCRYPT, KeyOperation.WRAP_KEY));
+                .setKeyOps(List.of(KeyOperation.SIGN));
         if (hsm) {
             key.setKeyType(KeyType.EC_HSM);
         }
@@ -155,7 +155,7 @@ public class KeysStepDefs extends CommonAssertions {
         final SecretKey secretKey = KeyGenUtil.generateAes(size);
         context.setSecretKey(secretKey);
         final JsonWebKey key = JsonWebKey.fromAes(secretKey)
-                .setKeyOps(List.of(KeyOperation.SIGN, KeyOperation.ENCRYPT, KeyOperation.WRAP_KEY))
+                .setKeyOps(List.of(KeyOperation.ENCRYPT, KeyOperation.WRAP_KEY))
                 .setKeyType(KeyType.OCT_HSM);
         final ImportKeyOptions options = new ImportKeyOptions(name, key)
                 .setHardwareProtected(true);

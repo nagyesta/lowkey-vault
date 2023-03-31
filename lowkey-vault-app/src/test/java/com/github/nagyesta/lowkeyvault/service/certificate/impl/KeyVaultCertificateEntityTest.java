@@ -120,7 +120,7 @@ class KeyVaultCertificateEntityTest {
 
         final ReadOnlyVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> keyMap
                 = mock(ReadOnlyVersionedEntityMultiMap.class);
-        when(keyMap.containsName(eq(id.id()))).thenReturn(true);
+        when(keyMap.containsEntityMatching(eq(id.id()), any())).thenReturn(true);
 
         final KeyVaultFake keyFake = mock(KeyVaultFake.class);
         when(keyFake.getEntities()).thenReturn(keyMap);
@@ -137,7 +137,7 @@ class KeyVaultCertificateEntityTest {
         //then + exception
         verify(vault).keyVaultFake();
         verify(keyFake).getEntities();
-        verify(keyMap).containsName(eq(id.id()));
+        verify(keyMap).containsEntityMatching(eq(id.id()), any());
     }
 
     @SuppressWarnings("unchecked")
@@ -149,7 +149,7 @@ class KeyVaultCertificateEntityTest {
 
         final ReadOnlyVersionedEntityMultiMap<SecretEntityId, VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity> secretMap
                 = mock(ReadOnlyVersionedEntityMultiMap.class);
-        when(secretMap.containsName(eq(id.id()))).thenReturn(true);
+        when(secretMap.containsEntityMatching(eq(id.id()), any())).thenReturn(true);
 
         final ReadOnlyVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> keyMap
                 = mock(ReadOnlyVersionedEntityMultiMap.class);
@@ -172,7 +172,7 @@ class KeyVaultCertificateEntityTest {
         //then + exception
         verify(vault).secretVaultFake();
         verify(secretFake).getEntities();
-        verify(secretMap).containsName(eq(id.id()));
+        verify(secretMap).containsEntityMatching(eq(id.id()), any());
     }
 
     @Test
@@ -383,7 +383,7 @@ class KeyVaultCertificateEntityTest {
 
         final ReadOnlyVersionedEntityMultiMap<SecretEntityId, VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity> secretMap
                 = mock(ReadOnlyVersionedEntityMultiMap.class);
-        when(keyMap.containsName(eq(id.id()))).thenReturn(false);
+        when(keyMap.containsEntityMatching(eq(id.id()), any())).thenReturn(false);
         final SecretVaultFake secretFake = mock(SecretVaultFake.class);
         when(secretFake.getEntities()).thenReturn(secretMap);
 
@@ -400,7 +400,7 @@ class KeyVaultCertificateEntityTest {
         verify(keyFake).getEntities();
         verify(keyMap).containsEntity(eq(kid));
         verify(secretFake).getEntities();
-        verify(secretMap).containsName(eq(id.id()));
+        verify(secretMap).containsEntityMatching(eq(id.id()), any());
     }
 
     @ParameterizedTest

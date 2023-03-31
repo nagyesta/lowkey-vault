@@ -17,9 +17,7 @@
         "crv": "P-256",
         "d": "IvdJQWa59MJflXPF25Cc4UlOREHZVL5_6sD27nyz1J8",
         "key_ops": [
-          "sign",
-          "encrypt",
-          "wrapKey"
+          "sign"
         ],
         "kid": "https://keys-backup-jsonBackupEc-256-72.localhost:8443/keys/jsonBackupEc-256-72/f16a91376c13478996195a0c2cee39cb",
         "kty": "EC",

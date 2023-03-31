@@ -17,7 +17,6 @@
       "keyMaterial": {
         "k": "sx32Vta2Zx1BsdQBY2l5iQ",
         "key_ops": [
-          "sign",
           "encrypt",
           "wrapKey"
         ],

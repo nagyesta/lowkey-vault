@@ -59,7 +59,6 @@ Feature: Certificate creation
             | 7.3 | with    | 73-createEcCertP384PkcsHsm  | P-384     | enabled       | PKCS12 | CN=example.com |
             | 7.3 | with    | 73-createEcCertP521PkcsHsm  | P-521     | enabled       | PKCS12 | CN=example.com |
 
-
     @Certificate @CertificateCreate @RSA
     Scenario Outline: RSA_CERT_CREATE_02 Single versions of RSA certificates can be created using lifetime actions
         Given certificate API version <api> is used
@@ -100,3 +99,43 @@ Feature: Certificate creation
             | api | certName                  | triggerValue | triggerType        | action        | type   |
             | 7.3 | 73-createEcCertPemAction  | 10           | days before expiry | EmailContacts | PEM    |
             | 7.3 | 73-createEcCertPkcsAction | 80           | percent lifetime   | AutoRenew     | PKCS12 |
+
+    @Certificate @CertificateCreate @RSA
+    Scenario Outline: RSA_CERT_CREATE_03 Two versions of the same RSA certificates can be created using the same name
+        Given certificate API version <api> is used
+        And a certificate client is created with the vault named certs-generic
+        And a <type> certificate is prepared with subject CN=localhost
+        And the certificate is set to be enabled
+        And the certificate is set to use an RSA key with 2048 and without HSM
+        And the certificate is created with name <certName>
+            # create a second version
+        When the certificate is created with name <certName>
+        Then the certificate is enabled
+        And the certificate secret named <certName> is downloaded
+        And the downloaded secret contains a <type> certificate
+        And the downloaded <type> certificate store has a certificate with CN=localhost as subject
+
+        Examples:
+            | api | certName                   | type   |
+            | 7.3 | 73-createRsaCertPemDouble  | PEM    |
+            | 7.3 | 73-createRsaCertPkcsDouble | PKCS12 |
+
+    @Certificate @CertificateCreate @EC
+    Scenario Outline: EC_CERT_CREATE_03 Two versions of the same EC certificates can be created using the same name
+        Given certificate API version <api> is used
+        And a certificate client is created with the vault named certs-generic
+        And a <type> certificate is prepared with subject CN=localhost
+        And the certificate is set to be enabled
+        And the certificate is set to use an EC key with P-256 and without HSM
+        And the certificate is created with name <certName>
+            # create a second version
+        When the certificate is created with name <certName>
+        Then the certificate is enabled
+        And the certificate secret named <certName> is downloaded
+        And the downloaded secret contains a <type> certificate
+        And the downloaded <type> certificate store has a certificate with CN=localhost as subject
+
+        Examples:
+            | api | certName                  | type   |
+            | 7.3 | 73-createEcCertPemDouble  | PEM    |
+            | 7.3 | 73-createEcCertPkcsDouble | PKCS12 |

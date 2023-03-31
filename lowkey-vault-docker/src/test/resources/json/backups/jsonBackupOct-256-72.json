@@ -16,7 +16,6 @@
       "keyMaterial": {
         "k": "nmgrv95gVLVdVQ2xe-RpUf-Eog7y0lT22W3EoBU4-cc",
         "key_ops": [
-          "sign",
           "encrypt",
           "wrapKey"
         ],

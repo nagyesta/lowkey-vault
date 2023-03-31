@@ -18,9 +18,7 @@
         "crv": "P-521",
         "d": "AWNmGqYqot0Zq_6uqnqv2lkA40ke1uTJhehp692dS_r2C7oPmJ0qcPgc31jOOFzc-v69chbMawkR-wyKXFf2O4mh",
         "key_ops": [
-          "sign",
-          "encrypt",
-          "wrapKey"
+          "sign"
         ],
         "kid": "https://keys-backup-jsonBackupEc-521-73.localhost:8443/keys/jsonBackupEc-521-73/9301e31d18a540e08c68ad5230e60e21",
         "kty": "EC",

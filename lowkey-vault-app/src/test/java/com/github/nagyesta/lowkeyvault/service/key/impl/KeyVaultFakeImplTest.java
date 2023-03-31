@@ -85,7 +85,6 @@ class KeyVaultFakeImplTest {
                 .add(Arguments.of(List.of()))
                 .add(Arguments.of(List.of(KeyOperation.ENCRYPT)))
                 .add(Arguments.of(List.of(KeyOperation.ENCRYPT, KeyOperation.DECRYPT)))
-                .add(Arguments.of(Arrays.asList(KeyOperation.values())))
                 .build();
     }
 
@@ -888,7 +887,7 @@ class KeyVaultFakeImplTest {
         //given
         final KeyCurveName keyParameter = KeyCurveName.P_384;
         final Map<String, String> tags = Map.of(KEY_1, VALUE_1);
-        final List<KeyOperation> operations = List.of(KeyOperation.ENCRYPT);
+        final List<KeyOperation> operations = List.of(KeyOperation.SIGN);
 
         final KeyVaultFake underTest = createUnderTest();
         final VersionedKeyEntityId keyEntityId = underTest

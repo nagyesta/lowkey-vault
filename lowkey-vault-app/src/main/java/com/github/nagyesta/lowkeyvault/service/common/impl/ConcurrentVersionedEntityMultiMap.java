@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -65,6 +66,11 @@ public class ConcurrentVersionedEntityMultiMap<K extends EntityId, V extends K, 
     @Override
     public boolean containsName(@NonNull final String name) {
         return entities.containsKey(name);
+    }
+
+    @Override
+    public boolean containsEntityMatching(final String name, final Predicate<RE> predicate) {
+        return containsName(name) && entities.get(name).values().stream().anyMatch(predicate);
     }
 
     @Override

@@ -54,11 +54,11 @@ Feature: Key rotation
         And the key recovery settings are default
 
         Examples:
-            | api | hsm     | keyName                  | curveName | nBytes | enabledStatus | operations                                           | expires | notBefore | tagMap            |
-            | 7.3 | without | 73-rotateEcKey256        | P-256     | 32     | enabled       | null                                                 | null    | null      | null              |
-            | 7.3 | without | 73-rotateEcKeyMap1       | P-256     | 32     | enabled       | null                                                 | null    | null      | aKey:aValue,b1:b2 |
-            | 7.3 | without | 73-rotateEcKeyAllOps     | P-256     | 32     | enabled       | encrypt,decrypt,wrapKey,unwrapKey,sign,verify,import | null    | null      | null              |
-            | 7.3 | without | 73-rotateEcKeyNotEnabled | P-256     | 32     | not enabled   | null                                                 | null    | null      | null              |
+            | api | hsm     | keyName                  | curveName | nBytes | enabledStatus | operations         | expires | notBefore | tagMap            |
+            | 7.3 | without | 73-rotateEcKey256        | P-256     | 32     | enabled       | null               | null    | null      | null              |
+            | 7.3 | without | 73-rotateEcKeyMap1       | P-256     | 32     | enabled       | null               | null    | null      | aKey:aValue,b1:b2 |
+            | 7.3 | without | 73-rotateEcKeyAllOps     | P-256     | 32     | enabled       | sign,verify,import | null    | null      | null              |
+            | 7.3 | without | 73-rotateEcKeyNotEnabled | P-256     | 32     | not enabled   | null               | null    | null      | null              |
 
     @Key @KeyCreate @KeyRotate @OCT
     Scenario Outline: OCT_ROTATE_01 Single versions of OCT keys can be created with the key client, then rotated and result observed
@@ -85,8 +85,8 @@ Feature: Key rotation
         And the key recovery settings are default
 
         Examples:
-            | api | hsm  | keyName                   | keySize | enabledStatus | operations                                           | expires | notBefore | tagMap            |
-            | 7.3 | with | 73-rotateOctKey           | 128     | enabled       | null                                                 | null    | null      | null              |
-            | 7.3 | with | 73-rotateOctKeyMap1       | 128     | enabled       | null                                                 | null    | null      | aKey:aValue,b1:b2 |
-            | 7.3 | with | 73-rotateOctKeyAllOps     | 128     | enabled       | encrypt,decrypt,wrapKey,unwrapKey,sign,verify,import | null    | null      | null              |
-            | 7.3 | with | 73-rotateOctKeyNotEnabled | 128     | not enabled   | null                                                 | null    | null      | null              |
+            | api | hsm  | keyName                   | keySize | enabledStatus | operations                               | expires | notBefore | tagMap            |
+            | 7.3 | with | 73-rotateOctKey           | 128     | enabled       | null                                     | null    | null      | null              |
+            | 7.3 | with | 73-rotateOctKeyMap1       | 128     | enabled       | null                                     | null    | null      | aKey:aValue,b1:b2 |
+            | 7.3 | with | 73-rotateOctKeyAllOps     | 128     | enabled       | encrypt,decrypt,wrapKey,unwrapKey,import | null    | null      | null              |
+            | 7.3 | with | 73-rotateOctKeyNotEnabled | 128     | not enabled   | null                                     | null    | null      | null              |

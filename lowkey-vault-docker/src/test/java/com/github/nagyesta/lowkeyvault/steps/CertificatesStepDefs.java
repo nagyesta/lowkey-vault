@@ -173,9 +173,10 @@ public class CertificatesStepDefs extends CommonAssertions {
             final int count, final String resource, final String password) throws IOException {
         final byte[] content = Objects.requireNonNull(getClass().getResourceAsStream("/certs/" + resource)).readAllBytes();
         final CertificateClient client = context.getClient(context.getCertificateServiceVersion());
-        IntStream.range(0, count).forEach(i -> {
+        IntStream.range(1, count + 1).forEach(i -> {
             final String name = "multi-import-" + i;
             final ImportCertificateOptions options = new ImportCertificateOptions(name, content);
+            options.setEnabled(true);
             Optional.ofNullable(password).ifPresent(options::setPassword);
             final KeyVaultCertificateWithPolicy certificate = client
                     .importCertificate(options);
@@ -204,7 +205,7 @@ public class CertificatesStepDefs extends CommonAssertions {
     @And("{int} certificates with {name} prefix are deleted")
     public void certificatesWithMultiImportPrefixAreDeleted(final int count, final String prefix) {
         final CertificateClient client = context.getClient(context.getCertificateServiceVersion());
-        IntStream.range(0, count).forEach(i -> {
+        IntStream.range(1, count + 1).forEach(i -> {
             final DeletedCertificate deletedCertificate = client.beginDeleteCertificate(prefix + i)
                     .waitForCompletion().getValue();
             context.setLastDeleted(deletedCertificate);
@@ -214,7 +215,7 @@ public class CertificatesStepDefs extends CommonAssertions {
     @And("{int} certificates with {name} prefix are purged")
     public void certificatesWithMultiImportPrefixArePurged(final int count, final String prefix) {
         final CertificateClient client = context.getClient(context.getCertificateServiceVersion());
-        IntStream.range(0, count).forEach(i -> {
+        IntStream.range(1, count + 1).forEach(i -> {
             client.purgeDeletedCertificate(prefix + i);
         });
     }
@@ -222,7 +223,7 @@ public class CertificatesStepDefs extends CommonAssertions {
     @And("{int} certificates with {name} prefix are recovered")
     public void certificatesWithMultiImportPrefixAreRecovered(final int count, final String prefix) {
         final CertificateClient client = context.getClient(context.getCertificateServiceVersion());
-        IntStream.range(0, count).forEach(i -> {
+        IntStream.range(1, count + 1).forEach(i -> {
             client.beginRecoverDeletedCertificate(prefix + i).waitForCompletion();
         });
     }

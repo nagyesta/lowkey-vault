@@ -82,33 +82,33 @@ Feature: Key get
         And the key recovery settings are default
 
         Examples:
-            | api | versionsCount | hsm     | keyName                 | curveName | nBytes | operations                                           | expires | notBefore | tagMap            |
-            | 7.2 | 2             | without | 72-get01EcKey256        | P-256     | 32     | null                                                 | null    | null      | null              |
-            | 7.2 | 1             | without | 72-get01EcKey256k       | P-256K    | 32     | null                                                 | null    | null      | null              |
-            | 7.2 | 2             | without | 72-get01EcKey384        | P-384     | 48     | null                                                 | null    | null      | null              |
-            | 7.2 | 1             | without | 72-get01EcKey521        | P-521     | 65     | null                                                 | null    | null      | null              |
-            | 7.2 | 4             | with    | 72-get01EcKey256Hsm     | P-256     | 32     | null                                                 | null    | null      | null              |
-            | 7.2 | 3             | with    | 72-get01EcKey256kHsm    | P-256K    | 32     | null                                                 | null    | null      | null              |
-            | 7.2 | 4             | with    | 72-get01EcKey384Hsm     | P-384     | 48     | null                                                 | null    | null      | null              |
-            | 7.2 | 3             | with    | 72-get01EcKey521Hsm     | P-521     | 65     | null                                                 | null    | null      | null              |
-            | 7.2 | 4             | without | 72-get01EcKeyMap1       | P-256     | 32     | null                                                 | null    | null      | aKey:aValue,b1:b2 |
-            | 7.2 | 3             | without | 72-get01EcKeyMap2       | P-256     | 32     | null                                                 | null    | null      | aKey:aValue       |
-            | 7.2 | 4             | without | 72-get01EcKeyAllOps     | P-256     | 32     | encrypt,decrypt,wrapKey,unwrapKey,sign,verify,import | null    | null      | null              |
-            | 7.2 | 3             | without | 72-get01EcKeyOperations | P-256     | 32     | wrapKey,unwrapKey                                    | null    | null      | null              |
-            | 7.2 | 4             | without | 72-get01EcKeyDates      | P-256     | 32     | null                                                 | 4321    | 1234      | null              |
-            | 7.3 | 2             | without | 73-get01EcKey256        | P-256     | 32     | null                                                 | null    | null      | null              |
-            | 7.3 | 1             | without | 73-get01EcKey256k       | P-256K    | 32     | null                                                 | null    | null      | null              |
-            | 7.3 | 2             | without | 73-get01EcKey384        | P-384     | 48     | null                                                 | null    | null      | null              |
-            | 7.3 | 1             | without | 73-get01EcKey521        | P-521     | 65     | null                                                 | null    | null      | null              |
-            | 7.3 | 4             | with    | 73-get01EcKey256Hsm     | P-256     | 32     | null                                                 | null    | null      | null              |
-            | 7.3 | 3             | with    | 73-get01EcKey256kHsm    | P-256K    | 32     | null                                                 | null    | null      | null              |
-            | 7.3 | 4             | with    | 73-get01EcKey384Hsm     | P-384     | 48     | null                                                 | null    | null      | null              |
-            | 7.3 | 3             | with    | 73-get01EcKey521Hsm     | P-521     | 65     | null                                                 | null    | null      | null              |
-            | 7.3 | 4             | without | 73-get01EcKeyMap1       | P-256     | 32     | null                                                 | null    | null      | aKey:aValue,b1:b2 |
-            | 7.3 | 3             | without | 73-get01EcKeyMap2       | P-256     | 32     | null                                                 | null    | null      | aKey:aValue       |
-            | 7.3 | 4             | without | 73-get01EcKeyAllOps     | P-256     | 32     | encrypt,decrypt,wrapKey,unwrapKey,sign,verify,import | null    | null      | null              |
-            | 7.3 | 3             | without | 73-get01EcKeyOperations | P-256     | 32     | wrapKey,unwrapKey                                    | null    | null      | null              |
-            | 7.3 | 4             | without | 73-get01EcKeyDates      | P-256     | 32     | null                                                 | 4321    | 1234      | null              |
+            | api | versionsCount | hsm     | keyName                 | curveName | nBytes | operations         | expires | notBefore | tagMap            |
+            | 7.2 | 2             | without | 72-get01EcKey256        | P-256     | 32     | null               | null    | null      | null              |
+            | 7.2 | 1             | without | 72-get01EcKey256k       | P-256K    | 32     | null               | null    | null      | null              |
+            | 7.2 | 2             | without | 72-get01EcKey384        | P-384     | 48     | null               | null    | null      | null              |
+            | 7.2 | 1             | without | 72-get01EcKey521        | P-521     | 65     | null               | null    | null      | null              |
+            | 7.2 | 4             | with    | 72-get01EcKey256Hsm     | P-256     | 32     | null               | null    | null      | null              |
+            | 7.2 | 3             | with    | 72-get01EcKey256kHsm    | P-256K    | 32     | null               | null    | null      | null              |
+            | 7.2 | 4             | with    | 72-get01EcKey384Hsm     | P-384     | 48     | null               | null    | null      | null              |
+            | 7.2 | 3             | with    | 72-get01EcKey521Hsm     | P-521     | 65     | null               | null    | null      | null              |
+            | 7.2 | 4             | without | 72-get01EcKeyMap1       | P-256     | 32     | null               | null    | null      | aKey:aValue,b1:b2 |
+            | 7.2 | 3             | without | 72-get01EcKeyMap2       | P-256     | 32     | null               | null    | null      | aKey:aValue       |
+            | 7.2 | 4             | without | 72-get01EcKeyAllOps     | P-256     | 32     | sign,verify,import | null    | null      | null              |
+            | 7.2 | 3             | without | 72-get01EcKeyOperations | P-256     | 32     | sign,verify        | null    | null      | null              |
+            | 7.2 | 4             | without | 72-get01EcKeyDates      | P-256     | 32     | null               | 4321    | 1234      | null              |
+            | 7.3 | 2             | without | 73-get01EcKey256        | P-256     | 32     | null               | null    | null      | null              |
+            | 7.3 | 1             | without | 73-get01EcKey256k       | P-256K    | 32     | null               | null    | null      | null              |
+            | 7.3 | 2             | without | 73-get01EcKey384        | P-384     | 48     | null               | null    | null      | null              |
+            | 7.3 | 1             | without | 73-get01EcKey521        | P-521     | 65     | null               | null    | null      | null              |
+            | 7.3 | 4             | with    | 73-get01EcKey256Hsm     | P-256     | 32     | null               | null    | null      | null              |
+            | 7.3 | 3             | with    | 73-get01EcKey256kHsm    | P-256K    | 32     | null               | null    | null      | null              |
+            | 7.3 | 4             | with    | 73-get01EcKey384Hsm     | P-384     | 48     | null               | null    | null      | null              |
+            | 7.3 | 3             | with    | 73-get01EcKey521Hsm     | P-521     | 65     | null               | null    | null      | null              |
+            | 7.3 | 4             | without | 73-get01EcKeyMap1       | P-256     | 32     | null               | null    | null      | aKey:aValue,b1:b2 |
+            | 7.3 | 3             | without | 73-get01EcKeyMap2       | P-256     | 32     | null               | null    | null      | aKey:aValue       |
+            | 7.3 | 4             | without | 73-get01EcKeyAllOps     | P-256     | 32     | sign,verify,import | null    | null      | null              |
+            | 7.3 | 3             | without | 73-get01EcKeyOperations | P-256     | 32     | sign,verify        | null    | null      | null              |
+            | 7.3 | 4             | without | 73-get01EcKeyDates      | P-256     | 32     | null               | 4321    | 1234      | null              |
 
     @Key @KeyCreate @KeyGet @OCT
     Scenario Outline: OCT_GET_01 Multiple versions of OCT keys are created with the key client then the latest is fetched
@@ -138,25 +138,25 @@ Feature: Key get
         And the key recovery settings are default
 
         Examples:
-            | api | versionsCount | hsm  | keyName                  | keySize | operations                                           | expires | notBefore | tagMap            |
-            | 7.2 | 2             | with | 72-get01OctKey           | 128     | null                                                 | null    | null      | null              |
-            | 7.2 | 1             | with | 72-get01OctKey192        | 192     | null                                                 | null    | null      | null              |
-            | 7.2 | 2             | with | 72-get01OctKey256        | 256     | null                                                 | null    | null      | null              |
-            | 7.2 | 1             | with | 72-get01-oct-key-128     | 128     | null                                                 | null    | null      | null              |
-            | 7.2 | 4             | with | 72-get01OctKeyMap1       | 128     | null                                                 | null    | null      | aKey:aValue,b1:b2 |
-            | 7.2 | 3             | with | 72-get01OctKeyMap2       | 128     | null                                                 | null    | null      | aKey:aValue       |
-            | 7.2 | 4             | with | 72-get01OctKeyAllOps     | 128     | encrypt,decrypt,wrapKey,unwrapKey,sign,verify,import | null    | null      | null              |
-            | 7.2 | 3             | with | 72-get01OctKeyOperations | 128     | wrapKey,unwrapKey                                    | null    | null      | null              |
-            | 7.2 | 4             | with | 72-get01OctKeyDates      | 128     | null                                                 | 4321    | 1234      | null              |
-            | 7.3 | 2             | with | 73-get01OctKey           | 128     | null                                                 | null    | null      | null              |
-            | 7.3 | 1             | with | 73-get01OctKey192        | 192     | null                                                 | null    | null      | null              |
-            | 7.3 | 2             | with | 73-get01OctKey256        | 256     | null                                                 | null    | null      | null              |
-            | 7.3 | 1             | with | 73-get01-oct-key-128     | 128     | null                                                 | null    | null      | null              |
-            | 7.3 | 4             | with | 73-get01OctKeyMap1       | 128     | null                                                 | null    | null      | aKey:aValue,b1:b2 |
-            | 7.3 | 3             | with | 73-get01OctKeyMap2       | 128     | null                                                 | null    | null      | aKey:aValue       |
-            | 7.3 | 4             | with | 73-get01OctKeyAllOps     | 128     | encrypt,decrypt,wrapKey,unwrapKey,sign,verify,import | null    | null      | null              |
-            | 7.3 | 3             | with | 73-get01OctKeyOperations | 128     | wrapKey,unwrapKey                                    | null    | null      | null              |
-            | 7.3 | 4             | with | 73-get01OctKeyDates      | 128     | null                                                 | 4321    | 1234      | null              |
+            | api | versionsCount | hsm  | keyName                  | keySize | operations                               | expires | notBefore | tagMap            |
+            | 7.2 | 2             | with | 72-get01OctKey           | 128     | null                                     | null    | null      | null              |
+            | 7.2 | 1             | with | 72-get01OctKey192        | 192     | null                                     | null    | null      | null              |
+            | 7.2 | 2             | with | 72-get01OctKey256        | 256     | null                                     | null    | null      | null              |
+            | 7.2 | 1             | with | 72-get01-oct-key-128     | 128     | null                                     | null    | null      | null              |
+            | 7.2 | 4             | with | 72-get01OctKeyMap1       | 128     | null                                     | null    | null      | aKey:aValue,b1:b2 |
+            | 7.2 | 3             | with | 72-get01OctKeyMap2       | 128     | null                                     | null    | null      | aKey:aValue       |
+            | 7.2 | 4             | with | 72-get01OctKeyAllOps     | 128     | encrypt,decrypt,wrapKey,unwrapKey,import | null    | null      | null              |
+            | 7.2 | 3             | with | 72-get01OctKeyOperations | 128     | wrapKey,unwrapKey                        | null    | null      | null              |
+            | 7.2 | 4             | with | 72-get01OctKeyDates      | 128     | null                                     | 4321    | 1234      | null              |
+            | 7.3 | 2             | with | 73-get01OctKey           | 128     | null                                     | null    | null      | null              |
+            | 7.3 | 1             | with | 73-get01OctKey192        | 192     | null                                     | null    | null      | null              |
+            | 7.3 | 2             | with | 73-get01OctKey256        | 256     | null                                     | null    | null      | null              |
+            | 7.3 | 1             | with | 73-get01-oct-key-128     | 128     | null                                     | null    | null      | null              |
+            | 7.3 | 4             | with | 73-get01OctKeyMap1       | 128     | null                                     | null    | null      | aKey:aValue,b1:b2 |
+            | 7.3 | 3             | with | 73-get01OctKeyMap2       | 128     | null                                     | null    | null      | aKey:aValue       |
+            | 7.3 | 4             | with | 73-get01OctKeyAllOps     | 128     | encrypt,decrypt,wrapKey,unwrapKey,import | null    | null      | null              |
+            | 7.3 | 3             | with | 73-get01OctKeyOperations | 128     | wrapKey,unwrapKey                        | null    | null      | null              |
+            | 7.3 | 4             | with | 73-get01OctKeyDates      | 128     | null                                     | 4321    | 1234      | null              |
 
 
     @Key @KeyCreate @KeyGet @RSA
@@ -302,32 +302,32 @@ Feature: Key get
         And the key recovery settings are default
 
         Examples:
-            | api | versionsCount | hsm     | keyName                    | curveName | nBytes | enabledStatus | operations                                           | expires | notBefore | tagMap            |
-            | 7.2 | 2             | without | 72-update01EcKey256        | P-256     | 32     | enabled       | null                                                 | null    | null      | null              |
-            | 7.2 | 1             | without | 72-update01EcKey256k       | P-256K    | 32     | enabled       | null                                                 | null    | null      | null              |
-            | 7.2 | 2             | without | 72-update01EcKey384        | P-384     | 48     | enabled       | null                                                 | null    | null      | null              |
-            | 7.2 | 1             | without | 72-update01EcKey521        | P-521     | 65     | enabled       | null                                                 | null    | null      | null              |
-            | 7.2 | 4             | with    | 72-update01EcKey256Hsm     | P-256     | 32     | enabled       | null                                                 | null    | null      | null              |
-            | 7.2 | 3             | with    | 72-update01EcKey256kHsm    | P-256K    | 32     | enabled       | null                                                 | null    | null      | null              |
-            | 7.2 | 4             | with    | 72-update01EcKey384Hsm     | P-384     | 48     | enabled       | null                                                 | null    | null      | null              |
-            | 7.2 | 3             | with    | 72-update01EcKey521Hsm     | P-521     | 65     | enabled       | null                                                 | null    | null      | null              |
-            | 7.2 | 4             | without | 72-update01EcKeyMap1       | P-256     | 32     | enabled       | null                                                 | null    | null      | aKey:aValue,b1:b2 |
-            | 7.2 | 3             | without | 72-update01EcKeyMap2       | P-256     | 32     | enabled       | null                                                 | null    | null      | aKey:aValue       |
-            | 7.2 | 4             | without | 72-update01EcKeyAllOps     | P-256     | 32     | enabled       | encrypt,decrypt,wrapKey,unwrapKey,sign,verify,import | null    | null      | null              |
-            | 7.2 | 3             | without | 72-update01EcKeyOperations | P-256     | 32     | enabled       | wrapKey,unwrapKey                                    | null    | null      | null              |
-            | 7.2 | 4             | without | 72-update01EcKeyDates      | P-256     | 32     | enabled       | null                                                 | 4321    | 1234      | null              |
-            | 7.2 | 3             | without | 72-update01EcKeyNotEnabled | P-256     | 32     | not enabled   | null                                                 | null    | null      | null              |
-            | 7.3 | 2             | without | 73-update01EcKey256        | P-256     | 32     | enabled       | null                                                 | null    | null      | null              |
-            | 7.3 | 1             | without | 73-update01EcKey256k       | P-256K    | 32     | enabled       | null                                                 | null    | null      | null              |
-            | 7.3 | 2             | without | 73-update01EcKey384        | P-384     | 48     | enabled       | null                                                 | null    | null      | null              |
-            | 7.3 | 1             | without | 73-update01EcKey521        | P-521     | 65     | enabled       | null                                                 | null    | null      | null              |
-            | 7.3 | 4             | with    | 73-update01EcKey256Hsm     | P-256     | 32     | enabled       | null                                                 | null    | null      | null              |
-            | 7.3 | 3             | with    | 73-update01EcKey256kHsm    | P-256K    | 32     | enabled       | null                                                 | null    | null      | null              |
-            | 7.3 | 4             | with    | 73-update01EcKey384Hsm     | P-384     | 48     | enabled       | null                                                 | null    | null      | null              |
-            | 7.3 | 3             | with    | 73-update01EcKey521Hsm     | P-521     | 65     | enabled       | null                                                 | null    | null      | null              |
-            | 7.3 | 4             | without | 73-update01EcKeyMap1       | P-256     | 32     | enabled       | null                                                 | null    | null      | aKey:aValue,b1:b2 |
-            | 7.3 | 3             | without | 73-update01EcKeyMap2       | P-256     | 32     | enabled       | null                                                 | null    | null      | aKey:aValue       |
-            | 7.3 | 4             | without | 73-update01EcKeyAllOps     | P-256     | 32     | enabled       | encrypt,decrypt,wrapKey,unwrapKey,sign,verify,import | null    | null      | null              |
-            | 7.3 | 3             | without | 73-update01EcKeyOperations | P-256     | 32     | enabled       | wrapKey,unwrapKey                                    | null    | null      | null              |
-            | 7.3 | 4             | without | 73-update01EcKeyDates      | P-256     | 32     | enabled       | null                                                 | 4321    | 1234      | null              |
-            | 7.3 | 3             | without | 73-update01EcKeyNotEnabled | P-256     | 32     | not enabled   | null                                                 | null    | null      | null              |
+            | api | versionsCount | hsm     | keyName                    | curveName | nBytes | enabledStatus | operations         | expires | notBefore | tagMap            |
+            | 7.2 | 2             | without | 72-update01EcKey256        | P-256     | 32     | enabled       | null               | null    | null      | null              |
+            | 7.2 | 1             | without | 72-update01EcKey256k       | P-256K    | 32     | enabled       | null               | null    | null      | null              |
+            | 7.2 | 2             | without | 72-update01EcKey384        | P-384     | 48     | enabled       | null               | null    | null      | null              |
+            | 7.2 | 1             | without | 72-update01EcKey521        | P-521     | 65     | enabled       | null               | null    | null      | null              |
+            | 7.2 | 4             | with    | 72-update01EcKey256Hsm     | P-256     | 32     | enabled       | null               | null    | null      | null              |
+            | 7.2 | 3             | with    | 72-update01EcKey256kHsm    | P-256K    | 32     | enabled       | null               | null    | null      | null              |
+            | 7.2 | 4             | with    | 72-update01EcKey384Hsm     | P-384     | 48     | enabled       | null               | null    | null      | null              |
+            | 7.2 | 3             | with    | 72-update01EcKey521Hsm     | P-521     | 65     | enabled       | null               | null    | null      | null              |
+            | 7.2 | 4             | without | 72-update01EcKeyMap1       | P-256     | 32     | enabled       | null               | null    | null      | aKey:aValue,b1:b2 |
+            | 7.2 | 3             | without | 72-update01EcKeyMap2       | P-256     | 32     | enabled       | null               | null    | null      | aKey:aValue       |
+            | 7.2 | 4             | without | 72-update01EcKeyAllOps     | P-256     | 32     | enabled       | sign,verify,import | null    | null      | null              |
+            | 7.2 | 3             | without | 72-update01EcKeyOperations | P-256     | 32     | enabled       | sign,verify        | null    | null      | null              |
+            | 7.2 | 4             | without | 72-update01EcKeyDates      | P-256     | 32     | enabled       | null               | 4321    | 1234      | null              |
+            | 7.2 | 3             | without | 72-update01EcKeyNotEnabled | P-256     | 32     | not enabled   | null               | null    | null      | null              |
+            | 7.3 | 2             | without | 73-update01EcKey256        | P-256     | 32     | enabled       | null               | null    | null      | null              |
+            | 7.3 | 1             | without | 73-update01EcKey256k       | P-256K    | 32     | enabled       | null               | null    | null      | null              |
+            | 7.3 | 2             | without | 73-update01EcKey384        | P-384     | 48     | enabled       | null               | null    | null      | null              |
+            | 7.3 | 1             | without | 73-update01EcKey521        | P-521     | 65     | enabled       | null               | null    | null      | null              |
+            | 7.3 | 4             | with    | 73-update01EcKey256Hsm     | P-256     | 32     | enabled       | null               | null    | null      | null              |
+            | 7.3 | 3             | with    | 73-update01EcKey256kHsm    | P-256K    | 32     | enabled       | null               | null    | null      | null              |
+            | 7.3 | 4             | with    | 73-update01EcKey384Hsm     | P-384     | 48     | enabled       | null               | null    | null      | null              |
+            | 7.3 | 3             | with    | 73-update01EcKey521Hsm     | P-521     | 65     | enabled       | null               | null    | null      | null              |
+            | 7.3 | 4             | without | 73-update01EcKeyMap1       | P-256     | 32     | enabled       | null               | null    | null      | aKey:aValue,b1:b2 |
+            | 7.3 | 3             | without | 73-update01EcKeyMap2       | P-256     | 32     | enabled       | null               | null    | null      | aKey:aValue       |
+            | 7.3 | 4             | without | 73-update01EcKeyAllOps     | P-256     | 32     | enabled       | sign,verify,import | null    | null      | null              |
+            | 7.3 | 3             | without | 73-update01EcKeyOperations | P-256     | 32     | enabled       | sign,verify        | null    | null      | null              |
+            | 7.3 | 4             | without | 73-update01EcKeyDates      | P-256     | 32     | enabled       | null               | 4321    | 1234      | null              |
+            | 7.3 | 3             | without | 73-update01EcKeyNotEnabled | P-256     | 32     | not enabled   | null               | null    | null      | null              |

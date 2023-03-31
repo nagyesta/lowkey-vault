@@ -17,7 +17,6 @@
       "keyMaterial": {
         "k": "fp2J-nnMUBZVxCDFdKDxjDJX0F_BIM8P",
         "key_ops": [
-          "sign",
           "encrypt",
           "wrapKey"
         ],

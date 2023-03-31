@@ -30,10 +30,7 @@ public class CertificateBackingEntityGenerator {
         final OffsetDateTime expiry = now.plusMonths(input.getValidityMonths());
         return vaultFake.keyVaultFake().createKeyVersion(input.getName(), KeyCreateDetailedInput.builder()
                 .key(input.toKeyCreationInput())
-                .keyOperations(List.of(
-                        KeyOperation.SIGN, KeyOperation.VERIFY,
-                        KeyOperation.ENCRYPT, KeyOperation.DECRYPT,
-                        KeyOperation.WRAP_KEY, KeyOperation.UNWRAP_KEY))
+                .keyOperations(List.of(KeyOperation.SIGN, KeyOperation.VERIFY))
                 .notBefore(now)
                 .expiresOn(expiry)
                 .enabled(true)

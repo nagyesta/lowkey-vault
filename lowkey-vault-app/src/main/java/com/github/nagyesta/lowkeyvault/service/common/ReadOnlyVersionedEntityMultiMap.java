@@ -6,6 +6,7 @@ import com.github.nagyesta.lowkeyvault.service.EntityId;
 import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 public interface ReadOnlyVersionedEntityMultiMap<K extends EntityId, V extends K, RE extends BaseVaultEntity<V>> {
 
@@ -16,6 +17,8 @@ public interface ReadOnlyVersionedEntityMultiMap<K extends EntityId, V extends K
     Deque<String> getVersions(K entityId);
 
     boolean containsName(String name);
+
+    boolean containsEntityMatching(String name, Predicate<RE> predicate);
 
     boolean containsEntity(K entityId);
 

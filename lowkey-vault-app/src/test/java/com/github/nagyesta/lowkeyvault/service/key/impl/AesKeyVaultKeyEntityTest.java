@@ -218,7 +218,6 @@ class AesKeyVaultKeyEntityTest {
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
         final AesKeyVaultKeyEntity underTest = new AesKeyVaultKeyEntity(
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, KeyType.OCT.getValidKeyParameters(Integer.class).first(), false);
-        underTest.setOperations(List.of(KeyOperation.SIGN, KeyOperation.VERIFY));
         underTest.setEnabled(true);
 
         //when
@@ -234,13 +233,27 @@ class AesKeyVaultKeyEntityTest {
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
         final AesKeyVaultKeyEntity underTest = new AesKeyVaultKeyEntity(
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, KeyType.OCT.getValidKeyParameters(Integer.class).first(), false);
-        underTest.setOperations(List.of(KeyOperation.SIGN, KeyOperation.VERIFY));
         underTest.setEnabled(true);
 
         //when
         Assertions.assertThrows(UnsupportedOperationException.class,
                 () -> underTest.verifySignedBytes(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8),
                         SignatureAlgorithm.ES256, DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8)));
+
+        //then + exception
+    }
+
+    @Test
+    void testSetOperationsShouldThrowExceptionWhenCalledWithSignOrVerify() {
+        //given
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
+        final AesKeyVaultKeyEntity underTest = new AesKeyVaultKeyEntity(
+                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, KeyType.OCT.getValidKeyParameters(Integer.class).first(), false);
+        underTest.setEnabled(true);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> underTest.setOperations(List.of(KeyOperation.SIGN, KeyOperation.VERIFY)));
 
         //then + exception
     }

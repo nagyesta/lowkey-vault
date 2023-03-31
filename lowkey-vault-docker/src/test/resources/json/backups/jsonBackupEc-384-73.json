@@ -18,9 +18,7 @@
         "crv": "P-384",
         "d": "bd2taaXwxvA_DRUZ1wMT28l8TnaMDz1mn2Z2x_pJT_nkZ11BNS1FFxJvjYHIvoU4",
         "key_ops": [
-          "sign",
-          "encrypt",
-          "wrapKey"
+          "sign"
         ],
         "kid": "https://keys-backup-jsonBackupEc-384-73.localhost:8443/keys/jsonBackupEc-384-73/7f4c0a2ef5454e07a533e597434984a8",
         "kty": "EC",

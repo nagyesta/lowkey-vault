@@ -13,6 +13,7 @@ import java.security.KeyPair;
 import java.security.Signature;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
+import java.util.List;
 import java.util.Optional;
 
 import static com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil.generateEc;
@@ -67,6 +68,11 @@ public class EcKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, KeyCurveName
     @Override
     public KeyCurveName getKeyCurveName() {
         return getKeyParam();
+    }
+
+    @Override
+    protected List<KeyOperation> disallowedOperations() {
+        return List.of(KeyOperation.WRAP_KEY, KeyOperation.UNWRAP_KEY, KeyOperation.ENCRYPT, KeyOperation.DECRYPT);
     }
 
     @Override

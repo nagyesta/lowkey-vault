@@ -70,6 +70,8 @@ public abstract class CommonCertificateBackupRestoreController extends BaseBacku
                                   @NonNull final CertificateBackupListItem entityVersion) {
         final CertificatePropertiesModel attributes = Objects
                 .requireNonNullElse(entityVersion.getAttributes(), new CertificatePropertiesModel());
+        final CertificatePolicyModel issuancePolicy = Optional.ofNullable(entityVersion.getIssuancePolicy())
+                .orElse(entityVersion.getPolicy());
         vault.restoreCertificateVersion(versionedEntityId, CertificateRestoreInput.builder()
                 .name(versionedEntityId.id())
                 .certificateContent(entityVersion.getCertificateAsString())
@@ -77,7 +79,7 @@ public abstract class CommonCertificateBackupRestoreController extends BaseBacku
                 .contentType(CertContentType.byMimeType(entityVersion.getPolicy().getSecretProperties().getContentType()))
                 .password(entityVersion.getPassword())
                 .policy(entityVersion.getPolicy())
-                .issuancePolicy(entityVersion.getIssuancePolicy())
+                .issuancePolicy(issuancePolicy)
                 .tags(entityVersion.getTags())
                 .created(attributes.getCreatedOn())
                 .updated(attributes.getUpdatedOn())

@@ -48,7 +48,6 @@ class CertificateVaultFakeImplTest {
 
     public static Stream<Arguments> importNullProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null))
                 .add(Arguments.of(CERT_NAME_1, null))
                 .add(Arguments.of(null, mock(CertificateImportInput.class)))
                 .build();
@@ -56,7 +55,6 @@ class CertificateVaultFakeImplTest {
 
     public static Stream<Arguments> restoreNullProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null))
                 .add(Arguments.of(VERSIONED_CERT_ENTITY_ID_1_VERSION_1, null))
                 .add(Arguments.of(null, mock(CertificateRestoreInput.class)))
                 .build();

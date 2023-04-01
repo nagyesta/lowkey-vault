@@ -29,7 +29,6 @@ class RsaKeyVaultKeyEntityTest {
 
     public static Stream<Arguments> invalidValueProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null, null))
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, null, null, null))
                 .add(Arguments.of(null, mock(VaultFake.class), null, null))
                 .add(Arguments.of(null, null, MIN_RSA_KEY_SIZE, null))

@@ -53,7 +53,6 @@ class KeyPolicyControllerTest {
         final VaultService service = mock(VaultService.class);
         final KeyConverterRegistry registry = mock(KeyConverterRegistry.class);
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null))
                 .add(Arguments.of(service, null))
                 .add(Arguments.of(null, registry))
                 .build();

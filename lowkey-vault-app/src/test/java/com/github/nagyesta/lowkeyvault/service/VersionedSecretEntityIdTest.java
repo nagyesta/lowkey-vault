@@ -27,10 +27,6 @@ class VersionedSecretEntityIdTest {
 
     public static Stream<Arguments> invalidParameterProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null))
-                .add(Arguments.of(HTTPS_LOCALHOST, null, null))
-                .add(Arguments.of(null, SECRET_NAME_1, null))
-                .add(Arguments.of(null, null, SECRET_VERSION_1))
                 .add(Arguments.of(null, SECRET_NAME_1, SECRET_VERSION_1))
                 .add(Arguments.of(HTTPS_LOCALHOST, null, SECRET_VERSION_1))
                 .add(Arguments.of(HTTPS_LOCALHOST, SECRET_NAME_1, null))

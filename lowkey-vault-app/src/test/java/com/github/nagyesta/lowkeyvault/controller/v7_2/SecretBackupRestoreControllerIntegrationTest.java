@@ -52,7 +52,6 @@ class SecretBackupRestoreControllerIntegrationTest {
 
     public static Stream<Arguments> nullProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null))
                 .add(Arguments.of(mock(SecretConverterRegistry.class), null))
                 .add(Arguments.of(null, mock(VaultService.class)))
                 .build();

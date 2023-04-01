@@ -1,28 +1,27 @@
 package com.github.nagyesta.lowkeyvault.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.nagyesta.lowkeyvault.context.CertificateConverterConfiguration;
+import com.github.nagyesta.lowkeyvault.context.KeyConverterConfiguration;
+import com.github.nagyesta.lowkeyvault.context.SecretConverterConfiguration;
+import com.github.nagyesta.lowkeyvault.controller.v7_3.CertificateBackupRestoreController;
 import com.github.nagyesta.lowkeyvault.controller.v7_3.KeyBackupRestoreController;
 import com.github.nagyesta.lowkeyvault.controller.v7_3.SecretBackupRestoreController;
+import com.github.nagyesta.lowkeyvault.management.VaultImportExportExecutor;
 import com.github.nagyesta.lowkeyvault.mapper.common.VaultFakeToVaultModelConverter;
+import com.github.nagyesta.lowkeyvault.mapper.common.registry.CertificateConverterRegistry;
 import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
 import com.github.nagyesta.lowkeyvault.mapper.common.registry.SecretConverterRegistry;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72BackupConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72PropertiesModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72BackupConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72ModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72PropertiesModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_3.key.KeyRotationPolicyToV73ModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_3.key.KeyRotationPolicyV73ModelToEntityConverter;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.validator.ImportKeyValidator;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
-import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultServiceImpl;
 import com.github.nagyesta.lowkeyvault.template.backup.BackupTemplateProcessor;
 import com.github.nagyesta.lowkeyvault.template.backup.TimeHelperSource;
 import com.github.nagyesta.lowkeyvault.template.backup.VaultImporter;
 import com.github.nagyesta.lowkeyvault.template.backup.VaultImporterProperties;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 
 import javax.validation.Validator;
@@ -33,71 +32,37 @@ import static org.mockito.Mockito.mock;
 
 @Profile("vault")
 @Configuration
+@Import({BaseVaultConfiguration.class, CertificateConverterConfiguration.class,
+        KeyConverterConfiguration.class, SecretConverterConfiguration.class})
 public class VaultBackupConfiguration {
+
+    @Autowired
+    private VaultService vaultService;
+    @Autowired
+    private CertificateConverterRegistry certificateConverterRegistry;
+    @Autowired
+    private SecretConverterRegistry secretConverterRegistry;
+    @Autowired
+    private KeyConverterRegistry keyConverterRegistry;
 
     @Bean
     public SecretBackupRestoreController secretBackupRestoreController() {
-        return new SecretBackupRestoreController(secretConverterRegistry(), vaultService());
-    }
-
-    @Bean
-    public SecretEntityToV72ModelConverter secretEntityToV72ModelConverter() {
-        return new SecretEntityToV72ModelConverter(secretConverterRegistry());
-    }
-
-    @Bean
-    public SecretEntityToV72BackupConverter secretEntityToV72BackupConverter() {
-        return new SecretEntityToV72BackupConverter(secretConverterRegistry());
-    }
-
-    @Bean
-    public SecretEntityToV72PropertiesModelConverter secretEntityToV72PropertiesModelConverter() {
-        return new SecretEntityToV72PropertiesModelConverter(secretConverterRegistry());
-    }
-
-    @Bean
-    public SecretConverterRegistry secretConverterRegistry() {
-        return new SecretConverterRegistry();
-    }
-
-    @Bean
-    public KeyConverterRegistry keyConverterRegistry() {
-        return new KeyConverterRegistry();
+        return new SecretBackupRestoreController(secretConverterRegistry, vaultService);
     }
 
     @Bean
     public KeyBackupRestoreController keyBackupRestoreController() {
-        return new KeyBackupRestoreController(keyConverterRegistry(), vaultService());
+        return new KeyBackupRestoreController(keyConverterRegistry, vaultService);
     }
 
     @Bean
-    public KeyEntityToV72ModelConverter keyEntityToV72ModelConverter() {
-        return new KeyEntityToV72ModelConverter(keyConverterRegistry());
-    }
-
-    @Bean
-    public KeyEntityToV72PropertiesModelConverter keyEntityToV72PropertiesModelConverter() {
-        return new KeyEntityToV72PropertiesModelConverter(keyConverterRegistry());
-    }
-
-    @Bean
-    public KeyEntityToV72BackupConverter keyEntityToV72BackupConverter() {
-        return new KeyEntityToV72BackupConverter(keyConverterRegistry());
-    }
-
-    @Bean
-    public KeyRotationPolicyToV73ModelConverter keyRotationPolicyToV73ModelConverter() {
-        return new KeyRotationPolicyToV73ModelConverter(keyConverterRegistry());
-    }
-
-    @Bean
-    public KeyRotationPolicyV73ModelToEntityConverter keyRotationPolicyV73ModelToEntityConverter() {
-        return new KeyRotationPolicyV73ModelToEntityConverter(keyConverterRegistry());
+    public CertificateBackupRestoreController certificateBackupRestoreController() {
+        return new CertificateBackupRestoreController(certificateConverterRegistry, vaultService);
     }
 
     @Bean
     public VaultManagementController vaultManagementController() {
-        return new VaultManagementController(vaultService(), vaultFakeToVaultModelConverter());
+        return new VaultManagementController(vaultService, vaultFakeToVaultModelConverter());
     }
 
     @Bean
@@ -105,10 +70,6 @@ public class VaultBackupConfiguration {
         return new VaultFakeToVaultModelConverter();
     }
 
-    @Bean
-    public VaultService vaultService() {
-        return new VaultServiceImpl();
-    }
 
     @SuppressWarnings("checkstyle:MagicNumber")
     @Bean
@@ -120,6 +81,12 @@ public class VaultBackupConfiguration {
     @Bean
     public VaultImporter vaultImporter() {
         return new VaultImporter(vaultImporterProperties(), backupTemplateProcessor(), objectMapper(), validator());
+    }
+
+    @Bean
+    public VaultImportExportExecutor vaultImportExportExecutor() {
+        return new VaultImportExportExecutor(vaultManagementController(), keyBackupRestoreController(),
+                secretBackupRestoreController(), certificateBackupRestoreController());
     }
 
     @Bean

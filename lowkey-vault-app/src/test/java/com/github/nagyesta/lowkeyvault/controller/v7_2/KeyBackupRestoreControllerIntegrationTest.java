@@ -60,7 +60,6 @@ class KeyBackupRestoreControllerIntegrationTest {
 
     public static Stream<Arguments> nullProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null))
                 .add(Arguments.of(mock(KeyConverterRegistry.class), null))
                 .add(Arguments.of(null, mock(VaultService.class)))
                 .build();

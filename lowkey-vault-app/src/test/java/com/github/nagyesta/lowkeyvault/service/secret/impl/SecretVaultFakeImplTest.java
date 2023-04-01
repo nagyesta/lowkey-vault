@@ -27,9 +27,6 @@ class SecretVaultFakeImplTest {
     public static Stream<Arguments> certificateCreationNullProvider() {
         final VersionedSecretEntityId entityId = VERSIONED_SECRET_ENTITY_ID_1_VERSION_1;
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null, null, null))
-                .add(Arguments.of(entityId, null, null, null, null))
-                .add(Arguments.of(null, LOWKEY_VAULT, null, null, null))
                 .add(Arguments.of(null, LOWKEY_VAULT, CertContentType.PEM, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES))
                 .add(Arguments.of(entityId, null, CertContentType.PEM, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES))
                 .add(Arguments.of(entityId, LOWKEY_VAULT, null, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES))

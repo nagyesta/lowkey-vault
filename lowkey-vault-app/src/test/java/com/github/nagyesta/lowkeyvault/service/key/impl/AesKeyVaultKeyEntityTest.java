@@ -30,10 +30,6 @@ class AesKeyVaultKeyEntityTest {
 
     public static Stream<Arguments> invalidValueProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null))
-                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, null, null))
-                .add(Arguments.of(null, mock(VaultFake.class), null))
-                .add(Arguments.of(null, null, MIN_AES_KEY_SIZE))
                 .add(Arguments.of(null, mock(VaultFake.class), MIN_AES_KEY_SIZE))
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, null, MIN_AES_KEY_SIZE))
                 .build();

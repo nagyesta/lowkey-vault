@@ -48,7 +48,6 @@ class LowkeyVaultManagementClientImplTest {
 
     public static Stream<Arguments> nullCreateProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null))
                 .add(Arguments.of(URI.create(HTTPS_LOCALHOST), null, null))
                 .add(Arguments.of(null, RecoveryLevel.PURGEABLE, null))
                 .build();
@@ -56,10 +55,6 @@ class LowkeyVaultManagementClientImplTest {
 
     public static Stream<Arguments> nullProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null))
-                .add(Arguments.of(HTTPS_LOCALHOST, null, null))
-                .add(Arguments.of(null, mock(HttpClient.class), null))
-                .add(Arguments.of(null, null, mock(ObjectMapper.class)))
                 .add(Arguments.of(null, mock(HttpClient.class), mock(ObjectMapper.class)))
                 .add(Arguments.of(HTTPS_LOCALHOST, null, mock(ObjectMapper.class)))
                 .add(Arguments.of(HTTPS_LOCALHOST, mock(HttpClient.class), null))

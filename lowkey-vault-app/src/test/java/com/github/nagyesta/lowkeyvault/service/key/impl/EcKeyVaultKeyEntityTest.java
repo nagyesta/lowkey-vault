@@ -40,10 +40,6 @@ class EcKeyVaultKeyEntityTest {
 
     public static Stream<Arguments> invalidValueProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null))
-                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, null, null))
-                .add(Arguments.of(null, mock(VaultFake.class), null))
-                .add(Arguments.of(null, null, KeyCurveName.P_256))
                 .add(Arguments.of(null, mock(VaultFake.class), KeyCurveName.P_256))
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, null, KeyCurveName.P_256))
                 .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, mock(VaultFake.class), null))

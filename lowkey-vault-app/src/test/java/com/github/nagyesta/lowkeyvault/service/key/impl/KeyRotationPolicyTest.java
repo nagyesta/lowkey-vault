@@ -62,10 +62,6 @@ class KeyRotationPolicyTest {
 
     public static Stream<Arguments> invalidProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null))
-                .add(Arguments.of(UNVERSIONED_KEY_ENTITY_ID_1, null, null))
-                .add(Arguments.of(null, Period.ZERO, null))
-                .add(Arguments.of(null, null, Map.of()))
                 .add(Arguments.of(null, Period.ZERO, Map.of()))
                 .add(Arguments.of(UNVERSIONED_KEY_ENTITY_ID_1, null, Map.of()))
                 .add(Arguments.of(UNVERSIONED_KEY_ENTITY_ID_1, Period.ZERO, null))

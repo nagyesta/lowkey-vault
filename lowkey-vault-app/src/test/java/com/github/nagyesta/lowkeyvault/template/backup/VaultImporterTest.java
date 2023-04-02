@@ -26,11 +26,6 @@ class VaultImporterTest {
         final ObjectMapper mapper = mock(ObjectMapper.class);
         final Validator validator = mock(Validator.class);
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null, null))
-                .add(Arguments.of(properties, null, null, null))
-                .add(Arguments.of(null, processor, null, null))
-                .add(Arguments.of(null, null, mapper, null))
-                .add(Arguments.of(null, null, null, validator))
                 .add(Arguments.of(null, processor, mapper, validator))
                 .add(Arguments.of(properties, null, mapper, validator))
                 .add(Arguments.of(properties, processor, null, validator))

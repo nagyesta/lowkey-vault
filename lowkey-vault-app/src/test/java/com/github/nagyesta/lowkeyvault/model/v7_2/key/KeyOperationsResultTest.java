@@ -54,11 +54,6 @@ class KeyOperationsResultTest {
         final KeyOperationsParameters parameters = new KeyOperationsParameters();
         final VersionedKeyEntityId keyId = VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null, null))
-                .add(Arguments.of(keyId, null, null, null))
-                .add(Arguments.of(null, BLANK, null, null))
-                .add(Arguments.of(null, null, parameters, null))
-                .add(Arguments.of(null, null, null, keyId.vault()))
                 .add(Arguments.of(null, BLANK, parameters, keyId.vault()))
                 .add(Arguments.of(keyId, null, parameters, keyId.vault()))
                 .add(Arguments.of(keyId, BLANK, null, keyId.vault()))

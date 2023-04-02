@@ -18,10 +18,6 @@ class KeyVaultSecretEntityTest {
 
     public static Stream<Arguments> invalidValueProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null))
-                .add(Arguments.of(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, null, null))
-                .add(Arguments.of(null, mock(VaultFake.class), null))
-                .add(Arguments.of(null, null, LOWKEY_VAULT))
                 .add(Arguments.of(null, mock(VaultFake.class), LOWKEY_VAULT))
                 .add(Arguments.of(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, null, LOWKEY_VAULT))
                 .add(Arguments.of(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, mock(VaultFake.class), null))

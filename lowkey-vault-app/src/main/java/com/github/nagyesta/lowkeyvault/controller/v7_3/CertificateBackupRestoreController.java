@@ -26,7 +26,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Slf4j
 @RestController
 @Validated
-@DependsOn("certificateBackupConverter")
+@DependsOn({"certificateBackupConverter", "certificateModelConverter"})
 @Component("CertificateBackupRestoreControllerV73")
 public class CertificateBackupRestoreController extends CommonCertificateBackupRestoreController {
 

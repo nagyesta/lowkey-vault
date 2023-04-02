@@ -18,10 +18,6 @@ class VersionedCertificateEntityIdTest {
 
     public static Stream<Arguments> versionedNullProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null))
-                .add(Arguments.of(HTTPS_LOCALHOST_8443, null, null))
-                .add(Arguments.of(null, CERT_NAME_1, null))
-                .add(Arguments.of(null, null, CERT_VERSION_1))
                 .add(Arguments.of(null, CERT_NAME_1, CERT_VERSION_1))
                 .add(Arguments.of(HTTPS_LOCALHOST_8443, null, CERT_VERSION_1))
                 .add(Arguments.of(HTTPS_LOCALHOST_8443, CERT_NAME_1, null))

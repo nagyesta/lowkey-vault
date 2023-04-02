@@ -2,10 +2,7 @@ package com.github.nagyesta.lowkeyvault.template.backup;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.jknack.handlebars.internal.Files;
-import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupList;
-import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupModel;
-import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupList;
-import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupModel;
+import com.github.nagyesta.lowkeyvault.model.common.backup.*;
 import com.github.nagyesta.lowkeyvault.model.management.VaultBackupListModel;
 import com.github.nagyesta.lowkeyvault.model.management.VaultBackupModel;
 import com.github.nagyesta.lowkeyvault.model.management.VaultModel;
@@ -35,6 +32,7 @@ public class VaultImporter implements InitializingBean {
     private final Map<URI, VaultModel> vaults;
     private final Map<URI, List<KeyBackupModel>> keys;
     private final Map<URI, List<SecretBackupModel>> secrets;
+    private final Map<URI, List<CertificateBackupModel>> certificates;
 
     @Autowired
     public VaultImporter(@NonNull final VaultImporterProperties vaultImporterProperties,
@@ -48,6 +46,7 @@ public class VaultImporter implements InitializingBean {
         this.vaults = new TreeMap<>();
         this.keys = new TreeMap<>();
         this.secrets = new TreeMap<>();
+        this.certificates = new TreeMap<>();
     }
 
     public void importTemplates() {
@@ -74,6 +73,10 @@ public class VaultImporter implements InitializingBean {
 
     public Map<URI, List<SecretBackupModel>> getSecrets() {
         return secrets;
+    }
+
+    public Map<URI, List<CertificateBackupModel>> getCertificates() {
+        return certificates;
     }
 
     @Override
@@ -105,6 +108,7 @@ public class VaultImporter implements InitializingBean {
             preprocessVaultsOfBackup(v);
             preprocessKeysOfBackup(v);
             preprocessSecretsOfBackup(v);
+            preprocessCertificatesOfBackup(v);
         });
     }
 
@@ -113,20 +117,38 @@ public class VaultImporter implements InitializingBean {
     }
 
     private void preprocessKeysOfBackup(final VaultBackupModel v) {
-        final List<KeyBackupModel> keyModelList = keys.computeIfAbsent(v.getAttributes().getBaseUri(), k -> new ArrayList<>());
-        for (final KeyBackupList value : v.getKeys().values()) {
-            final KeyBackupModel backupModel = new KeyBackupModel();
-            backupModel.setValue(value);
-            keyModelList.add(backupModel);
-        }
+        final List<KeyBackupModel> keyModelList = keys
+                .computeIfAbsent(v.getAttributes().getBaseUri(), k -> new ArrayList<>());
+        Optional.ofNullable(v.getKeys()).ifPresent(k -> {
+            for (final KeyBackupList value : k.values()) {
+                final KeyBackupModel backupModel = new KeyBackupModel();
+                backupModel.setValue(value);
+                keyModelList.add(backupModel);
+            }
+        });
     }
 
     private void preprocessSecretsOfBackup(final VaultBackupModel v) {
-        final List<SecretBackupModel> secretModelList = secrets.computeIfAbsent(v.getAttributes().getBaseUri(), k -> new ArrayList<>());
-        for (final SecretBackupList value : v.getSecrets().values()) {
-            final SecretBackupModel backupModel = new SecretBackupModel();
-            backupModel.setValue(value);
-            secretModelList.add(backupModel);
-        }
+        final List<SecretBackupModel> secretModelList = secrets
+                .computeIfAbsent(v.getAttributes().getBaseUri(), k -> new ArrayList<>());
+        Optional.ofNullable(v.getSecrets()).ifPresent(s -> {
+            for (final SecretBackupList value : s.values()) {
+                final SecretBackupModel backupModel = new SecretBackupModel();
+                backupModel.setValue(value);
+                secretModelList.add(backupModel);
+            }
+        });
+    }
+
+    private void preprocessCertificatesOfBackup(final VaultBackupModel v) {
+        final List<CertificateBackupModel> certificateModelList = certificates
+                .computeIfAbsent(v.getAttributes().getBaseUri(), k -> new ArrayList<>());
+        Optional.ofNullable(v.getCertificates()).ifPresent(c -> {
+            for (final CertificateBackupList value : c.values()) {
+                final CertificateBackupModel backupModel = new CertificateBackupModel();
+                backupModel.setValue(value);
+                certificateModelList.add(backupModel);
+            }
+        });
     }
 }

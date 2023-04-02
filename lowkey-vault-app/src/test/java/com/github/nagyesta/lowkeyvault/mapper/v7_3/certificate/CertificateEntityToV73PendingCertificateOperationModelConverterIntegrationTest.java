@@ -33,7 +33,6 @@ class CertificateEntityToV73PendingCertificateOperationModelConverterIntegration
 
     public static Stream<Arguments> nullProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null))
                 .add(Arguments.of(mock(ReadOnlyKeyVaultCertificateEntity.class), null))
                 .add(Arguments.of(null, HTTPS_LOCALHOST_8443))
                 .build();

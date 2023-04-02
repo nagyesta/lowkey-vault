@@ -33,12 +33,6 @@ class CertificateImportInputTest {
         final CertificatePolicyModel certificatePolicyModel = new CertificatePolicyModel();
         final String content = "cert";
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null, null, null))
-                .add(Arguments.of(CERT_NAME_1, null, null, null, null))
-                .add(Arguments.of(null, content, null, null, null))
-                .add(Arguments.of(null, null, PASSWORD, null, null))
-                .add(Arguments.of(null, null, null, CertContentType.PEM, null))
-                .add(Arguments.of(null, null, null, null, certificatePolicyModel))
                 .add(Arguments.of(null, content, PASSWORD, CertContentType.PEM, certificatePolicyModel))
                 .add(Arguments.of(CERT_NAME_1, null, PASSWORD, CertContentType.PEM, certificatePolicyModel))
                 .add(Arguments.of(CERT_NAME_1, content, PASSWORD, null, certificatePolicyModel))

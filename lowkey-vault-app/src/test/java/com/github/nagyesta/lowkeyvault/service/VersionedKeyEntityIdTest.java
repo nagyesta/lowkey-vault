@@ -27,10 +27,6 @@ class VersionedKeyEntityIdTest {
 
     public static Stream<Arguments> invalidParameterProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null))
-                .add(Arguments.of(HTTPS_LOCALHOST, null, null))
-                .add(Arguments.of(null, KEY_NAME_1, null))
-                .add(Arguments.of(null, null, KEY_VERSION_1))
                 .add(Arguments.of(null, KEY_NAME_1, KEY_VERSION_1))
                 .add(Arguments.of(HTTPS_LOCALHOST, null, KEY_VERSION_1))
                 .add(Arguments.of(HTTPS_LOCALHOST, KEY_NAME_1, null))

@@ -79,19 +79,19 @@ jobs:
         run: |
           rm -rf ${{ runner.temp }}/.gnupg/
       - name: Upload coverage to Codecov - App
-        uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # tag=v3.1.1
+        uses: codecov/codecov-action@40a12dcee2df644d47232dde008099a3e9e4f865 # v3.1.2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./lowkey-vault-app/build/reports/jacoco/report.xml
           flags: app
       - name: Upload coverage to Codecov - Client
-        uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # tag=v3.1.1
+        uses: codecov/codecov-action@40a12dcee2df644d47232dde008099a3e9e4f865 # v3.1.2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./lowkey-vault-client/build/reports/jacoco/report.xml
           flags: client
       - name: Upload coverage to Codecov - Testcontainers
-        uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # tag=v3.1.1
+        uses: codecov/codecov-action@40a12dcee2df644d47232dde008099a3e9e4f865 # v3.1.2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./lowkey-vault-testcontainers/build/reports/jacoco/report.xml

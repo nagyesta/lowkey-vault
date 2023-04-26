@@ -15,14 +15,14 @@ Feature: Certificate renewal/recreation
         Then the certificate is enabled
         And the certificate secret named <certName> is downloaded
         And the downloaded secret contains a <type> certificate
-        And the downloaded <type> certificate store expires in <adjustmentMonths> months - <adjustmentDays> days
+        And the downloaded <type> certificate store was shifted <shiftDays> days, using renewals 1 days before <expiryMonths> months expiry
         And the downloaded <type> certificate store has a certificate with <subject> as subject
 
 
         Examples:
-            | api | index | certName           | type | subject        | expiryMonths | shiftDays | adjustmentDays | adjustmentMonths |
-            | 7.3 | 1     | 73-recreateRsaCert | PEM  | CN=localhost   | 20           | 100       | 100            | 20               |
-            | 7.3 | 2     | 73-renewRsaCert    | PEM  | CN=example.com | 5            | 360       | 362            | 15               |
+            | api | index | certName           | type | subject        | expiryMonths | shiftDays |
+            | 7.3 | 1     | 73-recreateRsaCert | PEM  | CN=localhost   | 20           | 100       |
+            | 7.3 | 2     | 73-renewRsaCert    | PEM  | CN=example.com | 5            | 360       |
 
     @Certificate @CertificateCreate @CertificateTimeShift @EC
     Scenario Outline: EC_CERT_TIME_SHIFT_01 Single versions of EC certificates can be recreated or renewed with time shift
@@ -39,11 +39,11 @@ Feature: Certificate renewal/recreation
         Then the certificate is enabled
         And the certificate secret named <certName> is downloaded
         And the downloaded secret contains a <type> certificate
-        And the downloaded <type> certificate store expires in <adjustmentMonths> months - <adjustmentDays> days
+        And the downloaded <type> certificate store was shifted <shiftDays> days, using renewals 1 days before <expiryMonths> months expiry
         And the downloaded <type> certificate store has a certificate with <subject> as subject
 
 
         Examples:
-            | api | index | certName          | type | subject        | expiryMonths | shiftDays | adjustmentDays | adjustmentMonths |
-            | 7.3 | 1     | 73-recreateEcCert | PEM  | CN=localhost   | 20           | 100       | 100            | 20               |
-            | 7.3 | 2     | 73-renewEcCert    | PEM  | CN=example.com | 5            | 360       | 362            | 15               |
+            | api | index | certName          | type | subject        | expiryMonths | shiftDays |
+            | 7.3 | 1     | 73-recreateEcCert | PEM  | CN=localhost   | 20           | 100       |
+            | 7.3 | 2     | 73-renewEcCert    | PEM  | CN=example.com | 5            | 360       |

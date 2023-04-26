@@ -85,12 +85,13 @@ public class CertificateStepDefAssertion extends CommonAssertions {
                 certificate.getNotAfter().toInstant().truncatedTo(ChronoUnit.DAYS));
     }
 
-    @And("the downloaded {certContentType} certificate store expires in {int} months - {int} days")
-    public void theDownloadedTypeCertificateStoreExpiresInMonthsMinusDays(
-            final CertificateContentType contentType, final int months, final int days) throws Exception {
+    @And("the downloaded {certContentType} certificate store was shifted {int} days, using renewals {int} days before {int} months expiry")
+    public void theDownloadedTypeCertificateStoreWasShiftedDaysUsingMonthsOfExpiry(
+            final CertificateContentType contentType, final int daysShifted,
+            final int renewalThreshold, final int expiryMonths) throws Exception {
         final String value = secretContext.getLastResult().getValue();
         final X509Certificate certificate = getX509Certificate(contentType, value);
-        final OffsetDateTime expiry = OffsetDateTime.now().minusDays(days).plusMonths(months);
+        final OffsetDateTime expiry = calculateExpiry(expiryMonths, daysShifted, renewalThreshold);
         assertEquals(expiry.toInstant().truncatedTo(ChronoUnit.DAYS),
                 certificate.getNotAfter().toInstant().truncatedTo(ChronoUnit.DAYS));
     }
@@ -213,6 +214,15 @@ public class CertificateStepDefAssertion extends CommonAssertions {
     public void theDownloadedCertificatePolicyHasTypeAsType(final CertificateContentType contentType) {
         final CertificatePolicy certificatePolicy = context.getDownloadedPolicy();
         assertEquals(contentType, certificatePolicy.getContentType());
+    }
+
+    private static OffsetDateTime calculateExpiry(final int expiryMonths, final int shiftedDays, final int renewalDaysBeforeExpiry) {
+        final OffsetDateTime now = OffsetDateTime.now();
+        OffsetDateTime currentRenewalDate = now.minusDays(shiftedDays);
+        while (currentRenewalDate.isBefore(now)) {
+            currentRenewalDate = currentRenewalDate.plusMonths(expiryMonths).minusDays(renewalDaysBeforeExpiry);
+        }
+        return currentRenewalDate.plusDays(renewalDaysBeforeExpiry);
     }
 
     private PrivateKey getKeyFromPem(final byte[] content, final X509Certificate certificate) throws CryptoException {

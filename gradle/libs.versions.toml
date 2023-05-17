@@ -20,7 +20,7 @@ jupiter = "5.9.3"
 abortMission = "3.5.127"
 checkstyle = "9.2.1"
 jacoco = "0.8.2"
-jacksonBom = { strictly = "2.15.0" }
+jacksonBom = { strictly = "2.15.1" }
 jackson = { strictly = "2.15.0" }
 openApiUi = "1.7.0"
 

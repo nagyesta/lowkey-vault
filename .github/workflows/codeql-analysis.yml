@@ -76,7 +76,7 @@ jobs:
           distribution: temurin
           java-version: 11
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@83f0fe6c4988d98a455712a27f0255212bba9bd4 # v2.3.6
+        uses: github/codeql-action/init@6c089f53dd51dc3fc7e599c3cb5356453a52ca9e # v2.20.0
         with:
           languages: 'java'
       - name: Build with Gradle
@@ -85,7 +85,7 @@ jobs:
           cache-disabled: true
           arguments: build -x test -x dockerClean -x dockerPrepare -x dockerRun -x dockerRunStatus -x dockerStop
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@83f0fe6c4988d98a455712a27f0255212bba9bd4 # v2.3.6
+        uses: github/codeql-action/analyze@6c089f53dd51dc3fc7e599c3cb5356453a52ca9e # v2.20.0
       - name: Check dependencies with Gradle
         uses: gradle/gradle-build-action@749f47bda3e44aa060e82d7b3ef7e40d953bd629 # v2.4.2
         with:

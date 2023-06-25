@@ -72,14 +72,18 @@ jobs:
         uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           name: test-report-lowkey-vault-app
-          path: lowkey-vault-app/build/reports/tests/test
+          path: |
+            lowkey-vault-app/build/reports/tests/test
+            lowkey-vault-app/build/reports/abort-mission/abort-mission-report.html
           retention-days: 5
       - name: 'Upload Test reports - Docker'
         if: always()
         uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           name: test-report-lowkey-vault-docker
-          path: lowkey-vault-docker/build/reports/cucumber
+          path: |
+            lowkey-vault-docker/build/reports/cucumber
+            lowkey-vault-docker/build/reports/abort-mission/abort-mission-report.html
           retention-days: 5
       - name: 'Upload Test reports - Testcontainers'
         if: always()

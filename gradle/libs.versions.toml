@@ -24,7 +24,7 @@ jacksonBom = { strictly = "2.15.2" }
 jackson = { strictly = "2.15.2" }
 openApiUi = "1.7.0"
 
-abortMissionPlugin = "4.0.0"
+abortMissionPlugin = "4.1.0"
 dockerPlugin = "0.35.0"
 indexScanPlugin = "2.6.0"
 lombokPlugin = "8.0.1"

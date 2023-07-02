@@ -59,7 +59,7 @@ public abstract class BaseKeyController extends GenericEntityController<KeyEntit
                 .key(request.getKey())
                 .hsm(request.getHsm())
                 .tags(request.getTags())
-                .enabled(properties.getEnabled())
+                .enabled(false)
                 .expiresOn(properties.getExpiresOn())
                 .notBefore(properties.getNotBefore())
                 .createdOn(null)

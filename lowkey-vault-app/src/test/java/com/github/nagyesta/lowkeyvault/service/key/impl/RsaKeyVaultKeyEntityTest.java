@@ -1,12 +1,11 @@
 package com.github.nagyesta.lowkeyvault.service.key.impl;
 
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.EncryptionAlgorithm;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.SignatureAlgorithm;
+import com.github.nagyesta.lowkeyvault.HashUtil;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.*;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultFakeImpl;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,6 +14,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.security.PublicKey;
+import java.security.Signature;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -59,6 +60,22 @@ class RsaKeyVaultKeyEntityTest {
                         .add(Arguments.of(LOCALHOST, DEFAULT_VAULT, sa, 3072))
                         .add(Arguments.of(LOWKEY_VAULT, LOCALHOST, sa, 4096))
                         .build());
+    }
+
+    @SuppressWarnings("checkstyle:MagicNumber")
+    public static Stream<Arguments> signDigestSource() {
+        final byte[] bytes = DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8);
+        final byte[] sha256Digest = HashUtil.hash(bytes, HashAlgorithm.SHA256);
+        final byte[] sha384Digest = HashUtil.hash(bytes, HashAlgorithm.SHA384);
+        final byte[] sha512Digest = HashUtil.hash(bytes, HashAlgorithm.SHA512);
+        return Stream.<Arguments>builder()
+                .add(Arguments.of(bytes, sha256Digest, 2048, SignatureAlgorithm.RS256, "SHA256withRSA"))
+                .add(Arguments.of(bytes, sha384Digest, 3072, SignatureAlgorithm.RS384, "SHA384withRSA"))
+                .add(Arguments.of(bytes, sha512Digest, 4096, SignatureAlgorithm.RS512, "SHA512withRSA"))
+                .add(Arguments.of(bytes, sha256Digest, 2048, SignatureAlgorithm.PS256, "SHA256withRSAandMGF1"))
+                .add(Arguments.of(bytes, sha384Digest, 3072, SignatureAlgorithm.PS384, "SHA384withRSAandMGF1"))
+                .add(Arguments.of(bytes, sha512Digest, 4096, SignatureAlgorithm.PS512, "SHA512withRSAandMGF1"))
+                .build();
     }
 
     @ParameterizedTest
@@ -171,11 +188,33 @@ class RsaKeyVaultKeyEntityTest {
         underTest.setEnabled(true);
 
         //when
-        final byte[] signature = underTest.signBytes(clearSign.getBytes(StandardCharsets.UTF_8), algorithm);
-        final boolean actual = underTest.verifySignedBytes(clearVerify.getBytes(StandardCharsets.UTF_8), algorithm, signature);
+        final byte[] signHash = HashUtil.hash(clearSign.getBytes(StandardCharsets.UTF_8), algorithm.getHashAlgorithm());
+        final byte[] verifyHash = HashUtil.hash(clearVerify.getBytes(StandardCharsets.UTF_8), algorithm.getHashAlgorithm());
+        final byte[] signature = underTest.signBytes(signHash, algorithm);
+        final boolean actual = underTest.verifySignedBytes(verifyHash, algorithm, signature);
 
         //then
         Assertions.assertEquals(clearSign.equals(clearVerify), actual);
+    }
+
+    @ParameterizedTest
+    @MethodSource("signDigestSource")
+    void testSignShouldProduceTheExpectedSignatureWhenCalledWithValidData(
+            final byte[] original, final byte[] digest, final int keySize,
+            final SignatureAlgorithm algorithm, final String verifyAlgorithm) throws Exception {
+        //given
+        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
+        final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(
+                VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, keySize, null, false);
+        underTest.setOperations(List.of(KeyOperation.SIGN, KeyOperation.VERIFY));
+        underTest.setEnabled(true);
+
+        //when
+        final byte[] signature = underTest.signBytes(digest, algorithm);
+
+        //then
+        final boolean actual = checkSignature(underTest.getKey().getPublic(), signature, original, verifyAlgorithm);
+        Assertions.assertTrue(actual);
     }
 
     @Test
@@ -204,7 +243,9 @@ class RsaKeyVaultKeyEntityTest {
         underTest.setEnabled(true);
 
         //when
-        final byte[] signature = underTest.signBytes(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.PS256);
+        final byte[] signature = underTest.signBytes(
+                HashUtil.hash(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), HashAlgorithm.SHA256),
+                SignatureAlgorithm.PS256);
         Assertions.assertThrows(IllegalStateException.class,
                 () -> underTest.verifySignedBytes(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.PS256, signature));
 
@@ -237,7 +278,9 @@ class RsaKeyVaultKeyEntityTest {
         underTest.setEnabled(true);
 
         //when
-        final byte[] signature = underTest.signBytes(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.PS256);
+        final byte[] signature = underTest.signBytes(
+                HashUtil.hash(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), HashAlgorithm.SHA256),
+                SignatureAlgorithm.PS256);
         underTest.setEnabled(false);
         Assertions.assertThrows(IllegalStateException.class,
                 () -> underTest.verifySignedBytes(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.PS256, signature));
@@ -262,5 +305,14 @@ class RsaKeyVaultKeyEntityTest {
         final RsaKeyCreationInput value = (RsaKeyCreationInput) actual;
         Assertions.assertEquals(keySize, value.getKeyParameter());
         Assertions.assertEquals(publicExponent, value.getPublicExponent());
+    }
+
+    private boolean checkSignature(
+            final PublicKey publicKey, final byte[] signatureToCheck,
+            final byte[] originalDigest, final String algName) throws Exception {
+        final Signature sig = Signature.getInstance(algName, new BouncyCastleProvider());
+        sig.initVerify(publicKey);
+        sig.update(originalDigest);
+        return sig.verify(signatureToCheck);
     }
 }

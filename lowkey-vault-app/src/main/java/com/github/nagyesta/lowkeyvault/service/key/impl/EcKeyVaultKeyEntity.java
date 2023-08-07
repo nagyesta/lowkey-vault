@@ -8,13 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
-import java.lang.reflect.Array;
 import java.security.KeyPair;
-import java.security.Signature;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.util.List;
-import java.util.Optional;
+import java.util.concurrent.Callable;
 
 import static com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil.generateEc;
 
@@ -87,37 +85,19 @@ public class EcKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, KeyCurveName
 
     @Override
     public byte[] signBytes(final byte[] digest, final SignatureAlgorithm signatureAlgorithm) {
-        Assert.state(getOperations().contains(KeyOperation.SIGN), getId() + " does not have SIGN operation assigned.");
-        Assert.state(isEnabled(), getId() + " is not enabled.");
+        validateGenericSignOrVerifyInputs(digest, signatureAlgorithm, KeyOperation.SIGN);
         Assert.state(signatureAlgorithm.isCompatibleWithCurve(getKeyCurveName()), getId() + " is not using the right key curve.");
-        final int length = Optional.ofNullable(digest)
-                .map(Array::getLength)
-                .orElseThrow(() -> new IllegalArgumentException("Digest is null."));
-        Assert.isTrue(signatureAlgorithm.supportsDigestLength(length), getId() + " does not support digest length: " + length + ".");
-        return doCrypto(() -> {
-            final Signature ecSign = Signature.getInstance(signatureAlgorithm.getAlg());
-            ecSign.initSign(getKey().getPrivate());
-            ecSign.update(digest);
-            return ecSign.sign();
-        }, "Cannot sign message.", log);
+        final Callable<byte[]> signCallable = signCallable(digest, signatureAlgorithm, getKey().getPrivate());
+        return doCrypto(signCallable, "Cannot sign message.", log);
     }
 
     @Override
     public boolean verifySignedBytes(final byte[] digest,
                                      final SignatureAlgorithm signatureAlgorithm,
                                      final byte[] signature) {
-        Assert.state(getOperations().contains(KeyOperation.VERIFY), getId() + " does not have VERIFY operation assigned.");
-        Assert.state(isEnabled(), getId() + " is not enabled.");
+        validateGenericSignOrVerifyInputs(digest, signatureAlgorithm, KeyOperation.VERIFY);
         Assert.state(signatureAlgorithm.isCompatibleWithCurve(getKeyCurveName()), getId() + " is not using the right key curve.");
-        final int length = Optional.ofNullable(digest)
-                .map(Array::getLength)
-                .orElseThrow(() -> new IllegalArgumentException("Digest is null."));
-        Assert.isTrue(signatureAlgorithm.supportsDigestLength(length), getId() + " does not support digest length: " + length + ".");
-        return doCrypto(() -> {
-            final Signature ecVerify = Signature.getInstance(signatureAlgorithm.getAlg());
-            ecVerify.initVerify(getKey().getPublic());
-            ecVerify.update(digest);
-            return ecVerify.verify(signature);
-        }, "Cannot verify digest message.", log);
+        final Callable<Boolean> verifyCallable = verifyCallable(digest, signatureAlgorithm, signature, getKey().getPublic());
+        return doCrypto(verifyCallable, "Cannot verify digest message.", log);
     }
 }

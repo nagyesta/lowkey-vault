@@ -40,9 +40,6 @@ public final class LowkeyVaultContainerBuilder {
         if (vaultNames == null) {
             throw new IllegalArgumentException("Vault names collection cannot be null.");
         }
-        if (vaultNames.contains(null)) {
-            throw new IllegalArgumentException("Vault names collection cannot contain null.");
-        }
         this.vaultNames = Set.copyOf(vaultNames);
         return this;
     }

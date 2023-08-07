@@ -1,15 +1,13 @@
 package com.github.nagyesta.lowkeyvault.controller.v7_3;
 
+import com.github.nagyesta.lowkeyvault.HashUtil;
 import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyItemModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyVersionItemModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ModelConverter;
 import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.*;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.EncryptionAlgorithm;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.SignatureAlgorithm;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.*;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.CreateKeyRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeyOperationsParameters;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeySignParameters;
@@ -196,7 +194,7 @@ class KeyCryptoControllerTest {
                 .thenReturn(RESPONSE);
         final KeySignParameters keySignParameters = new KeySignParameters();
         keySignParameters.setAlgorithm(SignatureAlgorithm.PS256);
-        keySignParameters.setValue(ENCODER.encodeToString(clearText.getBytes(StandardCharsets.UTF_8)));
+        keySignParameters.setValue(ENCODER.encodeToString(HashUtil.hash(clearText.getBytes(StandardCharsets.UTF_8), HashAlgorithm.SHA256)));
 
         //when
         final ResponseEntity<KeySignResult> signature = underTest
@@ -208,7 +206,7 @@ class KeyCryptoControllerTest {
 
         final KeyVerifyParameters verifyParameters = new KeyVerifyParameters();
         verifyParameters.setAlgorithm(SignatureAlgorithm.PS256);
-        verifyParameters.setDigest(ENCODER.encodeToString(clearText.getBytes(StandardCharsets.UTF_8)));
+        verifyParameters.setDigest(ENCODER.encodeToString(HashUtil.hash(clearText.getBytes(StandardCharsets.UTF_8), HashAlgorithm.SHA256)));
         verifyParameters.setValue(signature.getBody().getValue());
         final ResponseEntity<KeyVerifyResult> actual = underTest
                 .verify(KEY_NAME_1, KEY_VERSION_3, HTTPS_LOCALHOST_8443, verifyParameters);

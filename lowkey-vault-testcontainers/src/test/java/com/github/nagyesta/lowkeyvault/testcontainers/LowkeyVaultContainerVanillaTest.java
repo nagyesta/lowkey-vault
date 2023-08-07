@@ -34,7 +34,6 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     public static Stream<Arguments> invalidDataProvider() {
         return Stream.<Arguments>builder()
                 .add(Arguments.of((Collection<String>) null))
-                .add(Arguments.of(Collections.singleton(null)))
                 .add(Arguments.of(Collections.singleton("")))
                 .add(Arguments.of(Collections.singleton(" ")))
                 .add(Arguments.of(Collections.singleton("- -")))

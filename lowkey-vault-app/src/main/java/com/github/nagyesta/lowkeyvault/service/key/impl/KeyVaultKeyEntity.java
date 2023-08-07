@@ -1,6 +1,7 @@
 package com.github.nagyesta.lowkeyvault.service.key.impl;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.SignatureAlgorithm;
 import com.github.nagyesta.lowkeyvault.service.common.impl.KeyVaultBaseEntity;
 import com.github.nagyesta.lowkeyvault.service.exception.CryptoException;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
@@ -10,6 +11,9 @@ import lombok.NonNull;
 import org.slf4j.Logger;
 import org.springframework.util.Assert;
 
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Signature;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -84,4 +88,31 @@ public abstract class KeyVaultKeyEntity<T, S> extends KeyVaultBaseEntity<Version
         }
     }
 
+    protected void validateGenericSignOrVerifyInputs(
+            final byte[] digest, final SignatureAlgorithm signatureAlgorithm, final KeyOperation keyOperation) {
+        Assert.state(getOperations().contains(keyOperation),
+                getId() + " does not have " + keyOperation.name() + " operation assigned.");
+        Assert.state(isEnabled(), getId() + " is not enabled.");
+        signatureAlgorithm.getHashAlgorithm().verifyDigestLength(digest);
+    }
+
+    protected Callable<byte[]> signCallable(
+            final byte[] digest, final SignatureAlgorithm signatureAlgorithm, final PrivateKey privateKey) {
+        return () -> {
+            final Signature sign = signatureAlgorithm.getSignatureInstance();
+            sign.initSign(privateKey);
+            sign.update(signatureAlgorithm.transformDigest(digest));
+            return sign.sign();
+        };
+    }
+
+    protected Callable<Boolean> verifyCallable(
+            final byte[] digest, final SignatureAlgorithm signatureAlgorithm, final byte[] signature, final PublicKey publicKey) {
+        return () -> {
+            final Signature verify = signatureAlgorithm.getSignatureInstance();
+            verify.initVerify(publicKey);
+            verify.update(signatureAlgorithm.transformDigest(digest));
+            return verify.verify(signature);
+        };
+    }
 }

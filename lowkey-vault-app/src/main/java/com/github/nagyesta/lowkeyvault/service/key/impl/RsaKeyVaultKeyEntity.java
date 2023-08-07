@@ -15,9 +15,9 @@ import org.springframework.util.Assert;
 import javax.crypto.Cipher;
 import java.math.BigInteger;
 import java.security.KeyPair;
-import java.security.Signature;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.concurrent.Callable;
 
 import static com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil.generateRsa;
 
@@ -125,27 +125,17 @@ public class RsaKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, Integer> im
 
     @Override
     public byte[] signBytes(final byte[] digest, final SignatureAlgorithm signatureAlgorithm) {
-        Assert.state(getOperations().contains(KeyOperation.SIGN), getId() + " does not have SIGN operation assigned.");
-        Assert.state(isEnabled(), getId() + " is not enabled.");
-        return doCrypto(() -> {
-            final Signature rsaSign = Signature.getInstance(signatureAlgorithm.getAlg(), KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
-            rsaSign.initSign(getKey().getPrivate());
-            rsaSign.update(digest);
-            return rsaSign.sign();
-        }, "Cannot sign message.", log);
+        validateGenericSignOrVerifyInputs(digest, signatureAlgorithm, KeyOperation.SIGN);
+        final Callable<byte[]> signCallable = signCallable(digest, signatureAlgorithm, getKey().getPrivate());
+        return doCrypto(signCallable, "Cannot sign message.", log);
     }
 
     @Override
     public boolean verifySignedBytes(final byte[] digest,
                                      final SignatureAlgorithm signatureAlgorithm,
                                      final byte[] signature) {
-        Assert.state(getOperations().contains(KeyOperation.VERIFY), getId() + " does not have VERIFY operation assigned.");
-        Assert.state(isEnabled(), getId() + " is not enabled.");
-        return doCrypto(() -> {
-            final Signature rsaVerify = Signature.getInstance(signatureAlgorithm.getAlg(), KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
-            rsaVerify.initVerify(getKey().getPublic());
-            rsaVerify.update(digest);
-            return rsaVerify.verify(signature);
-        }, "Cannot verify digest message.", log);
+        validateGenericSignOrVerifyInputs(digest, signatureAlgorithm, KeyOperation.VERIFY);
+        final Callable<Boolean> verifyCallable = verifyCallable(digest, signatureAlgorithm, signature, getKey().getPublic());
+        return doCrypto(verifyCallable, "Cannot verify digest message.", log);
     }
 }

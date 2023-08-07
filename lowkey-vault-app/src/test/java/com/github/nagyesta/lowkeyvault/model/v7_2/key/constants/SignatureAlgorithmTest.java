@@ -58,19 +58,6 @@ class SignatureAlgorithmTest {
         Assertions.assertFalse(actual);
     }
 
-
-    @Test
-    void testSupportsDigestLengthShouldReturnFalseInCaseOfRsaAlgorithm() {
-        //given
-        final SignatureAlgorithm underTest = SignatureAlgorithm.PS256;
-
-        //when
-        final boolean actual = underTest.supportsDigestLength(0);
-
-        //then
-        Assertions.assertFalse(actual);
-    }
-
     @ParameterizedTest
     @MethodSource("valueProvider")
     void testForValueShouldReturnExpectedAlgorithmWhenCalled(final String inout, final SignatureAlgorithm expected) {
@@ -78,19 +65,6 @@ class SignatureAlgorithmTest {
 
         //when
         final SignatureAlgorithm actual = SignatureAlgorithm.forValue(inout);
-
-        //then
-        Assertions.assertEquals(expected, actual);
-    }
-
-    @ParameterizedTest
-    @MethodSource("digestLengthProvider")
-    void testSupportsDigestLengthShouldReturnTrueOnlyWhenCalledWithExpectedDigest(
-            final SignatureAlgorithm underTest, final int input, final boolean expected) {
-        //given
-
-        //when
-        final boolean actual = underTest.supportsDigestLength(input);
 
         //then
         Assertions.assertEquals(expected, actual);

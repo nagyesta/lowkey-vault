@@ -338,9 +338,7 @@ public class KeysStepDefs extends CommonAssertions {
     public void theCreatedKeyIsUsedToSignClearTextWithAlgorithm(final byte[] text, final SignatureAlgorithm algorithm) {
         final String keyId = context.getLastResult().getKey().getId();
         context.setCryptographyClient(context.getProvider().getCryptoClient(keyId, context.getCryptoServiceVersion()));
-        final byte[] digest = hash(text, algorithm.toString());
-        final SignResult signResult = context.getCryptographyClient()
-                .sign(algorithm, digest);
+        final SignResult signResult = context.getCryptographyClient().signData(algorithm, text);
         context.setSignatureResult(signResult.getSignature());
     }
 
@@ -378,18 +376,16 @@ public class KeysStepDefs extends CommonAssertions {
     public void theSignValueIsVerifiedWithAlgorithm(final byte[] text, final SignatureAlgorithm algorithm) {
         final String keyId = context.getLastResult().getKey().getId();
         context.setCryptographyClient(context.getProvider().getCryptoClient(keyId, context.getCryptoServiceVersion()));
-        final byte[] digest = hash(text, algorithm.toString());
-        final VerifyResult verifyResult = context.getCryptographyClient().verify(algorithm, digest, context.getSignatureResult());
+        final VerifyResult verifyResult = context.getCryptographyClient().verifyData(algorithm, text, context.getSignatureResult());
         context.setVerifyResult(verifyResult.isValid());
     }
 
     @And("the EC signature of {clearText} is verified using the original public key with {signAlgorithm}")
     public void theEcSignValueIsVerifiedUsingOriginalPublicKeyWithAlgorithm(final byte[] text, final SignatureAlgorithm algorithm)
             throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-        final byte[] digest = hash(text, algorithm.toString());
-        final Signature ecVerify = Signature.getInstance(getAsymmetricSignatureAlgorithm(algorithm));
+        final Signature ecVerify = Signature.getInstance(getAsymmetricSignatureAlgorithm(algorithm), BOUNCY_CASTLE_PROVIDER);
         ecVerify.initVerify(context.getKeyPair().getPublic());
-        ecVerify.update(digest);
+        ecVerify.update(text);
         final boolean result = ecVerify.verify(context.getSignatureResult());
         context.setVerifyResult(result);
     }
@@ -397,10 +393,9 @@ public class KeysStepDefs extends CommonAssertions {
     @And("the RSA signature of {clearText} is verified using the original public key with {signAlgorithm}")
     public void theRsaSignValueIsVerifiedUsingOriginalPublicKeyWithAlgorithm(final byte[] text, final SignatureAlgorithm algorithm)
             throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-        final byte[] digest = hash(text, algorithm.toString());
         final Signature rsaVerify = Signature.getInstance(getAsymmetricSignatureAlgorithm(algorithm), BOUNCY_CASTLE_PROVIDER);
         rsaVerify.initVerify(context.getKeyPair().getPublic());
-        rsaVerify.update(digest);
+        rsaVerify.update(text);
         final boolean result = rsaVerify.verify(context.getSignatureResult());
         context.setVerifyResult(result);
     }
@@ -450,16 +445,6 @@ public class KeysStepDefs extends CommonAssertions {
         final KeyVaultKey keyVaultKey = context.getClient(context.getKeyServiceVersion()).rotateKey(name);
         assertTrue(!oldId.equals(keyVaultKey.getId()));
         context.addFetchedKey(name, keyVaultKey);
-    }
-
-    private byte[] hash(final byte[] text, final String algorithm) {
-        try {
-            final MessageDigest md = MessageDigest.getInstance("SHA-" + algorithm.substring(2, 5));
-            md.update(text);
-            return md.digest();
-        } catch (final NoSuchAlgorithmException e) {
-            throw new IllegalArgumentException(e.getMessage(), e);
-        }
     }
 
     private byte[] getIv() {
@@ -532,13 +517,13 @@ public class KeysStepDefs extends CommonAssertions {
 
     private String getAsymmetricSignatureAlgorithm(final SignatureAlgorithm algorithm) {
         if (algorithm == ES256) {
-            return "NONEwithECDSAinP1363Format";
+            return "SHA256withPLAIN-ECDSA";
         } else if (algorithm == ES256K) {
-            return "NONEwithECDSAinP1363Format";
+            return "SHA256withPLAIN-ECDSA";
         } else if (algorithm == ES384) {
-            return "NONEwithECDSAinP1363Format";
+            return "SHA384withPLAIN-ECDSA";
         } else if (algorithm == ES512) {
-            return "NONEwithECDSAinP1363Format";
+            return "SHA512withPLAIN-ECDSA";
         } else if (algorithm == PS256) {
             return "SHA256withRSAandMGF1";
         } else if (algorithm == PS384) {

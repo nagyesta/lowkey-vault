@@ -96,7 +96,7 @@ public enum KeyUsageEnum {
         return new MergingKeyUsageCollector();
     }
 
-    private static class MergingKeyUsageCollector implements Collector<KeyUsageEnum, AtomicInteger, KeyUsage> {
+    private static final class MergingKeyUsageCollector implements Collector<KeyUsageEnum, AtomicInteger, KeyUsage> {
         @Override
         public Supplier<AtomicInteger> supplier() {
             return AtomicInteger::new;

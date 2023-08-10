@@ -80,7 +80,7 @@ class CertificateLifetimeActionSerializationIntegrationTest {
     }
 
     @Data
-    private static class TestObjectType {
+    private static final class TestObjectType {
         @JsonSerialize(using = CertificateLifetimeActionSerializer.class)
         @JsonDeserialize(using = CertificateLifetimeActionDeserializer.class)
         private CertificateLifetimeActionActivity action;

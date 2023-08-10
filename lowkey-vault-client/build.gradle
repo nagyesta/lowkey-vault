@@ -28,6 +28,7 @@ dependencies {
     annotationProcessor libs.lombok
     testImplementation libs.mockito.core
     testImplementation libs.jupiter
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation libs.logback.classic
 }
 

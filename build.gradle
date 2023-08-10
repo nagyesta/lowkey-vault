@@ -70,12 +70,15 @@ configure(subprojects.findAll({
 
     version = rootProject.version
     //noinspection GroovyUnusedAssignment
-    sourceCompatibility = '11'
     repositories {
         mavenCentral()
     }
 
     java {
+        sourceCompatibility = JavaVersion.VERSION_11
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(11)
+        }
         withJavadocJar()
         withSourcesJar()
     }

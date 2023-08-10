@@ -18,8 +18,8 @@ cucumber = "7.13.0"
 mockitoCore = "5.4.0"
 jupiter = "5.10.0"
 abortMission = "4.2.30"
-checkstyle = "9.2.1"
-jacoco = "0.8.2"
+checkstyle = "10.12.2"
+jacoco = "0.8.10"
 jacksonBom = { strictly = "2.15.2" }
 jackson = { strictly = "2.15.2" }
 openApiUi = "1.7.0"

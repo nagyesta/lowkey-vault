@@ -94,7 +94,7 @@ class Test {
         final DockerImageName imageName = DockerImageName.parse("nagyesta/lowkey-vault:1.13.0");
         final LowkeyVaultContainer lowkeyVaultContainer = lowkeyVault(imageName)
                 .noAutoRegistration()  
-                .importFile(importFile)
+                .importFile(importFile, BindMode.READ_ONLY)
                 .logicalPort(8443)
                 .logicalHost("127.0.0.1")
                 .hostPort(8443)

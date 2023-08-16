@@ -36,6 +36,14 @@ export LOWKEY_ARGS="--server.port=8444"
 docker run --rm --name lowkey -e LOWKEY_ARGS -d -p 8444:8444 nagyesta/lowkey-vault:<version>
 ```
 
+### External configuration
+
+Since Lowkey Vault is a Spring Boot application, the default mechanism for Spring Boot external 
+configuration can work as well. For example, if there is a ./config/application.properties file relative 
+to the folder where the Jar is running, the contents will be picked up automatically. To utilize this, the
+recommended option is to attach a *.properties file to /config/application.properties (path inside the
+container) using a volume.
+
 ## ARM builds
 
 Lowkey Vault offers a multi-arch variant using Buildx. You can find the relevant project [here](https://github.com/nagyesta/lowkey-vault-docker-buildx).

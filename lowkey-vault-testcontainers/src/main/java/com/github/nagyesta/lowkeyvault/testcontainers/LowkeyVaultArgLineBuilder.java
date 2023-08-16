@@ -53,7 +53,7 @@ public class LowkeyVaultArgLineBuilder {
 
     public LowkeyVaultArgLineBuilder customSSLCertificate(final File file, final String password, final StoreType type) {
         if (file != null) {
-            args.add("--server.ssl.key-store=/import/cert.store");
+            args.add("--server.ssl.key-store=/config/cert.store");
             args.add("--server.ssl.key-store-type=" + Optional.ofNullable(type).orElse(StoreType.PKCS12).name());
             args.add("--server.ssl.key-store-password=" + Optional.ofNullable(password).orElse(""));
         }

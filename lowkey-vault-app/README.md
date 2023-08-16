@@ -115,3 +115,9 @@ Example:
 ```shell
 java -jar lowkey-vault-app-<version>.jar --LOWKEY_IMPORT_LOCATION=export.json --LOWKEY_IMPORT_TEMPLATE_HOST=127.0.0.1 --LOWKEY_IMPORT_TEMPLATE_PORT=443
 ```
+
+### External configuration
+
+Since Lowkey Vault is a Spring Boot application, the default mechanism for Spring Boot external configuration can work as well. For example,
+if there is a ./config/application.properties file relative to the folder where you are running Lowkey Vault, the contents will be picked up
+automatically. For more information please see [the Spring Boot documentation](https://docs.spring.io/spring-boot/docs/2.1.9.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-application-property-files).

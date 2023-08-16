@@ -376,4 +376,60 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         //then + exceptions
     }
 
+    @Test
+    void testBuilderShouldThrowExceptionWhenCalledWithNullExternalConfigurationFile() {
+        //given
+        final DockerImageName imageName = DockerImageName
+                .parse(getCurrentLowkeyVaultImageName())
+                .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> lowkeyVault(imageName).externalConfigFile(null));
+
+        //then + exceptions
+    }
+
+    @Test
+    void testBuilderShouldThrowExceptionWhenCalledWithAnExternalConfigurationFileThatIsNotAPropertiesFile() {
+        //given
+        final DockerImageName imageName = DockerImageName
+                .parse(getCurrentLowkeyVaultImageName())
+                .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
+        final File certFile = new File(Objects.requireNonNull(getClass().getResource("/cert.jks")).getFile());
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> lowkeyVault(imageName).externalConfigFile(certFile));
+
+        //then + exceptions
+    }
+
+    @Test
+    void testContainerShouldStartUpWhenCalledWithExternalConfiguration() {
+        //given
+        final DockerImageName imageName = DockerImageName
+                .parse(getCurrentLowkeyVaultImageName())
+                .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
+        //noinspection ConstantConditions
+        final File configFile = new File(getClass().getResource("/config.properties").getFile());
+        final LowkeyVaultContainer underTest = lowkeyVault(imageName)
+                .vaultAliases(Map.of(LOCALHOST, Set.of(EXAMPLE_COM)))
+                .externalConfigFile(configFile)
+                .build()
+                .withImagePullPolicy(PullPolicy.defaultPolicy());
+
+        //when
+        underTest.start();
+
+        //then
+        final String authority = EXAMPLE_COM;
+        final String endpoint = "https://" + authority;
+        final AuthorityOverrideFunction authorityOverrideFunction = new AuthorityOverrideFunction(
+                authority,
+                underTest.getEndpointAuthority().replace(LOCALHOST, "127.0.0.1"));
+        final TokenCredential credentials = new BasicAuthenticationCredential(underTest.getUsername(), underTest.getPassword());
+        final ApacheHttpClient httpClient = new ApacheHttpClient(authorityOverrideFunction,
+                new TrustSelfSignedStrategy(), new DefaultHostnameVerifier());
+        verifyConnectionIsWorking(endpoint, httpClient, credentials);
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.testcontainers;
 
+import org.testcontainers.containers.BindMode;
 import org.testcontainers.utility.DockerImageName;
 
 import java.io.File;
@@ -11,6 +12,7 @@ public final class LowkeyVaultContainerBuilder {
     private Set<String> vaultNames = Set.of();
     private Map<String, Set<String>> aliasMap = Map.of();
     private File importFile;
+    private BindMode importFileBindMode;
     private File customSslCertStore;
     private String customSslCertPassword;
     private StoreType customSslCertType;
@@ -19,6 +21,7 @@ public final class LowkeyVaultContainerBuilder {
     private String logicalHost;
     private List<String> additionalArgs = List.of();
     private boolean debug;
+    private File externalConfigFile;
 
     public static LowkeyVaultContainerBuilder lowkeyVault(final DockerImageName dockerImageName) {
         return new LowkeyVaultContainerBuilder(dockerImageName);
@@ -65,10 +68,26 @@ public final class LowkeyVaultContainerBuilder {
     }
 
     public LowkeyVaultContainerBuilder importFile(final File importFile) {
+        return importFile(importFile, BindMode.READ_ONLY);
+    }
+
+    public LowkeyVaultContainerBuilder importFile(final File importFile, final BindMode bindMode) {
         if (importFile == null) {
             throw new IllegalArgumentException("Import file cannot be null.");
         }
         this.importFile = importFile;
+        this.importFileBindMode = bindMode;
+        return this;
+    }
+
+    public LowkeyVaultContainerBuilder externalConfigFile(final File externalConfigFile) {
+        if (externalConfigFile == null) {
+            throw new IllegalArgumentException("External configuration file cannot be null.");
+        }
+        if (!externalConfigFile.getName().endsWith(".properties")) {
+            throw new IllegalArgumentException("External configuration file must be a *.properties file.");
+        }
+        this.externalConfigFile = externalConfigFile;
         return this;
     }
 
@@ -139,8 +158,16 @@ public final class LowkeyVaultContainerBuilder {
         return importFile;
     }
 
+    public BindMode getImportFileBindMode() {
+        return importFileBindMode;
+    }
+
     public File getCustomSslCertStore() {
         return customSslCertStore;
+    }
+
+    public File getExternalConfigFile() {
+        return externalConfigFile;
     }
 
     public String getCustomSslCertPassword() {

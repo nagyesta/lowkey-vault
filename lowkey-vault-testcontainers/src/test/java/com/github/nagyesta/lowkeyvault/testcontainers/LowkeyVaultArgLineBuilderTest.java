@@ -146,7 +146,7 @@ class LowkeyVaultArgLineBuilderTest {
     void testCustomSslCertificateShouldSetArgumentWhenCalledWithValidFile() {
         //given
         final LowkeyVaultArgLineBuilder underTest = new LowkeyVaultArgLineBuilder();
-        final List<String> expected = List.of("--server.ssl.key-store=/import/cert.store",
+        final List<String> expected = List.of("--server.ssl.key-store=/config/cert.store",
                 "--server.ssl.key-store-type=JKS",
                 "--server.ssl.key-store-password=pass");
 

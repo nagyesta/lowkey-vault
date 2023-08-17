@@ -2,9 +2,9 @@ package com.github.nagyesta.lowkeyvault;
 
 import com.azure.security.keyvault.keys.models.KeyCurveName;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.math.BigInteger;
@@ -23,18 +23,18 @@ public final class KeyGenUtil {
         throw new IllegalCallerException("Utility cannot be instantiated.");
     }
 
-    @NonNull
+    @Nonnull
     public static SecretKey generateAes(@Nullable final Integer keySize) {
         final int size = Objects.requireNonNullElse(keySize, 256);
         return keyGenerator("AES", size).generateKey();
     }
 
-    @NonNull
-    public static KeyPair generateEc(@NonNull final KeyCurveName keyCurveName) {
+    @Nonnull
+    public static KeyPair generateEc(@Nonnull final KeyCurveName keyCurveName) {
         return keyPairGenerator("EC", getAlgSpec(keyCurveName)).generateKeyPair();
     }
 
-    @NonNull
+    @Nonnull
     public static KeyPair generateRsa(@Nullable final Integer keySize, @Nullable final BigInteger publicExponent) {
         final int nonNullKeySize = Objects.requireNonNullElse(keySize, 2048);
         final BigInteger notNullPublicExponent = Objects.requireNonNullElse(publicExponent, BigInteger.valueOf(65537));

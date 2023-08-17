@@ -7,9 +7,9 @@ import java.time.Period;
 
 public interface LifetimeActionTrigger {
 
-    Period getTimePeriod();
+    Period timePeriod();
 
-    LifetimeActionTriggerType getTriggerType();
+    LifetimeActionTriggerType triggerType();
 
     boolean shouldTrigger(OffsetDateTime created, OffsetDateTime expiry);
 

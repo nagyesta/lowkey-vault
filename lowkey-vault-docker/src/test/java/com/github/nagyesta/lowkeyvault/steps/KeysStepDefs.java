@@ -6,13 +6,13 @@ import com.azure.security.keyvault.keys.cryptography.models.*;
 import com.azure.security.keyvault.keys.models.*;
 import com.github.nagyesta.lowkeyvault.KeyGenUtil;
 import com.github.nagyesta.lowkeyvault.context.KeyTestContext;
+import com.github.nagyesta.lowkeyvault.context.TestContextConfig;
 import com.github.nagyesta.lowkeyvault.http.ApacheHttpClientProvider;
 import com.github.nagyesta.lowkeyvault.http.AuthorityOverrideFunction;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -37,9 +37,11 @@ import static com.github.nagyesta.lowkeyvault.context.TestContextConfig.CONTAINE
 public class KeysStepDefs extends CommonAssertions {
 
     private static final BouncyCastleProvider BOUNCY_CASTLE_PROVIDER = new BouncyCastleProvider();
-    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
-    @Autowired
-    private KeyTestContext context;
+    private final KeyTestContext context;
+
+    public KeysStepDefs(final TestContextConfig config) {
+        context = config.keyContext();
+    }
 
     @Given("key API version {api} is used")
     public void apiVersionApiIsUsed(final String version) {

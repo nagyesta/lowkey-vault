@@ -348,7 +348,7 @@ class KeyRotationPolicyTest {
         final KeyLifetimeActionTrigger rotateTrigger = new KeyLifetimeActionTrigger(rotatePeriod, rotateTriggerType);
         final KeyLifetimeAction rotate = new KeyLifetimeAction(LifetimeActionType.ROTATE, rotateTrigger);
         final KeyRotationPolicy underTest = new KeyRotationPolicy(UNVERSIONED_KEY_ENTITY_ID_1, expiryPeriod,
-                Map.of(notify.getActionType(), notify, rotate.getActionType(), rotate));
+                Map.of(notify.actionType(), notify, rotate.actionType(), rotate));
 
         //when
         if (valid) {

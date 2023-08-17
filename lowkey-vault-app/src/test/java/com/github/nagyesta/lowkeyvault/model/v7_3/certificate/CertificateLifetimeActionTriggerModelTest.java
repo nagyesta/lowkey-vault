@@ -94,8 +94,8 @@ class CertificateLifetimeActionTriggerModelTest {
         final CertificateLifetimeActionTrigger actual = underTest.asTriggerEntity();
 
         //then
-        Assertions.assertEquals(DAYS_BEFORE_EXPIRY, actual.getTriggerType());
-        Assertions.assertEquals(expectedDays, actual.getValue());
+        Assertions.assertEquals(DAYS_BEFORE_EXPIRY, actual.triggerType());
+        Assertions.assertEquals(expectedDays, actual.value());
     }
 
     @Test
@@ -109,7 +109,7 @@ class CertificateLifetimeActionTriggerModelTest {
         final CertificateLifetimeActionTrigger actual = underTest.asTriggerEntity();
 
         //then
-        Assertions.assertEquals(LIFETIME_PERCENTAGE, actual.getTriggerType());
-        Assertions.assertEquals(expectedDays, actual.getValue());
+        Assertions.assertEquals(LIFETIME_PERCENTAGE, actual.triggerType());
+        Assertions.assertEquals(expectedDays, actual.value());
     }
 }

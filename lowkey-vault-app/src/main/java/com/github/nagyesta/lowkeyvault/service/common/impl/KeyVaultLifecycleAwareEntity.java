@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.service.common.impl;
 
+import lombok.Getter;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
@@ -7,6 +8,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
 
+@Getter
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class KeyVaultLifecycleAwareEntity {
     private OffsetDateTime created;
@@ -23,36 +25,16 @@ public class KeyVaultLifecycleAwareEntity {
         this.expiry = Optional.empty();
     }
 
-    public boolean isEnabled() {
-        return enabled;
-    }
-
     public void setEnabled(final boolean enabled) {
         this.enabled = enabled;
-    }
-
-    public Optional<OffsetDateTime> getNotBefore() {
-        return notBefore;
     }
 
     public void setNotBefore(final OffsetDateTime notBefore) {
         this.notBefore = Optional.ofNullable(notBefore);
     }
 
-    public Optional<OffsetDateTime> getExpiry() {
-        return expiry;
-    }
-
     public void setExpiry(final OffsetDateTime expiry) {
         this.expiry = Optional.ofNullable(expiry);
-    }
-
-    public OffsetDateTime getCreated() {
-        return created;
-    }
-
-    public OffsetDateTime getUpdated() {
-        return updated;
     }
 
     public void timeShift(final int offsetSeconds) {

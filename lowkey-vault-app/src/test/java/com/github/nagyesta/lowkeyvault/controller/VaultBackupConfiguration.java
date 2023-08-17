@@ -18,13 +18,13 @@ import com.github.nagyesta.lowkeyvault.template.backup.BackupTemplateProcessor;
 import com.github.nagyesta.lowkeyvault.template.backup.TimeHelperSource;
 import com.github.nagyesta.lowkeyvault.template.backup.VaultImporter;
 import com.github.nagyesta.lowkeyvault.template.backup.VaultImporterProperties;
+import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 
-import javax.validation.Validator;
 import java.io.File;
 import java.util.Objects;
 

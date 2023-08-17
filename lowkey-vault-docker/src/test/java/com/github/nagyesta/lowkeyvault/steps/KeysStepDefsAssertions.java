@@ -3,9 +3,9 @@ package com.github.nagyesta.lowkeyvault.steps;
 import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.security.keyvault.keys.models.*;
 import com.github.nagyesta.lowkeyvault.context.KeyTestContext;
+import com.github.nagyesta.lowkeyvault.context.TestContextConfig;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.time.temporal.ChronoUnit;
@@ -19,9 +19,11 @@ import static com.github.nagyesta.lowkeyvault.context.KeyTestContext.NOW;
 
 public class KeysStepDefsAssertions extends CommonAssertions {
 
-    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
-    @Autowired
-    private KeyTestContext context;
+    private final KeyTestContext context;
+
+    public KeysStepDefsAssertions(final TestContextConfig config) {
+        this.context = config.keyContext();
+    }
 
     @Then("the created key is using EC algorithm with {ecCurveName} curve name and {int} bytes length")
     public void theCreatedKeyIsUsingEcAlgorithmWithNBytesBytesLength(final KeyCurveName curveName, final int nBytes) {

@@ -1,6 +1,5 @@
 package com.github.nagyesta.lowkeyvault.model.json.util;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -29,7 +28,7 @@ public abstract class AbstractBase64ZipDeserializer<E> extends JsonDeserializer<
     }
 
     @Override
-    public E deserialize(final JsonParser jsonParser, final DeserializationContext context) throws IOException, JacksonException {
+    public E deserialize(final JsonParser jsonParser, final DeserializationContext context) throws IOException {
         final Optional<byte[]> bytes = Optional.ofNullable(base64Deserializer.deserializeBase64(jsonParser));
         return bytes.filter(v -> v.length > 0)
                 .map(this::decompressWrappedObject)

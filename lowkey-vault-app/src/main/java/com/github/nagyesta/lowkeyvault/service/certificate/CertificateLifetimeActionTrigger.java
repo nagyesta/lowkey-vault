@@ -1,17 +1,10 @@
 package com.github.nagyesta.lowkeyvault.service.certificate;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NonNull;
 
 import java.time.OffsetDateTime;
 
-@Getter
-@EqualsAndHashCode
-public class CertificateLifetimeActionTrigger {
-
-    private final int value;
-    private final CertificateLifetimeActionTriggerType triggerType;
+public record CertificateLifetimeActionTrigger(CertificateLifetimeActionTriggerType triggerType, int value) {
 
     public CertificateLifetimeActionTrigger(
             @NonNull final CertificateLifetimeActionTriggerType triggerType, final int value) {

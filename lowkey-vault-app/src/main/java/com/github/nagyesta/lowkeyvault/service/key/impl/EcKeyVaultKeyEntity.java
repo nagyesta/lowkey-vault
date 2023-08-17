@@ -3,6 +3,7 @@ package com.github.nagyesta.lowkeyvault.service.key.impl;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.*;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyEcKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
+import com.github.nagyesta.lowkeyvault.service.key.util.Asn1ConverterUtil;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
@@ -99,5 +100,15 @@ public class EcKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, KeyCurveName
         Assert.state(signatureAlgorithm.isCompatibleWithCurve(getKeyCurveName()), getId() + " is not using the right key curve.");
         final Callable<Boolean> verifyCallable = verifyCallable(digest, signatureAlgorithm, signature, getKey().getPublic());
         return doCrypto(verifyCallable, "Cannot verify digest message.", log);
+    }
+
+    @Override
+    protected byte[] postProcessGeneratedSignature(final byte[] signature) throws Exception {
+        return Asn1ConverterUtil.convertFromAsn1toRaw(signature, getKeyCurveName().getByteLength());
+    }
+
+    @Override
+    protected byte[] preProcessVerifiableSignature(final byte[] rawSignature) throws Exception {
+        return Asn1ConverterUtil.convertFromRawToAsn1(rawSignature);
     }
 }

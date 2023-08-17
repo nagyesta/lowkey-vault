@@ -1,6 +1,7 @@
 package com.github.nagyesta.lowkeyvault.steps;
 
 import com.github.nagyesta.lowkeyvault.context.ManagementTestContext;
+import com.github.nagyesta.lowkeyvault.context.TestContextConfig;
 import com.github.nagyesta.lowkeyvault.http.ApacheHttpClientProvider;
 import com.github.nagyesta.lowkeyvault.http.AuthorityOverrideFunction;
 import com.github.nagyesta.lowkeyvault.http.management.RecoveryLevel;
@@ -10,7 +11,6 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.URI;
 import java.time.OffsetDateTime;
@@ -20,9 +20,11 @@ import static com.github.nagyesta.lowkeyvault.context.TestContextConfig.CONTAINE
 
 public class ManagementStepDefs extends CommonAssertions {
 
-    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
-    @Autowired
-    private ManagementTestContext context;
+    private final ManagementTestContext context;
+
+    public ManagementStepDefs(final TestContextConfig config) {
+        this.context = config.managementContext();
+    }
 
     @Given("a vault is created with name {name}")
     public void aVaultIsCreatedWithName(final String vaultName) {

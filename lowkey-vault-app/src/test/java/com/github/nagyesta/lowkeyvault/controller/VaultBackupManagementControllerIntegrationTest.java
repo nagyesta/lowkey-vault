@@ -169,7 +169,7 @@ class VaultBackupManagementControllerIntegrationTest {
         final CertificateKeyModel keyProperties = certificate.getPolicy().getKeyProperties();
         Assertions.assertEquals(EXPECTED_SUBJECT, x509Properties.getSubject());
         Assertions.assertEquals(CertContentType.PKCS12.getMimeType(), secretProperties.getContentType());
-        Assertions.assertIterableEquals(Set.of(EXPECTED_SANS), x509Properties.getSubjectAlternativeNames().getDnsNames());
+        Assertions.assertIterableEquals(Set.of(EXPECTED_SANS), x509Properties.getSubjectAlternativeNames().dnsNames());
         Assertions.assertEquals(EXPECTED_KEY_SIZE, keyProperties.getKeySize());
         Assertions.assertEquals(KeyType.RSA, keyProperties.getKeyType());
     }

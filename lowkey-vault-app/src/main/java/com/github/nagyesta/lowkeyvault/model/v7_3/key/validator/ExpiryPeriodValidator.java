@@ -2,9 +2,9 @@ package com.github.nagyesta.lowkeyvault.model.v7_3.key.validator;
 
 import com.github.nagyesta.lowkeyvault.service.key.constants.LifetimeActionTriggerType;
 import com.github.nagyesta.lowkeyvault.service.key.util.PeriodUtil;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 import java.time.Period;
 import java.util.Optional;
 

@@ -1,10 +1,8 @@
 package com.github.nagyesta.lowkeyvault.sequential;
 
-import com.github.nagyesta.lowkeyvault.context.TestContextConfig;
-import io.cucumber.spring.CucumberContextConfiguration;
+import io.cucumber.picocontainer.PicoFactory;
 import io.cucumber.testng.AbstractTestNGCucumberTests;
 import io.cucumber.testng.CucumberOptions;
-import org.springframework.context.annotation.Import;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -15,9 +13,8 @@ import org.testng.annotations.Test;
                 "com.github.nagyesta.lowkeyvault.context"},
         features = {"classpath:/com/github/nagyesta/lowkeyvault/management"},
         plugin = {"com.github.nagyesta.abortmission.booster.cucumber.AbortMissionPlugin",
-                "html:build/reports/cucumber/cucumber-sequential-report.html"})
-@CucumberContextConfiguration
-@Import(value = TestContextConfig.class)
+                "html:build/reports/cucumber/cucumber-sequential-report.html"},
+        objectFactory = PicoFactory.class)
 @Test(dependsOnGroups = "parallel")
 public class RunSequentialCucumberTest extends AbstractTestNGCucumberTests {
 

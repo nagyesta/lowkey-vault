@@ -7,6 +7,7 @@ import com.github.nagyesta.lowkeyvault.service.exception.CryptoException;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
+import lombok.Getter;
 import lombok.NonNull;
 import org.slf4j.Logger;
 import org.springframework.util.Assert;
@@ -17,7 +18,6 @@ import java.security.Signature;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
 
 /**
  * Common Key entity base class.
@@ -25,8 +25,10 @@ import java.util.stream.Collectors;
  * @param <T> The type of the key.
  * @param <S> The type of the key parameter.
  */
+@SuppressWarnings("LombokGetterMayBeUsed")
 public abstract class KeyVaultKeyEntity<T, S> extends KeyVaultBaseEntity<VersionedKeyEntityId> implements ReadOnlyKeyVaultKeyEntity {
 
+    @Getter
     private final T key;
     private final S keyParam;
     private final boolean hsm;
@@ -44,10 +46,6 @@ public abstract class KeyVaultKeyEntity<T, S> extends KeyVaultBaseEntity<Version
         this.keyParam = keyParam;
         this.hsm = hsm;
         this.operations = Collections.emptyList();
-    }
-
-    public T getKey() {
-        return key;
     }
 
     protected S getKeyParam() {
@@ -69,7 +67,7 @@ public abstract class KeyVaultKeyEntity<T, S> extends KeyVaultBaseEntity<Version
     }
 
     public void setOperations(final List<KeyOperation> operations) {
-        final List<KeyOperation> invalid = operations.stream().filter(this.disallowedOperations()::contains).collect(Collectors.toList());
+        final List<KeyOperation> invalid = operations.stream().filter(this.disallowedOperations()::contains).toList();
         Assert.isTrue(invalid.isEmpty(), "Operation not allowed for this key type: " + invalid + ".");
         this.updatedNow();
         this.operations = List.copyOf(operations);
@@ -102,17 +100,27 @@ public abstract class KeyVaultKeyEntity<T, S> extends KeyVaultBaseEntity<Version
             final Signature sign = signatureAlgorithm.getSignatureInstance();
             sign.initSign(privateKey);
             sign.update(signatureAlgorithm.transformDigest(digest));
-            return sign.sign();
+            final byte[] signature = sign.sign();
+            return postProcessGeneratedSignature(signature);
         };
     }
 
     protected Callable<Boolean> verifyCallable(
-            final byte[] digest, final SignatureAlgorithm signatureAlgorithm, final byte[] signature, final PublicKey publicKey) {
+            final byte[] digest, final SignatureAlgorithm signatureAlgorithm, final byte[] rawSignature, final PublicKey publicKey) {
         return () -> {
             final Signature verify = signatureAlgorithm.getSignatureInstance();
             verify.initVerify(publicKey);
+            final byte[] signature = preProcessVerifiableSignature(rawSignature);
             verify.update(signatureAlgorithm.transformDigest(digest));
             return verify.verify(signature);
         };
+    }
+
+    protected byte[] postProcessGeneratedSignature(final byte[] signature) throws Exception {
+        return signature;
+    }
+
+    protected byte[] preProcessVerifiableSignature(final byte[] rawSignature) throws Exception {
+        return rawSignature;
     }
 }

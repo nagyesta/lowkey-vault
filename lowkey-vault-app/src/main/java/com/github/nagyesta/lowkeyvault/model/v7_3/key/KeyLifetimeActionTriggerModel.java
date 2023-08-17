@@ -36,8 +36,8 @@ public class KeyLifetimeActionTriggerModel {
     }
 
     public KeyLifetimeActionTriggerModel(@NonNull final LifetimeActionTrigger trigger) {
-        this.triggerType = trigger.getTriggerType();
-        this.triggerPeriod = trigger.getTimePeriod();
+        this.triggerType = trigger.triggerType();
+        this.triggerPeriod = trigger.timePeriod();
     }
 
     @JsonGetter

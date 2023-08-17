@@ -6,14 +6,15 @@ import com.github.nagyesta.lowkeyvault.model.common.backup.*;
 import com.github.nagyesta.lowkeyvault.model.management.VaultBackupListModel;
 import com.github.nagyesta.lowkeyvault.model.management.VaultBackupModel;
 import com.github.nagyesta.lowkeyvault.model.management.VaultModel;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -29,9 +30,13 @@ public class VaultImporter implements InitializingBean {
     private final BackupTemplateProcessor backupTemplateProcessor;
     private final ObjectMapper objectMapper;
     private final Validator validator;
+    @Getter
     private final Map<URI, VaultModel> vaults;
+    @Getter
     private final Map<URI, List<KeyBackupModel>> keys;
+    @Getter
     private final Map<URI, List<SecretBackupModel>> secrets;
+    @Getter
     private final Map<URI, List<CertificateBackupModel>> certificates;
 
     @Autowired
@@ -61,22 +66,6 @@ public class VaultImporter implements InitializingBean {
     public boolean importFileExists() {
         log.info("Evaluating import file: '{}'", vaultImporterProperties.getImportFile());
         return vaultImporterProperties.importFileExists();
-    }
-
-    public Map<URI, VaultModel> getVaults() {
-        return vaults;
-    }
-
-    public Map<URI, List<KeyBackupModel>> getKeys() {
-        return keys;
-    }
-
-    public Map<URI, List<SecretBackupModel>> getSecrets() {
-        return secrets;
-    }
-
-    public Map<URI, List<CertificateBackupModel>> getCertificates() {
-        return certificates;
     }
 
     @Override

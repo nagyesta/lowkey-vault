@@ -1,11 +1,11 @@
 [versions]
-springBoot = "2.7.14"
-spring = "5.3.29"
+springBoot = "3.1.2"
+spring = "6.0.11"
 snakeYaml = "2.1"
-tomcat = "9.0.79"
-logback = "1.2.12"
+tomcat = "10.1.12"
+logback = "1.4.11"
 bouncycastle = "1.76"
-hibernateValidator = "6.2.5.Final"
+hibernateValidator = "8.0.1.Final"
 findbugs = "3.0.2"
 lombok = "1.18.28"
 handlebars="4.3.1"
@@ -85,7 +85,7 @@ abort-mission-cucumber = { module = "com.github.nagyesta.abort-mission.boosters:
 
 cucumber-java = { module = "io.cucumber:cucumber-java", version.ref = "cucumber" }
 cucumber-testng = { module = "io.cucumber:cucumber-testng", version.ref = "cucumber" }
-cucumber-spring = { module = "io.cucumber:cucumber-spring", version.ref = "cucumber" }
+cucumber-picocontainer = { module = "io.cucumber:cucumber-picocontainer", version.ref = "cucumber" }
 
 jackson-bom = { module = "com.fasterxml.jackson:jackson-bom", version.ref = "jacksonBom" }
 jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson" }
@@ -104,7 +104,7 @@ spring-boot-app = [
 ]
 spring-test = ["spring-boot-starter-test", "spring-test", "snake-yaml"]
 logback = ["logback-classic", "logback-core"]
-cucumber = ["cucumber-java", "cucumber-testng", "cucumber-spring"]
+cucumber = ["cucumber-java", "cucumber-testng", "cucumber-picocontainer"]
 jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-dataformat-xml", "jackson-datatype-jsr310"]
 tomcat = [
     "tomcat-annotations-api", "tomcat-jsp-api", "tomcat-embed-core", "tomcat-embed-el", "tomcat-embed-jasper", "tomcat-embed-websocket"

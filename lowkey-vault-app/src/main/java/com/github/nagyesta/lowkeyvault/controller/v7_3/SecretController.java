@@ -11,6 +11,8 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.secret.KeyVaultSecretModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.request.CreateSecretRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.request.UpdateSecretRequest;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +21,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Pattern;
 import java.net.URI;
 
 import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.API_VERSION_7_3;
@@ -39,7 +39,7 @@ public class SecretController extends CommonSecretController {
     }
 
     @Override
-    @PutMapping(value = "/secrets/{secretName}",
+    @PutMapping(value = {"/secrets/{secretName}", "/secrets/{secretName}/"},
             params = API_VERSION_7_3,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
@@ -51,7 +51,7 @@ public class SecretController extends CommonSecretController {
     }
 
     @Override
-    @DeleteMapping(value = "/secrets/{secretName}",
+    @DeleteMapping(value = {"/secrets/{secretName}", "/secrets/{secretName}/"},
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<DeletedKeyVaultSecretModel> delete(
@@ -61,7 +61,7 @@ public class SecretController extends CommonSecretController {
     }
 
     @Override
-    @GetMapping(value = "/secrets/{secretName}/versions",
+    @GetMapping(value = {"/secrets/{secretName}/versions", "/secrets/{secretName}/versions/"},
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultItemListModel<KeyVaultSecretItemModel>> versions(
@@ -73,7 +73,7 @@ public class SecretController extends CommonSecretController {
     }
 
     @Override
-    @GetMapping(value = "/secrets",
+    @GetMapping(value = {"/secrets", "/secrets/"},
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultItemListModel<KeyVaultSecretItemModel>> listSecrets(
@@ -84,7 +84,7 @@ public class SecretController extends CommonSecretController {
     }
 
     @Override
-    @GetMapping(value = "/deletedsecrets",
+    @GetMapping(value = {"/deletedsecrets", "/deletedsecrets/"},
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultItemListModel<DeletedKeyVaultSecretItemModel>> listDeletedSecrets(
@@ -95,7 +95,7 @@ public class SecretController extends CommonSecretController {
     }
 
     @Override
-    @GetMapping(value = "/secrets/{secretName}",
+    @GetMapping(value = {"/secrets/{secretName}", "/secrets/{secretName}/"},
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultSecretModel> get(
@@ -105,7 +105,7 @@ public class SecretController extends CommonSecretController {
     }
 
     @Override
-    @GetMapping(value = "/secrets/{secretName}/{secretVersion}",
+    @GetMapping(value = {"/secrets/{secretName}/{secretVersion}", "/secrets/{secretName}/{secretVersion}/"},
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultSecretModel> getWithVersion(
@@ -116,7 +116,7 @@ public class SecretController extends CommonSecretController {
     }
 
     @Override
-    @PatchMapping(value = "/secrets/{secretName}/{secretVersion}",
+    @PatchMapping(value = {"/secrets/{secretName}/{secretVersion}", "/secrets/{secretName}/{secretVersion}/"},
             params = API_VERSION_7_3,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
@@ -129,7 +129,7 @@ public class SecretController extends CommonSecretController {
     }
 
     @Override
-    @GetMapping(value = "/deletedsecrets/{secretName}",
+    @GetMapping(value = {"/deletedsecrets/{secretName}", "/deletedsecrets/{secretName}/"},
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultSecretModel> getDeletedSecret(
@@ -139,7 +139,7 @@ public class SecretController extends CommonSecretController {
     }
 
     @Override
-    @DeleteMapping(value = "/deletedsecrets/{secretName}",
+    @DeleteMapping(value = {"/deletedsecrets/{secretName}", "/deletedsecrets/{secretName}/"},
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> purgeDeleted(
@@ -149,7 +149,7 @@ public class SecretController extends CommonSecretController {
     }
 
     @Override
-    @PostMapping(value = "/deletedsecrets/{secretName}/recover",
+    @PostMapping(value = {"/deletedsecrets/{secretName}/recover", "/deletedsecrets/{secretName}/recover/"},
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultSecretModel> recoverDeletedSecret(

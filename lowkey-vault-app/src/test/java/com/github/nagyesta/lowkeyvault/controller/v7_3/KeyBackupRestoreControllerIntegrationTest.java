@@ -159,9 +159,9 @@ class KeyBackupRestoreControllerIntegrationTest {
         Assertions.assertEquals(EXPIRY_TIME, rotationPolicy.getExpiryTime());
         Assertions.assertIterableEquals(Collections.singleton(ROTATE), rotationPolicy.getLifetimeActions().keySet());
         final LifetimeAction lifetimeAction = rotationPolicy.getLifetimeActions().get(ROTATE);
-        Assertions.assertEquals(ROTATE, lifetimeAction.getActionType());
-        Assertions.assertEquals(LifetimeActionTriggerType.TIME_AFTER_CREATE, lifetimeAction.getTrigger().getTriggerType());
-        Assertions.assertEquals(TRIGGER_TIME, lifetimeAction.getTrigger().getTimePeriod());
+        Assertions.assertEquals(ROTATE, lifetimeAction.actionType());
+        Assertions.assertEquals(LifetimeActionTriggerType.TIME_AFTER_CREATE, lifetimeAction.trigger().triggerType());
+        Assertions.assertEquals(TRIGGER_TIME, lifetimeAction.trigger().timePeriod());
     }
 
     @Test

@@ -5,12 +5,12 @@ import com.azure.security.keyvault.secrets.models.DeletedSecret;
 import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
 import com.azure.security.keyvault.secrets.models.SecretProperties;
 import com.github.nagyesta.lowkeyvault.context.SecretTestContext;
+import com.github.nagyesta.lowkeyvault.context.TestContextConfig;
 import com.github.nagyesta.lowkeyvault.http.ApacheHttpClientProvider;
 import com.github.nagyesta.lowkeyvault.http.AuthorityOverrideFunction;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Map;
@@ -23,9 +23,11 @@ import static com.github.nagyesta.lowkeyvault.context.TestContextConfig.CONTAINE
 
 public class SecretsStepDefs extends CommonAssertions {
 
-    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
-    @Autowired
-    private SecretTestContext context;
+    private final SecretTestContext context;
+
+    public SecretsStepDefs(final TestContextConfig config) {
+        context = config.secretContext();
+    }
 
     @Given("secret API version {api} is used")
     public void apiVersionApiIsUsed(final String version) {

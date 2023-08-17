@@ -4,7 +4,7 @@ import com.github.nagyesta.lowkeyvault.model.v7_3.key.constants.LifetimeActionTy
 
 public interface LifetimeAction {
 
-    LifetimeActionType getActionType();
+    LifetimeActionType actionType();
 
-    LifetimeActionTrigger getTrigger();
+    LifetimeActionTrigger trigger();
 }

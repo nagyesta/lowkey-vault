@@ -6,10 +6,10 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.nagyesta.lowkeyvault.controller.common.util.CertificateRequestMapperUtil;
 import com.github.nagyesta.lowkeyvault.model.json.util.Base64CertDeserializer;
 import com.github.nagyesta.lowkeyvault.model.json.util.Base64CertSerializer;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 @Data

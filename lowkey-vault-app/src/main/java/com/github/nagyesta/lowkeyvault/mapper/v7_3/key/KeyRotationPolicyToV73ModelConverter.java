@@ -64,8 +64,8 @@ public class KeyRotationPolicyToV73ModelConverter implements AliasAwareConverter
 
     private KeyLifetimeActionModel convertLifetimeAction(final LifetimeAction lifetimeAction) {
         return new KeyLifetimeActionModel(
-                new KeyLifetimeActionTypeModel(lifetimeAction.getActionType()),
-                new KeyLifetimeActionTriggerModel(lifetimeAction.getTrigger()));
+                new KeyLifetimeActionTypeModel(lifetimeAction.actionType()),
+                new KeyLifetimeActionTriggerModel(lifetimeAction.trigger()));
     }
 
     @Override

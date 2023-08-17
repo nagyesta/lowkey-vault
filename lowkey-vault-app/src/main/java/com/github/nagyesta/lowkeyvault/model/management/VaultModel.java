@@ -8,9 +8,9 @@ import com.github.nagyesta.lowkeyvault.model.json.util.EpochSecondsDeserializer;
 import com.github.nagyesta.lowkeyvault.model.json.util.EpochSecondsSerializer;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.Set;

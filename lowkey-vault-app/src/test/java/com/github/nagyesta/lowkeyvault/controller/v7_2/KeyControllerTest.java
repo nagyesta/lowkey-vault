@@ -195,10 +195,10 @@ class KeyControllerTest {
         Assertions.assertEquals(status, actual.getStatusCode());
         final ErrorModel actualBody = actual.getBody();
         Assertions.assertNotNull(actualBody);
-        Assertions.assertNotNull(actualBody.getError());
-        Assertions.assertEquals(message, actualBody.getError().getMessage());
-        Assertions.assertEquals(exception.getClass().getName(), actualBody.getError().getCode());
-        final ErrorMessage actualInnerError = actualBody.getError().getInnerError();
+        Assertions.assertNotNull(actualBody.error());
+        Assertions.assertEquals(message, actualBody.error().getMessage());
+        Assertions.assertEquals(exception.getClass().getName(), actualBody.error().getCode());
+        final ErrorMessage actualInnerError = actualBody.error().getInnerError();
         if (innerMessage != null) {
             Assertions.assertNotNull(actualInnerError);
             Assertions.assertEquals(exception.getCause().getClass().getName(), actualInnerError.getCode());
@@ -222,10 +222,10 @@ class KeyControllerTest {
         Assertions.assertEquals(status, actual.getStatusCode());
         final ErrorModel actualBody = actual.getBody();
         Assertions.assertNotNull(actualBody);
-        Assertions.assertNotNull(actualBody.getError());
-        Assertions.assertEquals(message, actualBody.getError().getMessage());
-        Assertions.assertEquals(exception.getClass().getName(), actualBody.getError().getCode());
-        final ErrorMessage actualInnerError = actualBody.getError().getInnerError();
+        Assertions.assertNotNull(actualBody.error());
+        Assertions.assertEquals(message, actualBody.error().getMessage());
+        Assertions.assertEquals(exception.getClass().getName(), actualBody.error().getCode());
+        final ErrorMessage actualInnerError = actualBody.error().getInnerError();
         Assertions.assertNull(actualInnerError);
     }
 

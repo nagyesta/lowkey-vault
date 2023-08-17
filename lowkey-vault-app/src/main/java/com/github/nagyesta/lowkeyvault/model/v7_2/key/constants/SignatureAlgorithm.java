@@ -13,48 +13,28 @@ import java.util.Arrays;
 @SuppressWarnings("checkstyle:JavadocVariable")
 public enum SignatureAlgorithm {
 
-    ES256("ES256", "NONEwithECDSAinP1363Format", KeyType.EC, HashAlgorithm.SHA256) {
+    ES256("ES256", "NONEwithECDSA", KeyType.EC, HashAlgorithm.SHA256) {
         @Override
         public boolean isCompatibleWithCurve(final KeyCurveName keyCurveName) {
             return KeyCurveName.P_256 == keyCurveName;
         }
-
-        @Override
-        public Signature getSignatureInstance() throws GeneralSecurityException {
-            return Signature.getInstance(getAlg());
-        }
     },
-    ES256K("ES256K", "NONEwithECDSAinP1363Format", KeyType.EC, HashAlgorithm.SHA256) {
+    ES256K("ES256K", "NONEwithECDSA", KeyType.EC, HashAlgorithm.SHA256) {
         @Override
         public boolean isCompatibleWithCurve(final KeyCurveName keyCurveName) {
             return KeyCurveName.P_256K == keyCurveName;
         }
-
-        @Override
-        public Signature getSignatureInstance() throws GeneralSecurityException {
-            return Signature.getInstance(getAlg());
-        }
     },
-    ES384("ES384", "NONEwithECDSAinP1363Format", KeyType.EC, HashAlgorithm.SHA384) {
+    ES384("ES384", "NONEwithECDSA", KeyType.EC, HashAlgorithm.SHA384) {
         @Override
         public boolean isCompatibleWithCurve(final KeyCurveName keyCurveName) {
             return KeyCurveName.P_384 == keyCurveName;
         }
-
-        @Override
-        public Signature getSignatureInstance() throws GeneralSecurityException {
-            return Signature.getInstance(getAlg());
-        }
     },
-    ES512("ES512", "NONEwithECDSAinP1363Format", KeyType.EC, HashAlgorithm.SHA512) {
+    ES512("ES512", "NONEwithECDSA", KeyType.EC, HashAlgorithm.SHA512) {
         @Override
         public boolean isCompatibleWithCurve(final KeyCurveName keyCurveName) {
             return KeyCurveName.P_521 == keyCurveName;
-        }
-
-        @Override
-        public Signature getSignatureInstance() throws GeneralSecurityException {
-            return Signature.getInstance(getAlg());
         }
     },
     PS256("PS256", "NONEwithRSAandMGF1", KeyType.RSA, HashAlgorithm.SHA256) {

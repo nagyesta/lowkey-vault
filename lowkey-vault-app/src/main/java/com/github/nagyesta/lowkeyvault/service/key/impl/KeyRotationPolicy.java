@@ -40,7 +40,7 @@ public class KeyRotationPolicy extends BaseLifetimePolicy<KeyEntityId> implement
     @Override
     public List<OffsetDateTime> missedRotations(@NonNull final OffsetDateTime keyCreation) {
         Assert.isTrue(isAutoRotate(), "Cannot have missed rotations without a \"rotate\" lifetime action.");
-        final LifetimeActionTrigger trigger = lifetimeActions.get(LifetimeActionType.ROTATE).getTrigger();
+        final LifetimeActionTrigger trigger = lifetimeActions.get(LifetimeActionType.ROTATE).trigger();
         final OffsetDateTime startPoint = findTriggerTimeOffset(keyCreation, s -> trigger.rotateAfterDays(expiryTime));
         return collectMissedTriggerDays(s -> trigger.rotateAfterDays(expiryTime), startPoint);
     }
@@ -53,10 +53,10 @@ public class KeyRotationPolicy extends BaseLifetimePolicy<KeyEntityId> implement
     @Override
     public void validate(final OffsetDateTime latestKeyVersionExpiry) {
         lifetimeActions.values().forEach(action -> {
-            final Period triggerPeriod = action.getTrigger().getTimePeriod();
-            final LifetimeActionTriggerType triggerType = action.getTrigger().getTriggerType();
+            final Period triggerPeriod = action.trigger().timePeriod();
+            final LifetimeActionTriggerType triggerType = action.trigger().triggerType();
             triggerType.validate(latestKeyVersionExpiry, expiryTime, triggerPeriod);
-            Assert.isTrue(action.getActionType() != LifetimeActionType.NOTIFY
+            Assert.isTrue(action.actionType() != LifetimeActionType.NOTIFY
                             || triggerType == LifetimeActionTriggerType.TIME_BEFORE_EXPIRY,
                     "Notify actions cannot be used with time after creation trigger.");
         });

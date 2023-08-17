@@ -9,7 +9,7 @@ public enum RecoveryLevel {
 
     /**
      * Purgeable and not recoverable, subscription not protected.
-     * See: https://docs.microsoft.com/en-us/rest/api/keyvault/create-key/create-key#deletionrecoverylevel
+     * See: <a href="https://docs.microsoft.com/en-us/rest/api/keyvault/create-key/create-key#deletionrecoverylevel">source</a>
      */
     PURGEABLE("Purgeable") {
         @Override
@@ -31,7 +31,7 @@ public enum RecoveryLevel {
     },
     /**
      * Purgeable and recoverable, subscription not protected.
-     * See: https://docs.microsoft.com/en-us/rest/api/keyvault/create-key/create-key#deletionrecoverylevel
+     * See: <a href="https://docs.microsoft.com/en-us/rest/api/keyvault/create-key/create-key#deletionrecoverylevel">source</a>
      */
     RECOVERABLE_AND_PURGEABLE("Recoverable+Purgeable") {
         @Override
@@ -41,12 +41,12 @@ public enum RecoveryLevel {
     },
     /**
      * Recoverable, not purgeable, subscription not protected.
-     * See: https://docs.microsoft.com/en-us/rest/api/keyvault/create-key/create-key#deletionrecoverylevel
+     * See: <a href="https://docs.microsoft.com/en-us/rest/api/keyvault/create-key/create-key#deletionrecoverylevel">source</a>
      */
     RECOVERABLE("Recoverable"),
     /**
      * Recoverable, not purgeable, subscription protected.
-     * See: https://docs.microsoft.com/en-us/rest/api/keyvault/create-key/create-key#deletionrecoverylevel
+     * See: <a href="https://docs.microsoft.com/en-us/rest/api/keyvault/create-key/create-key#deletionrecoverylevel">source</a>
      */
     RECOVERABLE_AND_PROTECTED_SUBSCRIPTION("Recoverable+ProtectedSubscription") {
         @Override
@@ -56,7 +56,7 @@ public enum RecoveryLevel {
     },
     /**
      * Recoverable for a customized time, purgeable, subscription not protected.
-     * See: https://docs.microsoft.com/en-us/rest/api/keyvault/create-key/create-key#deletionrecoverylevel
+     * See: <a href="https://docs.microsoft.com/en-us/rest/api/keyvault/create-key/create-key#deletionrecoverylevel">source</a>
      */
     CUSTOMIZED_RECOVERABLE_AND_PURGEABLE("CustomizedRecoverable+Purgeable") {
         @Override
@@ -71,7 +71,7 @@ public enum RecoveryLevel {
     },
     /**
      * Recoverable for a customized time, not purgeable, subscription not protected.
-     * See: https://docs.microsoft.com/en-us/rest/api/keyvault/create-key/create-key#deletionrecoverylevel
+     * See: <a href="https://docs.microsoft.com/en-us/rest/api/keyvault/create-key/create-key#deletionrecoverylevel">source</a>
      */
     CUSTOMIZED_RECOVERABLE("CustomizedRecoverable") {
         @Override
@@ -82,7 +82,7 @@ public enum RecoveryLevel {
 
     /**
      * Recoverable for a customized time, not purgeable, subscription protected.
-     * See: https://docs.microsoft.com/en-us/rest/api/keyvault/create-key/create-key#deletionrecoverylevel
+     * See: <a href="https://docs.microsoft.com/en-us/rest/api/keyvault/create-key/create-key#deletionrecoverylevel">source</a>
      */
     CUSTOMIZED_RECOVERABLE_AND_PROTECTED_SUBSCRIPTION("CustomizedRecoverable+ProtectedSubscription") {
         @Override

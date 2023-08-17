@@ -19,7 +19,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * The base implementation of the backup/restore controllers.
@@ -79,7 +78,7 @@ public abstract class BaseBackupRestoreController<K extends EntityId, V extends 
         final List<BLI> list = entities.getVersions(entityId).stream()
                 .map(version -> getEntityByNameAndVersion(entityId.vault(), entityId.id(), version))
                 .map(registry().backupConverter(apiVersion())::convert)
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
         return wrapBackup(list);
     }
 
@@ -91,7 +90,7 @@ public abstract class BaseBackupRestoreController<K extends EntityId, V extends 
         final List<String> entityNames = backupModel.getValue().getVersions().stream()
                 .map(BLI::getId)
                 .distinct()
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
         Assert.isTrue(entityNames.size() == 1, "All backup entities must belong to the same entity.");
         return entityNames.get(0);
     }
@@ -100,7 +99,7 @@ public abstract class BaseBackupRestoreController<K extends EntityId, V extends 
         final List<URI> uris = backupModel.getValue().getVersions().stream()
                 .map(BLI::getVaultBaseUri)
                 .distinct()
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
         Assert.isTrue(uris.size() == 1, "All backup entities must be from the same vault.");
         return uris.get(0);
     }

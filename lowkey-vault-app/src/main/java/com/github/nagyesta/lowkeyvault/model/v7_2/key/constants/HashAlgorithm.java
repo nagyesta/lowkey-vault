@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.model.v7_2.key.constants;
 
+import lombok.Getter;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.DERNull;
 import org.bouncycastle.asn1.nist.NISTObjectIdentifiers;
@@ -13,12 +14,13 @@ import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
 import java.util.Optional;
 
-@SuppressWarnings("checkstyle:JavadocVariable")
+@SuppressWarnings({"checkstyle:JavadocVariable", "LombokGetterMayBeUsed"})
 public enum HashAlgorithm {
     SHA256("SHA-256", 32, NISTObjectIdentifiers.id_sha256),
     SHA384("SHA-384", 48, NISTObjectIdentifiers.id_sha384),
     SHA512("SHA-512", 64, NISTObjectIdentifiers.id_sha512);
 
+    @Getter
     private final String algorithmName;
     private final ASN1ObjectIdentifier algorithmIdentifier;
     private final int digestLength;
@@ -27,10 +29,6 @@ public enum HashAlgorithm {
         this.algorithmName = algorithmName;
         this.algorithmIdentifier = algorithmIdentifier;
         this.digestLength = digestLength;
-    }
-
-    public String getAlgorithmName() {
-        return algorithmName;
     }
 
     public byte[] encodeDigest(final byte[] digest) throws IOException {

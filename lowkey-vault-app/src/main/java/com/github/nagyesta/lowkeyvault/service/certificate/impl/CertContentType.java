@@ -6,13 +6,13 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRequest;
 import com.github.nagyesta.lowkeyvault.service.exception.CryptoException;
 import com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil;
+import lombok.Getter;
 import lombok.NonNull;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.openssl.jcajce.JcaPKCS8Generator;
 import org.springframework.util.Assert;
-import org.springframework.util.Base64Utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -31,6 +31,7 @@ import java.util.List;
 import static com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType.EC;
 import static com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType.RSA;
 
+@Getter
 public enum CertContentType {
 
     /**
@@ -71,7 +72,7 @@ public enum CertContentType {
         public String asBase64CertificatePackage(@NonNull final Certificate certificate,
                                                  @NonNull final KeyPair keyPair) throws CryptoException {
             final byte[] bytes = generateCertificatePackage(certificate, keyPair, DEFAULT_PASSWORD);
-            return Base64Utils.encodeToString(bytes);
+            return new Base64().encodeAsString(bytes);
         }
 
         @Override
@@ -216,10 +217,6 @@ public enum CertContentType {
 
     CertContentType(final String mimeType) {
         this.mimeType = mimeType;
-    }
-
-    public String getMimeType() {
-        return mimeType;
     }
 
     public static CertContentType byMimeType(final String mimeType) {

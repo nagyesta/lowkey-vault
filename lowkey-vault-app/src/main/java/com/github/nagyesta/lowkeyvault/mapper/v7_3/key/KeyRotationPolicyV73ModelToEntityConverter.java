@@ -75,7 +75,7 @@ public class KeyRotationPolicyV73ModelToEntityConverter implements ApiVersionAwa
     private Map<LifetimeActionType, LifetimeAction> convertLifetimeActions(final List<KeyLifetimeActionModel> lifetimeActions) {
         return lifetimeActions.stream()
                 .map(this::convertLifetimeAction)
-                .collect(Collectors.toMap(LifetimeAction::getActionType, Function.identity()));
+                .collect(Collectors.toMap(LifetimeAction::actionType, Function.identity()));
     }
 
     private LifetimeAction convertLifetimeAction(final KeyLifetimeActionModel source) {

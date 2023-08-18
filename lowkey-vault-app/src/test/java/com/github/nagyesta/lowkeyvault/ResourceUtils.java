@@ -28,8 +28,7 @@ public final class ResourceUtils {
     public static String loadResourceAsBase64String(final String resource) {
         final byte[] binaryData = loadResourceAsByteArray(resource);
         return Optional.ofNullable(binaryData)
-                .map(Base64::encodeBase64)
-                .map(base64 -> new String(base64, StandardCharsets.UTF_8))
+                .map(binary -> new Base64().encodeAsString(binary))
                 .orElse(null);
     }
 

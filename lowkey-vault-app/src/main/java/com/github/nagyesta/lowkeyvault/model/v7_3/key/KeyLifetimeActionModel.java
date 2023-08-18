@@ -6,10 +6,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.validator.Restore;
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.validator.Update;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)

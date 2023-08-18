@@ -8,12 +8,11 @@ import com.github.nagyesta.lowkeyvault.KeyGenUtil;
 import com.github.nagyesta.lowkeyvault.context.CertificateTestContext;
 import com.github.nagyesta.lowkeyvault.context.KeyTestContext;
 import com.github.nagyesta.lowkeyvault.context.SecretTestContext;
+import com.github.nagyesta.lowkeyvault.context.TestContextConfig;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.crypto.CryptoException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.Base64Utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -32,18 +31,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static java.util.Base64.getMimeDecoder;
+
 public class CertificateStepDefAssertion extends CommonAssertions {
 
     private static final String DEFAULT_PASSWORD = "";
-    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
-    @Autowired
-    private CertificateTestContext context;
-    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
-    @Autowired
-    private SecretTestContext secretContext;
-    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
-    @Autowired
-    private KeyTestContext keyContext;
+    private final CertificateTestContext context;
+    private final SecretTestContext secretContext;
+    private final KeyTestContext keyContext;
+
+    public CertificateStepDefAssertion(final TestContextConfig config) {
+        this.context = config.certificateContext();
+        this.secretContext = config.secretContext();
+        this.keyContext = config.keyContext();
+    }
 
     @Then("the certificate is {enabled}")
     public void theCertificateIsEnabledStatus(final boolean enabled) {
@@ -117,7 +118,7 @@ public class CertificateStepDefAssertion extends CommonAssertions {
             assertEquals(expectedCertificate, certificate);
             //compare keys
             final Key expectedKey = expectedKeyStore.getKey(expectedAlias, password.toCharArray());
-            final KeyStore actualKeyStore = getKeyStore(Base64Utils.decodeFromString(value), DEFAULT_PASSWORD);
+            final KeyStore actualKeyStore = getKeyStore(getMimeDecoder().decode(value), DEFAULT_PASSWORD);
             final String actualAlias = findAlias(actualKeyStore);
             final Key actualKey = actualKeyStore.getKey(actualAlias, DEFAULT_PASSWORD.toCharArray());
             assertKeyEquals(expectedKey, actualKey);
@@ -303,7 +304,7 @@ public class CertificateStepDefAssertion extends CommonAssertions {
             final CertificateFactory fact = CertificateFactory.getInstance("X.509");
             certificate = (X509Certificate) fact.generateCertificate(new ByteArrayInputStream(encodedCertificate));
         } else {
-            final byte[] bytes = Base64Utils.decodeFromString(value);
+            final byte[] bytes = getMimeDecoder().decode(value);
             final KeyStore keyStore = getKeyStore(bytes, DEFAULT_PASSWORD);
             final String alias = findAlias(keyStore);
             certificate = (X509Certificate) keyStore.getCertificate(alias);

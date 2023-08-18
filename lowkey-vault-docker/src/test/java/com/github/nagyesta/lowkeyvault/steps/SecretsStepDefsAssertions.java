@@ -2,9 +2,9 @@ package com.github.nagyesta.lowkeyvault.steps;
 
 import com.azure.core.exception.ResourceNotFoundException;
 import com.github.nagyesta.lowkeyvault.context.SecretTestContext;
+import com.github.nagyesta.lowkeyvault.context.TestContextConfig;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -17,9 +17,11 @@ import static com.github.nagyesta.lowkeyvault.context.KeyTestContext.NOW;
 
 public class SecretsStepDefsAssertions extends CommonAssertions {
 
-    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
-    @Autowired
-    private SecretTestContext context;
+    private final SecretTestContext context;
+
+    public SecretsStepDefsAssertions(final TestContextConfig config) {
+        context = config.secretContext();
+    }
 
     @Then("the created secret exists with value: {secretValue}")
     public void theCreatedSecretExists(final String secretValue) {

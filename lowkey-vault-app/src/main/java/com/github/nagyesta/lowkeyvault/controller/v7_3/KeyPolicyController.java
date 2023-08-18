@@ -11,6 +11,8 @@ import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyRotationPolicy;
 import com.github.nagyesta.lowkeyvault.service.key.RotationPolicy;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
@@ -18,8 +20,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Pattern;
 import java.net.URI;
 
 import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.API_VERSION_7_3;
@@ -36,7 +36,7 @@ public class KeyPolicyController extends BaseKeyController {
         super(registry, vaultService);
     }
 
-    @GetMapping(value = "/keys/{keyName}/rotationpolicy",
+    @GetMapping(value = {"/keys/{keyName}/rotationpolicy", "/keys/{keyName}/rotationpolicy/"},
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyRotationPolicyModel> getRotationPolicy(
@@ -47,7 +47,7 @@ public class KeyPolicyController extends BaseKeyController {
         return getRotationPolicyResponseEntity(getVaultByUri(baseUri), entityId(baseUri, keyName), baseUri);
     }
 
-    @PutMapping(value = "/keys/{keyName}/rotationpolicy",
+    @PutMapping(value = {"/keys/{keyName}/rotationpolicy", "/keys/{keyName}/rotationpolicy/"},
             params = API_VERSION_7_3,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)

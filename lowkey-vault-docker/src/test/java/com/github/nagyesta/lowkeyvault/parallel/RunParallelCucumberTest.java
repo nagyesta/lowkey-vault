@@ -1,12 +1,10 @@
 package com.github.nagyesta.lowkeyvault.parallel;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.nagyesta.lowkeyvault.context.TestContextConfig;
 import com.github.nagyesta.lowkeyvault.http.ApacheHttpClientProvider;
-import io.cucumber.spring.CucumberContextConfiguration;
+import io.cucumber.picocontainer.PicoFactory;
 import io.cucumber.testng.AbstractTestNGCucumberTests;
 import io.cucumber.testng.CucumberOptions;
-import org.springframework.context.annotation.Import;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -22,9 +20,8 @@ import static com.github.nagyesta.lowkeyvault.context.TestContextConfig.DEFAULT_
                 "classpath:/com/github/nagyesta/lowkeyvault/secrets",
                 "classpath:/com/github/nagyesta/lowkeyvault/certificates"},
         plugin = {"com.github.nagyesta.abortmission.booster.cucumber.AbortMissionPlugin",
-                "html:build/reports/cucumber/cucumber-parallel-report.html"})
-@CucumberContextConfiguration
-@Import(value = TestContextConfig.class)
+                "html:build/reports/cucumber/cucumber-parallel-report.html"},
+        objectFactory = PicoFactory.class)
 @Test(groups = "parallel")
 public class RunParallelCucumberTest extends AbstractTestNGCucumberTests {
 

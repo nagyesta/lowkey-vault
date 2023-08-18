@@ -43,7 +43,7 @@ class KeyLifetimeActionTest {
         final KeyLifetimeAction actual = new KeyLifetimeAction(type, trigger);
 
         //then
-        Assertions.assertEquals(trigger, actual.getTrigger());
-        Assertions.assertEquals(type, actual.getActionType());
+        Assertions.assertEquals(trigger, actual.trigger());
+        Assertions.assertEquals(type, actual.actionType());
     }
 }

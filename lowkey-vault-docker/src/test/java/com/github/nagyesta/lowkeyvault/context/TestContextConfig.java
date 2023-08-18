@@ -1,11 +1,7 @@
 package com.github.nagyesta.lowkeyvault.context;
 
 import com.github.nagyesta.lowkeyvault.http.ApacheHttpClientProvider;
-import io.cucumber.spring.ScenarioScope;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
-@Configuration
 public class TestContextConfig {
 
     /**
@@ -25,32 +21,32 @@ public class TestContextConfig {
      */
     public static final String DEFAULT_CONTAINER_URL = "https://" + CONTAINER_HOST + ":" + CONTAINER_PORT;
 
-    @Bean
-    public ApacheHttpClientProvider provider() {
-        return new ApacheHttpClientProvider(DEFAULT_CONTAINER_URL);
+    private final CertificateTestContext certificateTestContext;
+    private final SecretTestContext secretTestContext;
+    private final ManagementTestContext managementTestContext;
+    private final KeyTestContext keyTestContext;
+
+    public TestContextConfig() {
+        final ApacheHttpClientProvider provider = new ApacheHttpClientProvider(DEFAULT_CONTAINER_URL);
+        managementTestContext = new ManagementTestContext(provider);
+        keyTestContext = new KeyTestContext(provider);
+        secretTestContext = new SecretTestContext(provider);
+        certificateTestContext = new CertificateTestContext(provider);
     }
 
-    @Bean
-    @ScenarioScope
     public KeyTestContext keyContext() {
-        return new KeyTestContext(provider());
+        return keyTestContext;
     }
 
-    @Bean
-    @ScenarioScope
     public CertificateTestContext certificateContext() {
-        return new CertificateTestContext(provider());
+        return certificateTestContext;
     }
 
-    @Bean
-    @ScenarioScope
     public SecretTestContext secretContext() {
-        return new SecretTestContext(provider());
+        return secretTestContext;
     }
 
-    @Bean
-    @ScenarioScope
     public ManagementTestContext managementContext() {
-        return new ManagementTestContext(provider());
+        return managementTestContext;
     }
 }

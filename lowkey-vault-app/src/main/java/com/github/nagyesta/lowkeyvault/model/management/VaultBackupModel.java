@@ -5,10 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.nagyesta.lowkeyvault.model.common.backup.CertificateBackupList;
 import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupList;
 import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupList;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 @Data

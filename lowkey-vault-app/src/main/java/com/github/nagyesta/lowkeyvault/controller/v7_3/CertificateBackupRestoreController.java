@@ -6,6 +6,8 @@ import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
 import com.github.nagyesta.lowkeyvault.model.common.backup.CertificateBackupModel;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.KeyVaultCertificateModel;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
@@ -15,8 +17,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Pattern;
 import java.net.URI;
 
 import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.API_VERSION_7_3;
@@ -37,21 +37,21 @@ public class CertificateBackupRestoreController extends CommonCertificateBackupR
     }
 
     @Override
-    @PostMapping(value = "/certificates/{certificateName}/backup",
+    @PostMapping(value = {"/certificates/{certificateName}/backup", "/certificates/{certificateName}/backup/"},
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<CertificateBackupModel> backup(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
-                                                    @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
+                                                         @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
         return super.backup(certificateName, baseUri);
     }
 
     @Override
-    @PostMapping(value = "/certificates/restore",
+    @PostMapping(value = {"/certificates/restore", "/certificates/restore/"},
             params = API_VERSION_7_3,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultCertificateModel> restore(@RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
-                                                       @Valid @RequestBody final CertificateBackupModel certificateBackupModel) {
+                                                            @Valid @RequestBody final CertificateBackupModel certificateBackupModel) {
         return super.restore(baseUri, certificateBackupModel);
     }
 

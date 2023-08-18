@@ -146,7 +146,7 @@ public class ConcurrentVersionedEntityMultiMap<K extends EntityId, V extends K, 
         final List<String> purgeable = entities.entrySet().stream()
                 .filter(e -> e.getValue().values().stream().anyMatch(ME::isPurgeExpired))
                 .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
+                .toList();
         purgeable.forEach(key -> {
             entities.remove(key);
             versions.remove(key);

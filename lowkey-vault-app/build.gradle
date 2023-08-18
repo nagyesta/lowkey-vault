@@ -28,6 +28,15 @@ dependencies {
     testImplementation libs.abort.mission.jupiter
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+    withJavadocJar()
+    withSourcesJar()
+}
+
 test {
     outputs.file(file("$buildDir/reports/abort-mission/abort-mission-report.json"))
     useJUnitPlatform()
@@ -36,6 +45,7 @@ test {
     systemProperty("junit.jupiter.execution.parallel.mode.default", "concurrent")
     systemProperty("junit.jupiter.execution.parallel.mode.classes.default", "concurrent")
 }
+
 abortMission {
     toolVersion libs.versions.abortMission.get()
 }
@@ -50,11 +60,12 @@ processResources {
 jar {
     enabled = false
 }
+
 bootJar {
     archiveVersion.value(project.version as String)
 }
 
-task regenerateCertJks(type: Exec) {
+tasks.register('regenerateCertJks', Exec) {
     outputs.file("${project.projectDir}/src/main/resources/cert/keystore.jks")
     workingDir file("${project.projectDir}/src/main/resources/cert")
     outputs.upToDateWhen { false }
@@ -80,7 +91,7 @@ task regenerateCertJks(type: Exec) {
     logging.captureStandardOutput LogLevel.INFO
     logging.captureStandardError LogLevel.ERROR
 }
-task regenerateCert(type: Exec) {
+tasks.register('regenerateCert', Exec) {
     outputs.file("${project.projectDir}/src/main/resources/cert/keystore.p12")
     outputs.file("${project.projectDir}/src/main/resources/cert/keystore.jks")
     inputs.file("${project.projectDir}/src/main/resources/cert/keystore.jks")

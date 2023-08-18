@@ -5,12 +5,12 @@ import com.azure.security.keyvault.certificates.models.*;
 import com.github.nagyesta.lowkeyvault.context.CertificateTestContext;
 import com.github.nagyesta.lowkeyvault.context.KeyTestContext;
 import com.github.nagyesta.lowkeyvault.context.SecretTestContext;
+import com.github.nagyesta.lowkeyvault.context.TestContextConfig;
 import com.github.nagyesta.lowkeyvault.http.ApacheHttpClientProvider;
 import com.github.nagyesta.lowkeyvault.http.AuthorityOverrideFunction;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.util.List;
@@ -25,15 +25,15 @@ import static com.github.nagyesta.lowkeyvault.context.TestContextConfig.CONTAINE
 public class CertificatesStepDefs extends CommonAssertions {
 
     public static final int DEFAULT_LIFETIME_PERCENTAGE = 80;
-    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
-    @Autowired
-    private CertificateTestContext context;
-    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
-    @Autowired
-    private SecretTestContext secretContext;
-    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
-    @Autowired
-    private KeyTestContext keyContext;
+    private final CertificateTestContext context;
+    private final SecretTestContext secretContext;
+    private final KeyTestContext keyContext;
+
+    public CertificatesStepDefs(final TestContextConfig config) {
+        this.context = config.certificateContext();
+        this.secretContext = config.secretContext();
+        this.keyContext = config.keyContext();
+    }
 
     @Given("certificate API version {api} is used")
     public void apiVersionApiIsUsed(final String version) {

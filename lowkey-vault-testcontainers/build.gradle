@@ -29,12 +29,22 @@ dependencies {
     testImplementation libs.logback.classic
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+    withJavadocJar()
+    withSourcesJar()
+}
+
 test {
     useJUnitPlatform()
     systemProperty("imageVersion", project.version)
     mustRunAfter(":lowkey-vault-docker:build")
     mustRunAfter(":lowkey-vault-docker:test")
 }
+
 publishing {
     publications {
         mavenJava(MavenPublication) {

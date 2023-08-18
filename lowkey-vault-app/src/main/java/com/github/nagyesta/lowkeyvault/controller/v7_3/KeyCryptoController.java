@@ -13,6 +13,8 @@ import com.github.nagyesta.lowkeyvault.model.v7_3.key.RandomBytesRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.RandomBytesResponse;
 import com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +23,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Pattern;
 import java.net.URI;
 
 import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.API_VERSION_7_3;
@@ -41,7 +41,8 @@ public class KeyCryptoController extends CommonKeyCryptoController {
     }
 
     @Override
-    @PostMapping(value = {"/keys/{keyName}/{keyVersion}/encrypt", "/keys/{keyName}/{keyVersion}/wrap"},
+    @PostMapping(value = {"/keys/{keyName}/{keyVersion}/encrypt", "/keys/{keyName}/{keyVersion}/encrypt/",
+            "/keys/{keyName}/{keyVersion}/wrap", "/keys/{keyName}/{keyVersion}/wrap/"},
             params = API_VERSION_7_3,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
@@ -54,7 +55,8 @@ public class KeyCryptoController extends CommonKeyCryptoController {
     }
 
     @Override
-    @PostMapping(value = {"/keys/{keyName}/{keyVersion}/decrypt", "/keys/{keyName}/{keyVersion}/unwrap"},
+    @PostMapping(value = {"/keys/{keyName}/{keyVersion}/decrypt", "/keys/{keyName}/{keyVersion}/decrypt/",
+            "/keys/{keyName}/{keyVersion}/unwrap", "/keys/{keyName}/{keyVersion}/unwrap/"},
             params = API_VERSION_7_3,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
@@ -67,7 +69,7 @@ public class KeyCryptoController extends CommonKeyCryptoController {
     }
 
     @Override
-    @PostMapping(value = "/keys/{keyName}/{keyVersion}/sign",
+    @PostMapping(value = {"/keys/{keyName}/{keyVersion}/sign", "/keys/{keyName}/{keyVersion}/sign/"},
             params = API_VERSION_7_3,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
@@ -80,7 +82,7 @@ public class KeyCryptoController extends CommonKeyCryptoController {
     }
 
     @Override
-    @PostMapping(value = "/keys/{keyName}/{keyVersion}/verify",
+    @PostMapping(value = {"/keys/{keyName}/{keyVersion}/verify", "/keys/{keyName}/{keyVersion}/verify/"},
             params = API_VERSION_7_3,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
@@ -92,7 +94,7 @@ public class KeyCryptoController extends CommonKeyCryptoController {
         return super.verify(keyName, keyVersion, baseUri, request);
     }
 
-    @PostMapping(value = "/rng",
+    @PostMapping(value = {"/rng", "/rng/"},
             params = API_VERSION_7_3,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)

@@ -6,6 +6,8 @@ import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificatePolicyModel;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.KeyVaultPendingCertificateModel;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,8 +16,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Pattern;
 import java.net.URI;
 
 import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.API_VERSION_7_3;
@@ -33,7 +33,7 @@ public class CertificatePolicyController extends CommonCertificatePolicyControll
     }
 
     @Override
-    @GetMapping(value = "/certificates/{certificateName}/pending",
+    @GetMapping(value = {"/certificates/{certificateName}/pending", "/certificates/{certificateName}/pending/"},
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultPendingCertificateModel> pendingCreate(
@@ -43,7 +43,7 @@ public class CertificatePolicyController extends CommonCertificatePolicyControll
     }
 
     @Override
-    @DeleteMapping(value = "/certificates/{certificateName}/pending",
+    @DeleteMapping(value = {"/certificates/{certificateName}/pending", "/certificates/{certificateName}/pending/"},
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultPendingCertificateModel> pendingDelete(
@@ -53,7 +53,7 @@ public class CertificatePolicyController extends CommonCertificatePolicyControll
     }
 
     @Override
-    @GetMapping(value = "/certificates/{certificateName}/policy",
+    @GetMapping(value = {"/certificates/{certificateName}/policy", "/certificates/{certificateName}/policy/"},
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<CertificatePolicyModel> getPolicy(
@@ -63,7 +63,7 @@ public class CertificatePolicyController extends CommonCertificatePolicyControll
     }
 
     @Override
-    @PatchMapping(value = "/certificates/{certificateName}/policy",
+    @PatchMapping(value = {"/certificates/{certificateName}/policy", "/certificates/{certificateName}/policy/"},
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<CertificatePolicyModel> updatePolicy(

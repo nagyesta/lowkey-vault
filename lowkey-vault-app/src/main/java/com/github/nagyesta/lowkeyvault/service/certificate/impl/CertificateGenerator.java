@@ -44,7 +44,6 @@ import java.util.stream.Stream;
 
 public class CertificateGenerator {
     private static final int NUMBER_OF_BITS_SERIAL = 160;
-    private static final int NUMBER_OF_BYTES_CID = 20;
     private final VaultFake vault;
     private final VersionedKeyEntityId kid;
     private final SecureRandom secureRandom = new SecureRandom();
@@ -123,7 +122,7 @@ public class CertificateGenerator {
                     .stream()
                     .map(ASN1ObjectIdentifier::new)
                     .map(KeyPurposeId::getInstance)
-                    .collect(Collectors.toList())
+                    .toList()
                     .toArray(new KeyPurposeId[]{}));
         }
         return result;
@@ -180,7 +179,7 @@ public class CertificateGenerator {
                 .collect(Collectors.toList());
         final List<GeneralName> subjectAlternativeNames = Stream.of(emails, dnsNames, ips)
                 .flatMap(List::stream)
-                .collect(Collectors.toList());
+                .toList();
         return subjectAlternativeNames.toArray(new GeneralName[]{});
     }
 

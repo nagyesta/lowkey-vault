@@ -10,10 +10,10 @@ import com.github.nagyesta.lowkeyvault.model.json.util.EpochSecondsSerializer;
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.validator.ExpiryPeriod;
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.validator.Restore;
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.validator.Update;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
 import java.time.OffsetDateTime;
 import java.time.Period;
 

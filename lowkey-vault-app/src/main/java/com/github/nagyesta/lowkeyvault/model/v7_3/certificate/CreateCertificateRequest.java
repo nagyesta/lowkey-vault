@@ -2,10 +2,10 @@ package com.github.nagyesta.lowkeyvault.model.v7_3.certificate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 @Data

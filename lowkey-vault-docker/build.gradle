@@ -11,15 +11,6 @@ repositories {
     mavenCentral()
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(11)
-    }
-    withJavadocJar()
-    withSourcesJar()
-}
-
 group = "${rootProject.group}"
 
 dependencies {
@@ -36,10 +27,18 @@ dependencies {
     testImplementation(libs.azure.security.keyvault.certificates) {
         exclude(group: "io.netty")
     }
-    testImplementation libs.bundles.spring.test
     testImplementation libs.bundles.cucumber
     testImplementation libs.abort.mission.cucumber
     testImplementation libs.findbugs.jsr305
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+    withJavadocJar()
+    withSourcesJar()
 }
 
 tasks.register('copyAppJar', Copy.class) {

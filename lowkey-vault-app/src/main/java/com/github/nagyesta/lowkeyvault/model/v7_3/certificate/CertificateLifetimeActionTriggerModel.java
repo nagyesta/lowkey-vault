@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionTrigger;
 import com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionTriggerType;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.util.Assert;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import java.util.Optional;
 
 @Data
@@ -27,10 +27,10 @@ public class CertificateLifetimeActionTriggerModel {
     private Integer daysBeforeExpiry;
 
     public CertificateLifetimeActionTriggerModel(final CertificateLifetimeActionTrigger trigger) {
-        if (trigger.getTriggerType() == CertificateLifetimeActionTriggerType.DAYS_BEFORE_EXPIRY) {
-            this.daysBeforeExpiry = trigger.getValue();
+        if (trigger.triggerType() == CertificateLifetimeActionTriggerType.DAYS_BEFORE_EXPIRY) {
+            this.daysBeforeExpiry = trigger.value();
         } else {
-            this.lifetimePercentage = trigger.getValue();
+            this.lifetimePercentage = trigger.value();
         }
     }
 

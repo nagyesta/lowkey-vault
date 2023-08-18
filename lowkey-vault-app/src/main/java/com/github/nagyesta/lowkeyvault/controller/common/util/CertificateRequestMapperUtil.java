@@ -82,9 +82,9 @@ public final class CertificateRequestMapperUtil {
                 .contentType(CertContentType.byMimeType(policy.getSecretProperties().getContentType()))
                 //x509
                 .subject(x509Properties.getSubject())
-                .dnsNames(sans.map(SubjectAlternativeNames::getDnsNames).orElse(Set.of()))
-                .emails(sans.map(SubjectAlternativeNames::getEmails).orElse(Set.of()))
-                .upns(sans.map(SubjectAlternativeNames::getUpns).orElse(Set.of()))
+                .dnsNames(sans.map(SubjectAlternativeNames::dnsNames).orElse(Set.of()))
+                .emails(sans.map(SubjectAlternativeNames::emails).orElse(Set.of()))
+                .upns(sans.map(SubjectAlternativeNames::upns).orElse(Set.of()))
                 .keyUsage(Objects.requireNonNullElse(x509Properties.getKeyUsage(), DEFAULT_KEY_USAGES))
                 .extendedKeyUsage(Objects.requireNonNullElse(x509Properties.getExtendedKeyUsage(), DEFAULT_EXT_KEY_USAGES))
                 .validityMonths(Objects.requireNonNullElse(x509Properties.getValidityMonths(), DEFAULT_VALIDITY_MONTHS))

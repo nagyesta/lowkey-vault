@@ -11,13 +11,13 @@ import com.github.nagyesta.lowkeyvault.service.key.impl.EcKeyCreationInput;
 import com.github.nagyesta.lowkeyvault.service.key.impl.KeyCreationInput;
 import com.github.nagyesta.lowkeyvault.service.key.impl.OctKeyCreationInput;
 import com.github.nagyesta.lowkeyvault.service.key.impl.RsaKeyCreationInput;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;

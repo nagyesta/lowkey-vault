@@ -57,9 +57,9 @@ class KeyRotationPolicyV73ModelToEntityConverterTest {
         Assertions.assertEquals(NOW, actual.getUpdatedOn());
         Assertions.assertEquals(expiryTime, actual.getExpiryTime());
         final LifetimeAction actualNotify = actual.getLifetimeActions().get(LifetimeActionType.NOTIFY);
-        Assertions.assertEquals(timeBeforeExpiry, actualNotify.getTrigger().getTimePeriod());
-        Assertions.assertEquals(LifetimeActionTriggerType.TIME_BEFORE_EXPIRY, actualNotify.getTrigger().getTriggerType());
-        Assertions.assertEquals(LifetimeActionType.NOTIFY, actualNotify.getActionType());
+        Assertions.assertEquals(timeBeforeExpiry, actualNotify.trigger().timePeriod());
+        Assertions.assertEquals(LifetimeActionTriggerType.TIME_BEFORE_EXPIRY, actualNotify.trigger().triggerType());
+        Assertions.assertEquals(LifetimeActionType.NOTIFY, actualNotify.actionType());
     }
 
     @Test
@@ -90,9 +90,9 @@ class KeyRotationPolicyV73ModelToEntityConverterTest {
         Assertions.assertTrue(actual.getUpdatedOn().isAfter(NOW));
         Assertions.assertEquals(expiryTime, actual.getExpiryTime());
         final LifetimeAction actualNotify = actual.getLifetimeActions().get(LifetimeActionType.NOTIFY);
-        Assertions.assertEquals(timeBeforeExpiry, actualNotify.getTrigger().getTimePeriod());
-        Assertions.assertEquals(LifetimeActionTriggerType.TIME_BEFORE_EXPIRY, actualNotify.getTrigger().getTriggerType());
-        Assertions.assertEquals(LifetimeActionType.NOTIFY, actualNotify.getActionType());
+        Assertions.assertEquals(timeBeforeExpiry, actualNotify.trigger().timePeriod());
+        Assertions.assertEquals(LifetimeActionTriggerType.TIME_BEFORE_EXPIRY, actualNotify.trigger().triggerType());
+        Assertions.assertEquals(LifetimeActionType.NOTIFY, actualNotify.actionType());
     }
 
     @Test

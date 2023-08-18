@@ -1,9 +1,11 @@
 package com.github.nagyesta.lowkeyvault.service.certificate;
 
+import lombok.Getter;
 import lombok.NonNull;
 
 import java.util.Arrays;
 
+@Getter
 public enum CertificateLifetimeActionActivity {
     /**
      * Noop, simulates email notification actions.
@@ -27,7 +29,4 @@ public enum CertificateLifetimeActionActivity {
                 .orElseThrow(() -> new IllegalArgumentException("Unknown lifetime action activity: " + value));
     }
 
-    public String getValue() {
-        return value;
-    }
 }

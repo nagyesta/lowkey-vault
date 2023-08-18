@@ -46,9 +46,7 @@ public class VaultBackupManagementController extends ErrorHandlingAwareControlle
 
     @Override
     public void afterPropertiesSet() {
-        vaultImporter.getVaults().forEach((baseUri, vault) -> {
-            vaultImportExportExecutor.restoreVault(vaultImporter, baseUri, vault);
-        });
+        vaultImporter.getVaults().forEach((baseUri, vault) -> vaultImportExportExecutor.restoreVault(vaultImporter, baseUri, vault));
     }
 
     @Operation(
@@ -64,7 +62,7 @@ public class VaultBackupManagementController extends ErrorHandlingAwareControlle
                                     schema = @Schema(implementation = ErrorModel.class)
                             ))},
             requestBody = @RequestBody(content = @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE)))
-    @GetMapping("/export")
+    @GetMapping(value = {"/export", "/export/"})
     public ResponseEntity<VaultBackupListModel> export() {
         log.info("Received request to export active vaults.");
         final List<VaultBackupModel> backupModels = vaultImportExportExecutor.backupVaultList(vaultService);

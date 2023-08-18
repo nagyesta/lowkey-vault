@@ -6,6 +6,8 @@ import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
 import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.KeyVaultSecretModel;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,8 +16,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Pattern;
 import java.net.URI;
 
 import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.API_VERSION_7_2;
@@ -34,7 +34,7 @@ public class SecretBackupRestoreController extends CommonSecretBackupRestoreCont
     }
 
     @Override
-    @PostMapping(value = "/secrets/{secretName}/backup",
+    @PostMapping(value = {"/secrets/{secretName}/backup", "/secrets/{secretName}/backup/"},
             params = API_VERSION_7_2,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<SecretBackupModel> backup(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String secretName,
@@ -43,7 +43,7 @@ public class SecretBackupRestoreController extends CommonSecretBackupRestoreCont
     }
 
     @Override
-    @PostMapping(value = "/secrets/restore",
+    @PostMapping(value = {"/secrets/restore", "/secrets/restore/"},
             params = API_VERSION_7_2,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)

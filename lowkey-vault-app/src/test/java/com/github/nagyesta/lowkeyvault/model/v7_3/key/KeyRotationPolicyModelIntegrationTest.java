@@ -8,6 +8,8 @@ import com.github.nagyesta.lowkeyvault.model.v7_3.key.constants.LifetimeActionTy
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.validator.Restore;
 import com.github.nagyesta.lowkeyvault.service.key.constants.LifetimeActionTriggerType;
 import com.github.nagyesta.lowkeyvault.service.key.impl.KeyLifetimeActionTrigger;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -17,8 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
 import java.io.IOException;
 import java.net.URI;
 import java.time.Instant;

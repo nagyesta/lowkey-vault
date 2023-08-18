@@ -74,14 +74,7 @@ configure(subprojects.findAll({
         mavenCentral()
     }
 
-    java {
-        sourceCompatibility = JavaVersion.VERSION_11
-        toolchain {
-            languageVersion = JavaLanguageVersion.of(11)
-        }
-        withJavadocJar()
-        withSourcesJar()
-    }
+    javadoc.options.addStringOption('Xdoclint:none', '-quiet')
 
     jacocoTestReport {
         reports {

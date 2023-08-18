@@ -8,24 +8,11 @@ import lombok.NonNull;
 import java.time.OffsetDateTime;
 import java.time.Period;
 
-public class KeyLifetimeActionTrigger implements LifetimeActionTrigger {
-
-    private final Period timePeriod;
-    private final LifetimeActionTriggerType triggerType;
+public record KeyLifetimeActionTrigger(Period timePeriod, LifetimeActionTriggerType triggerType) implements LifetimeActionTrigger {
 
     public KeyLifetimeActionTrigger(@NonNull final Period timePeriod, @NonNull final LifetimeActionTriggerType triggerType) {
         this.timePeriod = timePeriod;
         this.triggerType = triggerType;
-    }
-
-    @Override
-    public Period getTimePeriod() {
-        return timePeriod;
-    }
-
-    @Override
-    public LifetimeActionTriggerType getTriggerType() {
-        return triggerType;
     }
 
     @Override

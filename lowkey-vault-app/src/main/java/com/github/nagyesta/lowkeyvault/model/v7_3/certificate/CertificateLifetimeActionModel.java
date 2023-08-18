@@ -6,10 +6,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.nagyesta.lowkeyvault.model.json.util.CertificateLifetimeActionDeserializer;
 import com.github.nagyesta.lowkeyvault.model.json.util.CertificateLifetimeActionSerializer;
 import com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionActivity;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
 @Data
 public class CertificateLifetimeActionModel {

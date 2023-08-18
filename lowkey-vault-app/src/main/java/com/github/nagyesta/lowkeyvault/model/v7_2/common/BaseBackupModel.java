@@ -3,10 +3,9 @@ package com.github.nagyesta.lowkeyvault.model.v7_2.common;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.BackupListContainer;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
 /**
  * Base class of backup models.

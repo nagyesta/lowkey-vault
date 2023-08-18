@@ -13,7 +13,6 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class VaultServiceImpl implements VaultService {
@@ -55,7 +54,7 @@ public class VaultServiceImpl implements VaultService {
     public List<VaultFake> list() {
         return vaultFakes.stream()
                 .filter(VaultFake::isActive)
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
     }
 
     @Override
@@ -63,7 +62,7 @@ public class VaultServiceImpl implements VaultService {
         purgeExpired();
         return vaultFakes.stream()
                 .filter(VaultFake::isDeleted)
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
     }
 
     @Override

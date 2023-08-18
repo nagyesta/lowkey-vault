@@ -11,6 +11,8 @@ import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyRotationPolicy;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
@@ -20,8 +22,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Pattern;
 import java.net.URI;
 import java.util.Optional;
 
@@ -42,7 +42,7 @@ public class KeyBackupRestoreController extends CommonKeyBackupRestoreController
     }
 
     @Override
-    @PostMapping(value = "/keys/{keyName}/backup",
+    @PostMapping(value = {"/keys/{keyName}/backup", "/keys/{keyName}/backup/"},
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyBackupModel>
@@ -52,7 +52,7 @@ public class KeyBackupRestoreController extends CommonKeyBackupRestoreController
     }
 
     @Override
-    @PostMapping(value = "/keys/restore",
+    @PostMapping(value = {"/keys/restore", "/keys/restore/"},
             params = API_VERSION_7_3,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)

@@ -80,13 +80,13 @@ jobs:
         with:
           languages: 'java'
       - name: Build with Gradle
-        uses: gradle/gradle-build-action@7ebc1f8b8a5a7c2b921524b5e290d8598554cc91 # v2.8.0
+        uses: gradle/gradle-build-action@ef76a971e2fa3f867b617efd72f2fbd72cf6f8bc # v2.8.0
         with:
           cache-disabled: true
           arguments: build -x test -x dockerClean -x dockerPrepare -x dockerRun -x dockerRunStatus -x dockerStop
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@a09933a12a80f87b87005513f0abb1494c27a716 # v2.21.4
       - name: Check dependencies with Gradle
-        uses: gradle/gradle-build-action@7ebc1f8b8a5a7c2b921524b5e290d8598554cc91 # v2.8.0
+        uses: gradle/gradle-build-action@ef76a971e2fa3f867b617efd72f2fbd72cf6f8bc # v2.8.0
         with:
           arguments: ossIndexAudit -PossIndexUsername=${{ secrets.OSS_INDEX_USER }} -PossIndexPassword=${{ secrets.OSS_INDEX_PASSWORD }}

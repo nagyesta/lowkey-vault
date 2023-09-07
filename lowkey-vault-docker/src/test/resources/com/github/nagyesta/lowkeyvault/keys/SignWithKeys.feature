@@ -15,17 +15,13 @@ Feature: Key sign and verify
         Examples:
             | api | keyName       | keySize | algorithm | clearText                                    |
             | 7.2 | signRsaKey-01 | 2048    | PS256     | The quick brown fox jumps over the lazy dog. |
-            | 7.2 | signRsaKey-02 | 2048    | PS384     | <?xml version="1.0"?><none/>                 |
-            | 7.2 | signRsaKey-03 | 2048    | PS512     | The quick brown fox jumps over the lazy dog. |
-            | 7.2 | signRsaKey-04 | 4096    | RS256     | The quick brown fox jumps over the lazy dog. |
-            | 7.2 | signRsaKey-05 | 4096    | RS384     | <?xml version="1.0"?><none/>                 |
-            | 7.2 | signRsaKey-06 | 4096    | RS512     | The quick brown fox jumps over the lazy dog. |
-            | 7.3 | signRsaKey-07 | 2048    | PS256     | The quick brown fox jumps over the lazy dog. |
-            | 7.3 | signRsaKey-08 | 2048    | PS384     | <?xml version="1.0"?><none/>                 |
-            | 7.3 | signRsaKey-09 | 2048    | PS512     | The quick brown fox jumps over the lazy dog. |
-            | 7.3 | signRsaKey-10 | 4096    | RS256     | The quick brown fox jumps over the lazy dog. |
-            | 7.3 | signRsaKey-11 | 4096    | RS384     | <?xml version="1.0"?><none/>                 |
-            | 7.3 | signRsaKey-12 | 4096    | RS512     | The quick brown fox jumps over the lazy dog. |
+            | 7.3 | signRsaKey-02 | 2048    | PS256     | The quick brown fox jumps over the lazy dog. |
+            | 7.3 | signRsaKey-03 | 2048    | PS384     | <?xml version="1.0"?><none/>                 |
+            | 7.3 | signRsaKey-04 | 2048    | PS512     | The quick brown fox jumps over the lazy dog. |
+            | 7.3 | signRsaKey-05 | 4096    | RS256     | The quick brown fox jumps over the lazy dog. |
+            | 7.3 | signRsaKey-06 | 4096    | RS384     | <?xml version="1.0"?><none/>                 |
+            | 7.3 | signRsaKey-07 | 4096    | RS512     | The quick brown fox jumps over the lazy dog. |
+            | 7.4 | signRsaKey-08 | 2048    | PS256     | The quick brown fox jumps over the lazy dog. |
 
     @Key @KeyCreate @KeySign @EC
     Scenario Outline: EC_SIGN_01 An EC key is created with the key client then used for sign and verify operations
@@ -42,18 +38,12 @@ Feature: Key sign and verify
         Examples:
             | api | keyName   | curveName | algorithm | clearText                                                        |
             | 7.2 | signEc-01 | P-256     | ES256     | The quick brown fox jumps over the lazy dog.                     |
-            | 7.2 | signEc-02 | P-256K    | ES256K    | The quick brown fox jumps over the lazy dog.                     |
-            | 7.2 | signEc-03 | P-384     | ES384     | The quick brown fox jumps over the lazy dog.                     |
-            | 7.2 | signEc-04 | P-521     | ES512     | The quick brown fox jumps over the lazy dog.                     |
-            | 7.2 | signEc-05 | P-256     | ES256     | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
-            | 7.2 | signEc-06 | P-256K    | ES256K    | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
-            | 7.2 | signEc-07 | P-384     | ES384     | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
-            | 7.2 | signEc-08 | P-521     | ES512     | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
-            | 7.3 | signEc-09 | P-256     | ES256     | The quick brown fox jumps over the lazy dog.                     |
-            | 7.3 | signEc-10 | P-256K    | ES256K    | The quick brown fox jumps over the lazy dog.                     |
-            | 7.3 | signEc-11 | P-384     | ES384     | The quick brown fox jumps over the lazy dog.                     |
-            | 7.3 | signEc-12 | P-521     | ES512     | The quick brown fox jumps over the lazy dog.                     |
-            | 7.3 | signEc-13 | P-256     | ES256     | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
-            | 7.3 | signEc-14 | P-256K    | ES256K    | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
-            | 7.3 | signEc-15 | P-384     | ES384     | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
-            | 7.3 | signEc-16 | P-521     | ES512     | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
+            | 7.3 | signEc-02 | P-256     | ES256     | The quick brown fox jumps over the lazy dog.                     |
+            | 7.3 | signEc-03 | P-256K    | ES256K    | The quick brown fox jumps over the lazy dog.                     |
+            | 7.3 | signEc-04 | P-384     | ES384     | The quick brown fox jumps over the lazy dog.                     |
+            | 7.3 | signEc-05 | P-521     | ES512     | The quick brown fox jumps over the lazy dog.                     |
+            | 7.3 | signEc-06 | P-256     | ES256     | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
+            | 7.3 | signEc-07 | P-256K    | ES256K    | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
+            | 7.3 | signEc-08 | P-384     | ES384     | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
+            | 7.3 | signEc-09 | P-521     | ES512     | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
+            | 7.4 | signEc-10 | P-521     | ES512     | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |

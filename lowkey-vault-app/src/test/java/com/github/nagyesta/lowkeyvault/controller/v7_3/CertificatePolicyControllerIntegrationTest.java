@@ -22,7 +22,7 @@ import java.util.Set;
 
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.CERT_NAME_2;
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.CERT_NAME_3;
-import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOOP_BACK_IP_8443;
+import static com.github.nagyesta.lowkeyvault.TestConstantsUri.getRandomVaultUri;
 import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.V_7_3;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -30,6 +30,7 @@ import static org.springframework.http.HttpStatus.OK;
 @SpringBootTest
 class CertificatePolicyControllerIntegrationTest extends BaseCertificateControllerIntegrationTest {
 
+    private static final URI VAULT_URI_1 = getRandomVaultUri();
     @Autowired
     @Qualifier("CertificatePolicyControllerV73")
     private CertificatePolicyController underTest;
@@ -39,18 +40,18 @@ class CertificatePolicyControllerIntegrationTest extends BaseCertificateControll
 
     @BeforeEach
     void setUp() {
-        prepareVaultIfNotExists(HTTPS_LOOP_BACK_IP_8443);
+        prepareVaultIfNotExists(VAULT_URI_1);
     }
 
     @Test
     void testPendingCreateShouldReturnPendingCertificateWhenExists() {
         //given
         final CreateCertificateRequest request = getCreateCertificateRequest();
-        certificateController.create("pending-" + CERT_NAME_2, HTTPS_LOOP_BACK_IP_8443, request);
+        certificateController.create("pending-" + CERT_NAME_2, VAULT_URI_1, request);
 
         //when
         final ResponseEntity<KeyVaultPendingCertificateModel> actual = underTest
-                .pendingCreate("pending-" + CERT_NAME_2, HTTPS_LOOP_BACK_IP_8443);
+                .pendingCreate("pending-" + CERT_NAME_2, VAULT_URI_1);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
@@ -64,7 +65,7 @@ class CertificatePolicyControllerIntegrationTest extends BaseCertificateControll
 
         //when
         Assertions.assertThrows(NotFoundException.class, () -> underTest
-                .pendingCreate("pending-" + CERT_NAME_3, HTTPS_LOOP_BACK_IP_8443));
+                .pendingCreate("pending-" + CERT_NAME_3, VAULT_URI_1));
 
         //then + exception
     }
@@ -74,12 +75,12 @@ class CertificatePolicyControllerIntegrationTest extends BaseCertificateControll
         //given
         final CreateCertificateRequest request = getCreateCertificateRequest();
         final String certificateName = "pending-del-" + CERT_NAME_2;
-        certificateController.create(certificateName, HTTPS_LOOP_BACK_IP_8443, request);
-        certificateController.delete(certificateName, HTTPS_LOOP_BACK_IP_8443);
+        certificateController.create(certificateName, VAULT_URI_1, request);
+        certificateController.delete(certificateName, VAULT_URI_1);
 
         //when
         final ResponseEntity<KeyVaultPendingCertificateModel> actual = underTest
-                .pendingDelete(certificateName, HTTPS_LOOP_BACK_IP_8443);
+                .pendingDelete(certificateName, VAULT_URI_1);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
@@ -93,7 +94,7 @@ class CertificatePolicyControllerIntegrationTest extends BaseCertificateControll
 
         //when
         Assertions.assertThrows(NotFoundException.class, () -> underTest
-                .pendingDelete("pending-del-" + CERT_NAME_3, HTTPS_LOOP_BACK_IP_8443));
+                .pendingDelete("pending-del-" + CERT_NAME_3, VAULT_URI_1));
 
         //then + exception
     }
@@ -114,21 +115,21 @@ class CertificatePolicyControllerIntegrationTest extends BaseCertificateControll
         //given
         final CreateCertificateRequest request = getCreateCertificateRequest();
         final String certificateName = CERT_NAME_2 + "policy";
-        certificateController.create(certificateName, HTTPS_LOOP_BACK_IP_8443, request);
-        final Deque<String> versions = findByUri(HTTPS_LOOP_BACK_IP_8443)
+        certificateController.create(certificateName, VAULT_URI_1, request);
+        final Deque<String> versions = findByUri(VAULT_URI_1)
                 .certificateVaultFake()
                 .getEntities()
-                .getVersions(new CertificateEntityId(HTTPS_LOOP_BACK_IP_8443, certificateName));
+                .getVersions(new CertificateEntityId(VAULT_URI_1, certificateName));
 
         //when
-        final ResponseEntity<CertificatePolicyModel> actual = underTest.getPolicy(certificateName, HTTPS_LOOP_BACK_IP_8443);
+        final ResponseEntity<CertificatePolicyModel> actual = underTest.getPolicy(certificateName, VAULT_URI_1);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
         final CertificatePolicyModel body = actual.getBody();
         Assertions.assertNotNull(body);
-        final URI id = new VersionedCertificateEntityId(HTTPS_LOOP_BACK_IP_8443, certificateName, versions.getFirst())
-                .asPolicyUri(HTTPS_LOOP_BACK_IP_8443);
+        final URI id = new VersionedCertificateEntityId(VAULT_URI_1, certificateName, versions.getFirst())
+                .asPolicyUri(VAULT_URI_1);
         Assertions.assertEquals(request.getPolicy().getSecretProperties(), body.getSecretProperties());
         Assertions.assertEquals(request.getPolicy().getKeyProperties(), body.getKeyProperties());
         Assertions.assertEquals(request.getPolicy().getX509Properties(), body.getX509Properties());
@@ -142,22 +143,22 @@ class CertificatePolicyControllerIntegrationTest extends BaseCertificateControll
         //given
         final CreateCertificateRequest request = getCreateCertificateRequest();
         final String certificateName = CERT_NAME_2 + "-update-policy";
-        certificateController.create(certificateName, HTTPS_LOOP_BACK_IP_8443, request);
-        final Deque<String> versions = findByUri(HTTPS_LOOP_BACK_IP_8443)
+        certificateController.create(certificateName, VAULT_URI_1, request);
+        final Deque<String> versions = findByUri(VAULT_URI_1)
                 .certificateVaultFake()
                 .getEntities()
-                .getVersions(new CertificateEntityId(HTTPS_LOOP_BACK_IP_8443, certificateName));
+                .getVersions(new CertificateEntityId(VAULT_URI_1, certificateName));
         final CertificatePolicyModel update = getUpdatePolicyRequest();
 
         //when
-        final ResponseEntity<CertificatePolicyModel> actual = underTest.updatePolicy(certificateName, HTTPS_LOOP_BACK_IP_8443, update);
+        final ResponseEntity<CertificatePolicyModel> actual = underTest.updatePolicy(certificateName, VAULT_URI_1, update);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
         final CertificatePolicyModel body = actual.getBody();
         Assertions.assertNotNull(body);
-        final URI id = new VersionedCertificateEntityId(HTTPS_LOOP_BACK_IP_8443, certificateName, versions.getFirst())
-                .asPolicyUri(HTTPS_LOOP_BACK_IP_8443);
+        final URI id = new VersionedCertificateEntityId(VAULT_URI_1, certificateName, versions.getFirst())
+                .asPolicyUri(VAULT_URI_1);
         Assertions.assertEquals(update.getSecretProperties(), body.getSecretProperties());
         Assertions.assertEquals(update.getKeyProperties(), body.getKeyProperties());
         Assertions.assertEquals(update.getX509Properties(), body.getX509Properties());

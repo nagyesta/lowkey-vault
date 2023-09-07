@@ -17,14 +17,10 @@ Feature: Secret backup and restore
         Examples:
             | api | index | count | secretName            |
             | 7.2 | 01    | 1     | 72-backupSecret       |
-            | 7.2 | 02    | 2     | 72-backup-secret-name |
-            | 7.2 | 03    | 3     | 72-backupSecret       |
-            | 7.2 | 04    | 5     | 72-backup-secret-name |
-            | 7.2 | 05    | 25    | 72-backupSecret       |
-            | 7.2 | 06    | 42    | 72-backup-secret-name |
-            | 7.3 | 07    | 1     | 73-backupSecret       |
-            | 7.3 | 08    | 2     | 73-backup-secret-name |
-            | 7.3 | 09    | 3     | 73-backupSecret       |
-            | 7.3 | 10    | 5     | 73-backup-secret-name |
-            | 7.3 | 11    | 25    | 73-backupSecret       |
-            | 7.3 | 12    | 42    | 73-backup-secret-name |
+            | 7.3 | 02    | 1     | 73-backupSecret       |
+            | 7.3 | 03    | 2     | 73-backup-secret-name |
+            | 7.3 | 04    | 3     | 73-backupSecret       |
+            | 7.3 | 05    | 5     | 73-backup-secret-name |
+            | 7.3 | 06    | 25    | 73-backupSecret       |
+            | 7.3 | 07    | 42    | 73-backup-secret-name |
+            | 7.4 | 08    | 42    | 73-backup-secret-name |

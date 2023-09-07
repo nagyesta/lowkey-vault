@@ -32,11 +32,11 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsSecrets.*;
+import static com.github.nagyesta.lowkeyvault.TestConstantsUri.getRandomVaultUri;
 import static org.mockito.Mockito.mock;
 
 @LaunchAbortArmed
@@ -60,8 +60,7 @@ class SecretBackupRestoreControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        final String name = UUID.randomUUID().toString();
-        uri = URI.create("https://" + name + ".localhost");
+        uri = getRandomVaultUri();
         vaultService.create(uri, RecoveryLevel.RECOVERABLE_AND_PURGEABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE, null);
     }
 

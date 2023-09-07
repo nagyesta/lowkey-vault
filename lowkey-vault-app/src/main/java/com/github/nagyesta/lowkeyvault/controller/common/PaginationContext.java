@@ -13,7 +13,7 @@ import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.API_VERS
 
 @Data
 @Builder
-class PaginationContext {
+public class PaginationContext {
     private static final String AND = "&";
     private static final String EQUALS = "=";
     private static final String QUESTION_MARK = "?";

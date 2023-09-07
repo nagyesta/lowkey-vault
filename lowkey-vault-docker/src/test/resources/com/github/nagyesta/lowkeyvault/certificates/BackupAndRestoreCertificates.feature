@@ -25,6 +25,8 @@ Feature: Certificate backup and restore
             | 7.3 | 73-importRsaCert2048Pkcs | rsa-localhost.p12   | changeit | PKCS12 | CN=localhost   | 2052-08-28 |
             | 7.3 | 73-importRsaCert4096Pem  | rsa-example-com.pem | -        | PEM    | CN=example.com | 2024-01-27 |
             | 7.3 | 73-importRsaCert4096Pkcs | rsa-example-com.p12 | password | PKCS12 | CN=example.com | 2024-01-27 |
+            | 7.4 | 74-importRsaCert2048Pem  | rsa-localhost.pem   | -        | PEM    | CN=localhost   | 2052-08-28 |
+            | 7.4 | 74-importRsaCert2048Pkcs | rsa-localhost.p12   | changeit | PKCS12 | CN=localhost   | 2052-08-28 |
 
     @Certificate @CertificateImport @CertificateBackup @CertificateRestore @EC
     Scenario Outline: EC_CERT_BACKUP_01 Single versions of EC certificates can be backed up and restored with the certificate client
@@ -49,3 +51,5 @@ Feature: Certificate backup and restore
             | api | certName           | fileName               | password | type   | subject         | expiry     |
             | 7.3 | 73-importEc521Pem  | ec521-ec-localhost.pem | -        | PEM    | CN=ec.localhost | 2023-09-10 |
             | 7.3 | 73-importEc521Pkcs | ec521-ec-localhost.p12 | changeit | PKCS12 | CN=ec.localhost | 2023-09-10 |
+            | 7.4 | 74-importEc521Pem  | ec521-ec-localhost.pem | -        | PEM    | CN=ec.localhost | 2023-09-10 |
+            | 7.4 | 74-importEc521Pkcs | ec521-ec-localhost.p12 | changeit | PKCS12 | CN=ec.localhost | 2023-09-10 |

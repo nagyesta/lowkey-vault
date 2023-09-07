@@ -23,6 +23,7 @@ import com.azure.security.keyvault.secrets.SecretServiceVersion;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nagyesta.lowkeyvault.http.management.LowkeyVaultManagementClient;
 import com.github.nagyesta.lowkeyvault.http.management.impl.LowkeyVaultManagementClientImpl;
+import lombok.Getter;
 import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.conn.ssl.TrustStrategy;
@@ -35,12 +36,13 @@ import java.util.Optional;
 import java.util.function.Function;
 
 /**
- * Modified class based on https://github.com/Azure/azure-sdk-for-java/wiki/Custom-HTTP-Clients.
+ * Modified class based on <a href="https://github.com/Azure/azure-sdk-for-java/wiki/Custom-HTTP-Clients">Azure SDK wiki</a>.
  */
 public final class ApacheHttpClientProvider {
 
     private static final String DUMMY = "dummy";
 
+    @Getter
     private final String vaultUrl;
     private final Function<URI, URI> hostOverrideFunction;
 
@@ -99,7 +101,7 @@ public final class ApacheHttpClientProvider {
     }
 
     public KeyAsyncClient getKeyAsyncClient() {
-        return getKeyAsyncClient(KeyServiceVersion.V7_3);
+        return getKeyAsyncClient(KeyServiceVersion.V7_4);
     }
 
     public KeyAsyncClient getKeyAsyncClient(final KeyServiceVersion version) {
@@ -107,7 +109,7 @@ public final class ApacheHttpClientProvider {
     }
 
     public KeyClient getKeyClient() {
-        return getKeyClient(KeyServiceVersion.V7_3);
+        return getKeyClient(KeyServiceVersion.V7_4);
     }
 
     public KeyClient getKeyClient(final KeyServiceVersion version) {
@@ -115,7 +117,7 @@ public final class ApacheHttpClientProvider {
     }
 
     public CertificateAsyncClient getCertificateAsyncClient() {
-        return getCertificateAsyncClient(CertificateServiceVersion.V7_3);
+        return getCertificateAsyncClient(CertificateServiceVersion.V7_4);
     }
 
     public CertificateAsyncClient getCertificateAsyncClient(final CertificateServiceVersion version) {
@@ -123,7 +125,7 @@ public final class ApacheHttpClientProvider {
     }
 
     public CertificateClient getCertificateClient() {
-        return getCertificateClient(CertificateServiceVersion.V7_3);
+        return getCertificateClient(CertificateServiceVersion.V7_4);
     }
 
     public CertificateClient getCertificateClient(final CertificateServiceVersion version) {
@@ -131,7 +133,7 @@ public final class ApacheHttpClientProvider {
     }
 
     public SecretAsyncClient getSecretAsyncClient() {
-        return getSecretAsyncClient(SecretServiceVersion.V7_3);
+        return getSecretAsyncClient(SecretServiceVersion.V7_4);
     }
 
     public SecretAsyncClient getSecretAsyncClient(final SecretServiceVersion version) {
@@ -139,7 +141,7 @@ public final class ApacheHttpClientProvider {
     }
 
     public SecretClient getSecretClient() {
-        return getSecretClient(SecretServiceVersion.V7_3);
+        return getSecretClient(SecretServiceVersion.V7_4);
     }
 
     public SecretClient getSecretClient(final SecretServiceVersion version) {
@@ -147,7 +149,7 @@ public final class ApacheHttpClientProvider {
     }
 
     public CryptographyAsyncClient getCryptoAsyncClient(final String webKeyId) {
-        return getCryptoAsyncClient(webKeyId, CryptographyServiceVersion.V7_3);
+        return getCryptoAsyncClient(webKeyId, CryptographyServiceVersion.V7_4);
     }
 
     public CryptographyAsyncClient getCryptoAsyncClient(final String webKeyId, final CryptographyServiceVersion version) {
@@ -155,7 +157,7 @@ public final class ApacheHttpClientProvider {
     }
 
     public CryptographyClient getCryptoClient(final String webKeyId) {
-        return getCryptoClient(webKeyId, CryptographyServiceVersion.V7_3);
+        return getCryptoClient(webKeyId, CryptographyServiceVersion.V7_4);
     }
 
     public CryptographyClient getCryptoClient(final String webKeyId, final CryptographyServiceVersion version) {
@@ -196,10 +198,6 @@ public final class ApacheHttpClientProvider {
                 .httpClient(createInstance())
                 .disableChallengeResourceVerification()
                 .retryPolicy(new RetryPolicy(new FixedDelay(0, Duration.ZERO)));
-    }
-
-    public String getVaultUrl() {
-        return vaultUrl;
     }
 
 }

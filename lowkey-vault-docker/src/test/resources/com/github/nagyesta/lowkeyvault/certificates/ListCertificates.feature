@@ -15,6 +15,7 @@ Feature: Certificate list
             | 7.3 | 2     | rsa-localhost.pem | 26    |
             | 7.3 | 3     | rsa-localhost.pem | 2     |
             | 7.3 | 4     | rsa-localhost.pem | 10    |
+            | 7.4 | 5     | rsa-localhost.pem | 10    |
 
     @Certificate @CertificateImport @CertificateList @EC @CreateVault
     Scenario Outline: EC_CERT_LIST_01 Single versions of multiple EC certificates imported then listed with the certificate client
@@ -31,6 +32,7 @@ Feature: Certificate list
             | 7.3 | 2     | ec521-ec-localhost.pem | 26    |
             | 7.3 | 3     | ec521-ec-localhost.pem | 2     |
             | 7.3 | 4     | ec521-ec-localhost.pem | 10    |
+            | 7.4 | 5     | ec521-ec-localhost.pem | 2     |
 
     @Certificate @CertificateImport @CertificateList @RSA @CreateVault
     Scenario Outline: RSA_CERT_LIST_02 A single version of an RSA certificate is imported then versions listed with the certificate client
@@ -44,6 +46,7 @@ Feature: Certificate list
         Examples:
             | api | index | fileName          |
             | 7.3 | 1     | rsa-localhost.pem |
+            | 7.4 | 2     | rsa-localhost.pem |
 
     @Certificate @CertificateImport @CertificateList @EC @CreateVault
     Scenario Outline: EC_CERT_LIST_02 A single version of an EC certificate is imported then versions listed with the certificate client
@@ -57,3 +60,4 @@ Feature: Certificate list
         Examples:
             | api | index | fileName               |
             | 7.3 | 1     | ec521-ec-localhost.pem |
+            | 7.4 | 2     | ec521-ec-localhost.pem |

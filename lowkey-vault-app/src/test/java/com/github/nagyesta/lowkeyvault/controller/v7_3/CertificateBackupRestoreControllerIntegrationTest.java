@@ -1,6 +1,5 @@
 package com.github.nagyesta.lowkeyvault.controller.v7_3;
 
-import com.github.nagyesta.lowkeyvault.controller.common.CommonCertificateBackupRestoreController;
 import com.github.nagyesta.lowkeyvault.model.common.backup.CertificateBackupModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
@@ -20,6 +19,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +31,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_DEFAULT_LOWKEY_VAULT;
+import static com.github.nagyesta.lowkeyvault.TestConstantsUri.getRandomVaultUri;
 
 @SpringBootTest
 class CertificateBackupRestoreControllerIntegrationTest {
@@ -55,12 +55,13 @@ class CertificateBackupRestoreControllerIntegrationTest {
     @Autowired
     private CertificateController certificateController;
     @Autowired
-    private CommonCertificateBackupRestoreController underTest;
+    @Qualifier("CertificateBackupRestoreControllerV73")
+    private CertificateBackupRestoreController underTest;
 
     public static Stream<Arguments> certTypeProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(CertContentType.PEM, URI.create(HTTPS_DEFAULT_LOWKEY_VAULT + ".pem.local:8043")))
-                .add(Arguments.of(CertContentType.PKCS12, URI.create(HTTPS_DEFAULT_LOWKEY_VAULT + ".pkcs12.local:8043")))
+                .add(Arguments.of(CertContentType.PEM, getRandomVaultUri()))
+                .add(Arguments.of(CertContentType.PKCS12, getRandomVaultUri()))
                 .build();
     }
 
@@ -164,7 +165,7 @@ class CertificateBackupRestoreControllerIntegrationTest {
                 .map(v -> new VersionedKeyEntityId(entityId.vault(), entityId.id(), v))
                 .filter(vaultFake.keyVaultFake().getEntities()::containsEntity)
                 .map(vaultFake.keyVaultFake().getEntities()::getReadOnlyEntity)
-                .collect(Collectors.toList());
+                .toList();
         Assertions.assertEquals(1, keys.size());
         return keys.get(0);
     }

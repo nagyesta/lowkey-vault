@@ -57,7 +57,7 @@ class CertificateEntityToV73CertificateItemModelConverterTest {
         //given
         final CertificateEntityToV73PropertiesModelConverter properties = mock(CertificateEntityToV73PropertiesModelConverter.class);
         final CertificateConverterRegistry registry = mock(CertificateConverterRegistry.class);
-        when(registry.propertiesConverter(eq(ApiConstants.V_7_3))).thenReturn(properties);
+        when(registry.propertiesConverter(eq(ApiConstants.V_7_4))).thenReturn(properties);
         final CertificateEntityToV73CertificateItemModelConverter underTest =
                 new CertificateEntityToV73CertificateItemModelConverter(registry);
         final byte[] expectedThumbprint = THUMBPRINT;

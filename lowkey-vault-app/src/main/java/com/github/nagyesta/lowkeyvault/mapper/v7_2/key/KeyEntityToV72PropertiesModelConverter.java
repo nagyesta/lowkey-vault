@@ -39,6 +39,6 @@ public class KeyEntityToV72PropertiesModelConverter
 
     @Override
     public SortedSet<String> supportedVersions() {
-        return ApiVersionAware.V7_2_AND_V7_3;
+        return ApiVersionAware.ALL_VERSIONS;
     }
 }

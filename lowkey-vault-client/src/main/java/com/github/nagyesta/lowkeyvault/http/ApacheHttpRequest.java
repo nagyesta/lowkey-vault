@@ -12,7 +12,7 @@ import java.util.function.Function;
 
 
 /**
- * Modified class based on https://github.com/Azure/azure-sdk-for-java/wiki/Custom-HTTP-Clients.
+ * Modified class based on <a href="https://github.com/Azure/azure-sdk-for-java/wiki/Custom-HTTP-Clients">Azure SDK wiki</a>.
  */
 final class ApacheHttpRequest extends HttpEntityEnclosingRequestBase {
     private final String method;

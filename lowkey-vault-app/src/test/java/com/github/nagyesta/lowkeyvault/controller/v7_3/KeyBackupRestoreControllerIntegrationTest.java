@@ -43,11 +43,15 @@ import java.security.KeyPair;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.time.Period;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.*;
+import static com.github.nagyesta.lowkeyvault.TestConstantsUri.getRandomVaultUri;
 import static com.github.nagyesta.lowkeyvault.model.v7_3.key.constants.LifetimeActionType.ROTATE;
 import static org.mockito.Mockito.mock;
 
@@ -73,8 +77,7 @@ class KeyBackupRestoreControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        final String name = UUID.randomUUID().toString();
-        uri = URI.create("https://" + name + ".localhost");
+        uri = getRandomVaultUri();
         vaultService.create(uri, RecoveryLevel.RECOVERABLE_AND_PURGEABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE, null);
     }
 

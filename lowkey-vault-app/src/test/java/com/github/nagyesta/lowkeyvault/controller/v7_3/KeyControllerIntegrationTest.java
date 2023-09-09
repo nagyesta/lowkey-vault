@@ -35,6 +35,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.stream.Stream;
 
+import static com.github.nagyesta.lowkeyvault.TestConstantsUri.getRandomVaultUri;
+
 @LaunchAbortArmed
 @SpringBootTest
 class KeyControllerIntegrationTest {
@@ -72,7 +74,8 @@ class KeyControllerIntegrationTest {
         key.setX(new byte[2]);
         key.setY(new byte[2]);
         input.setKey(key);
-        final URI baseUri = URI.create("https://primary.localhost:8443");
+        final URI baseUri = getRandomVaultUri();
+        vaultService.create(baseUri);
         final String name = "invalid-ec-name";
 
         //when
@@ -86,7 +89,8 @@ class KeyControllerIntegrationTest {
         //given
         final String resource = "/key/import/rsa-import-valid.json";
         final ImportKeyRequest input = loadResourceAsObject(resource);
-        final URI baseUri = URI.create("https://primary.localhost:8443");
+        final URI baseUri = getRandomVaultUri();
+        vaultService.create(baseUri);
         final String name = "rsa-name";
         final ReadOnlyVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> entities = vaultService
                 .findByUri(baseUri)
@@ -112,7 +116,8 @@ class KeyControllerIntegrationTest {
         //given
         final String resource = "/key/import/aes-import-valid.json";
         final ImportKeyRequest input = loadResourceAsObject(resource);
-        final URI baseUri = URI.create("https://primary.localhost:8443");
+        final URI baseUri = getRandomVaultUri();
+        vaultService.create(baseUri);
         final String name = "aes-name";
         final ReadOnlyVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> entities = vaultService
                 .findByUri(baseUri)
@@ -138,7 +143,8 @@ class KeyControllerIntegrationTest {
         //given
         final String resource = "/key/import/ec-import-valid.json";
         final ImportKeyRequest input = loadResourceAsObject(resource);
-        final URI baseUri = URI.create("https://primary.localhost:8443");
+        final URI baseUri = getRandomVaultUri();
+        vaultService.create(baseUri);
         final String name = "ec-name";
         final ReadOnlyVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> entities = vaultService
                 .findByUri(baseUri)

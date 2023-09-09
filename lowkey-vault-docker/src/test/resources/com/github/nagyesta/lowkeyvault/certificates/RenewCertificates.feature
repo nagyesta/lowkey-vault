@@ -23,6 +23,7 @@ Feature: Certificate renewal/recreation
             | api | index | certName           | type | subject        | expiryMonths | shiftDays |
             | 7.3 | 1     | 73-recreateRsaCert | PEM  | CN=localhost   | 20           | 100       |
             | 7.3 | 2     | 73-renewRsaCert    | PEM  | CN=example.com | 5            | 360       |
+            | 7.4 | 3     | 74-recreateRsaCert | PEM  | CN=localhost   | 20           | 100       |
 
     @Certificate @CertificateCreate @CertificateTimeShift @EC
     Scenario Outline: EC_CERT_TIME_SHIFT_01 Single versions of EC certificates can be recreated or renewed with time shift
@@ -47,3 +48,4 @@ Feature: Certificate renewal/recreation
             | api | index | certName          | type | subject        | expiryMonths | shiftDays |
             | 7.3 | 1     | 73-recreateEcCert | PEM  | CN=localhost   | 20           | 100       |
             | 7.3 | 2     | 73-renewEcCert    | PEM  | CN=example.com | 5            | 360       |
+            | 7.4 | 3     | 74-renewEcCert    | PEM  | CN=example.com | 5            | 360       |

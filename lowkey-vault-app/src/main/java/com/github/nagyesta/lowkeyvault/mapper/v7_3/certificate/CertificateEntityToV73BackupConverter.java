@@ -83,6 +83,6 @@ public class CertificateEntityToV73BackupConverter
 
     @Override
     public SortedSet<String> supportedVersions() {
-        return ApiVersionAware.V7_3;
+        return ApiVersionAware.V7_3_AND_LATER;
     }
 }

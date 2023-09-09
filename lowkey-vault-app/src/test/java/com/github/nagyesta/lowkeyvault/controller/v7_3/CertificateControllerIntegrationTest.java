@@ -31,7 +31,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.*;
-import static com.github.nagyesta.lowkeyvault.TestConstantsUri.*;
+import static com.github.nagyesta.lowkeyvault.TestConstantsUri.getRandomVaultUri;
 import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.V_7_3;
 import static com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionActivity.AUTO_RENEW;
 import static com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionActivity.EMAIL_CONTACTS;
@@ -43,24 +43,29 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
 
     private static final int A_HUNDRED_YEARS = 36500;
     private static final int ONE_HUNDRED = 100;
+    private static final URI VAULT_URI_1 = getRandomVaultUri();
+    private static final URI VAULT_URI_2 = getRandomVaultUri();
     @Autowired
     @Qualifier("CertificateControllerV73")
     private CertificateController underTest;
 
     @BeforeEach
     void setUp() {
-        prepareVaultIfNotExists(HTTPS_DEFAULT_LOWKEY_VAULT_80);
-        prepareVaultIfNotExists(HTTPS_LOOP_BACK_IP_80);
+        prepareVaultIfNotExists(VAULT_URI_1);
+        prepareVaultIfNotExists(VAULT_URI_2);
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")
     public static Stream<Arguments> certificateListProvider() {
+        final URI uri1 = getRandomVaultUri();
+        final URI uri2 = getRandomVaultUri();
+        final URI uri3 = getRandomVaultUri();
         return Stream.<Arguments>builder()
-                .add(Arguments.of(HTTPS_LOCALHOST, 5, 0,
-                        HTTPS_LOCALHOST + "/certificates?api-version=7.3&$skiptoken=5&maxresults=5&includePending=true"))
-                .add(Arguments.of(HTTPS_LOCALHOST_80, 3, 1,
-                        HTTPS_LOCALHOST_80 + "/certificates?api-version=7.3&$skiptoken=4&maxresults=3&includePending=true"))
-                .add(Arguments.of(HTTPS_DEFAULT_LOWKEY_VAULT, 3, 8,
+                .add(Arguments.of(uri1, 5, 0,
+                        uri1 + "/certificates?api-version=7.3&$skiptoken=5&maxresults=5&includePending=true"))
+                .add(Arguments.of(uri2, 3, 1,
+                        uri2 + "/certificates?api-version=7.3&$skiptoken=4&maxresults=3&includePending=true"))
+                .add(Arguments.of(uri3, 3, 8,
                         null))
                 .build();
     }
@@ -72,7 +77,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
 
         //when
         final ResponseEntity<KeyVaultPendingCertificateModel> actual = underTest
-                .create("create-" + CERT_NAME_1, HTTPS_DEFAULT_LOWKEY_VAULT_80, request);
+                .create("create-" + CERT_NAME_1, VAULT_URI_1, request);
 
         //then
         Assertions.assertEquals(ACCEPTED, actual.getStatusCode());
@@ -90,7 +95,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
 
         //when
         Assertions.assertThrows(ConstraintViolationException.class, () -> underTest
-                .create("create-invalid-" + CERT_NAME_1, HTTPS_DEFAULT_LOWKEY_VAULT_80, request));
+                .create("create-invalid-" + CERT_NAME_1, VAULT_URI_1, request));
 
         //then + exception
     }
@@ -105,7 +110,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest
-                .create("create-invalid-" + CERT_NAME_1, HTTPS_DEFAULT_LOWKEY_VAULT_80, request));
+                .create("create-invalid-" + CERT_NAME_1, VAULT_URI_1, request));
 
         //then + exception
     }
@@ -122,7 +127,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
 
         //when
         Assertions.assertThrows(ConstraintViolationException.class, () -> underTest
-                .create("create-invalid-" + CERT_NAME_1, HTTPS_DEFAULT_LOWKEY_VAULT_80, request));
+                .create("create-invalid-" + CERT_NAME_1, VAULT_URI_1, request));
 
         //then + exception
     }
@@ -135,7 +140,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
 
         //when
         final ResponseEntity<KeyVaultPendingCertificateModel> actual = underTest
-                .create("create-lifetime-" + CERT_NAME_1, HTTPS_DEFAULT_LOWKEY_VAULT_80, request);
+                .create("create-lifetime-" + CERT_NAME_1, VAULT_URI_1, request);
 
         //then
         Assertions.assertEquals(ACCEPTED, actual.getStatusCode());
@@ -147,14 +152,14 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     void testGetShouldReturnModelWhenCalledWithValidData() {
         //given
         final CreateCertificateRequest request = getCreateCertificateRequest();
-        underTest.create(CERT_NAME_2, HTTPS_DEFAULT_LOWKEY_VAULT_80, request);
-        final Deque<String> versions = findByUri(HTTPS_DEFAULT_LOWKEY_VAULT_80)
+        underTest.create(CERT_NAME_2, VAULT_URI_1, request);
+        final Deque<String> versions = findByUri(VAULT_URI_1)
                 .certificateVaultFake()
                 .getEntities()
-                .getVersions(new CertificateEntityId(HTTPS_DEFAULT_LOWKEY_VAULT_80, CERT_NAME_2));
+                .getVersions(new CertificateEntityId(VAULT_URI_1, CERT_NAME_2));
 
         //when
-        final ResponseEntity<KeyVaultCertificateModel> actual = underTest.get(CERT_NAME_2, HTTPS_DEFAULT_LOWKEY_VAULT_80);
+        final ResponseEntity<KeyVaultCertificateModel> actual = underTest.get(CERT_NAME_2, VAULT_URI_1);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
@@ -163,8 +168,8 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
         Assertions.assertNotNull(body.getCertificate());
         Assertions.assertNotNull(body.getThumbprint());
         Assertions.assertEquals(Collections.emptyMap(), body.getTags());
-        final URI id = new VersionedCertificateEntityId(HTTPS_DEFAULT_LOWKEY_VAULT_80, CERT_NAME_2, versions.getFirst())
-                .asUri(HTTPS_DEFAULT_LOWKEY_VAULT_80);
+        final URI id = new VersionedCertificateEntityId(VAULT_URI_1, CERT_NAME_2, versions.getFirst())
+                .asUri(VAULT_URI_1);
         Assertions.assertEquals(id.toString(), body.getId());
     }
 
@@ -172,15 +177,15 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     void testGetWithVersionShouldReturnModelWhenCalledWithValidData() {
         //given
         final CreateCertificateRequest request = getCreateCertificateRequest();
-        underTest.create(CERT_NAME_3, HTTPS_DEFAULT_LOWKEY_VAULT_80, request);
-        final Deque<String> versions = findByUri(HTTPS_DEFAULT_LOWKEY_VAULT_80)
+        underTest.create(CERT_NAME_3, VAULT_URI_1, request);
+        final Deque<String> versions = findByUri(VAULT_URI_1)
                 .certificateVaultFake()
                 .getEntities()
-                .getVersions(new CertificateEntityId(HTTPS_DEFAULT_LOWKEY_VAULT_80, CERT_NAME_3));
+                .getVersions(new CertificateEntityId(VAULT_URI_1, CERT_NAME_3));
 
         //when
         final ResponseEntity<KeyVaultCertificateModel> actual = underTest
-                .getWithVersion(CERT_NAME_3, versions.getFirst(), HTTPS_DEFAULT_LOWKEY_VAULT_80);
+                .getWithVersion(CERT_NAME_3, versions.getFirst(), VAULT_URI_1);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
@@ -189,8 +194,8 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
         Assertions.assertNotNull(body.getCertificate());
         Assertions.assertNotNull(body.getThumbprint());
         Assertions.assertEquals(Collections.emptyMap(), body.getTags());
-        final URI id = new VersionedCertificateEntityId(HTTPS_DEFAULT_LOWKEY_VAULT_80, CERT_NAME_3, versions.getFirst())
-                .asUri(HTTPS_DEFAULT_LOWKEY_VAULT_80);
+        final URI id = new VersionedCertificateEntityId(VAULT_URI_1, CERT_NAME_3, versions.getFirst())
+                .asUri(VAULT_URI_1);
         Assertions.assertEquals(id.toString(), body.getId());
     }
 
@@ -213,7 +218,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
 
         //when
         final ResponseEntity<KeyVaultCertificateModel> actual = underTest
-                .importCertificate(name, HTTPS_DEFAULT_LOWKEY_VAULT_80, request);
+                .importCertificate(name, VAULT_URI_1, request);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
@@ -222,7 +227,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
         Assertions.assertNotNull(body.getCertificate());
         Assertions.assertNotNull(body.getThumbprint());
         Assertions.assertEquals(Collections.emptyMap(), body.getTags());
-        Assertions.assertTrue(body.getId().startsWith(HTTPS_DEFAULT_LOWKEY_VAULT_80.toString()));
+        Assertions.assertTrue(body.getId().startsWith(VAULT_URI_1.toString()));
         Assertions.assertTrue(body.getId().contains(name));
     }
 
@@ -234,7 +239,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
 
         //when
         final ResponseEntity<KeyVaultCertificateModel> actual = underTest
-                .importCertificate(name, HTTPS_DEFAULT_LOWKEY_VAULT_80, request);
+                .importCertificate(name, VAULT_URI_1, request);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
@@ -243,7 +248,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
         Assertions.assertNotNull(body.getCertificate());
         Assertions.assertNotNull(body.getThumbprint());
         Assertions.assertEquals(Collections.emptyMap(), body.getTags());
-        Assertions.assertTrue(body.getId().startsWith(HTTPS_DEFAULT_LOWKEY_VAULT_80.toString()));
+        Assertions.assertTrue(body.getId().startsWith(VAULT_URI_1.toString()));
         Assertions.assertTrue(body.getId().contains(name));
     }
 
@@ -255,7 +260,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
 
         //when
         final ResponseEntity<KeyVaultCertificateModel> actual = underTest
-                .importCertificate(name, HTTPS_DEFAULT_LOWKEY_VAULT_80, request);
+                .importCertificate(name, VAULT_URI_1, request);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
@@ -264,7 +269,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
         Assertions.assertNotNull(body.getCertificate());
         Assertions.assertNotNull(body.getThumbprint());
         Assertions.assertEquals(Collections.emptyMap(), body.getTags());
-        Assertions.assertTrue(body.getId().startsWith(HTTPS_DEFAULT_LOWKEY_VAULT_80.toString()));
+        Assertions.assertTrue(body.getId().startsWith(VAULT_URI_1.toString()));
         Assertions.assertTrue(body.getId().contains(name));
     }
 
@@ -276,7 +281,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
 
         //when
         final ResponseEntity<KeyVaultCertificateModel> actual = underTest
-                .importCertificate(name, HTTPS_DEFAULT_LOWKEY_VAULT_80, request);
+                .importCertificate(name, VAULT_URI_1, request);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
@@ -285,7 +290,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
         Assertions.assertNotNull(body.getCertificate());
         Assertions.assertNotNull(body.getThumbprint());
         Assertions.assertEquals(Collections.emptyMap(), body.getTags());
-        Assertions.assertTrue(body.getId().startsWith(HTTPS_DEFAULT_LOWKEY_VAULT_80.toString()));
+        Assertions.assertTrue(body.getId().startsWith(VAULT_URI_1.toString()));
         Assertions.assertTrue(body.getId().contains(name));
     }
 
@@ -300,7 +305,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
 
         //when
         final ResponseEntity<KeyVaultCertificateModel> actual = underTest
-                .importCertificate(name, HTTPS_DEFAULT_LOWKEY_VAULT_80, request);
+                .importCertificate(name, VAULT_URI_1, request);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
@@ -324,7 +329,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.importCertificate(name, HTTPS_DEFAULT_LOWKEY_VAULT_80, request));
+                () -> underTest.importCertificate(name, VAULT_URI_1, request));
 
         //then + exception
     }
@@ -338,7 +343,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.importCertificate(name, HTTPS_DEFAULT_LOWKEY_VAULT_80, request));
+                () -> underTest.importCertificate(name, VAULT_URI_1, request));
 
         //then + exception
     }
@@ -352,7 +357,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.importCertificate(name, HTTPS_DEFAULT_LOWKEY_VAULT_80, request));
+                () -> underTest.importCertificate(name, VAULT_URI_1, request));
 
         //then + exception
     }
@@ -366,7 +371,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.importCertificate(name, HTTPS_DEFAULT_LOWKEY_VAULT_80, request));
+                () -> underTest.importCertificate(name, VAULT_URI_1, request));
 
         //then + exception
     }
@@ -380,7 +385,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.importCertificate(name, HTTPS_DEFAULT_LOWKEY_VAULT_80, request));
+                () -> underTest.importCertificate(name, VAULT_URI_1, request));
 
         //then + exception
     }
@@ -394,7 +399,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.importCertificate(name, HTTPS_DEFAULT_LOWKEY_VAULT_80, request));
+                () -> underTest.importCertificate(name, VAULT_URI_1, request));
 
         //then + exception
     }
@@ -411,7 +416,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.importCertificate(name, HTTPS_DEFAULT_LOWKEY_VAULT_80, request));
+                () -> underTest.importCertificate(name, VAULT_URI_1, request));
 
         //then + exception
     }
@@ -422,11 +427,11 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
         final CertificateImportRequest request = getCreateImportRequest("/cert/ec.pem", CertContentType.PEM);
         final String name = CERT_NAME_1 + "-versions";
         final KeyVaultCertificateModel imported = Objects
-                .requireNonNull(underTest.importCertificate(name, HTTPS_DEFAULT_LOWKEY_VAULT_80, request).getBody());
+                .requireNonNull(underTest.importCertificate(name, VAULT_URI_1, request).getBody());
 
         //when
         final ResponseEntity<KeyVaultItemListModel<KeyVaultCertificateItemModel>> actual = underTest
-                .versions(name, HTTPS_DEFAULT_LOWKEY_VAULT_80, 1, 0);
+                .versions(name, VAULT_URI_1, 1, 0);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
@@ -479,21 +484,21 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
         //given
         final CreateCertificateRequest request = getCreateCertificateRequest();
         final String certificateName = CERT_NAME_2 + "-delete";
-        underTest.create(certificateName, HTTPS_DEFAULT_LOWKEY_VAULT_80, request);
-        final CertificateVaultFake certificateVaultFake = findByUri(HTTPS_DEFAULT_LOWKEY_VAULT_80)
+        underTest.create(certificateName, VAULT_URI_1, request);
+        final CertificateVaultFake certificateVaultFake = findByUri(VAULT_URI_1)
                 .certificateVaultFake();
         final Deque<String> versions = certificateVaultFake
                 .getEntities()
-                .getVersions(new CertificateEntityId(HTTPS_DEFAULT_LOWKEY_VAULT_80, certificateName));
+                .getVersions(new CertificateEntityId(VAULT_URI_1, certificateName));
 
         //when
-        final ResponseEntity<DeletedKeyVaultCertificateModel> actual = underTest.delete(certificateName, HTTPS_DEFAULT_LOWKEY_VAULT_80);
+        final ResponseEntity<DeletedKeyVaultCertificateModel> actual = underTest.delete(certificateName, VAULT_URI_1);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
         final DeletedKeyVaultCertificateModel body = actual.getBody();
         final VersionedCertificateEntityId expectedId =
-                new VersionedCertificateEntityId(HTTPS_DEFAULT_LOWKEY_VAULT_80, certificateName, versions.getFirst());
+                new VersionedCertificateEntityId(VAULT_URI_1, certificateName, versions.getFirst());
 
         assertExpectedCertificateModel(request, expectedId, body);
         assertIsDeletedModel(body, expectedId);
@@ -506,13 +511,13 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
         //given
         final CreateCertificateRequest request = getCreateCertificateRequest();
         final String certificateName = CERT_NAME_2 + "-purge";
-        underTest.create(certificateName, HTTPS_DEFAULT_LOWKEY_VAULT_80, request);
-        final CertificateVaultFake certificateVaultFake = findByUri(HTTPS_DEFAULT_LOWKEY_VAULT_80)
+        underTest.create(certificateName, VAULT_URI_1, request);
+        final CertificateVaultFake certificateVaultFake = findByUri(VAULT_URI_1)
                 .certificateVaultFake();
-        certificateVaultFake.delete(new CertificateEntityId(HTTPS_DEFAULT_LOWKEY_VAULT_80, certificateName));
+        certificateVaultFake.delete(new CertificateEntityId(VAULT_URI_1, certificateName));
 
         //when
-        final ResponseEntity<Void> actual = underTest.purgeDeleted(certificateName, HTTPS_DEFAULT_LOWKEY_VAULT_80);
+        final ResponseEntity<Void> actual = underTest.purgeDeleted(certificateName, VAULT_URI_1);
 
         //then
         Assertions.assertEquals(NO_CONTENT, actual.getStatusCode());
@@ -525,10 +530,10 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
         //given
         final CreateCertificateRequest request = getCreateCertificateRequest();
         final String certificateName = CERT_NAME_2 + "-recover";
-        underTest.create(certificateName, HTTPS_DEFAULT_LOWKEY_VAULT_80, request);
-        final CertificateVaultFake certificateVaultFake = findByUri(HTTPS_DEFAULT_LOWKEY_VAULT_80)
+        underTest.create(certificateName, VAULT_URI_1, request);
+        final CertificateVaultFake certificateVaultFake = findByUri(VAULT_URI_1)
                 .certificateVaultFake();
-        final CertificateEntityId entityId = new CertificateEntityId(HTTPS_DEFAULT_LOWKEY_VAULT_80, certificateName);
+        final CertificateEntityId entityId = new CertificateEntityId(VAULT_URI_1, certificateName);
         final Deque<String> versions = certificateVaultFake
                 .getEntities()
                 .getVersions(entityId);
@@ -536,13 +541,13 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
 
         //when
         final ResponseEntity<KeyVaultCertificateModel> actual = underTest
-                .recoverDeletedCertificate(certificateName, HTTPS_DEFAULT_LOWKEY_VAULT_80);
+                .recoverDeletedCertificate(certificateName, VAULT_URI_1);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
         final KeyVaultCertificateModel body = actual.getBody();
         final VersionedCertificateEntityId expectedId =
-                new VersionedCertificateEntityId(HTTPS_DEFAULT_LOWKEY_VAULT_80, certificateName, versions.getFirst());
+                new VersionedCertificateEntityId(VAULT_URI_1, certificateName, versions.getFirst());
 
         assertExpectedCertificateModel(request, expectedId, body);
         Assertions.assertTrue(certificateVaultFake.getEntities().containsName(certificateName));
@@ -554,10 +559,10 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
         //given
         final CreateCertificateRequest request = getCreateCertificateRequest();
         final String certificateName = CERT_NAME_2 + "-get-deleted";
-        underTest.create(certificateName, HTTPS_DEFAULT_LOWKEY_VAULT_80, request);
-        final CertificateVaultFake certificateVaultFake = findByUri(HTTPS_DEFAULT_LOWKEY_VAULT_80)
+        underTest.create(certificateName, VAULT_URI_1, request);
+        final CertificateVaultFake certificateVaultFake = findByUri(VAULT_URI_1)
                 .certificateVaultFake();
-        final CertificateEntityId entityId = new CertificateEntityId(HTTPS_DEFAULT_LOWKEY_VAULT_80, certificateName);
+        final CertificateEntityId entityId = new CertificateEntityId(VAULT_URI_1, certificateName);
         final Deque<String> versions = certificateVaultFake
                 .getEntities()
                 .getVersions(entityId);
@@ -565,13 +570,13 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
 
         //when
         final ResponseEntity<DeletedKeyVaultCertificateModel> actual = underTest
-                .getDeletedCertificate(certificateName, HTTPS_DEFAULT_LOWKEY_VAULT_80);
+                .getDeletedCertificate(certificateName, VAULT_URI_1);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
         final DeletedKeyVaultCertificateModel body = actual.getBody();
         final VersionedCertificateEntityId expectedId =
-                new VersionedCertificateEntityId(HTTPS_DEFAULT_LOWKEY_VAULT_80, certificateName, versions.getFirst());
+                new VersionedCertificateEntityId(VAULT_URI_1, certificateName, versions.getFirst());
 
         assertExpectedCertificateModel(request, expectedId, body);
         assertIsDeletedModel(body, expectedId);
@@ -584,15 +589,15 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
         //given
         final CreateCertificateRequest request = getCreateCertificateRequest();
         final String certificateName = CERT_NAME_2;
-        underTest.create(certificateName, HTTPS_LOOP_BACK_IP_80, request);
-        final CertificateVaultFake certificateVaultFake = findByUri(HTTPS_LOOP_BACK_IP_80)
+        underTest.create(certificateName, VAULT_URI_2, request);
+        final CertificateVaultFake certificateVaultFake = findByUri(VAULT_URI_2)
                 .certificateVaultFake();
-        final CertificateEntityId entityId = new CertificateEntityId(HTTPS_LOOP_BACK_IP_80, certificateName);
+        final CertificateEntityId entityId = new CertificateEntityId(VAULT_URI_2, certificateName);
         certificateVaultFake.delete(entityId);
 
         //when
         final ResponseEntity<KeyVaultItemListModel<DeletedKeyVaultCertificateItemModel>> actual =
-                underTest.listDeletedCertificates(HTTPS_LOOP_BACK_IP_80, 1, 0, true);
+                underTest.listDeletedCertificates(VAULT_URI_2, 1, 0, true);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
@@ -601,7 +606,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
         Assertions.assertNull(body.getNextLink());
         Assertions.assertEquals(1, body.getValue().size());
         final DeletedKeyVaultCertificateItemModel itemModel = body.getValue().get(0);
-        Assertions.assertEquals(entityId.asUriNoVersion(HTTPS_LOOP_BACK_IP_80).toString(), itemModel.getCertificateId());
+        Assertions.assertEquals(entityId.asUriNoVersion(VAULT_URI_2).toString(), itemModel.getCertificateId());
         assertIsDeletedModel(itemModel, entityId);
     }
 
@@ -610,11 +615,11 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
         //given
         final CreateCertificateRequest request = getCreateCertificateRequest();
         final String certificateName = CERT_NAME_2 + "-update-properties";
-        underTest.create(certificateName, HTTPS_DEFAULT_LOWKEY_VAULT_80, request);
-        final Deque<String> versions = findByUri(HTTPS_DEFAULT_LOWKEY_VAULT_80)
+        underTest.create(certificateName, VAULT_URI_1, request);
+        final Deque<String> versions = findByUri(VAULT_URI_1)
                 .certificateVaultFake()
                 .getEntities()
-                .getVersions(new CertificateEntityId(HTTPS_DEFAULT_LOWKEY_VAULT_80, certificateName));
+                .getVersions(new CertificateEntityId(VAULT_URI_1, certificateName));
         final UpdateCertificateRequest properties = new UpdateCertificateRequest();
         final CertificatePropertiesModel attributes = new CertificatePropertiesModel();
         attributes.setEnabled(false);
@@ -623,7 +628,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
 
         //when
         final ResponseEntity<KeyVaultCertificateModel> actual = underTest
-                .updateCertificateProperties(certificateName, versions.getLast(), HTTPS_DEFAULT_LOWKEY_VAULT_80, properties);
+                .updateCertificateProperties(certificateName, versions.getLast(), VAULT_URI_1, properties);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
@@ -661,7 +666,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
             final VersionedCertificateEntityId expectedId,
             final KeyVaultCertificateModel body) {
         Assertions.assertNotNull(body);
-        final URI id = expectedId.asUri(HTTPS_DEFAULT_LOWKEY_VAULT_80);
+        final URI id = expectedId.asUri(VAULT_URI_1);
         Assertions.assertEquals(id.toString(), body.getId());
         Assertions.assertEquals(request.getPolicy().getSecretProperties(), body.getPolicy().getSecretProperties());
         Assertions.assertEquals(request.getPolicy().getKeyProperties(), body.getPolicy().getKeyProperties());

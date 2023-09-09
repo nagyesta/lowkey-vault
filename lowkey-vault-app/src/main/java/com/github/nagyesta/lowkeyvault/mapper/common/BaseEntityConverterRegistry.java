@@ -24,7 +24,7 @@ public abstract class BaseEntityConverterRegistry<K extends EntityId, V extends 
 
     @Override
     public RecoveryAwareConverter<E, M, DM> modelConverter(final String apiVersion) {
-        return modelConverters.get(apiVersion);
+        return getNonNullConverterForApiVersion(modelConverters, apiVersion);
     }
 
     @Override
@@ -34,7 +34,7 @@ public abstract class BaseEntityConverterRegistry<K extends EntityId, V extends 
 
     @Override
     public AliasAwareConverter<E, PM> propertiesConverter(final String apiVersion) {
-        return propertiesConverters.get(apiVersion);
+        return getNonNullConverterForApiVersion(propertiesConverters, apiVersion);
     }
 
     @Override
@@ -44,7 +44,7 @@ public abstract class BaseEntityConverterRegistry<K extends EntityId, V extends 
 
     @Override
     public RecoveryAwareConverter<E, IM, DIM> itemConverter(final String apiVersion) {
-        return itemConverters.get(apiVersion);
+        return getNonNullConverterForApiVersion(itemConverters, apiVersion);
     }
 
     @Override
@@ -54,7 +54,7 @@ public abstract class BaseEntityConverterRegistry<K extends EntityId, V extends 
 
     @Override
     public RecoveryAwareConverter<E, IM, DIM> versionedItemConverter(final String apiVersion) {
-        return versionedItemConverters.get(apiVersion);
+        return getNonNullConverterForApiVersion(versionedItemConverters, apiVersion);
     }
 
     @Override
@@ -64,11 +64,19 @@ public abstract class BaseEntityConverterRegistry<K extends EntityId, V extends 
 
     @Override
     public BackupConverter<K, V, E, PM, BLI> backupConverter(final String apiVersion) {
-        return backupConverters.get(apiVersion);
+        return getNonNullConverterForApiVersion(backupConverters, apiVersion);
     }
 
     @Override
     public void registerBackupConverter(final BackupConverter<K, V, E, PM, BLI> converter) {
         converter.supportedVersions().forEach(v -> backupConverters.put(v, converter));
+    }
+
+    private <CV> CV getNonNullConverterForApiVersion(final Map<String, CV> map, final String apiVersion) {
+        if (!map.containsKey(apiVersion)) {
+            throw new IllegalStateException("Unable to return converter for API version: "
+                    + apiVersion + " available versions were: " + map.keySet());
+        }
+        return map.get(apiVersion);
     }
 }

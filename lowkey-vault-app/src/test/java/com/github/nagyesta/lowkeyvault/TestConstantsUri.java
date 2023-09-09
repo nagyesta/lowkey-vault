@@ -1,6 +1,7 @@
 package com.github.nagyesta.lowkeyvault;
 
 import java.net.URI;
+import java.util.UUID;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 
@@ -25,4 +26,12 @@ public final class TestConstantsUri {
     public static final URI HTTPS_DEFAULT_LOWKEY_VAULT_8443 = URI.create(HTTPS_DEFAULT_LOWKEY_VAULT + PORT_8443);
     public static final URI HTTPS_DEFAULT_LOWKEY_VAULT_80 = URI.create(HTTPS_DEFAULT_LOWKEY_VAULT + PORT_80);
     //</editor-fold>
+
+    public static String getRandomVaultUriAsString() {
+        return HTTPS_LOCALHOST + "-" + UUID.randomUUID();
+    }
+
+    public static URI getRandomVaultUri() {
+        return URI.create(getRandomVaultUriAsString());
+    }
 }

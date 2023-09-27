@@ -1,7 +1,11 @@
 package com.github.nagyesta.lowkeyvault.steps;
 
+import com.azure.core.http.HttpMethod;
+import com.azure.core.http.HttpRequest;
+import com.azure.core.http.HttpResponse;
 import com.github.nagyesta.lowkeyvault.context.ManagementTestContext;
 import com.github.nagyesta.lowkeyvault.context.TestContextConfig;
+import com.github.nagyesta.lowkeyvault.http.ApacheHttpClient;
 import com.github.nagyesta.lowkeyvault.http.ApacheHttpClientProvider;
 import com.github.nagyesta.lowkeyvault.http.AuthorityOverrideFunction;
 import com.github.nagyesta.lowkeyvault.http.management.RecoveryLevel;
@@ -11,10 +15,14 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.function.Function;
 
 import static com.github.nagyesta.lowkeyvault.context.TestContextConfig.CONTAINER_AUTHORITY;
 
@@ -24,6 +32,17 @@ public class ManagementStepDefs extends CommonAssertions {
 
     public ManagementStepDefs(final TestContextConfig config) {
         this.context = config.managementContext();
+    }
+
+    @SuppressWarnings("checkstyle:MagicNumber")
+    @When("OpenAPI ui is available")
+    public void openApiUiIsAvailable() throws MalformedURLException {
+        final URI swaggerUri = URI.create("https://" + CONTAINER_AUTHORITY+"/api/swagger-ui/index.html");
+        final ApacheHttpClient client = new ApacheHttpClient(Function.identity(), new TrustSelfSignedStrategy(), new NoopHostnameVerifier());
+        final HttpResponse response = client.send(new HttpRequest(HttpMethod.GET, swaggerUri.toURL())).block();
+        assertNotNull(response);
+        assertEquals(200, Objects.requireNonNull(response).getStatusCode());
+        assertTrue(Objects.requireNonNull(response.getBodyAsString().block()).contains("<title>Swagger UI</title>"));
     }
 
     @Given("a vault is created with name {name}")

@@ -1,6 +1,9 @@
 @Sequential
 Feature: Vault Management
 
+    Scenario: SWAGGER_01 Swagger UI is available
+        When OpenAPI ui is available
+
     @CreateVault
     Scenario: MANAGEMENT_01 A vault is created, deleted, then recovered.
         Given a vault is created with name vault-management

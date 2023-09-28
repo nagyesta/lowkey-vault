@@ -22,7 +22,7 @@ checkstyle = "10.12.2"
 jacoco = "0.8.10"
 jacksonBom = { strictly = "2.15.2" }
 jackson = { strictly = "2.15.2" }
-openApiUi = "1.7.0"
+openApiUi = "2.2.0"
 
 abortMissionPlugin = "4.1.22"
 dockerPlugin = "0.35.0"
@@ -40,7 +40,7 @@ spring-boot-starter-tomcat = { module = "org.springframework.boot:spring-boot-st
 spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation", version.ref = "springBoot" }
 spring-boot-configuration-processor = { module = "org.springframework.boot:spring-boot-configuration-processor", version.ref = "springBoot" }
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "springBoot" }
-springdoc-openapi-ui = { module = "org.springdoc:springdoc-openapi-ui", version.ref = "openApiUi" }
+springdoc-openapi-ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "openApiUi" }
 spring-core = { module = "org.springframework:spring-core", version.ref = "spring" }
 spring-context = { module = "org.springframework:spring-context", version.ref = "spring" }
 spring-web = { module = "org.springframework:spring-web", version.ref = "spring" }

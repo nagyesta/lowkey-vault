@@ -1,15 +1,12 @@
 name: UpdateChecksums
 on:
-  push:
-    branches: [ renovate/** ]
-    paths:
-      - 'gradle/libs.versions.toml'
+  workflow_dispatch:
 
 permissions: read-all
 
 jobs:
   build:
-    name: Dependency checksum pin action
+    name: Dependency checksum compaction action
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
@@ -32,6 +29,18 @@ jobs:
         run: |
           git config --global user.name 'Esta Nagy'
           git config --global user.email 'nagyesta@gmail.com'
+          git checkout -b feature/update-dependency-checksums-${{ github.run_number }}
           git add gradle/verification-metadata.xml
-          git commit -asm "Pinning dependency checksums {patch}"
-          git push -f --set-upstream origin ${{ github.ref_name }}
+          git commit -asm "Updating dependency checksums {patch}"
+          git push -f --set-upstream origin feature/update-dependency-checksums-${{ github.run_number }}
+      - uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
+        with:
+          github-token: ${{ secrets.PUBLISH_KEY }}
+          script: |
+            github.rest.pulls.create({
+              owner: "${{ github.repository_owner }}",
+              repo: "lowkey-vault",
+              head: "feature/update-dependency-checksums-${{ github.run_number }}",
+              base: "main",
+              title: "Updating dependency checksums {patch}"
+            });

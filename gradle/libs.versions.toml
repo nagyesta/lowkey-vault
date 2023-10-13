@@ -21,7 +21,7 @@ abortMission = "4.2.78"
 checkstyle = "10.12.2"
 jacoco = "0.8.10"
 jacksonBom = { strictly = "2.15.3" }
-jackson = { strictly = "2.15.2" }
+jackson = { strictly = "2.15.3" }
 openApiUi = "2.2.0"
 
 abortMissionPlugin = "4.1.28"

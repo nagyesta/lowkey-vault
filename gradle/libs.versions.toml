@@ -22,7 +22,7 @@ checkstyle = "10.12.2"
 jacoco = "0.8.10"
 jacksonBom = { strictly = "2.16.0" }
 jackson = { strictly = "2.16.0" }
-openApiUi = "2.2.0"
+openApiUi = "2.3.0"
 
 abortMissionPlugin = "4.1.43"
 dockerPlugin = "0.35.0"

@@ -38,7 +38,7 @@ java {
 }
 
 test {
-    outputs.file(file("$buildDir/reports/abort-mission/abort-mission-report.json"))
+    outputs.file(layout.buildDirectory.file("reports/abort-mission/abort-mission-report.json").get().getAsFile())
     useJUnitPlatform()
     systemProperty("junit.jupiter.extensions.autodetection.enabled", true)
     systemProperty("junit.jupiter.execution.parallel.enabled", true)

@@ -19,8 +19,7 @@ alternative for the cases when using a real Key Vault is not practical or imposs
 
 ## Recommended use
 
-### Warning!
-
+> [!WARNING]  
 > Lowkey Vault is NOT intended as an [Azure Key Vault](https://azure.microsoft.com/en-us/services/key-vault/) replacement. Please do not attempt using it instead of the real service in production as it is not using any security measures to keep your secrets safe.
 
 ### Valid use-cases
@@ -53,7 +52,8 @@ I have an app using Azure Key Vault and:
 
 ### Docker
 
-Note: a complex example is available [here](https://github.com/nagyesta/lowkey-vault-example-docker)
+> [!NOTE]  
+> A complex example is available [here](https://github.com/nagyesta/lowkey-vault-example-docker)
 
 1. Pull the most recent version from ```nagyesta/lowkey-vault```
    - You can find a list of all the available tags [here](https://hub.docker.com/r/nagyesta/lowkey-vault/tags)

@@ -17,14 +17,14 @@ testcontainers = "1.19.3"
 cucumber = "7.15.0"
 mockitoCore = "5.8.0"
 jupiter = "5.10.1"
-abortMission = "4.2.122"
+abortMission = "5.0.0"
 checkstyle = "10.12.2"
 jacoco = "0.8.10"
 jacksonBom = { strictly = "2.16.1" }
 jackson = { strictly = "2.16.1" }
 openApiUi = "2.3.0"
 
-abortMissionPlugin = "4.1.46"
+abortMissionPlugin = "5.0.0"
 dockerPlugin = "0.35.0"
 indexScanPlugin = "2.6.2"
 lombokPlugin = "8.4"

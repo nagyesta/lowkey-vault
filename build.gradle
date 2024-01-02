@@ -79,10 +79,10 @@ configure(subprojects.findAll({
     jacocoTestReport {
         reports {
             xml.required.set(true)
-            xml.outputLocation.set(file("$buildDir/reports/jacoco/report.xml"))
+            xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/report.xml").get().getAsFile())
             csv.required.set(false)
             html.required.set(true)
-            html.outputLocation.set(file("$buildDir/reports/jacoco/html"))
+            html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/html").get().getAsFile())
         }
     }
 
@@ -94,8 +94,8 @@ configure(subprojects.findAll({
     }
 
     jacocoTestCoverageVerification {
-        inputs.file(file("${buildDir}/reports/jacoco/report.xml") as String)
-        outputs.file(file("${buildDir}/reports/jacoco/jacocoTestCoverageVerification") as String)
+        inputs.file(layout.buildDirectory.file("reports/jacoco/report.xml").get().getAsFile())
+        outputs.file(layout.buildDirectory.file("reports/jacoco/jacocoTestCoverageVerification").get().getAsFile())
 
         violationRules {
             rule {
@@ -134,13 +134,13 @@ configure(subprojects.findAll({
             }
         }
         doLast {
-            file("${buildDir}/reports/jacoco/jacocoTestCoverageVerification").write("Passed")
+            layout.buildDirectory.file("reports/jacoco/jacocoTestCoverageVerification").get().getAsFile().write("Passed")
         }
     }
     jar.dependsOn check
 
     tasks.withType(Checkstyle).configureEach {
-        configProperties = [base_dir: rootDir.toString(), cache_file: file("${buildDir}/checkstyle/cacheFile")]
+        configProperties = [base_dir: rootDir.toString(), cache_file: layout.buildDirectory.file("checkstyle/cacheFile").get().getAsFile()]
         reports {
             xml.required.set(false)
             html.required.set(true)

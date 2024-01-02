@@ -33,9 +33,9 @@ dependencies {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
     toolchain {
-        languageVersion = JavaLanguageVersion.of(11)
+        languageVersion = JavaLanguageVersion.of(17)
     }
     withJavadocJar()
     withSourcesJar()
@@ -43,9 +43,9 @@ java {
 
 tasks.register('copyAppJar', Copy.class) {
     inputs.file(rootProject.project(":lowkey-vault-app").tasks.named("bootJar").get().outputs.files.singleFile)
-    outputs.file("${buildDir}/app/lowkey-vault.jar")
+    outputs.file(layout.buildDirectory.file("app/lowkey-vault.jar").get().getAsFile())
     from rootProject.project(":lowkey-vault-app").tasks.named("bootJar").get().outputs.files.singleFile
-    into file("${buildDir}/app/")
+    into layout.buildDirectory.dir("app/").get().getAsFile()
     rename {
         'lowkey-vault.jar'
     }
@@ -57,11 +57,11 @@ docker {
     name "lowkey-vault:${rootProject.version}"
     tag 'dockerNagyesta', "nagyesta/lowkey-vault:${rootProject.version}"
     dockerfile file('src/docker/Dockerfile')
-    files file("${buildDir}/app/lowkey-vault.jar")
+    files layout.buildDirectory.file("app/lowkey-vault.jar").get().getAsFile()
     pull true
     noCache true
 }
-tasks.dockerPrepare.inputs.file("${buildDir}/app/lowkey-vault.jar")
+tasks.dockerPrepare.inputs.file(layout.buildDirectory.file("app/lowkey-vault.jar").get().getAsFile())
 tasks.dockerPrepare.dependsOn copyAppJar
 clean.mustRunAfter dockerClean
 
@@ -80,12 +80,12 @@ tasks.dockerRun.dependsOn tasks.docker
 
 test {
     inputs.file(rootProject.project(":lowkey-vault-app").tasks.named("bootJar").get().outputs.files.singleFile)
-    outputs.file(file("$buildDir/reports/abort-mission/abort-mission-report.json"))
-    outputs.dir(file("$buildDir/reports/cucumber"))
+    outputs.file(layout.buildDirectory.file("reports/abort-mission/abort-mission-report.json").get().getAsFile())
+    outputs.dir(layout.buildDirectory.dir("reports/cucumber").get().getAsFile())
     systemProperty("cucumber.execution.parallel.enabled", System.getProperty("test.parallel"))
     systemProperty("cucumber.filter.tags", "not @ignore")
     useTestNG {
-        systemProperty("abort-mission.report.directory", file("${buildDir}/reports/abort-mission/"))
+        systemProperty("abort-mission.report.directory", layout.buildDirectory.dir("reports/abort-mission/").get().getAsFile())
         systemProperty("abort-mission.force.abort.evaluators", rootProject.ext.dockerAbortGroups)
         systemProperty("abort-mission.suppress.abort.evaluators", rootProject.ext.dockerSuppressGroups)
     }

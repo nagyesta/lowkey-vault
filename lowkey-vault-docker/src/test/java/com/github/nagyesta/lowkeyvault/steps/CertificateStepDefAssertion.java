@@ -271,7 +271,8 @@ public class CertificateStepDefAssertion extends CommonAssertions {
             messageDigest.update(certificate.getEncoded());
             return messageDigest.digest();
         } catch (final Exception e) {
-            throw new CryptoException("Failed to calculate thumbprint for certificate: " + certificate.getSubjectDN().getName(), e);
+            throw new CryptoException("Failed to calculate thumbprint for certificate: "
+                    + certificate.getSubjectX500Principal().getName(), e);
         }
     }
 

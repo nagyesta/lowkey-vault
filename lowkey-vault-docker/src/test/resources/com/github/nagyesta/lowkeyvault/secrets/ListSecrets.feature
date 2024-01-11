@@ -8,6 +8,7 @@ Feature: Secret list
         And <count> secrets with <secretName>- prefix are created valued abc123
         When the secret properties are listed
         Then the listed secrets are matching the ones created
+        And the list of secrets should contain 0 managed items
 
         Examples:
             | api | index | count | secretName       |

@@ -100,9 +100,8 @@ public class VaultImportExportExecutor {
 
     private Map<String, KeyBackupList> mapKeys(final VaultFake vaultFake) {
         return vaultFake.keyVaultFake().getEntities()
-                .listLatestEntities().stream()
                 //exclude managed entities as certificates will take care of those
-                .filter(r -> !r.isManaged())
+                .listLatestNonManagedEntities().stream()
                 .map(ReadOnlyKeyVaultKeyEntity::getId)
                 .map(VersionedKeyEntityId::id)
                 .collect(Collectors.toMap(Function.identity(), name -> backupKey(vaultFake.baseUri(), name)));
@@ -110,9 +109,8 @@ public class VaultImportExportExecutor {
 
     private Map<String, SecretBackupList> mapSecrets(final VaultFake vaultFake) {
         return vaultFake.secretVaultFake().getEntities()
-                .listLatestEntities().stream()
                 //exclude managed entities as certificates will take care of those
-                .filter(r -> !r.isManaged())
+                .listLatestNonManagedEntities().stream()
                 .map(ReadOnlyKeyVaultSecretEntity::getId)
                 .map(VersionedSecretEntityId::id)
                 .collect(Collectors.toMap(Function.identity(), name -> backupSecret(vaultFake.baseUri(), name)));

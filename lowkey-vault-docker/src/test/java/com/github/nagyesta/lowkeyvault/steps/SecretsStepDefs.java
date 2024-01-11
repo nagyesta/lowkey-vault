@@ -20,6 +20,7 @@ import java.util.stream.IntStream;
 
 import static com.github.nagyesta.lowkeyvault.context.KeyTestContext.NOW;
 import static com.github.nagyesta.lowkeyvault.context.TestContextConfig.CONTAINER_AUTHORITY;
+import static java.lang.Boolean.TRUE;
 
 public class SecretsStepDefs extends CommonAssertions {
 
@@ -126,10 +127,17 @@ public class SecretsStepDefs extends CommonAssertions {
     @When("the secret properties are listed")
     public void theSecretPropertiesAreListed() {
         final PagedIterable<SecretProperties> actual = context.getClient(context.getSecretServiceVersion()).listPropertiesOfSecrets();
-        final List<String> list = actual.stream()
+        final List<SecretProperties> propertyList = actual.stream()
+                .toList();
+        final List<String> list = propertyList.stream()
                 .map(SecretProperties::getId)
                 .collect(Collectors.toList());
         context.setListedIds(list);
+        final List<String> managedList = propertyList.stream()
+                .filter(secretProperties -> TRUE == secretProperties.isManaged())
+                .map(SecretProperties::getId)
+                .collect(Collectors.toList());
+        context.setListedManagedIds(managedList);
     }
 
     @Given("{int} secrets with {name} prefix are deleted")

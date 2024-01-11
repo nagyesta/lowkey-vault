@@ -24,6 +24,7 @@ public abstract class CommonTestContext<E, D, P, C, V extends ServiceVersion> {
     private D lastDeleted;
     private P updateProperties;
     private List<String> listedIds;
+    private List<String> listedManagedIds;
     private List<String> deletedRecoveryIds;
     private Map<String, byte[]> backups = new HashMap<String, byte[]>();
 
@@ -94,8 +95,17 @@ public abstract class CommonTestContext<E, D, P, C, V extends ServiceVersion> {
         return listedIds;
     }
 
+
+    public List<String> getListedManagedIds() {
+        return listedManagedIds;
+    }
+
     public void setListedIds(final List<String> listedIds) {
         this.listedIds = listedIds;
+    }
+
+    public void setListedManagedIds(final List<String> listedManagedIds) {
+        this.listedManagedIds = listedManagedIds;
     }
 
     public List<String> getDeletedRecoveryIds() {

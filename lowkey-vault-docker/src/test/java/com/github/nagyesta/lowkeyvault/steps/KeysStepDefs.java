@@ -33,6 +33,7 @@ import static com.azure.security.keyvault.keys.cryptography.models.EncryptionAlg
 import static com.azure.security.keyvault.keys.cryptography.models.SignatureAlgorithm.*;
 import static com.github.nagyesta.lowkeyvault.context.KeyTestContext.NOW;
 import static com.github.nagyesta.lowkeyvault.context.TestContextConfig.CONTAINER_AUTHORITY;
+import static java.lang.Boolean.TRUE;
 
 public class KeysStepDefs extends CommonAssertions {
 
@@ -218,10 +219,17 @@ public class KeysStepDefs extends CommonAssertions {
     @When("the key properties are listed")
     public void theKeyPropertiesAreListed() {
         final PagedIterable<KeyProperties> actual = context.getClient(context.getKeyServiceVersion()).listPropertiesOfKeys();
-        final List<String> list = actual.stream()
+        final List<KeyProperties> propertyList = actual.stream()
+                .toList();
+        final List<String> list = propertyList.stream()
                 .map(KeyProperties::getId)
                 .collect(Collectors.toList());
         context.setListedIds(list);
+        final List<String> managedList = propertyList.stream()
+                .filter(keyProperties -> TRUE == keyProperties.isManaged())
+                .map(KeyProperties::getId)
+                .collect(Collectors.toList());
+        context.setListedManagedIds(managedList);
     }
 
     @Given("{int} EC keys with {name} prefix are created with {ecCurveName} and {hsm} HSM")

@@ -148,6 +148,12 @@ public class KeysStepDefsAssertions extends CommonAssertions {
         assertContainsEqualEntriesSorted(expected, actual);
     }
 
+    @Then("the list of keys should contain {int} managed items")
+    public void theListShouldContainCountManagedItems(final int count) {
+        final List<String> ids = context.getListedManagedIds();
+        assertEquals(count, ids.size());
+    }
+
     @Then("the listed deleted keys are matching the ones deleted before")
     public void theListedDeletedKeysAreMatchingTheOnesDeletedBefore() {
         final List<String> actual = context.getListedIds();

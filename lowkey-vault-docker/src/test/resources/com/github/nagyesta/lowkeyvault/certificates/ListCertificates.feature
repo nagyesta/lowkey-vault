@@ -7,7 +7,11 @@ Feature: Certificate list
         And a certificate client is created with the vault named cert-list-rsa-<index>
         And <count> certificates are imported from the resource named <fileName> using - as password
         When the certificates are listed
-        Then the list should contain <count> items
+        And the secret properties are listed
+        And the key properties are listed
+        Then the list of certificates should contain <count> items
+        And the list of secrets should contain <count> managed items
+        And the list of keys should contain <count> managed items
 
         Examples:
             | api | index | fileName          | count |
@@ -24,7 +28,11 @@ Feature: Certificate list
         And a certificate client is created with the vault named cert-list-ec-<index>
         And <count> certificates are imported from the resource named <fileName> using - as password
         When the certificates are listed
-        Then the list should contain <count> items
+        And the secret properties are listed
+        And the key properties are listed
+        Then the list of certificates should contain <count> items
+        And the list of secrets should contain <count> managed items
+        And the list of keys should contain <count> managed items
 
         Examples:
             | api | index | fileName               | count |
@@ -41,7 +49,7 @@ Feature: Certificate list
         And a certificate client is created with the vault named cert-list-rsa-ver-<index>
         And 1 certificates are imported from the resource named <fileName> using - as password
         When the certificate versions are listed
-        Then the list should contain 1 items
+        Then the list of certificates should contain 1 items
 
         Examples:
             | api | index | fileName          |
@@ -55,7 +63,7 @@ Feature: Certificate list
         And a certificate client is created with the vault named cert-list-ec-ver-<index>
         And 1 certificates are imported from the resource named <fileName> using - as password
         When the certificate versions are listed
-        Then the list should contain 1 items
+        Then the list of certificates should contain 1 items
 
         Examples:
             | api | index | fileName               |

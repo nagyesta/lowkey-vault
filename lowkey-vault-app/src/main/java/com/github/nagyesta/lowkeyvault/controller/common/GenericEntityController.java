@@ -142,7 +142,7 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
     @SuppressWarnings("SameParameterValue")
     protected KeyVaultItemListModel<I> getPageOfItems(final URI baseUri, final PaginationContext pagination) {
         final S entityVaultFake = getVaultByUri(baseUri);
-        final List<E> allItems = entityVaultFake.getEntities().listLatestNonManagedEntities();
+        final List<E> allItems = entityVaultFake.getEntities().listLatestEntities();
         final List<I> items = filterList(pagination.getLimit(), pagination.getOffset(), allItems,
                 source -> registry.itemConverter(apiVersion()).convert(source, baseUri));
         final URI nextUri = PaginationContext.builder()
@@ -161,7 +161,7 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
     @SuppressWarnings("SameParameterValue")
     protected KeyVaultItemListModel<DI> getPageOfDeletedItems(final URI baseUri, final PaginationContext pagination) {
         final S entityVaultFake = getVaultByUri(baseUri);
-        final List<E> allItems = entityVaultFake.getDeletedEntities().listLatestNonManagedEntities();
+        final List<E> allItems = entityVaultFake.getDeletedEntities().listLatestEntities();
         final List<DI> items = filterList(pagination.getLimit(), pagination.getOffset(), allItems,
                 source -> registry.itemConverter(apiVersion()).convertDeleted(source, baseUri));
         final URI nextUri = PaginationContext.builder()

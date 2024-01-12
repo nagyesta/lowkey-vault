@@ -41,7 +41,7 @@ Feature: Certificate delete/purge/recover
         Then the deleted certificates are listed
         And the deleted list should contain 0 items
         And the certificates are listed
-        And the list should contain 0 items
+        And the list of certificates should contain 0 items
 
         Examples:
             | api | index | fileName          |
@@ -59,7 +59,7 @@ Feature: Certificate delete/purge/recover
         Then the deleted certificates are listed
         And the deleted list should contain 0 items
         And the certificates are listed
-        And the list should contain 0 items
+        And the list of certificates should contain 0 items
 
         Examples:
             | api | index | fileName               |
@@ -77,7 +77,7 @@ Feature: Certificate delete/purge/recover
         Then the deleted certificates are listed
         And the deleted list should contain 0 items
         And the certificates are listed
-        And the list should contain <index> items
+        And the list of certificates should contain <index> items
 
         Examples:
             | api | index | fileName          |
@@ -95,7 +95,7 @@ Feature: Certificate delete/purge/recover
         Then the deleted certificates are listed
         And the deleted list should contain 0 items
         And the certificates are listed
-        And the list should contain <index> items
+        And the list of certificates should contain <index> items
 
         Examples:
             | api | index | fileName               |

@@ -8,6 +8,7 @@ Feature: Key list
         And <count> RSA keys with <keyName>- prefix are created with 2048 bits size without HSM
         When the key properties are listed
         Then the listed keys are matching the ones created
+        And the list of keys should contain 0 managed items
 
         Examples:
             | api | index | count | keyName           |
@@ -24,6 +25,7 @@ Feature: Key list
         And <count> EC keys with <keyName>- prefix are created with P-256 and without HSM
         When the key properties are listed
         Then the listed keys are matching the ones created
+        And the list of keys should contain 0 managed items
 
         Examples:
             | api | index | count | keyName          |
@@ -44,6 +46,7 @@ Feature: Key list
         And <count> OCT keys with <keyName>- prefix are created with 128 bits size
         When the key properties are listed
         Then the listed keys are matching the ones created
+        And the list of keys should contain 0 managed items
 
         Examples:
             | api | index | count | keyName           |

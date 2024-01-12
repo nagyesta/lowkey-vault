@@ -100,6 +100,12 @@ public class SecretsStepDefsAssertions extends CommonAssertions {
         assertTrue(NOW.plusDays(90).isBefore(context.getLastDeleted().getScheduledPurgeDate()));
     }
 
+    @Then("the list of secrets should contain {int} managed items")
+    public void theListShouldContainCountManagedItems(final int count) {
+        final List<String> ids = context.getListedManagedIds();
+        assertEquals(count, ids.size());
+    }
+
     @Then("the listed secrets are matching the ones created")
     public void theListedSecretsAreMatchingTheOnesCreated() {
         final List<String> actual = context.getListedIds();

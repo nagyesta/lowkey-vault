@@ -41,6 +41,9 @@ public class KeyEntityToV72KeyItemModelConverter
         model.setKeyId(convertKeyId(source, vaultUri));
         model.setAttributes(registry.propertiesConverter(supportedVersions().last()).convert(source, vaultUri));
         model.setTags(source.getTags());
+        if (source.isManaged()) {
+            model.setManaged(true);
+        }
         return model;
     }
 

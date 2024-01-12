@@ -40,6 +40,9 @@ public class SecretEntityToV72SecretItemModelConverter
         model.setId(convertSecretId(source, vaultUri));
         model.setAttributes(registry.propertiesConverter(supportedVersions().last()).convert(source, vaultUri));
         model.setTags(source.getTags());
+        if (source.isManaged()) {
+            model.setManaged(true);
+        }
         return model;
     }
 

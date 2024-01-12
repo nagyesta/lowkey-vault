@@ -114,19 +114,19 @@ public class CertificatesStepDefs extends CommonAssertions {
     }
 
     @When("the last certificate version of {name} is fetched without providing a version")
-    public void fetchLatestKeyVersion(final String name) {
+    public void fetchLatestCertificateVersion(final String name) {
         final KeyVaultCertificate certificate = context.getClient(context.getCertificateServiceVersion())
                 .getCertificateVersion(name, null);
         context.addFetchedCertificate(name, certificate);
     }
 
     @Given("the certificate is set to be {enabled}")
-    public void theKeyIsSetToBeEnabledStatus(final boolean enabledStatus) {
+    public void theCertificateIsSetToBeEnabledStatus(final boolean enabledStatus) {
         context.getPolicy().setEnabled(enabledStatus);
     }
 
     @Given("the certificate is set to expire in {int} months")
-    public void theKeyIsSetToBeEnabledStatus(final int expiryMonths) {
+    public void theCertificateIsSetToBeEnabledStatus(final int expiryMonths) {
         context.getPolicy().setValidityInMonths(expiryMonths);
     }
 

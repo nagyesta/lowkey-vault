@@ -127,7 +127,7 @@ public class CertificateStepDefAssertion extends CommonAssertions {
         }
     }
 
-    @Then("the list should contain {int} items")
+    @Then("the list of certificates should contain {int} items")
     public void theListShouldContainCountItems(final int count) {
         final List<String> ids = context.getListedIds();
         assertEquals(count, ids.size());

@@ -1,6 +1,5 @@
 package com.github.nagyesta.lowkeyvault.service.key.util;
 
-import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -10,14 +9,21 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.stream.Stream;
 
 class Asn1ConverterUtilTest {
 
     @SuppressWarnings("checkstyle:MagicNumber")
-    public static Stream<Arguments> validValueProvider() {
+    public static Stream<Arguments> validValueProvider() throws NoSuchAlgorithmException {
+        final SecureRandom random = SecureRandom.getInstanceStrong();
         return Stream.of(32 * 2, 48 * 2, 66 * 2)
-                .map(RandomUtils::nextBytes)
+                .map(size -> {
+                    final byte[] result = new byte[size];
+                    random.nextBytes(result);
+                    return result;
+                })
                 .map(Arguments::of);
     }
 

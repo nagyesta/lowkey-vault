@@ -51,22 +51,11 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-      - name: Decode key
-        run: |
-          mkdir -p ${{ runner.temp }}/.gnupg/
-          echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}" | base64 --decode > ${{ runner.temp }}/.gnupg/secring.gpg
       - name: Build with Gradle
         uses: gradle/gradle-build-action@29c0906b64b8fc82467890bfb7a0a7ef34bda89e # v3.1.0
         with:
           arguments: |
-            printVersion build sign
-            -Psigning.keyId=${{ secrets.SIGNING_KEY_ID }}
-            -Psigning.password=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
-            -Psigning.secretKeyRingFile=${{ runner.temp }}/.gnupg/secring.gpg
-      - name: 'Clean-up GPG key'
-        if: always()
-        run: |
-          rm -rf ${{ runner.temp }}/.gnupg/
+            printVersion build
       - name: 'Upload Test reports - App'
         if: always()
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
@@ -93,18 +82,21 @@ jobs:
           path: lowkey-vault-testcontainers/build/reports/tests/test
           retention-days: 5
       - name: Upload coverage to Codecov - App
+        if: ${{ github.repository_owner == 'nagyesta' }}
         uses: codecov/codecov-action@e0b68c6749509c5f83f984dd99a76a1c1a231044 # v4.0.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./lowkey-vault-app/build/reports/jacoco/report.xml
           flags: app
       - name: Upload coverage to Codecov - Client
+        if: ${{ github.repository_owner == 'nagyesta' }}
         uses: codecov/codecov-action@e0b68c6749509c5f83f984dd99a76a1c1a231044 # v4.0.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./lowkey-vault-client/build/reports/jacoco/report.xml
           flags: client
       - name: Upload coverage to Codecov - Testcontainers
+        if: ${{ github.repository_owner == 'nagyesta' }}
         uses: codecov/codecov-action@e0b68c6749509c5f83f984dd99a76a1c1a231044 # v4.0.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}

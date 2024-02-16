@@ -20,6 +20,7 @@ Feature: Key import
             | 7.3 | importRsaKey-06 | 4096    | RS384     | <?xml version="1.0"?><none/>                 |
             | 7.3 | importRsaKey-07 | 4096    | RS512     | The quick brown fox jumps over the lazy dog. |
             | 7.4 | importRsaKey-08 | 2048    | PS256     | The quick brown fox jumps over the lazy dog. |
+            | 7.5 | importRsaKey-09 | 2048    | PS256     | The quick brown fox jumps over the lazy dog. |
 
     @Key @KeyImport @KeySign @EC
     Scenario Outline: EC_IMPORT_01 An EC key is imported with the key client then used for sign and verify operations
@@ -43,6 +44,7 @@ Feature: Key import
             | 7.3 | importEc-08 | P-384     | ES384     | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
             | 7.3 | importEc-09 | P-521     | ES512     | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
             | 7.4 | importEc-10 | P-256     | ES256     | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
+            | 7.5 | importEc-11 | P-256     | ES256     | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
 
 
     @Key @KeyImport @KeyEncrypt @OCT
@@ -65,3 +67,4 @@ Feature: Key import
             | 7.3 | importOct-06 | 192     | A192CBC    | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
             | 7.3 | importOct-07 | 256     | A256CBC    | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
             | 7.4 | importOct-08 | 256     | A256CBC    | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
+            | 7.5 | importOct-09 | 256     | A256CBC    | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |

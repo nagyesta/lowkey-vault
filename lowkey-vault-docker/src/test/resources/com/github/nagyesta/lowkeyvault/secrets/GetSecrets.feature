@@ -38,6 +38,7 @@ Feature: Secret get
             | 7.3 | 3             | 73-get01SecretJson  | application/json | {"value":true}                               | null    | null      | null              |
             | 7.3 | 4             | 73-get01SecretDates | text/plain       | Only sometimes.                              | 4321    | 1234      | null              |
             | 7.4 | 4             | 74-get01SecretDates | text/plain       | Only sometimes.                              | 4321    | 1234      | null              |
+            | 7.5 | 4             | 75-get01SecretDates | text/plain       | Only sometimes.                              | 4321    | 1234      | null              |
 
     @Secret @SecretCreate @SecretGet
     Scenario Outline: SECRET_GET_02 Multiple versions of secrets are created with the secret client then the first is fetched
@@ -61,6 +62,7 @@ Feature: Secret get
             | 7.3 | 5             | 73-get02Secret2   | text/plain      | The quick brown fox jumps over the lazy dog. |
             | 7.3 | 4             | 73-get02SecretXml | application/xml | <?xml version="1.0"?><none/>                 |
             | 7.4 | 4             | 74-get02SecretXml | application/xml | <?xml version="1.0"?><none/>                 |
+            | 7.5 | 4             | 75-get02SecretXml | application/xml | <?xml version="1.0"?><none/>                 |
 
     @Secret @SecretCreate @SecretGet
     Scenario Outline: SECRET_GET_03 Multiple versions of disabled secrets are created with the secret client then the latest is fetched
@@ -78,6 +80,7 @@ Feature: Secret get
             | 7.2 | 3             | 72-get03SecretNotEnabled | text/plain  | Not enabled |
             | 7.3 | 3             | 73-get03SecretNotEnabled | text/plain  | Not enabled |
             | 7.4 | 3             | 74-get03SecretNotEnabled | text/plain  | Not enabled |
+            | 7.5 | 3             | 75-get03SecretNotEnabled | text/plain  | Not enabled |
 
     @Secret @SecretCreate @SecretUpdate @SecretGet
     Scenario Outline: SECRET_UPDATE_01 Multiple versions of secrets are created with the secret client then the latest is updated and fetched
@@ -118,3 +121,4 @@ Feature: Secret get
             | 7.3 | 4             | 73-update01SecretDates      | enabled       | text/plain       | Only sometimes.                              | 4321    | 1234      | null              |
             | 7.3 | 3             | 73-update01SecretNotEnabled | not enabled   | text/plain       | Not enabled                                  | null    | null      | null              |
             | 7.4 | 3             | 74-update01SecretJson       | enabled       | application/json | {"value":true}                               | null    | null      | null              |
+            | 7.5 | 3             | 75-update01SecretJson       | enabled       | application/json | {"value":true}                               | null    | null      | null              |

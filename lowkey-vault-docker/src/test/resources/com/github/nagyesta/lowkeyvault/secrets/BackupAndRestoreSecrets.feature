@@ -24,3 +24,4 @@ Feature: Secret backup and restore
             | 7.3 | 06    | 25    | 73-backupSecret       |
             | 7.3 | 07    | 42    | 73-backup-secret-name |
             | 7.4 | 08    | 42    | 73-backup-secret-name |
+            | 7.5 | 09    | 42    | 73-backup-secret-name |

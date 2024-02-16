@@ -18,7 +18,7 @@ Visit the [Readme](../README.md) in the repo root for more information about the
    use [Maven Central](https://search.maven.org/search?q=com.github.nagyesta.lowkey-vault).
 2. Create a [ApacheHttpClientProvider](src/main/java/com/github/nagyesta/lowkeyvault/http/ApacheHttpClientProvider.java) instance using the
    constructor supporting host overrides: `ApacheHttpClientProvider(final String vaultUrl, final Function<URI, URI> authorityOverrideFunction)`.
-   [Example](../lowkey-vault-docker/src/test/java/com/github/nagyesta/lowkeyvault/steps/SecretsStepDefs.javaL32-35)
+   [Example](../lowkey-vault-docker/src/test/java/com/github/nagyesta/lowkeyvault/steps/SecretsStepDefs.java#L32-35)
 3. Use your `ApacheHttpClientProvider` to obtain your key/secret/crypto clients.
 4. Done.
 

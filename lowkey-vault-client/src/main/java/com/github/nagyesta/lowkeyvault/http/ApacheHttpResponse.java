@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.http;
 
+import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.HttpHeaders;
 import com.azure.core.http.HttpRequest;
 import com.azure.core.http.HttpResponse;
@@ -29,7 +30,7 @@ final class ApacheHttpResponse extends HttpResponse {
         this.statusCode = apacheResponse.getStatusLine().getStatusCode();
         this.headers = new HttpHeaders();
         Arrays.stream(apacheResponse.getAllHeaders())
-                .forEach(header -> headers.set(header.getName(), header.getValue()));
+                .forEach(header -> headers.set(HttpHeaderName.fromString(header.getName()), header.getValue()));
         final HttpEntity responseEntity = Optional.ofNullable(apacheResponse.getEntity()).orElse(new StringEntity(""));
         this.entity = EntityUtils.toString(responseEntity, StandardCharsets.UTF_8);
     }
@@ -41,7 +42,7 @@ final class ApacheHttpResponse extends HttpResponse {
 
     @Override
     public String getHeaderValue(final String s) {
-        return getHeaders().getValue(s);
+        return getHeaders().getValue(HttpHeaderName.fromString(s));
     }
 
     @Override

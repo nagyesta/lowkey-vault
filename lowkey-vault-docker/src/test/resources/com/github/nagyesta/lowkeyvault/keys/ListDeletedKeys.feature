@@ -16,6 +16,7 @@ Feature: Key list deleted
             | 7.3 | 02    | 1     | listRsaKey        |
             | 7.3 | 03    | 2     | list-rsa-key-name |
             | 7.4 | 04    | 2     | list-rsa-key-name |
+            | 7.5 | 05    | 2     | list-rsa-key-name |
 
     @Key @KeyCreate @KeyListDeleted @EC @CreateVault
     Scenario Outline: EC_LIST_DELETED_01 EC keys are created and deleted with the key client then all are listed as deleted keys
@@ -37,6 +38,7 @@ Feature: Key list deleted
             | 7.3 | 06    | 25    | listEcKey        |
             | 7.3 | 07    | 42    | list-ec-key-name |
             | 7.4 | 08    | 42    | list-ec-key-name |
+            | 7.5 | 09    | 42    | list-ec-key-name |
 
     @Key @KeyCreate @KeyListDeleted @OCT @CreateVault
     Scenario Outline: OCT_LIST_DELETED_01 OCT keys are created and deleted with the key client then all are listed as deleted keys
@@ -58,3 +60,4 @@ Feature: Key list deleted
             | 7.3 | 06    | 25    | listOctKey        |
             | 7.3 | 07    | 42    | list-oct-key-name |
             | 7.4 | 08    | 42    | list-oct-key-name |
+            | 7.5 | 09    | 42    | list-oct-key-name |

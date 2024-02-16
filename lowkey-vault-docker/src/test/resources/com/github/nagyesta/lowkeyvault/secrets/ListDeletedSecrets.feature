@@ -20,3 +20,4 @@ Feature: Secret list deleted
             | 7.3 | 06    | 25    | listSecret       |
             | 7.3 | 07    | 42    | list-secret-name |
             | 7.4 | 08    | 25    | list-secret-name |
+            | 7.5 | 09    | 25    | list-secret-name |

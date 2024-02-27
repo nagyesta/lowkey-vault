@@ -19,6 +19,10 @@ public final class ApiConstants {
      */
     public static final String V_7_4 = "7.4";
     /**
+     * The version of the v7.5 API.
+     */
+    public static final String V_7_5 = "7.5";
+    /**
      * API version prefix.
      */
     public static final String API_VERSION_PREFIX = "api-version=";
@@ -34,6 +38,10 @@ public final class ApiConstants {
      * API version param for 7.4.
      */
     public static final String API_VERSION_7_4 = API_VERSION_PREFIX + V_7_4;
+    /**
+     * API version param for 7.5.
+     */
+    public static final String API_VERSION_7_5 = API_VERSION_PREFIX + V_7_5;
 
     private ApiConstants() {
         throw new IllegalCallerException("Utility cannot be instantiated.");

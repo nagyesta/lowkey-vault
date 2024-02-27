@@ -42,6 +42,7 @@ Feature: Key creation
             | 7.3 | without | 73-createRsaKeyDates        | 2048    | 257    | enabled       | null                                                 | 4321    | 1234      | null              |
             | 7.3 | without | 73-createRsaKeyNotEnabled   | 2048    | 257    | not enabled   | null                                                 | null    | null      | null              |
             | 7.4 | without | 74-createRsaKeyNotEnabled   | 2048    | 257    | not enabled   | null                                                 | null    | null      | null              |
+            | 7.5 | without | 75-createRsaKeyNotEnabled   | 2048    | 257    | not enabled   | null                                                 | null    | null      | null              |
 
     @Key @KeyCreate @EC
     Scenario Outline: EC_CREATE_01 Single versions of EC keys can be created with the key client
@@ -85,6 +86,7 @@ Feature: Key creation
             | 7.3 | without | 73-createEcKeyDates      | P-256     | 32     | enabled       | null               | 4321    | 1234      | null              |
             | 7.3 | without | 73-createEcKeyNotEnabled | P-256     | 32     | not enabled   | null               | null    | null      | null              |
             | 7.4 | without | 74-createEcKeyDates      | P-256     | 32     | enabled       | null               | 4321    | 1234      | null              |
+            | 7.5 | without | 75-createEcKeyDates      | P-256     | 32     | enabled       | null               | 4321    | 1234      | null              |
 
     @Key @KeyCreate @OCT
     Scenario Outline: OCT_CREATE_01 Single versions of OCT keys can be created with the key client
@@ -125,3 +127,4 @@ Feature: Key creation
             | 7.3 | with | 73-createOctKeyDates      | 128     | enabled       | null                                     | 4321    | 1234      | null              |
             | 7.3 | with | 73-createOctKeyNotEnabled | 128     | not enabled   | null                                     | null    | null      | null              |
             | 7.4 | with | 74-createOctKeyDates      | 128     | enabled       | null                                     | 4321    | 1234      | null              |
+            | 7.5 | with | 75-createOctKeyDates      | 128     | enabled       | null                                     | 4321    | 1234      | null              |

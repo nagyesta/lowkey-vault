@@ -15,6 +15,7 @@ Feature: Certificate list deleted
             | 7.3 | 1     | rsa-localhost.pem | 1     |
             | 7.3 | 2     | rsa-localhost.pem | 5     |
             | 7.4 | 3     | rsa-localhost.pem | 5     |
+            | 7.5 | 4     | rsa-localhost.pem | 5     |
 
     @Certificate @CertificateImport @CertificateListDeleted @EC @CreateVault
     Scenario Outline: EC_CERT_LIST_DELETED_01 Single versions of multiple EC certificates imported and deleted then listed as deleted
@@ -31,3 +32,4 @@ Feature: Certificate list deleted
             | 7.3 | 1     | ec521-ec-localhost.pem | 1     |
             | 7.3 | 2     | ec521-ec-localhost.pem | 5     |
             | 7.4 | 3     | ec521-ec-localhost.pem | 1     |
+            | 7.5 | 4     | ec521-ec-localhost.pem | 1     |

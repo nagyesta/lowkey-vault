@@ -18,6 +18,7 @@ Feature: Key delete and recover
             | 7.3 | keys-alias-delete | 5             | without | 73-deleteRsaKeyA        | 2048    |
             | 7.3 | keys-alias-delete | 6             | without | 73-delete-rsa-key-nameA | 2048    |
             | 7.4 | keys-alias-delete | 6             | without | 74-delete-rsa-key-nameA | 2048    |
+            | 7.5 | keys-alias-delete | 6             | without | 75-delete-rsa-key-nameA | 2048    |
 
     @Key @KeyCreate @KeyDelete @EC @KeyAlias
     Scenario Outline: EC_DELETE_01 Multiple versions of EC keys are created with the key client then deleted
@@ -37,6 +38,7 @@ Feature: Key delete and recover
             | 7.3 | keys-alias-delete | 5             | without | 73-deleteEcKey256A  | P-256     |
             | 7.3 | keys-alias-delete | 6             | without | 73-deleteEcKey256kA | P-256K    |
             | 7.4 | keys-delete       | 6             | without | 74-deleteEcKey256k  | P-256K    |
+            | 7.5 | keys-delete       | 6             | without | 75-deleteEcKey256k  | P-256K    |
 
     @Key @KeyCreate @KeyDelete @OCT @KeyAlias
     Scenario Outline: OCT_DELETE_01 Multiple versions of OCT keys are created with the key client then deleted
@@ -56,6 +58,7 @@ Feature: Key delete and recover
             | 7.3 | keys-alias-delete | 5             | 73-deleteOctKeyA    | 128     |
             | 7.3 | keys-alias-delete | 6             | 73-deleteOctKey192A | 192     |
             | 7.4 | keys-alias-delete | 6             | 74-deleteOctKey192A | 192     |
+            | 7.5 | keys-alias-delete | 6             | 75-deleteOctKey192A | 192     |
 
     @Key @KeyCreate @KeyDelete @KeyRecover @RSA @KeyAlias
     Scenario Outline: RSA_RECOVER_01 Multiple versions of RSA keys are created with the key client then deleted and recovered
@@ -75,6 +78,7 @@ Feature: Key delete and recover
             | 7.3 | keys-alias-delete | 5             | without | 73-recoverRsaKeyA        | 2048    |
             | 7.3 | keys-alias-delete | 6             | without | 73-recover-rsa-key-nameA | 2048    |
             | 7.4 | keys-delete       | 5             | without | 74-recoverRsaKey         | 2048    |
+            | 7.5 | keys-delete       | 5             | without | 75-recoverRsaKey         | 2048    |
 
     @Key @KeyCreate @KeyDelete @KeyRecover @EC @KeyAlias
     Scenario Outline: EC_RECOVER_01 Multiple versions of EC keys are created with the key client then deleted and recovered
@@ -94,6 +98,7 @@ Feature: Key delete and recover
             | 7.3 | keys-alias-delete | 5             | without | 73-recoverEcKey256A  | P-256     |
             | 7.3 | keys-alias-delete | 6             | without | 73-recoverEcKey256kA | P-256K    |
             | 7.4 | keys-delete       | 5             | without | 74-recoverEcKey256   | P-256     |
+            | 7.5 | keys-delete       | 5             | without | 75-recoverEcKey256   | P-256     |
 
     @Key @KeyCreate @KeyDelete @KeyRecover @OCT @KeyAlias
     Scenario Outline: OCT_RECOVER_01 Multiple versions of OCT keys are created with the key client then deleted and recovered
@@ -111,6 +116,7 @@ Feature: Key delete and recover
             | 7.3 | keys-delete | 5             | 73-recoverOctKey    | 128     |
             | 7.3 | keys-delete | 6             | 73-recoverOctKey192 | 192     |
             | 7.4 | keys-delete | 6             | 74-recoverOctKey192 | 192     |
+            | 7.5 | keys-delete | 6             | 75-recoverOctKey192 | 192     |
 
     @Key @KeyCreate @KeyDelete @KeyPurge @RSA
     Scenario Outline: RSA_PURGE_01 Multiple versions of RSA keys are created with the key client then deleted and purged
@@ -132,6 +138,7 @@ Feature: Key delete and recover
             | 7.3 | 5             | without | 73-purgeRsaKey        | 2048    |
             | 7.3 | 6             | without | 73-purge-rsa-key-name | 2048    |
             | 7.4 | 5             | without | 74-purgeRsaKey        | 2048    |
+            | 7.5 | 5             | without | 75-purgeRsaKey        | 2048    |
 
     @Key @KeyCreate @KeyDelete @KeyPurge @EC
     Scenario Outline: EC_PURGE_01 Multiple versions of EC keys are created with the key client then deleted and purge
@@ -153,6 +160,7 @@ Feature: Key delete and recover
             | 7.3 | 5             | without | 73-purgeEcKey256  | P-256     |
             | 7.3 | 6             | without | 73-purgeEcKey256k | P-256K    |
             | 7.4 | 6             | without | 74-purgeEcKey256k | P-256K    |
+            | 7.5 | 6             | without | 75-purgeEcKey256k | P-256K    |
 
     @Key @KeyCreate @KeyDelete @KeyPurge @OCT
     Scenario Outline: OCT_PURGE_01 Multiple versions of OCT keys are created with the key client then deleted and purge
@@ -174,3 +182,4 @@ Feature: Key delete and recover
             | 7.3 | 3             | 73-purgeOctKey    | 128     |
             | 7.3 | 4             | 73-purgeOctKey192 | 192     |
             | 7.4 | 3             | 74-purgeOctKey    | 128     |
+            | 7.5 | 3             | 75-purgeOctKey    | 128     |

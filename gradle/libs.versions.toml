@@ -25,7 +25,7 @@ jackson = { strictly = "2.16.1" }
 openApiUi = "2.3.0"
 
 abortMissionPlugin = "5.0.10"
-dockerPlugin = "0.35.0"
+dockerPlugin = "0.36.0"
 indexScanPlugin = "2.7.0"
 lombokPlugin = "8.6"
 springBootPlugin = "3.2.3"

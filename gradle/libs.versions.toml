@@ -2,7 +2,7 @@
 springBoot = "3.2.4"
 spring = "6.1.5"
 snakeYaml = "2.2"
-tomcat = "10.1.19"
+tomcat = "10.1.20"
 logback = "1.5.3"
 bouncycastle = "1.77"
 hibernateValidator = "8.0.1.Final"

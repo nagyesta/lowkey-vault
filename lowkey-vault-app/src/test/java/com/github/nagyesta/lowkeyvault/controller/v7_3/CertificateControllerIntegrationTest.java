@@ -232,6 +232,27 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     }
 
     @Test
+    void testImportCertificateShouldReturnModelWhenCalledWithValidPemDataWithoutAnyExtensions() {
+        //given
+        final CertificateImportRequest request = getCreateImportRequest("/cert/no-ext-rsa.pem", CertContentType.PEM);
+        final String name = CERT_NAME_3 + "-import-pem-no-ext";
+
+        //when
+        final ResponseEntity<KeyVaultCertificateModel> actual = underTest
+                .importCertificate(name, VAULT_URI_1, request);
+
+        //then
+        Assertions.assertEquals(OK, actual.getStatusCode());
+        final KeyVaultCertificateModel body = actual.getBody();
+        Assertions.assertNotNull(body);
+        Assertions.assertNotNull(body.getCertificate());
+        Assertions.assertNotNull(body.getThumbprint());
+        Assertions.assertEquals(Collections.emptyMap(), body.getTags());
+        Assertions.assertTrue(body.getId().startsWith(VAULT_URI_1.toString()));
+        Assertions.assertTrue(body.getId().contains(name));
+    }
+
+    @Test
     void testImportCertificateShouldReturnModelWhenCalledWithValidPkcs12Data() {
         //given
         final CertificateImportRequest request = getCreateImportRequest("/cert/ec.p12", CertContentType.PKCS12);

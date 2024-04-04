@@ -35,10 +35,7 @@ import java.security.KeyPair;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -208,7 +205,10 @@ public class CertificateGenerator {
             final PKCS10CertificationRequestBuilder builder,
             final X509Certificate certificate,
             final ASN1ObjectIdentifier extension) {
-        addAttributeQuietly(builder, extension, certificate.getCriticalExtensionOIDs().contains(extension.getId()),
+        addAttributeQuietly(builder, extension,
+                Optional.ofNullable(certificate.getCriticalExtensionOIDs())
+                        .map(criticalExtensions -> criticalExtensions.contains(extension.getId()))
+                        .orElse(false),
                 certificate.getExtensionValue(extension.getId()));
     }
 

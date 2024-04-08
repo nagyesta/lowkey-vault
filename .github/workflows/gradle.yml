@@ -48,7 +48,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-      - uses: gradle/gradle-build-action@fe59895742b4f984530980e4f693943577526b61 # v3.2.0
+      - uses: gradle/gradle-build-action@bdf99f9dada2506e990bac6de8ec5e3de34a04f1 # v3.2.1
         with:
           gradle-home-cache-cleanup: true
           arguments: |
@@ -64,7 +64,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - uses: gradle/gradle-build-action@fe59895742b4f984530980e4f693943577526b61 # v3.2.0
+      - uses: gradle/gradle-build-action@bdf99f9dada2506e990bac6de8ec5e3de34a04f1 # v3.2.1
         with:
           arguments: |
             publish -x test -x dockerClean -x dockerPrepare -x dockerRun -x dockerRunStatus -x dockerStop

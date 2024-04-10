@@ -11,7 +11,8 @@ lombok = "1.18.32"
 handlebars="4.4.0"
 httpClient = "4.5.14"
 commonsCodec = "1.16.1"
-azureKeyVaultClient = "4.8.1"
+azureKeyVaultKeyClient = "4.8.2"
+azureKeyVaultSecretsClient = "4.8.1"
 azureKeyVaultCertClient = "4.6.1"
 testcontainers = "1.19.7"
 cucumber = "7.16.1"
@@ -20,7 +21,6 @@ jupiter = "5.10.2"
 abortMission = "5.0.81"
 checkstyle = "10.12.2"
 jacoco = "0.8.10"
-jacksonBom = { strictly = "2.17.0" }
 jackson = { strictly = "2.17.0" }
 openApiUi = "2.5.0"
 
@@ -72,8 +72,8 @@ commons-codec = { module = "commons-codec:commons-codec", version.ref = "commons
 
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
 
-azure-security-keyvault-secrets = { module = "com.azure:azure-security-keyvault-secrets", version.ref = "azureKeyVaultClient" }
-azure-security-keyvault-keys = { module = "com.azure:azure-security-keyvault-keys", version.ref = "azureKeyVaultClient" }
+azure-security-keyvault-secrets = { module = "com.azure:azure-security-keyvault-secrets", version.ref = "azureKeyVaultSecretsClient" }
+azure-security-keyvault-keys = { module = "com.azure:azure-security-keyvault-keys", version.ref = "azureKeyVaultKeyClient" }
 azure-security-keyvault-certificates = { module = "com.azure:azure-security-keyvault-certificates", version.ref = "azureKeyVaultCertClient" }
 
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
@@ -87,7 +87,6 @@ cucumber-java = { module = "io.cucumber:cucumber-java", version.ref = "cucumber"
 cucumber-testng = { module = "io.cucumber:cucumber-testng", version.ref = "cucumber" }
 cucumber-picocontainer = { module = "io.cucumber:cucumber-picocontainer", version.ref = "cucumber" }
 
-jackson-bom = { module = "com.fasterxml.jackson:jackson-bom", version.ref = "jacksonBom" }
 jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson" }
 jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jackson" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }

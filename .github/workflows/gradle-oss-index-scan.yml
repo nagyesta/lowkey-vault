@@ -24,6 +24,6 @@ jobs:
           distribution: temurin
           java-version: 17
       - name: Check dependencies with Gradle
-        uses: gradle/gradle-build-action@bdf99f9dada2506e990bac6de8ec5e3de34a04f1 # v3.2.1
+        uses: gradle/gradle-build-action@8baac4c8ef753599f92eeb509c246d09d6250fa6 # v3.3.0
         with:
           arguments: ossIndexAudit -PossIndexUsername=${{ secrets.OSS_INDEX_USER }} -PossIndexPassword=${{ secrets.OSS_INDEX_PASSWORD }}

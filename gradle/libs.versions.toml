@@ -1,5 +1,5 @@
 [versions]
-springBoot = "3.2.4"
+springBoot = "3.2.5"
 spring = "6.1.6"
 snakeYaml = "2.2"
 tomcat = "10.1.20"
@@ -28,7 +28,7 @@ abortMissionPlugin = "5.0.22"
 dockerPlugin = "0.36.0"
 indexScanPlugin = "2.7.0"
 lombokPlugin = "8.6"
-springBootPlugin = "3.2.4"
+springBootPlugin = "3.2.5"
 gitVersionerPlugin = "1.6.7"
 owaspPlugin = "9.1.0"
 

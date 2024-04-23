@@ -58,7 +58,7 @@ jobs:
             printVersion build
       - name: 'Upload Test reports - App'
         if: always()
-        uses: actions/upload-artifact@1746f4ab65b179e0ea60a494b83293b640dd5bba # v4.3.2
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: test-report-lowkey-vault-app
           path: |
@@ -67,7 +67,7 @@ jobs:
           retention-days: 5
       - name: 'Upload Test reports - Docker'
         if: always()
-        uses: actions/upload-artifact@1746f4ab65b179e0ea60a494b83293b640dd5bba # v4.3.2
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: test-report-lowkey-vault-docker
           path: |
@@ -76,7 +76,7 @@ jobs:
           retention-days: 5
       - name: 'Upload Test reports - Testcontainers'
         if: always()
-        uses: actions/upload-artifact@1746f4ab65b179e0ea60a494b83293b640dd5bba # v4.3.2
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: test-report-lowkey-vault-testcontainers
           path: lowkey-vault-testcontainers/build/reports/tests/test

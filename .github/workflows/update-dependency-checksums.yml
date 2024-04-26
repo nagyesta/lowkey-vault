@@ -21,7 +21,7 @@ jobs:
       - name: "Remove previous version"
         run: cp gradle/verification-metadata-clean.xml gradle/verification-metadata.xml
       - name: "Update checksums"
-        uses: gradle/gradle-build-action@e2097ccd7e8ed48671dc068ac4efa86d25745b39 # v3.3.1
+        uses: gradle/gradle-build-action@4c39dd82cd5e1ec7c6fa0173bb41b4b6bb3b86ff # v3.3.2
         with:
           cache-disabled: true
           arguments: --write-verification-metadata sha256

@@ -91,7 +91,7 @@ import static com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContaine
 class Test {
     public LowkeyVaultContainer startVault(final File importFile) {
         //Please consider using latest image regardless of the value in the example
-        final DockerImageName imageName = DockerImageName.parse("nagyesta/lowkey-vault:1.13.0");
+        final DockerImageName imageName = DockerImageName.parse("nagyesta/lowkey-vault:<version>");
         final LowkeyVaultContainer lowkeyVaultContainer = lowkeyVault(imageName)
                 .noAutoRegistration()  
                 .importFile(importFile, BindMode.READ_ONLY)
@@ -119,7 +119,7 @@ import static com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContaine
 class Test {
     public LowkeyVaultContainer startVault(final File certFile) {
         //Please consider using latest image regardless of the value in the example
-        final DockerImageName imageName = DockerImageName.parse("nagyesta/lowkey-vault:1.13.0");
+        final DockerImageName imageName = DockerImageName.parse("nagyesta/lowkey-vault:<version>");
         final LowkeyVaultContainer lowkeyVaultContainer = lowkeyVault(imageName)
                 .noAutoRegistration()
                 .customSslCertificate(certFile, "password", StoreType.JKS)
@@ -145,7 +145,7 @@ import static com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContaine
 class Test {
     public LowkeyVaultContainer startVault() {
         //Please consider using latest image regardless of the value in the example
-        final DockerImageName imageName = DockerImageName.parse("nagyesta/lowkey-vault:1.13.0");
+        final DockerImageName imageName = DockerImageName.parse("nagyesta/lowkey-vault:<version>");
         final LowkeyVaultContainer lowkeyVaultContainer = lowkeyVault(imageName)
                 .additionalArgs(List.of("--logging.level.root=INFO"))
                 .build()
@@ -170,7 +170,7 @@ import static com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContaine
 class Test {
     public LowkeyVaultContainer startVault() {
         //Please consider using latest image regardless of the value in the example
-        final DockerImageName imageName = DockerImageName.parse("nagyesta/lowkey-vault:1.13.0");
+        final DockerImageName imageName = DockerImageName.parse("nagyesta/lowkey-vault:<version>");
         final LowkeyVaultContainer lowkeyVaultContainer = lowkeyVault(imageName)
                 .vaultAliases(Map.of("localhost", Set.of("alias1", "alias2:8443")))
                 .build()

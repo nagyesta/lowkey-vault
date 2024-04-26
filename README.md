@@ -194,6 +194,21 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 
 [https://localhost:8443/api/swagger-ui/index.html](https://localhost:8443/api/swagger-ui/index.html)
 
+### Port mappings (Default)
+
+#### HTTP `:8080`
+
+Only used for simulating Managed Identity Token endpoint `/metadata/identity/oauth2/token?resource=<resource>`. 
+
+> [!TIP]  
+> This endpoint provides the same Managed Identity stub as [Assumed Identity](https://github.com/nagyesta/assumed-identity). If you want to use Lowkey Vault with Managed Identity, this functionality allows you to do so with a single container.  
+
+#### HTTPS `:8443`
+
+- Readiness/Liveness `/ping`
+- Management API 
+- Key Vault APIs
+
 ## Startup parameters
 
 1. Using the `.jar`: [Lowkey Vault App](lowkey-vault-app/README.md).

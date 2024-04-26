@@ -18,10 +18,14 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
     private static final String DUMMY_USERNAME = "DUMMY";
     private static final String DUMMY_PASSWORD = "DUMMY";
     private static final int CONTAINER_PORT = 8443;
+    private static final int CONTAINER_TOKEN_PORT = 8080;
+    @SuppressWarnings("HttpUrlsUsage")
+    private static final String HTTP = "http://";
     private static final String HTTPS = "https://";
     private static final String PORT_SEPARATOR = ":";
     private static final String LOCALHOST = "localhost";
     private static final String DOT = ".";
+    private static final String TOKEN_ENDPOINT_PATH = "/metadata/identity/oauth2/token";
 
     /**
      * Creates a new instance.
@@ -59,6 +63,11 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
             addFixedExposedPort(containerBuilder.getHostPort(), CONTAINER_PORT);
         } else {
             addExposedPort(CONTAINER_PORT);
+        }
+        if (containerBuilder.getHostTokenPort() != null) {
+            addFixedExposedPort(containerBuilder.getHostTokenPort(), CONTAINER_TOKEN_PORT);
+        } else {
+            addExposedPort(CONTAINER_TOKEN_PORT);
         }
 
         if (containerBuilder.getImportFile() != null) {
@@ -107,6 +116,23 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
         return HTTPS + getDefaultVaultAuthority();
     }
 
+    /**
+     * Returns the URL of the token endpoint.
+     *
+     * @return token endpoint base URL.
+     */
+    public String getTokenEndpointBaseUrl() {
+        return HTTP + LOCALHOST + PORT_SEPARATOR + getMappedPort(CONTAINER_TOKEN_PORT);
+    }
+
+    /**
+     * Returns the full URL of the token endpoint.
+     *
+     * @return full token endpoint URL.
+     */
+    public String getTokenEndpointUrl() {
+        return getTokenEndpointBaseUrl() + TOKEN_ENDPOINT_PATH;
+    }
 
     /**
      * Returns the URL of the vault with a given name.

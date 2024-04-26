@@ -15,6 +15,7 @@ import org.testcontainers.utility.DockerImageName;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import static com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContainerBuilder.lowkeyVault;
 
@@ -60,5 +61,16 @@ class LowkeyVaultContainerJupiterTest extends AbstractLowkeyVaultContainerTest {
         final ApacheHttpClient httpClient = new ApacheHttpClient(authorityOverrideFunction,
                 new TrustSelfSignedStrategy(), new DefaultHostnameVerifier());
         verifyConnectionIsWorking(endpoint, httpClient, credentials);
+    }
+
+    @Test
+    void testContainerShouldProvideTokenEndpointWhenCalledWithValidParameters() {
+        //given + when test container is created
+
+        //then
+        final String endpoint = underTest.getTokenEndpointUrl();
+        final ApacheHttpClient httpClient = new ApacheHttpClient(Function.identity(),
+                new TrustSelfSignedStrategy(), new DefaultHostnameVerifier());
+        verifyTokenEndpointIsWorking(endpoint, httpClient);
     }
 }

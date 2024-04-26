@@ -17,6 +17,7 @@ public final class LowkeyVaultContainerBuilder {
     private String customSslCertPassword;
     private StoreType customSslCertType;
     private Integer hostPort;
+    private Integer hostTokenPort;
     private Integer logicalPort;
     private String logicalHost;
     private List<String> additionalArgs = List.of();
@@ -109,6 +110,14 @@ public final class LowkeyVaultContainerBuilder {
         return this;
     }
 
+    public LowkeyVaultContainerBuilder hostTokenPort(final int hostTokenPort) {
+        if (hostTokenPort < 1) {
+            throw new IllegalArgumentException("Host token port cannot be zero or negative.");
+        }
+        this.hostTokenPort = hostTokenPort;
+        return this;
+    }
+
     public LowkeyVaultContainerBuilder logicalPort(final int logicalPort) {
         if (logicalPort < 1) {
             throw new IllegalArgumentException("Logical port cannot be zero or negative.");
@@ -180,6 +189,10 @@ public final class LowkeyVaultContainerBuilder {
 
     public Integer getHostPort() {
         return hostPort;
+    }
+
+    public Integer getHostTokenPort() {
+        return hostTokenPort;
     }
 
     public Integer getLogicalPort() {

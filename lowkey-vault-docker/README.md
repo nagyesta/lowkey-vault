@@ -36,6 +36,19 @@ export LOWKEY_ARGS="--server.port=8444"
 docker run --rm --name lowkey -e LOWKEY_ARGS -d -p 8444:8444 nagyesta/lowkey-vault:<version>
 ```
 
+### Using simulated Managed Identity
+
+In case you want to rely on the built-in simulated Managed Identity token endpoint, you must make sure 
+to forward the relevant `8080` HTTP only port as well. The host port you are using can be anything you
+would like to use in this case. This will make the `/metadata/identity/oauth2/token` endpoint available. 
+Please check the [example projects](../README.md#example-projects) to see how you can use the provided 
+endpoint.
+
+```shell
+docker run --rm --name lowkey -d -p 8080:8080 -p 8444:8444 nagyesta/lowkey-vault:<version>
+```
+
+
 ### External configuration
 
 Since Lowkey Vault is a Spring Boot application, the default mechanism for Spring Boot external 

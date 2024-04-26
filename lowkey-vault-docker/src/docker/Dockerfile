@@ -1,6 +1,6 @@
 FROM eclipse-temurin:17.0.11_9-jre-alpine@sha256:ad9223070abcf5716e98296a98c371368810deb36197b75f3a7b74815185c5e3
 LABEL maintainer="nagyesta@gmail.com"
-EXPOSE 8443:8443
+EXPOSE 8080 8443
 ADD lowkey-vault.jar /lowkey-vault.jar
 RUN \
   addgroup -S lowkey && adduser -S lowkey -G lowkey && \

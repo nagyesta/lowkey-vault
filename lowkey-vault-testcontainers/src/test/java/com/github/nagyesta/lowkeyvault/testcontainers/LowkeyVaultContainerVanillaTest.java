@@ -18,6 +18,7 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.io.File;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContainerBuilder.lowkeyVault;
@@ -27,6 +28,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
 
     private static final String VAULT_NAME = "default";
     private static final int ALT_HOST_PORT = 18443;
+    private static final int ALT_HOST_TOKEN_PORT = 18080;
     private static final int DEFAULT_PORT = 8443;
     private static final String LOCALHOST = "localhost";
     public static final String EXAMPLE_COM = "example.com";
@@ -430,6 +432,41 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         final ApacheHttpClient httpClient = new ApacheHttpClient(authorityOverrideFunction,
                 new TrustSelfSignedStrategy(), new DefaultHostnameVerifier());
         verifyConnectionIsWorking(endpoint, httpClient, credentials);
+    }
+
+    @Test
+    void testBuilderShouldThrowExceptionWhenCalledWithInvalidHostTokenPortNumber() {
+        //given
+        final DockerImageName imageName = DockerImageName
+                .parse(getCurrentLowkeyVaultImageName())
+                .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> lowkeyVault(imageName).hostTokenPort(0));
+
+        //then + exceptions
+    }
+
+    @Test
+    void testContainerShouldStartUpWhenCalledWithValidTokenPortConfiguration() {
+        //given
+        final DockerImageName imageName = DockerImageName
+                .parse(getCurrentLowkeyVaultImageName())
+                .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
+       final LowkeyVaultContainer underTest = lowkeyVault(imageName)
+                .vaultAliases(Map.of(LOCALHOST, Set.of(EXAMPLE_COM)))
+                .hostTokenPort(ALT_HOST_TOKEN_PORT)
+                .build()
+                .withImagePullPolicy(PullPolicy.defaultPolicy());
+
+        //when
+        underTest.start();
+
+        //then
+        final String endpoint = underTest.getTokenEndpointUrl();
+        final ApacheHttpClient httpClient = new ApacheHttpClient(Function.identity(),
+                new TrustSelfSignedStrategy(), new DefaultHostnameVerifier());
+        verifyTokenEndpointIsWorking(endpoint, httpClient);
     }
 
 }

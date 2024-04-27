@@ -40,21 +40,22 @@ jobs:
 
     steps:
       # Set up build environment
-      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+      - name: Checkout
+        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
         with:
           fetch-depth: 0
+          token: ${{ secrets.PUBLISH_KEY }}
       - name: Set up JDK 17
         uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9 # v4.2.1
         with:
           distribution: temurin
           java-version: 17
-      - uses: gradle/gradle-build-action@4c39dd82cd5e1ec7c6fa0173bb41b4b6bb3b86ff # v3.3.2
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@db19848a5fa7950289d3668fb053140cf3028d43 # v3.3.2
         with:
           gradle-home-cache-cleanup: true
-          arguments: |
-            tagVersion build
-            -PgithubUser=${{ secrets.PUBLISH_USER_NAME }}
-            -PgithubToken=${{ secrets.PUBLISH_KEY }}
+      - name: Build with Gradle
+        run: ./gradlew tagVersion build -PgithubUser=${{ secrets.PUBLISH_USER_NAME }} -PgithubToken=${{ secrets.PUBLISH_KEY }}
       - name: Decode key
         run: |
           mkdir -p ${{ runner.temp }}/.gnupg/
@@ -64,18 +65,17 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - uses: gradle/gradle-build-action@4c39dd82cd5e1ec7c6fa0173bb41b4b6bb3b86ff # v3.3.2
-        with:
-          arguments: |
-            publish -x test -x dockerClean -x dockerPrepare -x dockerRun -x dockerRunStatus -x dockerStop
-            -PgithubUser=${{ secrets.PUBLISH_USER_NAME }}
-            -PgithubToken=${{ secrets.PUBLISH_KEY }}
-            -PossrhUsername=${{ secrets.OSSRH_USER }}
-            -PossrhPassword=${{ secrets.OSSRH_PASS }}
-            -Psigning.keyId=${{ secrets.SIGNING_KEY_ID }}
-            -Psigning.password=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
-            -Psigning.secretKeyRingFile=${{ runner.temp }}/.gnupg/secring.gpg
-      - name: 'Clean-up GPG key'
+      - name: Build with Gradle
+        run: >
+          ./gradlew publish -x test -x dockerClean -x dockerPrepare -x dockerRun -x dockerRunStatus -x dockerStop
+          -PgithubUser=${{ secrets.PUBLISH_USER_NAME }}
+          -PgithubToken=${{ secrets.PUBLISH_KEY }}
+          -PossrhUsername=${{ secrets.OSSRH_USER }}
+          -PossrhPassword=${{ secrets.OSSRH_PASS }}
+          -Psigning.keyId=${{ secrets.SIGNING_KEY_ID }}
+          -Psigning.password=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
+          -Psigning.secretKeyRingFile=${{ runner.temp }}/.gnupg/secring.gpg
+      - name: Clean-up GPG key
         if: always()
         run: |
           rm -rf ${{ runner.temp }}/.gnupg/

@@ -43,7 +43,8 @@ jobs:
 
     steps:
       # Set up build environment
-      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+      - name: Checkout
+        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
         with:
           fetch-depth: 0
       - name: Set up JDK 17
@@ -51,12 +52,11 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@db19848a5fa7950289d3668fb053140cf3028d43 # v3.3.2
       - name: Build with Gradle
-        uses: gradle/gradle-build-action@4c39dd82cd5e1ec7c6fa0173bb41b4b6bb3b86ff # v3.3.2
-        with:
-          arguments: |
-            printVersion build
-      - name: 'Upload Test reports - App'
+        run: ./gradlew printVersion build
+      - name: Upload Test reports - App
         if: always()
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
@@ -65,7 +65,7 @@ jobs:
             lowkey-vault-app/build/reports/tests/test
             lowkey-vault-app/build/reports/abort-mission/abort-mission-report.html
           retention-days: 5
-      - name: 'Upload Test reports - Docker'
+      - name: Upload Test reports - Docker
         if: always()
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
@@ -74,7 +74,7 @@ jobs:
             lowkey-vault-docker/build/reports/cucumber
             lowkey-vault-docker/build/reports/abort-mission/abort-mission-report.html
           retention-days: 5
-      - name: 'Upload Test reports - Testcontainers'
+      - name: Upload Test reports - Testcontainers
         if: always()
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:

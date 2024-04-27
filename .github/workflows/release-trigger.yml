@@ -18,11 +18,12 @@ jobs:
     name: Release trigger action
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+      - name: Checkout
+        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
         with:
           fetch-depth: 0
           token: ${{ secrets.PUBLISH_KEY }}
-      - name: "Check existing tag"
+      - name: Check existing tag
         id: check
         run: |
           echo "::set-output name=has_tag::$(git log --format='format:%d' --decorate-refs="refs/tags/v*" -n 1 | grep tag | wc -l)"
@@ -33,11 +34,11 @@ jobs:
           echo "Execution: ${{ github.event.inputs.execution }}"
           echo "---"
           echo "Should run: ${{ steps.check.outputs.has_tag == 0 || github.event.inputs.execution == 'Manual' }}"
-      - name: "Update trigger"
+      - name: Update trigger
         if: ${{ steps.check.outputs.has_tag == 0 || github.event.inputs.execution == 'Manual' }}
         run: |
           date +%s > .release-trigger
-      - name: "git branch"
+      - name: Create git branch
         if: ${{ steps.check.outputs.has_tag == 0 || github.event.inputs.execution == 'Manual' }}
         run: |
           git config --global user.name 'Esta Nagy'
@@ -46,7 +47,8 @@ jobs:
           git add .release-trigger
           git commit -asm "Triggering a release {patch}"
           git push -f --set-upstream origin release/run-${{ github.run_number }}
-      - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      - name: Create PR
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         if: ${{ steps.check.outputs.has_tag == 0 || github.event.inputs.execution == 'Manual' }}
         with:
           github-token: ${{ secrets.PUBLISH_KEY }}

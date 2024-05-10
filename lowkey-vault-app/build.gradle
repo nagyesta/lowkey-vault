@@ -64,6 +64,7 @@ jar {
 bootJar {
     archiveVersion.value(project.version as String)
 }
+tasks.resolveMainClassName.dependsOn("copyLegalDocs")
 
 tasks.register('regenerateCertJks', Exec) {
     outputs.file("${project.projectDir}/src/main/resources/cert/keystore.jks")

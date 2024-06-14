@@ -25,7 +25,6 @@ import java.util.concurrent.Callable;
  * @param <T> The type of the key.
  * @param <S> The type of the key parameter.
  */
-@SuppressWarnings("LombokGetterMayBeUsed")
 public abstract class KeyVaultKeyEntity<T, S> extends KeyVaultBaseEntity<VersionedKeyEntityId> implements ReadOnlyKeyVaultKeyEntity {
 
     @Getter

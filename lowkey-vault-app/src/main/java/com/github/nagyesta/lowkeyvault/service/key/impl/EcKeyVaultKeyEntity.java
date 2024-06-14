@@ -12,6 +12,7 @@ import org.springframework.util.Assert;
 import java.security.KeyPair;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -51,12 +52,12 @@ public class EcKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, KeyCurveName
 
     @Override
     public byte[] getX() {
-        return ((ECPublicKey) getKey().getPublic()).getW().getAffineX().toByteArray();
+        return normalizeKeyParameter(((ECPublicKey) getKey().getPublic()).getW().getAffineX().toByteArray());
     }
 
     @Override
     public byte[] getY() {
-        return ((ECPublicKey) getKey().getPublic()).getW().getAffineY().toByteArray();
+        return normalizeKeyParameter(((ECPublicKey) getKey().getPublic()).getW().getAffineY().toByteArray());
     }
 
     @Override
@@ -110,5 +111,17 @@ public class EcKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, KeyCurveName
     @Override
     protected byte[] preProcessVerifiableSignature(final byte[] rawSignature) throws Exception {
         return Asn1ConverterUtil.convertFromRawToAsn1(rawSignature);
+    }
+
+    private byte[] normalizeKeyParameter(final byte[] byteArray) {
+        final int expectedLength = getKeyParam().getByteLength();
+        final int actualLength = byteArray.length;
+        //if the actual length is larger, then there is a leading 0 byte in front of the actual value
+        //this is added only because the next byte would be negative and the BigInteger would be negative as well
+        if (actualLength > expectedLength) {
+            return Arrays.copyOfRange(byteArray, actualLength - expectedLength, actualLength);
+        } else {
+            return byteArray;
+        }
     }
 }

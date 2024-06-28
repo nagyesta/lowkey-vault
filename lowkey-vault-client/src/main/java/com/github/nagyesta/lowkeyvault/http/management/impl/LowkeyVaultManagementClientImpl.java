@@ -1,9 +1,6 @@
 package com.github.nagyesta.lowkeyvault.http.management.impl;
 
-import com.azure.core.http.HttpClient;
-import com.azure.core.http.HttpMethod;
-import com.azure.core.http.HttpRequest;
-import com.azure.core.http.HttpResponse;
+import com.azure.core.http.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -11,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.github.nagyesta.lowkeyvault.http.management.*;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpHeaders;
 import reactor.util.annotation.Nullable;
 
 import java.io.ByteArrayInputStream;
@@ -81,31 +77,28 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
         final URI uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_PATH);
         final HttpRequest request = new HttpRequest(HttpMethod.POST, uri.toString())
                 .setBody(body)
-                .setHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON);
+                .setHeader(HttpHeaderName.CONTENT_TYPE, APPLICATION_JSON);
         return sendAndProcess(request, r -> r.getResponseObject(VaultModel.class));
     }
 
     @Override
     public List<VaultModel> listVaults() {
         final URI uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_PATH);
-        final HttpRequest request = new HttpRequest(HttpMethod.GET, uri.toString())
-                .setHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON);
+        final HttpRequest request = new HttpRequest(HttpMethod.GET, uri.toString());
         return sendAndProcess(request, r -> r.getResponseObject(VAULT_MODEL_LIST_TYPE_REF));
     }
 
     @Override
     public List<VaultModel> listDeletedVaults() {
         final URI uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_DELETED_PATH);
-        final HttpRequest request = new HttpRequest(HttpMethod.GET, uri.toString())
-                .setHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON);
+        final HttpRequest request = new HttpRequest(HttpMethod.GET, uri.toString());
         return sendAndProcess(request, r -> r.getResponseObject(VAULT_MODEL_LIST_TYPE_REF));
     }
 
     @Override
     public boolean delete(@NonNull final URI baseUri) {
         final URI uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_PATH, Map.of(BASE_URI_QUERY_PARAM, baseUri.toString()));
-        final HttpRequest request = new HttpRequest(HttpMethod.DELETE, uri.toString())
-                .setHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON);
+        final HttpRequest request = new HttpRequest(HttpMethod.DELETE, uri.toString());
         return sendAndProcess(request, r -> r.getResponseObject(Boolean.class));
     }
 
@@ -114,7 +107,7 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
         final Map<String, String> parameters = Map.of(BASE_URI_QUERY_PARAM, baseUri.toString());
         final URI uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_RECOVERY_PATH, parameters);
         final HttpRequest request = new HttpRequest(HttpMethod.PUT, uri.toString())
-                .setHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON);
+                .setHeader(HttpHeaderName.CONTENT_TYPE, APPLICATION_JSON);
         return sendAndProcess(request, r -> r.getResponseObject(VaultModel.class));
     }
 
@@ -136,8 +129,7 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
     public boolean purge(@NonNull final URI baseUri) {
         final Map<String, String> parameters = Map.of(BASE_URI_QUERY_PARAM, baseUri.toString());
         final URI uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_PURGE_PATH, parameters);
-        final HttpRequest request = new HttpRequest(HttpMethod.DELETE, uri.toString())
-                .setHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON);
+        final HttpRequest request = new HttpRequest(HttpMethod.DELETE, uri.toString());
         return sendAndProcess(request, r -> r.getResponseObject(Boolean.class));
     }
 
@@ -153,15 +145,14 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
         final String path = optionalURI.map(u -> MANAGEMENT_VAULT_TIME_PATH).orElse(MANAGEMENT_VAULT_TIME_ALL_PATH);
         final URI uri = UriUtil.uriBuilderForPath(vaultUrl, path, parameters);
         final HttpRequest request = new HttpRequest(HttpMethod.PUT, uri.toString())
-                .setHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON);
+                .setHeader(HttpHeaderName.CONTENT_TYPE, APPLICATION_JSON);
         sendRaw(request);
     }
 
     @Override
     public String exportActive() {
         final URI uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_EXPORT_ACTIVE_PATH);
-        final HttpRequest request = new HttpRequest(HttpMethod.GET, uri.toString())
-                .setHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON);
+        final HttpRequest request = new HttpRequest(HttpMethod.GET, uri.toString());
         return sendRaw(request).getResponseBodyAsString();
     }
 
@@ -192,7 +183,7 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
     private VaultModel performAliasUpdate(final Map<String, String> parameters) {
         final URI uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_ALIAS_PATH, parameters);
         final HttpRequest request = new HttpRequest(HttpMethod.PATCH, uri.toString())
-                .setHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON);
+                .setHeader(HttpHeaderName.CONTENT_TYPE, APPLICATION_JSON);
         return sendAndProcess(request, r -> r.getResponseObject(VaultModel.class));
     }
 

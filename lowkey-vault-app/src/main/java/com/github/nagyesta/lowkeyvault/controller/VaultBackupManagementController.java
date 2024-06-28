@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -26,9 +25,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "/management/vault",
-        consumes = MimeTypeUtils.APPLICATION_JSON_VALUE,
-        produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/management/vault", produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
 public class VaultBackupManagementController extends ErrorHandlingAwareController implements InitializingBean {
 
     private final VaultImporter vaultImporter;
@@ -60,9 +57,8 @@ public class VaultBackupManagementController extends ErrorHandlingAwareControlle
                             content = @Content(
                                     mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = ErrorModel.class)
-                            ))},
-            requestBody = @RequestBody(content = @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE)))
-    @GetMapping(value = {"/export", "/export/"})
+                            ))})
+    @GetMapping(value = {"/export", "/export/"}, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     public ResponseEntity<VaultBackupListModel> export() {
         log.info("Received request to export active vaults.");
         final List<VaultBackupModel> backupModels = vaultImportExportExecutor.backupVaultList(vaultService);

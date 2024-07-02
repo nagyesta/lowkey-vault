@@ -22,7 +22,7 @@ abortMission = "5.0.142"
 checkstyle = "10.12.2"
 jacoco = "0.8.10"
 jackson = { strictly = "2.17.1" }
-openApiUi = "2.5.0"
+openApiUi = "2.6.0"
 
 abortMissionPlugin = "5.0.41"
 dockerPlugin = "0.36.0"

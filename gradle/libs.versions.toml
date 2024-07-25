@@ -31,7 +31,7 @@ lombokPlugin = "8.6"
 springBootPlugin = "3.3.2"
 gitVersionerPlugin = "1.6.7"
 owaspPlugin = "10.0.3"
-cycloneDxBomPlugin = "1.8.2"
+cycloneDxBomPlugin = "1.9.0"
 licenseePlugin = "1.11.0"
 nexusPublishPlugin = "2.0.0"
 

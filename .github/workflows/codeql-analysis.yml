@@ -15,22 +15,6 @@ name: "CodeQL"
 on:
   push:
     branches: [ main ]
-    paths-ignore:
-      - 'README.md'
-      - '**/README.md'
-      - 'CODE_OF_CONDUCT.md'
-      - 'CONTRIBUTING.md'
-      - 'pull_request_template.md'
-      - 'SECURITY.md'
-      - 'LICENSE'
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/assets/**'
-      - '.github/workflows/**'
-      - '!.github/workflows/codeql-analysis.yml'
-      - '.github/pr-labeler.yml'
-      - 'renovate.json'
-      - '.whitesource'
-      - 'lowkey-vault-docker/src/docker/Dockerfile'
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ main ]
@@ -53,9 +37,6 @@ on:
       - 'lowkey-vault-docker/src/docker/Dockerfile'
 
 permissions:
-  # required for all workflows
-  security-events: write
-
   # only required for workflows in private repositories
   actions: read
   contents: read
@@ -64,12 +45,16 @@ jobs:
   analyze:
     name: Analyze
     runs-on: ubuntu-latest
+    
+    permissions:
+      # required for all workflows
+      security-events: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
       - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@f9c9c575b8b21b6485636a91ffecd10e558c62f6 # v3.5.0
+        uses: gradle/actions/wrapper-validation@d9c87d481d55275bb5441eef3fe0e46805f9ef70 # v3.5.0
       - name: Set up JDK 17
         uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9 # v4.2.1
         with:

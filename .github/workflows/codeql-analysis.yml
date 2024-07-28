@@ -15,22 +15,6 @@ name: "CodeQL"
 on:
   push:
     branches: [ main ]
-    paths-ignore:
-      - 'README.md'
-      - '**/README.md'
-      - 'CODE_OF_CONDUCT.md'
-      - 'CONTRIBUTING.md'
-      - 'pull_request_template.md'
-      - 'SECURITY.md'
-      - 'LICENSE'
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/assets/**'
-      - '.github/workflows/**'
-      - '!.github/workflows/codeql-analysis.yml'
-      - '.github/pr-labeler.yml'
-      - 'renovate.json'
-      - '.whitesource'
-      - 'lowkey-vault-docker/src/docker/Dockerfile'
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ main ]
@@ -53,9 +37,6 @@ on:
       - 'lowkey-vault-docker/src/docker/Dockerfile'
 
 permissions:
-  # required for all workflows
-  security-events: write
-
   # only required for workflows in private repositories
   actions: read
   contents: read
@@ -64,6 +45,10 @@ jobs:
   analyze:
     name: Analyze
     runs-on: ubuntu-latest
+    
+    permissions:
+      # required for all workflows
+      security-events: write
 
     steps:
       - name: Checkout repository

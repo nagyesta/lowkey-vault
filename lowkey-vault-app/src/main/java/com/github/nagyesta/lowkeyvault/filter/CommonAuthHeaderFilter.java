@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
@@ -28,6 +29,11 @@ public class CommonAuthHeaderFilter extends OncePerRequestFilter {
     private static final String BEARER_FAKE_TOKEN = "Bearer resource=\"%s\", authorization_uri=\"%s\"";
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
     private final Set<String> skipUrisIfMatch = Set.of("/ping", "/management/**", "/api/**", "/metadata/**");
+    private String authResource;
+
+    CommonAuthHeaderFilter(@Value("${LOWKEY_AUTH_RESOURCE:localhost}") final String authResource) {
+        this.authResource = authResource;
+    }
 
     @Override
     protected void doFilterInternal(final HttpServletRequest request, final HttpServletResponse response,
@@ -38,7 +44,7 @@ public class CommonAuthHeaderFilter extends OncePerRequestFilter {
         final URI baseUri = URI.create(HTTPS + request.getServerName() + port);
         request.setAttribute(ApiConstants.REQUEST_BASE_URI, baseUri);
         response.setHeader(HttpHeaders.WWW_AUTHENTICATE,
-                String.format(BEARER_FAKE_TOKEN, baseUri, baseUri + request.getRequestURI()));
+                String.format(BEARER_FAKE_TOKEN, URI.create(HTTPS + authResource), baseUri + request.getRequestURI()));
         if (!StringUtils.hasText(request.getHeader(HttpHeaders.AUTHORIZATION))) {
             log.info("Sending token to client without processing payload: {}", request.getRequestURI());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

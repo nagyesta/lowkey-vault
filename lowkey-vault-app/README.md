@@ -94,6 +94,19 @@ Set `--server.port=<port>` as an argument as usual with Spring Boot apps:
 java -jar lowkey-vault-app-<version>.jar --server.port=8443
 ```
 
+## Challenge resource URI
+
+The official Azure Key Vault clients verify the challenge resource URL returned by the server (see
+[blog](https://devblogs.microsoft.com/azure-sdk/guidance-for-applications-using-the-key-vault-libraries/)). You can either set
+`DisableChallengeResourceVerification=true` in your client, or you can configure the resource URL returned by the Lowkey Vault:
+
+```
+java -jar lowkey-vault-app-<version>.jar --LOWKEY_AUTH_RESOURCE="vault.azure.net"
+```
+
+You should be running the Lowkey Vault with a resolvable hostname as a subdomain of `vault.azure.net` (e.g. `lowkey.vault.azure.net`) and
+have appropriate SSL certificates registered if you choose to configure the auth resource.
+
 ### Importing vault content at startup
 
 When you need to automatically import the contents of the vaults form a previously created JSON export, you can

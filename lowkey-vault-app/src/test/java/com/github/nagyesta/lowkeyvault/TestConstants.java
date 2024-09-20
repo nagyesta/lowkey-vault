@@ -46,6 +46,7 @@ public final class TestConstants {
     public static final String LOWKEY_VAULT = "lowkey-vault";
     public static final String DEFAULT_SUB = "default.";
     public static final String DEFAULT_LOWKEY_VAULT = DEFAULT_SUB + LOWKEY_VAULT;
+    public static final String AZURE_CLOUD = "vault.azure.net";
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Port">

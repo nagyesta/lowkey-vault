@@ -80,9 +80,8 @@ class CommonAuthHeaderFilterTest {
     @ValueSource(strings = {EMPTY, HEADER_VALUE})
     void testDoFilterInternalShouldNotCallNextOnChainWhenAuthorizationHeaderMissing(final String headerValue)
             throws ServletException, IOException {
-        final CommonAuthHeaderFilter underTest = new CommonAuthHeaderFilter(LOCALHOST);
-
         //given
+        final CommonAuthHeaderFilter underTest = new CommonAuthHeaderFilter(CommonAuthHeaderFilter.OMIT_DEFAULT);
         when(request.getHeader(eq(HttpHeaders.AUTHORIZATION))).thenReturn(headerValue);
 
         //when
@@ -102,9 +101,8 @@ class CommonAuthHeaderFilterTest {
     @ValueSource(strings = {EMPTY, HEADER_VALUE})
     void testDoFilterInternalShouldAddTokenToResponseHeaderWhenCalled(final String headerValue)
             throws ServletException, IOException {
-        final CommonAuthHeaderFilter underTest = new CommonAuthHeaderFilter(LOCALHOST);
-
         //given
+        final CommonAuthHeaderFilter underTest = new CommonAuthHeaderFilter(CommonAuthHeaderFilter.OMIT_DEFAULT);
         when(request.getHeader(eq(HttpHeaders.AUTHORIZATION))).thenReturn(headerValue);
 
         //when
@@ -118,9 +116,8 @@ class CommonAuthHeaderFilterTest {
     @MethodSource("authResourceProvider")
     void testDoFilterInternalShouldSetResourceOnResponseHeaderWhenCalled(final String authResource, final URI expected)
             throws ServletException, IOException {
-        final CommonAuthHeaderFilter underTest = new CommonAuthHeaderFilter(authResource);
-
         //given
+        final CommonAuthHeaderFilter underTest = new CommonAuthHeaderFilter(authResource);
         when(request.getHeader(eq(HttpHeaders.AUTHORIZATION))).thenReturn(HEADER_VALUE);
 
         //when
@@ -134,9 +131,8 @@ class CommonAuthHeaderFilterTest {
     @MethodSource("hostAndPortProvider")
     void testDoFilterInternalShouldSetRequestBaseUriRequestAttributeWhenCalled(
             final String hostName, final int port, final String path, final URI expected) throws ServletException, IOException {
-        final CommonAuthHeaderFilter underTest = new CommonAuthHeaderFilter(LOCALHOST);
-
         //given
+        final CommonAuthHeaderFilter underTest = new CommonAuthHeaderFilter(CommonAuthHeaderFilter.OMIT_DEFAULT);
         when(request.getServerName()).thenReturn(hostName);
         when(request.getServerPort()).thenReturn(port);
         when(request.getRequestURI()).thenReturn(path);
@@ -153,9 +149,8 @@ class CommonAuthHeaderFilterTest {
 
     @Test
     void testShouldNotFilterShouldReturnTrueWhenRequestBaseUriIsPing() {
-        final CommonAuthHeaderFilter underTest = new CommonAuthHeaderFilter(LOCALHOST);
-
         //given
+        final CommonAuthHeaderFilter underTest = new CommonAuthHeaderFilter(CommonAuthHeaderFilter.OMIT_DEFAULT);
         when(request.getRequestURI()).thenReturn("/ping");
 
         //when
@@ -164,5 +159,15 @@ class CommonAuthHeaderFilterTest {
         //then
         Assertions.assertTrue(actual);
         verify(request, atLeastOnce()).getRequestURI();
+    }
+
+    @Test
+    void testConstructorShouldThrowExceptionWhenCalledWithNull() {
+        //given
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new CommonAuthHeaderFilter(null));
+
+        //then + exception
     }
 }

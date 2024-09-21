@@ -94,7 +94,7 @@ Set `--server.port=<port>` as an argument as usual with Spring Boot apps:
 java -jar lowkey-vault-app-<version>.jar --server.port=8443
 ```
 
-## Challenge resource URI
+### Overriding the challenge resource URI
 
 The official Azure Key Vault clients verify the challenge resource URL returned by the server (see
 [blog](https://devblogs.microsoft.com/azure-sdk/guidance-for-applications-using-the-key-vault-libraries/)). You can either set
@@ -104,8 +104,24 @@ The official Azure Key Vault clients verify the challenge resource URL returned 
 java -jar lowkey-vault-app-<version>.jar --LOWKEY_AUTH_RESOURCE="vault.azure.net"
 ```
 
-You should be running the Lowkey Vault with a resolvable hostname as a subdomain of `vault.azure.net` (e.g. `lowkey.vault.azure.net`) and
-have appropriate SSL certificates registered if you choose to configure the auth resource.
+> [!NOTE]
+> You should be running Lowkey Vault with a resolvable hostname as a subdomain of `vault.azure.net` (e.g. `lowkey.vault.azure.net`) and have appropriate SSL certificates registered if you choose to configure the auth resource.
+
+> [!WARNING] 
+> This property is only intended to be used in case you absolutely cannot disable your challenge resource verification because it raises the complexity of your setup significantly and there are no guarantees that the clients will keep working with this workaround. Therefore, this is NOT recommended to be used. Please consider following [the official guidance](https://devblogs.microsoft.com/azure-sdk/guidance-for-applications-using-the-key-vault-libraries/) instead.
+
+### Using the Token endpoint with a custom realm
+
+By default, the Token endpoint includes the `WWW-Authenticate` response header with the `Basic realm=assumed-identity` value.
+If you need to change the realm (for example because you are using Managed Identity authentication with the latest Python libraries)
+you can use the `LOWKEY_TOKEN_REALM` configuration property to override it as seen in the example below:
+
+```
+java -jar lowkey-vault-app-<version>.jar --LOWKEY_TOKEN_REALM="local"
+```
+
+Using the configuration above, the value of the response header would change to `Basic realm=local`.
+
 
 ### Importing vault content at startup
 

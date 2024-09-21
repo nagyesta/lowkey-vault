@@ -30,7 +30,6 @@ import static org.mockito.Mockito.*;
 
 class CommonAuthHeaderFilterTest {
 
-    private final CommonAuthHeaderFilter underTest = new CommonAuthHeaderFilter();
     @Mock
     private HttpServletRequest request;
     @Mock
@@ -59,6 +58,13 @@ class CommonAuthHeaderFilterTest {
                 .build();
     }
 
+    public static Stream<Arguments> authResourceProvider() {
+        return Stream.<Arguments>builder()
+                .add(Arguments.of(LOCALHOST, HTTPS_LOCALHOST))
+                .add(Arguments.of(AZURE_CLOUD, HTTPS_AZURE_CLOUD))
+                .build();
+    }
+
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
@@ -75,6 +81,7 @@ class CommonAuthHeaderFilterTest {
     void testDoFilterInternalShouldNotCallNextOnChainWhenAuthorizationHeaderMissing(final String headerValue)
             throws ServletException, IOException {
         //given
+        final CommonAuthHeaderFilter underTest = new CommonAuthHeaderFilter(CommonAuthHeaderFilter.OMIT_DEFAULT);
         when(request.getHeader(eq(HttpHeaders.AUTHORIZATION))).thenReturn(headerValue);
 
         //when
@@ -95,6 +102,7 @@ class CommonAuthHeaderFilterTest {
     void testDoFilterInternalShouldAddTokenToResponseHeaderWhenCalled(final String headerValue)
             throws ServletException, IOException {
         //given
+        final CommonAuthHeaderFilter underTest = new CommonAuthHeaderFilter(CommonAuthHeaderFilter.OMIT_DEFAULT);
         when(request.getHeader(eq(HttpHeaders.AUTHORIZATION))).thenReturn(headerValue);
 
         //when
@@ -105,10 +113,26 @@ class CommonAuthHeaderFilterTest {
     }
 
     @ParameterizedTest
+    @MethodSource("authResourceProvider")
+    void testDoFilterInternalShouldSetResourceOnResponseHeaderWhenCalled(final String authResource, final URI expected)
+            throws ServletException, IOException {
+        //given
+        final CommonAuthHeaderFilter underTest = new CommonAuthHeaderFilter(authResource);
+        when(request.getHeader(eq(HttpHeaders.AUTHORIZATION))).thenReturn(HEADER_VALUE);
+
+        //when
+        underTest.doFilterInternal(request, response, chain);
+
+        //then
+        verify(response).setHeader(eq(HttpHeaders.WWW_AUTHENTICATE), contains("resource=\"" + expected + "\""));
+    }
+
+    @ParameterizedTest
     @MethodSource("hostAndPortProvider")
     void testDoFilterInternalShouldSetRequestBaseUriRequestAttributeWhenCalled(
             final String hostName, final int port, final String path, final URI expected) throws ServletException, IOException {
         //given
+        final CommonAuthHeaderFilter underTest = new CommonAuthHeaderFilter(CommonAuthHeaderFilter.OMIT_DEFAULT);
         when(request.getServerName()).thenReturn(hostName);
         when(request.getServerPort()).thenReturn(port);
         when(request.getRequestURI()).thenReturn(path);
@@ -126,6 +150,7 @@ class CommonAuthHeaderFilterTest {
     @Test
     void testShouldNotFilterShouldReturnTrueWhenRequestBaseUriIsPing() {
         //given
+        final CommonAuthHeaderFilter underTest = new CommonAuthHeaderFilter(CommonAuthHeaderFilter.OMIT_DEFAULT);
         when(request.getRequestURI()).thenReturn("/ping");
 
         //when
@@ -134,5 +159,15 @@ class CommonAuthHeaderFilterTest {
         //then
         Assertions.assertTrue(actual);
         verify(request, atLeastOnce()).getRequestURI();
+    }
+
+    @Test
+    void testConstructorShouldThrowExceptionWhenCalledWithNull() {
+        //given
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new CommonAuthHeaderFilter(null));
+
+        //then + exception
     }
 }

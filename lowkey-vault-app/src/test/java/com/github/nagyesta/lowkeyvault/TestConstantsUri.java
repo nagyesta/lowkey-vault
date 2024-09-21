@@ -25,6 +25,7 @@ public final class TestConstantsUri {
     public static final URI HTTPS_DEFAULT_LOWKEY_VAULT = URI.create(HTTPS + DEFAULT_SUB + LOWKEY_VAULT);
     public static final URI HTTPS_DEFAULT_LOWKEY_VAULT_8443 = URI.create(HTTPS_DEFAULT_LOWKEY_VAULT + PORT_8443);
     public static final URI HTTPS_DEFAULT_LOWKEY_VAULT_80 = URI.create(HTTPS_DEFAULT_LOWKEY_VAULT + PORT_80);
+    public static final URI HTTPS_AZURE_CLOUD = URI.create(HTTPS + AZURE_CLOUD);
     //</editor-fold>
 
     public static String getRandomVaultUriAsString() {

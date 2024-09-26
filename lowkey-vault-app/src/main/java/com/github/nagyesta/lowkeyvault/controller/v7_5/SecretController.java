@@ -84,7 +84,8 @@ public class SecretController extends CommonSecretController {
     }
 
     @Override
-    @GetMapping(value = {"/deletedsecrets", "/deletedsecrets/"},
+    @GetMapping(value = {"/deletedsecrets", "/deletedsecrets/",
+            "/deletedSecrets", "/deletedSecrets/"},
             params = API_VERSION_7_5,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultItemListModel<DeletedKeyVaultSecretItemModel>> listDeletedSecrets(
@@ -129,7 +130,8 @@ public class SecretController extends CommonSecretController {
     }
 
     @Override
-    @GetMapping(value = {"/deletedsecrets/{secretName}", "/deletedsecrets/{secretName}/"},
+    @GetMapping(value = {"/deletedsecrets/{secretName}", "/deletedsecrets/{secretName}/",
+            "/deletedSecrets/{secretName}", "/deletedSecrets/{secretName}/"},
             params = API_VERSION_7_5,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultSecretModel> getDeletedSecret(
@@ -139,7 +141,8 @@ public class SecretController extends CommonSecretController {
     }
 
     @Override
-    @DeleteMapping(value = {"/deletedsecrets/{secretName}", "/deletedsecrets/{secretName}/"},
+    @DeleteMapping(value = {"/deletedsecrets/{secretName}", "/deletedsecrets/{secretName}/",
+            "/deletedSecrets/{secretName}", "/deletedSecrets/{secretName}/"},
             params = API_VERSION_7_5,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> purgeDeleted(
@@ -149,7 +152,8 @@ public class SecretController extends CommonSecretController {
     }
 
     @Override
-    @PostMapping(value = {"/deletedsecrets/{secretName}/recover", "/deletedsecrets/{secretName}/recover/"},
+    @PostMapping(value = {"/deletedsecrets/{secretName}/recover", "/deletedsecrets/{secretName}/recover/",
+            "/deletedSecrets/{secretName}/recover", "/deletedSecrets/{secretName}/recover/"},
             params = API_VERSION_7_5,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultSecretModel> recoverDeletedSecret(

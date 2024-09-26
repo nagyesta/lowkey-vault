@@ -97,7 +97,8 @@ public class KeyController extends CommonKeyController {
     }
 
     @Override
-    @GetMapping(value = {"/deletedkeys", "/deletedkeys/"},
+    @GetMapping(value = {"/deletedkeys", "/deletedkeys/",
+            "/deletedKeys", "/deletedKeys/"},
             params = API_VERSION_7_2,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultItemListModel<DeletedKeyVaultKeyItemModel>> listDeletedKeys(
@@ -142,7 +143,8 @@ public class KeyController extends CommonKeyController {
     }
 
     @Override
-    @GetMapping(value = {"/deletedkeys/{keyName}", "/deletedkeys/{keyName}/"},
+    @GetMapping(value = {"/deletedkeys/{keyName}", "/deletedkeys/{keyName}/",
+            "/deletedKeys/{keyName}", "/deletedKeys/{keyName}/"},
             params = API_VERSION_7_2,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<DeletedKeyVaultKeyModel> getDeletedKey(
@@ -152,7 +154,8 @@ public class KeyController extends CommonKeyController {
     }
 
     @Override
-    @PostMapping(value = {"/deletedkeys/{keyName}/recover", "/deletedkeys/{keyName}/recover/"},
+    @PostMapping(value = {"/deletedkeys/{keyName}/recover", "/deletedkeys/{keyName}/recover/",
+            "/deletedKeys/{keyName}/recover", "/deletedKeys/{keyName}/recover/"},
             params = API_VERSION_7_2,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultKeyModel> recoverDeletedKey(
@@ -162,7 +165,8 @@ public class KeyController extends CommonKeyController {
     }
 
     @Override
-    @DeleteMapping(value = {"/deletedkeys/{keyName}", "/deletedkeys/{keyName}/"},
+    @DeleteMapping(value = {"/deletedkeys/{keyName}", "/deletedkeys/{keyName}/",
+            "/deletedKeys/{keyName}", "/deletedKeys/{keyName}/"},
             params = API_VERSION_7_2,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> purgeDeleted(

@@ -42,7 +42,8 @@ public class KeyCryptoController extends CommonKeyCryptoController {
 
     @Override
     @PostMapping(value = {"/keys/{keyName}/{keyVersion}/encrypt", "/keys/{keyName}/{keyVersion}/encrypt/",
-            "/keys/{keyName}/{keyVersion}/wrapkey", "/keys/{keyName}/{keyVersion}/wrapkey/"},
+            "/keys/{keyName}/{keyVersion}/wrapkey", "/keys/{keyName}/{keyVersion}/wrapkey/",
+            "/keys/{keyName}/{keyVersion}/wrapKey", "/keys/{keyName}/{keyVersion}/wrapKey/"},
             params = API_VERSION_7_4,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
@@ -56,7 +57,8 @@ public class KeyCryptoController extends CommonKeyCryptoController {
 
     @Override
     @PostMapping(value = {"/keys/{keyName}/{keyVersion}/decrypt", "/keys/{keyName}/{keyVersion}/decrypt/",
-            "/keys/{keyName}/{keyVersion}/unwrapkey", "/keys/{keyName}/{keyVersion}/unwrapkey/"},
+            "/keys/{keyName}/{keyVersion}/unwrapkey", "/keys/{keyName}/{keyVersion}/unwrapkey/",
+            "/keys/{keyName}/{keyVersion}/unwrapKey", "/keys/{keyName}/{keyVersion}/unwrapKey/"},
             params = API_VERSION_7_4,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)

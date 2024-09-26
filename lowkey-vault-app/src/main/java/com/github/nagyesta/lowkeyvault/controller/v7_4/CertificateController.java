@@ -94,7 +94,8 @@ public class CertificateController extends CommonCertificateController {
 
     @Override
     @GetMapping(
-            value = {"/deletedcertificates/{certificateName}", "/deletedcertificates/{certificateName}/"},
+            value = {"/deletedcertificates/{certificateName}", "/deletedcertificates/{certificateName}/",
+                    "/deletedCertificates/{certificateName}", "/deletedCertificates/{certificateName}/"},
             params = API_VERSION_7_4,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<DeletedKeyVaultCertificateModel> getDeletedCertificate(
@@ -105,7 +106,8 @@ public class CertificateController extends CommonCertificateController {
 
     @Override
     @PostMapping(
-            value = {"/deletedcertificates/{certificateName}/recover", "/deletedcertificates/{certificateName}/recover/"},
+            value = {"/deletedcertificates/{certificateName}/recover", "/deletedcertificates/{certificateName}/recover/",
+                    "/deletedCertificates/{certificateName}/recover", "/deletedCertificates/{certificateName}/recover/"},
             params = API_VERSION_7_4,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultCertificateModel> recoverDeletedCertificate(
@@ -116,7 +118,8 @@ public class CertificateController extends CommonCertificateController {
 
     @Override
     @DeleteMapping(
-            value = {"/deletedcertificates/{certificateName}", "/deletedcertificates/{certificateName}/"},
+            value = {"/deletedcertificates/{certificateName}", "/deletedcertificates/{certificateName}/",
+                    "/deletedCertificates/{certificateName}", "/deletedCertificates/{certificateName}/"},
             params = API_VERSION_7_4,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> purgeDeleted(
@@ -153,7 +156,8 @@ public class CertificateController extends CommonCertificateController {
 
     @Override
     @GetMapping(
-            value = {"/deletedcertificates", "/deletedcertificates/"},
+            value = {"/deletedcertificates", "/deletedcertificates/",
+                    "/deletedCertificates", "/deletedCertificates/"},
             params = API_VERSION_7_4,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultItemListModel<DeletedKeyVaultCertificateItemModel>> listDeletedCertificates(

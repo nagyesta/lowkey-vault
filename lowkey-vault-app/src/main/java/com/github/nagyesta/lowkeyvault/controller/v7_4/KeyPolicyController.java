@@ -31,7 +31,8 @@ public class KeyPolicyController extends CommonKeyPolicyController {
         super(registry, vaultService);
     }
 
-    @GetMapping(value = {"/keys/{keyName}/rotationpolicy", "/keys/{keyName}/rotationpolicy/"},
+    @GetMapping(value = {"/keys/{keyName}/rotationpolicy", "/keys/{keyName}/rotationpolicy/",
+            "/keys/{keyName}/rotationPolicy", "/keys/{keyName}/rotationPolicy/"},
             params = API_VERSION_7_4,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyRotationPolicyModel> getRotationPolicy(
@@ -40,7 +41,8 @@ public class KeyPolicyController extends CommonKeyPolicyController {
         return super.getRotationPolicy(keyName, baseUri);
     }
 
-    @PutMapping(value = {"/keys/{keyName}/rotationpolicy", "/keys/{keyName}/rotationpolicy/"},
+    @PutMapping(value = {"/keys/{keyName}/rotationpolicy", "/keys/{keyName}/rotationpolicy/",
+            "/keys/{keyName}/rotationPolicy", "/keys/{keyName}/rotationPolicy/"},
             params = API_VERSION_7_4,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)

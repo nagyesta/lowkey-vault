@@ -14,12 +14,15 @@ import java.io.IOException;
 @Slf4j
 public class PortSeparationFilter extends OncePerRequestFilter {
 
+    @SuppressWarnings("NullableProblems")
     @Override
     protected void doFilterInternal(
-            final HttpServletRequest request, final HttpServletResponse response, final FilterChain filterChain)
+            final HttpServletRequest request,
+            final HttpServletResponse response,
+            final FilterChain filterChain)
             throws ServletException, IOException {
         final var secure = request.isSecure();
-        final boolean isTokenRequest = "/metadata/identity/oauth2/token".equals(request.getRequestURI());
+        final boolean isTokenRequest = request.getRequestURI().startsWith("/metadata/identity/oauth2/token");
         final boolean unsecureTokenRequest = isTokenRequest && !secure;
         final boolean secureVaultRequest = !isTokenRequest && secure;
         if (unsecureTokenRequest || secureVaultRequest) {

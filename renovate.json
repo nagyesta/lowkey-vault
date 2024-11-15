@@ -1,6 +1,6 @@
 {
   "extends": [
-    "config:base",
+    "config:recommended",
     ":gitSignOff"
   ],
   "assignees": [
@@ -10,10 +10,15 @@
   "commitMessageSuffix": "{patch}",
   "separateMajorMinor": true,
   "separateMinorPatch": true,
-  "docker": {
-    "pinDigests": true
-  },
   "github-actions": {
     "pinDigests": true
-  }
+  },
+  "packageRules": [
+    {
+      "matchCategories": [
+        "docker"
+      ],
+      "pinDigests": true
+    }
+  ]
 }

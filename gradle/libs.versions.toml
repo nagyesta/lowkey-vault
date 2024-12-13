@@ -26,7 +26,7 @@ openApiUi = "2.7.0"
 
 abortMissionPlugin = "5.0.101"
 dockerPlugin = "0.36.0"
-indexScanPlugin = "2.8.3"
+indexScanPlugin = "3.0.0"
 lombokPlugin = "8.11"
 springBootPlugin = "3.4.0"
 gitVersionerPlugin = "1.6.7"

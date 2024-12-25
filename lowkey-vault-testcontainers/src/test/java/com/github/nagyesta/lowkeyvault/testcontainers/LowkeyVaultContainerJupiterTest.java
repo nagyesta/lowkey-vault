@@ -6,12 +6,14 @@ import com.github.nagyesta.lowkeyvault.http.ApacheHttpClient;
 import com.github.nagyesta.lowkeyvault.http.AuthorityOverrideFunction;
 import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.images.PullPolicy;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import java.security.KeyStore;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -65,12 +67,30 @@ class LowkeyVaultContainerJupiterTest extends AbstractLowkeyVaultContainerTest {
 
     @Test
     void testContainerShouldProvideTokenEndpointWhenCalledWithValidParameters() {
-        //given + when test container is created
+        //given test container is created
+
+        //when
+        final String endpoint = underTest.getTokenEndpointUrl();
 
         //then
-        final String endpoint = underTest.getTokenEndpointUrl();
         final ApacheHttpClient httpClient = new ApacheHttpClient(Function.identity(),
                 new TrustSelfSignedStrategy(), new DefaultHostnameVerifier());
         verifyTokenEndpointIsWorking(endpoint, httpClient);
+    }
+
+    @Test
+    void testContainerShouldProvideDefaultKeyStoreWhenRequested() throws Exception {
+        //given test container is created
+
+        //when
+        final String password = underTest.getDefaultKeyStorePassword();
+        final KeyStore keyStore = underTest.getDefaultKeyStore();
+
+        //then
+        Assertions.assertNotNull(keyStore);
+        Assertions.assertNotNull(password);
+        Assertions.assertTrue(keyStore.containsAlias(ALIAS), "Key store does not contain lowkey-vault.local");
+        Assertions.assertNotNull(keyStore.getKey(ALIAS, password.toCharArray()), "Could not retrieve key from key store");
+        Assertions.assertNotNull(keyStore.getCertificate(ALIAS));
     }
 }

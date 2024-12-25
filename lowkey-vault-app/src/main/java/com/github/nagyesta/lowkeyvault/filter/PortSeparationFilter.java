@@ -22,7 +22,7 @@ public class PortSeparationFilter extends OncePerRequestFilter {
             final FilterChain filterChain)
             throws ServletException, IOException {
         final var secure = request.isSecure();
-        final boolean isTokenRequest = request.getRequestURI().startsWith("/metadata/identity/oauth2/token");
+        final boolean isTokenRequest = request.getRequestURI().startsWith("/metadata/");
         final boolean unsecureTokenRequest = isTokenRequest && !secure;
         final boolean secureVaultRequest = !isTokenRequest && secure;
         if (unsecureTokenRequest || secureVaultRequest) {

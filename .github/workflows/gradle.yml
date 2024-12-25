@@ -84,17 +84,23 @@ jobs:
         uses: codecov/codecov-action@1e68e06f1dbfde0e4cefc87efeba9e4643565303 # v5.1.2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./lowkey-vault-app/build/reports/jacoco/report.xml
+          files: ./lowkey-vault-app/build/reports/jacoco/report.xml
+          disable_search: true
           flags: app
+          fail_ci_if_error: false
       - name: Upload coverage to Codecov - Client
         uses: codecov/codecov-action@1e68e06f1dbfde0e4cefc87efeba9e4643565303 # v5.1.2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./lowkey-vault-client/build/reports/jacoco/report.xml
+          files: ./lowkey-vault-client/build/reports/jacoco/report.xml
+          disable_search: true
           flags: client
+          fail_ci_if_error: false
       - name: Upload coverage to Codecov - Testcontainers
         uses: codecov/codecov-action@1e68e06f1dbfde0e4cefc87efeba9e4643565303 # v5.1.2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./lowkey-vault-testcontainers/build/reports/jacoco/report.xml
+          files: ./lowkey-vault-testcontainers/build/reports/jacoco/report.xml
+          disable_search: true
           flags: testcontainers
+          fail_ci_if_error: false

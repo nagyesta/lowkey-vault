@@ -198,10 +198,15 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 
 #### HTTP `:8080`
 
-Only used for simulating Managed Identity Token endpoint `/metadata/identity/oauth2/token?resource=<resource>`. 
+Used for metadata endpoints
+
+- Simulating Managed Identity Token endpoint `GET /metadata/identity/oauth2/token?resource=<resource>`.
+- Obtaining the default certificates of Lowkey Vault
+  - The default `PKCS12` keystore: `GET /metadata/default-cert/lowkey-vault.p12`
+  - The password protecting the default keystore: `GET /metadata/default-cert/password` 
 
 > [!TIP]  
-> This endpoint provides the same Managed Identity stub as [Assumed Identity](https://github.com/nagyesta/assumed-identity). If you want to use Lowkey Vault with Managed Identity, this functionality allows you to do so with a single container.  
+> Managed Identity Token endpoint provides the same Managed Identity stub as [Assumed Identity](https://github.com/nagyesta/assumed-identity). If you want to use Lowkey Vault with Managed Identity, this functionality allows you to do so with a single container.  
 
 #### HTTPS `:8443`
 

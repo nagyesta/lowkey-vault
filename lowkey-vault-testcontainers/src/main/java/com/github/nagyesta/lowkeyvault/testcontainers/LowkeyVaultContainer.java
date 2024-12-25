@@ -5,6 +5,13 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
+import java.io.ByteArrayInputStream;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyStore;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -26,6 +33,7 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
     private static final String LOCALHOST = "localhost";
     private static final String DOT = ".";
     private static final String TOKEN_ENDPOINT_PATH = "/metadata/identity/oauth2/token";
+    private final HttpClient httpClient = HttpClient.newHttpClient();
 
     /**
      * Creates a new instance.
@@ -188,5 +196,43 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
      */
     public String getUsername() {
         return DUMMY_USERNAME;
+    }
+
+    /**
+     * Returns a key store containing the default certificate shipped with Lowkey Vault.
+     *
+     * @return keyStore
+     */
+    public KeyStore getDefaultKeyStore() {
+        final HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(getTokenEndpointBaseUrl() + "/metadata/default-cert/lowkey-vault.p12"))
+                .GET()
+                .build();
+        try {
+            final byte[] keyStoreBytes = httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray())
+                    .body();
+            final KeyStore keyStore = KeyStore.getInstance("PKCS12");
+            keyStore.load(new ByteArrayInputStream(keyStoreBytes), getDefaultKeyStorePassword().toCharArray());
+            return keyStore;
+        } catch (final Exception e) {
+            throw new IllegalStateException("Failed to get default key store", e);
+        }
+    }
+
+    /**
+     * Returns password protecting the default certificate shipped with Lowkey Vault.
+     *
+     * @return password
+     */
+    public String getDefaultKeyStorePassword() {
+        final HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(getTokenEndpointBaseUrl() + "/metadata/default-cert/password"))
+                .GET()
+                .build();
+        try {
+            return httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)).body();
+        } catch (final Exception e) {
+            throw new IllegalStateException("Failed to get default key store password", e);
+        }
     }
 }

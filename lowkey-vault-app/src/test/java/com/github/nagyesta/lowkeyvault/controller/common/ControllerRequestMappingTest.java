@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.controller.common;
 
+import com.github.nagyesta.lowkeyvault.controller.MetadataController;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ class ControllerRequestMappingTest {
 
         //when
         streamAllControllerClasses()
+                .filter(c -> !c.equals(MetadataController.class))
                 .map(Class::getDeclaredMethods)
                 .flatMap(Arrays::stream)
                 .filter(method -> method.isAnnotationPresent(GetMapping.class))

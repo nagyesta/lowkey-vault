@@ -192,7 +192,11 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 
 #### Swagger
 
-[https://localhost:8443/api/swagger-ui/index.html](https://localhost:8443/api/swagger-ui/index.html)
+- Management API (HTTPS port)
+  - Built-in, auto-generated: [https://localhost:8443/api/swagger-ui/index.html](https://localhost:8443/api/swagger-ui/index.html)
+  - SwaggerHub, published: [https://app.swaggerhub.com/apis-docs/nagyesta/Lowkey-Vault-Management-API/v2.6.x](https://app.swaggerhub.com/apis-docs/nagyesta/Lowkey-Vault-Management-API/v2.6.x)
+- Metadata API (HTTP port)
+  - SwaggerHub, published: [https://app.swaggerhub.com/apis-docs/nagyesta/Lowkey-Vault-Metadata-API/v2.6.x](https://app.swaggerhub.com/apis-docs/nagyesta/Lowkey-Vault-Metadata-API/v2.6.x)
 
 ### Port mappings (Default)
 

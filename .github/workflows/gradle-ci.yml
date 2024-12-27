@@ -27,6 +27,8 @@ on:
       - '.whitesource'
       - 'gradle/libs.versions.toml'
       - 'config/ossindex/exclusions.txt'
+      - '.idea/**'
+      - '.gitignore'
 
 permissions: read-all
 

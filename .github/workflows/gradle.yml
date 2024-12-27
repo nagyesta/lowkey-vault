@@ -31,6 +31,8 @@ on:
       - 'gradlew'
       - 'gradlew.bat'
       - 'config/ossindex/exclusions.txt'
+      - '.idea/**'
+      - '.gitignore'
 
 permissions: read-all
 

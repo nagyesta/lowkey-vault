@@ -8,7 +8,6 @@ import com.github.nagyesta.lowkeyvault.service.exception.CryptoException;
 import com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil;
 import lombok.Getter;
 import lombok.NonNull;
-import org.apache.tomcat.util.codec.binary.Base64;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.openssl.jcajce.JcaPKCS8Generator;
@@ -26,6 +25,7 @@ import java.security.cert.CertificateFactory;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 
 import static com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType.EC;
@@ -72,7 +72,7 @@ public enum CertContentType {
         public String asBase64CertificatePackage(@NonNull final Certificate certificate,
                                                  @NonNull final KeyPair keyPair) throws CryptoException {
             final byte[] bytes = generateCertificatePackage(certificate, keyPair, DEFAULT_PASSWORD);
-            return new Base64().encodeAsString(bytes);
+            return encodeAsBase64String(bytes);
         }
 
         @Override
@@ -98,7 +98,7 @@ public enum CertContentType {
         private KeyStore loadKeyStore(final String certificateContent, final String password)
                 throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
             final KeyStore pkcs12 = KeyStore.getInstance(KEY_STORE_TYPE_PKCS12, KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
-            pkcs12.load(new ByteArrayInputStream(Base64.decodeBase64(certificateContent)), password.toCharArray());
+            pkcs12.load(new ByteArrayInputStream(decodeBase64String(certificateContent)), password.toCharArray());
             return pkcs12;
         }
     },
@@ -178,7 +178,7 @@ public enum CertContentType {
             final String withoutNewLines = certificateContent.replaceAll("[\n\r]+", "");
             final String keyOnly = withoutNewLines.replaceAll(".*" + beginPattern, "")
                     .replaceAll(endPattern + ".*", "");
-            return Base64.decodeBase64(keyOnly);
+            return decodeBase64String(keyOnly);
         }
     };
 
@@ -233,4 +233,12 @@ public enum CertContentType {
     public abstract String asBase64CertificatePackage(Certificate certificate, KeyPair keyPair) throws CryptoException;
 
     public abstract byte[] certificatePackageForBackup(Certificate certificate, KeyPair keyPair) throws CryptoException;
+
+    static byte[] decodeBase64String(final String certificateContent) {
+        return Base64.getMimeDecoder().decode(certificateContent);
+    }
+
+    static String encodeAsBase64String(final byte[] bytes) {
+        return Base64.getMimeEncoder().encodeToString(bytes);
+    }
 }

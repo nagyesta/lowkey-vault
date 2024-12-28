@@ -54,11 +54,37 @@ class CertContentTypeTest {
             + "NjuCqPwdGwuYHGe/SskEqjVYxFoFknPhsn5Y64b1RuJe19qjewYl0NBmBjiEexY1"
             + "Tg/nnzqHPv4GAnWcp4e9IOAB00LfXwFj4D/lTOuGpdUFeIhjN0dx";
     private static final int KEY_SIZE = 2048;
+    private static final String MIME_BASE64 = "TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdCwg\r\n"
+            + "c2VkIGRvIGVpdXNtb2QgdGVtcG9yIGluY2lkaWR1bnQgdXQgbGFib3JlIGV0IGRvbG9yZSBtYWdu\r\n"
+            + "YQphbGlxdWEuIFV0IGVuaW0gYWQgbWluaW0gdmVuaWFtLCBxdWlzIG5vc3RydWQgZXhlcmNpdGF0\r\n"
+            + "aW9uIHVsbGFtY28gbGFib3JpcyBuaXNpIHV0IGFsaXF1aXAgZXggZWEgY29tbW9kbyBjb25zZXF1\r\n"
+            + "YXQuCkR1aXMgYXV0ZSBpcnVyZSBkb2xvciBpbiByZXByZWhlbmRlcml0IGluIHZvbHVwdGF0ZSB2\r\n"
+            + "ZWxpdCBlc3NlIGNpbGx1bSBkb2xvcmUgZXUgZnVnaWF0IG51bGxhIHBhcmlhdHVyLiBFeGNlcHRl\r\n"
+            + "dXIKc2ludCBvY2NhZWNhdCBjdXBpZGF0YXQgbm9uIHByb2lkZW50LCBzdW50IGluIGN1bHBhIHF1\r\n"
+            + "aSBvZmZpY2lhIGRlc2VydW50IG1vbGxpdCBhbmltIGlkIGVzdCBsYWJvcnVtLgo=";
+    private static final byte[] MIME_BYTES = ("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt "
+            + "ut labore et dolore magna\naliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut "
+            + "aliquip ex ea commodo consequat.\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore "
+            + "eu fugiat nulla pariatur. Excepteur\nsint occaecat cupidatat non proident, sunt in culpa qui officia deserunt "
+            + "mollit anim id est laborum.\n").getBytes(StandardCharsets.UTF_8);
 
     public static Stream<Arguments> instanceProvider() {
         return Stream.<Arguments>builder()
                 .add(Arguments.of(CertContentType.PKCS12))
                 .add(Arguments.of(PEM))
+                .build();
+    }
+
+    public static Stream<Arguments> base64Provider() {
+        return Stream.<Arguments>builder()
+                .add(Arguments.of("lorem ipsum".getBytes(StandardCharsets.UTF_8), "bG9yZW0gaXBzdW0="))
+                .add(Arguments.of(MIME_BYTES, MIME_BASE64))
+                .add(Arguments.of("1".getBytes(StandardCharsets.UTF_8), "MQ=="))
+                .add(Arguments.of("12".getBytes(StandardCharsets.UTF_8), "MTI="))
+                .add(Arguments.of("123".getBytes(StandardCharsets.UTF_8), "MTIz"))
+                .add(Arguments.of("1234".getBytes(StandardCharsets.UTF_8), "MTIzNA=="))
+                .add(Arguments.of("12345".getBytes(StandardCharsets.UTF_8), "MTIzNDU="))
+                .add(Arguments.of("123456".getBytes(StandardCharsets.UTF_8), "MTIzNDU2"))
                 .build();
     }
 
@@ -433,8 +459,31 @@ class CertContentTypeTest {
         //then + exception
     }
 
+    @ParameterizedTest
+    @MethodSource("base64Provider")
+    void testEncodeAsBase64StringShouldProduceTheExpectedBase64String(final byte[] input, final String expected) {
+        //given
+
+        //when
+        final String actual = CertContentType.encodeAsBase64String(input);
+
+        //then
+        Assertions.assertEquals(expected, actual);
+    }
+
+    @ParameterizedTest
+    @MethodSource("base64Provider")
+    void testDecodeBase64StringShouldProduceTheExpectedByteArray(final byte[] expected, final String input) {
+        //given
+
+        //when
+        final byte[] actual = CertContentType.decodeBase64String(input);
+
+        //then
+        Assertions.assertArrayEquals(expected, actual);
+    }
+
     private static String toBase64(final Certificate certificate) throws CertificateEncodingException {
         return new String(Base64.encode(certificate.getEncoded()), StandardCharsets.UTF_8);
     }
-
 }

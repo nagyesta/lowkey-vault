@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static java.util.Base64.getDecoder;
 import static java.util.Base64.getMimeDecoder;
 
 public class CertificateStepDefAssertion extends CommonAssertions {
@@ -305,7 +306,7 @@ public class CertificateStepDefAssertion extends CommonAssertions {
             final CertificateFactory fact = CertificateFactory.getInstance("X.509");
             certificate = (X509Certificate) fact.generateCertificate(new ByteArrayInputStream(encodedCertificate));
         } else {
-            final byte[] bytes = getMimeDecoder().decode(value);
+            final byte[] bytes = getDecoder().decode(value);
             final KeyStore keyStore = getKeyStore(bytes, DEFAULT_PASSWORD);
             final String alias = findAlias(keyStore);
             certificate = (X509Certificate) keyStore.getCertificate(alias);

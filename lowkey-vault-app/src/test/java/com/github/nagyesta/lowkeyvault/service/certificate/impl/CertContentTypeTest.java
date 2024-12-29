@@ -19,6 +19,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertContentType.PEM;
@@ -468,7 +469,8 @@ class CertContentTypeTest {
         final String actual = CertContentType.encodeAsBase64String(input);
 
         //then
-        Assertions.assertEquals(expected, actual);
+        final String expectedWithoutLineBreaks = expected.replaceAll(Pattern.quote("\r\n"), "");
+        Assertions.assertEquals(expectedWithoutLineBreaks, actual);
     }
 
     @ParameterizedTest

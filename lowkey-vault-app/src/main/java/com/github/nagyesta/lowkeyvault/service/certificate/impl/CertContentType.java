@@ -239,6 +239,6 @@ public enum CertContentType {
     }
 
     static String encodeAsBase64String(final byte[] bytes) {
-        return Base64.getMimeEncoder().encodeToString(bytes);
+        return Base64.getEncoder().encodeToString(bytes);
     }
 }

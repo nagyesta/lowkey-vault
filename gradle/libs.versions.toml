@@ -24,7 +24,7 @@ jacoco = "0.8.10"
 jackson = { strictly = "2.18.2" }
 openApiUi = "2.8.1"
 
-abortMissionPlugin = "5.0.101"
+abortMissionPlugin = "5.0.108"
 dockerPlugin = "0.36.0"
 indexScanPlugin = "3.0.0"
 lombokPlugin = "8.11"

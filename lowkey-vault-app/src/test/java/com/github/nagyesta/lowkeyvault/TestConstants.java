@@ -54,6 +54,7 @@ public final class TestConstants {
     public static final int TOMCAT_SECURE_PORT = 8443;
     public static final int HTTP_PORT = 80;
     public static final String PORT_80 = ":80";
+    public static final String PORT_443 = ":443";
     public static final String PORT_8443 = ":8443";
     //</editor-fold>
 

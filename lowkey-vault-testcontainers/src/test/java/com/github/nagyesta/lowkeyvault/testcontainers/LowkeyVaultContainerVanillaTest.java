@@ -88,6 +88,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         verifyConnectionIsWorking(endpoint, httpClient, credentials);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     void testContainerShouldStartUpWhenCalledWithFixedHostPort() {
         //given
@@ -193,7 +194,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         underTest.start();
 
         //then
-        final String authority = EXAMPLE_COM + ":" + DEFAULT_PORT;
+        final String authority = EXAMPLE_COM + ":" + underTest.getMappedPort(DEFAULT_PORT);
         final String endpoint = "https://" + authority;
         final AuthorityOverrideFunction authorityOverrideFunction = new AuthorityOverrideFunction(
                 authority,
@@ -248,6 +249,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         //then + exceptions
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     void testBuilderShouldThrowExceptionWhenCalledWithInvalidHostPortNumber() {
         //given

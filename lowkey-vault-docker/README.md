@@ -36,6 +36,19 @@ export LOWKEY_ARGS="--server.port=8444"
 docker run --rm --name lowkey -e LOWKEY_ARGS -d -p 8444:8444 nagyesta/lowkey-vault:<version>
 ```
 
+### Relaxed port matching
+
+If you want to use Lowkey Vault in a scenario where you are accessing the vault through a dynamically mapped port,
+for example using a random host port when exposing your container port with Testcontainers, you can tell Lowkey Vault
+to ignore the port number when searching for a vault based on the request authority (essentially only matching based
+on the request's hostname). To activate this feature, you need to use `v2.7.0` or higher, and provide the
+`--LOWKEY_VAULT_RELAXED_PORTS=true` argument during startup:
+
+```shell
+export LOWKEY_ARGS="--LOWKEY_VAULT_RELAXED_PORTS=true"
+docker run --rm --name lowkey -e LOWKEY_ARGS -d -p 8443 nagyesta/lowkey-vault:<version>
+```
+
 ### Using simulated Managed Identity
 
 In case you want to rely on the built-in simulated Managed Identity token endpoint, you must make sure 

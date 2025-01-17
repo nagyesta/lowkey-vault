@@ -11,7 +11,12 @@ public class LowkeyVaultArgLineBuilder {
     private static final String EMPTY = "";
     private static final Pattern NAME_PATTERN = Pattern.compile("^[0-9a-zA-Z-]+$");
 
-    private final List<String> args = new ArrayList<>();
+    private final List<String> args;
+
+    public LowkeyVaultArgLineBuilder() {
+        args = new ArrayList<>();
+        args.add("--LOWKEY_VAULT_RELAXED_PORTS=true");
+    }
 
     public LowkeyVaultArgLineBuilder vaultNames(final Set<String> vaultNames) {
         if (!NO_AUTO_REGISTRATION.equals(vaultNames)) {

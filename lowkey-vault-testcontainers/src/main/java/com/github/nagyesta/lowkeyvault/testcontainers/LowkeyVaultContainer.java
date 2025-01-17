@@ -109,9 +109,7 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
                 .additionalArgs(containerBuilder.getAdditionalArgs())
                 .build();
 
-        if (!args.isEmpty()) {
-            withEnv("LOWKEY_ARGS", String.join(" ", args));
-        }
+        withEnv("LOWKEY_ARGS", String.join(" ", args));
         waitingFor(Wait.forLogMessage("(?s).*Started LowkeyVaultApp.*$", 1));
     }
 
@@ -158,7 +156,7 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
      * @return authority of the default vault base URL.
      */
     public String getDefaultVaultAuthority() {
-        return LOCALHOST + PORT_SEPARATOR + CONTAINER_PORT;
+        return LOCALHOST + PORT_SEPARATOR + getMappedPort(CONTAINER_PORT);
     }
 
     /**
@@ -168,7 +166,7 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
      * @return authority of the given vault base URL.
      */
     public String getVaultAuthority(final String vaultName) {
-        return Objects.requireNonNull(vaultName) + DOT + LOCALHOST + PORT_SEPARATOR + CONTAINER_PORT;
+        return Objects.requireNonNull(vaultName) + DOT + LOCALHOST + PORT_SEPARATOR + getMappedPort(CONTAINER_PORT);
     }
 
     /**

@@ -1,12 +1,12 @@
 package com.github.nagyesta.lowkeyvault;
 
-import org.apache.tomcat.util.codec.binary.Base64;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Optional;
 
 public final class ResourceUtils {
@@ -28,7 +28,7 @@ public final class ResourceUtils {
     public static String loadResourceAsBase64String(final String resource) {
         final byte[] binaryData = loadResourceAsByteArray(resource);
         return Optional.ofNullable(binaryData)
-                .map(binary -> new Base64().encodeAsString(binary))
+                .map(binary -> Base64.getEncoder().encodeToString(binary))
                 .orElse(null);
     }
 

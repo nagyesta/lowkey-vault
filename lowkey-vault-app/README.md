@@ -94,6 +94,18 @@ Set `--server.port=<port>` as an argument as usual with Spring Boot apps:
 java -jar lowkey-vault-app-<version>.jar --server.port=8443
 ```
 
+### Relaxed port matching
+
+If you want to use Lowkey Vault in a scenario where you are accessing the vault through a dynamically mapped port, 
+for example using a random host port when exposing your container port with Testcontainers, you can tell Lowkey Vault
+to ignore the port number when searching for a vault based on the request authority (essentially only matching based
+on the request's hostname). To activate this feature, you need to use `v2.7.0` or higher, and provide the
+`--LOWKEY_VAULT_RELAXED_PORTS=true` argument during startup:
+
+```shell
+java -jar lowkey-vault-app-<version>.jar --LOWKEY_VAULT_RELAXED_PORTS=true
+```
+
 ### Overriding the challenge resource URI
 
 The official Azure Key Vault clients verify the challenge resource URL returned by the server (see

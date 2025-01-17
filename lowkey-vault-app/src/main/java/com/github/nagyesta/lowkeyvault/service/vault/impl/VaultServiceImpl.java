@@ -5,19 +5,26 @@ import com.github.nagyesta.lowkeyvault.service.exception.AlreadyExistsException;
 import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 @Slf4j
 public class VaultServiceImpl implements VaultService {
 
+    private final Function<URI, URI> uriMapper;
     private final Set<VaultFake> vaultFakes = new CopyOnWriteArraySet<>();
+
+    public VaultServiceImpl(@NonNull final Function<URI, URI> uriMapper) {
+        this.uriMapper = uriMapper;
+    }
 
     @Override
     public VaultFake findByUri(final URI uri) {
@@ -133,7 +140,7 @@ public class VaultServiceImpl implements VaultService {
 
     private Optional<VaultFake> findByUriAndDeleteStatus(final URI uri, final Predicate<VaultFake> deletedPredicate) {
         return vaultFakes.stream()
-                .filter(v -> v.matches(uri))
+                .filter(v -> v.matches(uri, uriMapper))
                 .filter(deletedPredicate)
                 .findFirst();
     }
@@ -152,7 +159,7 @@ public class VaultServiceImpl implements VaultService {
 
     private boolean exists(final URI uri) {
         return vaultFakes.stream()
-                .anyMatch(v -> v.matches(uri));
+                .anyMatch(v -> v.matches(uri, uriMapper));
     }
 
     private void purgeExpired() {

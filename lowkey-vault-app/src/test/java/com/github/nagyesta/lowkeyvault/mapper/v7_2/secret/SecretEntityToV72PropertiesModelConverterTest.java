@@ -16,7 +16,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.net.URI;
 import java.time.OffsetDateTime;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
@@ -57,7 +59,8 @@ class SecretEntityToV72PropertiesModelConverterTest {
         underTest = new SecretEntityToV72PropertiesModelConverter(registry);
         when(vault.secretVaultFake()).thenReturn(secretVault);
         when(vault.baseUri()).thenReturn(HTTPS_LOCALHOST);
-        when(vault.matches(eq(HTTPS_LOCALHOST))).thenReturn(true);
+        final URI vaultUri = eq(HTTPS_LOCALHOST);
+        when(vault.matches(vaultUri, eq(Function.identity()))).thenReturn(true);
     }
 
     @AfterEach

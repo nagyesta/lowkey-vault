@@ -370,8 +370,7 @@ class VaultServiceImplTest {
             final URI baseUri, final Set<URI> aliases, final URI add, final URI remove, final Class<Exception> expectedException) {
         //given
         final VaultServiceImpl underTest = new VaultServiceImpl(Function.identity());
-        final VaultFake vaultFake = underTest.create(
-                baseUri, RecoveryLevel.CUSTOMIZED_RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE, aliases);
+        underTest.create(baseUri, RecoveryLevel.CUSTOMIZED_RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE, aliases);
 
         //when
         Assertions.assertThrows(expectedException, () -> underTest.updateAlias(baseUri, add, remove));
@@ -398,7 +397,7 @@ class VaultServiceImplTest {
     void testUpdateAliasShouldThrowExceptionWhenVaultNotFound() {
         //given
         final VaultServiceImpl underTest = new VaultServiceImpl(Function.identity());
-        final VaultFake vaultFake = underTest.create(HTTPS_DEFAULT_LOWKEY_VAULT_8443);
+        underTest.create(HTTPS_DEFAULT_LOWKEY_VAULT_8443);
 
         //when
         Assertions.assertThrows(NotFoundException.class, () -> underTest.updateAlias(HTTPS_LOCALHOST, HTTPS_LOCALHOST_80, null));

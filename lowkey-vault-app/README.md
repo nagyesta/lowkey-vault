@@ -78,6 +78,9 @@ argument.
 java -jar lowkey-vault-app-<version>.jar --LOWKEY_VAULT_NAMES="name1" --LOWKEY_VAULT_ALIASES="name1.localhost=alias.localhost,localhost=example:<port>"
 ```
 
+> [!TIP]
+> If your alias does not contain the `<port>` placeholder, then you shouldn't use quotes (`"`) around the alias values. The example uses the quotes only because the `<` and `>` characters have special meaning in the shell.
+
 This command will result in the following aliases as seen in the logs:
 
 ```

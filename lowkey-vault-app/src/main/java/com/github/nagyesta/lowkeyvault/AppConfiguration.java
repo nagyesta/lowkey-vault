@@ -49,6 +49,11 @@ public class AppConfiguration {
 
     @Bean
     public Function<URI, URI> portMapper() {
+        if (useRelaxedPorts) {
+            log.info("Using relaxed vault URI matching (ignoring ports).");
+        } else {
+            log.info("Using strict vault URI matching (expecting exact match).");
+        }
         return Optional.of(useRelaxedPorts)
                 .filter(BooleanUtils::isTrue)
                 .map(use -> (Function<URI, URI>) uri -> replacePortWith(uri, port))

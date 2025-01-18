@@ -53,7 +53,7 @@ public class VaultFakeImpl implements VaultFake {
     }
 
     @Override
-    public boolean matches(@NonNull final URI vaultUri, final Function<URI, URI> uriMapper) {
+    public boolean matches(@NonNull final URI vaultUri, @NonNull final Function<URI, URI> uriMapper) {
         final URI lookupUri = uriMapper.apply(vaultUri);
         return uriMapper.apply(this.vaultUri).equals(lookupUri) || this.aliases.stream()
                 .map(uriMapper)

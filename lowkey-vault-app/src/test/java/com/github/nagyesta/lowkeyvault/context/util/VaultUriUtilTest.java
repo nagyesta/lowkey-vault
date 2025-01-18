@@ -12,6 +12,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.stream.Stream;
 
+import static com.github.nagyesta.lowkeyvault.TestConstants.TOMCAT_SECURE_PORT;
+
 class VaultUriUtilTest {
 
     @SuppressWarnings("checkstyle:MagicNumber")
@@ -46,6 +48,13 @@ class VaultUriUtilTest {
                 .build();
     }
 
+    public static Stream<Arguments> invalidUriPartsProvider() {
+        return Stream.<Arguments>builder()
+                .add(Arguments.of("localhost", -1))
+                .add(Arguments.of("demo.127.0.0.1", TOMCAT_SECURE_PORT))
+                .build();
+    }
+
     @Test
     void testConstructorShouldThrowExceptionWhenCalled() throws NoSuchMethodException {
         //given
@@ -77,6 +86,18 @@ class VaultUriUtilTest {
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> VaultUriUtil.vaultUri(null, 1));
+
+        //then + exception
+    }
+
+
+    @ParameterizedTest
+    @MethodSource("invalidUriPartsProvider")
+    void testVaultUriShouldThrowExceptionWhenCalledWithInvalidUriParts(final String hostname, final int port) {
+        //given
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> VaultUriUtil.vaultUri(hostname, port));
 
         //then + exception
     }

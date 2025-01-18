@@ -102,12 +102,24 @@ class VaultFakeImplTest {
 
     @SuppressWarnings("ConstantConditions")
     @Test
-    void testMatchesShouldThrowExceptionWhenCalledWithNull() {
+    void testMatchesShouldThrowExceptionWhenCalledWithNullUri() {
         //given
         final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.matches(null, Function.identity()));
+
+        //then + exception
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Test
+    void testMatchesShouldThrowExceptionWhenCalledWithNullMapper() {
+        //given
+        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.matches(HTTPS_LOCALHOST, null));
 
         //then + exception
     }

@@ -24,7 +24,11 @@ public final class VaultUriUtil {
         if (optionalPort != DEFAULT_HTTPS_PORT) {
             builder.append(COLON).append(optionalPort);
         }
-        return URI.create(builder.toString());
+        final URI result = URI.create(builder.toString());
+        if (result.getHost() == null) {
+            throw new IllegalArgumentException("URI couldn't be parsed: " + builder);
+        }
+        return result;
     }
 
     public static URI aliasUri(@NonNull final String vaultAuthority, final int serverPort) {

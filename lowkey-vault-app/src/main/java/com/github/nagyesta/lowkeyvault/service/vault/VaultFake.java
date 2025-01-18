@@ -8,10 +8,11 @@ import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultFake;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.Set;
+import java.util.function.Function;
 
 public interface VaultFake {
 
-    boolean matches(URI vaultUri);
+    boolean matches(URI vaultUri, Function<URI, URI> uriMapper);
 
     URI baseUri();
 

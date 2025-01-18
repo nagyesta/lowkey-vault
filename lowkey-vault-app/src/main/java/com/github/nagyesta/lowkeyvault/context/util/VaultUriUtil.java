@@ -39,4 +39,8 @@ public final class VaultUriUtil {
         final int port = Integer.parseInt(StringUtils.substringAfter(authority, COLON));
         return VaultUriUtil.vaultUri(hostname, port);
     }
+
+    public static URI replacePortWith(final URI uri, final int port) {
+        return VaultUriUtil.vaultUri(uri.getHost(), port);
+    }
 }

@@ -25,6 +25,7 @@ import org.mockito.MockitoAnnotations;
 import java.net.URI;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
@@ -214,7 +215,8 @@ class KeyEntityToV72ModelConverterTest {
 
     private void prepareVaultMock(final URI baseUri) {
         when(vault.baseUri()).thenReturn(baseUri);
-        when(vault.matches(eq(baseUri))).thenReturn(true);
+        final URI vaultUri = eq(baseUri);
+        when(vault.matches(vaultUri, eq(Function.identity()))).thenReturn(true);
     }
 
     private void assertCommonFieldsMatch(final Map<String, String> tags,

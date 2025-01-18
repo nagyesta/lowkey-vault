@@ -66,7 +66,7 @@ import static com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContaine
 class Test {
     public LowkeyVaultContainer startVault() {
         //Please consider using latest image regardless of the value in the example
-        final DockerImageName imageName = DockerImageName.parse("nagyesta/lowkey-vault:1.13.0");
+        final DockerImageName imageName = DockerImageName.parse("nagyesta/lowkey-vault:2.6.15");
         final LowkeyVaultContainer lowkeyVaultContainer = lowkeyVault(imageName)
                 .vaultNames(Set.of("default"))
                 .build()
@@ -97,7 +97,6 @@ class Test {
                 .importFile(importFile, BindMode.READ_ONLY)
                 .logicalPort(8443)
                 .logicalHost("127.0.0.1")
-                .hostPort(8443)
                 .build()
                 .withImagePullPolicy(PullPolicy.defaultPolicy());
         lowkeyVaultContainer.start();
@@ -106,6 +105,10 @@ class Test {
 }
 
 ```
+
+> [!NOTE]
+> Since `v2.7.0`, the container can use a dynamically allocated port thanks to the relaxed port matching feature. This will ignore the port number when searching for a vault based on the request authority (essentially only matching based
+on the request's hostname).
 
 #### Example using your own certificate file
 

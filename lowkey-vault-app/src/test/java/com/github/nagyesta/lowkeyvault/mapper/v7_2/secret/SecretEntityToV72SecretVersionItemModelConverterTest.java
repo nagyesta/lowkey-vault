@@ -19,6 +19,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.net.URI;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
@@ -89,7 +90,8 @@ class SecretEntityToV72SecretVersionItemModelConverterTest {
 
         //given
         when(vault.baseUri()).thenReturn(secretEntityId.vault());
-        when(vault.matches(eq(secretEntityId.vault()))).thenReturn(true);
+        final URI vaultUri = eq(secretEntityId.vault());
+        when(vault.matches(vaultUri, eq(Function.identity()))).thenReturn(true);
         final KeyVaultSecretEntity input = new KeyVaultSecretEntity(secretEntityId, vault, value, null);
         input.setTags(tags);
 

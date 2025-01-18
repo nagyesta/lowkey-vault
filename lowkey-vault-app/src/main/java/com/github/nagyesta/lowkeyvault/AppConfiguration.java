@@ -5,6 +5,7 @@ import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultServiceImpl;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +18,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.function.Function;
+
+import static com.github.nagyesta.lowkeyvault.context.util.VaultUriUtil.replacePortWith;
 
 @Setter
 @Configuration
@@ -31,14 +35,24 @@ public class AppConfiguration {
     private int port;
     @Value("${LOWKEY_VAULT_ALIASES:}")
     private String aliases;
+    @Value("${LOWKEY_VAULT_RELAXED_PORTS:false}")
+    private boolean useRelaxedPorts;
 
     @Bean
     public VaultService vaultService() throws IOException {
-        final VaultService service = new VaultServiceImpl();
+        final VaultService service = new VaultServiceImpl(portMapper());
         if (!SKIP_AUTO_REGISTRATION.equals(autoRegisterVaults)) {
             autoRegisterVaults(service);
         }
         return service;
+    }
+
+    @Bean
+    public Function<URI, URI> portMapper() {
+        return Optional.of(useRelaxedPorts)
+                .filter(BooleanUtils::isTrue)
+                .map(use -> (Function<URI, URI>) uri -> replacePortWith(uri, port))
+                .orElse(Function.identity());
     }
 
     private void autoRegisterVaults(final VaultService service) {

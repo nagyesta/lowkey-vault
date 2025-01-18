@@ -22,6 +22,7 @@ import org.mockito.MockitoAnnotations;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
@@ -129,7 +130,8 @@ class KeyEntityToV72KeyItemModelConverterTest {
 
         //given
         when(vault.baseUri()).thenReturn(keyEntityId.vault());
-        when(vault.matches(eq(keyEntityId.vault()))).thenReturn(true);
+        final URI vaultUri = eq(keyEntityId.vault());
+        when(vault.matches(vaultUri, eq(Function.identity()))).thenReturn(true);
         final RsaKeyVaultKeyEntity input = new RsaKeyVaultKeyEntity(keyEntityId, vault, keyParam, null, false);
         input.setTags(tags);
 
@@ -162,7 +164,8 @@ class KeyEntityToV72KeyItemModelConverterTest {
 
         //given
         when(vault.baseUri()).thenReturn(keyEntityId.vault());
-        when(vault.matches(eq(keyEntityId.vault()))).thenReturn(true);
+        final URI vaultUri = eq(keyEntityId.vault());
+        when(vault.matches(vaultUri, eq(Function.identity()))).thenReturn(true);
         final RsaKeyVaultKeyEntity input = new RsaKeyVaultKeyEntity(keyEntityId, vault, keyParam, null, false);
         input.setDeletedDate(deleted);
         input.setScheduledPurgeDate(scheduledPurge);

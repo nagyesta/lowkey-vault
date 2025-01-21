@@ -1,5 +1,7 @@
 package com.github.nagyesta.lowkeyvault.testcontainers;
 
+import org.slf4j.Logger;
+import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -66,7 +68,10 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
     LowkeyVaultContainer(final LowkeyVaultContainerBuilder containerBuilder) {
         super(containerBuilder.getDockerImageName());
 
-        containerBuilder.getDockerImageName().assertCompatibleWith(DEFAULT_IMAGE_NAME);
+        recommendMultiArchImageIfApplicable(logger(),
+                containerBuilder.getDockerImageName(),
+                DockerClientFactory.instance().client().versionCmd().exec().getArch());
+
         if (containerBuilder.getHostPort() != null) {
             addFixedExposedPort(containerBuilder.getHostPort(), CONTAINER_PORT);
         } else {
@@ -231,6 +236,30 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
             return httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)).body();
         } catch (final Exception e) {
             throw new IllegalStateException("Failed to get default key store password", e);
+        }
+    }
+
+    /**
+     * Evaluates whether the currently used image is the recommended one for the host architecture.
+     * Prints warning log messages if it would be recommended to use multi-arch images instead.
+     *
+     * @param logger          The logger where we want to print the recommendation
+     * @param dockerImageName The name of the current docker image
+     * @param hostArch        The host architecture
+     */
+    protected void recommendMultiArchImageIfApplicable(
+            final Logger logger,
+            final DockerImageName dockerImageName,
+            final String hostArch) {
+        dockerImageName.assertCompatibleWith(DEFAULT_IMAGE_NAME);
+        final boolean hostArchIsNotAmd64 = !"amd64".equals(hostArch);
+        final boolean defaultImageUsed = DEFAULT_IMAGE_NAME.getUnversionedPart().equals(dockerImageName.getUnversionedPart());
+        final String versionPart = dockerImageName.getVersionPart();
+        final boolean imageIsNotMultiArch = !versionPart.contains("-ubi9-minimal");
+        if (defaultImageUsed && hostArchIsNotAmd64 && imageIsNotMultiArch) {
+            logger.warn("An amd64 image is detected with non-amd64 ({}) host.", hostArch);
+            logger.warn("Please consider using a multi-arch image, like: {}-ubi9-minimal", versionPart);
+            logger.warn(("See more information: https://github.com/nagyesta/lowkey-vault/tree/main/lowkey-vault-docker#arm-builds"));
         }
     }
 }

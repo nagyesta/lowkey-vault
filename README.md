@@ -4,9 +4,10 @@
 [![Java version](https://img.shields.io/badge/Java%20version-17%20app|11%20libs-yellow?logo=java)](https://img.shields.io/badge/Java%20version-17%20app|11%20libs-yellow?logo=java)
 [![latest-release](https://img.shields.io/github/v/tag/nagyesta/lowkey-vault?color=blue&logo=git&label=releases&sort=semver)](https://github.com/nagyesta/lowkey-vault/releases)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.nagyesta.lowkey-vault/lowkey-vault-app?logo=apache-maven)](https://search.maven.org/search?q=com.github.nagyesta.lowkey-vault)
-[![Docker Hub](https://img.shields.io/docker/v/nagyesta/lowkey-vault?label=docker%20hub&logo=docker&sort=semver)](https://hub.docker.com/r/nagyesta/lowkey-vault)
-[![JavaCI](https://img.shields.io/github/actions/workflow/status/nagyesta/lowkey-vault/gradle.yml?logo=github&branch=main)](https://github.com/nagyesta/lowkey-vault/actions/workflows/gradle.yml)
+[![Docker Hub](https://img.shields.io/docker/v/nagyesta/lowkey-vault?sort=semver&arch=amd64&logo=docker&label=amd64)](https://hub.docker.com/r/nagyesta/lowkey-vault)
+[![Docker Hub](https://img.shields.io/docker/v/nagyesta/lowkey-vault?sort=date&arch=arm64&logo=docker&label=multi-arch)](https://hub.docker.com/r/nagyesta/lowkey-vault)
 
+[![JavaCI](https://img.shields.io/github/actions/workflow/status/nagyesta/lowkey-vault/gradle.yml?logo=github&branch=main)](https://github.com/nagyesta/lowkey-vault/actions/workflows/gradle.yml)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/5577/badge)](https://bestpractices.coreinfrastructure.org/projects/5577)
 [![code-climate-maintainability](https://img.shields.io/codeclimate/maintainability/nagyesta/lowkey-vault?logo=code%20climate)](https://img.shields.io/codeclimate/maintainability/nagyesta/lowkey-vault?logo=code%20climate)
 [![code-climate-tech-debt](https://img.shields.io/codeclimate/tech-debt/nagyesta/lowkey-vault?logo=code%20climate)](https://img.shields.io/codeclimate/tech-debt/nagyesta/lowkey-vault?logo=code%20climate)
@@ -54,6 +55,10 @@ I have an app using Azure Key Vault and:
 
 > [!NOTE]  
 > A complex example is available [here](https://github.com/nagyesta/lowkey-vault-example-docker)
+
+> [!TIP]
+> Lowkey Vault offers a multi-arch image variant too. You can find the relevant project [here](https://github.com/nagyesta/lowkey-vault-docker-buildx).
+
 
 1. Pull the most recent version from ```nagyesta/lowkey-vault```
    - You can find a list of all the available tags [here](https://hub.docker.com/r/nagyesta/lowkey-vault/tags)

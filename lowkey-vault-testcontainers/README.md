@@ -3,7 +3,10 @@
 [![GitHub license](https://img.shields.io/github/license/nagyesta/lowkey-vault?color=informational)](https://raw.githubusercontent.com/nagyesta/lowkey-vault/main/LICENSE)
 [![Java version](https://img.shields.io/badge/Java%20version-11-yellow?logo=java)](https://img.shields.io/badge/Java%20version-11-yellow?logo=java)
 [![latest-release](https://img.shields.io/github/v/tag/nagyesta/lowkey-vault?color=blue&logo=git&label=releases&sort=semver)](https://github.com/nagyesta/lowkey-vault/releases)
-[![Docker Hub](https://img.shields.io/docker/v/nagyesta/lowkey-vault?label=docker%20hub&logo=docker&sort=semver)](https://hub.docker.com/r/nagyesta/lowkey-vault)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.nagyesta.lowkey-vault/lowkey-vault-app?logo=apache-maven)](https://search.maven.org/search?q=com.github.nagyesta.lowkey-vault)
+[![Docker Hub](https://img.shields.io/docker/v/nagyesta/lowkey-vault?sort=semver&arch=amd64&logo=docker&label=amd64)](https://hub.docker.com/r/nagyesta/lowkey-vault)
+[![Docker Hub](https://img.shields.io/docker/v/nagyesta/lowkey-vault?sort=date&arch=arm64&logo=docker&label=multi-arch)](https://hub.docker.com/r/nagyesta/lowkey-vault)
+
 [![JavaCI](https://img.shields.io/github/actions/workflow/status/nagyesta/lowkey-vault/gradle.yml?logo=github&branch=main)](https://github.com/nagyesta/lowkey-vault/actions/workflows/gradle.yml)
 [![codecov](https://img.shields.io/codecov/c/github/nagyesta/lowkey-vault?label=Coverage&flag=testcontainers&token=3ZZ9Q4S5WW)](https://app.codecov.io/gh/nagyesta/lowkey-vault?flags%5B0%5D=testcontainers)
 [![badge-abort-mission-armed-green](https://raw.githubusercontent.com/nagyesta/abort-mission/wiki_assets/.github/assets/badge-abort-mission-armed-green.svg)](https://github.com/nagyesta/abort-mission)
@@ -66,7 +69,7 @@ import static com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContaine
 class Test {
     public LowkeyVaultContainer startVault() {
         //Please consider using latest image regardless of the value in the example
-        final DockerImageName imageName = DockerImageName.parse("nagyesta/lowkey-vault:2.6.15");
+        final DockerImageName imageName = DockerImageName.parse("nagyesta/lowkey-vault:<version>");
         final LowkeyVaultContainer lowkeyVaultContainer = lowkeyVault(imageName)
                 .vaultNames(Set.of("default"))
                 .build()
@@ -75,8 +78,13 @@ class Test {
         return lowkeyVaultContainer;
     }
 }
-
 ```
+
+##### ARM builds
+
+> [!TIP]
+> Lowkey Vault offers a multi-arch image variant too. You can find the relevant project [here](https://github.com/nagyesta/lowkey-vault-docker-buildx).
+
 
 #### Example importing contents from file
 

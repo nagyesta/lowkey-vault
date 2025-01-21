@@ -3,14 +3,21 @@
 [![GitHub license](https://img.shields.io/github/license/nagyesta/lowkey-vault?color=informational)](https://raw.githubusercontent.com/nagyesta/lowkey-vault/main/LICENSE)
 [![Java version](https://img.shields.io/badge/Java%20version-17-yellow?logo=java)](https://img.shields.io/badge/Java%20version-17-yellow?logo=java)
 [![latest-release](https://img.shields.io/github/v/tag/nagyesta/lowkey-vault?color=blue&logo=git&label=releases&sort=semver)](https://github.com/nagyesta/lowkey-vault/releases)
-[![Docker Hub](https://img.shields.io/docker/v/nagyesta/lowkey-vault?label=docker%20hub&logo=docker&sort=semver)](https://hub.docker.com/r/nagyesta/lowkey-vault)
-[![Docker Pulls](https://img.shields.io/docker/pulls/nagyesta/lowkey-vault?logo=docker)](https://hub.docker.com/r/nagyesta/lowkey-vault)
+[![Docker Hub](https://img.shields.io/docker/v/nagyesta/lowkey-vault?sort=semver&arch=amd64&logo=docker&label=amd64)](https://hub.docker.com/r/nagyesta/lowkey-vault)
+[![Docker Hub](https://img.shields.io/docker/v/nagyesta/lowkey-vault?sort=date&arch=arm64&logo=docker&label=multi-arch)](https://hub.docker.com/r/nagyesta/lowkey-vault)
+
 [![JavaCI](https://img.shields.io/github/actions/workflow/status/nagyesta/lowkey-vault/gradle.yml?logo=github&branch=main)](https://github.com/nagyesta/lowkey-vault/actions/workflows/gradle.yml)
+[![Docker Pulls](https://img.shields.io/docker/pulls/nagyesta/lowkey-vault?logo=docker)](https://hub.docker.com/r/nagyesta/lowkey-vault)
 [![badge-abort-mission-armed-green](https://raw.githubusercontent.com/nagyesta/abort-mission/wiki_assets/.github/assets/badge-abort-mission-armed-green.svg)](https://github.com/nagyesta/abort-mission)
 
 # Lowkey Vault - Docker
 
 This is the root of the Docker image. Visit the [Readme](../README.md) in the repo root for more information about the project in general.
+
+## ARM builds
+
+> [!TIP]
+> Lowkey Vault offers a multi-arch image variant too. You can find the relevant project [here](https://github.com/nagyesta/lowkey-vault-docker-buildx).
 
 ## Startup parameters
 
@@ -69,8 +76,3 @@ configuration can work as well. For example, if there is a ./config/application.
 to the folder where the Jar is running, the contents will be picked up automatically. To utilize this, the
 recommended option is to attach a *.properties file to /config/application.properties (path inside the
 container) using a volume.
-
-## ARM builds
-
-> [!TIP]
-> Lowkey Vault offers a multi-arch variant using Buildx. You can find the relevant project [here](https://github.com/nagyesta/lowkey-vault-docker-buildx).

@@ -66,9 +66,8 @@ class KeyUsageEnumTest {
         final KeyUsage actual = Stream.of(values).collect(KeyUsageEnum.toKeyUsage());
 
         //then
-        Stream.of(values).forEach(value -> {
-            Assertions.assertTrue(actual.hasUsages(value.getCode()), "Usage must be present: " + value.getValue());
-        });
+        Stream.of(values).forEach(value -> Assertions
+                .assertTrue(actual.hasUsages(value.getCode()), "Usage must be present: " + value.getValue()));
     }
 
     @ParameterizedTest

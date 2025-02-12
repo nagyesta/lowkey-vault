@@ -26,4 +26,4 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@94baf225fe0a508e581a564467443d0e2379123b # v4.3.0
       - name: Check dependencies with Gradle
-        run: ./gradlew ossIndexAudit -PossIndexUsername=${{ secrets.OSS_INDEX_USER }} -PossIndexPassword=${{ secrets.OSS_INDEX_PASSWORD }}
+        run: ./gradlew ossIndexAudit -PossIndexUsername=${{ secrets.OSS_INDEX_USER }} -PossIndexPassword=${{ secrets.OSS_INDEX_PASSWORD }} --info

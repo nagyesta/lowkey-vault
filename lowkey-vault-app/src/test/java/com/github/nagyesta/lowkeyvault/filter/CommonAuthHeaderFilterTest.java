@@ -25,7 +25,6 @@ import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.*;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class CommonAuthHeaderFilterTest {
@@ -161,6 +160,7 @@ class CommonAuthHeaderFilterTest {
         verify(request, atLeastOnce()).getRequestURI();
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Test
     void testConstructorShouldThrowExceptionWhenCalledWithNull() {
         //given

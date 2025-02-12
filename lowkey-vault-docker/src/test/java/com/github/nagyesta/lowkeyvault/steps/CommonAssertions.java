@@ -65,7 +65,6 @@ public class CommonAssertions {
     }
 
     protected String readResourceContent(final String resource) throws IOException {
-        //noinspection LocalCanBeFinal
         try (InputStream stream = getClass().getResourceAsStream(resource);
              InputStreamReader reader = new InputStreamReader(Objects.requireNonNull(stream));
              BufferedReader bufferedReader = new BufferedReader(reader)) {

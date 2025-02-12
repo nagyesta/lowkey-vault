@@ -76,4 +76,4 @@ jobs:
         uses: github/codeql-action/analyze@9e8d0789d4a0fa9ceb6b1738f7e269594bdd67f0 # v3.28.9
       - name: Check dependencies with Gradle
         if: ${{ github.repository_owner == 'nagyesta' }}
-        run: ./gradlew ossIndexAudit -PossIndexUsername=${{ secrets.OSS_INDEX_USER }} -PossIndexPassword=${{ secrets.OSS_INDEX_PASSWORD }}
+        run: ./gradlew ossIndexAudit -PossIndexUsername=${{ secrets.OSS_INDEX_USER }} -PossIndexPassword=${{ secrets.OSS_INDEX_PASSWORD }} --info

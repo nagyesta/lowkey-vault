@@ -11,7 +11,7 @@ import java.util.Optional;
 /**
  * Base interface of vault entities.
  *
- * @param <V> The type of the versioned Id identifying this entity.
+ * @param <V> The type of the versioned ID identifying this entity.
  */
 public interface BaseVaultEntity<V extends EntityId> extends ReadOnlyDeletedEntity<V>, TimeAware {
 

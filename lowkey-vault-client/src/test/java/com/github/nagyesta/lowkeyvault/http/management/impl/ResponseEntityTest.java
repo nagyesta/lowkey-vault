@@ -23,7 +23,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.http.management.impl.ResponseEntity.VAULT_MODEL_LIST_TYPE_REF;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class ResponseEntityTest {

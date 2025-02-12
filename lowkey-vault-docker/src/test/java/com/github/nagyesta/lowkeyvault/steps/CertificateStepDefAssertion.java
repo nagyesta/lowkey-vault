@@ -230,8 +230,8 @@ public class CertificateStepDefAssertion extends CommonAssertions {
     private PrivateKey getKeyFromPem(final byte[] content, final X509Certificate certificate) throws CryptoException {
         try {
             final KeyFactory kf = KeyFactory.getInstance(certificate.getPublicKey().getAlgorithm(), KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
-            final PKCS8EncodedKeySpec privSpec = new PKCS8EncodedKeySpec(content);
-            return kf.generatePrivate(privSpec);
+            final PKCS8EncodedKeySpec privateSpec = new PKCS8EncodedKeySpec(content);
+            return kf.generatePrivate(privateSpec);
         } catch (final Exception e) {
             throw new CryptoException("Failed to acquire key, sue to exception: " + e.getMessage(), e);
         }

@@ -26,7 +26,7 @@ public abstract class CommonTestContext<E, D, P, C, V extends ServiceVersion> {
     private List<String> listedIds;
     private List<String> listedManagedIds;
     private List<String> deletedRecoveryIds;
-    private Map<String, byte[]> backups = new HashMap<String, byte[]>();
+    private final Map<String, byte[]> backups = new HashMap<>();
 
     public CommonTestContext(final ApacheHttpClientProvider provider) {
         this.provider = provider;

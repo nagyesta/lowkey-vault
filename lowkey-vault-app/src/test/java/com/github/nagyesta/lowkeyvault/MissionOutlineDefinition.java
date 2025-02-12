@@ -17,10 +17,9 @@ import static com.github.nagyesta.abortmission.core.MissionControl.*;
 public class MissionOutlineDefinition extends MissionOutline {
 
     private static Optional<Set<String>> annotationExtractor(final Object o) {
-        if (!(o instanceof Class<?>)) {
+        if (!(o instanceof final Class<?> testClass)) {
             return Optional.empty();
         }
-        final Class<?> testClass = (Class<?>) o;
         return Optional.of(Arrays.stream(testClass.getAnnotations())
                 .map(annotation -> annotation.annotationType().getSimpleName()).collect(Collectors.toSet()));
     }

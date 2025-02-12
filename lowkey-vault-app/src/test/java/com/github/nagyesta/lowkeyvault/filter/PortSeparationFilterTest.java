@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.*;
 
 class PortSeparationFilterTest {

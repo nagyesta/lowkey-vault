@@ -259,7 +259,7 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
         if (defaultImageUsed && hostArchIsNotAmd64 && imageIsNotMultiArch) {
             logger.warn("An amd64 image is detected with non-amd64 ({}) host.", hostArch);
             logger.warn("Please consider using a multi-arch image, like: {}-ubi9-minimal", versionPart);
-            logger.warn(("See more information: https://github.com/nagyesta/lowkey-vault/tree/main/lowkey-vault-docker#arm-builds"));
+            logger.warn("See more information: https://github.com/nagyesta/lowkey-vault/tree/main/lowkey-vault-docker#arm-builds");
         }
     }
 }

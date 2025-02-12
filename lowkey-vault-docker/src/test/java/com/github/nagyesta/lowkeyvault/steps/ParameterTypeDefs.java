@@ -8,7 +8,6 @@ import com.azure.security.keyvault.keys.models.KeyOperation;
 import io.cucumber.java.ParameterType;
 
 import java.nio.charset.StandardCharsets;
-import java.text.ParseException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -74,7 +73,7 @@ public class ParameterTypeDefs {
     }
 
     @ParameterType("([0-9]{4}-[0-9]{2}-[0-9]{2})")
-    public OffsetDateTime expiry(final String date) throws ParseException {
+    public OffsetDateTime expiry(final String date) {
         return OffsetDateTime.parse(date + "T00:00:00+00:00", DateTimeFormatter.ISO_OFFSET_DATE_TIME);
     }
 

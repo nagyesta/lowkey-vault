@@ -19,7 +19,8 @@ import java.util.Objects;
 import java.util.function.Function;
 
 /**
- * Modified class based on https://github.com/Azure/azure-sdk-for-java/wiki/Custom-HTTP-Clients.
+ * Modified class based on <a href="https://github.com/Azure/azure-sdk-for-java/wiki/Custom-HTTP-Clients">
+ * https://github.com/Azure/azure-sdk-for-java/wiki/Custom-HTTP-Clients</a>.
  */
 public final class ApacheHttpClient implements HttpClient {
     private final org.apache.http.client.HttpClient httpClient;

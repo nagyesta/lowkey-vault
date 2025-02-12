@@ -215,17 +215,15 @@ public class CertificatesStepDefs extends CommonAssertions {
     @And("{int} certificates with {name} prefix are purged")
     public void certificatesWithMultiImportPrefixArePurged(final int count, final String prefix) {
         final CertificateClient client = context.getClient(context.getCertificateServiceVersion());
-        IntStream.range(1, count + 1).forEach(i -> {
-            client.purgeDeletedCertificate(prefix + i);
-        });
+        IntStream.range(1, count + 1).forEach(i -> client
+                .purgeDeletedCertificate(prefix + i));
     }
 
     @And("{int} certificates with {name} prefix are recovered")
     public void certificatesWithMultiImportPrefixAreRecovered(final int count, final String prefix) {
         final CertificateClient client = context.getClient(context.getCertificateServiceVersion());
-        IntStream.range(1, count + 1).forEach(i -> {
-            client.beginRecoverDeletedCertificate(prefix + i).waitForCompletion();
-        });
+        IntStream.range(1, count + 1).forEach(i -> client
+                .beginRecoverDeletedCertificate(prefix + i).waitForCompletion());
     }
 
     @When("the deleted certificates are listed")

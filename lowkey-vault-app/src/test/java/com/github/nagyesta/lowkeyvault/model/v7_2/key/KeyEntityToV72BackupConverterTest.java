@@ -30,7 +30,6 @@ import java.util.Map;
 import static com.github.nagyesta.lowkeyvault.TestConstants.KEY_1;
 import static com.github.nagyesta.lowkeyvault.TestConstants.VALUE_1;
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class KeyEntityToV72BackupConverterTest {

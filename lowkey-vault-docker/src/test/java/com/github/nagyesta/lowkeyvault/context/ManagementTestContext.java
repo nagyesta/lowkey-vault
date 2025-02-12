@@ -14,7 +14,7 @@ public class ManagementTestContext {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private ApacheHttpClientProvider provider;
     private LowkeyVaultManagementClient client;
-    private Map<String, List<VaultModel>> vaultLists = new TreeMap<>();
+    private final Map<String, List<VaultModel>> vaultLists = new TreeMap<>();
 
     public ManagementTestContext(final ApacheHttpClientProvider provider) {
         this.provider = provider;

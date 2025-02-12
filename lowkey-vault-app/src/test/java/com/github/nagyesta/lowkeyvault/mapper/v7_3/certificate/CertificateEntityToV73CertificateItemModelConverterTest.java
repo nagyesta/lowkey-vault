@@ -13,8 +13,6 @@ import static com.github.nagyesta.lowkeyvault.TestConstants.TAGS_ONE_KEY;
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.CERT_NAME_1;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOWKEY_VAULT;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.*;
 
 class CertificateEntityToV73CertificateItemModelConverterTest {

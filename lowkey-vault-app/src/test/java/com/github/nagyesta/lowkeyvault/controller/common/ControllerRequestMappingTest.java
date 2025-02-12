@@ -136,23 +136,22 @@ class ControllerRequestMappingTest {
     }
 
     private static void assertEveryMappingHasBothVersions(final Map<Class<?>, Map<Method, List<String>>> results) {
-        results.forEach((clazz, methodMap) -> {
-            methodMap.forEach((method, pathMappings) -> {
-                final String className = clazz.getName();
-                final String methodName = method.getName();
-                Assertions.assertFalse(pathMappings.isEmpty(),
-                        "Method " + methodName + " should have the default path mappings in " + className + ".\n"
-                                + "expected to have both: {\"\", \"/\"}");
-                pathMappings.stream()
-                        .filter(path -> !path.endsWith("/"))
-                        .forEach(path -> {
-                            Assertions.assertTrue(pathMappings.contains(path + "/"),
-                                    "Method " + methodName + " should have a pair with trailing slash in " + className + ".\n"
-                                            + "expected to have both: {\"" + path + "\", \"" + path + "/\"}\n"
-                                            + "in: " + pathMappings + "\n");
-                        });
-            });
-        });
+        results.forEach((clazz, methodMap) -> methodMap
+                .forEach((method, pathMappings) -> {
+                    final String className = clazz.getName();
+                    final String methodName = method.getName();
+                    Assertions.assertFalse(pathMappings.isEmpty(),
+                            "Method " + methodName + " should have the default path mappings in " + className + ".\n"
+                                    + "expected to have both: {\"\", \"/\"}");
+                    pathMappings.stream()
+                            .filter(path -> !path.endsWith("/"))
+                            .forEach(path -> {
+                                Assertions.assertTrue(pathMappings.contains(path + "/"),
+                                        "Method " + methodName + " should have a pair with trailing slash in " + className + ".\n"
+                                                + "expected to have both: {\"" + path + "\", \"" + path + "/\"}\n"
+                                                + "in: " + pathMappings + "\n");
+                            });
+                }));
     }
 
     private Stream<Class<?>> streamAllControllerClasses() {

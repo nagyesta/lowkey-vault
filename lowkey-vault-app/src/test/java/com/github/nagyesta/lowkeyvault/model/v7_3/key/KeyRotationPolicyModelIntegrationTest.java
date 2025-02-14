@@ -165,6 +165,6 @@ class KeyRotationPolicyModelIntegrationTest {
 
     private String readResourceAsStringRemoveWhitespace(final String resource) {
         final String json = ResourceUtils.loadResourceAsString(resource);
-        return Objects.requireNonNull(json).replaceAll("[ \\n]+", "");
+        return Objects.requireNonNull(json).replaceAll("[ \\n\\r]+", "");
     }
 }

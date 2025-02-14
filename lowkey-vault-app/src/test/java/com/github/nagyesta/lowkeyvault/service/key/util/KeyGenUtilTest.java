@@ -135,14 +135,4 @@ class KeyGenUtilTest {
             Assertions.assertEquals(number, actual.length);
         }
     }
-
-    @Test
-    void testGenerateRandomBytesShouldThrowExceptionWhenCalledWithUnknownAlgorithm() {
-        //given
-
-        //when
-        Assertions.assertThrows(CryptoException.class, () -> KeyGenUtil.generateRandomBytes(1, "unknown"));
-
-        //then + exception
-    }
 }

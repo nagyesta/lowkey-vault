@@ -25,6 +25,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.Period;
 import java.util.*;
@@ -812,6 +813,7 @@ class KeyVaultFakeImplTest {
         final ReadOnlyRotationPolicy beforePolicy = underTest.rotationPolicy(keyEntityId);
         final OffsetDateTime createdPolicyOriginal = beforePolicy.getCreatedOn();
         final OffsetDateTime updatedPolicyOriginal = beforePolicy.getUpdatedOn();
+        waitABit();
 
         //when
         underTest.setRotationPolicy(rotationPolicySecond);
@@ -1009,5 +1011,13 @@ class KeyVaultFakeImplTest {
         return IntStream.range(0, COUNT)
                 .mapToObj(i -> underTest.createEcKeyVersion(keyName, EC_KEY_CREATION_INPUT))
                 .collect(Collectors.toList());
+    }
+
+    private static void waitABit() {
+        try {
+            Thread.sleep(Duration.ofSeconds(1).toMillis());
+        } catch (final InterruptedException e) {
+            Assertions.fail(e);
+        }
     }
 }

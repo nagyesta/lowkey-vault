@@ -14,7 +14,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Optional;
@@ -39,7 +38,7 @@ public class AppConfiguration {
     private boolean useRelaxedPorts;
 
     @Bean
-    public VaultService vaultService() throws IOException {
+    public VaultService vaultService() {
         final VaultService service = new VaultServiceImpl(portMapper());
         if (!SKIP_AUTO_REGISTRATION.equals(autoRegisterVaults)) {
             autoRegisterVaults(service);

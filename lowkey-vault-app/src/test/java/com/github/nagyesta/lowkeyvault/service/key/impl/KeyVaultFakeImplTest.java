@@ -976,7 +976,7 @@ class KeyVaultFakeImplTest {
     @ParameterizedTest
     @MethodSource("certificateNullProvider")
     void testCreateKeyVersionForCertificateShouldThrowExceptionWhenCalledWithNulls(
-            final String name, final KeyCreationInput<? extends Object> input,
+            final String name, final KeyCreationInput<?> input,
             final OffsetDateTime notBefore, final OffsetDateTime expiry) {
         //given
         final KeyVaultFake underTest = createUnderTest();

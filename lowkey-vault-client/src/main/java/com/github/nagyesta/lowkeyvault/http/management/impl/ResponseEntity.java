@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.github.nagyesta.lowkeyvault.http.management.LowkeyVaultException;
 import com.github.nagyesta.lowkeyvault.http.management.VaultModel;
+import lombok.Getter;
 import lombok.NonNull;
 import org.apache.http.HttpStatus;
 
@@ -14,6 +15,7 @@ import java.util.List;
 
 final class ResponseEntity {
     public static final ListTypeReference VAULT_MODEL_LIST_TYPE_REF = new ListTypeReference();
+    @Getter
     private final int responseCode;
     private final String responseBody;
     private final ObjectReader reader;
@@ -27,10 +29,6 @@ final class ResponseEntity {
 
     public boolean isSuccessful() {
         return responseCode >= HttpStatus.SC_OK && responseCode < HttpStatus.SC_MULTIPLE_CHOICES;
-    }
-
-    public int getResponseCode() {
-        return responseCode;
     }
 
     public <T> T getResponseObject(final Class<T> type) {

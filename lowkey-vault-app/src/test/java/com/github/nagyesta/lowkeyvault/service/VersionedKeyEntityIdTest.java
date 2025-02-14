@@ -173,7 +173,7 @@ class VersionedKeyEntityIdTest {
         final VersionedKeyEntityId underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asUri(HTTPS_LOCALHOST_8443, (String) null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asUri(HTTPS_LOCALHOST_8443, null));
 
         //then + exception;
     }

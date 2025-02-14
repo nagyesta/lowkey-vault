@@ -22,7 +22,6 @@ import static com.github.nagyesta.lowkeyvault.service.certificate.CertificateLif
 import static com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionTriggerType.DAYS_BEFORE_EXPIRY;
 import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateCreationInput.DEFAULT_VALIDITY_MONTHS;
 import static java.time.temporal.ChronoUnit.DAYS;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class CertificateLifetimeActionPolicyTest {

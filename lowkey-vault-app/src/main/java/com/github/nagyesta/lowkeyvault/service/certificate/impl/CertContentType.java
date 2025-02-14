@@ -128,11 +128,11 @@ public enum CertContentType {
                         "-----BEGIN PRIVATE KEY-----", "-----END PRIVATE KEY-----");
                 final KeyType keyType = assumeKeyType(encodedKey.length);
                 final KeyFactory kf = KeyFactory.getInstance(keyType.getAlgorithmName(), KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
-                final PKCS8EncodedKeySpec privSpec = new PKCS8EncodedKeySpec(encodedKey);
+                final PKCS8EncodedKeySpec privateSpec = new PKCS8EncodedKeySpec(encodedKey);
                 if (RSA == keyType) {
-                    return RSA_KEY_CONVERTER.convert((RSAPrivateCrtKey) kf.generatePrivate(privSpec));
+                    return RSA_KEY_CONVERTER.convert((RSAPrivateCrtKey) kf.generatePrivate(privateSpec));
                 } else {
-                    return EC_KEY_CONVERTER.convert((BCECPrivateKey) kf.generatePrivate(privSpec));
+                    return EC_KEY_CONVERTER.convert((BCECPrivateKey) kf.generatePrivate(privateSpec));
                 }
             } catch (final Exception e) {
                 throw new CryptoException("Failed to extract key from PEM", e);
@@ -159,7 +159,6 @@ public enum CertContentType {
         }
 
         private String toPemString(final Object object) {
-            //noinspection LocalCanBeFinal
             try (StringWriter stringWriter = new StringWriter();
                  JcaPEMWriter pemWriter = new JcaPEMWriter(stringWriter)) {
                 if (object instanceof PrivateKey) {

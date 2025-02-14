@@ -5,11 +5,13 @@ import com.github.nagyesta.lowkeyvault.service.secret.ReadOnlyKeyVaultSecretEnti
 import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.NonNull;
+import lombok.Setter;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 public class KeyVaultSecretEntity extends KeyVaultBaseEntity<VersionedSecretEntityId> implements ReadOnlyKeyVaultSecretEntity {
 
+    @Setter
     private String value;
     private final String contentType;
     private final VersionedSecretEntityId id;
@@ -28,10 +30,6 @@ public class KeyVaultSecretEntity extends KeyVaultBaseEntity<VersionedSecretEnti
     @Override
     public String getValue() {
         return value;
-    }
-
-    public void setValue(final String value) {
-        this.value = value;
     }
 
     @Override

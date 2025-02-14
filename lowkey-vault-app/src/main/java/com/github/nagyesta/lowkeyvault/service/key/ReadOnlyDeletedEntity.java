@@ -8,7 +8,7 @@ import java.util.Optional;
 /**
  * Base interface of deleted vault entities.
  *
- * @param <V> The type of the versioned Id identifying this entity.
+ * @param <V> The type of the versioned ID identifying this entity.
  */
 public interface ReadOnlyDeletedEntity<V extends EntityId> {
 

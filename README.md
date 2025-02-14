@@ -242,5 +242,5 @@ Used for metadata endpoints
 
 - Some encryption/signature algorithms are not supported. Please refer to the ["Features"](#features) section for the up-to-date list of supported algorithms.
 - Only self-signed certificates are supported by the certificate API.
-- Time shift cannot renew/recreate deleted certificates. Please consider performing deletions after time shift as a work around.
+- Time shift cannot renew/recreate deleted certificates. Please consider performing deletions after time shift as a workaround.
 - Recovery options cannot be configured for vaults created during start-up

@@ -36,12 +36,11 @@ public abstract class AbstractBase64ZipDeserializer<E> extends JsonDeserializer<
     }
 
     private E decompressWrappedObject(final byte[] bytes) {
-        //noinspection LocalCanBeFinal
         try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
              GZIPInputStream gzipInputStream = new GZIPInputStream(byteArrayInputStream)) {
             final String json = new String(gzipInputStream.readAllBytes());
             return objectMapper.reader().readValue(json, getType());
-        } catch (Exception e) {
+        } catch (final Exception e) {
             log.error(e.getMessage(), e);
             throw new IllegalArgumentException("Unable to decompress input.");
         }

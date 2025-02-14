@@ -26,8 +26,6 @@ import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.NUMBER_OF_SECONDS_IN_10_MINUTES;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.*;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.*;
 
 class VaultManagementControllerTest {

@@ -29,45 +29,53 @@ import static org.mockito.Mockito.mock;
 @SuppressWarnings("UnnecessaryLocalVariable")
 class CertContentTypeTest {
 
-    private static final String EC_CERT = "MIIBRDCB6aADAgECAgR3UZEbMAwGCCqGSM49BAMCBQAwFzEVMBMGA1UEAxMMZWMu"
-            + "bG9jYWxob3N0MB4XDTIyMDkxMDE5MDA1NVoXDTIzMDkxMDE5MDA1NVowFzEVMBMG"
-            + "A1UEAxMMZWMubG9jYWxob3N0MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE9QeN"
-            + "Y5gGwMQnCSUrFfJ1CQp8ngrTJn9ZzTusUY8Gh5JWennjFdzLIqJ4yhpSzGAl+/jn"
-            + "Gv3n+fBjt7mUZu2I76MhMB8wHQYDVR0OBBYEFA2YDS/W2/Dv5qJrmtbE7w+HUtL0"
-            + "MAwGCCqGSM49BAMCBQADSAAwRQIgMQAYrmTDkcxQgS33oHbw+H/7YEO43ZDqSOTr"
-            + "tn7PQa8CIQCf8JCfvoC0W67JsBRFPDNJEKBuNHVMOWuKjwrXaqynuQ==";
-    private static final String RSA_CERT = "MIIDUzCCAjugAwIBAgIQZ03r0foFSbuyMPZn6+/irDANBgkqhkiG9w0BAQsFADAU"
-            + "MRIwEAYDVQQDEwlsb2NhbGhvc3QwIBcNMjIwODI4MTIzMDQzWhgPMjA1MjA4Mjgx"
-            + "MjQwNDNaMBQxEjAQBgNVBAMTCWxvY2FsaG9zdDCCASIwDQYJKoZIhvcNAQEBBQAD"
-            + "ggEPADCCAQoCggEBALXdCn8hSkdTXLfEGYdwDfvEfPRl+wipthTDtYVZ6AJGjG53"
-            + "mu/nRuf1rFG4W5OXTFV/WL5pbDOsNvvV1PlUG/+VRBVO/r5D0AmHJjVyflozKIhB"
-            + "RDx2GgM8pTgpoEVuzJG/pb8Up+kQiCEUjJ1TAf3gojl59lEFatQNsWbHnGvV3xmK"
-            + "RpECzBQipRjMi+4U3/9ebgrY91UDj+/tkqK4SWqxeb9qE5H41CHEJXkpgnGJRZFw"
-            + "1IDcJntoW+973msI69S5GZZ3ICzLpAeTm1CZyVj/Kn4xn/ag8tHzNAmfhA7gQDtO"
-            + "2vVYuF4IKLF5YCI2jNcTeyk0ZPXljgJ9RD8486ECAwEAAaOBnjCBmzAOBgNVHQ8B"
-            + "Af8EBAMCBaAwCQYDVR0TBAIwADAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUH"
-            + "AwIwHwYDVR0RBBgwFoIJbG9jYWxob3N0ggkxMjcuMC4wLjEwHwYDVR0jBBgwFoAU"
-            + "LnKkDUiyqtO+WmZSPeYyhcwSZHMwHQYDVR0OBBYEFC5ypA1IsqrTvlpmUj3mMoXM"
-            + "EmRzMA0GCSqGSIb3DQEBCwUAA4IBAQCqTxssPDFRHW1GzA43gph52bY8ZLuSFOcb"
-            + "2p98T9STkPzudq9Pqha4n5/N9AIIYpNU/BFGQMvgilmJK1e0r5BqACTZ+xw4Zm92"
-            + "KLMVLeVS6mGLKYklJvwjFblfJtjN++l5j5coMGiWgVLQTJhyFwHtWSdh1J0DNbwE"
-            + "/eGSDWHJ20KDyt98c7QJIjt87KIh3jd1WRzeRZ7YWWdRxigerYlupO2iFSr28seB"
-            + "NjuCqPwdGwuYHGe/SskEqjVYxFoFknPhsn5Y64b1RuJe19qjewYl0NBmBjiEexY1"
-            + "Tg/nnzqHPv4GAnWcp4e9IOAB00LfXwFj4D/lTOuGpdUFeIhjN0dx";
+    @SuppressWarnings("SpellCheckingInspection")
+    private static final String EC_CERT = """
+            MIIBRDCB6aADAgECAgR3UZEbMAwGCCqGSM49BAMCBQAwFzEVMBMGA1UEAxMMZWMu\
+            bG9jYWxob3N0MB4XDTIyMDkxMDE5MDA1NVoXDTIzMDkxMDE5MDA1NVowFzEVMBMG\
+            A1UEAxMMZWMubG9jYWxob3N0MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE9QeN\
+            Y5gGwMQnCSUrFfJ1CQp8ngrTJn9ZzTusUY8Gh5JWennjFdzLIqJ4yhpSzGAl+/jn\
+            Gv3n+fBjt7mUZu2I76MhMB8wHQYDVR0OBBYEFA2YDS/W2/Dv5qJrmtbE7w+HUtL0\
+            MAwGCCqGSM49BAMCBQADSAAwRQIgMQAYrmTDkcxQgS33oHbw+H/7YEO43ZDqSOTr\
+            tn7PQa8CIQCf8JCfvoC0W67JsBRFPDNJEKBuNHVMOWuKjwrXaqynuQ==""";
+    @SuppressWarnings("SpellCheckingInspection")
+    private static final String RSA_CERT = """
+            MIIDUzCCAjugAwIBAgIQZ03r0foFSbuyMPZn6+/irDANBgkqhkiG9w0BAQsFADAU\
+            MRIwEAYDVQQDEwlsb2NhbGhvc3QwIBcNMjIwODI4MTIzMDQzWhgPMjA1MjA4Mjgx\
+            MjQwNDNaMBQxEjAQBgNVBAMTCWxvY2FsaG9zdDCCASIwDQYJKoZIhvcNAQEBBQAD\
+            ggEPADCCAQoCggEBALXdCn8hSkdTXLfEGYdwDfvEfPRl+wipthTDtYVZ6AJGjG53\
+            mu/nRuf1rFG4W5OXTFV/WL5pbDOsNvvV1PlUG/+VRBVO/r5D0AmHJjVyflozKIhB\
+            RDx2GgM8pTgpoEVuzJG/pb8Up+kQiCEUjJ1TAf3gojl59lEFatQNsWbHnGvV3xmK\
+            RpECzBQipRjMi+4U3/9ebgrY91UDj+/tkqK4SWqxeb9qE5H41CHEJXkpgnGJRZFw\
+            1IDcJntoW+973msI69S5GZZ3ICzLpAeTm1CZyVj/Kn4xn/ag8tHzNAmfhA7gQDtO\
+            2vVYuF4IKLF5YCI2jNcTeyk0ZPXljgJ9RD8486ECAwEAAaOBnjCBmzAOBgNVHQ8B\
+            Af8EBAMCBaAwCQYDVR0TBAIwADAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUH\
+            AwIwHwYDVR0RBBgwFoIJbG9jYWxob3N0ggkxMjcuMC4wLjEwHwYDVR0jBBgwFoAU\
+            LnKkDUiyqtO+WmZSPeYyhcwSZHMwHQYDVR0OBBYEFC5ypA1IsqrTvlpmUj3mMoXM\
+            EmRzMA0GCSqGSIb3DQEBCwUAA4IBAQCqTxssPDFRHW1GzA43gph52bY8ZLuSFOcb\
+            2p98T9STkPzudq9Pqha4n5/N9AIIYpNU/BFGQMvgilmJK1e0r5BqACTZ+xw4Zm92\
+            KLMVLeVS6mGLKYklJvwjFblfJtjN++l5j5coMGiWgVLQTJhyFwHtWSdh1J0DNbwE\
+            /eGSDWHJ20KDyt98c7QJIjt87KIh3jd1WRzeRZ7YWWdRxigerYlupO2iFSr28seB\
+            NjuCqPwdGwuYHGe/SskEqjVYxFoFknPhsn5Y64b1RuJe19qjewYl0NBmBjiEexY1\
+            Tg/nnzqHPv4GAnWcp4e9IOAB00LfXwFj4D/lTOuGpdUFeIhjN0dx""";
     private static final int KEY_SIZE = 2048;
-    private static final String MIME_BASE64 = "TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdCwg\r\n"
-            + "c2VkIGRvIGVpdXNtb2QgdGVtcG9yIGluY2lkaWR1bnQgdXQgbGFib3JlIGV0IGRvbG9yZSBtYWdu\r\n"
-            + "YQphbGlxdWEuIFV0IGVuaW0gYWQgbWluaW0gdmVuaWFtLCBxdWlzIG5vc3RydWQgZXhlcmNpdGF0\r\n"
-            + "aW9uIHVsbGFtY28gbGFib3JpcyBuaXNpIHV0IGFsaXF1aXAgZXggZWEgY29tbW9kbyBjb25zZXF1\r\n"
-            + "YXQuCkR1aXMgYXV0ZSBpcnVyZSBkb2xvciBpbiByZXByZWhlbmRlcml0IGluIHZvbHVwdGF0ZSB2\r\n"
-            + "ZWxpdCBlc3NlIGNpbGx1bSBkb2xvcmUgZXUgZnVnaWF0IG51bGxhIHBhcmlhdHVyLiBFeGNlcHRl\r\n"
-            + "dXIKc2ludCBvY2NhZWNhdCBjdXBpZGF0YXQgbm9uIHByb2lkZW50LCBzdW50IGluIGN1bHBhIHF1\r\n"
-            + "aSBvZmZpY2lhIGRlc2VydW50IG1vbGxpdCBhbmltIGlkIGVzdCBsYWJvcnVtLgo=";
-    private static final byte[] MIME_BYTES = ("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt "
-            + "ut labore et dolore magna\naliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut "
-            + "aliquip ex ea commodo consequat.\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore "
-            + "eu fugiat nulla pariatur. Excepteur\nsint occaecat cupidatat non proident, sunt in culpa qui officia deserunt "
-            + "mollit anim id est laborum.\n").getBytes(StandardCharsets.UTF_8);
+    @SuppressWarnings("SpellCheckingInspection")
+    private static final String MIME_BASE64 = """
+            TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdCwg\r
+            c2VkIGRvIGVpdXNtb2QgdGVtcG9yIGluY2lkaWR1bnQgdXQgbGFib3JlIGV0IGRvbG9yZSBtYWdu\r
+            YQphbGlxdWEuIFV0IGVuaW0gYWQgbWluaW0gdmVuaWFtLCBxdWlzIG5vc3RydWQgZXhlcmNpdGF0\r
+            aW9uIHVsbGFtY28gbGFib3JpcyBuaXNpIHV0IGFsaXF1aXAgZXggZWEgY29tbW9kbyBjb25zZXF1\r
+            YXQuCkR1aXMgYXV0ZSBpcnVyZSBkb2xvciBpbiByZXByZWhlbmRlcml0IGluIHZvbHVwdGF0ZSB2\r
+            ZWxpdCBlc3NlIGNpbGx1bSBkb2xvcmUgZXUgZnVnaWF0IG51bGxhIHBhcmlhdHVyLiBFeGNlcHRl\r
+            dXIKc2ludCBvY2NhZWNhdCBjdXBpZGF0YXQgbm9uIHByb2lkZW50LCBzdW50IGluIGN1bHBhIHF1\r
+            aSBvZmZpY2lhIGRlc2VydW50IG1vbGxpdCBhbmltIGlkIGVzdCBsYWJvcnVtLgo=""";
+    @SuppressWarnings("SpellCheckingInspection")
+    private static final byte[] MIME_BYTES = ("""
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna
+            aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+            Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur
+            sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+            """).getBytes(StandardCharsets.UTF_8);
 
     public static Stream<Arguments> instanceProvider() {
         return Stream.<Arguments>builder()

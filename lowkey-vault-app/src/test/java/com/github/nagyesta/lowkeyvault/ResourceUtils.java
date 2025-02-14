@@ -16,7 +16,6 @@ public final class ResourceUtils {
     }
 
     public static String loadResourceAsString(final String resource) {
-        //noinspection LocalCanBeFinal
         try (InputStream stream = ResourceUtils.class.getResourceAsStream(resource)) {
             return StreamUtils.copyToString(stream, StandardCharsets.UTF_8);
         } catch (final IOException e) {
@@ -33,7 +32,6 @@ public final class ResourceUtils {
     }
 
     public static byte[] loadResourceAsByteArray(final String resource) {
-        //noinspection LocalCanBeFinal
         try (InputStream stream = ResourceUtils.class.getResourceAsStream(resource)) {
             return StreamUtils.copyToByteArray(stream);
         } catch (final IOException e) {

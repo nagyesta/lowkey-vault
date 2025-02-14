@@ -118,8 +118,8 @@ public class KeyVaultCertificateEntity
      * Constructor for certificate renewal.
      *
      * @param input The input parameters defining how the certificate should look like.
-     * @param kid   The Id of the key entity version we need to use.
-     * @param id    The Id of the new certificate entity.
+     * @param kid   The ID of the key entity version we need to use.
+     * @param id    The ID of the new certificate entity.
      * @param vault The vault we are using.
      */
     public KeyVaultCertificateEntity(@NonNull final ReadOnlyCertificatePolicy input,

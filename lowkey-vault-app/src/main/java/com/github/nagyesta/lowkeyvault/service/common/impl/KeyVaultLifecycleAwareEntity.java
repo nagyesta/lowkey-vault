@@ -1,6 +1,7 @@
 package com.github.nagyesta.lowkeyvault.service.common.impl;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
@@ -15,6 +16,7 @@ public class KeyVaultLifecycleAwareEntity {
     private Optional<OffsetDateTime> notBefore;
     private Optional<OffsetDateTime> expiry;
     private OffsetDateTime updated;
+    @Setter
     private boolean enabled;
 
     protected KeyVaultLifecycleAwareEntity() {
@@ -23,10 +25,6 @@ public class KeyVaultLifecycleAwareEntity {
         this.updated = now();
         this.notBefore = Optional.empty();
         this.expiry = Optional.empty();
-    }
-
-    public void setEnabled(final boolean enabled) {
-        this.enabled = enabled;
     }
 
     public void setNotBefore(final OffsetDateTime notBefore) {

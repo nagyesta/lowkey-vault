@@ -42,7 +42,6 @@ public abstract class AbstractBase64ZipSerializer<E> extends JsonSerializer<E> {
     }
 
     private String compressObject(final E value) {
-        //noinspection LocalCanBeFinal
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              GZIPOutputStream gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream)) {
             final String json = objectMapper.writer().writeValueAsString(value);
@@ -51,7 +50,7 @@ public abstract class AbstractBase64ZipSerializer<E> extends JsonSerializer<E> {
             gzipOutputStream.finish();
             final byte[] byteArray = byteArrayOutputStream.toByteArray();
             return base64Serializer.base64Encode(byteArray);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             log.error(e.getMessage(), e);
             throw new IllegalArgumentException("Unable to compress input.");
         }

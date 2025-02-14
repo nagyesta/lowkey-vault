@@ -6,6 +6,7 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.secret.SecretPropertiesModel;
 import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultFake;
 import com.github.nagyesta.lowkeyvault.service.secret.impl.KeyVaultSecretEntity;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
+import lombok.Setter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -110,6 +111,7 @@ class SecretEntityToV72PropertiesModelConverterTest {
         Assertions.assertEquals(input.getUpdated(), actual.getUpdatedOn());
     }
 
+    @Setter
     private final class DummyKeyVaultSecretEntity extends KeyVaultSecretEntity {
         private Integer recoverableDays;
         private RecoveryLevel recoveryLevel;
@@ -123,17 +125,10 @@ class SecretEntityToV72PropertiesModelConverterTest {
             return recoverableDays;
         }
 
-        public void setRecoverableDays(final Integer recoverableDays) {
-            this.recoverableDays = recoverableDays;
-        }
-
         @Override
         public RecoveryLevel getRecoveryLevel() {
             return recoveryLevel;
         }
 
-        public void setRecoveryLevel(final RecoveryLevel recoveryLevel) {
-            this.recoveryLevel = recoveryLevel;
-        }
     }
 }

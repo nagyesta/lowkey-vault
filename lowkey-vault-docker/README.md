@@ -22,7 +22,7 @@ This is the root of the Docker image. Visit the [Readme](../README.md) in the re
 ## Startup parameters
 
 In case you need to change any of the default parameters, you can use the ```LOWKEY_ARGS``` environment variable with
-all necessary arguments supported by [Lowkey Vault App](../lowkey-vault-app/README.md). [Gradle example](build.gradle#L63).
+all necessary arguments supported by [Lowkey Vault App](../lowkey-vault-app/README.md). [Gradle example](build.gradle.kts#L63).
 
 Shell example:
 

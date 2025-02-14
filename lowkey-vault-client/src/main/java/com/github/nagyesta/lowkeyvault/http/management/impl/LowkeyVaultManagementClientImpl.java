@@ -160,7 +160,6 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
     public String unpackBackup(final byte[] backup) throws IOException {
         final byte[] nonNullBackup = Optional.ofNullable(backup)
                 .orElseThrow(() -> new IllegalArgumentException("Backup cannot be null"));
-        //noinspection LocalCanBeFinal
         try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(nonNullBackup);
              GZIPInputStream gzipInputStream = new GZIPInputStream(byteArrayInputStream)) {
             final String json = new String(gzipInputStream.readAllBytes());
@@ -170,7 +169,6 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
 
     @Override
     public byte[] compressBackup(@NonNull final String backup) throws IOException {
-        //noinspection LocalCanBeFinal
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              GZIPOutputStream gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream)) {
             gzipOutputStream.write(backup.getBytes(StandardCharsets.UTF_8));
@@ -223,7 +221,6 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
     }
 
     private ResponseEntity doSendNotNull(final HttpRequest request) {
-        //noinspection LocalCanBeFinal
         try (HttpResponse response = instance.send(request).block()) {
             return new ResponseEntity(Objects.requireNonNull(response), objectReader);
         } catch (final Exception e) {

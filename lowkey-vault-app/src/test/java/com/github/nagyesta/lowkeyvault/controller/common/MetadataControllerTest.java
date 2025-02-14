@@ -96,7 +96,6 @@ class MetadataControllerTest {
         if (url == null) {
             throw new IOException("Resource not found: " + KEY_STORE_RESOURCE);
         }
-        //noinspection LocalCanBeFinal
         try (InputStream inputStream = url.openStream()) {
             return inputStream.readAllBytes();
         }

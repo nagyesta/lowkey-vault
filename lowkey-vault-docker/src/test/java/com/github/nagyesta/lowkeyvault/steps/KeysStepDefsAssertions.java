@@ -202,7 +202,7 @@ public class KeysStepDefsAssertions extends CommonAssertions {
         final List<KeyProperties> keyVersions = context.getClient(context.getKeyServiceVersion())
                 .listPropertiesOfKeyVersions(context.getLastResult().getName())
                 .stream()
-                .collect(Collectors.toList());
+                .toList();
         assertEquals(versions, keyVersions.size());
     }
 

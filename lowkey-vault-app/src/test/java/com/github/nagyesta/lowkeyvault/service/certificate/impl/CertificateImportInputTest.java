@@ -10,7 +10,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.security.cert.CertificateParsingException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -42,7 +41,7 @@ class CertificateImportInputTest {
 
 
     @Test
-    void testConstructorShouldUseValuesFromCertificateWhenCalledWithMinimalEcDataUsingPkcs12() throws CertificateParsingException {
+    void testConstructorShouldUseValuesFromCertificateWhenCalledWithMinimalEcDataUsingPkcs12() {
         //given
         final String certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsBase64String("/cert/ec.p12"));
 
@@ -67,7 +66,7 @@ class CertificateImportInputTest {
     }
 
     @Test
-    void testConstructorShouldUseValuesFromCertificateWhenCalledWithMinimalEcDataUsingPem() throws CertificateParsingException {
+    void testConstructorShouldUseValuesFromCertificateWhenCalledWithMinimalEcDataUsingPem() {
         //given
         final String certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsString("/cert/ec.pem"));
 
@@ -92,7 +91,7 @@ class CertificateImportInputTest {
     }
 
     @Test
-    void testConstructorShouldUseValuesFromParsedCertOnlyWhenCalledWithMixedEcDataUsingPem() throws CertificateParsingException {
+    void testConstructorShouldUseValuesFromParsedCertOnlyWhenCalledWithMixedEcDataUsingPem() {
         //given
         final String certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsString("/cert/ec.pem"));
 
@@ -144,7 +143,7 @@ class CertificateImportInputTest {
     }
 
     @Test
-    void testConstructorShouldUseValuesFromKeyWhenCalledWithMinimalEcDataUsingPkcs12() throws CertificateParsingException {
+    void testConstructorShouldUseValuesFromKeyWhenCalledWithMinimalEcDataUsingPkcs12() {
         //given
         final String certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsBase64String("/cert/ec.p12"));
 
@@ -162,7 +161,7 @@ class CertificateImportInputTest {
     }
 
     @Test
-    void testConstructorShouldUseValuesFromKeyWhenCalledWithMinimalRsaDataUsingPkcs12() throws CertificateParsingException {
+    void testConstructorShouldUseValuesFromKeyWhenCalledWithMinimalRsaDataUsingPkcs12() {
         //given
         final String certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsBase64String("/cert/rsa.p12"));
 
@@ -185,7 +184,7 @@ class CertificateImportInputTest {
     }
 
     @Test
-    void testConstructorShouldUseValuesFromKeyWhenCalledWithMinimalRsaDataUsingPem() throws CertificateParsingException {
+    void testConstructorShouldUseValuesFromKeyWhenCalledWithMinimalRsaDataUsingPem() {
         //given
         final String certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsString("/cert/rsa.pem"));
 

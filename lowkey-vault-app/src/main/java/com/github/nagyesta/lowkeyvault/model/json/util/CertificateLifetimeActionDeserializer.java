@@ -20,7 +20,6 @@ public class CertificateLifetimeActionDeserializer extends JsonDeserializer<Cert
         final TreeNode actionType = node.path(INNER_NODE_NAME);
         Assert.isTrue(actionType.isValueNode(),
                 "The \"action\" node must have an \"" + INNER_NODE_NAME + "\" child containing the value.");
-        //noinspection LocalCanBeFinal
         try (JsonParser textField = actionType.traverse()) {
             final String value = textField.nextTextValue();
             return CertificateLifetimeActionActivity.byValue(value);

@@ -1,7 +1,7 @@
-FROM eclipse-temurin:17.0.14_7-jre-alpine@sha256:0be87fee3f75738a8b9e457404cab39ec2ede8ad08d61e1345f406a029596fa7
+FROM --platform=${BUILDPLATFORM} eclipse-temurin:17.0.14_7-jre-alpine@sha256:865cca6d0b31f284a5fc4e8cbd8f9375f470fd07cf6e909cea62f2790d4187fe
 LABEL maintainer="nagyesta@gmail.com"
 EXPOSE 8080 8443
-ADD lowkey-vault.jar /lowkey-vault.jar
+COPY lowkey-vault.jar /lowkey-vault.jar
 RUN \
   addgroup -S lowkey && adduser -S lowkey -G lowkey && \
   chown -R lowkey:lowkey "/lowkey-vault.jar" && \

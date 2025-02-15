@@ -31,7 +31,7 @@ public class RunParallelCucumberTest extends AbstractTestNGCucumberTests {
     public void beforeSuit() throws InterruptedException {
         new ApacheHttpClientProvider(DEFAULT_CONTAINER_URL)
                 .getLowkeyVaultManagementClient(OBJECT_MAPPER)
-                .verifyConnectivity(30, 200,
+                .verifyConnectivity(300, 200,
                         () -> new AssertionError("Lowkey-Vault instance is not running."));
     }
 

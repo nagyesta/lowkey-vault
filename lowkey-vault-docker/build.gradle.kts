@@ -57,6 +57,7 @@ docker {
     tag("dockerNagyesta", "nagyesta/lowkey-vault:${rootProject.version}")
     setDockerfile(file("src/docker/Dockerfile"))
     files(layout.buildDirectory.file("app/lowkey-vault.jar").get().asFile)
+    buildArgs(mapOf("BUILDPLATFORM" to "linux/amd64"))
     pull(true)
     noCache(true)
 }
@@ -69,7 +70,7 @@ dockerRun {
     image = "lowkey-vault:${rootProject.version}"
     ports("8444:8443")
     daemonize = true
-    arguments("--rm")
+    arguments("--rm", "--platform", "linux/amd64")
     env(mapOf("LOWKEY_ARGS" to "--LOWKEY_DEBUG_REQUEST_LOG=false " +
             "--LOWKEY_VAULT_NAMES=certs-generic,keys-generic,keys-delete,secrets-generic,secrets-delete " +
             "--LOWKEY_VAULT_ALIASES=keys-delete.localhost=keys-alias-delete.localhost:<port>,secrets-delete.localhost=secrets-alias-delete.localhost:<port>"))

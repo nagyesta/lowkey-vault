@@ -34,8 +34,7 @@ permissions: read-all
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    runs-on: "ubuntu-latest"
     steps:
       # Set up build environment
       - name: Checkout

@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificateKeys.*;
+import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.ALL_KEY_OPERATIONS;
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.CERT_NAME_1;
 
 class CertificateImportInputTest {
@@ -171,7 +172,7 @@ class CertificateImportInputTest {
 
         //then
         Assertions.assertEquals(KeyType.RSA, actual.getKeyData().getKeyType());
-        Assertions.assertIterableEquals(Set.of(), actual.getKeyData().getKeyOps());
+        Assertions.assertIterableEquals(ALL_KEY_OPERATIONS, actual.getKeyData().getKeyOps());
         Assertions.assertArrayEquals(RSA_KEY_E, actual.getKeyData().getE());
         Assertions.assertArrayEquals(RSA_KEY_N, actual.getKeyData().getN());
         Assertions.assertArrayEquals(RSA_KEY_D, actual.getKeyData().getD());
@@ -194,7 +195,7 @@ class CertificateImportInputTest {
 
         //then
         Assertions.assertEquals(KeyType.RSA, actual.getKeyData().getKeyType());
-        Assertions.assertIterableEquals(Set.of(), actual.getKeyData().getKeyOps());
+        Assertions.assertIterableEquals(ALL_KEY_OPERATIONS, actual.getKeyData().getKeyOps());
         Assertions.assertArrayEquals(RSA_KEY_E, actual.getKeyData().getE());
         Assertions.assertArrayEquals(RSA_KEY_N, actual.getKeyData().getN());
         Assertions.assertArrayEquals(RSA_KEY_D, actual.getKeyData().getD());

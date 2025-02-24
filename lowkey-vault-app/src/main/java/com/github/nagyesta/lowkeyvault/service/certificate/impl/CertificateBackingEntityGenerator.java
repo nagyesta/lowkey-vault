@@ -17,6 +17,7 @@ import java.security.cert.Certificate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Set;
 
 public class CertificateBackingEntityGenerator {
     private final VaultFake vaultFake;
@@ -30,7 +31,7 @@ public class CertificateBackingEntityGenerator {
         final OffsetDateTime expiry = now.plusMonths(input.getValidityMonths());
         return vaultFake.keyVaultFake().createKeyVersion(input.getName(), KeyCreateDetailedInput.builder()
                 .key(input.toKeyCreationInput())
-                .keyOperations(List.of(KeyOperation.SIGN, KeyOperation.VERIFY))
+                .keyOperations(determineKeyOperations(input))
                 .notBefore(now)
                 .expiresOn(expiry)
                 .enabled(true)
@@ -44,9 +45,12 @@ public class CertificateBackingEntityGenerator {
     }
 
     public VersionedKeyEntityId importKeyPair(
-            final VersionedKeyEntityId kid, final ReadOnlyCertificatePolicy input,
-            final JsonWebKeyImportRequest keyImportRequest, final boolean enabled) {
+            final VersionedKeyEntityId kid,
+            final ReadOnlyCertificatePolicy input,
+            final JsonWebKeyImportRequest keyImportRequest,
+            final boolean enabled) {
         Assert.isTrue(kid.id().equals(input.getName()), "The key id must match the policy name.");
+        keyImportRequest.setKeyOps(determineKeyOperations(input));
         return vaultFake.keyVaultFake().importKeyVersion(kid, KeyImportInput.builder()
                 .key(keyImportRequest)
                 .createdOn(input.getValidityStart())
@@ -58,11 +62,13 @@ public class CertificateBackingEntityGenerator {
                 .build());
     }
 
-    public VersionedSecretEntityId generateSecret(final ReadOnlyCertificatePolicy input,
-                                                  final Certificate certificate,
-                                                  final VersionedKeyEntityId kid,
-                                                  final VersionedSecretEntityId sid) {
-        final KeyPair key = vaultFake.keyVaultFake().getEntities().getEntity(kid, ReadOnlyAsymmetricKeyVaultKeyEntity.class).getKey();
+    public VersionedSecretEntityId generateSecret(
+            final ReadOnlyCertificatePolicy input,
+            final Certificate certificate,
+            final VersionedKeyEntityId kid,
+            final VersionedSecretEntityId sid) {
+        final KeyPair key = vaultFake.keyVaultFake().getEntities()
+                .getEntity(kid, ReadOnlyAsymmetricKeyVaultKeyEntity.class).getKey();
         final String value = input.getContentType().asBase64CertificatePackage(certificate, key);
         final OffsetDateTime start = input.getValidityStart();
         final OffsetDateTime expiry = start.plusMonths(input.getValidityMonths());
@@ -78,13 +84,24 @@ public class CertificateBackingEntityGenerator {
                 .build());
     }
 
-    public void updateSecretValueWithNewCertificate(final CertificatePolicy updated,
-                                                    final Certificate certificate,
-                                                    final VersionedKeyEntityId kid,
-                                                    final VersionedSecretEntityId sid) {
+    public void updateSecretValueWithNewCertificate(
+            final CertificatePolicy updated,
+            final Certificate certificate,
+            final VersionedKeyEntityId kid,
+            final VersionedSecretEntityId sid) {
         final ReadOnlyAsymmetricKeyVaultKeyEntity key = vaultFake.keyVaultFake().getEntities()
                 .getEntity(kid, ReadOnlyAsymmetricKeyVaultKeyEntity.class);
-        final KeyVaultSecretEntity secret = vaultFake.secretVaultFake().getEntities().getEntity(sid, KeyVaultSecretEntity.class);
+        final KeyVaultSecretEntity secret = vaultFake.secretVaultFake().getEntities()
+                .getEntity(sid, KeyVaultSecretEntity.class);
         secret.setValue(updated.getContentType().asBase64CertificatePackage(certificate, key.getKey()));
+    }
+
+    private static List<KeyOperation> determineKeyOperations(final ReadOnlyCertificatePolicy input) {
+        return input.getKeyUsage().stream()
+                .map(KeyUsageEnum::getKeyOperations)
+                .flatMap(Set::stream)
+                .distinct()
+                .sorted()
+                .toList();
     }
 }

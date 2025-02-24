@@ -35,6 +35,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.stream.Stream;
 
+import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.getRandomVaultUri;
 
 @LaunchAbortArmed
@@ -42,9 +43,6 @@ import static com.github.nagyesta.lowkeyvault.TestConstantsUri.getRandomVaultUri
 class KeyControllerIntegrationTest {
 
     private static final byte[] IV = "_iv-param-value_".getBytes(StandardCharsets.UTF_8);
-    private static final int AES_256 = 256;
-    private static final int RSA_2048 = 2048;
-    private static final String SHA_256 = "SHA-256";
 
     @Autowired
     private VaultService vaultService;
@@ -105,7 +103,7 @@ class KeyControllerIntegrationTest {
         //then
         Assertions.assertNotNull(response);
         Assertions.assertNotNull(actual);
-        Assertions.assertEquals(RSA_2048, actual.getKeySize());
+        Assertions.assertEquals(MIN_RSA_KEY_SIZE, actual.getKeySize());
         final byte[] encrypted = actual.encryptBytes(name.getBytes(StandardCharsets.UTF_8), EncryptionAlgorithm.RSA_OAEP_256, null);
         final byte[] decrypted = actual.decryptToBytes(encrypted, EncryptionAlgorithm.RSA_OAEP_256, null);
         Assertions.assertEquals(name, new String(decrypted));

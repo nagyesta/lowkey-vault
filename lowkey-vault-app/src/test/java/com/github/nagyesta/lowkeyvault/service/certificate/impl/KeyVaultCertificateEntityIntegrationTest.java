@@ -6,6 +6,7 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificatePolicyModel;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.SubjectAlternativeNames;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.X509CertificateModel;
+import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.impl.EcKeyCreationInput;
 import com.github.nagyesta.lowkeyvault.service.secret.impl.SecretCreateInput;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
@@ -22,8 +23,7 @@ import java.util.TreeSet;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificateKeys.EMPTY_PASSWORD;
-import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.CERT_NAME_1;
-import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.CERT_NAME_2;
+import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
 import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertAuthorityType.SELF_SIGNED;
 import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertAuthorityType.UNKNOWN;
@@ -79,6 +79,7 @@ class KeyVaultCertificateEntityIntegrationTest {
 
         //when
         final KeyVaultCertificateEntity actual = new KeyVaultCertificateEntity(CERT_NAME_1, input, vault);
+        final ReadOnlyKeyVaultKeyEntity actualKey = vault.keyVaultFake().getEntities().getReadOnlyEntity(actual.getKid());
 
         //then
         Assertions.assertEquals(certificate, actual.getCertificate());
@@ -97,6 +98,7 @@ class KeyVaultCertificateEntityIntegrationTest {
                 new TreeSet<>(originalPolicy.getKeyUsage()));
         Assertions.assertEquals(THIRTY_YEARS_IN_MONTHS, originalPolicy.getValidityMonths());
         Assertions.assertNotNull(actual.getOriginalCertificateContents());
+        Assertions.assertIterableEquals(ALL_KEY_OPERATIONS, actualKey.getOperations());
     }
 
     @Test

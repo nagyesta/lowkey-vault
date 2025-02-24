@@ -33,7 +33,6 @@ import static com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.Recove
 import static com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionActivity.AUTO_RENEW;
 import static com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionTriggerType.DAYS_BEFORE_EXPIRY;
 import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertAuthorityType.UNKNOWN;
-import static com.github.nagyesta.lowkeyvault.service.certificate.impl.KeyVaultCertificateEntityTest.VALIDITY_MONTHS;
 import static org.mockito.Mockito.*;
 
 class CertificateVaultFakeImplTest {
@@ -103,9 +102,9 @@ class CertificateVaultFakeImplTest {
                 .keyType(KeyType.EC)
                 .keyCurveName(KeyCurveName.P_521)
                 .extendedKeyUsage(Set.of("1.3.6.1.5.5.7.3.1", "1.3.6.1.5.5.7.3.2"))
-                .keyUsage(Set.of(KeyUsageEnum.KEY_ENCIPHERMENT))
+                .keyUsage(Set.of(KeyUsageEnum.DIGITAL_SIGNATURE))
                 .reuseKeyOnRenewal(true)
-                .validityMonths(VALIDITY_MONTHS)
+                .validityMonths(VALIDITY_MONTHS_ONE_YEAR)
                 .exportablePrivateKey(true)
                 .build();
 
@@ -413,7 +412,7 @@ class CertificateVaultFakeImplTest {
                 .keyType(KeyType.EC)
                 .keyCurveName(KeyCurveName.P_256)
                 .validityStart(NOW)
-                .validityMonths(VALIDITY_MONTHS)
+                .validityMonths(VALIDITY_MONTHS_ONE_YEAR)
                 .contentType(CertContentType.PEM)
                 .build();
         when(vault.getRecoveryLevel()).thenReturn(RECOVERABLE_AND_PURGEABLE);

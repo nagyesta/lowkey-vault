@@ -78,6 +78,7 @@ public class CertificatesStepDefs extends CommonAssertions {
             policy.setKeyType(CertificateKeyType.EC);
         }
         policy.setKeySize(null);
+        policy.setKeyUsage(CertificateKeyUsage.DIGITAL_SIGNATURE);
         context.setPolicy(policy);
     }
 
@@ -95,7 +96,7 @@ public class CertificatesStepDefs extends CommonAssertions {
     }
 
     @And("the certificate is created with name {name}")
-    public void rsaCertificateCreationRequestIsSentWithName(final String name) {
+    public void certificateCreationRequestIsSentWithName(final String name) {
         final CertificateClient client = context.getClient(context.getCertificateServiceVersion());
         client.beginCreateCertificate(name, context.getPolicy(), true, context.getTags())
                 .waitForCompletion();

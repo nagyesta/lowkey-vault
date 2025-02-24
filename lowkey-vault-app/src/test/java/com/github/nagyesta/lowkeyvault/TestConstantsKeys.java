@@ -17,6 +17,8 @@ public final class TestConstantsKeys {
     //<editor-fold defaultstate="collapsed" desc="Crypto">
     public static final int MIN_RSA_KEY_SIZE = KeyType.RSA.validateOrDefault(null, Integer.class);
     public static final int MIN_AES_KEY_SIZE = KeyType.OCT.validateOrDefault(null, Integer.class);
+    public static final int AES_256 = 256;
+    public static final String SHA_256 = "SHA-256";
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Keys">

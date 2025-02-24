@@ -7,7 +7,6 @@ import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.*;
 import com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionActivity;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.CertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertContentType;
-import com.github.nagyesta.lowkeyvault.service.certificate.impl.KeyUsageEnum;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.secret.ReadOnlyKeyVaultSecretEntity;
@@ -31,25 +30,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.*;
+import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.MIN_RSA_KEY_SIZE;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.getRandomVaultUri;
 
 @SpringBootTest
 class CertificateBackupRestoreControllerIntegrationTest {
 
-    private static final String CN_TEST = "CN=Test";
-    private static final int VALIDITY_MONTHS = 10;
-    private static final Set<String> EXTENDED_KEY_USAGE = Set.of("1.3.6.1.5.5.7.3.1");
-    private static final Set<KeyUsageEnum> KEY_USAGE = Set.of(KeyUsageEnum.ENCIPHER_ONLY, KeyUsageEnum.DECIPHER_ONLY);
-    private static final Set<String> SANS = Set.of("test.com", "test2.com");
-    private static final String SELF = "Self";
-    private static final boolean CERT_TRANSPARENCY = false;
-    private static final String SELF_SIGNED = "SelfSigned";
-    private static final boolean ENABLED = true;
-    private static final int KEY_SIZE = 2048;
-    private static final boolean REUSE_KEY = true;
-    private static final boolean EXPORTABLE = true;
-    private static final int SECONDS_IN_FIVE_DAYS = 5 * 24 * 60 * 60;
-    private static final String CERTIFICATE_BACKUP_TEST = "certificate-backup-test";
     @Autowired
     private VaultService vaultService;
     @Autowired
@@ -111,10 +98,10 @@ class CertificateBackupRestoreControllerIntegrationTest {
         final CertificatePolicyModel policy = new CertificatePolicyModel();
         final X509CertificateModel x509 = new X509CertificateModel();
         x509.setSubject(CN_TEST);
-        x509.setValidityMonths(VALIDITY_MONTHS);
-        x509.setKeyUsage(KEY_USAGE);
+        x509.setValidityMonths(VALIDITY_TEN_MONTHS);
+        x509.setKeyUsage(KEY_USAGE_ENCIPHER_ONLY_DECIPHER_ONLY);
         x509.setExtendedKeyUsage(EXTENDED_KEY_USAGE);
-        x509.setSubjectAlternativeNames(new SubjectAlternativeNames(SANS, Set.of(), Set.of()));
+        x509.setSubjectAlternativeNames(new SubjectAlternativeNames(SANS_TEST_COM_AND_TEST2_COM, Set.of(), Set.of()));
         policy.setX509Properties(x509);
 
         final IssuerParameterModel issuer = new IssuerParameterModel();
@@ -132,7 +119,7 @@ class CertificateBackupRestoreControllerIntegrationTest {
         policy.setSecretProperties(secret);
 
         final CertificateKeyModel key = new CertificateKeyModel();
-        key.setKeySize(KEY_SIZE);
+        key.setKeySize(MIN_RSA_KEY_SIZE);
         key.setReuseKey(REUSE_KEY);
         key.setKeyType(KeyType.RSA);
         key.setExportable(EXPORTABLE);

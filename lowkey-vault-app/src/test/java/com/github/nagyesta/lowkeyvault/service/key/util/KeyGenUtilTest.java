@@ -22,21 +22,21 @@ import java.security.spec.RSAKeyGenParameterSpec;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-class KeyGenUtilTest {
+import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.MIN_AES_KEY_SIZE;
+import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.MIN_RSA_KEY_SIZE;
 
-    private static final int AES_128 = 128;
-    private static final int RSA_2048 = 2048;
+class KeyGenUtilTest {
 
     public static Stream<Arguments> symmetricProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, AES_128))
+                .add(Arguments.of(null, MIN_AES_KEY_SIZE))
                 .add(Arguments.of(KeyType.OCT_HSM.getAlgorithmName(), 1))
                 .build();
     }
 
     public static Stream<Arguments> asymmetricProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, RSA_2048))
+                .add(Arguments.of(null, MIN_RSA_KEY_SIZE))
                 .add(Arguments.of(KeyType.RSA.getAlgorithmName(), 0))
                 .build();
     }
@@ -87,7 +87,7 @@ class KeyGenUtilTest {
         //given
 
         //when
-        final KeyPair actual = KeyGenUtil.generateRsa(RSA_2048, null);
+        final KeyPair actual = KeyGenUtil.generateRsa(MIN_RSA_KEY_SIZE, null);
 
         //then
         Assertions.assertNotNull(actual);
@@ -113,7 +113,7 @@ class KeyGenUtilTest {
         //given
 
         //when
-        final SecretKey actual = KeyGenUtil.generateAes(AES_128);
+        final SecretKey actual = KeyGenUtil.generateAes(MIN_AES_KEY_SIZE);
 
         //then
         Assertions.assertNotNull(actual);

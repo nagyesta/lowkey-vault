@@ -3,6 +3,7 @@ package com.github.nagyesta.lowkeyvault.service.certificate.impl;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
 import org.bouncycastle.asn1.x509.KeyUsage;
 
 import java.util.Arrays;
@@ -21,48 +22,50 @@ public enum KeyUsageEnum {
     /**
      * Digital signature key usage.
      */
-    DIGITAL_SIGNATURE("digitalSignature", KeyUsage.digitalSignature, 0),
+    DIGITAL_SIGNATURE("digitalSignature", KeyUsage.digitalSignature, 0, KeyOps.SIGN_VERIFY),
     /**
      * Non repudiation key usage.
      */
-    NON_REPUDIATION("nonRepudiation", KeyUsage.nonRepudiation, 1),
+    NON_REPUDIATION("nonRepudiation", KeyUsage.nonRepudiation, 1, KeyOps.SIGN_VERIFY),
     /**
      * Key encipherment key usage.
      */
-    KEY_ENCIPHERMENT("keyEncipherment", KeyUsage.keyEncipherment, 2),
+    KEY_ENCIPHERMENT("keyEncipherment", KeyUsage.keyEncipherment, 2, KeyOps.ENCRYPT_DECRYPT),
     /**
      * Data encipherment key usage.
      */
-    DATA_ENCIPHERMENT("dataEncipherment", KeyUsage.dataEncipherment, 3),
+    DATA_ENCIPHERMENT("dataEncipherment", KeyUsage.dataEncipherment, 3, KeyOps.ENCRYPT_DECRYPT),
     /**
      * Key agreement key usage.
      */
-    KEY_AGREEMENT("keyAgreement", KeyUsage.keyAgreement, 4),
+    KEY_AGREEMENT("keyAgreement", KeyUsage.keyAgreement, 4, KeyOps.SIGN_VERIFY),
     /**
      * Key certificate sign key usage.
      */
-    KEY_CERT_SIGN("keyCertSign", KeyUsage.keyCertSign, 5),
+    KEY_CERT_SIGN("keyCertSign", KeyUsage.keyCertSign, 5, KeyOps.SIGN_VERIFY),
     /**
      * CRL sign key usage.
      */
-    CRL_SIGN("cRLSign", KeyUsage.cRLSign, 6),
+    CRL_SIGN("cRLSign", KeyUsage.cRLSign, 6, KeyOps.SIGN_VERIFY),
     /**
      * Encipher only key usage.
      */
-    ENCIPHER_ONLY("encipherOnly", KeyUsage.encipherOnly, 7),
+    ENCIPHER_ONLY("encipherOnly", KeyUsage.encipherOnly, 7, KeyOps.ENCRYPT_DECRYPT),
     /**
      * Decipher only key usage.
      */
-    DECIPHER_ONLY("decipherOnly", KeyUsage.decipherOnly, 8);
+    DECIPHER_ONLY("decipherOnly", KeyUsage.decipherOnly, 8, KeyOps.ENCRYPT_DECRYPT);
 
     private final String value;
     private final int code;
     private final int position;
+    private final Set<KeyOperation> keyOperations;
 
-    KeyUsageEnum(final String value, final int code, final int position) {
+    KeyUsageEnum(final String value, final int code, final int position, final Set<KeyOperation> keyOperations) {
         this.value = value;
         this.code = code;
         this.position = position;
+        this.keyOperations = Set.copyOf(keyOperations);
     }
 
     @JsonValue
@@ -73,6 +76,11 @@ public enum KeyUsageEnum {
     @JsonIgnore
     public int getCode() {
         return code;
+    }
+
+    @JsonIgnore
+    public Set<KeyOperation> getKeyOperations() {
+        return keyOperations;
     }
 
     @JsonIgnore
@@ -121,5 +129,12 @@ public enum KeyUsageEnum {
         public Set<Characteristics> characteristics() {
             return Set.of(Characteristics.UNORDERED);
         }
+    }
+
+    private static final class KeyOps {
+        public static final Set<KeyOperation>
+                SIGN_VERIFY = Set.of(KeyOperation.SIGN, KeyOperation.VERIFY);
+        public static final Set<KeyOperation>
+                ENCRYPT_DECRYPT = Set.of(KeyOperation.ENCRYPT, KeyOperation.DECRYPT, KeyOperation.WRAP_KEY, KeyOperation.UNWRAP_KEY);
     }
 }

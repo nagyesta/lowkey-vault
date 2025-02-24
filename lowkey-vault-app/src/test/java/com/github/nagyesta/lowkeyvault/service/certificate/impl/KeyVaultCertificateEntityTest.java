@@ -2,6 +2,7 @@ package com.github.nagyesta.lowkeyvault.service.certificate.impl;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificateRestoreInput;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
@@ -11,6 +12,8 @@ import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
+import com.github.nagyesta.lowkeyvault.service.key.impl.EcKeyVaultKeyEntity;
+import com.github.nagyesta.lowkeyvault.service.key.impl.RsaKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.secret.ReadOnlyKeyVaultSecretEntity;
 import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultFake;
 import com.github.nagyesta.lowkeyvault.service.secret.id.SecretEntityId;
@@ -23,20 +26,20 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
-import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.CERT_NAME_1;
-import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.VERSIONED_CERT_ENTITY_ID_1_VERSION_1;
+import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.*;
+import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.MIN_RSA_KEY_SIZE;
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
+import static com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation.*;
 import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertAuthorityType.UNKNOWN;
 import static org.mockito.Mockito.*;
 
 class KeyVaultCertificateEntityTest {
-
-    public static final int VALIDITY_MONTHS = 12;
 
     public static Stream<Arguments> nullProvider() {
         return Stream.<Arguments>builder()
@@ -190,9 +193,9 @@ class KeyVaultCertificateEntityTest {
                 .keyType(KeyType.EC)
                 .keyCurveName(KeyCurveName.P_521)
                 .extendedKeyUsage(Set.of("1.3.6.1.5.5.7.3.1", "1.3.6.1.5.5.7.3.2"))
-                .keyUsage(Set.of(KeyUsageEnum.KEY_ENCIPHERMENT))
+                .keyUsage(Set.of(KeyUsageEnum.DIGITAL_SIGNATURE))
                 .reuseKeyOnRenewal(true)
-                .validityMonths(VALIDITY_MONTHS)
+                .validityMonths(VALIDITY_MONTHS_ONE_YEAR)
                 .exportablePrivateKey(true)
                 .build();
 
@@ -211,6 +214,76 @@ class KeyVaultCertificateEntityTest {
     }
 
     @Test
+    void testConstructorShouldSetKeyOperationsWhenCalledWithValidEcInput() {
+        //given
+        final CertificateCreationInput input = CertificateCreationInput.builder()
+                .validityStart(NOW)
+                .subject("CN=" + LOCALHOST)
+                .upns(Set.of(LOOP_BACK_IP))
+                .name(CERT_NAME_1)
+                .dnsNames(Set.of(LOWKEY_VAULT))
+                .enableTransparency(false)
+                .certAuthorityType(UNKNOWN)
+                .contentType(CertContentType.PEM)
+                .certificateType(null)
+                .keyType(KeyType.EC)
+                .keyCurveName(KeyCurveName.P_521)
+                .extendedKeyUsage(Set.of("1.3.6.1.5.5.7.3.1", "1.3.6.1.5.5.7.3.2"))
+                .keyUsage(Set.of(KeyUsageEnum.DIGITAL_SIGNATURE))
+                .reuseKeyOnRenewal(true)
+                .validityMonths(VALIDITY_MONTHS_ONE_YEAR)
+                .exportablePrivateKey(true)
+                .build();
+
+        final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
+
+        //when
+        final KeyVaultCertificateEntity entity = new KeyVaultCertificateEntity(CERT_NAME_1, input, vault);
+
+        //then
+        final List<KeyOperation> actual = vault.keyVaultFake()
+                .getEntities()
+                .getEntity(entity.getKid(), EcKeyVaultKeyEntity.class)
+                .getOperations();
+        Assertions.assertIterableEquals(List.of(SIGN, VERIFY), actual);
+    }
+
+    @Test
+    void testConstructorShouldSetKeyOperationsWhenCalledWithValidRsaInput() {
+        //given
+        final CertificateCreationInput input = CertificateCreationInput.builder()
+                .validityStart(NOW)
+                .subject("CN=" + LOCALHOST)
+                .upns(Set.of(LOOP_BACK_IP))
+                .name(CERT_NAME_1)
+                .dnsNames(Set.of(LOWKEY_VAULT))
+                .enableTransparency(false)
+                .certAuthorityType(UNKNOWN)
+                .contentType(CertContentType.PEM)
+                .certificateType(null)
+                .keyType(KeyType.RSA)
+                .keySize(MIN_RSA_KEY_SIZE)
+                .extendedKeyUsage(Set.of("1.3.6.1.5.5.7.3.1", "1.3.6.1.5.5.7.3.2"))
+                .keyUsage(Set.of(KeyUsageEnum.KEY_ENCIPHERMENT))
+                .reuseKeyOnRenewal(true)
+                .validityMonths(VALIDITY_MONTHS_ONE_YEAR)
+                .exportablePrivateKey(true)
+                .build();
+
+        final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
+
+        //when
+        final KeyVaultCertificateEntity entity = new KeyVaultCertificateEntity(CERT_NAME_1, input, vault);
+
+        //then
+        final List<KeyOperation> actual = vault.keyVaultFake()
+                .getEntities()
+                .getEntity(entity.getKid(), RsaKeyVaultKeyEntity.class)
+                .getOperations();
+        Assertions.assertIterableEquals(List.of(ENCRYPT, DECRYPT, WRAP_KEY, UNWRAP_KEY), actual);
+    }
+
+    @Test
     void testConstructorShouldGenerateCsrWhenCalledWithValidInput() {
         //given
         final CertificateCreationInput input = CertificateCreationInput.builder()
@@ -226,9 +299,9 @@ class KeyVaultCertificateEntityTest {
                 .keyType(KeyType.EC)
                 .keyCurveName(KeyCurveName.P_521)
                 .extendedKeyUsage(Set.of("1.3.6.1.5.5.7.3.1", "1.3.6.1.5.5.7.3.2"))
-                .keyUsage(Set.of(KeyUsageEnum.KEY_ENCIPHERMENT))
+                .keyUsage(Set.of(KeyUsageEnum.DIGITAL_SIGNATURE))
                 .reuseKeyOnRenewal(true)
-                .validityMonths(VALIDITY_MONTHS)
+                .validityMonths(VALIDITY_MONTHS_ONE_YEAR)
                 .exportablePrivateKey(true)
                 .build();
 
@@ -257,9 +330,9 @@ class KeyVaultCertificateEntityTest {
                 .keyType(KeyType.EC)
                 .keyCurveName(KeyCurveName.P_521)
                 .extendedKeyUsage(Set.of("1.3.6.1.5.5.7.3.1", "1.3.6.1.5.5.7.3.2"))
-                .keyUsage(Set.of(KeyUsageEnum.KEY_ENCIPHERMENT))
+                .keyUsage(Set.of(KeyUsageEnum.DIGITAL_SIGNATURE))
                 .reuseKeyOnRenewal(true)
-                .validityMonths(VALIDITY_MONTHS)
+                .validityMonths(VALIDITY_MONTHS_ONE_YEAR)
                 .exportablePrivateKey(true)
                 .build();
 
@@ -290,9 +363,9 @@ class KeyVaultCertificateEntityTest {
                 .keyType(KeyType.EC)
                 .keyCurveName(KeyCurveName.P_521)
                 .extendedKeyUsage(Set.of("1.3.6.1.5.5.7.3.1", "1.3.6.1.5.5.7.3.2"))
-                .keyUsage(Set.of(KeyUsageEnum.KEY_ENCIPHERMENT))
+                .keyUsage(Set.of(KeyUsageEnum.DIGITAL_SIGNATURE))
                 .reuseKeyOnRenewal(true)
-                .validityMonths(VALIDITY_MONTHS)
+                .validityMonths(VALIDITY_MONTHS_ONE_YEAR)
                 .exportablePrivateKey(true)
                 .build();
 
@@ -322,9 +395,9 @@ class KeyVaultCertificateEntityTest {
                 .keyType(KeyType.EC)
                 .keyCurveName(KeyCurveName.P_521)
                 .extendedKeyUsage(Set.of("1.3.6.1.5.5.7.3.1", "1.3.6.1.5.5.7.3.2"))
-                .keyUsage(Set.of(KeyUsageEnum.KEY_ENCIPHERMENT))
+                .keyUsage(Set.of(KeyUsageEnum.DIGITAL_SIGNATURE))
                 .reuseKeyOnRenewal(true)
-                .validityMonths(VALIDITY_MONTHS)
+                .validityMonths(VALIDITY_MONTHS_ONE_YEAR)
                 .exportablePrivateKey(true)
                 .build();
 

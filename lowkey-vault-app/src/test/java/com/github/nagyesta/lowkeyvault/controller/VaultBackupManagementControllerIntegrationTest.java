@@ -38,6 +38,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.Set;
 
+import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.ALL_KEY_OPERATIONS;
+
 @LaunchAbortArmed
 @SpringBootTest(properties = {"LOWKEY_VAULT_NAMES=-"}, classes = VaultBackupConfiguration.class)
 @ActiveProfiles("vault")
@@ -59,10 +61,13 @@ class VaultBackupManagementControllerIntegrationTest {
     private static final String CERTIFICATE_VERSION = "6ae160e0bddc486691653798e41abee0";
     private static final VersionedCertificateEntityId VERSIONED_CERTIFICATE_ENTITY_ID =
             new VersionedCertificateEntityId(BASE_URI, TEST_CERTIFICATE, CERTIFICATE_VERSION);
+    private static final VersionedKeyEntityId VERSIONED_CERTIFICATE_MANAGED_KEY_ENTITY_ID =
+            new VersionedKeyEntityId(BASE_URI, TEST_CERTIFICATE, CERTIFICATE_VERSION);
     private static final String SECRET_VALUE = "$3cret";
     private static final int EXPECTED_KEY_SIZE = 2048;
     private static final String EXPECTED_SANS = "*.example.com";
     private static final String EXPECTED_SUBJECT = "CN=example.com";
+
     @Autowired
     private VaultService vaultService;
     @Autowired
@@ -114,6 +119,11 @@ class VaultBackupManagementControllerIntegrationTest {
         Assertions.assertIterableEquals(Set.of(EXPECTED_SANS), certificatePolicy.getDnsNames());
         Assertions.assertEquals(EXPECTED_KEY_SIZE, certificatePolicy.getKeySize());
         Assertions.assertEquals(KeyType.RSA, certificatePolicy.getKeyType());
+        //- managed key
+        final ReadOnlyKeyVaultKeyEntity readOnlyKeyEntityManaged = keyVaultFake.getEntities()
+                .getReadOnlyEntity(VERSIONED_CERTIFICATE_MANAGED_KEY_ENTITY_ID);
+        Assertions.assertEquals(VERSIONED_CERTIFICATE_MANAGED_KEY_ENTITY_ID, readOnlyKeyEntityManaged.getId());
+        Assertions.assertIterableEquals(ALL_KEY_OPERATIONS, readOnlyKeyEntityManaged.getOperations());
     }
 
     @Test

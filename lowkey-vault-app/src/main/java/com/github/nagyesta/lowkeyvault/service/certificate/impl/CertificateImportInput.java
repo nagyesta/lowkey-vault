@@ -16,6 +16,7 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import static com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionActivity.EMAIL_CONTACTS;
@@ -43,6 +44,10 @@ public class CertificateImportInput {
         this.keyData = contentType.getKey(certificateContent, password);
         this.policyModel = policyModel;
         this.parsedCertificateData = parsedInputBuilder(name, contentType, certificate, keyData, policyModel).build();
+        this.keyData.setKeyOps(this.parsedCertificateData.getKeyUsage().stream()
+                .map(KeyUsageEnum::getKeyOperations)
+                .flatMap(Set::stream)
+                .distinct().sorted().toList());
         this.certificateData = mergePolicies(this.parsedCertificateData, policyModel);
         final CertAuthorityType certAuthorityType = Optional.ofNullable(policyModel.getIssuer())
                 .map(IssuerParameterModel::getIssuer)

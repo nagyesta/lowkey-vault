@@ -22,6 +22,7 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.MIN_RSA_KEY_SIZE;
 import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertContentType.PEM;
 import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertContentType.PKCS12;
 import static org.mockito.Mockito.mock;
@@ -58,7 +59,6 @@ class CertContentTypeTest {
             /eGSDWHJ20KDyt98c7QJIjt87KIh3jd1WRzeRZ7YWWdRxigerYlupO2iFSr28seB\
             NjuCqPwdGwuYHGe/SskEqjVYxFoFknPhsn5Y64b1RuJe19qjewYl0NBmBjiEexY1\
             Tg/nnzqHPv4GAnWcp4e9IOAB00LfXwFj4D/lTOuGpdUFeIhjN0dx""";
-    private static final int KEY_SIZE = 2048;
     @SuppressWarnings("SpellCheckingInspection")
     private static final String MIME_BASE64 = """
             TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdCwg\r
@@ -446,7 +446,7 @@ class CertContentTypeTest {
     @Test
     void testCertificatePackageForBackupShouldThrowExceptionWhenCalledWithValidKeyAndNullCertificateUsingPkcs12Store() {
         //given
-        final KeyPair keyPair = KeyGenUtil.generateRsa(KEY_SIZE, null);
+        final KeyPair keyPair = KeyGenUtil.generateRsa(MIN_RSA_KEY_SIZE, null);
         final CertContentType underTest = PKCS12;
 
         //when
@@ -459,7 +459,7 @@ class CertContentTypeTest {
     void testCertificatePackageForBackupShouldThrowExceptionWhenCalledWithValidKeyAndInvalidCertificateUsingPkcs12Store() {
         //given
         final Certificate certificate = mock(Certificate.class);
-        final KeyPair keyPair = KeyGenUtil.generateRsa(KEY_SIZE, null);
+        final KeyPair keyPair = KeyGenUtil.generateRsa(MIN_RSA_KEY_SIZE, null);
         final CertContentType underTest = PKCS12;
 
         //when

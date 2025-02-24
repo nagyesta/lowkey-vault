@@ -43,6 +43,7 @@ public class KeyVaultCertificateEntity
     private final String originalCertificateContents;
     private CertificatePolicy issuancePolicy;
     private PKCS10CertificationRequest csr;
+
     /**
      * Constructor for certificate creation.
      *
@@ -50,9 +51,10 @@ public class KeyVaultCertificateEntity
      * @param input The input parameters.
      * @param vault The vault we need to use.
      */
-    public KeyVaultCertificateEntity(@NonNull final String name,
-                                     @NonNull final CertificateCreationInput input,
-                                     @org.springframework.lang.NonNull final VaultFake vault) {
+    public KeyVaultCertificateEntity(
+            @NonNull final String name,
+            @NonNull final CertificateCreationInput input,
+            @org.springframework.lang.NonNull final VaultFake vault) {
         super(vault);
         Assert.state(name.equals(input.getName()),
                 "Certificate name (" + name + ") did not match name from certificate creation input: " + input.getName());
@@ -82,9 +84,10 @@ public class KeyVaultCertificateEntity
      * @param input The input parameters.
      * @param vault The vault we need to use.
      */
-    public KeyVaultCertificateEntity(@NonNull final String name,
-                                     @NonNull final CertificateImportInput input,
-                                     @org.springframework.lang.NonNull final VaultFake vault) {
+    public KeyVaultCertificateEntity(
+            @NonNull final String name,
+            @NonNull final CertificateImportInput input,
+            @org.springframework.lang.NonNull final VaultFake vault) {
         super(vault);
         final ReadOnlyCertificatePolicy policy = Optional.ofNullable(input.getCertificateData())
                 .orElseThrow(() -> new IllegalArgumentException("Certificate data must not be null."));
@@ -122,10 +125,11 @@ public class KeyVaultCertificateEntity
      * @param id    The ID of the new certificate entity.
      * @param vault The vault we are using.
      */
-    public KeyVaultCertificateEntity(@NonNull final ReadOnlyCertificatePolicy input,
-                                     @NonNull final VersionedKeyEntityId kid,
-                                     @NonNull final VersionedCertificateEntityId id,
-                                     @org.springframework.lang.NonNull final VaultFake vault) {
+    public KeyVaultCertificateEntity(
+            @NonNull final ReadOnlyCertificatePolicy input,
+            @NonNull final VersionedKeyEntityId kid,
+            @NonNull final VersionedCertificateEntityId id,
+            @org.springframework.lang.NonNull final VaultFake vault) {
         super(vault);
         Assert.state(vault.keyVaultFake().getEntities().containsEntity(kid),
                 "Key must exist to be able to renew certificate using it. " + kid.asUriNoVersion(vault.baseUri()));
@@ -150,13 +154,14 @@ public class KeyVaultCertificateEntity
     /**
      * Constructor for certificate restore.
      *
-     * @param id  The id of the certificate entity.
+     * @param id    The id of the certificate entity.
      * @param input The input parameters.
      * @param vault The vault we need to use.
      */
-    public KeyVaultCertificateEntity(@NonNull final VersionedCertificateEntityId id,
-                                     @NonNull final CertificateRestoreInput input,
-                                     @org.springframework.lang.NonNull final VaultFake vault) {
+    public KeyVaultCertificateEntity(
+            @NonNull final VersionedCertificateEntityId id,
+            @NonNull final CertificateRestoreInput input,
+            @org.springframework.lang.NonNull final VaultFake vault) {
         super(vault);
         final ReadOnlyCertificatePolicy policy = input.getCertificateData();
         final ReadOnlyCertificatePolicy originalCertificateData = input.getParsedCertificateData();

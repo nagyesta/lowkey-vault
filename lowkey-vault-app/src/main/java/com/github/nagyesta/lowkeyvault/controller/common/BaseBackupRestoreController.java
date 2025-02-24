@@ -49,9 +49,10 @@ public abstract class BaseBackupRestoreController<K extends EntityId, V extends 
         R extends BaseEntityConverterRegistry<K, V, E, M, DM, PM, I, DI, BLI, BL, B>>
         extends GenericEntityController<K, V, E, M, DM, I, DI, MC, IC, VIC, S, PM, BLI, BL, B, R> {
 
-    protected BaseBackupRestoreController(@NonNull final R registry,
-                                          @NonNull final VaultService vaultService,
-                                          @NonNull final Function<VaultFake, S> toEntityVault) {
+    protected BaseBackupRestoreController(
+            @NonNull final R registry,
+            @NonNull final VaultService vaultService,
+            @NonNull final Function<VaultFake, S> toEntityVault) {
         super(registry, vaultService, toEntityVault);
     }
 

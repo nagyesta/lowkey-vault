@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.controller.common.util;
 
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.*;
 import com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionActivity;
 import com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionTrigger;
@@ -85,7 +86,7 @@ public final class CertificateRequestMapperUtil {
                 .dnsNames(sans.map(SubjectAlternativeNames::dnsNames).orElse(Set.of()))
                 .emails(sans.map(SubjectAlternativeNames::emails).orElse(Set.of()))
                 .upns(sans.map(SubjectAlternativeNames::upns).orElse(Set.of()))
-                .keyUsage(Objects.requireNonNullElse(x509Properties.getKeyUsage(), DEFAULT_KEY_USAGES))
+                .keyUsage(Objects.requireNonNullElse(x509Properties.getKeyUsage(), getDefaultUsage(keyProperties.getKeyType())))
                 .extendedKeyUsage(Objects.requireNonNullElse(x509Properties.getExtendedKeyUsage(), DEFAULT_EXT_KEY_USAGES))
                 .validityMonths(Objects.requireNonNullElse(x509Properties.getValidityMonths(), DEFAULT_VALIDITY_MONTHS))
                 .validityStart(OffsetDateTime.now())
@@ -108,6 +109,16 @@ public final class CertificateRequestMapperUtil {
             final List<CertificateLifetimeActionModel> actions) {
         return actions.stream().collect(Collectors
                 .toMap(CertificateLifetimeActionModel::getAction, c -> c.getTrigger().asTriggerEntity()));
+    }
+
+    private static Set<KeyUsageEnum> getDefaultUsage(final KeyType keyType) {
+        if (keyType.isRsa()) {
+            return DEFAULT_RSA_KEY_USAGES;
+        } else if (keyType.isEc()) {
+            return DEFAULT_EC_KEY_USAGES;
+        } else {
+            throw new IllegalArgumentException("Unsupported key type: " + keyType);
+        }
     }
 
     private static CertificatePropertiesModel defaultIfNull(final CertificatePropertiesModel model) {

@@ -24,6 +24,7 @@ import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.CERT_NAM
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.CERT_NAME_3;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.getRandomVaultUri;
 import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.V_7_3;
+import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateCreationInput.*;
 import static org.springframework.http.HttpStatus.OK;
 
 @LaunchAbortArmed
@@ -132,7 +133,10 @@ class CertificatePolicyControllerIntegrationTest extends BaseCertificateControll
                 .asPolicyUri(VAULT_URI_1);
         Assertions.assertEquals(request.getPolicy().getSecretProperties(), body.getSecretProperties());
         Assertions.assertEquals(request.getPolicy().getKeyProperties(), body.getKeyProperties());
-        Assertions.assertEquals(request.getPolicy().getX509Properties(), body.getX509Properties());
+        final X509CertificateModel x509Properties = request.getPolicy().getX509Properties();
+        x509Properties.setExtendedKeyUsage(DEFAULT_EXT_KEY_USAGES);
+        x509Properties.setKeyUsage(DEFAULT_EC_KEY_USAGES);
+        Assertions.assertEquals(x509Properties, body.getX509Properties());
         Assertions.assertTrue(body.getAttributes().isEnabled());
         Assertions.assertNull(body.getAttributes().getRecoveryLevel());
         Assertions.assertEquals(id.toString(), body.getId());
@@ -161,7 +165,10 @@ class CertificatePolicyControllerIntegrationTest extends BaseCertificateControll
                 .asPolicyUri(VAULT_URI_1);
         Assertions.assertEquals(update.getSecretProperties(), body.getSecretProperties());
         Assertions.assertEquals(update.getKeyProperties(), body.getKeyProperties());
-        Assertions.assertEquals(update.getX509Properties(), body.getX509Properties());
+        final X509CertificateModel x509Properties = update.getX509Properties();
+        x509Properties.setExtendedKeyUsage(DEFAULT_EXT_KEY_USAGES);
+        x509Properties.setKeyUsage(DEFAULT_RSA_KEY_USAGES);
+        Assertions.assertEquals(x509Properties, body.getX509Properties());
         Assertions.assertTrue(body.getAttributes().isEnabled());
         Assertions.assertNull(body.getAttributes().getRecoveryLevel());
         Assertions.assertEquals(id.toString(), body.getId());
@@ -181,8 +188,6 @@ class CertificatePolicyControllerIntegrationTest extends BaseCertificateControll
         x509Properties.setSubject("CN=localhost");
         x509Properties.setValidityMonths(1);
         x509Properties.setSubjectAlternativeNames(new SubjectAlternativeNames(Set.of("example.com", "*.example.com"), Set.of(), Set.of()));
-        x509Properties.setKeyUsage(Set.of());
-        x509Properties.setExtendedKeyUsage(Set.of());
 
         final CertificatePolicyModel policy = new CertificatePolicyModel();
         policy.setKeyProperties(keyProperties);

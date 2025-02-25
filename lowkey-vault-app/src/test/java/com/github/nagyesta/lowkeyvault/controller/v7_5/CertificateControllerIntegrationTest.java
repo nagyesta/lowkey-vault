@@ -37,6 +37,8 @@ import static com.github.nagyesta.lowkeyvault.TestConstantsUri.getRandomVaultUri
 import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.V_7_5;
 import static com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionActivity.AUTO_RENEW;
 import static com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionActivity.EMAIL_CONTACTS;
+import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateCreationInput.DEFAULT_EC_KEY_USAGES;
+import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateCreationInput.DEFAULT_EXT_KEY_USAGES;
 import static org.springframework.http.HttpStatus.*;
 
 @LaunchAbortArmed
@@ -672,7 +674,10 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
         Assertions.assertEquals(id.toString(), body.getId());
         Assertions.assertEquals(request.getPolicy().getSecretProperties(), body.getPolicy().getSecretProperties());
         Assertions.assertEquals(request.getPolicy().getKeyProperties(), body.getPolicy().getKeyProperties());
-        Assertions.assertEquals(request.getPolicy().getX509Properties(), body.getPolicy().getX509Properties());
+        final X509CertificateModel x509Properties = request.getPolicy().getX509Properties();
+        x509Properties.setExtendedKeyUsage(DEFAULT_EXT_KEY_USAGES);
+        x509Properties.setKeyUsage(DEFAULT_EC_KEY_USAGES);
+        Assertions.assertEquals(x509Properties, body.getPolicy().getX509Properties());
         Assertions.assertTrue(body.getAttributes().isEnabled());
         Assertions.assertTrue(body.getAttributes().getRecoveryLevel().isPurgeable());
         Assertions.assertTrue(body.getAttributes().getRecoveryLevel().isRecoverable());

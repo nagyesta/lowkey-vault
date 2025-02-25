@@ -14,8 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.net.URI;
 import java.util.Set;
 
+import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.VALIDITY_MONTHS_ONE_YEAR;
+
 public class BaseCertificateControllerIntegrationTest {
-    private static final int VALIDITY_MONTHS = 12;
     @Autowired
     private VaultService vaultService;
 
@@ -46,10 +47,8 @@ public class BaseCertificateControllerIntegrationTest {
 
         final X509CertificateModel x509Properties = new X509CertificateModel();
         x509Properties.setSubject("CN=example.com");
-        x509Properties.setValidityMonths(VALIDITY_MONTHS);
+        x509Properties.setValidityMonths(VALIDITY_MONTHS_ONE_YEAR);
         x509Properties.setSubjectAlternativeNames(new SubjectAlternativeNames(Set.of("*.example.com"), Set.of(), Set.of()));
-        x509Properties.setKeyUsage(Set.of());
-        x509Properties.setExtendedKeyUsage(Set.of());
 
         final CertificatePolicyModel policy = new CertificatePolicyModel();
         policy.setKeyProperties(keyProperties);

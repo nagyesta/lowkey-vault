@@ -17,9 +17,13 @@ public class CertificateCreationInput implements ReadOnlyCertificatePolicy {
      */
     public static final int DEFAULT_VALIDITY_MONTHS = 12;
     /**
-     * Default key usages in case it is not populated during create certificate.
+     * Default key usages in case it is not populated during create certificate in case of EC keys.
      */
-    public static final Set<KeyUsageEnum> DEFAULT_KEY_USAGES = Set.of(KeyUsageEnum.DIGITAL_SIGNATURE, KeyUsageEnum.KEY_ENCIPHERMENT);
+    public static final Set<KeyUsageEnum> DEFAULT_EC_KEY_USAGES = Set.of(KeyUsageEnum.DIGITAL_SIGNATURE);
+    /**
+     * Default key usages in case it is not populated during create certificate in case of RSA keys.
+     */
+    public static final Set<KeyUsageEnum> DEFAULT_RSA_KEY_USAGES = Set.of(KeyUsageEnum.DIGITAL_SIGNATURE, KeyUsageEnum.KEY_ENCIPHERMENT);
     /**
      * Default extended key usages in case it is not populated during create certificate.
      */

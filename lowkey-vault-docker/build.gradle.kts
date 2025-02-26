@@ -1,8 +1,6 @@
 plugins {
     id("java")
     alias(libs.plugins.abort.mission)
-    alias(libs.plugins.docker)
-    alias(libs.plugins.docker.run)
 }
 
 version = rootProject.version
@@ -40,11 +38,11 @@ java {
     withSourcesJar()
 }
 
-tasks.register<Copy>("copyAppJar") {
+var copyAppJar = tasks.register<Copy>("copyAppJar") {
     inputs.file(rootProject.project(":lowkey-vault-app").tasks.named("bootJar").get().outputs.files.singleFile)
-    outputs.file(layout.buildDirectory.file("app/lowkey-vault.jar").get().asFile)
+    outputs.file(layout.buildDirectory.file("docker/lowkey-vault.jar").get().asFile)
     from(rootProject.project(":lowkey-vault-app").tasks.named("bootJar").get().outputs.files.singleFile)
-    into(layout.buildDirectory.dir("app/").get().asFile)
+    into(layout.buildDirectory.dir("docker/").get().asFile)
     rename {
         "lowkey-vault.jar"
     }
@@ -52,30 +50,63 @@ tasks.register<Copy>("copyAppJar") {
     dependsOn(":lowkey-vault-app:test")
 }
 
-docker {
-    name = "lowkey-vault:${rootProject.version}"
-    tag("dockerNagyesta", "nagyesta/lowkey-vault:${rootProject.version}")
-    setDockerfile(file("src/docker/Dockerfile"))
-    files(layout.buildDirectory.file("app/lowkey-vault.jar").get().asFile)
-    buildArgs(mapOf("BUILDPLATFORM" to "linux/amd64"))
-    pull(true)
-    noCache(true)
+var copyDockerFile = tasks.register<Copy>("copyDockerFile") {
+    inputs.file(file("src/docker/Dockerfile"))
+    outputs.file(layout.buildDirectory.file("docker/Dockerfile").get().asFile)
+    from(file("src/docker/Dockerfile"))
+    into(layout.buildDirectory.dir("docker/").get().asFile)
+    dependsOn(copyAppJar)
 }
-tasks.getByName("dockerPrepare").inputs.file(layout.buildDirectory.file("app/lowkey-vault.jar").get().asFile)
-tasks.getByName("dockerPrepare").dependsOn(tasks.getByName("copyAppJar"))
-tasks.getByName("clean").mustRunAfter(tasks.getByName("dockerClean"))
 
-dockerRun {
-    name = "lowkey-vault"
-    image = "lowkey-vault:${rootProject.version}"
-    ports("8444:8443")
-    daemonize = true
-    arguments("--rm", "--platform", "linux/amd64")
-    env(mapOf("LOWKEY_ARGS" to "--LOWKEY_DEBUG_REQUEST_LOG=false " +
+var dockerBuild = tasks.register<Exec>("dockerBuild") {
+    group = "Docker"
+    inputs.file(layout.buildDirectory.file("docker/lowkey-vault.jar").get().asFile)
+    inputs.dir(layout.buildDirectory.dir("docker"))
+    workingDir = layout.buildDirectory.dir("docker").get().asFile
+    commandLine = listOf(
+            "docker", "build",
+            "-t", "lowkey-vault:${rootProject.version}",
+            "-t", "nagyesta/lowkey-vault:${rootProject.version}",
+            "--build-arg", "BUILDPLATFORM=linux/amd64",
+            "."
+    )
+    dependsOn(copyAppJar, copyDockerFile)
+}
+
+var dockerRun = tasks.register<Exec>("dockerRun") {
+    group = "Docker"
+    inputs.dir(layout.buildDirectory.dir("docker"))
+    workingDir = layout.buildDirectory.dir("docker").get().asFile
+    environment(mapOf("LOWKEY_ARGS" to "--LOWKEY_DEBUG_REQUEST_LOG=false " +
             "--LOWKEY_VAULT_NAMES=certs-generic,keys-generic,keys-delete,secrets-generic,secrets-delete " +
             "--LOWKEY_VAULT_ALIASES=keys-delete.localhost=keys-alias-delete.localhost:<port>,secrets-delete.localhost=secrets-alias-delete.localhost:<port>"))
+    commandLine = listOf(
+            "docker", "run", "--rm",
+            "--platform", "linux/amd64",
+            "--name", "lowkey-vault",
+            "-e", "LOWKEY_ARGS",
+            "-d",
+            "-p", "8444:8443",
+            "lowkey-vault:${rootProject.version}"
+    )
+    dependsOn(dockerBuild)
 }
-tasks.getByName("dockerRun").dependsOn(tasks.getByName("docker"))
+
+var dockerStop = tasks.register<Exec>("dockerStop") {
+    group = "Docker"
+    inputs.dir(layout.buildDirectory.dir("docker"))
+    workingDir = layout.buildDirectory.dir("docker").get().asFile
+    commandLine = listOf("docker", "stop", "lowkey-vault")
+    dependsOn(dockerRun)
+}
+
+var dockerPush = tasks.register<Exec>("dockerPush") {
+    group = "Docker"
+    inputs.dir(layout.buildDirectory.dir("docker"))
+    workingDir = layout.buildDirectory.dir("docker").get().asFile
+    commandLine = listOf("docker", "push", "nagyesta/lowkey-vault:${rootProject.version}")
+    dependsOn(dockerBuild, dockerStop)
+}
 
 tasks.test {
     inputs.file(file("src/docker/Dockerfile"))
@@ -89,8 +120,8 @@ tasks.test {
         systemProperty("abort-mission.force.abort.evaluators", rootProject.extra.get("dockerAbortGroups") as String)
         systemProperty("abort-mission.suppress.abort.evaluators", rootProject.extra.get("dockerSuppressGroups") as String)
     }
-    dependsOn(tasks.getByName("dockerRun"))
-    finalizedBy(tasks.getByName("dockerStop"))
+    dependsOn(dockerRun)
+    finalizedBy(dockerStop)
 }
 
 abortMission {
@@ -99,5 +130,5 @@ abortMission {
 
 tasks.register("publish") {
     dependsOn("build")
-    dependsOn("dockerPushDockerNagyesta")
+    dependsOn(dockerPush)
 }

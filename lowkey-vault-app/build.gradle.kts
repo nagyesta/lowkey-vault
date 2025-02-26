@@ -49,6 +49,7 @@ licensee {
     allowUrl("http://www.eclipse.org/legal/epl-2.0")
     allowUrl("http://www.eclipse.org/org/documents/edl-v10.php")
     allowUrl("https://asm.ow2.io/license.html")
+    allowUrl("https://opensource.org/license/mit")
     allowUrl("https://github.com/webjars/webjars-locator-lite/blob/main/LICENSE.md")
     ignoreDependencies("org.apache.tomcat", "tomcat-servlet-api")
 }

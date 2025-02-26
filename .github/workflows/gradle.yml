@@ -69,8 +69,8 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build with Gradle
         run: >
-          ./gradlew publish  publishToSonatype closeAndReleaseSonatypeStagingRepository
-          -x test -x dockerClean -x dockerPrepare -x dockerRun -x dockerRunStatus -x dockerStop
+          ./gradlew publish publishToSonatype closeAndReleaseSonatypeStagingRepository
+          -x test -x dockerBuild -x dockerRun -x dockerStop
           -PgithubUser=${{ secrets.PUBLISH_USER_NAME }}
           -PgithubToken=${{ secrets.PUBLISH_KEY }}
           -PossrhUsername=${{ secrets.OSSRH_USER }}

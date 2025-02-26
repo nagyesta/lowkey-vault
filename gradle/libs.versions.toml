@@ -3,7 +3,7 @@ springBoot = "3.4.3"
 spring = "6.2.3"
 snakeYaml = "2.4"
 tomcat = "10.1.36"
-logback = "1.5.16"
+logback = "1.5.17"
 bouncycastle = "1.80"
 hibernateValidator = "8.0.2.Final"
 findbugs = "3.0.2"
@@ -25,7 +25,6 @@ jackson = { strictly = "2.18.2" }
 openApiUi = "2.8.5"
 
 abortMissionPlugin = "5.0.124"
-dockerPlugin = "0.36.0"
 indexScanPlugin = "3.0.0"
 lombokPlugin = "8.12.2"
 springBootPlugin = "3.4.3"
@@ -116,8 +115,6 @@ tomcat = [
 spring-boot = { id = "org.springframework.boot", version.ref = "springBootPlugin" }
 lombok = { id = "io.freefair.lombok", version.ref = "lombokPlugin" }
 abort-mission = { id = "com.github.nagyesta.abort-mission-gradle-plugin", version.ref = "abortMissionPlugin" }
-docker = { id = "com.palantir.docker", version.ref = "dockerPlugin" }
-docker-run = { id = "com.palantir.docker-run", version.ref = "dockerPlugin" }
 versioner = { id = "io.toolebox.git-versioner", version.ref = "gitVersionerPlugin" }
 index-scan = { id = "org.sonatype.gradle.plugins.scan", version.ref = "indexScanPlugin" }
 owasp-dependencycheck = { id = "org.owasp.dependencycheck", version.ref = "owaspPlugin" }

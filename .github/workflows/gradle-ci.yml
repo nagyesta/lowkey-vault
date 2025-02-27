@@ -77,7 +77,7 @@ jobs:
           retention-days: 5
       - name: Upload coverage to Codecov - App
         if: ${{ github.repository_owner == 'nagyesta' }}
-        uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # v5.3.1
+        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
         with:
             token: ${{ secrets.CODECOV_TOKEN }}
             files: ./lowkey-vault-app/build/reports/jacoco/report.xml
@@ -86,7 +86,7 @@ jobs:
             fail_ci_if_error: false
       - name: Upload coverage to Codecov - Client
         if: ${{ github.repository_owner == 'nagyesta' }}
-        uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # v5.3.1
+        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
         with:
             token: ${{ secrets.CODECOV_TOKEN }}
             files: ./lowkey-vault-client/build/reports/jacoco/report.xml
@@ -95,7 +95,7 @@ jobs:
             fail_ci_if_error: false
       - name: Upload coverage to Codecov - Testcontainers
         if: ${{ github.repository_owner == 'nagyesta' }}
-        uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # v5.3.1
+        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
         with:
             token: ${{ secrets.CODECOV_TOKEN }}
             files: ./lowkey-vault-testcontainers/build/reports/jacoco/report.xml

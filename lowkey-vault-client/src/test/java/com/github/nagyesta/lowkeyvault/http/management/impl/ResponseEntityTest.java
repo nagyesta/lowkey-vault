@@ -17,7 +17,6 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.List;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -33,9 +32,9 @@ class ResponseEntityTest {
 
     @SuppressWarnings("checkstyle:MagicNumber")
     public static Stream<Arguments> responseCodeProvider() {
-        final Stream<Arguments> negative = IntStream.of(1, 100, 199, 300, 404)
+        final var negative = IntStream.of(1, 100, 199, 300, 404)
                 .mapToObj(i -> Arguments.of(i, false));
-        final Stream<Arguments> positive = IntStream.of(200, 201, 204, 299)
+        final var positive = IntStream.of(200, 201, 204, 299)
                 .mapToObj(i -> Arguments.of(i, true));
         return Stream.of(negative, positive).flatMap(Function.identity());
     }
@@ -63,13 +62,13 @@ class ResponseEntityTest {
     @MethodSource("responseCodeProvider")
     void testIsSuccessfulShouldReturnTrueWhenResponseCodeIs2xx(final int code, final boolean expected) {
         //given
-        final HttpResponse response = mock(HttpResponse.class);
+        final var response = mock(HttpResponse.class);
         when(response.getStatusCode()).thenReturn(code);
         when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.empty());
-        final ResponseEntity underTest = new ResponseEntity(response, mock(ObjectReader.class));
+        final var underTest = new ResponseEntity(response, mock(ObjectReader.class));
 
         //when
-        final boolean actual = underTest.isSuccessful();
+        final var actual = underTest.isSuccessful();
 
         //then
         Assertions.assertEquals(expected, actual);
@@ -81,13 +80,13 @@ class ResponseEntityTest {
     @MethodSource("responseCodeProvider")
     void testGetResponseCodeShouldReturnTheCodeUnchangedWhenCalled(final int code) {
         //given
-        final HttpResponse response = mock(HttpResponse.class);
+        final var response = mock(HttpResponse.class);
         when(response.getStatusCode()).thenReturn(code);
         when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.empty());
-        final ResponseEntity underTest = new ResponseEntity(response, mock(ObjectReader.class));
+        final var underTest = new ResponseEntity(response, mock(ObjectReader.class));
 
         //when
-        final int actual = underTest.getResponseCode();
+        final var actual = underTest.getResponseCode();
 
         //then
         Assertions.assertEquals(code, actual);
@@ -98,15 +97,15 @@ class ResponseEntityTest {
     @Test
     void testGetResponseObjectShouldMapResponseBodyUsingObjectReaderWhenCalledWithSingleObject() {
         //given
-        final VaultModel expected = new VaultModel(URI.create(HTTPS_DEFAULT_LOCALHOST_8443), null, null, null, null, null);
-        final HttpResponse response = mock(HttpResponse.class);
+        final var expected = new VaultModel(URI.create(HTTPS_DEFAULT_LOCALHOST_8443), null, null, null, null, null);
+        final var response = mock(HttpResponse.class);
         when(response.getStatusCode()).thenReturn(HttpStatus.SC_OK);
         when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.just(VAULT_MODEL));
-        final ObjectReader reader = new ObjectMapper().reader();
-        final ResponseEntity underTest = new ResponseEntity(response, reader);
+        final var reader = new ObjectMapper().reader();
+        final var underTest = new ResponseEntity(response, reader);
 
         //when
-        final VaultModel actual = underTest.getResponseObject(VaultModel.class);
+        final var actual = underTest.getResponseObject(VaultModel.class);
 
         //then
         Assertions.assertEquals(expected, actual);
@@ -117,16 +116,16 @@ class ResponseEntityTest {
     @Test
     void testGetResponseObjectShouldMapResponseBodyUsingObjectReaderWhenCalledWithList() {
         //given
-        final VaultModel vaultModel = new VaultModel(URI.create(HTTPS_DEFAULT_LOCALHOST_8443), null, null, null, null, null);
-        final List<VaultModel> expected = Collections.singletonList(vaultModel);
-        final HttpResponse response = mock(HttpResponse.class);
+        final var vaultModel = new VaultModel(URI.create(HTTPS_DEFAULT_LOCALHOST_8443), null, null, null, null, null);
+        final var expected = Collections.singletonList(vaultModel);
+        final var response = mock(HttpResponse.class);
         when(response.getStatusCode()).thenReturn(HttpStatus.SC_OK);
         when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.just(VAULT_MODEL_LIST));
-        final ObjectReader reader = new ObjectMapper().reader();
-        final ResponseEntity underTest = new ResponseEntity(response, reader);
+        final var reader = new ObjectMapper().reader();
+        final var underTest = new ResponseEntity(response, reader);
 
         //when
-        final List<VaultModel> actual = underTest.getResponseObject(VAULT_MODEL_LIST_TYPE_REF);
+        final var actual = underTest.getResponseObject(VAULT_MODEL_LIST_TYPE_REF);
 
         //then
         Assertions.assertEquals(expected, actual);
@@ -138,13 +137,13 @@ class ResponseEntityTest {
     void testGetResponseObjectShouldThrowExceptionWhenJsonProcessingExceptionIsThrownByReaderWhileMappingToSingleObject()
             throws JsonProcessingException {
         //given
-        final HttpResponse response = mock(HttpResponse.class);
+        final var response = mock(HttpResponse.class);
         when(response.getStatusCode()).thenReturn(HttpStatus.SC_OK);
         when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.just(VAULT_MODEL));
-        final ObjectReader reader = mock(ObjectReader.class);
+        final var reader = mock(ObjectReader.class);
         when(reader.forType(eq(VaultModel.class))).thenReturn(reader);
         when(reader.readValue(anyString())).thenThrow(JsonProcessingException.class);
-        final ResponseEntity underTest = new ResponseEntity(response, reader);
+        final var underTest = new ResponseEntity(response, reader);
 
         //when
         Assertions.assertThrows(LowkeyVaultException.class, () -> underTest.getResponseObject(VaultModel.class));
@@ -156,13 +155,13 @@ class ResponseEntityTest {
     void testGetResponseObjectShouldThrowExceptionWhenJsonProcessingExceptionIsThrownByReaderWhileMappingToList()
             throws JsonProcessingException {
         //given
-        final HttpResponse response = mock(HttpResponse.class);
+        final var response = mock(HttpResponse.class);
         when(response.getStatusCode()).thenReturn(HttpStatus.SC_OK);
         when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.just(VAULT_MODEL_LIST));
-        final ObjectReader reader = mock(ObjectReader.class);
+        final var reader = mock(ObjectReader.class);
         when(reader.forType(eq(VAULT_MODEL_LIST_TYPE_REF))).thenReturn(reader);
         when(reader.readValue(anyString())).thenThrow(JsonProcessingException.class);
-        final ResponseEntity underTest = new ResponseEntity(response, reader);
+        final var underTest = new ResponseEntity(response, reader);
 
         //when
         Assertions.assertThrows(LowkeyVaultException.class, () -> underTest.getResponseObject(VAULT_MODEL_LIST_TYPE_REF));

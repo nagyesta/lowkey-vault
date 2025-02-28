@@ -12,7 +12,7 @@ class IssuerParameterModelTest {
         //given
 
         //when
-        final IssuerParameterModel actual = new IssuerParameterModel(SELF_SIGNED);
+        final var actual = new IssuerParameterModel(SELF_SIGNED);
 
         //then
         Assertions.assertEquals(SELF_SIGNED.getValue(), actual.getIssuer());
@@ -23,7 +23,7 @@ class IssuerParameterModelTest {
         //given
 
         //when
-        final IssuerParameterModel actual = new IssuerParameterModel(null);
+        final var actual = new IssuerParameterModel(null);
 
         //then
         Assertions.assertNull(actual.getIssuer());

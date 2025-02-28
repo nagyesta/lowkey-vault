@@ -27,14 +27,14 @@ public class LowkeyVaultApp {
 
     @Bean
     public ServletWebServerFactory servletContainer() {
-        final TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory();
+        final var tomcat = new TomcatServletWebServerFactory();
         tomcat.addAdditionalTomcatConnectors(createTokenConnector());
         return tomcat;
     }
 
     private Connector createTokenConnector() {
-        final Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
-        final Http11NioProtocol protocol = (Http11NioProtocol) connector.getProtocolHandler();
+        final var connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
+        final var protocol = (Http11NioProtocol) connector.getProtocolHandler();
         connector.setScheme("http");
         connector.setSecure(false);
         connector.setPort(tokenPort);

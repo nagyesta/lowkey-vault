@@ -15,10 +15,10 @@ class PortSeparationFilterTest {
     @Test
     void testDoFilterInternalShouldCallChainWhenInsecureAndTokenRequest() throws ServletException, IOException {
         //given
-        final PortSeparationFilter underTest = new PortSeparationFilter();
-        final HttpServletRequest request = mock(HttpServletRequest.class);
-        final HttpServletResponse response = mock(HttpServletResponse.class);
-        final FilterChain chain = mock(FilterChain.class);
+        final var underTest = new PortSeparationFilter();
+        final var request = mock(HttpServletRequest.class);
+        final var response = mock(HttpServletResponse.class);
+        final var chain = mock(FilterChain.class);
         when(request.isSecure()).thenReturn(false);
         when(request.getRequestURI()).thenReturn("/metadata/identity/oauth2/token");
 
@@ -32,10 +32,10 @@ class PortSeparationFilterTest {
     @Test
     void testDoFilterInternalShouldCallChainWhenSecureAndNotTokenRequest() throws ServletException, IOException {
         //given
-        final PortSeparationFilter underTest = new PortSeparationFilter();
-        final HttpServletRequest request = mock(HttpServletRequest.class);
-        final HttpServletResponse response = mock(HttpServletResponse.class);
-        final FilterChain chain = mock(FilterChain.class);
+        final var underTest = new PortSeparationFilter();
+        final var request = mock(HttpServletRequest.class);
+        final var response = mock(HttpServletResponse.class);
+        final var chain = mock(FilterChain.class);
         when(request.isSecure()).thenReturn(true);
         when(request.getRequestURI()).thenReturn("/ping");
 
@@ -49,10 +49,10 @@ class PortSeparationFilterTest {
     @Test
     void testDoFilterInternalShouldReturnNotFoundWhenSecureAndTokenRequest() throws ServletException, IOException {
         //given
-        final PortSeparationFilter underTest = new PortSeparationFilter();
-        final HttpServletRequest request = mock(HttpServletRequest.class);
-        final HttpServletResponse response = mock(HttpServletResponse.class);
-        final FilterChain chain = mock(FilterChain.class);
+        final var underTest = new PortSeparationFilter();
+        final var request = mock(HttpServletRequest.class);
+        final var response = mock(HttpServletResponse.class);
+        final var chain = mock(FilterChain.class);
         when(request.isSecure()).thenReturn(true);
         when(request.getRequestURI()).thenReturn("/metadata/identity/oauth2/token");
 
@@ -66,10 +66,10 @@ class PortSeparationFilterTest {
     @Test
     void testDoFilterInternalShouldReturnNotFoundWhenInsecureAndNotTokenRequest() throws ServletException, IOException {
         //given
-        final PortSeparationFilter underTest = new PortSeparationFilter();
-        final HttpServletRequest request = mock(HttpServletRequest.class);
-        final HttpServletResponse response = mock(HttpServletResponse.class);
-        final FilterChain chain = mock(FilterChain.class);
+        final var underTest = new PortSeparationFilter();
+        final var request = mock(HttpServletRequest.class);
+        final var response = mock(HttpServletResponse.class);
+        final var chain = mock(FilterChain.class);
         when(request.isSecure()).thenReturn(false);
         when(request.getRequestURI()).thenReturn("/ping");
 

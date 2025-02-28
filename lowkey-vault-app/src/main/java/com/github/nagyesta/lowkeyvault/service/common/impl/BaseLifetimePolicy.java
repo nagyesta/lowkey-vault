@@ -41,9 +41,9 @@ public class BaseLifetimePolicy<E extends EntityId> implements TimeAware {
     protected List<OffsetDateTime> collectMissedTriggerDays(
             final Function<OffsetDateTime, Long> triggerAfterDaysFunction,
             final OffsetDateTime startPoint) {
-        final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+        final var now = OffsetDateTime.now(ZoneOffset.UTC);
         final List<OffsetDateTime> rotationTimes = new ArrayList<>();
-        OffsetDateTime latestDay = startPoint;
+        var latestDay = startPoint;
         while (latestDay.plusDays(triggerAfterDaysFunction.apply(latestDay)).isBefore(now)) {
             latestDay = latestDay.plusDays(triggerAfterDaysFunction.apply(latestDay));
             rotationTimes.add(latestDay);
@@ -54,8 +54,8 @@ public class BaseLifetimePolicy<E extends EntityId> implements TimeAware {
     protected OffsetDateTime findTriggerTimeOffset(
             final OffsetDateTime entityCreation,
             final Function<OffsetDateTime, Long> triggerAfterDaysFunction) {
-        final OffsetDateTime relativeToLifetimeActionPolicy = createdOn.minusDays(triggerAfterDaysFunction.apply(createdOn));
-        OffsetDateTime startPoint = entityCreation;
+        final var relativeToLifetimeActionPolicy = createdOn.minusDays(triggerAfterDaysFunction.apply(createdOn));
+        var startPoint = entityCreation;
         if (entityCreation.isBefore(relativeToLifetimeActionPolicy)) {
             startPoint = relativeToLifetimeActionPolicy;
         }

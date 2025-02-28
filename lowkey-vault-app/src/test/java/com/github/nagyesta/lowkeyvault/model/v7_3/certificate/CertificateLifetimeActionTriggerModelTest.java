@@ -1,6 +1,5 @@
 package com.github.nagyesta.lowkeyvault.model.v7_3.certificate;
 
-import com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionTrigger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -37,7 +36,7 @@ class CertificateLifetimeActionTriggerModelTest {
     @Test
     void testValidateShouldThrowExceptionWhenBothFieldsAreNull() {
         //given
-        final CertificateLifetimeActionTriggerModel underTest = new CertificateLifetimeActionTriggerModel();
+        final var underTest = new CertificateLifetimeActionTriggerModel();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.validate(1));
@@ -48,7 +47,7 @@ class CertificateLifetimeActionTriggerModelTest {
     @Test
     void testValidateShouldNotCheckDaysBeforeExpiryWhenDaysBeforeExpiryIsNull() {
         //given
-        final CertificateLifetimeActionTriggerModel underTest = new CertificateLifetimeActionTriggerModel();
+        final var underTest = new CertificateLifetimeActionTriggerModel();
         underTest.setLifetimePercentage(1);
 
         //when
@@ -61,7 +60,7 @@ class CertificateLifetimeActionTriggerModelTest {
     @MethodSource("invalidDayProvider")
     void testValidateShouldThrowExceptionWhenDaysBeforeExpiryIsTooBig(final int days, final int validityMonths) {
         //given
-        final CertificateLifetimeActionTriggerModel underTest = new CertificateLifetimeActionTriggerModel();
+        final var underTest = new CertificateLifetimeActionTriggerModel();
         underTest.setDaysBeforeExpiry(days);
 
         //when
@@ -74,7 +73,7 @@ class CertificateLifetimeActionTriggerModelTest {
     @MethodSource("validDayProvider")
     void testValidateShouldNotThrowExceptionWhenDaysBeforeExpiryIsValid(final int days, final int validityMonths) {
         //given
-        final CertificateLifetimeActionTriggerModel underTest = new CertificateLifetimeActionTriggerModel();
+        final var underTest = new CertificateLifetimeActionTriggerModel();
         underTest.setDaysBeforeExpiry(days);
 
         //when
@@ -86,12 +85,12 @@ class CertificateLifetimeActionTriggerModelTest {
     @Test
     void testAsTriggerEntityShouldIdentifyTriggerTypeWhenDaysBeforeExpiryIsSet() {
         //given
-        final CertificateLifetimeActionTriggerModel underTest = new CertificateLifetimeActionTriggerModel();
-        final int expectedDays = 1;
+        final var underTest = new CertificateLifetimeActionTriggerModel();
+        final var expectedDays = 1;
         underTest.setDaysBeforeExpiry(expectedDays);
 
         //when
-        final CertificateLifetimeActionTrigger actual = underTest.asTriggerEntity();
+        final var actual = underTest.asTriggerEntity();
 
         //then
         Assertions.assertEquals(DAYS_BEFORE_EXPIRY, actual.triggerType());
@@ -101,12 +100,12 @@ class CertificateLifetimeActionTriggerModelTest {
     @Test
     void testAsTriggerEntityShouldIdentifyTriggerTypeWhenLifetimePercentageIsSet() {
         //given
-        final CertificateLifetimeActionTriggerModel underTest = new CertificateLifetimeActionTriggerModel();
-        final int expectedDays = 1;
+        final var underTest = new CertificateLifetimeActionTriggerModel();
+        final var expectedDays = 1;
         underTest.setLifetimePercentage(expectedDays);
 
         //when
-        final CertificateLifetimeActionTrigger actual = underTest.asTriggerEntity();
+        final var actual = underTest.asTriggerEntity();
 
         //then
         Assertions.assertEquals(LIFETIME_PERCENTAGE, actual.triggerType());

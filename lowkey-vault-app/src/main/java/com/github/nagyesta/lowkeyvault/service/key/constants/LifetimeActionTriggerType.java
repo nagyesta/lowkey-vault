@@ -25,7 +25,7 @@ public enum LifetimeActionTriggerType {
                              @NonNull final Period expiryPeriod,
                              @NonNull final Period triggerPeriod) {
             super.validate(expiryTime, expiryPeriod, triggerPeriod);
-            final Period threshold = expiryPeriod.minusDays(MINIMUM_THRESHOLD_BEFORE_EXPIRY);
+            final var threshold = expiryPeriod.minusDays(MINIMUM_THRESHOLD_BEFORE_EXPIRY);
             Assert.isTrue(PeriodUtil.asDays(threshold) >= PeriodUtil.asDays(triggerPeriod),
                     "Trigger must be at least " + MINIMUM_THRESHOLD_BEFORE_EXPIRY + " days before expiry.");
         }

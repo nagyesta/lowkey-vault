@@ -19,11 +19,11 @@ class TokenResponseTest {
     private static final URI RESOURCE = URI.create("https://localhost:8443/path");
 
     public static Stream<Arguments> nullValuesProvider() {
-        final URI resource = RESOURCE;
-        final String token = DUMMY_TOKEN;
+        final var resource = RESOURCE;
+        final var token = DUMMY_TOKEN;
         final long expiresIn = EXPECTED_EXPIRY;
-        final long expiresOn = MIN_EXPIRES_ON;
-        final int tokenType = TOKEN_TYPE;
+        final var expiresOn = MIN_EXPIRES_ON;
+        final var tokenType = TOKEN_TYPE;
 
         return Stream.of(
                 Arguments.of(null, token, token, expiresIn, expiresOn, tokenType),
@@ -45,7 +45,7 @@ class TokenResponseTest {
     @Test
     void testConstructorShouldThrowExceptionWhenCalledWithEmptyResource() {
         //given
-        final URI resource = URI.create("");
+        final var resource = URI.create("");
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> new TokenResponse(resource));
@@ -72,7 +72,7 @@ class TokenResponseTest {
         //given
 
         //when
-        final TokenResponse actual = new TokenResponse(RESOURCE);
+        final var actual = new TokenResponse(RESOURCE);
 
         //then
         Assertions.assertEquals(RESOURCE, actual.resource());

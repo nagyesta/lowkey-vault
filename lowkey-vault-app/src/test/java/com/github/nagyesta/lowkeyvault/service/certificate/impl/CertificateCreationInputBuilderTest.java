@@ -1,6 +1,5 @@
 package com.github.nagyesta.lowkeyvault.service.certificate.impl;
 
-import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateCreationInput.CertificateCreationInputBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -10,7 +9,7 @@ class CertificateCreationInputBuilderTest {
     @Test
     void testDnsNamesShouldThrowExceptionWhenCalledWithNull() {
         //given
-        final CertificateCreationInputBuilder underTest = CertificateCreationInput.builder();
+        final var underTest = CertificateCreationInput.builder();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.dnsNames(null));
@@ -21,7 +20,7 @@ class CertificateCreationInputBuilderTest {
     @Test
     void testEmailsShouldThrowExceptionWhenCalledWithNull() {
         //given
-        final CertificateCreationInputBuilder underTest = CertificateCreationInput.builder();
+        final var underTest = CertificateCreationInput.builder();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.emails(null));
@@ -32,7 +31,7 @@ class CertificateCreationInputBuilderTest {
     @Test
     void testIpsShouldThrowExceptionWhenCalledWithNull() {
         //given
-        final CertificateCreationInputBuilder underTest = CertificateCreationInput.builder();
+        final var underTest = CertificateCreationInput.builder();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.upns(null));
@@ -43,7 +42,7 @@ class CertificateCreationInputBuilderTest {
     @Test
     void testKeyUsageShouldThrowExceptionWhenCalledWithNull() {
         //given
-        final CertificateCreationInputBuilder underTest = CertificateCreationInput.builder();
+        final var underTest = CertificateCreationInput.builder();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.keyUsage(null));
@@ -54,7 +53,7 @@ class CertificateCreationInputBuilderTest {
     @Test
     void testExtendedKeyUsageShouldThrowExceptionWhenCalledWithNull() {
         //given
-        final CertificateCreationInputBuilder underTest = CertificateCreationInput.builder();
+        final var underTest = CertificateCreationInput.builder();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.extendedKeyUsage(null));

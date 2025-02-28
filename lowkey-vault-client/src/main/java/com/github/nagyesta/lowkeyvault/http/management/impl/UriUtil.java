@@ -22,7 +22,7 @@ public final class UriUtil {
 
     public static URI uriBuilderForPath(@NonNull final String baseUrl, @NonNull final String path, final Map<String, String> parameters) {
         try {
-            final URIBuilder builder = new URIBuilder(baseUrl).setPath(path);
+            final var builder = new URIBuilder(baseUrl).setPath(path);
             Objects.requireNonNullElse(parameters, Collections.<String, String>emptyMap()).forEach(builder::addParameter);
             return builder.build();
         } catch (final URISyntaxException e) {

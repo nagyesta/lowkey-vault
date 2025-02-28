@@ -53,8 +53,8 @@ public abstract class BaseCertificateEntityToV73PolicyModelConverter
     }
 
     private IssuerParameterModel convertIssuer(final ReadOnlyKeyVaultCertificateEntity source) {
-        final IssuerParameterModel issuerParameterModel = new IssuerParameterModel();
-        final ReadOnlyCertificatePolicy policy = policyExtractor.apply(source);
+        final var issuerParameterModel = new IssuerParameterModel();
+        final var policy = policyExtractor.apply(source);
         issuerParameterModel.setIssuer(policy.getCertAuthorityType().getValue());
         issuerParameterModel.setCertType(null);
         issuerParameterModel.setCertTransparency(policy.isEnableTransparency());
@@ -62,8 +62,8 @@ public abstract class BaseCertificateEntityToV73PolicyModelConverter
     }
 
     private X509CertificateModel convertX509Properties(final ReadOnlyKeyVaultCertificateEntity source) {
-        final X509CertificateModel model = new X509CertificateModel();
-        final ReadOnlyCertificatePolicy policy = policyExtractor.apply(source);
+        final var model = new X509CertificateModel();
+        final var policy = policyExtractor.apply(source);
         model.setSubject(policy.getSubject());
         model.setKeyUsage(policy.getKeyUsage());
         model.setValidityMonths(policy.getValidityMonths());
@@ -73,13 +73,13 @@ public abstract class BaseCertificateEntityToV73PolicyModelConverter
     }
 
     private CertificateSecretModel convertSecretProperties(final ReadOnlyKeyVaultCertificateEntity source) {
-        final CertificateSecretModel model = new CertificateSecretModel();
+        final var model = new CertificateSecretModel();
         model.setContentType(policyExtractor.apply(source).getContentType().getMimeType());
         return model;
     }
 
     private CertificatePropertiesModel convertPolicyProperties(final ReadOnlyKeyVaultCertificateEntity source) {
-        final CertificatePropertiesModel model = new CertificatePropertiesModel();
+        final var model = new CertificatePropertiesModel();
         model.setEnabled(source.isEnabled());
         model.setCreatedOn(source.getCreated());
         model.setUpdatedOn(source.getUpdated());
@@ -87,8 +87,8 @@ public abstract class BaseCertificateEntityToV73PolicyModelConverter
     }
 
     private CertificateKeyModel convertKeyProperties(final ReadOnlyKeyVaultCertificateEntity source) {
-        final ReadOnlyCertificatePolicy policy = policyExtractor.apply(source);
-        final CertificateKeyModel model = new CertificateKeyModel();
+        final var policy = policyExtractor.apply(source);
+        final var model = new CertificateKeyModel();
         model.setExportable(policy.isExportablePrivateKey());
         model.setReuseKey(policy.isReuseKeyOnRenewal());
         model.setKeySize(policy.getKeySize());

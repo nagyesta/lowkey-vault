@@ -13,12 +13,12 @@ class CertificateImportRequestTest {
     @Test
     void testGetCertificateAsStringShouldFormatAsBase64WhenCalledWithPkcs12Cert() {
         //given
-        final CertificateImportRequest underTest = new CertificateImportRequest();
-        final byte[] certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsByteArray("/cert/rsa.p12"));
+        final var underTest = new CertificateImportRequest();
+        final var certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsByteArray("/cert/rsa.p12"));
         underTest.setCertificate(certContent);
 
         //when
-        final String actual = underTest.getCertificateAsString();
+        final var actual = underTest.getCertificateAsString();
 
         //then
         Assertions.assertArrayEquals(certContent, Base64.getMimeDecoder().decode(actual));
@@ -27,12 +27,12 @@ class CertificateImportRequestTest {
     @Test
     void testGetCertificateAsStringShouldFormatAsBase64WhenCalledWithPemCert() {
         //given
-        final CertificateImportRequest underTest = new CertificateImportRequest();
-        final byte[] certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsByteArray("/cert/rsa.pem"));
+        final var underTest = new CertificateImportRequest();
+        final var certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsByteArray("/cert/rsa.pem"));
         underTest.setCertificate(certContent);
 
         //when
-        final String actual = underTest.getCertificateAsString();
+        final var actual = underTest.getCertificateAsString();
 
         //then
         Assertions.assertArrayEquals(certContent, actual.getBytes(StandardCharsets.UTF_8));

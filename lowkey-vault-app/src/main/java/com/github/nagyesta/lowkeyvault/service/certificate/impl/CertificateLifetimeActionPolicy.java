@@ -49,10 +49,10 @@ public class CertificateLifetimeActionPolicy extends BaseLifetimePolicy<Certific
     public List<OffsetDateTime> missedRenewalDays(final OffsetDateTime validityStart,
                                                   final Function<OffsetDateTime, OffsetDateTime> createdToExpiryFunction) {
         Assert.isTrue(isAutoRenew(), "Cannot have missed renewals without an \"AutoRenew\" lifetime action.");
-        final CertificateLifetimeActionTrigger trigger = lifetimeActions.get(CertificateLifetimeActionActivity.AUTO_RENEW);
+        final var trigger = lifetimeActions.get(CertificateLifetimeActionActivity.AUTO_RENEW);
         final Function<OffsetDateTime, Long> triggerAfterDaysFunction = s -> trigger
                 .triggersAfterDays(s, createdToExpiryFunction.apply(s));
-        final OffsetDateTime startPoint = findTriggerTimeOffset(validityStart, triggerAfterDaysFunction);
+        final var startPoint = findTriggerTimeOffset(validityStart, triggerAfterDaysFunction);
         return collectMissedTriggerDays(triggerAfterDaysFunction, startPoint);
     }
 

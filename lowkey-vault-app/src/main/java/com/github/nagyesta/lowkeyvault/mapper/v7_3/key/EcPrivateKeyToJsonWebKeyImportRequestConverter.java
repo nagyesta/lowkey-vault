@@ -6,19 +6,18 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRe
 import lombok.NonNull;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
-import org.bouncycastle.math.ec.ECPoint;
 import org.springframework.core.convert.converter.Converter;
 
 public class EcPrivateKeyToJsonWebKeyImportRequestConverter implements Converter<BCECPrivateKey, JsonWebKeyImportRequest> {
 
     @Override
     public JsonWebKeyImportRequest convert(final @NonNull BCECPrivateKey source) {
-        final JsonWebKeyImportRequest importRequest = new JsonWebKeyImportRequest();
+        final var importRequest = new JsonWebKeyImportRequest();
         importRequest.setKeyType(KeyType.EC);
-        final String sourceAlgorithm = ((ECNamedCurveParameterSpec) source.getParameters()).getName();
+        final var sourceAlgorithm = ((ECNamedCurveParameterSpec) source.getParameters()).getName();
         importRequest.setCurveName(KeyCurveName.forAlg(sourceAlgorithm));
         importRequest.setD(source.getD().toByteArray());
-        final ECPoint point = source.getParameters().getG().multiply(source.getD()).normalize();
+        final var point = source.getParameters().getG().multiply(source.getD()).normalize();
         importRequest.setX(point.getAffineXCoord().getEncoded());
         importRequest.setY(point.getAffineYCoord().getEncoded());
         return importRequest;

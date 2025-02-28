@@ -32,7 +32,7 @@ class ControllerRequestMappingTest {
                 .flatMap(Arrays::stream)
                 .filter(method -> method.isAnnotationPresent(GetMapping.class))
                 .forEach(method -> {
-                    final String[] pathMappings = method.getDeclaredAnnotation(GetMapping.class).value();
+                    final var pathMappings = method.getDeclaredAnnotation(GetMapping.class).value();
                     results.computeIfAbsent(method.getDeclaringClass(), k -> new HashMap<>()).put(method, Arrays.asList(pathMappings));
                 });
 
@@ -51,7 +51,7 @@ class ControllerRequestMappingTest {
                 .flatMap(Arrays::stream)
                 .filter(method -> method.isAnnotationPresent(PostMapping.class))
                 .forEach(method -> {
-                    final String[] pathMappings = method.getDeclaredAnnotation(PostMapping.class).value();
+                    final var pathMappings = method.getDeclaredAnnotation(PostMapping.class).value();
                     results.computeIfAbsent(method.getDeclaringClass(), k -> new HashMap<>()).put(method, Arrays.asList(pathMappings));
                 });
 
@@ -70,7 +70,7 @@ class ControllerRequestMappingTest {
                 .flatMap(Arrays::stream)
                 .filter(method -> method.isAnnotationPresent(PutMapping.class))
                 .forEach(method -> {
-                    final String[] pathMappings = method.getDeclaredAnnotation(PutMapping.class).value();
+                    final var pathMappings = method.getDeclaredAnnotation(PutMapping.class).value();
                     results.computeIfAbsent(method.getDeclaringClass(), k -> new HashMap<>()).put(method, Arrays.asList(pathMappings));
                 });
 
@@ -89,7 +89,7 @@ class ControllerRequestMappingTest {
                 .flatMap(Arrays::stream)
                 .filter(method -> method.isAnnotationPresent(PatchMapping.class))
                 .forEach(method -> {
-                    final String[] pathMappings = method.getDeclaredAnnotation(PatchMapping.class).value();
+                    final var pathMappings = method.getDeclaredAnnotation(PatchMapping.class).value();
                     results.computeIfAbsent(method.getDeclaringClass(), k -> new HashMap<>()).put(method, Arrays.asList(pathMappings));
                 });
 
@@ -108,7 +108,7 @@ class ControllerRequestMappingTest {
                 .flatMap(Arrays::stream)
                 .filter(method -> method.isAnnotationPresent(DeleteMapping.class))
                 .forEach(method -> {
-                    final String[] pathMappings = method.getDeclaredAnnotation(DeleteMapping.class).value();
+                    final var pathMappings = method.getDeclaredAnnotation(DeleteMapping.class).value();
                     results.computeIfAbsent(method.getDeclaringClass(), k -> new HashMap<>()).put(method, Arrays.asList(pathMappings));
                 });
 
@@ -127,7 +127,7 @@ class ControllerRequestMappingTest {
                 .flatMap(Arrays::stream)
                 .filter(method -> method.isAnnotationPresent(RequestMapping.class))
                 .forEach(method -> {
-                    final String[] pathMappings = method.getDeclaredAnnotation(RequestMapping.class).value();
+                    final var pathMappings = method.getDeclaredAnnotation(RequestMapping.class).value();
                     results.computeIfAbsent(method.getDeclaringClass(), k -> new HashMap<>()).put(method, Arrays.asList(pathMappings));
                 });
 
@@ -138,8 +138,8 @@ class ControllerRequestMappingTest {
     private static void assertEveryMappingHasBothVersions(final Map<Class<?>, Map<Method, List<String>>> results) {
         results.forEach((clazz, methodMap) -> methodMap
                 .forEach((method, pathMappings) -> {
-                    final String className = clazz.getName();
-                    final String methodName = method.getName();
+                    final var className = clazz.getName();
+                    final var methodName = method.getName();
                     Assertions.assertFalse(pathMappings.isEmpty(),
                             "Method " + methodName + " should have the default path mappings in " + className + ".\n"
                                     + "expected to have both: {\"\", \"/\"}");
@@ -155,8 +155,8 @@ class ControllerRequestMappingTest {
     }
 
     private Stream<Class<?>> streamAllControllerClasses() {
-        final String packageName = "com.github.nagyesta.lowkeyvault.controller";
-        final ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(
+        final var packageName = "com.github.nagyesta.lowkeyvault.controller";
+        final var provider = new ClassPathScanningCandidateComponentProvider(
                 true, new StandardServletEnvironment());
         provider.addIncludeFilter(new AnnotationTypeFilter(RestController.class));
         return provider.findCandidateComponents(packageName).stream()

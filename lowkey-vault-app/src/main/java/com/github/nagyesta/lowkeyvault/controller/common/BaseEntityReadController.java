@@ -42,8 +42,8 @@ public abstract class BaseEntityReadController<K extends EntityId, V extends K, 
     }
 
     protected E getEntityByNameAndVersion(final URI baseUri, final String name, final String version) {
-        final S vaultFake = getVaultByUri(baseUri);
-        final V entityId = versionedEntityId(baseUri, name, version);
+        final var vaultFake = getVaultByUri(baseUri);
+        final var entityId = versionedEntityId(baseUri, name, version);
         return vaultFake.getEntities().getReadOnlyEntity(entityId);
     }
 

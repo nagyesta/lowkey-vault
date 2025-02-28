@@ -33,8 +33,8 @@ class Base64ZipSecretSerializerDeserializerIntegrationTest {
         //given
 
         //when
-        final String json = objectMapper.writerFor(SecretBackupModel.class).writeValueAsString(null);
-        final SecretBackupModel actual = objectMapper.reader().readValue(json, SecretBackupModel.class);
+        final var json = objectMapper.writerFor(SecretBackupModel.class).writeValueAsString(null);
+        final var actual = objectMapper.reader().readValue(json, SecretBackupModel.class);
 
         //then
         Assertions.assertNull(actual);
@@ -43,11 +43,11 @@ class Base64ZipSecretSerializerDeserializerIntegrationTest {
     @Test
     void testSerializeShouldReturnNullWhenCalledWithNullList() throws IOException {
         //given
-        final SecretBackupModel valueWithNullList = new SecretBackupModel();
+        final var valueWithNullList = new SecretBackupModel();
 
         //when
-        final String json = objectMapper.writer().writeValueAsString(valueWithNullList);
-        final SecretBackupModel actual = objectMapper.reader().readValue(json, SecretBackupModel.class);
+        final var json = objectMapper.writer().writeValueAsString(valueWithNullList);
+        final var actual = objectMapper.reader().readValue(json, SecretBackupModel.class);
 
         //then
         Assertions.assertEquals(valueWithNullList, actual);
@@ -56,23 +56,23 @@ class Base64ZipSecretSerializerDeserializerIntegrationTest {
     @Test
     void testSerializeShouldConvertContentWhenCalledWithValidValue() throws IOException {
         //given
-        final SecretBackupListItem item = getSecretBackupListItem(TestConstantsSecrets.VERSIONED_SECRET_ENTITY_ID_1_VERSION_1,
+        final var item = getSecretBackupListItem(TestConstantsSecrets.VERSIONED_SECRET_ENTITY_ID_1_VERSION_1,
                 LOWKEY_VAULT, MimeTypeUtils.TEXT_PLAIN_VALUE,
                 getSecretPropertiesModel());
-        final SecretBackupModel input = getSecretBackupModel(item);
+        final var input = getSecretBackupModel(item);
 
         //when
-        final String json = objectMapper.writer().writeValueAsString(input);
-        final SecretBackupModel actual = objectMapper.reader().readValue(json, SecretBackupModel.class);
+        final var json = objectMapper.writer().writeValueAsString(input);
+        final var actual = objectMapper.reader().readValue(json, SecretBackupModel.class);
 
         //then
         Assertions.assertEquals(input, actual);
     }
 
     private SecretBackupModel getSecretBackupModel(final SecretBackupListItem item) {
-        final SecretBackupList list = new SecretBackupList();
+        final var list = new SecretBackupList();
         list.setVersions(List.of(item));
-        final SecretBackupModel input = new SecretBackupModel();
+        final var input = new SecretBackupModel();
         input.setValue(list);
         return input;
     }
@@ -82,7 +82,7 @@ class Base64ZipSecretSerializerDeserializerIntegrationTest {
                                                          final String value,
                                                          final String contentType,
                                                          final SecretPropertiesModel propertiesModel) {
-        final SecretBackupListItem item = new SecretBackupListItem();
+        final var item = new SecretBackupListItem();
         item.setId(id.id());
         item.setVaultBaseUri(id.vault());
         item.setVersion(id.version());
@@ -95,7 +95,7 @@ class Base64ZipSecretSerializerDeserializerIntegrationTest {
     }
 
     private SecretPropertiesModel getSecretPropertiesModel() {
-        final SecretPropertiesModel propertiesModel = new SecretPropertiesModel();
+        final var propertiesModel = new SecretPropertiesModel();
         propertiesModel.setCreatedOn(TIME_10_MINUTES_AGO);
         propertiesModel.setUpdatedOn(NOW.minusSeconds(1));
         propertiesModel.setNotBefore(NOW);

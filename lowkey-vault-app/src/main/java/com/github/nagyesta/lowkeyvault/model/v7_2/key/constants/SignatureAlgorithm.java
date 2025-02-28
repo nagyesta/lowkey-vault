@@ -40,7 +40,7 @@ public enum SignatureAlgorithm {
     PS256("PS256", "NONEwithRSAandMGF1", KeyType.RSA, HashAlgorithm.SHA256) {
         @Override
         public Signature getSignatureInstance() throws GeneralSecurityException {
-            final Signature signature = super.getSignatureInstance();
+            final var signature = super.getSignatureInstance();
             signature.setParameter(getHashAlgorithm().getPssParameter());
             return signature;
         }
@@ -48,7 +48,7 @@ public enum SignatureAlgorithm {
     PS384("PS384", "NONEwithRSAandMGF1", KeyType.RSA, HashAlgorithm.SHA384) {
         @Override
         public Signature getSignatureInstance() throws GeneralSecurityException {
-            final Signature signature = super.getSignatureInstance();
+            final var signature = super.getSignatureInstance();
             signature.setParameter(getHashAlgorithm().getPssParameter());
             return signature;
         }
@@ -56,7 +56,7 @@ public enum SignatureAlgorithm {
     PS512("PS512", "NONEwithRSAandMGF1", KeyType.RSA, HashAlgorithm.SHA512) {
         @Override
         public Signature getSignatureInstance() throws GeneralSecurityException {
-            final Signature signature = super.getSignatureInstance();
+            final var signature = super.getSignatureInstance();
             signature.setParameter(getHashAlgorithm().getPssParameter());
             return signature;
         }

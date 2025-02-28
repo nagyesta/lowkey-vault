@@ -26,6 +26,10 @@
       <option name="REPORT_PARAMETERS" value="true" />
       <option name="REPORT_IMPLICIT_FINALS" value="false" />
     </inspection_tool>
+    <inspection_tool class="RedundantExplicitVariableType" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
+    <inspection_tool class="SpringJavaInjectionPointsAutowiringInspection" enabled="true" level="INFORMATION" enabled_by_default="true" editorAttributes="INFORMATION_ATTRIBUTES">
+      <scope name="Production" level="ERROR" enabled="true" />
+    </inspection_tool>
     <inspection_tool class="groupsTestNG" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="groups">
         <value>

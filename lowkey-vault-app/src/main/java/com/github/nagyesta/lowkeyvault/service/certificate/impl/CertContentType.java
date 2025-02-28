@@ -43,8 +43,8 @@ public enum CertContentType {
         @Override
         public List<Certificate> getCertificateChain(@NonNull final String certificateContent, @NonNull final String password) {
             try {
-                final KeyStore pkcs12 = loadKeyStore(certificateContent, password);
-                final String alias = pkcs12.aliases().asIterator().next();
+                final var pkcs12 = loadKeyStore(certificateContent, password);
+                final var alias = pkcs12.aliases().asIterator().next();
                 return List.of(pkcs12.getCertificate(alias));
             } catch (final Exception e) {
                 throw new CryptoException("Failed to extract key from PKCS12", e);
@@ -55,9 +55,9 @@ public enum CertContentType {
         public JsonWebKeyImportRequest getKey(@NonNull final String certificateContent,
                                               @NonNull final String password) {
             try {
-                final KeyStore pkcs12 = loadKeyStore(certificateContent, password);
-                final String alias = pkcs12.aliases().asIterator().next();
-                final Key parsedKey = pkcs12.getKey(alias, "".toCharArray());
+                final var pkcs12 = loadKeyStore(certificateContent, password);
+                final var alias = pkcs12.aliases().asIterator().next();
+                final var parsedKey = pkcs12.getKey(alias, "".toCharArray());
                 if (parsedKey instanceof RSAPrivateCrtKey) {
                     return RSA_KEY_CONVERTER.convert((RSAPrivateCrtKey) parsedKey);
                 } else {
@@ -71,7 +71,7 @@ public enum CertContentType {
         @Override
         public String asBase64CertificatePackage(@NonNull final Certificate certificate,
                                                  @NonNull final KeyPair keyPair) throws CryptoException {
-            final byte[] bytes = generateCertificatePackage(certificate, keyPair, DEFAULT_PASSWORD);
+            final var bytes = generateCertificatePackage(certificate, keyPair, DEFAULT_PASSWORD);
             return encodeAsBase64String(bytes);
         }
 
@@ -84,10 +84,10 @@ public enum CertContentType {
         private byte[] generateCertificatePackage(
                 final Certificate certificate, final KeyPair keyPair, final String password) {
             try {
-                final KeyStore pkcs12 = KeyStore.getInstance(KEY_STORE_TYPE_PKCS12);
+                final var pkcs12 = KeyStore.getInstance(KEY_STORE_TYPE_PKCS12);
                 pkcs12.load(null, password.toCharArray());
                 pkcs12.setKeyEntry(DEFAULT_ALIAS, keyPair.getPrivate(), password.toCharArray(), new Certificate[]{certificate});
-                final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                final var byteArrayOutputStream = new ByteArrayOutputStream();
                 pkcs12.store(byteArrayOutputStream, password.toCharArray());
                 return byteArrayOutputStream.toByteArray();
             } catch (final Exception e) {
@@ -97,7 +97,7 @@ public enum CertContentType {
 
         private KeyStore loadKeyStore(final String certificateContent, final String password)
                 throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
-            final KeyStore pkcs12 = KeyStore.getInstance(KEY_STORE_TYPE_PKCS12, KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
+            final var pkcs12 = KeyStore.getInstance(KEY_STORE_TYPE_PKCS12, KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
             pkcs12.load(new ByteArrayInputStream(decodeBase64String(certificateContent)), password.toCharArray());
             return pkcs12;
         }
@@ -110,9 +110,9 @@ public enum CertContentType {
         public List<Certificate> getCertificateChain(@NonNull final String certificateContent, final String password) {
             try {
                 validatePem(certificateContent);
-                final byte[] encodedCertificate = extractByteArray(certificateContent,
+                final var encodedCertificate = extractByteArray(certificateContent,
                         "-----BEGIN CERTIFICATE-----", "-----END CERTIFICATE-----");
-                final CertificateFactory fact = CertificateFactory.getInstance("X.509", KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
+                final var fact = CertificateFactory.getInstance("X.509", KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
                 return List.of(fact.generateCertificate(new ByteArrayInputStream(encodedCertificate)));
             } catch (final Exception e) {
                 throw new CryptoException("Failed to extract key from PEM", e);
@@ -124,11 +124,11 @@ public enum CertContentType {
                                               final String password) {
             try {
                 validatePem(certificateContent);
-                final byte[] encodedKey = extractByteArray(certificateContent,
+                final var encodedKey = extractByteArray(certificateContent,
                         "-----BEGIN PRIVATE KEY-----", "-----END PRIVATE KEY-----");
-                final KeyType keyType = assumeKeyType(encodedKey.length);
-                final KeyFactory kf = KeyFactory.getInstance(keyType.getAlgorithmName(), KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
-                final PKCS8EncodedKeySpec privateSpec = new PKCS8EncodedKeySpec(encodedKey);
+                final var keyType = assumeKeyType(encodedKey.length);
+                final var kf = KeyFactory.getInstance(keyType.getAlgorithmName(), KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
+                final var privateSpec = new PKCS8EncodedKeySpec(encodedKey);
                 if (RSA == keyType) {
                     return RSA_KEY_CONVERTER.convert((RSAPrivateCrtKey) kf.generatePrivate(privateSpec));
                 } else {
@@ -142,8 +142,8 @@ public enum CertContentType {
         @Override
         public String asBase64CertificatePackage(@NonNull final Certificate certificate,
                                                  @NonNull final KeyPair keyPair) throws CryptoException {
-            final String key = toPemString(keyPair.getPrivate());
-            final String cert = toPemString(certificate);
+            final var key = toPemString(keyPair.getPrivate());
+            final var cert = toPemString(certificate);
             return key + cert;
         }
 
@@ -159,8 +159,8 @@ public enum CertContentType {
         }
 
         private String toPemString(final Object object) {
-            try (StringWriter stringWriter = new StringWriter();
-                 JcaPEMWriter pemWriter = new JcaPEMWriter(stringWriter)) {
+            try (var stringWriter = new StringWriter();
+                 var pemWriter = new JcaPEMWriter(stringWriter)) {
                 if (object instanceof PrivateKey) {
                     pemWriter.writeObject(new JcaPKCS8Generator((PrivateKey) object, null));
                 } else {
@@ -174,8 +174,8 @@ public enum CertContentType {
         }
 
         private byte[] extractByteArray(final String certificateContent, final String beginPattern, final String endPattern) {
-            final String withoutNewLines = certificateContent.replaceAll("[\n\r]+", "");
-            final String keyOnly = withoutNewLines.replaceAll(".*" + beginPattern, "")
+            final var withoutNewLines = certificateContent.replaceAll("[\n\r]+", "");
+            final var keyOnly = withoutNewLines.replaceAll(".*" + beginPattern, "")
                     .replaceAll(endPattern + ".*", "");
             return decodeBase64String(keyOnly);
         }

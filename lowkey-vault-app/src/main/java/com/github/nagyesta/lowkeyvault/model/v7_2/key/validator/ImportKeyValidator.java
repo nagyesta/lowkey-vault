@@ -4,12 +4,9 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRequest;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Set;
 
 @Component
 public class ImportKeyValidator implements ConstraintValidator<ValidImportKey, JsonWebKeyImportRequest> {
@@ -28,8 +25,8 @@ public class ImportKeyValidator implements ConstraintValidator<ValidImportKey, J
 
     @Override
     public boolean isValid(final JsonWebKeyImportRequest value, final ConstraintValidatorContext context) {
-        final Class<? extends BaseKey> group = findGroup(value.getKeyType());
-        final Set<ConstraintViolation<JsonWebKeyImportRequest>> violations = validator.validate(value, group);
+        final var group = findGroup(value.getKeyType());
+        final var violations = validator.validate(value, group);
         violations.forEach(v -> context.buildConstraintViolationWithTemplate(v.getMessageTemplate())
                 .addPropertyNode(v.getPropertyPath().toString())
                 .addConstraintViolation());

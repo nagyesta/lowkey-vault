@@ -54,7 +54,7 @@ public class VaultFakeImpl implements VaultFake {
 
     @Override
     public boolean matches(@NonNull final URI vaultUri, @NonNull final Function<URI, URI> uriMapper) {
-        final URI lookupUri = uriMapper.apply(vaultUri);
+        final var lookupUri = uriMapper.apply(vaultUri);
         return uriMapper.apply(this.vaultUri).equals(lookupUri) || this.aliases.stream()
                 .map(uriMapper)
                 .anyMatch(lookupUri::equals);
@@ -123,10 +123,10 @@ public class VaultFakeImpl implements VaultFake {
 
     @Override
     public boolean isExpired() {
-        boolean result = false;
+        var result = false;
         if (isDeleted()) {
             final int recoverableDaysOffset = Objects.requireNonNullElse(recoverableDays, 0);
-            final OffsetDateTime purgeDeadline = deletedOn.plusDays(recoverableDaysOffset);
+            final var purgeDeadline = deletedOn.plusDays(recoverableDaysOffset);
             result = purgeDeadline.isBefore(OffsetDateTime.now());
         }
         return result;

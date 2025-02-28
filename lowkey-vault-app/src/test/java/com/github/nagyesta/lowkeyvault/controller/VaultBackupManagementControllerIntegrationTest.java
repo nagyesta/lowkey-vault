@@ -2,40 +2,22 @@ package com.github.nagyesta.lowkeyvault.controller;
 
 import com.github.nagyesta.abortmission.booster.jupiter.annotation.LaunchAbortArmed;
 import com.github.nagyesta.lowkeyvault.management.VaultImportExportExecutor;
-import com.github.nagyesta.lowkeyvault.model.common.backup.CertificateBackupListItem;
-import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupListItem;
-import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupListItem;
-import com.github.nagyesta.lowkeyvault.model.management.VaultBackupListModel;
-import com.github.nagyesta.lowkeyvault.model.management.VaultBackupModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
-import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificateKeyModel;
-import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificateSecretModel;
-import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.X509CertificateModel;
-import com.github.nagyesta.lowkeyvault.service.certificate.CertificateVaultFake;
-import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertContentType;
-import com.github.nagyesta.lowkeyvault.service.certificate.impl.ReadOnlyCertificatePolicy;
-import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
-import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
-import com.github.nagyesta.lowkeyvault.service.secret.ReadOnlyKeyVaultSecretEntity;
-import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultFake;
 import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import com.github.nagyesta.lowkeyvault.template.backup.VaultImporter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.net.URI;
-import java.util.List;
 import java.util.Set;
 
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.ALL_KEY_OPERATIONS;
@@ -79,48 +61,48 @@ class VaultBackupManagementControllerIntegrationTest {
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void testAfterPropertiesSetShouldParseAndImportVaultsWhenCalled() {
         //given
-        final KeyCurveName keyCurveName = KeyCurveName.P_256K;
+        final var keyCurveName = KeyCurveName.P_256K;
 
-        final VaultBackupManagementController underTest = new VaultBackupManagementController(
+        final var underTest = new VaultBackupManagementController(
                 vaultImporter, vaultService, vaultImportExportExecutor);
 
         //when
         underTest.afterPropertiesSet();
 
         //then
-        final VaultFake vaultFake = vaultService.findByUri(BASE_URI);
+        final var vaultFake = vaultService.findByUri(BASE_URI);
         Assertions.assertNotNull(vaultFake);
         //- keys
-        final KeyVaultFake keyVaultFake = vaultFake.keyVaultFake();
+        final var keyVaultFake = vaultFake.keyVaultFake();
         //- older key
-        final ReadOnlyKeyVaultKeyEntity readOnlyKeyEntityOlder = keyVaultFake.getEntities()
+        final var readOnlyKeyEntityOlder = keyVaultFake.getEntities()
                 .getReadOnlyEntity(VERSIONED_KEY_ENTITY_ID_OLDER);
         Assertions.assertEquals(VERSIONED_KEY_ENTITY_ID_OLDER, readOnlyKeyEntityOlder.getId());
         Assertions.assertEquals(keyCurveName, readOnlyKeyEntityOlder.keyCreationInput().getKeyParameter());
         //- younger key
-        final ReadOnlyKeyVaultKeyEntity readOnlyKeyEntityYounger = keyVaultFake.getEntities()
+        final var readOnlyKeyEntityYounger = keyVaultFake.getEntities()
                 .getReadOnlyEntity(VERSIONED_KEY_ENTITY_ID_YOUNGER);
         Assertions.assertEquals(VERSIONED_KEY_ENTITY_ID_YOUNGER, readOnlyKeyEntityYounger.getId());
         Assertions.assertEquals(keyCurveName, readOnlyKeyEntityYounger.keyCreationInput().getKeyParameter());
         //- secrets
-        final SecretVaultFake secretVaultFake = vaultFake.secretVaultFake();
-        final ReadOnlyKeyVaultSecretEntity secretEntity = secretVaultFake.getEntities()
+        final var secretVaultFake = vaultFake.secretVaultFake();
+        final var secretEntity = secretVaultFake.getEntities()
                 .getReadOnlyEntity(VERSIONED_SECRET_ENTITY_ID);
         Assertions.assertEquals(VERSIONED_SECRET_ENTITY_ID, secretEntity.getId());
         Assertions.assertEquals(SECRET_VALUE, secretEntity.getValue());
         //- certificates
-        final CertificateVaultFake certificateVaultFake = vaultFake.certificateVaultFake();
-        final ReadOnlyKeyVaultCertificateEntity certificateEntity = certificateVaultFake.getEntities()
+        final var certificateVaultFake = vaultFake.certificateVaultFake();
+        final var certificateEntity = certificateVaultFake.getEntities()
                 .getReadOnlyEntity(VERSIONED_CERTIFICATE_ENTITY_ID);
         Assertions.assertEquals(VERSIONED_CERTIFICATE_ENTITY_ID, certificateEntity.getId());
-        final ReadOnlyCertificatePolicy certificatePolicy = certificateEntity.getOriginalCertificatePolicy();
+        final var certificatePolicy = certificateEntity.getOriginalCertificatePolicy();
         Assertions.assertEquals(EXPECTED_SUBJECT, certificatePolicy.getSubject());
         Assertions.assertEquals(CertContentType.PKCS12, certificatePolicy.getContentType());
         Assertions.assertIterableEquals(Set.of(EXPECTED_SANS), certificatePolicy.getDnsNames());
         Assertions.assertEquals(EXPECTED_KEY_SIZE, certificatePolicy.getKeySize());
         Assertions.assertEquals(KeyType.RSA, certificatePolicy.getKeyType());
         //- managed key
-        final ReadOnlyKeyVaultKeyEntity readOnlyKeyEntityManaged = keyVaultFake.getEntities()
+        final var readOnlyKeyEntityManaged = keyVaultFake.getEntities()
                 .getReadOnlyEntity(VERSIONED_CERTIFICATE_MANAGED_KEY_ENTITY_ID);
         Assertions.assertEquals(VERSIONED_CERTIFICATE_MANAGED_KEY_ENTITY_ID, readOnlyKeyEntityManaged.getId());
         Assertions.assertIterableEquals(ALL_KEY_OPERATIONS, readOnlyKeyEntityManaged.getOperations());
@@ -130,53 +112,53 @@ class VaultBackupManagementControllerIntegrationTest {
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void testExportShouldExportVaultContentWhenCalled() {
         //given
-        final KeyCurveName keyCurveName = KeyCurveName.P_256K;
+        final var keyCurveName = KeyCurveName.P_256K;
 
-        final VaultBackupManagementController underTest = new VaultBackupManagementController(
+        final var underTest = new VaultBackupManagementController(
                 vaultImporter, vaultService, vaultImportExportExecutor);
         underTest.afterPropertiesSet();
 
         //when
-        final ResponseEntity<VaultBackupListModel> actual = underTest.export();
+        final var actual = underTest.export();
 
         //then
-        final VaultBackupListModel actualBody = actual.getBody();
+        final var actualBody = actual.getBody();
         Assertions.assertNotNull(actualBody);
-        final List<VaultBackupModel> vaults = actualBody.getVaults();
+        final var vaults = actualBody.getVaults();
         Assertions.assertEquals(1, vaults.size());
-        final VaultBackupModel vaultBackupModel = vaults.get(0);
+        final var vaultBackupModel = vaults.get(0);
         //- keys
         Assertions.assertEquals(1, vaultBackupModel.getKeys().size());
-        final List<KeyBackupListItem> keyVersions = vaultBackupModel.getKeys().get(TEST_KEY).getVersions();
+        final var keyVersions = vaultBackupModel.getKeys().get(TEST_KEY).getVersions();
         Assertions.assertEquals(2, keyVersions.size());
         //- older key
-        final KeyBackupListItem olderKey = keyVersions.get(0);
+        final var olderKey = keyVersions.get(0);
         Assertions.assertEquals(VERSIONED_KEY_ENTITY_ID_OLDER.id(), olderKey.getId());
         Assertions.assertEquals(VERSIONED_KEY_ENTITY_ID_OLDER.version(), olderKey.getVersion());
         Assertions.assertEquals(keyCurveName, olderKey.getKeyMaterial().getCurveName());
         //- younger key
-        final KeyBackupListItem youngerKey = keyVersions.get(1);
+        final var youngerKey = keyVersions.get(1);
         Assertions.assertEquals(VERSIONED_KEY_ENTITY_ID_YOUNGER.id(), youngerKey.getId());
         Assertions.assertEquals(VERSIONED_KEY_ENTITY_ID_YOUNGER.version(), youngerKey.getVersion());
         Assertions.assertEquals(keyCurveName, youngerKey.getKeyMaterial().getCurveName());
         //- secrets
         Assertions.assertEquals(1, vaultBackupModel.getSecrets().size());
-        final List<SecretBackupListItem> secretVersions = vaultBackupModel.getSecrets().get(TEST_SECRET).getVersions();
+        final var secretVersions = vaultBackupModel.getSecrets().get(TEST_SECRET).getVersions();
         Assertions.assertEquals(1, secretVersions.size());
-        final SecretBackupListItem secret = secretVersions.get(0);
+        final var secret = secretVersions.get(0);
         Assertions.assertEquals(VERSIONED_SECRET_ENTITY_ID.id(), secret.getId());
         Assertions.assertEquals(VERSIONED_SECRET_ENTITY_ID.version(), secret.getVersion());
         Assertions.assertEquals(SECRET_VALUE, secret.getValue());
         //- certificates
         Assertions.assertEquals(1, vaultBackupModel.getCertificates().size());
-        final List<CertificateBackupListItem> certificateVersions = vaultBackupModel.getCertificates().get(TEST_CERTIFICATE).getVersions();
+        final var certificateVersions = vaultBackupModel.getCertificates().get(TEST_CERTIFICATE).getVersions();
         Assertions.assertEquals(1, certificateVersions.size());
-        final CertificateBackupListItem certificate = certificateVersions.get(0);
+        final var certificate = certificateVersions.get(0);
         Assertions.assertEquals(VERSIONED_CERTIFICATE_ENTITY_ID.id(), certificate.getId());
         Assertions.assertEquals(VERSIONED_CERTIFICATE_ENTITY_ID.version(), certificate.getVersion());
-        final X509CertificateModel x509Properties = certificate.getPolicy().getX509Properties();
-        final CertificateSecretModel secretProperties = certificate.getPolicy().getSecretProperties();
-        final CertificateKeyModel keyProperties = certificate.getPolicy().getKeyProperties();
+        final var x509Properties = certificate.getPolicy().getX509Properties();
+        final var secretProperties = certificate.getPolicy().getSecretProperties();
+        final var keyProperties = certificate.getPolicy().getKeyProperties();
         Assertions.assertEquals(EXPECTED_SUBJECT, x509Properties.getSubject());
         Assertions.assertEquals(CertContentType.PKCS12.getMimeType(), secretProperties.getContentType());
         Assertions.assertIterableEquals(Set.of(EXPECTED_SANS), x509Properties.getSubjectAlternativeNames().dnsNames());

@@ -29,16 +29,16 @@ public abstract class AbstractBase64ZipDeserializer<E> extends JsonDeserializer<
 
     @Override
     public E deserialize(final JsonParser jsonParser, final DeserializationContext context) throws IOException {
-        final Optional<byte[]> bytes = Optional.ofNullable(base64Deserializer.deserializeBase64(jsonParser));
+        final var bytes = Optional.ofNullable(base64Deserializer.deserializeBase64(jsonParser));
         return bytes.filter(v -> v.length > 0)
                 .map(this::decompressWrappedObject)
                 .orElse(null);
     }
 
     private E decompressWrappedObject(final byte[] bytes) {
-        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
-             GZIPInputStream gzipInputStream = new GZIPInputStream(byteArrayInputStream)) {
-            final String json = new String(gzipInputStream.readAllBytes());
+        try (var byteArrayInputStream = new ByteArrayInputStream(bytes);
+             var gzipInputStream = new GZIPInputStream(byteArrayInputStream)) {
+            final var json = new String(gzipInputStream.readAllBytes());
             return objectMapper.reader().readValue(json, getType());
         } catch (final Exception e) {
             log.error(e.getMessage(), e);

@@ -32,17 +32,17 @@ class CertificateEntityToV73CertificateVersionItemModelConverterTest {
     @Test
     void testConvertCertificateIdShouldContainVersionWhenCalled() {
         //given
-        final CertificateConverterRegistry registry = mock(CertificateConverterRegistry.class);
-        final CertificateEntityToV73PropertiesModelConverter properties = mock(CertificateEntityToV73PropertiesModelConverter.class);
+        final var registry = mock(CertificateConverterRegistry.class);
+        final var properties = mock(CertificateEntityToV73PropertiesModelConverter.class);
         when(registry.propertiesConverter(eq(ApiConstants.V_7_3))).thenReturn(properties);
         registry.registerPropertiesConverter(properties);
-        final CertificateEntityToV73CertificateVersionItemModelConverter underTest =
+        final var underTest =
                 new CertificateEntityToV73CertificateVersionItemModelConverter(registry);
-        final ReadOnlyKeyVaultCertificateEntity input = mock(ReadOnlyKeyVaultCertificateEntity.class);
+        final var input = mock(ReadOnlyKeyVaultCertificateEntity.class);
         when(input.getId()).thenReturn(TestConstantsCertificates.VERSIONED_CERT_ENTITY_ID_1_VERSION_3);
 
         //when
-        final String actual = underTest.convertCertificateId(input, HTTPS_LOWKEY_VAULT);
+        final var actual = underTest.convertCertificateId(input, HTTPS_LOWKEY_VAULT);
 
         //then
         Assertions.assertEquals(HTTPS_LOWKEY_VAULT + "/certificates/" + CERT_NAME_1 + "/" + CERT_VERSION_3, actual);

@@ -90,11 +90,11 @@ public class AppConfiguration {
                 .flatMap(Arrays::stream)
                 .filter(StringUtils::hasText)
                 .forEach(pair -> {
-                    final String[] aliasPair = StringUtils.delimitedListToStringArray(pair, "=");
+                    final var aliasPair = StringUtils.delimitedListToStringArray(pair, "=");
                     Assert.isTrue(aliasPair.length == 2,
                             "Each alias pair must be in the 'vaultHost=aliasAuthority' format.");
-                    final URI baseUri = VaultUriUtil.vaultUri(aliasPair[0], port);
-                    final URI alias = VaultUriUtil.aliasUri(aliasPair[1], port);
+                    final var baseUri = VaultUriUtil.vaultUri(aliasPair[0], port);
+                    final var alias = VaultUriUtil.aliasUri(aliasPair[1], port);
                     service.updateAlias(baseUri, alias, null);
                 });
     }
@@ -102,7 +102,7 @@ public class AppConfiguration {
     @Bean
     @ConditionalOnExpression("${LOWKEY_DEBUG_REQUEST_LOG:false}")
     public CommonsRequestLoggingFilter requestLoggingFilter() {
-        final CommonsRequestLoggingFilter requestLoggingFilter = new CommonsRequestLoggingFilter();
+        final var requestLoggingFilter = new CommonsRequestLoggingFilter();
         requestLoggingFilter.setIncludeClientInfo(true);
         requestLoggingFilter.setIncludeQueryString(true);
         requestLoggingFilter.setIncludePayload(true);

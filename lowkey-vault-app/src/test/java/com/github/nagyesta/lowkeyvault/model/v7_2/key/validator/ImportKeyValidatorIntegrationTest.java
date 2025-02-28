@@ -59,10 +59,10 @@ class ImportKeyValidatorIntegrationTest {
     })
     void testValidateShouldUseRightGroupWhenCalledWithValidPayload(final String resource) throws IOException {
         //given
-        final ImportKeyRequest input = loadResourceAsObject(resource);
+        final var input = loadResourceAsObject(resource);
 
         //when
-        final Set<ConstraintViolation<ImportKeyRequest>> violations = validator.validate(input);
+        final var violations = validator.validate(input);
 
         //then
         Assertions.assertNotNull(violations);
@@ -74,15 +74,15 @@ class ImportKeyValidatorIntegrationTest {
     void testValidateShouldUseRightGroupAndMarkInvalidPropertiesWhenCalledWithInvalidPayload(
             final String resource, final String property) throws IOException {
         //given
-        final ImportKeyRequest input = loadResourceAsObject(resource);
+        final var input = loadResourceAsObject(resource);
 
         //when
-        final Set<ConstraintViolation<ImportKeyRequest>> violations = validator.validate(input);
+        final var violations = validator.validate(input);
 
         //then
         Assertions.assertNotNull(violations);
         Assertions.assertFalse(violations.isEmpty());
-        final Set<String> properties = violations.stream()
+        final var properties = violations.stream()
                 .map(ConstraintViolation::getPropertyPath)
                 .map(Path::toString)
                 .collect(Collectors.toSet());
@@ -90,7 +90,7 @@ class ImportKeyValidatorIntegrationTest {
     }
 
     private ImportKeyRequest loadResourceAsObject(final String resource) throws IOException {
-        final String json = ResourceUtils.loadResourceAsString(resource);
+        final var json = ResourceUtils.loadResourceAsString(resource);
         return objectMapper.reader().readValue(json, ImportKeyRequest.class);
     }
 }

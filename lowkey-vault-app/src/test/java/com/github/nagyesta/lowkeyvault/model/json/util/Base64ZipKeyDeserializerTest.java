@@ -16,11 +16,11 @@ class Base64ZipKeyDeserializerTest {
     @Test
     void testDeserializeShouldThrowExceptionWhenDecodingFails() throws IOException {
         //given
-        final Base64Deserializer base64Deserializer = mock(Base64Deserializer.class);
-        final ObjectMapper objectMapper = mock(ObjectMapper.class);
-        final Base64ZipKeyDeserializer underTest = new Base64ZipKeyDeserializer(base64Deserializer, objectMapper);
-        final JsonParser jsonParser = mock(JsonParser.class);
-        final DeserializationContext context = mock(DeserializationContext.class);
+        final var base64Deserializer = mock(Base64Deserializer.class);
+        final var objectMapper = mock(ObjectMapper.class);
+        final var underTest = new Base64ZipKeyDeserializer(base64Deserializer, objectMapper);
+        final var jsonParser = mock(JsonParser.class);
+        final var context = mock(DeserializationContext.class);
         when(base64Deserializer.deserializeBase64(eq(jsonParser))).thenReturn(new byte[1]);
         when(objectMapper.reader()).thenThrow(new IllegalStateException("Fail"));
 
@@ -34,13 +34,13 @@ class Base64ZipKeyDeserializerTest {
     @Test
     void testDeserializeShouldWriteNullWhenCalledWithNullInput() throws IOException {
         //given
-        final Base64ZipKeyDeserializer underTest = new Base64ZipKeyDeserializer();
-        final JsonParser jsonParser = mock(JsonParser.class);
+        final var underTest = new Base64ZipKeyDeserializer();
+        final var jsonParser = mock(JsonParser.class);
         when(jsonParser.readValueAs(eq(String.class))).thenReturn("");
-        final DeserializationContext context = mock(DeserializationContext.class);
+        final var context = mock(DeserializationContext.class);
 
         //when
-        final KeyBackupList actual = underTest.deserialize(jsonParser, context);
+        final var actual = underTest.deserialize(jsonParser, context);
 
         //then
         Assertions.assertNull(actual);
@@ -50,10 +50,10 @@ class Base64ZipKeyDeserializerTest {
     @Test
     void testGetTypeShouldReturnCorrectTypeWhenCalled() {
         //given
-        final Base64ZipKeyDeserializer underTest = new Base64ZipKeyDeserializer();
+        final var underTest = new Base64ZipKeyDeserializer();
 
         //when
-        final Class<KeyBackupList> actual = underTest.getType();
+        final var actual = underTest.getType();
 
         //then
         Assertions.assertEquals(KeyBackupList.class, actual);

@@ -74,7 +74,7 @@ public class VaultBackupConfiguration {
     @SuppressWarnings("checkstyle:MagicNumber")
     @Bean
     public VaultImporterProperties vaultImporterProperties() {
-        final String file = Objects.requireNonNull(getClass().getResource("/template/full-import.json.hbs")).getFile();
+        final var file = Objects.requireNonNull(getClass().getResource("/template/full-import.json.hbs")).getFile();
         return new VaultImporterProperties(new File(file), "127.0.0.1", 8444);
     }
 

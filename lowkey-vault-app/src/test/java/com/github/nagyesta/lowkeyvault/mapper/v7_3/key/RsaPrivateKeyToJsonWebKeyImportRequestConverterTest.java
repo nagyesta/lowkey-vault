@@ -1,12 +1,10 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_3.key;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRequest;
 import com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.security.KeyPair;
 import java.security.interfaces.RSAPrivateCrtKey;
 
 class RsaPrivateKeyToJsonWebKeyImportRequestConverterTest {
@@ -14,12 +12,12 @@ class RsaPrivateKeyToJsonWebKeyImportRequestConverterTest {
     @Test
     void testConvertShouldSetParametersWhenCalledWithValidRsaPrivateKey() {
         //given
-        final RsaPrivateKeyToJsonWebKeyImportRequestConverter underTest = new RsaPrivateKeyToJsonWebKeyImportRequestConverter();
-        final KeyPair keyPair = KeyGenUtil.generateRsa(2048, null);
-        final RSAPrivateCrtKey privateKey = (RSAPrivateCrtKey) keyPair.getPrivate();
+        final var underTest = new RsaPrivateKeyToJsonWebKeyImportRequestConverter();
+        final var keyPair = KeyGenUtil.generateRsa(2048, null);
+        final var privateKey = (RSAPrivateCrtKey) keyPair.getPrivate();
 
         //when
-        final JsonWebKeyImportRequest actual = underTest.convert(privateKey);
+        final var actual = underTest.convert(privateKey);
 
         //then
         Assertions.assertNotNull(actual);
@@ -38,7 +36,7 @@ class RsaPrivateKeyToJsonWebKeyImportRequestConverterTest {
     @Test
     void testConvertShouldThrowExceptionWhenCalledWithNull() {
         //given
-        final RsaPrivateKeyToJsonWebKeyImportRequestConverter underTest = new RsaPrivateKeyToJsonWebKeyImportRequestConverter();
+        final var underTest = new RsaPrivateKeyToJsonWebKeyImportRequestConverter();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.convert(null));

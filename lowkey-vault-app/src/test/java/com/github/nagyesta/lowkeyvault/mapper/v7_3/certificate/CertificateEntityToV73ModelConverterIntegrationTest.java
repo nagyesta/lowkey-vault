@@ -3,11 +3,6 @@ package com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate;
 import com.github.nagyesta.lowkeyvault.mapper.common.registry.CertificateConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
-import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificatePolicyModel;
-import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificatePropertiesModel;
-import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.IssuerParameterModel;
-import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.KeyVaultCertificateModel;
-import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertContentType;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateCreationInput;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.KeyUsageEnum;
@@ -40,11 +35,11 @@ class CertificateEntityToV73ModelConverterIntegrationTest {
     @Test
     void testConvertShouldConvertValuableFieldsWhenCalledWithValidCertificate() throws CertificateEncodingException {
         //given
-        final CertificateConverterRegistry registry = new CertificateConverterRegistry();
+        final var registry = new CertificateConverterRegistry();
         new CertificateEntityToV73PropertiesModelConverter(registry).afterPropertiesSet();
         new CertificateEntityToV73PolicyModelConverter(registry).afterPropertiesSet();
-        final CertificateEntityToV73ModelConverter underTest = new CertificateEntityToV73ModelConverter(registry);
-        final CertificateCreationInput input = CertificateCreationInput.builder()
+        final var underTest = new CertificateEntityToV73ModelConverter(registry);
+        final var input = CertificateCreationInput.builder()
                 .validityStart(NOW)
                 .subject("CN=" + LOCALHOST)
                 .upns(Set.of(LOOP_BACK_IP))
@@ -64,20 +59,20 @@ class CertificateEntityToV73ModelConverterIntegrationTest {
                 .exportablePrivateKey(true)
                 .build();
         final VaultFake vault = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
-        final KeyVaultCertificateEntity source = new KeyVaultCertificateEntity(CERT_NAME_1, input, vault);
-        final VersionedCertificateEntityId id = source.getId();
-        final Map<String, String> tags = Map.of(KEY_1, VALUE_1, KEY_2, VALUE_2, KEY_3, VALUE_3);
+        final var source = new KeyVaultCertificateEntity(CERT_NAME_1, input, vault);
+        final var id = source.getId();
+        final var tags = Map.of(KEY_1, VALUE_1, KEY_2, VALUE_2, KEY_3, VALUE_3);
         source.setTags(tags);
 
         ///when
-        final KeyVaultCertificateModel actual = underTest.convert(source, HTTPS_LOCALHOST_8443);
+        final var actual = underTest.convert(source, HTTPS_LOCALHOST_8443);
 
         //then
         Assertions.assertEquals(id.asUri(HTTPS_LOCALHOST_8443).toString(), actual.getId());
         Assertions.assertEquals(source.getKid().asUri(HTTPS_LOCALHOST_8443).toString(), actual.getKid());
         Assertions.assertEquals(source.getSid().asUri(HTTPS_LOCALHOST_8443).toString(), actual.getSid());
 
-        final CertificatePropertiesModel attributes = actual.getAttributes();
+        final var attributes = actual.getAttributes();
         Assertions.assertTrue(NOW.isBefore(attributes.getCreatedOn()),
                 "CreatedOn should be later than the beginning of the test.");
         Assertions.assertTrue(NOW.isBefore(attributes.getUpdatedOn()),
@@ -87,9 +82,9 @@ class CertificateEntityToV73ModelConverterIntegrationTest {
         Assertions.assertEquals(vault.getRecoveryLevel(), attributes.getRecoveryLevel());
         Assertions.assertEquals(vault.getRecoverableDays(), attributes.getRecoverableDays());
 
-        final CertificatePolicyModel policy = actual.getPolicy();
+        final var policy = actual.getPolicy();
         Assertions.assertEquals(id.asPolicyUri(HTTPS_LOCALHOST_8443).toString(), policy.getId());
-        final IssuerParameterModel issuer = policy.getIssuer();
+        final var issuer = policy.getIssuer();
         Assertions.assertEquals(UNKNOWN.getValue(), issuer.getIssuer());
         Assertions.assertNull(issuer.getCertType());
 
@@ -101,7 +96,7 @@ class CertificateEntityToV73ModelConverterIntegrationTest {
     @Test
     void testGetThumbprintShouldWrapExceptionWhenThumbprintCalculationFails() {
         //given
-        final CertificateCreationInput input = CertificateCreationInput.builder()
+        final var input = CertificateCreationInput.builder()
                 .validityStart(NOW)
                 .subject("CN=" + LOCALHOST)
                 .name(CERT_NAME_1)
@@ -113,8 +108,8 @@ class CertificateEntityToV73ModelConverterIntegrationTest {
                 .validityMonths(VALIDITY_MONTHS)
                 .build();
         final VaultFake vault = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
-        final KeyVaultCertificateEntity source = new KeyVaultCertificateEntity(CERT_NAME_1, input, vault);
-        final KeyVaultCertificateEntity underTest = spy(source);
+        final var source = new KeyVaultCertificateEntity(CERT_NAME_1, input, vault);
+        final var underTest = spy(source);
 
         doThrow(new IllegalArgumentException("fail")).when(underTest).getEncodedCertificate();
 

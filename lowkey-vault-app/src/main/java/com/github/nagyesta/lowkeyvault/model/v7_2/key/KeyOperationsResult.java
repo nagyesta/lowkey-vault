@@ -50,7 +50,7 @@ public class KeyOperationsResult {
                                                 @NonNull final String value,
                                                 @NonNull final KeyOperationsParameters input,
                                                 @NonNull final URI vaultUri) {
-        final KeyOperationsResult result = new KeyOperationsResult();
+        final var result = new KeyOperationsResult();
         result.setId(keyEntityId.asUri(vaultUri));
         result.setValue(value);
         result.setInitializationVector(input.getInitializationVector());

@@ -2,11 +2,12 @@ package com.github.nagyesta.lowkeyvault.template.backup;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.jknack.handlebars.internal.Files;
-import com.github.nagyesta.lowkeyvault.model.common.backup.*;
+import com.github.nagyesta.lowkeyvault.model.common.backup.CertificateBackupModel;
+import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupModel;
+import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupModel;
 import com.github.nagyesta.lowkeyvault.model.management.VaultBackupListModel;
 import com.github.nagyesta.lowkeyvault.model.management.VaultBackupModel;
 import com.github.nagyesta.lowkeyvault.model.management.VaultModel;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.Getter;
 import lombok.NonNull;
@@ -56,8 +57,8 @@ public class VaultImporter implements InitializingBean {
 
     public void importTemplates() {
         if (importFileExists()) {
-            final BackupContext context = vaultImporterProperties.context();
-            final VaultBackupListModel model = readFile(vaultImporterProperties.getImportFile(), context);
+            final var context = vaultImporterProperties.context();
+            final var model = readFile(vaultImporterProperties.getImportFile(), context);
             assertValid(model);
             preprocessVaults(model);
         }
@@ -74,7 +75,7 @@ public class VaultImporter implements InitializingBean {
     }
 
     void assertValid(final VaultBackupListModel model) {
-        final Set<ConstraintViolation<VaultBackupListModel>> violations = validator.validate(model);
+        final var violations = validator.validate(model);
         if (!violations.isEmpty()) {
             log.error(violations.stream()
                     .map(v -> "'" + v.getPropertyPath() + "': " + v.getMessage()).collect(Collectors.joining(", ")));
@@ -84,8 +85,8 @@ public class VaultImporter implements InitializingBean {
 
     public VaultBackupListModel readFile(final File input, final BackupContext context) {
         try {
-            final String jsonTemplate = Files.read(input, StandardCharsets.UTF_8);
-            final String json = backupTemplateProcessor.processTemplate(jsonTemplate, context);
+            final var jsonTemplate = Files.read(input, StandardCharsets.UTF_8);
+            final var json = backupTemplateProcessor.processTemplate(jsonTemplate, context);
             return objectMapper.readValue(json, VaultBackupListModel.class);
         } catch (final IOException ex) {
             throw new IllegalArgumentException("Unable to read file: " + input.getAbsolutePath(), ex);
@@ -106,11 +107,11 @@ public class VaultImporter implements InitializingBean {
     }
 
     private void preprocessKeysOfBackup(final VaultBackupModel v) {
-        final List<KeyBackupModel> keyModelList = keys
+        final var keyModelList = keys
                 .computeIfAbsent(v.getAttributes().getBaseUri(), k -> new ArrayList<>());
         Optional.ofNullable(v.getKeys()).ifPresent(k -> {
-            for (final KeyBackupList value : k.values()) {
-                final KeyBackupModel backupModel = new KeyBackupModel();
+            for (final var value : k.values()) {
+                final var backupModel = new KeyBackupModel();
                 backupModel.setValue(value);
                 keyModelList.add(backupModel);
             }
@@ -118,11 +119,11 @@ public class VaultImporter implements InitializingBean {
     }
 
     private void preprocessSecretsOfBackup(final VaultBackupModel v) {
-        final List<SecretBackupModel> secretModelList = secrets
+        final var secretModelList = secrets
                 .computeIfAbsent(v.getAttributes().getBaseUri(), k -> new ArrayList<>());
         Optional.ofNullable(v.getSecrets()).ifPresent(s -> {
-            for (final SecretBackupList value : s.values()) {
-                final SecretBackupModel backupModel = new SecretBackupModel();
+            for (final var value : s.values()) {
+                final var backupModel = new SecretBackupModel();
                 backupModel.setValue(value);
                 secretModelList.add(backupModel);
             }
@@ -130,11 +131,11 @@ public class VaultImporter implements InitializingBean {
     }
 
     private void preprocessCertificatesOfBackup(final VaultBackupModel v) {
-        final List<CertificateBackupModel> certificateModelList = certificates
+        final var certificateModelList = certificates
                 .computeIfAbsent(v.getAttributes().getBaseUri(), k -> new ArrayList<>());
         Optional.ofNullable(v.getCertificates()).ifPresent(c -> {
-            for (final CertificateBackupList value : c.values()) {
-                final CertificateBackupModel backupModel = new CertificateBackupModel();
+            for (final var value : c.values()) {
+                final var backupModel = new CertificateBackupModel();
                 backupModel.setValue(value);
                 certificateModelList.add(backupModel);
             }

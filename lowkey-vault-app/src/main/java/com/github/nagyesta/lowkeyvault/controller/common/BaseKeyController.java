@@ -37,7 +37,7 @@ public abstract class BaseKeyController extends GenericEntityController<KeyEntit
 
     protected VersionedKeyEntityId createKeyWithAttributes(
             final KeyVaultFake keyVaultFake, final String keyName, final CreateKeyRequest request) {
-        final KeyPropertiesModel properties = Objects.requireNonNullElse(request.getProperties(), new KeyPropertiesModel());
+        final var properties = Objects.requireNonNullElse(request.getProperties(), new KeyPropertiesModel());
         //no need to set managed property as this endpoint cannot create managed entities by definition
         return keyVaultFake.createKeyVersion(keyName, KeyCreateDetailedInput.builder()
                 .key(request.toKeyCreationInput())
@@ -53,7 +53,7 @@ public abstract class BaseKeyController extends GenericEntityController<KeyEntit
 
     protected VersionedKeyEntityId importKeyWithAttributes(
             final KeyVaultFake keyVaultFake, final String keyName, final ImportKeyRequest request) {
-        final BasePropertiesUpdateModel properties = Objects
+        final var properties = Objects
                 .requireNonNullElse(request.getProperties(), new BasePropertiesUpdateModel());
         return keyVaultFake.importKeyVersion(keyName, KeyImportInput.builder()
                 .key(request.getKey())

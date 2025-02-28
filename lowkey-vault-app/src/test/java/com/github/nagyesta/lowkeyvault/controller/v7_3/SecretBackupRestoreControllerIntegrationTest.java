@@ -10,7 +10,6 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.KeyVaultSecretModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.SecretPropertiesModel;
 import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
-import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultFake;
 import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId;
 import com.github.nagyesta.lowkeyvault.service.secret.impl.SecretCreateInput;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
@@ -25,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.MimeTypeUtils;
 
 import java.net.URI;
@@ -87,16 +85,16 @@ class SecretBackupRestoreControllerIntegrationTest {
     @Test
     void testRestoreEntityShouldRestoreASingleSecretWhenCalledWithValidInput() {
         //given
-        final SecretBackupModel backupModel = new SecretBackupModel();
+        final var backupModel = new SecretBackupModel();
         backupModel.setValue(new SecretBackupList());
         addVersionToList(uri, SECRET_NAME_1, SECRET_VERSION_1, backupModel, TAGS_THREE_KEYS);
 
         //when
-        final ResponseEntity<KeyVaultSecretModel> actual = underTest.restore(uri, backupModel);
+        final var actual = underTest.restore(uri, backupModel);
 
         //then
         Assertions.assertNotNull(actual);
-        final KeyVaultSecretModel actualBody = actual.getBody();
+        final var actualBody = actual.getBody();
         Assertions.assertNotNull(actualBody);
         Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
         assertRestoredSecretMatchesExpectations(actualBody, SECRET_VERSION_1, TAGS_THREE_KEYS);
@@ -105,18 +103,18 @@ class SecretBackupRestoreControllerIntegrationTest {
     @Test
     void testRestoreEntityShouldRestoreAThreeSecretsWhenCalledWithValidInput() {
         //given
-        final SecretBackupModel backupModel = new SecretBackupModel();
+        final var backupModel = new SecretBackupModel();
         backupModel.setValue(new SecretBackupList());
         addVersionToList(uri, SECRET_NAME_1, SECRET_VERSION_1, backupModel, null);
         addVersionToList(uri, SECRET_NAME_1, SECRET_VERSION_2, backupModel, TAGS_THREE_KEYS);
         addVersionToList(uri, SECRET_NAME_1, SECRET_VERSION_3, backupModel, TAGS_EMPTY);
 
         //when
-        final ResponseEntity<KeyVaultSecretModel> actual = underTest.restore(uri, backupModel);
+        final var actual = underTest.restore(uri, backupModel);
 
         //then
         Assertions.assertNotNull(actual);
-        final KeyVaultSecretModel actualBody = actual.getBody();
+        final var actualBody = actual.getBody();
         Assertions.assertNotNull(actualBody);
         Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
         assertRestoredSecretMatchesExpectations(actualBody, SECRET_VERSION_3, TAGS_EMPTY);
@@ -125,7 +123,7 @@ class SecretBackupRestoreControllerIntegrationTest {
     @Test
     void testRestoreEntityShouldThrowExceptionWhenCalledWithMoreThanOneUris() {
         //given
-        final SecretBackupModel backupModel = new SecretBackupModel();
+        final var backupModel = new SecretBackupModel();
         backupModel.setValue(new SecretBackupList());
         addVersionToList(uri, SECRET_NAME_1, SECRET_VERSION_1, backupModel, null);
         addVersionToList(TestConstantsUri.HTTPS_DEFAULT_LOWKEY_VAULT, SECRET_NAME_1, SECRET_VERSION_2, backupModel, TAGS_THREE_KEYS);
@@ -139,7 +137,7 @@ class SecretBackupRestoreControllerIntegrationTest {
     @Test
     void testRestoreEntityShouldThrowExceptionWhenCalledWithMoreThanOneNames() {
         //given
-        final SecretBackupModel backupModel = new SecretBackupModel();
+        final var backupModel = new SecretBackupModel();
         backupModel.setValue(new SecretBackupList());
         addVersionToList(uri, SECRET_NAME_1, SECRET_VERSION_1, backupModel, null);
         addVersionToList(uri, SECRET_NAME_2, SECRET_VERSION_2, backupModel, TAGS_THREE_KEYS);
@@ -153,7 +151,7 @@ class SecretBackupRestoreControllerIntegrationTest {
     @Test
     void testRestoreEntityShouldThrowExceptionWhenCalledWithUnknownUri() {
         //given
-        final SecretBackupModel backupModel = new SecretBackupModel();
+        final var backupModel = new SecretBackupModel();
         backupModel.setValue(new SecretBackupList());
         addVersionToList(URI.create("https://uknknown.uri"), SECRET_NAME_1, SECRET_VERSION_1, backupModel, null);
 
@@ -166,7 +164,7 @@ class SecretBackupRestoreControllerIntegrationTest {
     @Test
     void testRestoreEntityShouldThrowExceptionWhenNameMatchesActiveSecret() {
         //given
-        final SecretBackupModel backupModel = new SecretBackupModel();
+        final var backupModel = new SecretBackupModel();
         backupModel.setValue(new SecretBackupList());
         addVersionToList(uri, SECRET_NAME_1, SECRET_VERSION_1, backupModel, TAGS_EMPTY);
         addVersionToList(uri, SECRET_NAME_1, SECRET_VERSION_2, backupModel, TAGS_ONE_KEY);
@@ -183,12 +181,12 @@ class SecretBackupRestoreControllerIntegrationTest {
     @Test
     void testRestoreEntityShouldThrowExceptionWhenNameMatchesDeletedSecret() {
         //given
-        final SecretBackupModel backupModel = new SecretBackupModel();
+        final var backupModel = new SecretBackupModel();
         backupModel.setValue(new SecretBackupList());
         addVersionToList(uri, SECRET_NAME_1, SECRET_VERSION_1, backupModel, TAGS_EMPTY);
         addVersionToList(uri, SECRET_NAME_1, SECRET_VERSION_2, backupModel, TAGS_ONE_KEY);
-        final SecretVaultFake vaultFake = vaultService.findByUri(uri).secretVaultFake();
-        final VersionedSecretEntityId secretVersion = vaultFake.createSecretVersion(SECRET_NAME_1, SecretCreateInput.builder()
+        final var vaultFake = vaultService.findByUri(uri).secretVaultFake();
+        final var secretVersion = vaultFake.createSecretVersion(SECRET_NAME_1, SecretCreateInput.builder()
                 .value(LOWKEY_VAULT)
                 .build());
         vaultFake.delete(secretVersion);
@@ -202,18 +200,18 @@ class SecretBackupRestoreControllerIntegrationTest {
     @Test
     void testBackupEntityShouldReturnTheOriginalBackupModelWhenCalledAfterRestoreEntity() {
         //given
-        final SecretBackupModel backupModel = new SecretBackupModel();
+        final var backupModel = new SecretBackupModel();
         backupModel.setValue(new SecretBackupList());
         addVersionToList(uri, SECRET_NAME_1, SECRET_VERSION_1, backupModel, TAGS_EMPTY);
         addVersionToList(uri, SECRET_NAME_1, SECRET_VERSION_2, backupModel, TAGS_ONE_KEY);
         underTest.restore(uri, backupModel);
 
         //when
-        final ResponseEntity<SecretBackupModel> actual = underTest.backup(SECRET_NAME_1, uri);
+        final var actual = underTest.backup(SECRET_NAME_1, uri);
 
         //then
         Assertions.assertNotNull(actual);
-        final SecretBackupModel actualBody = actual.getBody();
+        final var actualBody = actual.getBody();
         Assertions.assertNotNull(actualBody);
         Assertions.assertEquals(backupModel, actualBody);
         Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
@@ -236,13 +234,13 @@ class SecretBackupRestoreControllerIntegrationTest {
 
     private void addVersionToList(final URI baseUri, final String name, final String version,
                                   final SecretBackupModel backupModel, final Map<String, String> tags) {
-        final SecretBackupListItem listItem = new SecretBackupListItem();
+        final var listItem = new SecretBackupListItem();
         listItem.setValue(LOWKEY_VAULT);
         listItem.setContentType(MimeTypeUtils.TEXT_PLAIN_VALUE);
         listItem.setVaultBaseUri(baseUri);
         listItem.setId(name);
         listItem.setVersion(version);
-        final SecretPropertiesModel propertiesModel = new SecretPropertiesModel();
+        final var propertiesModel = new SecretPropertiesModel();
         propertiesModel.setCreatedOn(TIME_10_MINUTES_AGO);
         propertiesModel.setUpdatedOn(NOW);
         propertiesModel.setNotBefore(TIME_IN_10_MINUTES);

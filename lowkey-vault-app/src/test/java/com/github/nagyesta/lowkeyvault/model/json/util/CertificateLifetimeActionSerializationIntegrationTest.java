@@ -3,8 +3,6 @@ package com.github.nagyesta.lowkeyvault.model.json.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionActivity;
@@ -26,13 +24,13 @@ class CertificateLifetimeActionSerializationIntegrationTest {
     @Test
     void testSerializeShouldGenerateObjectRepresentationWhenCalledWithNonNullValue() throws JsonProcessingException {
         //given
-        final ObjectMapper objectMapper = new ObjectMapper();
-        final ObjectWriter objectWriter = objectMapper.writer();
-        final TestObjectType input = new TestObjectType();
+        final var objectMapper = new ObjectMapper();
+        final var objectWriter = objectMapper.writer();
+        final var input = new TestObjectType();
         input.setAction(CertificateLifetimeActionActivity.AUTO_RENEW);
 
         //when
-        final String actual = objectWriter.writeValueAsString(input);
+        final var actual = objectWriter.writeValueAsString(input);
 
         //then
         Assertions.assertEquals(VALID_FULL_AUTO_RENEW, actual);
@@ -41,8 +39,8 @@ class CertificateLifetimeActionSerializationIntegrationTest {
     @Test
     void testDeserializeShouldReturnExpectedEnumWhenCalledWithValidJsonObject() throws IOException {
         //given
-        final ObjectMapper objectMapper = new ObjectMapper();
-        final ObjectReader objectReader = objectMapper.readerFor(TestObjectType.class);
+        final var objectMapper = new ObjectMapper();
+        final var objectReader = objectMapper.readerFor(TestObjectType.class);
 
         //when
         final TestObjectType actual = objectReader.readValue(VALID_FULL_AUTO_RENEW);
@@ -55,8 +53,8 @@ class CertificateLifetimeActionSerializationIntegrationTest {
     @Test
     void testDeserializeShouldReturnExpectedEnumWhenCalledWithNullJsonValue() throws IOException {
         //given
-        final ObjectMapper objectMapper = new ObjectMapper();
-        final ObjectReader objectReader = objectMapper.readerFor(TestObjectType.class);
+        final var objectMapper = new ObjectMapper();
+        final var objectReader = objectMapper.readerFor(TestObjectType.class);
 
         //when
         final TestObjectType actual = objectReader.readValue(VALID_NULL_ACTION_TYPE);
@@ -70,8 +68,8 @@ class CertificateLifetimeActionSerializationIntegrationTest {
     @ValueSource(strings = {INVALID_NULL_ACTION_TYPE, INVALID_UNKNOWN_ACTION_TYPE})
     void testDeserializeShouldReturnExpectedEnumWhenCalledWithInvalidJsonObject(final String json) {
         //given
-        final ObjectMapper objectMapper = new ObjectMapper();
-        final ObjectReader objectReader = objectMapper.readerFor(TestObjectType.class);
+        final var objectMapper = new ObjectMapper();
+        final var objectReader = objectMapper.readerFor(TestObjectType.class);
 
         //when
         Assertions.assertThrows(JsonMappingException.class, () -> objectReader.readValue(json));

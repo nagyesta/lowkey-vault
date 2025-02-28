@@ -11,8 +11,6 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.CreateKeyRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.ImportKeyRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.UpdateKeyRequest;
-import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
-import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
@@ -153,8 +151,8 @@ public class KeyController extends CommonKeyController {
         log.info("Received request to {} rotate key: {} using API version: {}",
                 baseUri.toString(), keyName, apiVersion());
 
-        final VersionedKeyEntityId rotatedKeyId = getVaultByUri(baseUri).rotateKey(entityId(baseUri, keyName));
-        final ReadOnlyKeyVaultKeyEntity keyVaultKeyEntity = getEntityByNameAndVersion(baseUri, keyName, rotatedKeyId.version());
+        final var rotatedKeyId = getVaultByUri(baseUri).rotateKey(entityId(baseUri, keyName));
+        final var keyVaultKeyEntity = getEntityByNameAndVersion(baseUri, keyName, rotatedKeyId.version());
         return ResponseEntity.ok(convertDetails(keyVaultKeyEntity, baseUri));
     }
 

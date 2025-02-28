@@ -7,9 +7,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URI;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -45,7 +43,7 @@ class UriUtilTest {
     @Test
     void testConstructorShouldThrowExceptionWhenCalled() throws NoSuchMethodException {
         //given
-        final Constructor<UriUtil> constructor = UriUtil.class.getDeclaredConstructor();
+        final var constructor = UriUtil.class.getDeclaredConstructor();
         constructor.setAccessible(true);
 
         //when
@@ -81,7 +79,7 @@ class UriUtilTest {
         //given
 
         //when
-        final URI actual = UriUtil.uriBuilderForPath(baseUri, path, parameters);
+        final var actual = UriUtil.uriBuilderForPath(baseUri, path, parameters);
 
         //then
         Assertions.assertEquals(expected, actual.toString());

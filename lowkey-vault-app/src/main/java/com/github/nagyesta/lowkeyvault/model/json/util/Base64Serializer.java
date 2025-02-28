@@ -23,7 +23,7 @@ public class Base64Serializer extends JsonSerializer<byte[]> {
 
     @Override
     public void serialize(final byte[] value, final JsonGenerator generator, final SerializerProvider provider) throws IOException {
-        final String text = base64Encode(value);
+        final var text = base64Encode(value);
         if (text != null) {
             generator.writeString(text);
         } else {
@@ -32,7 +32,7 @@ public class Base64Serializer extends JsonSerializer<byte[]> {
     }
 
     protected String base64Encode(final byte[] value) {
-        final Optional<byte[]> optional = Optional.ofNullable(value);
+        final var optional = Optional.ofNullable(value);
         return optional.filter(v -> v.length > 0)
                 .map(encoder::encodeToString)
                 .orElse(null);

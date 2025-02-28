@@ -29,7 +29,7 @@ class LifetimeActionTypeTest {
         //given
 
         //when
-        final LifetimeActionType actual = LifetimeActionType.forValue(input);
+        final var actual = LifetimeActionType.forValue(input);
 
         //then
         Assertions.assertEquals(expected, actual);

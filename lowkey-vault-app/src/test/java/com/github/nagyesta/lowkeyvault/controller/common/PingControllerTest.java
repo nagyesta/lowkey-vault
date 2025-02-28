@@ -4,17 +4,16 @@ import com.github.nagyesta.lowkeyvault.controller.PingController;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 class PingControllerTest {
 
     @Test
     void testPingShouldReturnPongWhenCalled() {
         //given
-        final PingController underTest = new PingController();
+        final var underTest = new PingController();
 
         //when
-        final ResponseEntity<String> actual = underTest.ping();
+        final var actual = underTest.ping();
 
         //then
         Assertions.assertNotNull(actual);

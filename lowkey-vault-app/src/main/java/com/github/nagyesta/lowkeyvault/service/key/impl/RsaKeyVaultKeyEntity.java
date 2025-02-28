@@ -17,7 +17,6 @@ import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.concurrent.Callable;
 
 import static com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil.generateRsa;
 
@@ -105,7 +104,7 @@ public class RsaKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, Integer> im
         Assert.state(getOperations().contains(KeyOperation.WRAP_KEY), getId() + " does not have WRAP_KEY operation assigned.");
         Assert.state(isEnabled(), getId() + " is not enabled.");
         return doCrypto(() -> {
-            final Cipher cipher = Cipher.getInstance(encryptionAlgorithm.getAlg(), KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
+            final var cipher = Cipher.getInstance(encryptionAlgorithm.getAlg(), KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
             cipher.init(Cipher.ENCRYPT_MODE, getKey().getPublic());
             return cipher.doFinal(clear);
         }, "Cannot encrypt message.", log);
@@ -117,7 +116,7 @@ public class RsaKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, Integer> im
         Assert.state(getOperations().contains(KeyOperation.UNWRAP_KEY), getId() + " does not have UNWRAP_KEY operation assigned.");
         Assert.state(isEnabled(), getId() + " is not enabled.");
         return doCrypto(() -> {
-            final Cipher cipher = Cipher.getInstance(encryptionAlgorithm.getAlg(), KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
+            final var cipher = Cipher.getInstance(encryptionAlgorithm.getAlg(), KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
             cipher.init(Cipher.DECRYPT_MODE, getKey().getPrivate());
             return cipher.doFinal(encrypted);
         }, "Cannot decrypt message.", log);
@@ -126,7 +125,7 @@ public class RsaKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, Integer> im
     @Override
     public byte[] signBytes(final byte[] digest, final SignatureAlgorithm signatureAlgorithm) {
         validateGenericSignOrVerifyInputs(digest, signatureAlgorithm, KeyOperation.SIGN);
-        final Callable<byte[]> signCallable = signCallable(digest, signatureAlgorithm, getKey().getPrivate());
+        final var signCallable = signCallable(digest, signatureAlgorithm, getKey().getPrivate());
         return doCrypto(signCallable, "Cannot sign message.", log);
     }
 
@@ -135,7 +134,7 @@ public class RsaKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, Integer> im
                                      final SignatureAlgorithm signatureAlgorithm,
                                      final byte[] signature) {
         validateGenericSignOrVerifyInputs(digest, signatureAlgorithm, KeyOperation.VERIFY);
-        final Callable<Boolean> verifyCallable = verifyCallable(digest, signatureAlgorithm, signature, getKey().getPublic());
+        final var verifyCallable = verifyCallable(digest, signatureAlgorithm, signature, getKey().getPublic());
         return doCrypto(verifyCallable, "Cannot verify digest message.", log);
     }
 }

@@ -35,7 +35,7 @@ public class MetadataController {
 
     @GetMapping(value = {"/metadata/identity/oauth2/token", "/metadata/identity/oauth2/token/"})
     public ResponseEntity<TokenResponse> getManagedIdentityToken(@RequestParam("resource") final URI resource) {
-        final TokenResponse body = new TokenResponse(resource);
+        final var body = new TokenResponse(resource);
         log.info("Returning token: {}", body);
         return ResponseEntity.ok()
                 .header(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=" + tokenRealm)

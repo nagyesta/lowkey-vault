@@ -40,7 +40,7 @@ public enum KeyCurveName {
         this.value = value;
         this.alg = alg;
         this.bitLength = bitLength;
-        final TreeSet<String> algSet = new TreeSet<>(equivalentAlgs);
+        final var algSet = new TreeSet<String>(equivalentAlgs);
         algSet.add(alg);
         this.equivalentAlgs = algSet;
     }

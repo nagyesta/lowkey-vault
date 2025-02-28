@@ -24,7 +24,6 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -75,9 +74,9 @@ class LowkeyVaultManagementClientImplTest {
     void testCreateVaultShouldThrowExceptionWhenCalledWithNull(
             final URI baseUri, final RecoveryLevel recoveryLevel, final Integer recoverableDays) {
         //given
-        final HttpClient httpClient = mock(HttpClient.class);
-        final ObjectMapper objectMapper = mock(ObjectMapper.class);
-        final LowkeyVaultManagementClientImpl underTest =
+        final var httpClient = mock(HttpClient.class);
+        final var objectMapper = mock(ObjectMapper.class);
+        final var underTest =
                 new LowkeyVaultManagementClientImpl(HTTPS_LOCALHOST, httpClient, objectMapper);
 
         //when
@@ -122,8 +121,8 @@ class LowkeyVaultManagementClientImplTest {
         @Test
         void testVerifyConnectivityShouldThrowExceptionWhenExceptionSupplierIsNull() {
             //given
-            final int retries = 2;
-            final int waitMillis = 1;
+            final var retries = 2;
+            final var waitMillis = 1;
             final Supplier<RuntimeException> exceptionProvider = null;
 
             //when
@@ -137,8 +136,8 @@ class LowkeyVaultManagementClientImplTest {
         @Test
         void testVerifyConnectivityShouldKeepRetryingUntilTheLimitIsReachedWhenContainerIsNotRunning() {
             //given
-            final int retries = 2;
-            final int waitMillis = 1;
+            final var retries = 2;
+            final var waitMillis = 1;
             when(httpClient.send(any())).thenThrow(LowkeyVaultException.class);
 
             //when
@@ -152,9 +151,9 @@ class LowkeyVaultManagementClientImplTest {
         @Test
         void testVerifyConnectivityShouldReturnAfterFirstSuccessWhenContainerIsStarted() throws InterruptedException {
             //given
-            final int retries = 2;
-            final int waitMillis = 1;
-            final HttpResponse response = mock(HttpResponse.class);
+            final var retries = 2;
+            final var waitMillis = 1;
+            final var response = mock(HttpResponse.class);
             when(httpClient.send(any())).thenReturn(Mono.just(response));
             when(response.getStatusCode()).thenReturn(HttpStatus.SC_OK);
             when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.empty());
@@ -171,30 +170,30 @@ class LowkeyVaultManagementClientImplTest {
         @Test
         void testCreateVaultShouldTransformInputToModelWhenCalledWithValidInput() throws JsonProcessingException {
             //given
-            final URI baseUri = URI.create(HTTPS_LOCALHOST);
-            final RecoveryLevel recoveryLevel = RecoveryLevel.RECOVERABLE;
+            final var baseUri = URI.create(HTTPS_LOCALHOST);
+            final var recoveryLevel = RecoveryLevel.RECOVERABLE;
             final Integer recoverableDays = RECOVERABLE_DAYS;
-            final VaultModel result = new VaultModel();
-            final HttpResponse response = mock(HttpResponse.class);
+            final var result = new VaultModel();
+            final var response = mock(HttpResponse.class);
             when(httpClient.send(httpRequestArgumentCaptor.capture())).thenReturn(Mono.just(response));
             when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.just(JSON));
             when(response.getStatusCode()).thenReturn(HttpStatus.SC_OK);
             when(objectReader.forType(eq(VaultModel.class))).thenReturn(objectReader);
             when(objectReader.readValue(eq(JSON))).thenReturn(result);
-            final VaultModel expectedRequestVault = new VaultModel(baseUri, null, recoveryLevel, recoverableDays, null, null);
+            final var expectedRequestVault = new VaultModel(baseUri, null, recoveryLevel, recoverableDays, null, null);
             when(objectWriter.writeValueAsString(eq(expectedRequestVault))).thenReturn(JSON);
 
             //when
-            final VaultModel actual = underTest.createVault(baseUri, recoveryLevel, recoverableDays);
+            final var actual = underTest.createVault(baseUri, recoveryLevel, recoverableDays);
 
             //then
             Assertions.assertEquals(result, actual);
             verify(httpClient, atMostOnce()).send(any());
-            final HttpRequest request = httpRequestArgumentCaptor.getValue();
+            final var request = httpRequestArgumentCaptor.getValue();
             Assertions.assertEquals("/management/vault", request.getUrl().getPath());
             Assertions.assertEquals(HttpMethod.POST, request.getHttpMethod());
             Assertions.assertEquals(APPLICATION_JSON, request.getHeaders().getValue(HttpHeaderName.CONTENT_TYPE));
-            final String actualBody = new String(Objects.requireNonNull(request.getBody().single().block()).array());
+            final var actualBody = new String(Objects.requireNonNull(request.getBody().single().block()).array());
             Assertions.assertEquals(JSON, actualBody);
             verify(response).getStatusCode();
             verify(response).getBodyAsString(eq(StandardCharsets.UTF_8));
@@ -206,8 +205,8 @@ class LowkeyVaultManagementClientImplTest {
         @Test
         void testListVaultsShouldReturnVaultsWhenCalled() throws JsonProcessingException {
             //given
-            final List<VaultModel> result = Collections.singletonList(new VaultModel());
-            final HttpResponse response = mock(HttpResponse.class);
+            final var result = Collections.singletonList(new VaultModel());
+            final var response = mock(HttpResponse.class);
             when(httpClient.send(httpRequestArgumentCaptor.capture())).thenReturn(Mono.just(response));
             when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.just(JSON));
             when(response.getStatusCode()).thenReturn(HttpStatus.SC_OK);
@@ -215,12 +214,12 @@ class LowkeyVaultManagementClientImplTest {
             when(objectReader.readValue(eq(JSON))).thenReturn(result);
 
             //when
-            final List<VaultModel> actual = underTest.listVaults();
+            final var actual = underTest.listVaults();
 
             //then
             Assertions.assertEquals(result, actual);
             verify(httpClient, atMostOnce()).send(any());
-            final HttpRequest request = httpRequestArgumentCaptor.getValue();
+            final var request = httpRequestArgumentCaptor.getValue();
             Assertions.assertEquals("/management/vault", request.getUrl().getPath());
             Assertions.assertEquals(HttpMethod.GET, request.getHttpMethod());
             Assertions.assertNull(request.getHeaders().get(HttpHeaderName.CONTENT_TYPE));
@@ -233,8 +232,8 @@ class LowkeyVaultManagementClientImplTest {
         @Test
         void testListDeletedVaultsShouldReturnVaultsWhenCalled() throws JsonProcessingException {
             //given
-            final List<VaultModel> result = Collections.singletonList(new VaultModel());
-            final HttpResponse response = mock(HttpResponse.class);
+            final var result = Collections.singletonList(new VaultModel());
+            final var response = mock(HttpResponse.class);
             when(httpClient.send(httpRequestArgumentCaptor.capture())).thenReturn(Mono.just(response));
             when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.just(JSON));
             when(response.getStatusCode()).thenReturn(HttpStatus.SC_OK);
@@ -242,12 +241,12 @@ class LowkeyVaultManagementClientImplTest {
             when(objectReader.readValue(eq(JSON))).thenReturn(result);
 
             //when
-            final List<VaultModel> actual = underTest.listDeletedVaults();
+            final var actual = underTest.listDeletedVaults();
 
             //then
             Assertions.assertEquals(result, actual);
             verify(httpClient, atMostOnce()).send(any());
-            final HttpRequest request = httpRequestArgumentCaptor.getValue();
+            final var request = httpRequestArgumentCaptor.getValue();
             Assertions.assertEquals("/management/vault/deleted", request.getUrl().getPath());
             Assertions.assertEquals(HttpMethod.GET, request.getHttpMethod());
             Assertions.assertNull(request.getHeaders().get(HttpHeaderName.CONTENT_TYPE));
@@ -260,7 +259,7 @@ class LowkeyVaultManagementClientImplTest {
         @Test
         void testDeleteShouldReturnBooleanStatusWhenCalled() throws JsonProcessingException {
             //given
-            final HttpResponse response = mock(HttpResponse.class);
+            final var response = mock(HttpResponse.class);
             when(httpClient.send(httpRequestArgumentCaptor.capture())).thenReturn(Mono.just(response));
             when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.just(JSON));
             when(response.getStatusCode()).thenReturn(HttpStatus.SC_OK);
@@ -268,12 +267,12 @@ class LowkeyVaultManagementClientImplTest {
             when(objectReader.readValue(eq(JSON))).thenReturn(true);
 
             //when
-            final boolean actual = underTest.delete(URI.create(HTTPS_LOCALHOST));
+            final var actual = underTest.delete(URI.create(HTTPS_LOCALHOST));
 
             //then
             Assertions.assertTrue(actual);
             verify(httpClient, atMostOnce()).send(any());
-            final HttpRequest request = httpRequestArgumentCaptor.getValue();
+            final var request = httpRequestArgumentCaptor.getValue();
             Assertions.assertEquals("/management/vault", request.getUrl().getPath());
             Assertions.assertEquals(HttpMethod.DELETE, request.getHttpMethod());
             Assertions.assertNull(request.getHeaders().get(HttpHeaderName.CONTENT_TYPE));
@@ -299,8 +298,8 @@ class LowkeyVaultManagementClientImplTest {
         @Test
         void testRecoverShouldReturnVaultModelStatusWhenCalled() throws JsonProcessingException {
             //given
-            final VaultModel vaultModel = new VaultModel();
-            final HttpResponse response = mock(HttpResponse.class);
+            final var vaultModel = new VaultModel();
+            final var response = mock(HttpResponse.class);
             when(httpClient.send(httpRequestArgumentCaptor.capture())).thenReturn(Mono.just(response));
             when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.just(JSON));
             when(response.getStatusCode()).thenReturn(HttpStatus.SC_OK);
@@ -308,12 +307,12 @@ class LowkeyVaultManagementClientImplTest {
             when(objectReader.readValue(eq(JSON))).thenReturn(vaultModel);
 
             //when
-            final VaultModel actual = underTest.recover(URI.create(HTTPS_LOCALHOST));
+            final var actual = underTest.recover(URI.create(HTTPS_LOCALHOST));
 
             //then
             Assertions.assertEquals(vaultModel, actual);
             verify(httpClient, atMostOnce()).send(any());
-            final HttpRequest request = httpRequestArgumentCaptor.getValue();
+            final var request = httpRequestArgumentCaptor.getValue();
             Assertions.assertEquals("/management/vault/recover", request.getUrl().getPath());
             Assertions.assertEquals(HttpMethod.PUT, request.getHttpMethod());
             Assertions.assertEquals(APPLICATION_JSON, request.getHeaders().getValue(HttpHeaderName.CONTENT_TYPE));
@@ -339,8 +338,8 @@ class LowkeyVaultManagementClientImplTest {
         @Test
         void testAddAliasShouldReturnVaultModelStatusWhenCalled() throws JsonProcessingException {
             //given
-            final VaultModel vaultModel = new VaultModel();
-            final HttpResponse response = mock(HttpResponse.class);
+            final var vaultModel = new VaultModel();
+            final var response = mock(HttpResponse.class);
             when(httpClient.send(httpRequestArgumentCaptor.capture())).thenReturn(Mono.just(response));
             when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.just(JSON));
             when(response.getStatusCode()).thenReturn(HttpStatus.SC_OK);
@@ -348,14 +347,14 @@ class LowkeyVaultManagementClientImplTest {
             when(objectReader.readValue(eq(JSON))).thenReturn(vaultModel);
 
             //when
-            final VaultModel actual = underTest.addAlias(URI.create(HTTPS_LOCALHOST), URI.create(HTTPS_ALIAS_LOCALHOST));
+            final var actual = underTest.addAlias(URI.create(HTTPS_LOCALHOST), URI.create(HTTPS_ALIAS_LOCALHOST));
 
             //then
             Assertions.assertEquals(vaultModel, actual);
             verify(httpClient, atMostOnce()).send(any());
-            final HttpRequest request = httpRequestArgumentCaptor.getValue();
+            final var request = httpRequestArgumentCaptor.getValue();
             Assertions.assertEquals("/management/vault/alias", request.getUrl().getPath());
-            final String queryString = "add=" + URLEncoder.encode(HTTPS_ALIAS_LOCALHOST, StandardCharsets.UTF_8)
+            final var queryString = "add=" + URLEncoder.encode(HTTPS_ALIAS_LOCALHOST, StandardCharsets.UTF_8)
                     + "&baseUri=" + URLEncoder.encode(HTTPS_LOCALHOST, StandardCharsets.UTF_8);
             Assertions.assertEquals(queryString, request.getUrl().getQuery());
             Assertions.assertEquals(HttpMethod.PATCH, request.getHttpMethod());
@@ -371,7 +370,7 @@ class LowkeyVaultManagementClientImplTest {
         void testAddAliasShouldThrowExceptionWhenBaseUriIsNull() {
             //given
             final URI uri = null;
-            final URI alias = URI.create(HTTPS_ALIAS_LOCALHOST);
+            final var alias = URI.create(HTTPS_ALIAS_LOCALHOST);
 
             //when
             Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.addAlias(uri, alias));
@@ -384,7 +383,7 @@ class LowkeyVaultManagementClientImplTest {
         @Test
         void testAddAliasShouldThrowExceptionWhenAliasIsNull() {
             //given
-            final URI uri = URI.create(HTTPS_LOCALHOST);
+            final var uri = URI.create(HTTPS_LOCALHOST);
             final URI alias = null;
 
             //when
@@ -397,8 +396,8 @@ class LowkeyVaultManagementClientImplTest {
         @Test
         void testRemoveAliasShouldReturnVaultModelStatusWhenCalled() throws JsonProcessingException {
             //given
-            final VaultModel vaultModel = new VaultModel();
-            final HttpResponse response = mock(HttpResponse.class);
+            final var vaultModel = new VaultModel();
+            final var response = mock(HttpResponse.class);
             when(httpClient.send(httpRequestArgumentCaptor.capture())).thenReturn(Mono.just(response));
             when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.just(JSON));
             when(response.getStatusCode()).thenReturn(HttpStatus.SC_OK);
@@ -406,14 +405,14 @@ class LowkeyVaultManagementClientImplTest {
             when(objectReader.readValue(eq(JSON))).thenReturn(vaultModel);
 
             //when
-            final VaultModel actual = underTest.removeAlias(URI.create(HTTPS_LOCALHOST), URI.create(HTTPS_ALIAS_LOCALHOST));
+            final var actual = underTest.removeAlias(URI.create(HTTPS_LOCALHOST), URI.create(HTTPS_ALIAS_LOCALHOST));
 
             //then
             Assertions.assertEquals(vaultModel, actual);
             verify(httpClient, atMostOnce()).send(any());
-            final HttpRequest request = httpRequestArgumentCaptor.getValue();
+            final var request = httpRequestArgumentCaptor.getValue();
             Assertions.assertEquals("/management/vault/alias", request.getUrl().getPath());
-            final String queryString = "baseUri=" + URLEncoder.encode(HTTPS_LOCALHOST, StandardCharsets.UTF_8)
+            final var queryString = "baseUri=" + URLEncoder.encode(HTTPS_LOCALHOST, StandardCharsets.UTF_8)
                     + "&remove=" + URLEncoder.encode(HTTPS_ALIAS_LOCALHOST, StandardCharsets.UTF_8);
             Assertions.assertEquals(queryString, request.getUrl().getQuery());
             Assertions.assertEquals(HttpMethod.PATCH, request.getHttpMethod());
@@ -429,7 +428,7 @@ class LowkeyVaultManagementClientImplTest {
         void testRemoveAliasShouldThrowExceptionWhenBaseUriIsNull() {
             //given
             final URI uri = null;
-            final URI alias = URI.create(HTTPS_ALIAS_LOCALHOST);
+            final var alias = URI.create(HTTPS_ALIAS_LOCALHOST);
 
             //when
             Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.removeAlias(uri, alias));
@@ -442,7 +441,7 @@ class LowkeyVaultManagementClientImplTest {
         @Test
         void testAddRemoveShouldThrowExceptionWhenAliasIsNull() {
             //given
-            final URI uri = URI.create(HTTPS_LOCALHOST);
+            final var uri = URI.create(HTTPS_LOCALHOST);
             final URI alias = null;
 
             //when
@@ -455,7 +454,7 @@ class LowkeyVaultManagementClientImplTest {
         @Test
         void testPurgeShouldReturnPurgeStatusWhenCalled() throws JsonProcessingException {
             //given
-            final HttpResponse response = mock(HttpResponse.class);
+            final var response = mock(HttpResponse.class);
             when(httpClient.send(httpRequestArgumentCaptor.capture())).thenReturn(Mono.just(response));
             when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.just(JSON));
             when(response.getStatusCode()).thenReturn(HttpStatus.SC_OK);
@@ -463,12 +462,12 @@ class LowkeyVaultManagementClientImplTest {
             when(objectReader.readValue(eq(JSON))).thenReturn(true);
 
             //when
-            final boolean actual = underTest.purge(URI.create(HTTPS_LOCALHOST));
+            final var actual = underTest.purge(URI.create(HTTPS_LOCALHOST));
 
             //then
             Assertions.assertTrue(actual);
             verify(httpClient, atMostOnce()).send(any());
-            final HttpRequest request = httpRequestArgumentCaptor.getValue();
+            final var request = httpRequestArgumentCaptor.getValue();
             Assertions.assertEquals("/management/vault/purge", request.getUrl().getPath());
             Assertions.assertEquals(HttpMethod.DELETE, request.getHttpMethod());
             Assertions.assertNull(request.getHeaders().get(HttpHeaderName.CONTENT_TYPE));
@@ -517,11 +516,11 @@ class LowkeyVaultManagementClientImplTest {
         @Test
         void testTimeShiftShouldSucceedWhenCalledWithOnlyTime() {
             //given
-            final HttpResponse response = mock(HttpResponse.class);
+            final var response = mock(HttpResponse.class);
             when(httpClient.send(httpRequestArgumentCaptor.capture())).thenReturn(Mono.just(response));
             when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.empty());
             when(response.getStatusCode()).thenReturn(HttpStatus.SC_NO_CONTENT);
-            final TimeShiftContext context = TimeShiftContext.builder()
+            final var context = TimeShiftContext.builder()
                     .addDays(1)
                     .build();
 
@@ -530,7 +529,7 @@ class LowkeyVaultManagementClientImplTest {
 
             //then
             verify(httpClient, atMostOnce()).send(any());
-            final HttpRequest request = httpRequestArgumentCaptor.getValue();
+            final var request = httpRequestArgumentCaptor.getValue();
             Assertions.assertEquals("/management/vault/time/all", request.getUrl().getPath());
             Assertions.assertEquals("seconds=86400", request.getUrl().getQuery());
             Assertions.assertEquals(HttpMethod.PUT, request.getHttpMethod());
@@ -542,11 +541,11 @@ class LowkeyVaultManagementClientImplTest {
         @Test
         void testTimeShiftShouldSucceedWhenCalledWithUriAndTime() {
             //given
-            final HttpResponse response = mock(HttpResponse.class);
+            final var response = mock(HttpResponse.class);
             when(httpClient.send(httpRequestArgumentCaptor.capture())).thenReturn(Mono.just(response));
             when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.empty());
             when(response.getStatusCode()).thenReturn(HttpStatus.SC_NO_CONTENT);
-            final TimeShiftContext context = TimeShiftContext.builder()
+            final var context = TimeShiftContext.builder()
                     .vaultBaseUri(URI.create("http://localhost"))
                     .addSeconds(1)
                     .build();
@@ -556,7 +555,7 @@ class LowkeyVaultManagementClientImplTest {
 
             //then
             verify(httpClient, atMostOnce()).send(any());
-            final HttpRequest request = httpRequestArgumentCaptor.getValue();
+            final var request = httpRequestArgumentCaptor.getValue();
             Assertions.assertEquals("/management/vault/time", request.getUrl().getPath());
             Assertions.assertEquals("baseUri=http%3A%2F%2Flocalhost&seconds=1", request.getUrl().getQuery());
             Assertions.assertEquals(HttpMethod.PUT, request.getHttpMethod());
@@ -568,11 +567,11 @@ class LowkeyVaultManagementClientImplTest {
         @Test
         void testTimeShiftShouldSucceedWhenCalledWithTimeAndRegenerateFlag() {
             //given
-            final HttpResponse response = mock(HttpResponse.class);
+            final var response = mock(HttpResponse.class);
             when(httpClient.send(httpRequestArgumentCaptor.capture())).thenReturn(Mono.just(response));
             when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.empty());
             when(response.getStatusCode()).thenReturn(HttpStatus.SC_NO_CONTENT);
-            final TimeShiftContext context = TimeShiftContext.builder()
+            final var context = TimeShiftContext.builder()
                     .regenerateCertificates()
                     .addSeconds(1)
                     .build();
@@ -582,7 +581,7 @@ class LowkeyVaultManagementClientImplTest {
 
             //then
             verify(httpClient, atMostOnce()).send(any());
-            final HttpRequest request = httpRequestArgumentCaptor.getValue();
+            final var request = httpRequestArgumentCaptor.getValue();
             Assertions.assertEquals("/management/vault/time/all", request.getUrl().getPath());
             Assertions.assertEquals("regenerateCertificates=true&seconds=1", request.getUrl().getQuery());
             Assertions.assertEquals(HttpMethod.PUT, request.getHttpMethod());
@@ -594,19 +593,19 @@ class LowkeyVaultManagementClientImplTest {
         @Test
         void testExportActiveShouldReturnFullResponseWhenCalledOnRunningServer() {
             //given
-            final String expected = "value";
-            final HttpResponse response = mock(HttpResponse.class);
+            final var expected = "value";
+            final var response = mock(HttpResponse.class);
             when(httpClient.send(httpRequestArgumentCaptor.capture())).thenReturn(Mono.just(response));
             when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.just(expected));
             when(response.getStatusCode()).thenReturn(HttpStatus.SC_OK);
 
             //when
-            final String actual = underTest.exportActive();
+            final var actual = underTest.exportActive();
 
             //then
             Assertions.assertEquals(expected, actual);
             verify(httpClient, atMostOnce()).send(any());
-            final HttpRequest request = httpRequestArgumentCaptor.getValue();
+            final var request = httpRequestArgumentCaptor.getValue();
             Assertions.assertEquals("/management/vault/export", request.getUrl().getPath());
             Assertions.assertEquals(HttpMethod.GET, request.getHttpMethod());
             Assertions.assertNull(request.getHeaders().get(HttpHeaderName.CONTENT_TYPE));
@@ -617,9 +616,9 @@ class LowkeyVaultManagementClientImplTest {
         @Test
         void testSendAndProcessShouldThrowExceptionWhenResponseCodeIsNot2xx() throws JsonProcessingException {
             //given
-            final VaultModel vaultModel = new VaultModel();
-            final HttpRequest request = mock(HttpRequest.class);
-            final HttpResponse response = mock(HttpResponse.class);
+            final var vaultModel = new VaultModel();
+            final var request = mock(HttpRequest.class);
+            final var response = mock(HttpResponse.class);
             when(httpClient.send(httpRequestArgumentCaptor.capture())).thenReturn(Mono.just(response));
             when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.just(JSON));
             when(response.getStatusCode()).thenReturn(HttpStatus.SC_METHOD_NOT_ALLOWED);
@@ -662,17 +661,17 @@ class LowkeyVaultManagementClientImplTest {
         @Test
         void testUnpackBackupShouldProduceFormattedJsonWhenCalledWithValidInput() throws IOException {
             //given
-            final byte[] input = underTest.compressBackup(SIMPLE_JSON);
-            final JsonNode node = mock(JsonNode.class);
+            final var input = underTest.compressBackup(SIMPLE_JSON);
+            final var node = mock(JsonNode.class);
             when(objectReader.readTree(eq(SIMPLE_JSON))).thenReturn(node);
             when(node.toPrettyString()).thenReturn(SIMPLE_JSON_PRETTY);
 
             //when
-            final String actual = underTest.unpackBackup(input);
+            final var actual = underTest.unpackBackup(input);
 
             //then
             Assertions.assertEquals(SIMPLE_JSON_PRETTY, actual);
-            final InOrder inOrder = inOrder(objectReader, node);
+            final var inOrder = inOrder(objectReader, node);
             inOrder.verify(objectReader).readTree(eq(SIMPLE_JSON));
             inOrder.verify(node).toPrettyString();
             verifyNoMoreInteractions(objectReader, node);
@@ -681,11 +680,11 @@ class LowkeyVaultManagementClientImplTest {
         @Test
         void testCompressBackupShouldProduceGzipBytesWhenCalledWithValidInput() throws IOException {
             //given
-            final byte[] out = new BigInteger("239366333208093937709170404274988390036218345476049221665072896269330010352532848640")
+            final var out = new BigInteger("239366333208093937709170404274988390036218345476049221665072896269330010352532848640")
                     .toByteArray();
 
             //when
-            final byte[] actual = underTest.compressBackup(SIMPLE_JSON);
+            final var actual = underTest.compressBackup(SIMPLE_JSON);
 
             //then
             Assertions.assertArrayEquals(out, actual);

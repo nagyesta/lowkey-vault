@@ -19,7 +19,7 @@ public final class HashUtil {
     }
 
     private static byte[] hash(final byte[] data, final String algorithm) throws NoSuchAlgorithmException {
-        final MessageDigest md = MessageDigest.getInstance(algorithm);
+        final var md = MessageDigest.getInstance(algorithm);
         md.update(data);
         return md.digest();
     }

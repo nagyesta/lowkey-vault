@@ -104,7 +104,7 @@ public class KeyCryptoController extends CommonKeyCryptoController {
             @Valid @RequestBody final RandomBytesRequest request) {
         log.info("Received request to generate {} random bytes using API version: {}", request.getCount(), apiVersion());
 
-        final byte[] randomBytes = KeyGenUtil.generateRandomBytes(request.getCount());
+        final var randomBytes = KeyGenUtil.generateRandomBytes(request.getCount());
         return ResponseEntity.ok(new RandomBytesResponse(randomBytes));
     }
 

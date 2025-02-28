@@ -3,7 +3,6 @@ package com.github.nagyesta.lowkeyvault.openapi;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 class ExamplesTest {
@@ -11,7 +10,7 @@ class ExamplesTest {
     @Test
     void testConstructorShouldThrowExceptionWhenCalled() throws NoSuchMethodException {
         //given
-        final Constructor<Examples> constructor = Examples.class.getDeclaredConstructor();
+        final var constructor = Examples.class.getDeclaredConstructor();
         constructor.setAccessible(true);
 
         //when

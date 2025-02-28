@@ -22,7 +22,6 @@ import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
-import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
@@ -53,7 +52,7 @@ public class CertificateGenerator {
     public X509Certificate generateCertificate(
             @NonNull final ReadOnlyCertificatePolicy input) throws CryptoException {
         try {
-            final ReadOnlyAsymmetricKeyVaultKeyEntity readOnlyKeyVaultKey = vault.keyVaultFake().getEntities()
+            final var readOnlyKeyVaultKey = vault.keyVaultFake().getEntities()
                     .getEntity(kid, ReadOnlyAsymmetricKeyVaultKeyEntity.class);
             return generateCertificate(input, readOnlyKeyVaultKey.getKey());
         } catch (final Exception e) {
@@ -65,12 +64,12 @@ public class CertificateGenerator {
             @NonNull final String name,
             @NonNull final X509Certificate certificate) throws CryptoException {
         try {
-            final ReadOnlyAsymmetricKeyVaultKeyEntity readOnlyKeyVaultKey = vault.keyVaultFake().getEntities()
+            final var readOnlyKeyVaultKey = vault.keyVaultFake().getEntities()
                     .getEntity(kid, ReadOnlyAsymmetricKeyVaultKeyEntity.class);
-            final X500Name subject = generateSubject(certificate.getSubjectX500Principal().getName());
-            final KeyPair keyPair = readOnlyKeyVaultKey.getKey();
-            final CertificateAlgorithm algorithm = CertificateAlgorithm.forKeyType(readOnlyKeyVaultKey.getKeyType());
-            final ContentSigner signer = new JcaContentSignerBuilder(algorithm.getAlgorithm())
+            final var subject = generateSubject(certificate.getSubjectX500Principal().getName());
+            final var keyPair = readOnlyKeyVaultKey.getKey();
+            final var algorithm = CertificateAlgorithm.forKeyType(readOnlyKeyVaultKey.getKeyType());
+            final var signer = new JcaContentSignerBuilder(algorithm.getAlgorithm())
                     .setProvider(KeyGenUtil.BOUNCY_CASTLE_PROVIDER)
                     .build(keyPair.getPrivate());
             final PKCS10CertificationRequestBuilder builder = new JcaPKCS10CertificationRequestBuilder(subject, keyPair.getPublic());
@@ -93,15 +92,15 @@ public class CertificateGenerator {
     private X509Certificate generateCertificate(final ReadOnlyCertificatePolicy input, final KeyPair keyPair)
             throws IOException, OperatorCreationException, CertificateException {
 
-        final X509v3CertificateBuilder builder = createCertificateBuilder(input, keyPair);
+        final var builder = createCertificateBuilder(input, keyPair);
 
         addExtensionOptionally(builder, Extension.subjectAlternativeName, false, generateSubjectAlternativeNames(input));
         addExtensionQuietly(builder, Extension.keyUsage, true, generateKeyUsage(input).getEncoded());
         addExtensionOptionally(builder, Extension.extendedKeyUsage, false, convertUsageExtensions(input));
 
-        final X509CertificateHolder holder = buildCertificate(builder, input.getKeyType(), keyPair);
+        final var holder = buildCertificate(builder, input.getKeyType(), keyPair);
 
-        final JcaX509CertificateConverter converter = new JcaX509CertificateConverter();
+        final var converter = new JcaX509CertificateConverter();
         converter.setProvider(KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
         return converter.getCertificate(holder);
     }
@@ -127,7 +126,7 @@ public class CertificateGenerator {
 
     private X509v3CertificateBuilder createCertificateBuilder(
             final ReadOnlyCertificatePolicy input, final KeyPair keyPair) throws IOException {
-        final X500Name subject = generateSubject(input.getSubject());
+        final var subject = generateSubject(input.getSubject());
         final X509v3CertificateBuilder certificate = new JcaX509v3CertificateBuilder(
                 subject, generateSerial(), input.certNotBefore(), input.certExpiry(), subject, keyPair.getPublic());
 
@@ -142,21 +141,21 @@ public class CertificateGenerator {
     private X509CertificateHolder buildCertificate(
             final X509v3CertificateBuilder certificate, final KeyType keyType, final KeyPair keyPair)
             throws OperatorCreationException {
-        final ContentSigner signer = new JcaContentSignerBuilder(CertificateAlgorithm.forKeyType(keyType).getAlgorithm())
+        final var signer = new JcaContentSignerBuilder(CertificateAlgorithm.forKeyType(keyType).getAlgorithm())
                 .setProvider(KeyGenUtil.BOUNCY_CASTLE_PROVIDER)
                 .build(keyPair.getPrivate());
         return certificate.build(signer);
     }
 
     private X500Name generateSubject(final String nameAsString) {
-        final RDN[] rdns = IETFUtils.rDNsFromString(nameAsString, BCStyle.INSTANCE);
-        final X500NameBuilder x500NameBuilder = new X500NameBuilder(BCStyle.INSTANCE);
+        final var rdns = IETFUtils.rDNsFromString(nameAsString, BCStyle.INSTANCE);
+        final var x500NameBuilder = new X500NameBuilder(BCStyle.INSTANCE);
         Arrays.stream(rdns).map(RDN::getTypesAndValues).forEach(x500NameBuilder::addMultiValuedRDN);
         return x500NameBuilder.build();
     }
 
     private GeneralNames generateSubjectAlternativeNames(final ReadOnlyCertificatePolicy input) {
-        final GeneralName[] names = generateSubjectAlternativeNamesArray(input);
+        final var names = generateSubjectAlternativeNamesArray(input);
         GeneralNames result = null;
         if (names.length > 0) {
             result = GeneralNames.getInstance(new DERSequence(names));
@@ -165,16 +164,16 @@ public class CertificateGenerator {
     }
 
     private GeneralName[] generateSubjectAlternativeNamesArray(final ReadOnlyCertificatePolicy input) {
-        final List<GeneralName> emails = Objects.requireNonNullElse(input.getEmails(), Collections.<String>emptyList()).stream()
+        final var emails = Objects.requireNonNullElse(input.getEmails(), Collections.<String>emptyList()).stream()
                 .map(email -> new GeneralName(GeneralName.rfc822Name, email))
                 .collect(Collectors.toList());
-        final List<GeneralName> dnsNames = Objects.requireNonNullElse(input.getDnsNames(), Collections.<String>emptyList()).stream()
+        final var dnsNames = Objects.requireNonNullElse(input.getDnsNames(), Collections.<String>emptyList()).stream()
                 .map(dns -> new GeneralName(GeneralName.dNSName, dns))
                 .collect(Collectors.toList());
-        final List<GeneralName> ips = Objects.requireNonNullElse(input.getUpns(), Collections.<String>emptyList()).stream()
+        final var ips = Objects.requireNonNullElse(input.getUpns(), Collections.<String>emptyList()).stream()
                 .map(ip -> new GeneralName(GeneralName.iPAddress, ip))
                 .collect(Collectors.toList());
-        final List<GeneralName> subjectAlternativeNames = Stream.of(emails, dnsNames, ips)
+        final var subjectAlternativeNames = Stream.of(emails, dnsNames, ips)
                 .flatMap(List::stream)
                 .toList();
         return subjectAlternativeNames.toArray(new GeneralName[]{});
@@ -220,7 +219,7 @@ public class CertificateGenerator {
             if (value == null) {
                 return;
             }
-            final ExtensionsGenerator generator = new ExtensionsGenerator();
+            final var generator = new ExtensionsGenerator();
             generator.addExtension(name, isCritical, value);
             builder.addAttribute(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest, generator.generate());
         } catch (final Exception e) {

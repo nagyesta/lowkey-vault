@@ -11,6 +11,7 @@ lombok = "1.18.36"
 handlebars="4.4.0"
 httpClient = "4.5.14"
 commonsCodec = "1.18.0"
+commonsCompress = "1.27.1"
 azureKeyVaultKeyClient = "4.9.2"
 azureKeyVaultSecretsClient = "4.9.2"
 azureKeyVaultCertClient = "4.7.2"
@@ -19,8 +20,8 @@ cucumber = "7.21.1"
 mockitoCore = "5.15.2"
 jupiter = "5.12.0"
 abortMission = "5.1.7"
-checkstyle = "10.12.2"
-jacoco = "0.8.10"
+checkstyle = "10.21.3"
+jacoco = "0.8.12"
 jackson = { strictly = "2.18.2" }
 openApiUi = "2.8.5"
 
@@ -68,9 +69,14 @@ bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref 
 hibernate-validator = { module = "org.hibernate:hibernate-validator", version.ref = "hibernateValidator" }
 
 findbugs-jsr305 = { module = "com.google.code.findbugs:jsr305", version.ref = "findbugs" }
+# used by Renovate
+checkstyle = { module = "com.puppycrawl.tools:checkstyle", version.ref = "checkstyle" }
+# used by Renovate
+jacoco = { module = "org.jacoco:org.jacoco.core", version.ref = "jacoco" }
 
 httpclient = { module = "org.apache.httpcomponents:httpclient", version.ref = "httpClient" }
 commons-codec = { module = "commons-codec:commons-codec", version.ref = "commonsCodec" }
+commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "commonsCompress" }
 
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
 

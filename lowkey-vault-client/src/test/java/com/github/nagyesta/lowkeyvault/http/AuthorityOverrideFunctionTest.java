@@ -75,10 +75,10 @@ class AuthorityOverrideFunctionTest {
     void testVaultHostIsReplacedWithContainerHostWhenMatchesThePredefinedHost(
             final String fromHost, final String toHost, final URI vaultUri, final URI expectedUri) {
         //given
-        final AuthorityOverrideFunction underTest = new AuthorityOverrideFunction(fromHost, toHost);
+        final var underTest = new AuthorityOverrideFunction(fromHost, toHost);
 
         //when
-        final URI actual = underTest.apply(vaultUri);
+        final var actual = underTest.apply(vaultUri);
 
         //then
         Assertions.assertEquals(expectedUri, actual);

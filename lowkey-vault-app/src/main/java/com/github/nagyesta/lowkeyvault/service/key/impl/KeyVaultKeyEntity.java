@@ -14,7 +14,6 @@ import org.springframework.util.Assert;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.Signature;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -66,7 +65,7 @@ public abstract class KeyVaultKeyEntity<T, S> extends KeyVaultBaseEntity<Version
     }
 
     public void setOperations(final List<KeyOperation> operations) {
-        final List<KeyOperation> invalid = operations.stream().filter(this.disallowedOperations()::contains).toList();
+        final var invalid = operations.stream().filter(this.disallowedOperations()::contains).toList();
         Assert.isTrue(invalid.isEmpty(), "Operation not allowed for this key type: " + invalid + ".");
         this.updatedNow();
         this.operations = List.copyOf(operations);
@@ -96,10 +95,10 @@ public abstract class KeyVaultKeyEntity<T, S> extends KeyVaultBaseEntity<Version
     protected Callable<byte[]> signCallable(
             final byte[] digest, final SignatureAlgorithm signatureAlgorithm, final PrivateKey privateKey) {
         return () -> {
-            final Signature sign = signatureAlgorithm.getSignatureInstance();
+            final var sign = signatureAlgorithm.getSignatureInstance();
             sign.initSign(privateKey);
             sign.update(signatureAlgorithm.transformDigest(digest));
-            final byte[] signature = sign.sign();
+            final var signature = sign.sign();
             return postProcessGeneratedSignature(signature);
         };
     }
@@ -107,9 +106,9 @@ public abstract class KeyVaultKeyEntity<T, S> extends KeyVaultBaseEntity<Version
     protected Callable<Boolean> verifyCallable(
             final byte[] digest, final SignatureAlgorithm signatureAlgorithm, final byte[] rawSignature, final PublicKey publicKey) {
         return () -> {
-            final Signature verify = signatureAlgorithm.getSignatureInstance();
+            final var verify = signatureAlgorithm.getSignatureInstance();
             verify.initVerify(publicKey);
-            final byte[] signature = preProcessVerifiableSignature(rawSignature);
+            final var signature = preProcessVerifiableSignature(rawSignature);
             verify.update(signatureAlgorithm.transformDigest(digest));
             return verify.verify(signature);
         };

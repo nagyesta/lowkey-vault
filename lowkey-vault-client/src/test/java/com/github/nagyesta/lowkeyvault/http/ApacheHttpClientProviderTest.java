@@ -1,13 +1,6 @@
 package com.github.nagyesta.lowkeyvault.http;
 
-import com.azure.security.keyvault.keys.KeyAsyncClient;
-import com.azure.security.keyvault.keys.KeyClient;
-import com.azure.security.keyvault.keys.cryptography.CryptographyAsyncClient;
-import com.azure.security.keyvault.keys.cryptography.CryptographyClient;
-import com.azure.security.keyvault.secrets.SecretAsyncClient;
-import com.azure.security.keyvault.secrets.SecretClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.nagyesta.lowkeyvault.http.management.LowkeyVaultManagementClient;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -26,10 +19,10 @@ class ApacheHttpClientProviderTest {
     @Test
     void testGetKeyAsyncClientShouldReturnClientWhenCalled() {
         //given
-        final ApacheHttpClientProvider underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, Function.identity());
+        final var underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, Function.identity());
 
         //when
-        final KeyAsyncClient client = underTest.getKeyAsyncClient();
+        final var client = underTest.getKeyAsyncClient();
 
         //then
         Assertions.assertNotNull(client);
@@ -38,10 +31,10 @@ class ApacheHttpClientProviderTest {
     @Test
     void testGetKeyClientShouldReturnClientWhenCalled() {
         //given
-        final ApacheHttpClientProvider underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, Function.identity());
+        final var underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, Function.identity());
 
         //when
-        final KeyClient client = underTest.getKeyClient();
+        final var client = underTest.getKeyClient();
 
         //then
         Assertions.assertNotNull(client);
@@ -50,10 +43,10 @@ class ApacheHttpClientProviderTest {
     @Test
     void testGetSecretAsyncClientShouldReturnClientWhenCalled() {
         //given
-        final ApacheHttpClientProvider underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, Function.identity());
+        final var underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, Function.identity());
 
         //when
-        final SecretAsyncClient client = underTest.getSecretAsyncClient();
+        final var client = underTest.getSecretAsyncClient();
 
         //then
         Assertions.assertNotNull(client);
@@ -62,10 +55,10 @@ class ApacheHttpClientProviderTest {
     @Test
     void testGetSecretClientShouldReturnClientWhenCalled() {
         //given
-        final ApacheHttpClientProvider underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, Function.identity());
+        final var underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, Function.identity());
 
         //when
-        final SecretClient client = underTest.getSecretClient();
+        final var client = underTest.getSecretClient();
 
         //then
         Assertions.assertNotNull(client);
@@ -74,10 +67,10 @@ class ApacheHttpClientProviderTest {
     @Test
     void testGetCryptoAsyncClientShouldReturnClientWhenCalled() {
         //given
-        final ApacheHttpClientProvider underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443);
+        final var underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443);
 
         //when
-        final CryptographyAsyncClient client = underTest.getCryptoAsyncClient(WEB_KEY_ID);
+        final var client = underTest.getCryptoAsyncClient(WEB_KEY_ID);
 
         //then
         Assertions.assertNotNull(client);
@@ -86,11 +79,11 @@ class ApacheHttpClientProviderTest {
     @Test
     void testGetCryptoClientShouldReturnClientWhenCalled() {
         //given
-        final ApacheHttpClientProvider underTest = new ApacheHttpClientProvider(HTTPS_SPECIAL_LOCALHOST_8443,
+        final var underTest = new ApacheHttpClientProvider(HTTPS_SPECIAL_LOCALHOST_8443,
                 new AuthorityOverrideFunction(SPECIAL_LOCALHOST, LOCALHOST));
 
         //when
-        final CryptographyClient client = underTest.getCryptoClient(WEB_KEY_ID);
+        final var client = underTest.getCryptoClient(WEB_KEY_ID);
 
         //then
         Assertions.assertNotNull(client);
@@ -99,10 +92,10 @@ class ApacheHttpClientProviderTest {
     @Test
     void testGetLowkeyVaultManagementClientShouldReturnClientWhenCalled() {
         //given
-        final ApacheHttpClientProvider underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, Function.identity());
+        final var underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, Function.identity());
 
         //when
-        final LowkeyVaultManagementClient client = underTest.getLowkeyVaultManagementClient(mock(ObjectMapper.class));
+        final var client = underTest.getLowkeyVaultManagementClient(mock(ObjectMapper.class));
 
         //then
         Assertions.assertNotNull(client);

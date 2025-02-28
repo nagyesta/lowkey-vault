@@ -12,9 +12,9 @@ class ContentLengthHeaderRemoverTest {
     @Test
     void testProcessShouldRemoveContentLengthWhenCalled() {
         //given
-        final ContentLengthHeaderRemover underTest = new ContentLengthHeaderRemover();
-        final HttpRequest request = mock(HttpRequest.class);
-        final HttpContext context = mock(HttpContext.class);
+        final var underTest = new ContentLengthHeaderRemover();
+        final var request = mock(HttpRequest.class);
+        final var context = mock(HttpContext.class);
 
         //when
         underTest.process(request, context);

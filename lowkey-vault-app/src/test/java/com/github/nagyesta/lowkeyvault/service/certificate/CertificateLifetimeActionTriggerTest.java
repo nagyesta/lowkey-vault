@@ -54,7 +54,7 @@ class CertificateLifetimeActionTriggerIntegrationTest {
     void testValidateShouldNotThrowExceptionsWhenCalledInValidState(
             final CertificateLifetimeActionTriggerType triggerType, final int validityMonths, final int value) {
         //given
-        final CertificateLifetimeActionTrigger underTest = new CertificateLifetimeActionTrigger(triggerType, value);
+        final var underTest = new CertificateLifetimeActionTrigger(triggerType, value);
 
         //when
         Assertions.assertDoesNotThrow(() -> underTest.validate(validityMonths));
@@ -71,10 +71,10 @@ class CertificateLifetimeActionTriggerIntegrationTest {
             final int value,
             final int expectedValue) {
         //given
-        final CertificateLifetimeActionTrigger underTest = new CertificateLifetimeActionTrigger(triggerType, value);
+        final var underTest = new CertificateLifetimeActionTrigger(triggerType, value);
 
         //when
-        final long actual = underTest.triggersAfterDays(validityStart, expiry);
+        final var actual = underTest.triggersAfterDays(validityStart, expiry);
 
         //then
         Assertions.assertEquals(expectedValue, actual);

@@ -105,12 +105,12 @@ class KeyEntityToV72ModelConverterTest {
 
         //given
         prepareVaultMock(baseUri);
-        final String expectedUri = keyEntityId.asUri(baseUri).toString();
-        final RsaKeyVaultKeyEntity input = new RsaKeyVaultKeyEntity(keyEntityId, vault, keyParam, null, hsm);
+        final var expectedUri = keyEntityId.asUri(baseUri).toString();
+        final var input = new RsaKeyVaultKeyEntity(keyEntityId, vault, keyParam, null, hsm);
         input.setTags(tags);
 
         //when
-        final KeyVaultKeyModel actual = underTest.convert(input, keyEntityId.vault());
+        final var actual = underTest.convert(input, keyEntityId.vault());
 
         //then
         assertCommonFieldsMatch(tags, input, expectedUri, actual);
@@ -135,12 +135,12 @@ class KeyEntityToV72ModelConverterTest {
 
         //given
         prepareVaultMock(baseUri);
-        final String expectedUri = keyEntityId.asUri(baseUri).toString();
-        final EcKeyVaultKeyEntity input = new EcKeyVaultKeyEntity(keyEntityId, vault, keyParam, hsm);
+        final var expectedUri = keyEntityId.asUri(baseUri).toString();
+        final var input = new EcKeyVaultKeyEntity(keyEntityId, vault, keyParam, hsm);
         input.setTags(tags);
 
         //when
-        final KeyVaultKeyModel actual = underTest.convert(input, keyEntityId.vault());
+        final var actual = underTest.convert(input, keyEntityId.vault());
 
         //then
         assertCommonFieldsMatch(tags, input, expectedUri, actual);
@@ -166,12 +166,12 @@ class KeyEntityToV72ModelConverterTest {
 
         //given
         prepareVaultMock(baseUri);
-        final String expectedUri = keyEntityId.asUri(baseUri).toString();
-        final AesKeyVaultKeyEntity input = new AesKeyVaultKeyEntity(keyEntityId, vault, keyParam, hsm);
+        final var expectedUri = keyEntityId.asUri(baseUri).toString();
+        final var input = new AesKeyVaultKeyEntity(keyEntityId, vault, keyParam, hsm);
         input.setTags(tags);
 
         //when
-        final KeyVaultKeyModel actual = underTest.convert(input, keyEntityId.vault());
+        final var actual = underTest.convert(input, keyEntityId.vault());
 
         //then
         assertCommonFieldsMatch(tags, input, expectedUri, actual);
@@ -215,7 +215,7 @@ class KeyEntityToV72ModelConverterTest {
 
     private void prepareVaultMock(final URI baseUri) {
         when(vault.baseUri()).thenReturn(baseUri);
-        final URI vaultUri = eq(baseUri);
+        final var vaultUri = eq(baseUri);
         when(vault.matches(vaultUri, eq(Function.identity()))).thenReturn(true);
     }
 

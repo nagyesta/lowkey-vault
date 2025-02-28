@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 class RecoveryLevelTest {
 
     public static Stream<Arguments> validProvider() {
-        final ArrayList<Arguments> list = Arrays.stream(RecoveryLevel.values())
+        final var list = Arrays.stream(RecoveryLevel.values())
                 .map(r -> Arguments.of(r.getValue(), r))
                 .collect(Collectors.toCollection(ArrayList::new));
         list.add(Arguments.of(null, RecoveryLevel.PURGEABLE));
@@ -26,7 +26,7 @@ class RecoveryLevelTest {
         //given
 
         //when
-        final RecoveryLevel actual = RecoveryLevel.forValue(input);
+        final var actual = RecoveryLevel.forValue(input);
 
         //then
         Assertions.assertEquals(expected, actual);

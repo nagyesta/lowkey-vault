@@ -102,8 +102,8 @@ public class ParameterTypeDefs {
 
     @ParameterType("[0-9a-zA-Z\\*\\-_\\.,]+")
     public SubjectAlternativeNames sans(final String san) {
-        final SubjectAlternativeNames names = new SubjectAlternativeNames();
-        final List<String> dnsNames = Arrays.stream(san.split(",")).collect(Collectors.toList());
+        final var names = new SubjectAlternativeNames();
+        final var dnsNames = Arrays.stream(san.split(",")).collect(Collectors.toList());
         names.setDnsNames(dnsNames);
         return names;
     }

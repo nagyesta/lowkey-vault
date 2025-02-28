@@ -1,7 +1,9 @@
 package com.github.nagyesta.lowkeyvault.steps;
 
 import com.azure.core.exception.ResourceNotFoundException;
-import com.azure.security.keyvault.keys.models.*;
+import com.azure.security.keyvault.keys.models.KeyCurveName;
+import com.azure.security.keyvault.keys.models.KeyOperation;
+import com.azure.security.keyvault.keys.models.KeyRotationPolicyAction;
 import com.github.nagyesta.lowkeyvault.context.KeyTestContext;
 import com.github.nagyesta.lowkeyvault.context.TestContextConfig;
 import io.cucumber.java.en.And;
@@ -84,13 +86,13 @@ public class KeysStepDefsAssertions extends CommonAssertions {
 
     @Then("the key has {keyOperations} as operations")
     public void theKeyHasOperationsAsOperations(final List<KeyOperation> expectedList) {
-        final List<KeyOperation> keyOperations = context.getLastResult().getKeyOperations();
+        final var keyOperations = context.getLastResult().getKeyOperations();
         assertContainsEqualEntries(expectedList, keyOperations);
     }
 
     @Then("the key has {tagMap} as tags")
     public void theKeyHasTagMapAsTags(final Map<String, String> expectedMap) {
-        final Map<String, String> tags = context.getLastResult().getProperties().getTags();
+        final var tags = context.getLastResult().getProperties().getTags();
         assertContainsEqualEntries(expectedMap, tags);
     }
 
@@ -125,7 +127,7 @@ public class KeysStepDefsAssertions extends CommonAssertions {
 
     @Then("the deleted key recovery id contains the vault url and {name}")
     public void theDeletedKeyRecoveryIdContainsTheVaultUrlAndKeyName(final String keyName) {
-        final String recoveryId = context.getLastDeleted().getRecoveryId();
+        final var recoveryId = context.getLastDeleted().getRecoveryId();
         assertTrue(recoveryId + " did not start with " + context.getProvider().getVaultUrl(),
                 recoveryId.startsWith(context.getProvider().getVaultUrl()));
         assertTrue(recoveryId + " did not contain " + keyName,
@@ -140,8 +142,8 @@ public class KeysStepDefsAssertions extends CommonAssertions {
 
     @Then("the listed keys are matching the ones created")
     public void theListedKeysAreMatchingTheOnesCreated() {
-        final List<String> actual = context.getListedIds();
-        final List<String> expected = context.getCreatedEntities().values().stream()
+        final var actual = context.getListedIds();
+        final var expected = context.getCreatedEntities().values().stream()
                 .map(keyVaultKeys -> new LinkedList<>(keyVaultKeys).getLast().getId())
                 .map(s -> s.replaceFirst("/[0-9a-f]{32}$", ""))
                 .collect(Collectors.toList());
@@ -150,14 +152,14 @@ public class KeysStepDefsAssertions extends CommonAssertions {
 
     @Then("the list of keys should contain {int} managed items")
     public void theListShouldContainCountManagedItems(final int count) {
-        final List<String> ids = context.getListedManagedIds();
+        final var ids = context.getListedManagedIds();
         assertEquals(count, ids.size());
     }
 
     @Then("the listed deleted keys are matching the ones deleted before")
     public void theListedDeletedKeysAreMatchingTheOnesDeletedBefore() {
-        final List<String> actual = context.getListedIds();
-        final List<String> expected = context.getDeletedRecoveryIds();
+        final var actual = context.getListedIds();
+        final var expected = context.getDeletedRecoveryIds();
         assertContainsEqualEntriesSorted(expected, actual);
     }
 
@@ -178,28 +180,28 @@ public class KeysStepDefsAssertions extends CommonAssertions {
 
     @And("the key named {name} matches the previous backup")
     public void theKeyNamedNameMatchesThePreviousBackup(final String name) {
-        final byte[] bytes = context.getClient(context.getKeyServiceVersion()).backupKey(name);
+        final var bytes = context.getClient(context.getKeyServiceVersion()).backupKey(name);
         assertArrayEquals(context.getBackupBytes(name), bytes);
     }
 
     @And("the unpacked backup of {name} matches the content of the classpath resource")
     public void theKeyNamedNameMatchesTheResourceContent(final String name) throws IOException {
-        final byte[] bytes = context.getClient(context.getKeyServiceVersion()).backupKey(name);
-        final String backup = context.getLowkeyVaultManagementClient().unpackBackup(bytes)
+        final var bytes = context.getClient(context.getKeyServiceVersion()).backupKey(name);
+        final var backup = context.getLowkeyVaultManagementClient().unpackBackup(bytes)
                 .replaceAll("[ \\n]+", "");
-        final String expected = readResourceContent("/json/backups/" + name + ".json");
+        final var expected = readResourceContent("/json/backups/" + name + ".json");
         assertEquals(expected, backup);
     }
 
     @Then("the length of the random data is {int} bytes")
     public void theLengthOfTheRandomDataIsBytes(final int count) {
-        final int actual = context.getBackupBytes("random").length;
+        final var actual = context.getBackupBytes("random").length;
         assertEquals(count, actual);
     }
 
     @Then("the key named auto-rotate has {int} versions")
     public void theKeyNamedAutoRotateHasVersions(final int versions) {
-        final List<KeyProperties> keyVersions = context.getClient(context.getKeyServiceVersion())
+        final var keyVersions = context.getClient(context.getKeyServiceVersion())
                 .listPropertiesOfKeyVersions(context.getLastResult().getName())
                 .stream()
                 .toList();
@@ -208,10 +210,10 @@ public class KeysStepDefsAssertions extends CommonAssertions {
 
     @And("the rotation policy of {name} is rotating after {int} days with expiry of {int} days")
     public void theRotationPolicyOfKeyIsRotatingAfterDaysWithExpiryOfDays(final String keyName, final int rotate, final int expiry) {
-        final KeyRotationPolicy keyRotationPolicy = context.getClient(context.getKeyServiceVersion()).getKeyRotationPolicy(keyName);
+        final var keyRotationPolicy = context.getClient(context.getKeyServiceVersion()).getKeyRotationPolicy(keyName);
         assertEquals("P" + expiry + "D", keyRotationPolicy.getExpiresIn());
         assertEquals(1, keyRotationPolicy.getLifetimeActions().size());
-        final KeyRotationLifetimeAction action = keyRotationPolicy.getLifetimeActions().get(0);
+        final var action = keyRotationPolicy.getLifetimeActions().get(0);
         assertEquals("P" + rotate + "D", action.getTimeAfterCreate());
         assertEquals(KeyRotationPolicyAction.ROTATE, action.getAction());
     }

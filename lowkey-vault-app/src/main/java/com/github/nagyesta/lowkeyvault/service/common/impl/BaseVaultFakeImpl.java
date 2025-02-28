@@ -61,7 +61,7 @@ public abstract class BaseVaultFakeImpl<K extends EntityId, V extends K, RE exte
 
     @Override
     public void addTags(@NonNull final V entityId, final Map<String, String> tags) {
-        final TreeMap<String, String> newTags = new TreeMap<>(entities.getEntity(entityId).getTags());
+        final var newTags = new TreeMap<String, String>(entities.getEntity(entityId).getTags());
         newTags.putAll(Objects.requireNonNullElse(tags, Collections.emptyMap()));
         entities.getEntity(entityId).setTags(newTags);
     }
@@ -78,7 +78,7 @@ public abstract class BaseVaultFakeImpl<K extends EntityId, V extends K, RE exte
         if (expiry != null && notBefore != null && notBefore.isAfter(expiry)) {
             throw new IllegalArgumentException("Expiry cannot be before notBefore.");
         }
-        final ME entity = entities.getEntity(entityId);
+        final var entity = entities.getEntity(entityId);
         entity.setNotBefore(notBefore);
         entity.setExpiry(expiry);
     }
@@ -87,12 +87,12 @@ public abstract class BaseVaultFakeImpl<K extends EntityId, V extends K, RE exte
         if (created == null && updated == null) {
             return;
         }
-        final OffsetDateTime createdOn = Optional.ofNullable(created).orElse(OffsetDateTime.now(ZoneOffset.UTC));
-        final OffsetDateTime updatedOn = Optional.ofNullable(updated).orElse(createdOn);
+        final var createdOn = Optional.ofNullable(created).orElse(OffsetDateTime.now(ZoneOffset.UTC));
+        final var updatedOn = Optional.ofNullable(updated).orElse(createdOn);
         if (createdOn.isAfter(updatedOn)) {
             throw new IllegalArgumentException("Updated cannot be before created.");
         }
-        final ME entity = entities.getEntity(entityId);
+        final var entity = entities.getEntity(entityId);
         entity.setCreatedOn(createdOn);
         entity.setUpdatedOn(updatedOn);
     }
@@ -172,7 +172,7 @@ public abstract class BaseVaultFakeImpl<K extends EntityId, V extends K, RE exte
 
     private ME markDeleted(final ME entity) {
         final int days = entity.getRecoverableDays();
-        final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS);
+        final var now = OffsetDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS);
         entity.setDeletedDate(now);
         entity.setScheduledPurgeDate(now.plusDays(days));
         return entity;

@@ -81,13 +81,13 @@ class KeyEntityToV72KeyVersionItemModelConverterTest {
 
         //given
         when(vault.baseUri()).thenReturn(keyEntityId.vault());
-        final URI vaultUri = eq(keyEntityId.vault());
+        final var vaultUri = eq(keyEntityId.vault());
         when(vault.matches(vaultUri, eq(Function.identity()))).thenReturn(true);
-        final RsaKeyVaultKeyEntity input = new RsaKeyVaultKeyEntity(keyEntityId, vault, keyParam, null, false);
+        final var input = new RsaKeyVaultKeyEntity(keyEntityId, vault, keyParam, null, false);
         input.setTags(tags);
 
         //when
-        final KeyVaultKeyItemModel actual = underTest.convert(input, vault.baseUri());
+        final var actual = underTest.convert(input, vault.baseUri());
 
         //then
         Assertions.assertEquals(expected, actual);
@@ -107,7 +107,7 @@ class KeyEntityToV72KeyVersionItemModelConverterTest {
     }
 
     private static KeyVaultKeyItemModel keyVaultKeyItemModel(final URI asUriNoVersion, final Map<String, String> tags) {
-        final KeyVaultKeyItemModel model = new KeyVaultKeyItemModel();
+        final var model = new KeyVaultKeyItemModel();
         model.setAttributes(PROPERTIES_MODEL);
         model.setKeyId(asUriNoVersion.toString());
         model.setTags(tags);

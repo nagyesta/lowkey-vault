@@ -21,9 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import javax.crypto.SecretKey;
 import java.net.URI;
-import java.security.KeyPair;
 import java.util.Collections;
 import java.util.Map;
 
@@ -71,17 +69,17 @@ class KeyEntityToV72BackupConverterTest {
     @Test
     void testConvertShouldConvertPopulatedFieldsWhenCalledWithMinimalRsaInput() {
         //given
-        final Integer keySize = KeyType.RSA.getValidKeyParameters(Integer.class).first();
-        final KeyPair keyPair = KeyGenUtil.generateRsa(keySize, null);
-        final RsaKeyVaultKeyEntity input = new RsaKeyVaultKeyEntity(
+        final var keySize = KeyType.RSA.getValidKeyParameters(Integer.class).first();
+        final var keyPair = KeyGenUtil.generateRsa(keySize, null);
+        final var input = new RsaKeyVaultKeyEntity(
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, keyPair, keySize, false);
 
         //when
-        final KeyBackupListItem actual = underTest.convert(input);
+        final var actual = underTest.convert(input);
 
         //then
         Assertions.assertNotNull(actual);
-        final JsonWebKeyImportRequest keyMaterial = actual.getKeyMaterial();
+        final var keyMaterial = actual.getKeyMaterial();
         assertCommonKeyPropertiesAreEqual(input, keyMaterial);
         assertRsaPropertiesAreEqual(input, keyMaterial);
         assertMinimalPropertiesPopulated(actual);
@@ -93,17 +91,17 @@ class KeyEntityToV72BackupConverterTest {
     @Test
     void testConvertShouldConvertPopulatedFieldsWhenCalledWithMinimalAesInput() {
         //given
-        final Integer keySize = KeyType.OCT.getValidKeyParameters(Integer.class).first();
-        final SecretKey secretKey = KeyGenUtil.generateAes(keySize);
-        final AesKeyVaultKeyEntity input = new AesKeyVaultKeyEntity(
+        final var keySize = KeyType.OCT.getValidKeyParameters(Integer.class).first();
+        final var secretKey = KeyGenUtil.generateAes(keySize);
+        final var input = new AesKeyVaultKeyEntity(
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, secretKey, keySize, true);
 
         //when
-        final KeyBackupListItem actual = underTest.convert(input);
+        final var actual = underTest.convert(input);
 
         //then
         Assertions.assertNotNull(actual);
-        final JsonWebKeyImportRequest keyMaterial = actual.getKeyMaterial();
+        final var keyMaterial = actual.getKeyMaterial();
         assertCommonKeyPropertiesAreEqual(input, keyMaterial);
         assertOctPropertiesAreEqual(input, keyMaterial);
         assertMinimalPropertiesPopulated(actual);
@@ -115,16 +113,16 @@ class KeyEntityToV72BackupConverterTest {
     @Test
     void testConvertShouldConvertPopulatedFieldsWhenCalledWithMinimalEcInput() {
         //given
-        final KeyPair keyPair = KeyGenUtil.generateEc(KeyCurveName.P_256);
-        final EcKeyVaultKeyEntity input = new EcKeyVaultKeyEntity(
+        final var keyPair = KeyGenUtil.generateEc(KeyCurveName.P_256);
+        final var input = new EcKeyVaultKeyEntity(
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, keyPair, KeyCurveName.P_256, true);
 
         //when
-        final KeyBackupListItem actual = underTest.convert(input);
+        final var actual = underTest.convert(input);
 
         //then
         Assertions.assertNotNull(actual);
-        final JsonWebKeyImportRequest keyMaterial = actual.getKeyMaterial();
+        final var keyMaterial = actual.getKeyMaterial();
         assertCommonKeyPropertiesAreEqual(input, keyMaterial);
         assertEcPropertiesAreEqual(input, keyMaterial);
         assertMinimalPropertiesPopulated(actual);
@@ -136,19 +134,19 @@ class KeyEntityToV72BackupConverterTest {
     @Test
     void testConvertShouldConvertAllFieldsWhenCalledWithFullyPopulatedInput() {
         //given
-        final Map<String, String> tagMap = Map.of(KEY_1, VALUE_1);
-        final KeyPair keyPair = KeyGenUtil.generateEc(KeyCurveName.P_256);
-        final EcKeyVaultKeyEntity input = new EcKeyVaultKeyEntity(
+        final var tagMap = Map.of(KEY_1, VALUE_1);
+        final var keyPair = KeyGenUtil.generateEc(KeyCurveName.P_256);
+        final var input = new EcKeyVaultKeyEntity(
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, keyPair, KeyCurveName.P_256, true);
         input.setTags(tagMap);
         input.setManaged(true);
 
         //when
-        final KeyBackupListItem actual = underTest.convert(input);
+        final var actual = underTest.convert(input);
 
         //then
         Assertions.assertNotNull(actual);
-        final JsonWebKeyImportRequest keyMaterial = actual.getKeyMaterial();
+        final var keyMaterial = actual.getKeyMaterial();
         assertCommonKeyPropertiesAreEqual(input, keyMaterial);
         assertEcPropertiesAreEqual(input, keyMaterial);
         Assertions.assertSame(KEY_PROPERTIES_MODEL, actual.getAttributes());

@@ -4,7 +4,6 @@ import org.testng.Assert;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,9 +49,9 @@ public class CommonAssertions {
     }
 
     protected <E extends Comparable<E>> void assertContainsEqualEntriesSorted(final Collection<E> expected, final Collection<E> actual) {
-        final ArrayList<E> expectedSorted = new ArrayList<>(expected);
+        final var expectedSorted = new ArrayList<E>(expected);
         Collections.sort(expectedSorted);
-        final ArrayList<E> actualSorted = new ArrayList<>(actual);
+        final var actualSorted = new ArrayList<E>(actual);
         Collections.sort(actualSorted);
         assertEquals(expectedSorted, actualSorted);
         assertEquals(expectedSorted.size(), actualSorted.size());
@@ -65,9 +64,9 @@ public class CommonAssertions {
     }
 
     protected String readResourceContent(final String resource) throws IOException {
-        try (InputStream stream = getClass().getResourceAsStream(resource);
-             InputStreamReader reader = new InputStreamReader(Objects.requireNonNull(stream));
-             BufferedReader bufferedReader = new BufferedReader(reader)) {
+        try (var stream = getClass().getResourceAsStream(resource);
+             var reader = new InputStreamReader(Objects.requireNonNull(stream));
+             var bufferedReader = new BufferedReader(reader)) {
             return bufferedReader.lines().collect(Collectors.joining(""))
                     .replaceAll(" +", "");
         }

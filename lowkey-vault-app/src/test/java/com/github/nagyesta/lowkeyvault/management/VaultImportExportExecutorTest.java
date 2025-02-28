@@ -21,10 +21,10 @@ import static org.mockito.Mockito.mock;
 class VaultImportExportExecutorTest {
 
     public static Stream<Arguments> nullProvider() {
-        final VaultManagementController management = mock(VaultManagementController.class);
-        final KeyBackupRestoreController key = mock(KeyBackupRestoreController.class);
-        final SecretBackupRestoreController secret = mock(SecretBackupRestoreController.class);
-        final CertificateBackupRestoreController certificate = mock(CertificateBackupRestoreController.class);
+        final var management = mock(VaultManagementController.class);
+        final var key = mock(KeyBackupRestoreController.class);
+        final var secret = mock(SecretBackupRestoreController.class);
+        final var certificate = mock(CertificateBackupRestoreController.class);
         return Stream.<Arguments>builder()
                 .add(Arguments.of(null, key, secret, certificate))
                 .add(Arguments.of(management, null, secret, certificate))
@@ -34,9 +34,9 @@ class VaultImportExportExecutorTest {
     }
 
     public static Stream<Arguments> restoreNullProvider() {
-        final VaultImporter importer = mock(VaultImporter.class);
-        final URI baseUri = HTTPS_LOCALHOST_8443;
-        final VaultModel vault = mock(VaultModel.class);
+        final var importer = mock(VaultImporter.class);
+        final var baseUri = HTTPS_LOCALHOST_8443;
+        final var vault = mock(VaultModel.class);
         return Stream.<Arguments>builder()
                 .add(Arguments.of(null, baseUri, vault))
                 .add(Arguments.of(importer, null, vault))
@@ -65,11 +65,11 @@ class VaultImportExportExecutorTest {
     @Test
     void testBackupVaultListShouldThrowExceptionWhenCalledWithNull() {
         //given
-        final VaultManagementController vaultManagementController = mock(VaultManagementController.class);
-        final KeyBackupRestoreController keyBackupRestoreController = mock(KeyBackupRestoreController.class);
-        final SecretBackupRestoreController secretBackupRestoreController = mock(SecretBackupRestoreController.class);
-        final CertificateBackupRestoreController certificateBackupRestoreController = mock(CertificateBackupRestoreController.class);
-        final VaultImportExportExecutor underTest = new VaultImportExportExecutor(vaultManagementController,
+        final var vaultManagementController = mock(VaultManagementController.class);
+        final var keyBackupRestoreController = mock(KeyBackupRestoreController.class);
+        final var secretBackupRestoreController = mock(SecretBackupRestoreController.class);
+        final var certificateBackupRestoreController = mock(CertificateBackupRestoreController.class);
+        final var underTest = new VaultImportExportExecutor(vaultManagementController,
                 keyBackupRestoreController, secretBackupRestoreController, certificateBackupRestoreController);
 
         //when
@@ -83,11 +83,11 @@ class VaultImportExportExecutorTest {
     void testBackupVaultListShouldThrowExceptionWhenCalledWithNull(
             final VaultImporter vaultImporter, final URI baseUri, final VaultModel vault) {
         //given
-        final VaultManagementController vaultManagementController = mock(VaultManagementController.class);
-        final KeyBackupRestoreController keyBackupRestoreController = mock(KeyBackupRestoreController.class);
-        final SecretBackupRestoreController secretBackupRestoreController = mock(SecretBackupRestoreController.class);
-        final CertificateBackupRestoreController certificateBackupRestoreController = mock(CertificateBackupRestoreController.class);
-        final VaultImportExportExecutor underTest = new VaultImportExportExecutor(vaultManagementController,
+        final var vaultManagementController = mock(VaultManagementController.class);
+        final var keyBackupRestoreController = mock(KeyBackupRestoreController.class);
+        final var secretBackupRestoreController = mock(SecretBackupRestoreController.class);
+        final var certificateBackupRestoreController = mock(CertificateBackupRestoreController.class);
+        final var underTest = new VaultImportExportExecutor(vaultManagementController,
                 keyBackupRestoreController, secretBackupRestoreController, certificateBackupRestoreController);
 
         //when

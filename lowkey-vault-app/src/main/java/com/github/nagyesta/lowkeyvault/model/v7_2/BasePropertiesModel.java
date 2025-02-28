@@ -42,7 +42,7 @@ public class BasePropertiesModel {
     public BasePropertiesModel() {
         enabled = true;
         recoveryLevel = RecoveryLevel.PURGEABLE;
-        final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+        final var now = OffsetDateTime.now(ZoneOffset.UTC);
         createdOn = now;
         updatedOn = now;
     }

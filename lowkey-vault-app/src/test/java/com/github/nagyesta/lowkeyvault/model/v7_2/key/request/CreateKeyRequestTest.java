@@ -3,7 +3,6 @@ package com.github.nagyesta.lowkeyvault.model.v7_2.key.request;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.service.key.impl.EcKeyCreationInput;
-import com.github.nagyesta.lowkeyvault.service.key.impl.KeyCreationInput;
 import com.github.nagyesta.lowkeyvault.service.key.impl.OctKeyCreationInput;
 import com.github.nagyesta.lowkeyvault.service.key.impl.RsaKeyCreationInput;
 import org.junit.jupiter.api.Assertions;
@@ -56,13 +55,13 @@ class CreateKeyRequestTest {
     @MethodSource("octInputProvider")
     void testToKeyCreationInputShouldReturnKeySizeWhenTypeIsOct(final KeyType keyType, final Integer parameter) {
         //given
-        final CreateKeyRequest underTest = new CreateKeyRequest();
+        final var underTest = new CreateKeyRequest();
         underTest.setKeyType(keyType);
         underTest.setKeySize(parameter);
-        final OctKeyCreationInput expected = new OctKeyCreationInput(keyType, parameter);
+        final var expected = new OctKeyCreationInput(keyType, parameter);
 
         //when
-        final KeyCreationInput<?> actual = underTest.toKeyCreationInput();
+        final var actual = underTest.toKeyCreationInput();
 
         //then
         Assertions.assertEquals(expected, actual);
@@ -73,14 +72,14 @@ class CreateKeyRequestTest {
     void testToKeyCreationInputShouldReturnKeySizeWhenTypeIsRsa(
             final KeyType keyType, final Integer parameter, final BigInteger publicExponent) {
         //given
-        final CreateKeyRequest underTest = new CreateKeyRequest();
+        final var underTest = new CreateKeyRequest();
         underTest.setKeyType(keyType);
         underTest.setKeySize(parameter);
         underTest.setPublicExponent(publicExponent);
-        final RsaKeyCreationInput expected = new RsaKeyCreationInput(keyType, parameter, publicExponent);
+        final var expected = new RsaKeyCreationInput(keyType, parameter, publicExponent);
 
         //when
-        final KeyCreationInput<?> actual = underTest.toKeyCreationInput();
+        final var actual = underTest.toKeyCreationInput();
 
         //then
         Assertions.assertEquals(expected, actual);
@@ -90,14 +89,14 @@ class CreateKeyRequestTest {
     @MethodSource("ecInputProvider")
     void testToKeyCreationInputShouldReturnCurveNameWhenTypeIsEc(final KeyType keyType, final KeyCurveName parameter) {
         //given
-        final CreateKeyRequest underTest = new CreateKeyRequest();
+        final var underTest = new CreateKeyRequest();
         underTest.setKeyType(keyType);
         underTest.setKeyCurveName(parameter);
-        final KeyCurveName keyCurveName = Objects.requireNonNullElse(parameter, KeyCurveName.P_256);
-        final EcKeyCreationInput expected = new EcKeyCreationInput(keyType, keyCurveName);
+        final var keyCurveName = Objects.requireNonNullElse(parameter, KeyCurveName.P_256);
+        final var expected = new EcKeyCreationInput(keyType, keyCurveName);
 
         //when
-        final KeyCreationInput<?> actual = underTest.toKeyCreationInput();
+        final var actual = underTest.toKeyCreationInput();
 
         //then
         Assertions.assertEquals(expected, actual);
@@ -106,7 +105,7 @@ class CreateKeyRequestTest {
     @Test
     void testSetPublicExponentShouldSetNullWhenCalledWithZero() {
         //given
-        final CreateKeyRequest underTest = new CreateKeyRequest();
+        final var underTest = new CreateKeyRequest();
 
         //when
         underTest.setPublicExponent(BigInteger.ZERO);

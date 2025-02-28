@@ -3,7 +3,6 @@ package com.github.nagyesta.lowkeyvault.service.certificate.impl;
 import com.github.nagyesta.lowkeyvault.ResourceUtils;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRequest;
 import com.github.nagyesta.lowkeyvault.service.exception.CryptoException;
 import com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil;
 import org.bouncycastle.util.encoders.Base64;
@@ -14,10 +13,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.nio.charset.StandardCharsets;
-import java.security.KeyPair;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
-import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -100,10 +97,10 @@ class CertContentTypeTest {
     @Test
     void testGetMimeTypeShouldReturnTheMimeTypeOfTheSourceWhenCalledOnPkcs12() {
         //given
-        final CertContentType underTest = CertContentType.PKCS12;
+        final var underTest = CertContentType.PKCS12;
 
         //when
-        final String actual = underTest.getMimeType();
+        final var actual = underTest.getMimeType();
 
         //then
         Assertions.assertEquals("application/x-pkcs12", actual);
@@ -112,10 +109,10 @@ class CertContentTypeTest {
     @Test
     void testGetMimeTypeShouldReturnTheMimeTypeOfTheSourceWhenCalledOnPem() {
         //given
-        final CertContentType underTest = PEM;
+        final var underTest = PEM;
 
         //when
-        final String actual = underTest.getMimeType();
+        final var actual = underTest.getMimeType();
 
         //then
         Assertions.assertEquals("application/x-pem-file", actual);
@@ -124,8 +121,8 @@ class CertContentTypeTest {
     @Test
     void testGetCertificateChainShouldThrowExceptionWhenPemCalledWithPkcs12Store() {
         //given
-        final String store = ResourceUtils.loadResourceAsBase64String("/cert/ec.p12");
-        final CertContentType underTest = CertContentType.PEM;
+        final var store = ResourceUtils.loadResourceAsBase64String("/cert/ec.p12");
+        final var underTest = CertContentType.PEM;
 
         //when
         Assertions.assertThrows(CryptoException.class, () -> underTest.getCertificateChain(store, "changeit"));
@@ -136,8 +133,8 @@ class CertContentTypeTest {
     @Test
     void testGetCertificateChainShouldThrowExceptionWhenPkcs12CalledWithPemStore() {
         //given
-        final String store = ResourceUtils.loadResourceAsString("/cert/ec.pem");
-        final CertContentType underTest = CertContentType.PKCS12;
+        final var store = ResourceUtils.loadResourceAsString("/cert/ec.pem");
+        final var underTest = CertContentType.PKCS12;
 
         //when
         Assertions.assertThrows(CryptoException.class, () -> underTest.getCertificateChain(store, "changeit"));
@@ -148,8 +145,8 @@ class CertContentTypeTest {
     @Test
     void testGetCertificateChainShouldThrowExceptionWhenPemCalledWithInvalidPemStore() {
         //given
-        final String store = ResourceUtils.loadResourceAsString("/cert/invalid-ec.pem");
-        final CertContentType underTest = CertContentType.PEM;
+        final var store = ResourceUtils.loadResourceAsString("/cert/invalid-ec.pem");
+        final var underTest = CertContentType.PEM;
 
         //when
         Assertions.assertThrows(CryptoException.class, () -> underTest.getCertificateChain(store, "changeit"));
@@ -160,15 +157,15 @@ class CertContentTypeTest {
     @Test
     void testGetCertificateChainShouldLoadCertificateChainWhenCalledWithEcPkcs12Store() throws CertificateEncodingException {
         //given
-        final String store = ResourceUtils.loadResourceAsBase64String("/cert/ec.p12");
-        final CertContentType underTest = CertContentType.PKCS12;
+        final var store = ResourceUtils.loadResourceAsBase64String("/cert/ec.p12");
+        final var underTest = CertContentType.PKCS12;
 
         //when
-        final List<Certificate> actual = underTest.getCertificateChain(store, "changeit");
+        final var actual = underTest.getCertificateChain(store, "changeit");
 
         //then
         Assertions.assertEquals(1, actual.size());
-        final Certificate certificate = actual.get(0);
+        final var certificate = actual.get(0);
         Assertions.assertEquals("X.509", certificate.getType());
         Assertions.assertEquals(EC_CERT, toBase64(certificate));
     }
@@ -176,15 +173,15 @@ class CertContentTypeTest {
     @Test
     void testGetCertificateChainShouldLoadCertificateChainWhenCalledWithEcPemStore() throws CertificateEncodingException {
         //given
-        final String store = ResourceUtils.loadResourceAsString("/cert/ec.pem");
-        final CertContentType underTest = PEM;
+        final var store = ResourceUtils.loadResourceAsString("/cert/ec.pem");
+        final var underTest = PEM;
 
         //when
-        final List<Certificate> actual = underTest.getCertificateChain(store, "changeit");
+        final var actual = underTest.getCertificateChain(store, "changeit");
 
         //then
         Assertions.assertEquals(1, actual.size());
-        final Certificate certificate = actual.get(0);
+        final var certificate = actual.get(0);
         Assertions.assertEquals("X.509", certificate.getType());
         Assertions.assertEquals(EC_CERT, toBase64(certificate));
     }
@@ -192,8 +189,8 @@ class CertContentTypeTest {
     @Test
     void testGetKeyShouldThrowExceptionWhenPemCalledWithPkcs12Store() {
         //given
-        final String store = ResourceUtils.loadResourceAsBase64String("/cert/ec.p12");
-        final CertContentType underTest = CertContentType.PEM;
+        final var store = ResourceUtils.loadResourceAsBase64String("/cert/ec.p12");
+        final var underTest = CertContentType.PEM;
 
         //when
         Assertions.assertThrows(CryptoException.class, () -> underTest.getKey(store, "changeit"));
@@ -204,8 +201,8 @@ class CertContentTypeTest {
     @Test
     void testGetKeyShouldThrowExceptionWhenPemCalledWithInvalidPemStore() {
         //given
-        final String store = ResourceUtils.loadResourceAsBase64String("/cert/invalid-ec.pem");
-        final CertContentType underTest = CertContentType.PEM;
+        final var store = ResourceUtils.loadResourceAsBase64String("/cert/invalid-ec.pem");
+        final var underTest = CertContentType.PEM;
 
         //when
         Assertions.assertThrows(CryptoException.class, () -> underTest.getKey(store, "changeit"));
@@ -216,8 +213,8 @@ class CertContentTypeTest {
     @Test
     void testGetKeyShouldThrowExceptionWhenPkcs12CalledWithPemStore() {
         //given
-        final String store = ResourceUtils.loadResourceAsString("/cert/ec.pem");
-        final CertContentType underTest = CertContentType.PKCS12;
+        final var store = ResourceUtils.loadResourceAsString("/cert/ec.pem");
+        final var underTest = CertContentType.PKCS12;
 
         //when
         Assertions.assertThrows(CryptoException.class, () -> underTest.getKey(store, "changeit"));
@@ -228,11 +225,11 @@ class CertContentTypeTest {
     @Test
     void testGetKeyShouldParseKeyParametersWhenCalledWithEcPkcs12Store() {
         //given
-        final String store = ResourceUtils.loadResourceAsBase64String("/cert/ec.p12");
-        final CertContentType underTest = CertContentType.PKCS12;
+        final var store = ResourceUtils.loadResourceAsBase64String("/cert/ec.p12");
+        final var underTest = CertContentType.PKCS12;
 
         //when
-        final JsonWebKeyImportRequest actual = underTest.getKey(store, "changeit");
+        final var actual = underTest.getKey(store, "changeit");
 
         //then
         Assertions.assertEquals(KeyType.EC, actual.getKeyType());
@@ -242,11 +239,11 @@ class CertContentTypeTest {
     @Test
     void testGetKeyShouldParseKeyParametersWhenCalledWithEcPemStore() {
         //given
-        final String store = ResourceUtils.loadResourceAsString("/cert/ec.pem");
-        final CertContentType underTest = PEM;
+        final var store = ResourceUtils.loadResourceAsString("/cert/ec.pem");
+        final var underTest = PEM;
 
         //when
-        final JsonWebKeyImportRequest actual = underTest.getKey(store, "changeit");
+        final var actual = underTest.getKey(store, "changeit");
 
         //then
         Assertions.assertEquals(KeyType.EC, actual.getKeyType());
@@ -256,15 +253,15 @@ class CertContentTypeTest {
     @Test
     void testGetCertificateChainShouldLoadCertificateChainWhenCalledWithRsaPkcs12Store() throws CertificateEncodingException {
         //given
-        final String store = ResourceUtils.loadResourceAsBase64String("/cert/rsa.p12");
-        final CertContentType underTest = CertContentType.PKCS12;
+        final var store = ResourceUtils.loadResourceAsBase64String("/cert/rsa.p12");
+        final var underTest = CertContentType.PKCS12;
 
         //when
-        final List<Certificate> actual = underTest.getCertificateChain(store, "");
+        final var actual = underTest.getCertificateChain(store, "");
 
         //then
         Assertions.assertEquals(1, actual.size());
-        final Certificate certificate = actual.get(0);
+        final var certificate = actual.get(0);
         Assertions.assertEquals("X.509", certificate.getType());
         Assertions.assertEquals(RSA_CERT, toBase64(certificate));
     }
@@ -272,15 +269,15 @@ class CertContentTypeTest {
     @Test
     void testGetCertificateChainShouldLoadCertificateChainWhenCalledWithRsaPemStore() throws CertificateEncodingException {
         //given
-        final String store = ResourceUtils.loadResourceAsString("/cert/rsa.pem");
-        final CertContentType underTest = PEM;
+        final var store = ResourceUtils.loadResourceAsString("/cert/rsa.pem");
+        final var underTest = PEM;
 
         //when
-        final List<Certificate> actual = underTest.getCertificateChain(store, "changeit");
+        final var actual = underTest.getCertificateChain(store, "changeit");
 
         //then
         Assertions.assertEquals(1, actual.size());
-        final Certificate certificate = actual.get(0);
+        final var certificate = actual.get(0);
         Assertions.assertEquals("X.509", certificate.getType());
         Assertions.assertEquals(RSA_CERT, toBase64(certificate));
     }
@@ -288,11 +285,11 @@ class CertContentTypeTest {
     @Test
     void testGetKeyShouldParseKeyParametersWhenCalledWithRsaPkcs12Store() {
         //given
-        final String store = ResourceUtils.loadResourceAsBase64String("/cert/rsa.p12");
-        final CertContentType underTest = CertContentType.PKCS12;
+        final var store = ResourceUtils.loadResourceAsBase64String("/cert/rsa.p12");
+        final var underTest = CertContentType.PKCS12;
 
         //when
-        final JsonWebKeyImportRequest actual = underTest.getKey(store, "");
+        final var actual = underTest.getKey(store, "");
 
         //then
         Assertions.assertEquals(KeyType.RSA, actual.getKeyType());
@@ -301,11 +298,11 @@ class CertContentTypeTest {
     @Test
     void testGetKeyShouldParseKeyParametersWhenCalledWithRsaPemStore() {
         //given
-        final String store = ResourceUtils.loadResourceAsString("/cert/rsa.pem");
-        final CertContentType underTest = PEM;
+        final var store = ResourceUtils.loadResourceAsString("/cert/rsa.pem");
+        final var underTest = PEM;
 
         //when
-        final JsonWebKeyImportRequest actual = underTest.getKey(store, "changeit");
+        final var actual = underTest.getKey(store, "changeit");
 
         //then
         Assertions.assertEquals(KeyType.RSA, actual.getKeyType());
@@ -325,8 +322,8 @@ class CertContentTypeTest {
     @Test
     void testGetKeyShouldThrowExceptionWhenCalledWithNullPasswordAndPkcs12() {
         //given
-        final CertContentType underTest = PKCS12;
-        final String store = ResourceUtils.loadResourceAsString("/cert/rsa.p12");
+        final var underTest = PKCS12;
+        final var store = ResourceUtils.loadResourceAsString("/cert/rsa.p12");
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.getKey(store, null));
@@ -337,8 +334,8 @@ class CertContentTypeTest {
     @Test
     void testGetKeyShouldNotThrowExceptionWhenCalledWithNullPasswordAndPem() {
         //given
-        final CertContentType underTest = PEM;
-        final String store = ResourceUtils.loadResourceAsString("/cert/rsa.pem");
+        final var underTest = PEM;
+        final var store = ResourceUtils.loadResourceAsString("/cert/rsa.pem");
 
         //when
         Assertions.assertDoesNotThrow(() -> underTest.getKey(store, null));
@@ -361,8 +358,8 @@ class CertContentTypeTest {
     @Test
     void testGetCertificateChainShouldThrowExceptionWhenCalledWithNullPasswordAndPkcs12() {
         //given
-        final CertContentType underTest = PKCS12;
-        final String store = ResourceUtils.loadResourceAsString("/cert/rsa.p12");
+        final var underTest = PKCS12;
+        final var store = ResourceUtils.loadResourceAsString("/cert/rsa.p12");
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.getCertificateChain(store, null));
@@ -373,8 +370,8 @@ class CertContentTypeTest {
     @Test
     void testGetCertificateChainShouldNotThrowExceptionWhenCalledWithNullPasswordAndPem() {
         //given
-        final CertContentType underTest = PEM;
-        final String store = ResourceUtils.loadResourceAsString("/cert/rsa.pem");
+        final var underTest = PEM;
+        final var store = ResourceUtils.loadResourceAsString("/cert/rsa.pem");
 
         //when
         Assertions.assertDoesNotThrow(() -> underTest.getCertificateChain(store, null));
@@ -386,8 +383,8 @@ class CertContentTypeTest {
     @MethodSource("instanceProvider")
     void testAsBase64CertificatePackageShouldThrowExceptionWhenCalledWithNullKeyPair(final CertContentType underTest) {
         //given
-        final String store = ResourceUtils.loadResourceAsString("/cert/rsa.pem");
-        final List<Certificate> chain = CertContentType.PEM.getCertificateChain(Objects.requireNonNull(store), "");
+        final var store = ResourceUtils.loadResourceAsString("/cert/rsa.pem");
+        final var chain = CertContentType.PEM.getCertificateChain(Objects.requireNonNull(store), "");
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asBase64CertificatePackage(chain.get(0), null));
@@ -413,7 +410,7 @@ class CertContentTypeTest {
         //given
 
         //when
-        final CertContentType actual = CertContentType.byMimeType(expected.getMimeType());
+        final var actual = CertContentType.byMimeType(expected.getMimeType());
 
         //then
         Assertions.assertEquals(expected, actual);
@@ -424,7 +421,7 @@ class CertContentTypeTest {
         //given
 
         //when
-        final CertContentType actual = CertContentType.byMimeType(null);
+        final var actual = CertContentType.byMimeType(null);
 
         //then
         Assertions.assertEquals(PEM, actual);
@@ -433,9 +430,9 @@ class CertContentTypeTest {
     @Test
     void testCertificatePackageForBackupShouldThrowExceptionWhenCalledWithNullKeyAndValidCertificateUsingPkcs12Store() {
         //given
-        final String store = ResourceUtils.loadResourceAsBase64String("/cert/rsa.p12");
-        final Certificate certificate = PKCS12.getCertificateChain(store, "").get(0);
-        final CertContentType underTest = PKCS12;
+        final var store = ResourceUtils.loadResourceAsBase64String("/cert/rsa.p12");
+        final var certificate = PKCS12.getCertificateChain(store, "").get(0);
+        final var underTest = PKCS12;
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.certificatePackageForBackup(certificate, null));
@@ -446,8 +443,8 @@ class CertContentTypeTest {
     @Test
     void testCertificatePackageForBackupShouldThrowExceptionWhenCalledWithValidKeyAndNullCertificateUsingPkcs12Store() {
         //given
-        final KeyPair keyPair = KeyGenUtil.generateRsa(MIN_RSA_KEY_SIZE, null);
-        final CertContentType underTest = PKCS12;
+        final var keyPair = KeyGenUtil.generateRsa(MIN_RSA_KEY_SIZE, null);
+        final var underTest = PKCS12;
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.certificatePackageForBackup(null, keyPair));
@@ -458,9 +455,9 @@ class CertContentTypeTest {
     @Test
     void testCertificatePackageForBackupShouldThrowExceptionWhenCalledWithValidKeyAndInvalidCertificateUsingPkcs12Store() {
         //given
-        final Certificate certificate = mock(Certificate.class);
-        final KeyPair keyPair = KeyGenUtil.generateRsa(MIN_RSA_KEY_SIZE, null);
-        final CertContentType underTest = PKCS12;
+        final var certificate = mock(Certificate.class);
+        final var keyPair = KeyGenUtil.generateRsa(MIN_RSA_KEY_SIZE, null);
+        final var underTest = PKCS12;
 
         //when
         Assertions.assertThrows(CryptoException.class, () -> underTest.certificatePackageForBackup(certificate, keyPair));
@@ -474,10 +471,10 @@ class CertContentTypeTest {
         //given
 
         //when
-        final String actual = CertContentType.encodeAsBase64String(input);
+        final var actual = CertContentType.encodeAsBase64String(input);
 
         //then
-        final String expectedWithoutLineBreaks = expected.replaceAll(Pattern.quote("\r\n"), "");
+        final var expectedWithoutLineBreaks = expected.replaceAll(Pattern.quote("\r\n"), "");
         Assertions.assertEquals(expectedWithoutLineBreaks, actual);
     }
 
@@ -487,7 +484,7 @@ class CertContentTypeTest {
         //given
 
         //when
-        final byte[] actual = CertContentType.decodeBase64String(input);
+        final var actual = CertContentType.decodeBase64String(input);
 
         //then
         Assertions.assertArrayEquals(expected, actual);

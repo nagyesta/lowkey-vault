@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 class EncryptionAlgorithmTest {
 
     public static Stream<Arguments> valueProvider() {
-        final Stream.Builder<Arguments> builder = Stream.<Arguments>builder()
+        final var builder = Stream.<Arguments>builder()
                 .add(Arguments.of(null, null))
                 .add(Arguments.of(TestConstants.EMPTY, null));
         Arrays.stream(EncryptionAlgorithm.values()).forEach(a -> builder.add(Arguments.of(a.getValue(), a)));
@@ -25,7 +25,7 @@ class EncryptionAlgorithmTest {
         //given
 
         //when
-        final EncryptionAlgorithm actual = EncryptionAlgorithm.forValue(inout);
+        final var actual = EncryptionAlgorithm.forValue(inout);
 
         //then
         Assertions.assertEquals(expected, actual);

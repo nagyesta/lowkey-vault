@@ -45,15 +45,15 @@ class BackupTemplateProcessorIntegrationTest {
             final String templateResource, final String host, final int port, final int timeEpochSeconds, final String expectedResource)
             throws IOException {
         //given
-        final OffsetDateTime time = OffsetDateTime.ofInstant(Instant.ofEpochSecond(timeEpochSeconds), ZoneOffset.UTC);
-        final BackupContext context = new BackupContext(host, port);
-        final TimeHelperSource timeHelperSource = new TimeHelperSource(time);
-        final BackupTemplateProcessor underTest = new BackupTemplateProcessor(timeHelperSource);
-        final String templateAsString = Objects.requireNonNull(ResourceUtils.loadResourceAsString(templateResource));
-        final String expectedAsString = ResourceUtils.loadResourceAsString(expectedResource);
+        final var time = OffsetDateTime.ofInstant(Instant.ofEpochSecond(timeEpochSeconds), ZoneOffset.UTC);
+        final var context = new BackupContext(host, port);
+        final var timeHelperSource = new TimeHelperSource(time);
+        final var underTest = new BackupTemplateProcessor(timeHelperSource);
+        final var templateAsString = Objects.requireNonNull(ResourceUtils.loadResourceAsString(templateResource));
+        final var expectedAsString = ResourceUtils.loadResourceAsString(expectedResource);
 
         //when
-        final String actual = underTest.processTemplate(templateAsString, context);
+        final var actual = underTest.processTemplate(templateAsString, context);
 
         //then
         Assertions.assertEquals(expectedAsString, actual);
@@ -63,7 +63,7 @@ class BackupTemplateProcessorIntegrationTest {
     @MethodSource("nullProvider")
     void testProcessTemplateShouldThrowExceptionWhenCalledWithNull(final String template, final BackupContext context) {
         //given
-        final BackupTemplateProcessor underTest = new BackupTemplateProcessor(new TimeHelperSource());
+        final var underTest = new BackupTemplateProcessor(new TimeHelperSource());
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.processTemplate(template, context));

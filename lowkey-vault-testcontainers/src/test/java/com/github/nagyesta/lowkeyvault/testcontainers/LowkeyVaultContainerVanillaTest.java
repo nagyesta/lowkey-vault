@@ -45,22 +45,22 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testContainerShouldStartUpWhenCalledWithValidNames() {
         //given
-        final DockerImageName imageName = DockerImageName
+        final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
-        final LowkeyVaultContainer underTest = lowkeyVault(imageName).vaultNames(Collections.singleton(VAULT_NAME)).build()
+        final var underTest = lowkeyVault(imageName).vaultNames(Collections.singleton(VAULT_NAME)).build()
                 .withImagePullPolicy(PullPolicy.defaultPolicy());
 
         //when
         underTest.start();
 
         //then
-        final String endpoint = underTest.getVaultBaseUrl(VAULT_NAME);
-        final AuthorityOverrideFunction authorityOverrideFunction = new AuthorityOverrideFunction(
+        final var endpoint = underTest.getVaultBaseUrl(VAULT_NAME);
+        final var authorityOverrideFunction = new AuthorityOverrideFunction(
                 underTest.getVaultAuthority(VAULT_NAME),
                 underTest.getEndpointAuthority());
         final TokenCredential credentials = new BasicAuthenticationCredential(underTest.getUsername(), underTest.getPassword());
-        final ApacheHttpClient httpClient = new ApacheHttpClient(authorityOverrideFunction,
+        final var httpClient = new ApacheHttpClient(authorityOverrideFunction,
                 new TrustSelfSignedStrategy(), new DefaultHostnameVerifier());
         verifyConnectionIsWorking(endpoint, httpClient, credentials);
     }
@@ -68,22 +68,22 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testContainerShouldStartUpWhenCalledWithoutVaultNames() {
         //given
-        final DockerImageName imageName = DockerImageName
+        final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
-        final LowkeyVaultContainer underTest = lowkeyVault(imageName).build()
+        final var underTest = lowkeyVault(imageName).build()
                 .withImagePullPolicy(PullPolicy.defaultPolicy());
 
         //when
         underTest.start();
 
         //then
-        final String endpoint = underTest.getDefaultVaultBaseUrl();
-        final AuthorityOverrideFunction authorityOverrideFunction = new AuthorityOverrideFunction(
+        final var endpoint = underTest.getDefaultVaultBaseUrl();
+        final var authorityOverrideFunction = new AuthorityOverrideFunction(
                 underTest.getDefaultVaultAuthority(),
                 underTest.getEndpointAuthority());
         final TokenCredential credentials = new BasicAuthenticationCredential(underTest.getUsername(), underTest.getPassword());
-        final ApacheHttpClient httpClient = new ApacheHttpClient(authorityOverrideFunction,
+        final var httpClient = new ApacheHttpClient(authorityOverrideFunction,
                 new TrustSelfSignedStrategy(), new DefaultHostnameVerifier());
         verifyConnectionIsWorking(endpoint, httpClient, credentials);
     }
@@ -92,22 +92,22 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testContainerShouldStartUpWhenCalledWithFixedHostPort() {
         //given
-        final DockerImageName imageName = DockerImageName
+        final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
-        final LowkeyVaultContainer underTest = lowkeyVault(imageName).hostPort(ALT_HOST_PORT).build()
+        final var underTest = lowkeyVault(imageName).hostPort(ALT_HOST_PORT).build()
                 .withImagePullPolicy(PullPolicy.defaultPolicy());
 
         //when
         underTest.start();
 
         //then
-        final String endpoint = underTest.getDefaultVaultBaseUrl();
-        final AuthorityOverrideFunction authorityOverrideFunction = new AuthorityOverrideFunction(
+        final var endpoint = underTest.getDefaultVaultBaseUrl();
+        final var authorityOverrideFunction = new AuthorityOverrideFunction(
                 underTest.getDefaultVaultAuthority(),
                 underTest.getEndpointAuthority());
         final TokenCredential credentials = new BasicAuthenticationCredential(underTest.getUsername(), underTest.getPassword());
-        final ApacheHttpClient httpClient = new ApacheHttpClient(authorityOverrideFunction,
+        final var httpClient = new ApacheHttpClient(authorityOverrideFunction,
                 new TrustSelfSignedStrategy(), new DefaultHostnameVerifier());
         verifyConnectionIsWorking(endpoint, httpClient, credentials);
     }
@@ -115,12 +115,12 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testContainerShouldStartUpWhenCalledWithImportFile() {
         //given
-        final DockerImageName imageName = DockerImageName
+        final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
         //noinspection ConstantConditions
-        final File importFile = new File(getClass().getResource("/full-import.json").getFile());
-        final LowkeyVaultContainer underTest = lowkeyVault(imageName)
+        final var importFile = new File(getClass().getResource("/full-import.json").getFile());
+        final var underTest = lowkeyVault(imageName)
                 .noAutoRegistration()
                 .importFile(importFile)
                 .debug()
@@ -131,12 +131,12 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         underTest.start();
 
         //then
-        final String endpoint = underTest.getDefaultVaultBaseUrl();
-        final AuthorityOverrideFunction authorityOverrideFunction = new AuthorityOverrideFunction(
+        final var endpoint = underTest.getDefaultVaultBaseUrl();
+        final var authorityOverrideFunction = new AuthorityOverrideFunction(
                 underTest.getDefaultVaultAuthority(),
                 underTest.getEndpointAuthority());
         final TokenCredential credentials = new BasicAuthenticationCredential(underTest.getUsername(), underTest.getPassword());
-        final ApacheHttpClient httpClient = new ApacheHttpClient(authorityOverrideFunction,
+        final var httpClient = new ApacheHttpClient(authorityOverrideFunction,
                 new TrustSelfSignedStrategy(), new DefaultHostnameVerifier());
         verifyConnectionIsWorking(endpoint, httpClient, credentials);
     }
@@ -144,12 +144,12 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testContainerShouldStartUpWhenCalledWithImportFileTemplate() {
         //given
-        final DockerImageName imageName = DockerImageName
+        final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
         //noinspection ConstantConditions
-        final File importFile = new File(getClass().getResource("/full-import.json.hbs").getFile());
-        final LowkeyVaultContainer underTest = lowkeyVault(imageName)
+        final var importFile = new File(getClass().getResource("/full-import.json.hbs").getFile());
+        final var underTest = lowkeyVault(imageName)
                 .noAutoRegistration()
                 .importFile(importFile)
                 .logicalPort(DEFAULT_PORT)
@@ -161,12 +161,12 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         underTest.start();
 
         //then
-        final String endpoint = underTest.getDefaultVaultBaseUrl();
-        final AuthorityOverrideFunction authorityOverrideFunction = new AuthorityOverrideFunction(
+        final var endpoint = underTest.getDefaultVaultBaseUrl();
+        final var authorityOverrideFunction = new AuthorityOverrideFunction(
                 underTest.getDefaultVaultAuthority(),
                 underTest.getEndpointAuthority());
         final TokenCredential credentials = new BasicAuthenticationCredential(underTest.getUsername(), underTest.getPassword());
-        final ApacheHttpClient httpClient = new ApacheHttpClient(authorityOverrideFunction,
+        final var httpClient = new ApacheHttpClient(authorityOverrideFunction,
                 new TrustSelfSignedStrategy(), new DefaultHostnameVerifier());
         verifyConnectionIsWorking(endpoint, httpClient, credentials);
     }
@@ -174,14 +174,14 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testContainerShouldStartUpWhenCalledWithImportFileTemplateAndCustomCertificate() {
         //given
-        final DockerImageName imageName = DockerImageName
+        final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
         //noinspection ConstantConditions
-        final File importFile = new File(getClass().getResource("/full-import.json.hbs").getFile());
+        final var importFile = new File(getClass().getResource("/full-import.json.hbs").getFile());
         //noinspection ConstantConditions
-        final File certFile = new File(getClass().getResource("/cert.jks").getFile());
-        final LowkeyVaultContainer underTest = lowkeyVault(imageName)
+        final var certFile = new File(getClass().getResource("/cert.jks").getFile());
+        final var underTest = lowkeyVault(imageName)
                 .noAutoRegistration()
                 .importFile(importFile)
                 .logicalPort(DEFAULT_PORT)
@@ -194,13 +194,13 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         underTest.start();
 
         //then
-        final String authority = EXAMPLE_COM + ":" + underTest.getMappedPort(DEFAULT_PORT);
-        final String endpoint = "https://" + authority;
-        final AuthorityOverrideFunction authorityOverrideFunction = new AuthorityOverrideFunction(
+        final var authority = EXAMPLE_COM + ":" + underTest.getMappedPort(DEFAULT_PORT);
+        final var endpoint = "https://" + authority;
+        final var authorityOverrideFunction = new AuthorityOverrideFunction(
                 authority,
                 underTest.getEndpointAuthority());
         final TokenCredential credentials = new BasicAuthenticationCredential(underTest.getUsername(), underTest.getPassword());
-        final ApacheHttpClient httpClient = new ApacheHttpClient(authorityOverrideFunction,
+        final var httpClient = new ApacheHttpClient(authorityOverrideFunction,
                 new TrustAllStrategy(), new NoopHostnameVerifier());
         verifyConnectionIsWorking(endpoint, httpClient, credentials);
     }
@@ -208,12 +208,12 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testContainerShouldStartUpWhenCalledWithCustomCertificate() {
         //given
-        final DockerImageName imageName = DockerImageName
+        final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
         //noinspection ConstantConditions
-        final File certFile = new File(getClass().getResource("/cert.jks").getFile());
-        final LowkeyVaultContainer underTest = lowkeyVault(imageName)
+        final var certFile = new File(getClass().getResource("/cert.jks").getFile());
+        final var underTest = lowkeyVault(imageName)
                 .additionalArgs(List.of("--logging.level.root=INFO"))
                 .vaultAliases(Map.of(LOCALHOST, Set.of(EXAMPLE_COM)))
                 .customSslCertificate(certFile, "password", StoreType.JKS)
@@ -224,13 +224,13 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         underTest.start();
 
         //then
-        final String authority = EXAMPLE_COM;
-        final String endpoint = "https://" + authority;
-        final AuthorityOverrideFunction authorityOverrideFunction = new AuthorityOverrideFunction(
+        final var authority = EXAMPLE_COM;
+        final var endpoint = "https://" + authority;
+        final var authorityOverrideFunction = new AuthorityOverrideFunction(
                 authority,
                 underTest.getEndpointAuthority().replace(LOCALHOST, "127.0.0.1"));
         final TokenCredential credentials = new BasicAuthenticationCredential(underTest.getUsername(), underTest.getPassword());
-        final ApacheHttpClient httpClient = new ApacheHttpClient(authorityOverrideFunction,
+        final var httpClient = new ApacheHttpClient(authorityOverrideFunction,
                 new TrustSelfSignedStrategy(), new DefaultHostnameVerifier());
         verifyConnectionIsWorking(endpoint, httpClient, credentials);
     }
@@ -239,7 +239,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @MethodSource("invalidDataProvider")
     void testConstructorShouldThrowExceptionWhenCalledWithInvalidVaultNames(final Set<String> input) {
         //given
-        final DockerImageName imageName = DockerImageName
+        final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
 
@@ -253,7 +253,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testBuilderShouldThrowExceptionWhenCalledWithInvalidHostPortNumber() {
         //given
-        final DockerImageName imageName = DockerImageName
+        final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
 
@@ -266,7 +266,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testBuilderShouldThrowExceptionWhenCalledWithInvalidLogicalPortNumber() {
         //given
-        final DockerImageName imageName = DockerImageName
+        final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
 
@@ -279,7 +279,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testBuilderShouldThrowExceptionWhenCalledWithInvalidLogicalHost() {
         //given
-        final DockerImageName imageName = DockerImageName
+        final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
 
@@ -292,7 +292,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testBuilderShouldThrowExceptionWhenCalledWithInvalidImportFile() {
         //given
-        final DockerImageName imageName = DockerImageName
+        final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
 
@@ -305,7 +305,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testBuilderShouldThrowExceptionWhenCalledWithInvalidCertFile() {
         //given
-        final DockerImageName imageName = DockerImageName
+        final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
 
@@ -319,7 +319,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testBuilderShouldThrowExceptionWhenCalledWithInvalidAliases() {
         //given
-        final DockerImageName imageName = DockerImageName
+        final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
 
@@ -333,7 +333,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testBuilderShouldThrowExceptionWhenCalledWithInvalidHost() {
         //given
-        final DockerImageName imageName = DockerImageName
+        final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
 
@@ -347,7 +347,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testBuilderShouldThrowExceptionWhenCalledWithNullAliases() {
         //given
-        final DockerImageName imageName = DockerImageName
+        final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
 
@@ -360,7 +360,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testBuilderShouldThrowExceptionWhenCalledWithNullAdditionalArguments() {
         //given
-        final DockerImageName imageName = DockerImageName
+        final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
 
@@ -383,7 +383,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testBuilderShouldThrowExceptionWhenCalledWithNullExternalConfigurationFile() {
         //given
-        final DockerImageName imageName = DockerImageName
+        final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
 
@@ -396,10 +396,10 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testBuilderShouldThrowExceptionWhenCalledWithAnExternalConfigurationFileThatIsNotAPropertiesFile() {
         //given
-        final DockerImageName imageName = DockerImageName
+        final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
-        final File certFile = new File(Objects.requireNonNull(getClass().getResource("/cert.jks")).getFile());
+        final var certFile = new File(Objects.requireNonNull(getClass().getResource("/cert.jks")).getFile());
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> lowkeyVault(imageName).externalConfigFile(certFile));
@@ -410,12 +410,12 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testContainerShouldStartUpWhenCalledWithExternalConfiguration() {
         //given
-        final DockerImageName imageName = DockerImageName
+        final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
         //noinspection ConstantConditions
-        final File configFile = new File(getClass().getResource("/config.properties").getFile());
-        final LowkeyVaultContainer underTest = lowkeyVault(imageName)
+        final var configFile = new File(getClass().getResource("/config.properties").getFile());
+        final var underTest = lowkeyVault(imageName)
                 .vaultAliases(Map.of(LOCALHOST, Set.of(EXAMPLE_COM)))
                 .externalConfigFile(configFile)
                 .build()
@@ -425,13 +425,13 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         underTest.start();
 
         //then
-        final String authority = EXAMPLE_COM;
-        final String endpoint = "https://" + authority;
-        final AuthorityOverrideFunction authorityOverrideFunction = new AuthorityOverrideFunction(
+        final var authority = EXAMPLE_COM;
+        final var endpoint = "https://" + authority;
+        final var authorityOverrideFunction = new AuthorityOverrideFunction(
                 authority,
                 underTest.getEndpointAuthority().replace(LOCALHOST, "127.0.0.1"));
         final TokenCredential credentials = new BasicAuthenticationCredential(underTest.getUsername(), underTest.getPassword());
-        final ApacheHttpClient httpClient = new ApacheHttpClient(authorityOverrideFunction,
+        final var httpClient = new ApacheHttpClient(authorityOverrideFunction,
                 new TrustSelfSignedStrategy(), new DefaultHostnameVerifier());
         verifyConnectionIsWorking(endpoint, httpClient, credentials);
     }
@@ -439,7 +439,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testBuilderShouldThrowExceptionWhenCalledWithInvalidHostTokenPortNumber() {
         //given
-        final DockerImageName imageName = DockerImageName
+        final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
 
@@ -452,10 +452,10 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testContainerShouldStartUpWhenCalledWithValidTokenPortConfiguration() {
         //given
-        final DockerImageName imageName = DockerImageName
+        final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
-       final LowkeyVaultContainer underTest = lowkeyVault(imageName)
+       final var underTest = lowkeyVault(imageName)
                 .vaultAliases(Map.of(LOCALHOST, Set.of(EXAMPLE_COM)))
                 .hostTokenPort(ALT_HOST_TOKEN_PORT)
                 .build()
@@ -465,8 +465,8 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         underTest.start();
 
         //then
-        final String endpoint = underTest.getTokenEndpointUrl();
-        final ApacheHttpClient httpClient = new ApacheHttpClient(Function.identity(),
+        final var endpoint = underTest.getTokenEndpointUrl();
+        final var httpClient = new ApacheHttpClient(Function.identity(),
                 new TrustSelfSignedStrategy(), new DefaultHostnameVerifier());
         verifyTokenEndpointIsWorking(endpoint, httpClient);
     }

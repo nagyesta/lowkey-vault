@@ -36,8 +36,8 @@ public class KeyEntityToV72BackupConverter
 
     @Override
     protected KeyBackupListItem convertUniqueFields(@NonNull final ReadOnlyKeyVaultKeyEntity source) {
-        final JsonWebKeyImportRequest keyMaterial = convertKeyMaterial(source);
-        final KeyBackupListItem listItem = new KeyBackupListItem();
+        final var keyMaterial = convertKeyMaterial(source);
+        final var listItem = new KeyBackupListItem();
         listItem.setKeyMaterial(populateCommonKeyFields(source, keyMaterial));
         return listItem;
     }
@@ -48,7 +48,7 @@ public class KeyEntityToV72BackupConverter
     }
 
     private JsonWebKeyImportRequest convertKeyMaterial(final ReadOnlyKeyVaultKeyEntity source) {
-        final JsonWebKeyImportRequest keyMaterial = new JsonWebKeyImportRequest();
+        final var keyMaterial = new JsonWebKeyImportRequest();
         if (source.getKeyType().isRsa()) {
             convertRsaFields((ReadOnlyRsaKeyVaultKeyEntity) source, keyMaterial);
         } else if (source.getKeyType().isEc()) {

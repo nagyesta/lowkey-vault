@@ -21,12 +21,12 @@ class ApacheHttpRequestTest {
     @Test
     void testConstructorShouldConvertValuesWhenCalled() throws MalformedURLException, URISyntaxException {
         //given
-        final HttpMethod method = HttpMethod.POST;
-        final URL url = new URL("https://localhost");
-        final HttpHeaders headers = new HttpHeaders(Map.of(HEADER_1, HEADER_VALUE_1, HEADER_2, HEADER_VALUE_2));
+        final var method = HttpMethod.POST;
+        final var url = new URL("https://localhost");
+        final var headers = new HttpHeaders(Map.of(HEADER_1, HEADER_VALUE_1, HEADER_2, HEADER_VALUE_2));
 
         //when
-        final ApacheHttpRequest actual = new ApacheHttpRequest(method, url, headers, Function.identity());
+        final var actual = new ApacheHttpRequest(method, url, headers, Function.identity());
 
         //then
         Assertions.assertEquals(method.toString(), actual.getMethod());

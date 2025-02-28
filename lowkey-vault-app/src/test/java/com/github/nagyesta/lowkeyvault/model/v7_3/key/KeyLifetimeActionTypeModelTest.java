@@ -20,10 +20,10 @@ class KeyLifetimeActionTypeModelTest {
     @Test
     void testConstructorShouldSetActionTypeWhenCalledWithValidValue() {
         //given
-        final LifetimeActionType expected = LifetimeActionType.NOTIFY;
+        final var expected = LifetimeActionType.NOTIFY;
 
         //when
-        final KeyLifetimeActionTypeModel actual = new KeyLifetimeActionTypeModel(expected);
+        final var actual = new KeyLifetimeActionTypeModel(expected);
 
         //then
         Assertions.assertEquals(expected, actual.getType());

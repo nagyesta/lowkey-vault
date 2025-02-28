@@ -52,7 +52,7 @@ class EpochSecondsDeserializerTest {
         when(parser.readValueAs(eq(Long.class))).thenReturn(input);
 
         //when
-        final OffsetDateTime actual = underTest.deserialize(parser, context);
+        final var actual = underTest.deserialize(parser, context);
 
         //then
         Assertions.assertEquals(expected, actual);

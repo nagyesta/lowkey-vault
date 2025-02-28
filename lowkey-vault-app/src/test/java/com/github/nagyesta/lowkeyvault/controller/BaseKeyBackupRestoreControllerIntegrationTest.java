@@ -17,7 +17,6 @@ import java.net.URI;
 import java.security.KeyPair;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
-import java.security.spec.ECPoint;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,9 +37,9 @@ public class BaseKeyBackupRestoreControllerIntegrationTest {
         Assertions.assertEquals(KeyCurveName.P_256, actualBody.getKey().getCurveName());
         Assertions.assertEquals(KeyType.EC, actualBody.getKey().getKeyType());
         Assertions.assertIterableEquals(List.of(KeyOperation.SIGN, KeyOperation.VERIFY), actualBody.getKey().getKeyOps());
-        final byte[] expectedX = normalize(publicKey.getW().getAffineX().toByteArray(), KeyCurveName.P_256.getByteLength());
+        final var expectedX = normalize(publicKey.getW().getAffineX().toByteArray(), KeyCurveName.P_256.getByteLength());
         Assertions.assertArrayEquals(expectedX, actualBody.getKey().getX());
-        final byte[] expectedY = normalize(publicKey.getW().getAffineY().toByteArray(), KeyCurveName.P_256.getByteLength());
+        final var expectedY = normalize(publicKey.getW().getAffineY().toByteArray(), KeyCurveName.P_256.getByteLength());
         Assertions.assertArrayEquals(expectedY, actualBody.getKey().getY());
         //do not return private key material in response
         Assertions.assertNull(actualBody.getKey().getD());
@@ -56,22 +55,22 @@ public class BaseKeyBackupRestoreControllerIntegrationTest {
 
     protected KeyPair addVersionToList(final URI baseUri, final String name, final String version,
                                        final KeyBackupModel backupModel, final Map<String, String> tags) {
-        final KeyPair keyPair = KeyGenUtil.generateEc(KeyCurveName.P_256);
-        final JsonWebKeyImportRequest keyMaterial = new JsonWebKeyImportRequest();
+        final var keyPair = KeyGenUtil.generateEc(KeyCurveName.P_256);
+        final var keyMaterial = new JsonWebKeyImportRequest();
         keyMaterial.setKeyType(KeyType.EC);
         keyMaterial.setCurveName(KeyCurveName.P_256);
         keyMaterial.setKeyOps(List.of(KeyOperation.SIGN, KeyOperation.VERIFY));
         keyMaterial.setD(((ECPrivateKey) keyPair.getPrivate()).getS().toByteArray());
-        final ECPoint w = ((ECPublicKey) keyPair.getPublic()).getW();
+        final var w = ((ECPublicKey) keyPair.getPublic()).getW();
         keyMaterial.setX(normalize(w.getAffineX().toByteArray(), KeyCurveName.P_256.getByteLength()));
         keyMaterial.setY(normalize(w.getAffineY().toByteArray(), KeyCurveName.P_256.getByteLength()));
         keyMaterial.setId(new VersionedKeyEntityId(baseUri, name, version).asUri(uri).toString());
-        final KeyBackupListItem listItem = new KeyBackupListItem();
+        final var listItem = new KeyBackupListItem();
         listItem.setKeyMaterial(keyMaterial);
         listItem.setVaultBaseUri(baseUri);
         listItem.setId(name);
         listItem.setVersion(version);
-        final KeyPropertiesModel propertiesModel = new KeyPropertiesModel();
+        final var propertiesModel = new KeyPropertiesModel();
         propertiesModel.setCreatedOn(TIME_10_MINUTES_AGO);
         propertiesModel.setUpdatedOn(NOW);
         propertiesModel.setNotBefore(TIME_IN_10_MINUTES);

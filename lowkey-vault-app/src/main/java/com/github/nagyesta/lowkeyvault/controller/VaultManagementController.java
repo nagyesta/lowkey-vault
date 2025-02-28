@@ -3,7 +3,6 @@ package com.github.nagyesta.lowkeyvault.controller;
 import com.github.nagyesta.lowkeyvault.mapper.common.VaultFakeToVaultModelConverter;
 import com.github.nagyesta.lowkeyvault.model.common.ErrorModel;
 import com.github.nagyesta.lowkeyvault.model.management.VaultModel;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -58,7 +57,7 @@ public class VaultManagementController extends ErrorHandlingAwareController {
     public ResponseEntity<VaultModel> createVault(@Valid @org.springframework.web.bind.annotation.RequestBody final VaultModel model) {
         log.info("Received request to create vault with uri: {}, recovery level: {}, recoverable days: {}",
                 model.getBaseUri(), model.getRecoveryLevel(), model.getRecoverableDays());
-        final VaultFake vaultFake = vaultService
+        final var vaultFake = vaultService
                 .create(model.getBaseUri(), model.getRecoveryLevel(), model.getRecoverableDays(), model.getAliases());
         return ResponseEntity.ok(vaultFakeToVaultModelConverter.convert(vaultFake));
     }
@@ -74,7 +73,7 @@ public class VaultManagementController extends ErrorHandlingAwareController {
     @GetMapping(value = {"", "/"}, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<List<VaultModel>> listVaults() {
         log.info("Received request to list vaults.");
-        final List<VaultModel> vaultFake = vaultService.list().stream()
+        final var vaultFake = vaultService.list().stream()
                 .map(vaultFakeToVaultModelConverter::convertNonNull)
                 .toList();
         log.info("Returning {} vaults.", vaultFake.size());
@@ -92,7 +91,7 @@ public class VaultManagementController extends ErrorHandlingAwareController {
     @GetMapping(value = {"/deleted", "/deleted/"}, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<List<VaultModel>> listDeletedVaults() {
         log.info("Received request to list deleted vaults.");
-        final List<VaultModel> vaultFake = vaultService.listDeleted().stream()
+        final var vaultFake = vaultService.listDeleted().stream()
                 .map(vaultFakeToVaultModelConverter::convertNonNull)
                 .toList();
         log.info("Returning {} vaults.", vaultFake.size());
@@ -139,7 +138,7 @@ public class VaultManagementController extends ErrorHandlingAwareController {
     public ResponseEntity<VaultModel> recoverVault(@RequestParam final URI baseUri) {
         log.info("Received request to recover deleted vault with uri: {}", baseUri);
         vaultService.recover(baseUri);
-        final VaultFake fake = vaultService.findByUri(baseUri);
+        final var fake = vaultService.findByUri(baseUri);
         return ResponseEntity.ok(vaultFakeToVaultModelConverter.convert(fake));
     }
 
@@ -188,7 +187,7 @@ public class VaultManagementController extends ErrorHandlingAwareController {
                                                   @RequestParam(required = false) final URI add,
                                                   @RequestParam(required = false) final URI remove) {
         log.info("Received request to update alias of vault with uri: {}", baseUri);
-        final VaultFake fake = vaultService.updateAlias(baseUri, add, remove);
+        final var fake = vaultService.updateAlias(baseUri, add, remove);
         return ResponseEntity.ok(vaultFakeToVaultModelConverter.convert(fake));
     }
 

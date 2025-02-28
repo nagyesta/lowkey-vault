@@ -14,8 +14,8 @@ import static org.mockito.Mockito.mock;
 class CertificateControllerTest {
 
     public static Stream<Arguments> nullProvider() {
-        final CertificateConverterRegistry registry = mock(CertificateConverterRegistry.class);
-        final VaultService vaultService = mock(VaultService.class);
+        final var registry = mock(CertificateConverterRegistry.class);
+        final var vaultService = mock(VaultService.class);
         return Stream.<Arguments>builder()
                 .add(Arguments.of(null, null))
                 .add(Arguments.of(registry, null))

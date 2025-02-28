@@ -4,10 +4,8 @@ import com.github.nagyesta.abortmission.booster.jupiter.annotation.LaunchAbortAr
 import com.github.nagyesta.lowkeyvault.ResourceUtils;
 import com.github.nagyesta.lowkeyvault.TestConstants;
 import com.github.nagyesta.lowkeyvault.model.common.DeletedModel;
-import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.*;
 import com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionActivity;
-import com.github.nagyesta.lowkeyvault.service.certificate.CertificateVaultFake;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.CertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertContentType;
@@ -21,10 +19,11 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.ResponseEntity;
 
 import java.net.URI;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -59,9 +58,9 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
 
     @SuppressWarnings("checkstyle:MagicNumber")
     public static Stream<Arguments> certificateListProvider() {
-        final URI uri1 = getRandomVaultUri();
-        final URI uri2 = getRandomVaultUri();
-        final URI uri3 = getRandomVaultUri();
+        final var uri1 = getRandomVaultUri();
+        final var uri2 = getRandomVaultUri();
+        final var uri3 = getRandomVaultUri();
         return Stream.<Arguments>builder()
                 .add(Arguments.of(uri1, 5, 0,
                         uri1 + "/certificates?api-version=7.3&$skiptoken=5&maxresults=5&includePending=true"))
@@ -75,23 +74,23 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     @Test
     void testCreateShouldReturnPendingCertificateWhenCalled() {
         //given
-        final CreateCertificateRequest request = getCreateCertificateRequest();
+        final var request = getCreateCertificateRequest();
 
         //when
-        final ResponseEntity<KeyVaultPendingCertificateModel> actual = underTest
+        final var actual = underTest
                 .create("create-" + CERT_NAME_1, VAULT_URI_1, request);
 
         //then
         Assertions.assertEquals(ACCEPTED, actual.getStatusCode());
-        final KeyVaultPendingCertificateModel body = actual.getBody();
+        final var body = actual.getBody();
         assertPendingCreateResponseIsAsExpected(body);
     }
 
     @Test
     void testCreateShouldThrowExceptionWhenCalledWithInvalidLifetimeActionsWithZeroPercentageTrigger() {
         //given
-        final CreateCertificateRequest request = getCreateCertificateRequest();
-        final List<CertificateLifetimeActionModel> actions = List.of(
+        final var request = getCreateCertificateRequest();
+        final var actions = List.of(
                 lifetimeActivity(EMAIL_CONTACTS, lifeTimePercentageTrigger(0)));
         request.getPolicy().setLifetimeActions(actions);
 
@@ -105,8 +104,8 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     @Test
     void testCreateShouldThrowExceptionWhenCalledWithInvalidLifetimeActionsWithTriggerUsingTooManyDaysBeforeExpiry() {
         //given
-        final CreateCertificateRequest request = getCreateCertificateRequest();
-        final List<CertificateLifetimeActionModel> actions = List.of(
+        final var request = getCreateCertificateRequest();
+        final var actions = List.of(
                 lifetimeActivity(EMAIL_CONTACTS, daysBeforeExpiryTrigger(A_HUNDRED_YEARS)));
         request.getPolicy().setLifetimeActions(actions);
 
@@ -120,8 +119,8 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     @Test
     void testCreateShouldThrowExceptionWhenCalledWithInvalidLifetimeActionsUsingTwoTriggers() {
         //given
-        final CreateCertificateRequest request = getCreateCertificateRequest();
-        final List<CertificateLifetimeActionModel> actions = List.of(
+        final var request = getCreateCertificateRequest();
+        final var actions = List.of(
                 lifetimeActivity(AUTO_RENEW, daysBeforeExpiryTrigger(1)),
                 lifetimeActivity(EMAIL_CONTACTS, daysBeforeExpiryTrigger(1))
         );
@@ -137,40 +136,40 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     @Test
     void testCreateShouldReturnPendingCertificateWhenCalledWithValidLifetimeActions() {
         //given
-        final CreateCertificateRequest request = getCreateCertificateRequest();
+        final var request = getCreateCertificateRequest();
         request.getPolicy().setLifetimeActions(List.of(lifetimeActivity(EMAIL_CONTACTS, daysBeforeExpiryTrigger(1))));
 
         //when
-        final ResponseEntity<KeyVaultPendingCertificateModel> actual = underTest
+        final var actual = underTest
                 .create("create-lifetime-" + CERT_NAME_1, VAULT_URI_1, request);
 
         //then
         Assertions.assertEquals(ACCEPTED, actual.getStatusCode());
-        final KeyVaultPendingCertificateModel body = actual.getBody();
+        final var body = actual.getBody();
         assertPendingCreateResponseIsAsExpected(body);
     }
 
     @Test
     void testGetShouldReturnModelWhenCalledWithValidData() {
         //given
-        final CreateCertificateRequest request = getCreateCertificateRequest();
+        final var request = getCreateCertificateRequest();
         underTest.create(CERT_NAME_2, VAULT_URI_1, request);
-        final Deque<String> versions = findByUri(VAULT_URI_1)
+        final var versions = findByUri(VAULT_URI_1)
                 .certificateVaultFake()
                 .getEntities()
                 .getVersions(new CertificateEntityId(VAULT_URI_1, CERT_NAME_2));
 
         //when
-        final ResponseEntity<KeyVaultCertificateModel> actual = underTest.get(CERT_NAME_2, VAULT_URI_1);
+        final var actual = underTest.get(CERT_NAME_2, VAULT_URI_1);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
-        final KeyVaultCertificateModel body = actual.getBody();
+        final var body = actual.getBody();
         Assertions.assertNotNull(body);
         Assertions.assertNotNull(body.getCertificate());
         Assertions.assertNotNull(body.getThumbprint());
         Assertions.assertEquals(Collections.emptyMap(), body.getTags());
-        final URI id = new VersionedCertificateEntityId(VAULT_URI_1, CERT_NAME_2, versions.getFirst())
+        final var id = new VersionedCertificateEntityId(VAULT_URI_1, CERT_NAME_2, versions.getFirst())
                 .asUri(VAULT_URI_1);
         Assertions.assertEquals(id.toString(), body.getId());
     }
@@ -178,25 +177,25 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     @Test
     void testGetWithVersionShouldReturnModelWhenCalledWithValidData() {
         //given
-        final CreateCertificateRequest request = getCreateCertificateRequest();
+        final var request = getCreateCertificateRequest();
         underTest.create(CERT_NAME_3, VAULT_URI_1, request);
-        final Deque<String> versions = findByUri(VAULT_URI_1)
+        final var versions = findByUri(VAULT_URI_1)
                 .certificateVaultFake()
                 .getEntities()
                 .getVersions(new CertificateEntityId(VAULT_URI_1, CERT_NAME_3));
 
         //when
-        final ResponseEntity<KeyVaultCertificateModel> actual = underTest
+        final var actual = underTest
                 .getWithVersion(CERT_NAME_3, versions.getFirst(), VAULT_URI_1);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
-        final KeyVaultCertificateModel body = actual.getBody();
+        final var body = actual.getBody();
         Assertions.assertNotNull(body);
         Assertions.assertNotNull(body.getCertificate());
         Assertions.assertNotNull(body.getThumbprint());
         Assertions.assertEquals(Collections.emptyMap(), body.getTags());
-        final URI id = new VersionedCertificateEntityId(VAULT_URI_1, CERT_NAME_3, versions.getFirst())
+        final var id = new VersionedCertificateEntityId(VAULT_URI_1, CERT_NAME_3, versions.getFirst())
                 .asUri(VAULT_URI_1);
         Assertions.assertEquals(id.toString(), body.getId());
     }
@@ -206,7 +205,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
         //given
 
         //when
-        final String actual = underTest.apiVersion();
+        final var actual = underTest.apiVersion();
 
         //then
         Assertions.assertEquals(V_7_3, actual);
@@ -215,16 +214,16 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     @Test
     void testImportCertificateShouldReturnModelWhenCalledWithValidPemData() {
         //given
-        final CertificateImportRequest request = getCreateImportRequest("/cert/ec.pem", CertContentType.PEM);
-        final String name = CERT_NAME_3 + "-import-pem";
+        final var request = getCreateImportRequest("/cert/ec.pem", CertContentType.PEM);
+        final var name = CERT_NAME_3 + "-import-pem";
 
         //when
-        final ResponseEntity<KeyVaultCertificateModel> actual = underTest
+        final var actual = underTest
                 .importCertificate(name, VAULT_URI_1, request);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
-        final KeyVaultCertificateModel body = actual.getBody();
+        final var body = actual.getBody();
         Assertions.assertNotNull(body);
         Assertions.assertNotNull(body.getCertificate());
         Assertions.assertNotNull(body.getThumbprint());
@@ -236,16 +235,16 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     @Test
     void testImportCertificateShouldReturnModelWhenCalledWithValidPemDataWithoutAnyExtensions() {
         //given
-        final CertificateImportRequest request = getCreateImportRequest("/cert/no-ext-rsa.pem", CertContentType.PEM);
-        final String name = CERT_NAME_3 + "-import-pem-no-ext";
+        final var request = getCreateImportRequest("/cert/no-ext-rsa.pem", CertContentType.PEM);
+        final var name = CERT_NAME_3 + "-import-pem-no-ext";
 
         //when
-        final ResponseEntity<KeyVaultCertificateModel> actual = underTest
+        final var actual = underTest
                 .importCertificate(name, VAULT_URI_1, request);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
-        final KeyVaultCertificateModel body = actual.getBody();
+        final var body = actual.getBody();
         Assertions.assertNotNull(body);
         Assertions.assertNotNull(body.getCertificate());
         Assertions.assertNotNull(body.getThumbprint());
@@ -257,16 +256,16 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     @Test
     void testImportCertificateShouldReturnModelWhenCalledWithValidPkcs12Data() {
         //given
-        final CertificateImportRequest request = getCreateImportRequest("/cert/ec.p12", CertContentType.PKCS12);
-        final String name = CERT_NAME_3 + "-import-pkcs";
+        final var request = getCreateImportRequest("/cert/ec.p12", CertContentType.PKCS12);
+        final var name = CERT_NAME_3 + "-import-pkcs";
 
         //when
-        final ResponseEntity<KeyVaultCertificateModel> actual = underTest
+        final var actual = underTest
                 .importCertificate(name, VAULT_URI_1, request);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
-        final KeyVaultCertificateModel body = actual.getBody();
+        final var body = actual.getBody();
         Assertions.assertNotNull(body);
         Assertions.assertNotNull(body.getCertificate());
         Assertions.assertNotNull(body.getThumbprint());
@@ -278,16 +277,16 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     @Test
     void testImportCertificateShouldReturnModelWhenCalledWithValidPemDataAndNoType() {
         //given
-        final CertificateImportRequest request = getCreateImportRequest("/cert/ec.pem", null);
-        final String name = CERT_NAME_3 + "-import-pem-auto";
+        final var request = getCreateImportRequest("/cert/ec.pem", null);
+        final var name = CERT_NAME_3 + "-import-pem-auto";
 
         //when
-        final ResponseEntity<KeyVaultCertificateModel> actual = underTest
+        final var actual = underTest
                 .importCertificate(name, VAULT_URI_1, request);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
-        final KeyVaultCertificateModel body = actual.getBody();
+        final var body = actual.getBody();
         Assertions.assertNotNull(body);
         Assertions.assertNotNull(body.getCertificate());
         Assertions.assertNotNull(body.getThumbprint());
@@ -299,16 +298,16 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     @Test
     void testImportCertificateShouldReturnModelWhenCalledWithValidPkcs12DataAndNoType() {
         //given
-        final CertificateImportRequest request = getCreateImportRequest("/cert/ec.p12", null);
-        final String name = CERT_NAME_3 + "-import-pkcs-auto";
+        final var request = getCreateImportRequest("/cert/ec.p12", null);
+        final var name = CERT_NAME_3 + "-import-pkcs-auto";
 
         //when
-        final ResponseEntity<KeyVaultCertificateModel> actual = underTest
+        final var actual = underTest
                 .importCertificate(name, VAULT_URI_1, request);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
-        final KeyVaultCertificateModel body = actual.getBody();
+        final var body = actual.getBody();
         Assertions.assertNotNull(body);
         Assertions.assertNotNull(body.getCertificate());
         Assertions.assertNotNull(body.getThumbprint());
@@ -320,26 +319,26 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     @Test
     void testImportCertificateShouldReturnModelWhenCalledWithValidPkcs12DataAndLifetimeAction() {
         //given
-        final CertificateImportRequest request = getCreateImportRequest("/cert/ec.p12", null);
-        final String name = CERT_NAME_3 + "-import-pkcs-lifetime";
-        final CertificatePolicyModel policy = new CertificatePolicyModel();
+        final var request = getCreateImportRequest("/cert/ec.p12", null);
+        final var name = CERT_NAME_3 + "-import-pkcs-lifetime";
+        final var policy = new CertificatePolicyModel();
         policy.setLifetimeActions(List.of(lifetimeActivity(EMAIL_CONTACTS, daysBeforeExpiryTrigger(ONE_HUNDRED))));
         request.setPolicy(policy);
 
         //when
-        final ResponseEntity<KeyVaultCertificateModel> actual = underTest
+        final var actual = underTest
                 .importCertificate(name, VAULT_URI_1, request);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
-        final KeyVaultCertificateModel body = actual.getBody();
+        final var body = actual.getBody();
         Assertions.assertNotNull(body);
         Assertions.assertNotNull(body.getCertificate());
         Assertions.assertNotNull(body.getThumbprint());
-        final List<CertificateLifetimeActionModel> lifetimeActions = body.getPolicy().getLifetimeActions();
+        final var lifetimeActions = body.getPolicy().getLifetimeActions();
         Assertions.assertNotNull(lifetimeActions);
         Assertions.assertEquals(1, lifetimeActions.size());
-        final CertificateLifetimeActionModel lifetimeActionModel = lifetimeActions.get(0);
+        final var lifetimeActionModel = lifetimeActions.get(0);
         Assertions.assertEquals(EMAIL_CONTACTS, lifetimeActionModel.getAction());
         Assertions.assertEquals(ONE_HUNDRED, lifetimeActionModel.getTrigger().getDaysBeforeExpiry());
     }
@@ -347,8 +346,8 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     @Test
     void testImportCertificateShouldThrowExceptionWhenCalledWithNotMatchingCertTypes() {
         //given
-        final CertificateImportRequest request = getCreateImportRequest("/cert/ec.p12", CertContentType.PEM);
-        final String name = CERT_NAME_3 + "-import-invalid";
+        final var request = getCreateImportRequest("/cert/ec.p12", CertContentType.PEM);
+        final var name = CERT_NAME_3 + "-import-invalid";
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
@@ -360,8 +359,8 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     @Test
     void testImportCertificateShouldThrowExceptionWhenCalledWithInvalidLifetimeActionsTriggeringZeroDaysBeforeExpiry() {
         //given
-        final CertificateImportRequest request = getCreateImportRequest("/cert/ec.p12", CertContentType.PKCS12);
-        final String name = CERT_NAME_3 + "-import-invalid";
+        final var request = getCreateImportRequest("/cert/ec.p12", CertContentType.PKCS12);
+        final var name = CERT_NAME_3 + "-import-invalid";
         request.getPolicy().setLifetimeActions(List.of(lifetimeActivity(EMAIL_CONTACTS, daysBeforeExpiryTrigger(0))));
 
         //when
@@ -374,8 +373,8 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     @Test
     void testImportCertificateShouldThrowExceptionWhenCalledWithInvalidLifetimeActionsTriggeringTooManyDaysBeforeExpiry() {
         //given
-        final CertificateImportRequest request = getCreateImportRequest("/cert/ec.p12", CertContentType.PKCS12);
-        final String name = CERT_NAME_3 + "-import-invalid";
+        final var request = getCreateImportRequest("/cert/ec.p12", CertContentType.PKCS12);
+        final var name = CERT_NAME_3 + "-import-invalid";
         request.getPolicy().setLifetimeActions(List.of(lifetimeActivity(EMAIL_CONTACTS, daysBeforeExpiryTrigger(A_HUNDRED_YEARS))));
 
         //when
@@ -388,8 +387,8 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     @Test
     void testImportCertificateShouldThrowExceptionWhenCalledWithInvalidLifetimeActionsAskingForAutoRenewal() {
         //given
-        final CertificateImportRequest request = getCreateImportRequest("/cert/ec.p12", CertContentType.PKCS12);
-        final String name = CERT_NAME_3 + "-import-invalid";
+        final var request = getCreateImportRequest("/cert/ec.p12", CertContentType.PKCS12);
+        final var name = CERT_NAME_3 + "-import-invalid";
         request.getPolicy().setLifetimeActions(List.of(lifetimeActivity(AUTO_RENEW, daysBeforeExpiryTrigger(ONE_HUNDRED))));
 
         //when
@@ -402,8 +401,8 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     @Test
     void testImportCertificateShouldThrowExceptionWhenCalledWithInvalidLifetimeActionsTriggeringAtZeroPercent() {
         //given
-        final CertificateImportRequest request = getCreateImportRequest("/cert/ec.p12", CertContentType.PKCS12);
-        final String name = CERT_NAME_3 + "-import-invalid";
+        final var request = getCreateImportRequest("/cert/ec.p12", CertContentType.PKCS12);
+        final var name = CERT_NAME_3 + "-import-invalid";
         request.getPolicy().setLifetimeActions(List.of(lifetimeActivity(EMAIL_CONTACTS, lifeTimePercentageTrigger(0))));
 
         //when
@@ -416,8 +415,8 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     @Test
     void testImportCertificateShouldThrowExceptionWhenCalledWithInvalidLifetimeActionsTriggeringAtAHundredPercents() {
         //given
-        final CertificateImportRequest request = getCreateImportRequest("/cert/ec.p12", CertContentType.PKCS12);
-        final String name = CERT_NAME_3 + "-import-invalid";
+        final var request = getCreateImportRequest("/cert/ec.p12", CertContentType.PKCS12);
+        final var name = CERT_NAME_3 + "-import-invalid";
         request.getPolicy().setLifetimeActions(List.of(lifetimeActivity(EMAIL_CONTACTS, lifeTimePercentageTrigger(ONE_HUNDRED))));
 
         //when
@@ -430,8 +429,8 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     @Test
     void testImportCertificateShouldThrowExceptionWhenCalledWithInvalidLifetimeActionsWithTwoActions() {
         //given
-        final CertificateImportRequest request = getCreateImportRequest("/cert/ec.p12", CertContentType.PKCS12);
-        final String name = CERT_NAME_3 + "-import-invalid";
+        final var request = getCreateImportRequest("/cert/ec.p12", CertContentType.PKCS12);
+        final var name = CERT_NAME_3 + "-import-invalid";
         request.getPolicy().setLifetimeActions(List.of(
                 lifetimeActivity(AUTO_RENEW, daysBeforeExpiryTrigger(1)),
                 lifetimeActivity(EMAIL_CONTACTS, daysBeforeExpiryTrigger(1))
@@ -447,22 +446,22 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     @Test
     void testVersionsShouldReturnAPageOfVersionsWhenTheCertificateExists() {
         //given
-        final CertificateImportRequest request = getCreateImportRequest("/cert/ec.pem", CertContentType.PEM);
-        final String name = CERT_NAME_1 + "-versions";
-        final KeyVaultCertificateModel imported = Objects
+        final var request = getCreateImportRequest("/cert/ec.pem", CertContentType.PEM);
+        final var name = CERT_NAME_1 + "-versions";
+        final var imported = Objects
                 .requireNonNull(underTest.importCertificate(name, VAULT_URI_1, request).getBody());
 
         //when
-        final ResponseEntity<KeyVaultItemListModel<KeyVaultCertificateItemModel>> actual = underTest
+        final var actual = underTest
                 .versions(name, VAULT_URI_1, 1, 0);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
         Assertions.assertNotNull(actual.getBody());
         Assertions.assertNull(actual.getBody().getNextLink());
-        final List<KeyVaultCertificateItemModel> list = actual.getBody().getValue();
+        final var list = actual.getBody().getValue();
         Assertions.assertEquals(1, list.size());
-        final KeyVaultCertificateItemModel item = list.get(0);
+        final var item = list.get(0);
         Assertions.assertEquals(imported.getId(), item.getCertificateId());
         Assertions.assertArrayEquals(imported.getThumbprint(), item.getThumbprint());
         Assertions.assertEquals(imported.getAttributes(), item.getAttributes());
@@ -474,28 +473,28 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
             final URI vault, final int pageSize, final int offset, final String nextLink) {
         //given
         create(vault);
-        final CertificateImportRequest request = getCreateImportRequest("/cert/ec.pem", CertContentType.PEM);
-        final String namePrefix = CERT_NAME_1;
-        final int certCount = 10;
-        final Map<String, KeyVaultCertificateModel> fullList = IntStream.range(0, certCount)
+        final var request = getCreateImportRequest("/cert/ec.pem", CertContentType.PEM);
+        final var namePrefix = CERT_NAME_1;
+        final var certCount = 10;
+        final var fullList = IntStream.range(0, certCount)
                 .mapToObj(i -> namePrefix + i)
                 .collect(Collectors.toMap(Function.identity(), n -> Objects
                         .requireNonNull(underTest.importCertificate(n, vault, request).getBody())));
 
         //when
-        final ResponseEntity<KeyVaultItemListModel<KeyVaultCertificateItemModel>> actual = underTest
+        final var actual = underTest
                 .listCertificates(vault, pageSize, offset, true);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
         Assertions.assertNotNull(actual.getBody());
         Assertions.assertEquals(nextLink, actual.getBody().getNextLink());
-        final List<KeyVaultCertificateItemModel> list = actual.getBody().getValue();
-        final int expectedSize = Math.min(pageSize, certCount - offset);
+        final var list = actual.getBody().getValue();
+        final var expectedSize = Math.min(pageSize, certCount - offset);
         Assertions.assertEquals(expectedSize, list.size());
-        for (int i = 0; i < expectedSize; i++) {
-            final KeyVaultCertificateItemModel item = list.get(i);
-            final KeyVaultCertificateModel expected = fullList.get(namePrefix + (offset + i));
+        for (var i = 0; i < expectedSize; i++) {
+            final var item = list.get(i);
+            final var expected = fullList.get(namePrefix + (offset + i));
             Assertions.assertEquals(expected.getId().replaceAll("/[0-9a-f]+$", ""), item.getCertificateId());
             Assertions.assertArrayEquals(expected.getThumbprint(), item.getThumbprint());
             Assertions.assertEquals(expected.getAttributes(), item.getAttributes());
@@ -505,22 +504,22 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     @Test
     void testDeleteShouldReturnDeleteModelWhenCalledWithValidData() {
         //given
-        final CreateCertificateRequest request = getCreateCertificateRequest();
-        final String certificateName = CERT_NAME_2 + "-delete";
+        final var request = getCreateCertificateRequest();
+        final var certificateName = CERT_NAME_2 + "-delete";
         underTest.create(certificateName, VAULT_URI_1, request);
-        final CertificateVaultFake certificateVaultFake = findByUri(VAULT_URI_1)
+        final var certificateVaultFake = findByUri(VAULT_URI_1)
                 .certificateVaultFake();
-        final Deque<String> versions = certificateVaultFake
+        final var versions = certificateVaultFake
                 .getEntities()
                 .getVersions(new CertificateEntityId(VAULT_URI_1, certificateName));
 
         //when
-        final ResponseEntity<DeletedKeyVaultCertificateModel> actual = underTest.delete(certificateName, VAULT_URI_1);
+        final var actual = underTest.delete(certificateName, VAULT_URI_1);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
-        final DeletedKeyVaultCertificateModel body = actual.getBody();
-        final VersionedCertificateEntityId expectedId =
+        final var body = actual.getBody();
+        final var expectedId =
                 new VersionedCertificateEntityId(VAULT_URI_1, certificateName, versions.getFirst());
 
         assertExpectedCertificateModel(request, expectedId, body);
@@ -532,15 +531,15 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     @Test
     void testPurgeDeletedShouldRemoveEntityFromDeletedMapWhenCalledWithValidData() {
         //given
-        final CreateCertificateRequest request = getCreateCertificateRequest();
-        final String certificateName = CERT_NAME_2 + "-purge";
+        final var request = getCreateCertificateRequest();
+        final var certificateName = CERT_NAME_2 + "-purge";
         underTest.create(certificateName, VAULT_URI_1, request);
-        final CertificateVaultFake certificateVaultFake = findByUri(VAULT_URI_1)
+        final var certificateVaultFake = findByUri(VAULT_URI_1)
                 .certificateVaultFake();
         certificateVaultFake.delete(new CertificateEntityId(VAULT_URI_1, certificateName));
 
         //when
-        final ResponseEntity<Void> actual = underTest.purgeDeleted(certificateName, VAULT_URI_1);
+        final var actual = underTest.purgeDeleted(certificateName, VAULT_URI_1);
 
         //then
         Assertions.assertEquals(NO_CONTENT, actual.getStatusCode());
@@ -551,25 +550,25 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     @Test
     void testRecoverDeletedCertificateShouldReturnRecoveredEntityWhenCalledWithValidData() {
         //given
-        final CreateCertificateRequest request = getCreateCertificateRequest();
-        final String certificateName = CERT_NAME_2 + "-recover";
+        final var request = getCreateCertificateRequest();
+        final var certificateName = CERT_NAME_2 + "-recover";
         underTest.create(certificateName, VAULT_URI_1, request);
-        final CertificateVaultFake certificateVaultFake = findByUri(VAULT_URI_1)
+        final var certificateVaultFake = findByUri(VAULT_URI_1)
                 .certificateVaultFake();
-        final CertificateEntityId entityId = new CertificateEntityId(VAULT_URI_1, certificateName);
-        final Deque<String> versions = certificateVaultFake
+        final var entityId = new CertificateEntityId(VAULT_URI_1, certificateName);
+        final var versions = certificateVaultFake
                 .getEntities()
                 .getVersions(entityId);
         certificateVaultFake.delete(entityId);
 
         //when
-        final ResponseEntity<KeyVaultCertificateModel> actual = underTest
+        final var actual = underTest
                 .recoverDeletedCertificate(certificateName, VAULT_URI_1);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
-        final KeyVaultCertificateModel body = actual.getBody();
-        final VersionedCertificateEntityId expectedId =
+        final var body = actual.getBody();
+        final var expectedId =
                 new VersionedCertificateEntityId(VAULT_URI_1, certificateName, versions.getFirst());
 
         assertExpectedCertificateModel(request, expectedId, body);
@@ -580,25 +579,25 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     @Test
     void testGetDeletedCertificateShouldReturnDeleteModelWhenCalledWithValidData() {
         //given
-        final CreateCertificateRequest request = getCreateCertificateRequest();
-        final String certificateName = CERT_NAME_2 + "-get-deleted";
+        final var request = getCreateCertificateRequest();
+        final var certificateName = CERT_NAME_2 + "-get-deleted";
         underTest.create(certificateName, VAULT_URI_1, request);
-        final CertificateVaultFake certificateVaultFake = findByUri(VAULT_URI_1)
+        final var certificateVaultFake = findByUri(VAULT_URI_1)
                 .certificateVaultFake();
-        final CertificateEntityId entityId = new CertificateEntityId(VAULT_URI_1, certificateName);
-        final Deque<String> versions = certificateVaultFake
+        final var entityId = new CertificateEntityId(VAULT_URI_1, certificateName);
+        final var versions = certificateVaultFake
                 .getEntities()
                 .getVersions(entityId);
         certificateVaultFake.delete(entityId);
 
         //when
-        final ResponseEntity<DeletedKeyVaultCertificateModel> actual = underTest
+        final var actual = underTest
                 .getDeletedCertificate(certificateName, VAULT_URI_1);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
-        final DeletedKeyVaultCertificateModel body = actual.getBody();
-        final VersionedCertificateEntityId expectedId =
+        final var body = actual.getBody();
+        final var expectedId =
                 new VersionedCertificateEntityId(VAULT_URI_1, certificateName, versions.getFirst());
 
         assertExpectedCertificateModel(request, expectedId, body);
@@ -610,25 +609,25 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     @Test
     void testListDeletedCertificatesShouldReturnDeletedItemModelsWhenCalledWithValidData() {
         //given
-        final CreateCertificateRequest request = getCreateCertificateRequest();
-        final String certificateName = CERT_NAME_2;
+        final var request = getCreateCertificateRequest();
+        final var certificateName = CERT_NAME_2;
         underTest.create(certificateName, VAULT_URI_2, request);
-        final CertificateVaultFake certificateVaultFake = findByUri(VAULT_URI_2)
+        final var certificateVaultFake = findByUri(VAULT_URI_2)
                 .certificateVaultFake();
-        final CertificateEntityId entityId = new CertificateEntityId(VAULT_URI_2, certificateName);
+        final var entityId = new CertificateEntityId(VAULT_URI_2, certificateName);
         certificateVaultFake.delete(entityId);
 
         //when
-        final ResponseEntity<KeyVaultItemListModel<DeletedKeyVaultCertificateItemModel>> actual =
+        final var actual =
                 underTest.listDeletedCertificates(VAULT_URI_2, 1, 0, true);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
-        final KeyVaultItemListModel<DeletedKeyVaultCertificateItemModel> body = actual.getBody();
+        final var body = actual.getBody();
         Assertions.assertNotNull(body);
         Assertions.assertNull(body.getNextLink());
         Assertions.assertEquals(1, body.getValue().size());
-        final DeletedKeyVaultCertificateItemModel itemModel = body.getValue().get(0);
+        final var itemModel = body.getValue().get(0);
         Assertions.assertEquals(entityId.asUriNoVersion(VAULT_URI_2).toString(), itemModel.getCertificateId());
         assertIsDeletedModel(itemModel, entityId);
     }
@@ -636,26 +635,26 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     @Test
     void testUpdateShouldReturnModelWhenCalledWithValidData() {
         //given
-        final CreateCertificateRequest request = getCreateCertificateRequest();
-        final String certificateName = CERT_NAME_2 + "-update-properties";
+        final var request = getCreateCertificateRequest();
+        final var certificateName = CERT_NAME_2 + "-update-properties";
         underTest.create(certificateName, VAULT_URI_1, request);
-        final Deque<String> versions = findByUri(VAULT_URI_1)
+        final var versions = findByUri(VAULT_URI_1)
                 .certificateVaultFake()
                 .getEntities()
                 .getVersions(new CertificateEntityId(VAULT_URI_1, certificateName));
-        final UpdateCertificateRequest properties = new UpdateCertificateRequest();
-        final CertificatePropertiesModel attributes = new CertificatePropertiesModel();
+        final var properties = new UpdateCertificateRequest();
+        final var attributes = new CertificatePropertiesModel();
         attributes.setEnabled(false);
         properties.setTags(TestConstants.TAGS_THREE_KEYS);
         properties.setAttributes(attributes);
 
         //when
-        final ResponseEntity<KeyVaultCertificateModel> actual = underTest
+        final var actual = underTest
                 .updateCertificateProperties(certificateName, versions.getLast(), VAULT_URI_1, properties);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
-        final KeyVaultCertificateModel body = actual.getBody();
+        final var body = actual.getBody();
         Assertions.assertNotNull(body);
         //policy is removed from the response
         Assertions.assertNull(body.getPolicy());
@@ -669,15 +668,15 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     }
 
     private CertificateImportRequest getCreateImportRequest(final String resource, final CertContentType type) {
-        final CertificateImportRequest request = new CertificateImportRequest();
+        final var request = new CertificateImportRequest();
         request.setCertificate(ResourceUtils.loadResourceAsByteArray(resource));
         if (resource.endsWith("p12")) {
             request.setPassword("changeit");
         }
         if (type != null) {
-            final CertificateSecretModel secretProperties = new CertificateSecretModel();
+            final var secretProperties = new CertificateSecretModel();
             secretProperties.setContentType(type.getMimeType());
-            final CertificatePolicyModel policy = new CertificatePolicyModel();
+            final var policy = new CertificatePolicyModel();
             policy.setSecretProperties(secretProperties);
             request.setPolicy(policy);
         }
@@ -689,11 +688,11 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
             final VersionedCertificateEntityId expectedId,
             final KeyVaultCertificateModel body) {
         Assertions.assertNotNull(body);
-        final URI id = expectedId.asUri(VAULT_URI_1);
+        final var id = expectedId.asUri(VAULT_URI_1);
         Assertions.assertEquals(id.toString(), body.getId());
         Assertions.assertEquals(request.getPolicy().getSecretProperties(), body.getPolicy().getSecretProperties());
         Assertions.assertEquals(request.getPolicy().getKeyProperties(), body.getPolicy().getKeyProperties());
-        final X509CertificateModel x509Properties = request.getPolicy().getX509Properties();
+        final var x509Properties = request.getPolicy().getX509Properties();
         x509Properties.setExtendedKeyUsage(DEFAULT_EXT_KEY_USAGES);
         x509Properties.setKeyUsage(DEFAULT_EC_KEY_USAGES);
         Assertions.assertEquals(x509Properties, body.getPolicy().getX509Properties());
@@ -703,7 +702,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     }
 
     private void assertIsDeletedModel(final DeletedModel body, final CertificateEntityId expectedId) {
-        final URI recoveryUri = expectedId.asRecoveryUri(expectedId.vault());
+        final var recoveryUri = expectedId.asRecoveryUri(expectedId.vault());
         Assertions.assertNotNull(body);
         Assertions.assertEquals(recoveryUri.toString(), body.getRecoveryId());
         Assertions.assertNotNull(body.getDeletedDate());
@@ -712,20 +711,20 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
 
     private CertificateLifetimeActionModel lifetimeActivity(
             final CertificateLifetimeActionActivity action, final CertificateLifetimeActionTriggerModel trigger) {
-        final CertificateLifetimeActionModel activity = new CertificateLifetimeActionModel();
+        final var activity = new CertificateLifetimeActionModel();
         activity.setAction(action);
         activity.setTrigger(trigger);
         return activity;
     }
 
     private CertificateLifetimeActionTriggerModel lifeTimePercentageTrigger(final int value) {
-        final CertificateLifetimeActionTriggerModel trigger = new CertificateLifetimeActionTriggerModel();
+        final var trigger = new CertificateLifetimeActionTriggerModel();
         trigger.setLifetimePercentage(value);
         return trigger;
     }
 
     private CertificateLifetimeActionTriggerModel daysBeforeExpiryTrigger(final int value) {
-        final CertificateLifetimeActionTriggerModel trigger = new CertificateLifetimeActionTriggerModel();
+        final var trigger = new CertificateLifetimeActionTriggerModel();
         trigger.setDaysBeforeExpiry(value);
         return trigger;
     }

@@ -31,7 +31,7 @@ public abstract class AbstractBase64ZipSerializer<E> extends JsonSerializer<E> {
     @Override
     public void serialize(final E value, final JsonGenerator gen,
                           final SerializerProvider serializers) throws IOException {
-        final String base64 = Optional.ofNullable(value)
+        final var base64 = Optional.ofNullable(value)
                 .map(this::compressObject)
                 .orElse(null);
         if (base64 != null) {
@@ -42,13 +42,13 @@ public abstract class AbstractBase64ZipSerializer<E> extends JsonSerializer<E> {
     }
 
     private String compressObject(final E value) {
-        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-             GZIPOutputStream gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream)) {
-            final String json = objectMapper.writer().writeValueAsString(value);
+        try (var byteArrayOutputStream = new ByteArrayOutputStream();
+             var gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream)) {
+            final var json = objectMapper.writer().writeValueAsString(value);
             gzipOutputStream.write(json.getBytes(StandardCharsets.UTF_8));
             gzipOutputStream.flush();
             gzipOutputStream.finish();
-            final byte[] byteArray = byteArrayOutputStream.toByteArray();
+            final var byteArray = byteArrayOutputStream.toByteArray();
             return base64Serializer.base64Encode(byteArray);
         } catch (final Exception e) {
             log.error(e.getMessage(), e);

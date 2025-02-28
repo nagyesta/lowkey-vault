@@ -15,8 +15,8 @@ public class ErrorHandlingAwareController {
 
     @ExceptionHandler({IllegalStateException.class, AlreadyExistsException.class, CryptoException.class, NotFoundException.class})
     public ResponseEntity<ErrorModel> handleException(final Exception exception) {
-        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-        final Class<? extends Exception> exceptionClass = exception.getClass();
+        var status = HttpStatus.INTERNAL_SERVER_ERROR;
+        final var exceptionClass = exception.getClass();
         if (exceptionClass.isAnnotationPresent(ResponseStatus.class)) {
             status = exceptionClass.getAnnotation(ResponseStatus.class).value();
         }

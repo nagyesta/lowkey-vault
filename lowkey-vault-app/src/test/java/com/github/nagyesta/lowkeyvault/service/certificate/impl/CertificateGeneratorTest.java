@@ -40,10 +40,10 @@ class CertificateGeneratorTest {
     @Test
     void testGenerateCertificateShouldWrapExceptionWhenExceptionIsCausedDuringExecution() {
         //given
-        final VaultFake vault = mock(VaultFake.class);
+        final var vault = mock(VaultFake.class);
         when(vault.keyVaultFake()).thenThrow(new IllegalStateException());
-        final CertificateCreationInput input = CertificateCreationInput.builder().name(KEY_NAME_1).build();
-        final CertificateGenerator underTest = new CertificateGenerator(vault, VERSIONED_KEY_ENTITY_ID_1_VERSION_1);
+        final var input = CertificateCreationInput.builder().name(KEY_NAME_1).build();
+        final var underTest = new CertificateGenerator(vault, VERSIONED_KEY_ENTITY_ID_1_VERSION_1);
 
         //when
         Assertions.assertThrows(CryptoException.class, () -> underTest.generateCertificate(input));
@@ -56,8 +56,8 @@ class CertificateGeneratorTest {
     @Test
     void testGenerateCertificateShouldThrowExceptionWhenCalledWithNull() {
         //given
-        final VaultFake vault = mock(VaultFake.class);
-        final CertificateGenerator underTest = new CertificateGenerator(vault, VERSIONED_KEY_ENTITY_ID_1_VERSION_1);
+        final var vault = mock(VaultFake.class);
+        final var underTest = new CertificateGenerator(vault, VERSIONED_KEY_ENTITY_ID_1_VERSION_1);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.generateCertificate(null));
@@ -68,10 +68,10 @@ class CertificateGeneratorTest {
     @Test
     void testGenerateCertificateSigningRequestShouldWrapExceptionWhenExceptionIsCausedDuringExecution() {
         //given
-        final VaultFake vault = mock(VaultFake.class);
+        final var vault = mock(VaultFake.class);
         when(vault.keyVaultFake()).thenThrow(new IllegalStateException());
-        final X509Certificate certificate = mock(X509Certificate.class);
-        final CertificateGenerator underTest = new CertificateGenerator(vault, VERSIONED_KEY_ENTITY_ID_1_VERSION_1);
+        final var certificate = mock(X509Certificate.class);
+        final var underTest = new CertificateGenerator(vault, VERSIONED_KEY_ENTITY_ID_1_VERSION_1);
 
         //when
         Assertions.assertThrows(CryptoException.class, () -> underTest.generateCertificateSigningRequest(KEY_NAME_1, certificate));
@@ -84,9 +84,9 @@ class CertificateGeneratorTest {
     @Test
     void testGenerateCertificateSigningRequestShouldThrowExceptionWhenCalledWithNullName() {
         //given
-        final VaultFake vault = mock(VaultFake.class);
-        final CertificateGenerator underTest = new CertificateGenerator(vault, VERSIONED_KEY_ENTITY_ID_1_VERSION_1);
-        final X509Certificate certificate = mock(X509Certificate.class);
+        final var vault = mock(VaultFake.class);
+        final var underTest = new CertificateGenerator(vault, VERSIONED_KEY_ENTITY_ID_1_VERSION_1);
+        final var certificate = mock(X509Certificate.class);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.generateCertificateSigningRequest(null, certificate));
@@ -98,8 +98,8 @@ class CertificateGeneratorTest {
     @Test
     void testGenerateCertificateSigningRequestShouldThrowExceptionWhenCalledWithNullCertificate() {
         //given
-        final VaultFake vault = mock(VaultFake.class);
-        final CertificateGenerator underTest = new CertificateGenerator(vault, VERSIONED_KEY_ENTITY_ID_1_VERSION_1);
+        final var vault = mock(VaultFake.class);
+        final var underTest = new CertificateGenerator(vault, VERSIONED_KEY_ENTITY_ID_1_VERSION_1);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.generateCertificateSigningRequest(KEY_NAME_1, null));

@@ -9,11 +9,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.crypto.SecretKey;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
-import java.security.KeyPair;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPrivateKey;
@@ -50,7 +47,7 @@ class KeyGenUtilTest {
     @Test
     void testConstructorShouldThrowExceptionWhenCalled() throws NoSuchMethodException {
         //given
-        final Constructor<KeyGenUtil> constructor = KeyGenUtil.class.getDeclaredConstructor();
+        final var constructor = KeyGenUtil.class.getDeclaredConstructor();
         constructor.setAccessible(true);
 
         //when
@@ -74,7 +71,7 @@ class KeyGenUtilTest {
     @MethodSource("asymmetricProvider")
     void testKeyPairGeneratorShouldCatchAndWrapExceptionsWhenTheyAreThrown(final String alg, final Integer size) {
         //given
-        final RSAKeyGenParameterSpec rsaKeyGenParameterSpec = new RSAKeyGenParameterSpec(size, BigInteger.ONE);
+        final var rsaKeyGenParameterSpec = new RSAKeyGenParameterSpec(size, BigInteger.ONE);
 
         //when
         Assertions.assertThrows(CryptoException.class, () -> KeyGenUtil.keyPairGenerator(alg, rsaKeyGenParameterSpec));
@@ -87,7 +84,7 @@ class KeyGenUtilTest {
         //given
 
         //when
-        final KeyPair actual = KeyGenUtil.generateRsa(MIN_RSA_KEY_SIZE, null);
+        final var actual = KeyGenUtil.generateRsa(MIN_RSA_KEY_SIZE, null);
 
         //then
         Assertions.assertNotNull(actual);
@@ -100,7 +97,7 @@ class KeyGenUtilTest {
         //given
 
         //when
-        final KeyPair actual = KeyGenUtil.generateEc(KeyCurveName.P_256);
+        final var actual = KeyGenUtil.generateEc(KeyCurveName.P_256);
 
         //then
         Assertions.assertNotNull(actual);
@@ -113,7 +110,7 @@ class KeyGenUtilTest {
         //given
 
         //when
-        final SecretKey actual = KeyGenUtil.generateAes(MIN_AES_KEY_SIZE);
+        final var actual = KeyGenUtil.generateAes(MIN_AES_KEY_SIZE);
 
         //then
         Assertions.assertNotNull(actual);
@@ -129,7 +126,7 @@ class KeyGenUtilTest {
         if (number <= 0) {
             Assertions.assertThrows(IllegalArgumentException.class, () -> KeyGenUtil.generateRandomBytes(number));
         } else {
-            final byte[] actual = Assertions.assertDoesNotThrow(() -> KeyGenUtil.generateRandomBytes(number));
+            final var actual = Assertions.assertDoesNotThrow(() -> KeyGenUtil.generateRandomBytes(number));
 
             //then
             Assertions.assertEquals(number, actual.length);

@@ -3,7 +3,6 @@ package com.github.nagyesta.lowkeyvault.controller.common.util;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 class CertificateRequestMapperUtilTest {
@@ -11,7 +10,7 @@ class CertificateRequestMapperUtilTest {
     @Test
     void testConstructorShouldThrowExceptionWhenCalled() throws NoSuchMethodException {
         //given
-        final Constructor<CertificateRequestMapperUtil> constructor = CertificateRequestMapperUtil.class.getDeclaredConstructor();
+        final var constructor = CertificateRequestMapperUtil.class.getDeclaredConstructor();
         constructor.setAccessible(true);
 
         //when

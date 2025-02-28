@@ -13,7 +13,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.security.KeyPair;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -42,13 +41,13 @@ class RsaJsonWebKeyImportRequestConverterTest {
     @ValueSource(ints = {RSA_2048, RSA_3072, RSA_4096})
     void testConvertShouldReturnKeyPairWhenCalledWithValidInput(final int size) {
         //given
-        final KeyPair expected = KeyGenUtil.generateRsa(size, null);
-        final JsonWebKeyImportRequest request = new JsonWebKeyImportRequest();
+        final var expected = KeyGenUtil.generateRsa(size, null);
+        final var request = new JsonWebKeyImportRequest();
         request.setKeyType(KeyType.RSA);
-        final BCRSAPublicKey expectedPublic = (BCRSAPublicKey) expected.getPublic();
+        final var expectedPublic = (BCRSAPublicKey) expected.getPublic();
         request.setN(expectedPublic.getModulus().toByteArray());
         request.setE(expectedPublic.getPublicExponent().toByteArray());
-        final RSAPrivateCrtKey expectedPrivateKey = (RSAPrivateCrtKey) expected.getPrivate();
+        final var expectedPrivateKey = (RSAPrivateCrtKey) expected.getPrivate();
         request.setD(expectedPrivateKey.getPrivateExponent().toByteArray());
         request.setDp(expectedPrivateKey.getPrimeExponentP().toByteArray());
         request.setDq(expectedPrivateKey.getPrimeExponentQ().toByteArray());
@@ -57,7 +56,7 @@ class RsaJsonWebKeyImportRequestConverterTest {
         request.setQi(expectedPrivateKey.getCrtCoefficient().toByteArray());
 
         //when
-        final KeyPair actual = underTest.convert(request);
+        final var actual = underTest.convert(request);
 
         //then
         Assertions.assertEquals(expected.getPrivate(), actual.getPrivate());
@@ -67,7 +66,7 @@ class RsaJsonWebKeyImportRequestConverterTest {
     @Test
     void testConvertShouldWrapExceptionWhenConversionThrowsOne() {
         //given
-        final JsonWebKeyImportRequest source = mock(JsonWebKeyImportRequest.class);
+        final var source = mock(JsonWebKeyImportRequest.class);
         when(source.getD()).thenThrow(IllegalArgumentException.class);
 
         //when
@@ -80,11 +79,11 @@ class RsaJsonWebKeyImportRequestConverterTest {
     @MethodSource("sizeProvider")
     void testGetKeyParameterShouldReturnTheKeySizeWhenCalledWithValidInput(final int sizeInBytes, final int expected) {
         //given
-        final JsonWebKeyImportRequest request = mock(JsonWebKeyImportRequest.class);
+        final var request = mock(JsonWebKeyImportRequest.class);
         when(request.getN()).thenReturn(new byte[sizeInBytes]);
 
         //when
-        final Integer actual = underTest.getKeyParameter(request);
+        final var actual = underTest.getKeyParameter(request);
 
         //then
         Assertions.assertEquals(expected, actual);

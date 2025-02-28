@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NonNull;
 
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.Set;
 
 @SuppressWarnings("LombokGetterMayBeUsed")
@@ -30,7 +29,7 @@ public enum CertificateAlgorithm {
     }
 
     public static CertificateAlgorithm forKeyType(@NonNull final KeyType keyType) {
-        final Optional<CertificateAlgorithm> value = Arrays.stream(CertificateAlgorithm.values())
+        final var value = Arrays.stream(CertificateAlgorithm.values())
                 .filter(v -> v.keyTypes.contains(keyType))
                 .findFirst();
         return value.orElseThrow(() -> new IllegalArgumentException("Unable to find certificate algorithm for key type: " + keyType));

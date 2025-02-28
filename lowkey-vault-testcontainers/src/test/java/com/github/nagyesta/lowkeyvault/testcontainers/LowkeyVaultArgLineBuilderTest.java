@@ -25,7 +25,7 @@ class LowkeyVaultArgLineBuilderTest {
     @MethodSource("vaultNameProvider")
     void testVaultNamesShouldThrowExceptionWhenCalledWithInvalidData(final Set<String> value) {
         //given
-        final LowkeyVaultArgLineBuilder underTest = new LowkeyVaultArgLineBuilder();
+        final var underTest = new LowkeyVaultArgLineBuilder();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.vaultNames(value));
@@ -37,13 +37,13 @@ class LowkeyVaultArgLineBuilderTest {
     @ValueSource(strings = {"-", "valid"})
     void testVaultNamesShouldSetArgumentWhenCalledWithValidData(final String name) {
         //given
-        final LowkeyVaultArgLineBuilder underTest = new LowkeyVaultArgLineBuilder();
-        final List<String> expected = List.of(
+        final var underTest = new LowkeyVaultArgLineBuilder();
+        final var expected = List.of(
                 "--LOWKEY_VAULT_RELAXED_PORTS=true",
                 "--LOWKEY_VAULT_NAMES=" + name);
 
         //when
-        final List<String> actual = underTest.vaultNames(Set.of(name)).build();
+        final var actual = underTest.vaultNames(Set.of(name)).build();
 
         //then
         Assertions.assertIterableEquals(expected, actual);
@@ -52,11 +52,11 @@ class LowkeyVaultArgLineBuilderTest {
     @Test
     void testLogicalHostShouldNotSetValueWhenCalledWithNull() {
         //given
-        final LowkeyVaultArgLineBuilder underTest = new LowkeyVaultArgLineBuilder();
-        final List<String> expected = List.of("--LOWKEY_VAULT_RELAXED_PORTS=true");
+        final var underTest = new LowkeyVaultArgLineBuilder();
+        final var expected = List.of("--LOWKEY_VAULT_RELAXED_PORTS=true");
 
         //when
-        final List<String> actual = underTest.logicalHost(null).build();
+        final var actual = underTest.logicalHost(null).build();
 
         //then
         Assertions.assertIterableEquals(expected, actual);
@@ -65,13 +65,13 @@ class LowkeyVaultArgLineBuilderTest {
     @Test
     void testLogicalHostShouldSetArgumentWhenCalledWithValidData() {
         //given
-        final LowkeyVaultArgLineBuilder underTest = new LowkeyVaultArgLineBuilder();
-        final List<String> expected = List.of(
+        final var underTest = new LowkeyVaultArgLineBuilder();
+        final var expected = List.of(
                 "--LOWKEY_VAULT_RELAXED_PORTS=true",
                 "--LOWKEY_IMPORT_TEMPLATE_HOST=127.0.0.1");
 
         //when
-        final List<String> actual = underTest.logicalHost("127.0.0.1").build();
+        final var actual = underTest.logicalHost("127.0.0.1").build();
 
         //then
         Assertions.assertIterableEquals(expected, actual);
@@ -80,11 +80,11 @@ class LowkeyVaultArgLineBuilderTest {
     @Test
     void testLogicalPortShouldNotSetValueWhenCalledWithNull() {
         //given
-        final LowkeyVaultArgLineBuilder underTest = new LowkeyVaultArgLineBuilder();
-        final List<String> expected = List.of("--LOWKEY_VAULT_RELAXED_PORTS=true");
+        final var underTest = new LowkeyVaultArgLineBuilder();
+        final var expected = List.of("--LOWKEY_VAULT_RELAXED_PORTS=true");
 
         //when
-        final List<String> actual = underTest.logicalPort(null).build();
+        final var actual = underTest.logicalPort(null).build();
 
         //then
         Assertions.assertIterableEquals(expected, actual);
@@ -93,13 +93,13 @@ class LowkeyVaultArgLineBuilderTest {
     @Test
     void testLogicalPortShouldSetArgumentWhenCalledWithValidData() {
         //given
-        final LowkeyVaultArgLineBuilder underTest = new LowkeyVaultArgLineBuilder();
-        final List<String> expected = List.of(
+        final var underTest = new LowkeyVaultArgLineBuilder();
+        final var expected = List.of(
                 "--LOWKEY_VAULT_RELAXED_PORTS=true",
                 "--LOWKEY_IMPORT_TEMPLATE_PORT=1");
 
         //when
-        final List<String> actual = underTest.logicalPort(1).build();
+        final var actual = underTest.logicalPort(1).build();
 
         //then
         Assertions.assertIterableEquals(expected, actual);
@@ -108,11 +108,11 @@ class LowkeyVaultArgLineBuilderTest {
     @Test
     void testDebugShouldNotSetValueWhenCalledWithFalse() {
         //given
-        final LowkeyVaultArgLineBuilder underTest = new LowkeyVaultArgLineBuilder();
-        final List<String> expected = List.of("--LOWKEY_VAULT_RELAXED_PORTS=true");
+        final var underTest = new LowkeyVaultArgLineBuilder();
+        final var expected = List.of("--LOWKEY_VAULT_RELAXED_PORTS=true");
 
         //when
-        final List<String> actual = underTest.debug(false).build();
+        final var actual = underTest.debug(false).build();
 
         //then
         Assertions.assertIterableEquals(expected, actual);
@@ -121,13 +121,13 @@ class LowkeyVaultArgLineBuilderTest {
     @Test
     void testDebugShouldSetArgumentWhenCalledWithTrue() {
         //given
-        final LowkeyVaultArgLineBuilder underTest = new LowkeyVaultArgLineBuilder();
-        final List<String> expected = List.of(
+        final var underTest = new LowkeyVaultArgLineBuilder();
+        final var expected = List.of(
                 "--LOWKEY_VAULT_RELAXED_PORTS=true",
                 "--LOWKEY_DEBUG_REQUEST_LOG=true");
 
         //when
-        final List<String> actual = underTest.debug(true).build();
+        final var actual = underTest.debug(true).build();
 
         //then
         Assertions.assertIterableEquals(expected, actual);
@@ -136,13 +136,13 @@ class LowkeyVaultArgLineBuilderTest {
     @Test
     void testImportFileShouldSetArgumentWhenCalledWithFile() {
         //given
-        final LowkeyVaultArgLineBuilder underTest = new LowkeyVaultArgLineBuilder();
-        final List<String> expected = List.of(
+        final var underTest = new LowkeyVaultArgLineBuilder();
+        final var expected = List.of(
                 "--LOWKEY_VAULT_RELAXED_PORTS=true",
                 "--LOWKEY_IMPORT_LOCATION=/import/vaults.json");
 
         //when
-        final List<String> actual = underTest.importFile(new File(".")).build();
+        final var actual = underTest.importFile(new File(".")).build();
 
         //then
         Assertions.assertIterableEquals(expected, actual);
@@ -151,11 +151,11 @@ class LowkeyVaultArgLineBuilderTest {
     @Test
     void testImportFileShouldNotSetArgumentWhenCalledWithNull() {
         //given
-        final LowkeyVaultArgLineBuilder underTest = new LowkeyVaultArgLineBuilder();
-        final List<String> expected = List.of("--LOWKEY_VAULT_RELAXED_PORTS=true");
+        final var underTest = new LowkeyVaultArgLineBuilder();
+        final var expected = List.of("--LOWKEY_VAULT_RELAXED_PORTS=true");
 
         //when
-        final List<String> actual = underTest.importFile(null).build();
+        final var actual = underTest.importFile(null).build();
 
         //then
         Assertions.assertIterableEquals(expected, actual);
@@ -164,15 +164,15 @@ class LowkeyVaultArgLineBuilderTest {
     @Test
     void testCustomSslCertificateShouldSetArgumentWhenCalledWithValidFile() {
         //given
-        final LowkeyVaultArgLineBuilder underTest = new LowkeyVaultArgLineBuilder();
-        final List<String> expected = List.of(
+        final var underTest = new LowkeyVaultArgLineBuilder();
+        final var expected = List.of(
                 "--LOWKEY_VAULT_RELAXED_PORTS=true",
                 "--server.ssl.key-store=/config/cert.store",
                 "--server.ssl.key-store-type=JKS",
                 "--server.ssl.key-store-password=pass");
 
         //when
-        final List<String> actual = underTest.customSSLCertificate(new File("."), "pass", StoreType.JKS).build();
+        final var actual = underTest.customSSLCertificate(new File("."), "pass", StoreType.JKS).build();
 
         //then
         Assertions.assertIterableEquals(expected, actual);
@@ -181,11 +181,11 @@ class LowkeyVaultArgLineBuilderTest {
     @Test
     void testCustomSslCertificateShouldNotSetArgumentWhenCalledWithNull() {
         //given
-        final LowkeyVaultArgLineBuilder underTest = new LowkeyVaultArgLineBuilder();
-        final List<String> expected = List.of("--LOWKEY_VAULT_RELAXED_PORTS=true");
+        final var underTest = new LowkeyVaultArgLineBuilder();
+        final var expected = List.of("--LOWKEY_VAULT_RELAXED_PORTS=true");
 
         //when
-        final List<String> actual = underTest.customSSLCertificate(null, "pass", StoreType.JKS).build();
+        final var actual = underTest.customSSLCertificate(null, "pass", StoreType.JKS).build();
 
         //then
         Assertions.assertIterableEquals(expected, actual);
@@ -194,11 +194,11 @@ class LowkeyVaultArgLineBuilderTest {
     @Test
     void testAliasesShouldSetArgumentWhenCalledWithValidMap() {
         //given
-        final LowkeyVaultArgLineBuilder underTest = new LowkeyVaultArgLineBuilder();
+        final var underTest = new LowkeyVaultArgLineBuilder();
         final Map<String, Set<String>> aliases = new TreeMap<>(Map.of(
                 "localhost", new TreeSet<>(Set.of("alias.localhost", "alias.localhost:<port>")),
                 "lowkey-vault", Set.of("alias.localhost:30443")));
-        final List<String> expected = List.of(
+        final var expected = List.of(
                 "--LOWKEY_VAULT_RELAXED_PORTS=true",
                 "--LOWKEY_VAULT_ALIASES="
                         + "localhost=alias.localhost,"
@@ -207,7 +207,7 @@ class LowkeyVaultArgLineBuilderTest {
         );
 
         //when
-        final List<String> actual = underTest.aliases(aliases).build();
+        final var actual = underTest.aliases(aliases).build();
 
         //then
         Assertions.assertIterableEquals(expected, actual);
@@ -217,11 +217,11 @@ class LowkeyVaultArgLineBuilderTest {
     @NullAndEmptySource
     void testAliasesShouldNotSetArgumentWhenCalledWithNullOrEmptyMap(final Map<String, Set<String>> map) {
         //given
-        final LowkeyVaultArgLineBuilder underTest = new LowkeyVaultArgLineBuilder();
-        final List<String> expected = List.of("--LOWKEY_VAULT_RELAXED_PORTS=true");
+        final var underTest = new LowkeyVaultArgLineBuilder();
+        final var expected = List.of("--LOWKEY_VAULT_RELAXED_PORTS=true");
 
         //when
-        final List<String> actual = underTest.aliases(map).build();
+        final var actual = underTest.aliases(map).build();
 
         //then
         Assertions.assertIterableEquals(expected, actual);
@@ -230,18 +230,18 @@ class LowkeyVaultArgLineBuilderTest {
     @Test
     void testAdditionalArgsShouldSetArgumentWhenCalledWithValidMap() {
         //given
-        final LowkeyVaultArgLineBuilder underTest = new LowkeyVaultArgLineBuilder();
-        final String additional = "--LOWKEY_VAULT_ALIASES=\""
+        final var underTest = new LowkeyVaultArgLineBuilder();
+        final var additional = "--LOWKEY_VAULT_ALIASES=\""
                 + "localhost=alias.localhost,"
                 + "localhost=alias.localhost:<port>,"
                 + "lowkey-vault=alias.localhost:30443"
                 + "\"";
-        final List<String> expected = List.of(
+        final var expected = List.of(
                 "--LOWKEY_VAULT_RELAXED_PORTS=true",
                 additional);
 
         //when
-        final List<String> actual = underTest.additionalArgs(List.of(additional)).build();
+        final var actual = underTest.additionalArgs(List.of(additional)).build();
 
         //then
         Assertions.assertIterableEquals(expected, actual);
@@ -251,11 +251,11 @@ class LowkeyVaultArgLineBuilderTest {
     @NullAndEmptySource
     void testAdditionalArgsShouldNotSetArgumentWhenCalledWithNullOrEmptyMap(final List<String> list) {
         //given
-        final LowkeyVaultArgLineBuilder underTest = new LowkeyVaultArgLineBuilder();
-        final List<String> expected = List.of("--LOWKEY_VAULT_RELAXED_PORTS=true");
+        final var underTest = new LowkeyVaultArgLineBuilder();
+        final var expected = List.of("--LOWKEY_VAULT_RELAXED_PORTS=true");
 
         //when
-        final List<String> actual = underTest.additionalArgs(list).build();
+        final var actual = underTest.additionalArgs(list).build();
 
         //then
         Assertions.assertIterableEquals(expected, actual);

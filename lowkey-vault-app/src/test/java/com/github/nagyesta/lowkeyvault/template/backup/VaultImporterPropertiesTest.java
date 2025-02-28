@@ -29,12 +29,12 @@ class VaultImporterPropertiesTest {
     @Test
     void testContextShouldReturnContextWithThePopulatedDataWhenCalled() {
         //given
-        final String host = LOCALHOST;
-        final int port = HTTPS_PORT;
-        final VaultImporterProperties underTest = new VaultImporterProperties(null, host, port);
+        final var host = LOCALHOST;
+        final var port = HTTPS_PORT;
+        final var underTest = new VaultImporterProperties(null, host, port);
 
         //when
-        final BackupContext actual = underTest.context();
+        final var actual = underTest.context();
 
         //then
         Assertions.assertEquals(host, actual.getHost());
@@ -54,10 +54,10 @@ class VaultImporterPropertiesTest {
             when(input.canRead()).thenReturn(canRead);
             when(input.isFile()).thenReturn(file);
         }
-        final VaultImporterProperties underTest = new VaultImporterProperties(input, LOCALHOST, HTTPS_PORT);
+        final var underTest = new VaultImporterProperties(input, LOCALHOST, HTTPS_PORT);
 
         //when
-        final boolean actual = underTest.importFileExists();
+        final var actual = underTest.importFileExists();
 
         //then
         Assertions.assertEquals(expected, actual);

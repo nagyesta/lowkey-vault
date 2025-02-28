@@ -12,7 +12,7 @@ class TimeShiftContextTest {
     void testBuilderShouldThrowExceptionWhenCalledWithNegativeValue(final int value) {
         //given
         //noinspection WriteOnlyObject
-        final TimeShiftContext.TimeShiftContextBuilder underTest = TimeShiftContext.builder();
+        final var underTest = TimeShiftContext.builder();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.addSeconds(value));
@@ -29,7 +29,7 @@ class TimeShiftContextTest {
     void testBuilderShouldThrowExceptionWhenCalledWithNullUri() {
         //given
         //noinspection WriteOnlyObject
-        final TimeShiftContext.TimeShiftContextBuilder underTest = TimeShiftContext.builder();
+        final var underTest = TimeShiftContext.builder();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.vaultBaseUri(null));

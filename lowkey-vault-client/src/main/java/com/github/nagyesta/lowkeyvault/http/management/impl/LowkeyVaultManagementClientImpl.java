@@ -1,6 +1,9 @@
 package com.github.nagyesta.lowkeyvault.http.management.impl;
 
-import com.azure.core.http.*;
+import com.azure.core.http.HttpClient;
+import com.azure.core.http.HttpHeaderName;
+import com.azure.core.http.HttpMethod;
+import com.azure.core.http.HttpRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -59,8 +62,8 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
     public <T extends Throwable> void verifyConnectivity(
             final int retries, final int waitMillis, @NonNull final Supplier<T> exceptionProvider)
             throws T, InterruptedException {
-        final HttpRequest request = new HttpRequest(HttpMethod.GET, vaultUrl + PING_PATH);
-        for (int i = 0; i < retries; i++) {
+        final var request = new HttpRequest(HttpMethod.GET, vaultUrl + PING_PATH);
+        for (var i = 0; i < retries; i++) {
             Thread.sleep(waitMillis);
             if (isSuccessful(doSend(request))) {
                 return;
@@ -73,9 +76,9 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
     public VaultModel createVault(@NonNull final URI baseUri,
                                   @NonNull final RecoveryLevel recoveryLevel,
                                   @Nullable final Integer recoverableDays) {
-        final String body = vaultModelAsString(baseUri, recoveryLevel, recoverableDays);
-        final URI uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_PATH);
-        final HttpRequest request = new HttpRequest(HttpMethod.POST, uri.toString())
+        final var body = vaultModelAsString(baseUri, recoveryLevel, recoverableDays);
+        final var uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_PATH);
+        final var request = new HttpRequest(HttpMethod.POST, uri.toString())
                 .setBody(body)
                 .setHeader(HttpHeaderName.CONTENT_TYPE, APPLICATION_JSON);
         return sendAndProcess(request, r -> r.getResponseObject(VaultModel.class));
@@ -83,30 +86,30 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
 
     @Override
     public List<VaultModel> listVaults() {
-        final URI uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_PATH);
-        final HttpRequest request = new HttpRequest(HttpMethod.GET, uri.toString());
+        final var uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_PATH);
+        final var request = new HttpRequest(HttpMethod.GET, uri.toString());
         return sendAndProcess(request, r -> r.getResponseObject(VAULT_MODEL_LIST_TYPE_REF));
     }
 
     @Override
     public List<VaultModel> listDeletedVaults() {
-        final URI uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_DELETED_PATH);
-        final HttpRequest request = new HttpRequest(HttpMethod.GET, uri.toString());
+        final var uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_DELETED_PATH);
+        final var request = new HttpRequest(HttpMethod.GET, uri.toString());
         return sendAndProcess(request, r -> r.getResponseObject(VAULT_MODEL_LIST_TYPE_REF));
     }
 
     @Override
     public boolean delete(@NonNull final URI baseUri) {
-        final URI uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_PATH, Map.of(BASE_URI_QUERY_PARAM, baseUri.toString()));
-        final HttpRequest request = new HttpRequest(HttpMethod.DELETE, uri.toString());
+        final var uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_PATH, Map.of(BASE_URI_QUERY_PARAM, baseUri.toString()));
+        final var request = new HttpRequest(HttpMethod.DELETE, uri.toString());
         return sendAndProcess(request, r -> r.getResponseObject(Boolean.class));
     }
 
     @Override
     public VaultModel recover(@NonNull final URI baseUri) {
-        final Map<String, String> parameters = Map.of(BASE_URI_QUERY_PARAM, baseUri.toString());
-        final URI uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_RECOVERY_PATH, parameters);
-        final HttpRequest request = new HttpRequest(HttpMethod.PUT, uri.toString())
+        final var parameters = Map.of(BASE_URI_QUERY_PARAM, baseUri.toString());
+        final var uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_RECOVERY_PATH, parameters);
+        final var request = new HttpRequest(HttpMethod.PUT, uri.toString())
                 .setHeader(HttpHeaderName.CONTENT_TYPE, APPLICATION_JSON);
         return sendAndProcess(request, r -> r.getResponseObject(VaultModel.class));
     }
@@ -127,9 +130,9 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
 
     @Override
     public boolean purge(@NonNull final URI baseUri) {
-        final Map<String, String> parameters = Map.of(BASE_URI_QUERY_PARAM, baseUri.toString());
-        final URI uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_PURGE_PATH, parameters);
-        final HttpRequest request = new HttpRequest(HttpMethod.DELETE, uri.toString());
+        final var parameters = Map.of(BASE_URI_QUERY_PARAM, baseUri.toString());
+        final var uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_PURGE_PATH, parameters);
+        final var request = new HttpRequest(HttpMethod.DELETE, uri.toString());
         return sendAndProcess(request, r -> r.getResponseObject(Boolean.class));
     }
 
@@ -140,37 +143,37 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
         if (context.isRegenerateCertificates()) {
             parameters.put(REGENERATE_CERTS_QUERY_PARAM, Boolean.TRUE.toString());
         }
-        final Optional<URI> optionalURI = Optional.ofNullable(context.getVaultBaseUri());
+        final var optionalURI = Optional.ofNullable(context.getVaultBaseUri());
         optionalURI.ifPresent(uri -> parameters.put(BASE_URI_QUERY_PARAM, uri.toString()));
-        final String path = optionalURI.map(u -> MANAGEMENT_VAULT_TIME_PATH).orElse(MANAGEMENT_VAULT_TIME_ALL_PATH);
-        final URI uri = UriUtil.uriBuilderForPath(vaultUrl, path, parameters);
-        final HttpRequest request = new HttpRequest(HttpMethod.PUT, uri.toString())
+        final var path = optionalURI.map(u -> MANAGEMENT_VAULT_TIME_PATH).orElse(MANAGEMENT_VAULT_TIME_ALL_PATH);
+        final var uri = UriUtil.uriBuilderForPath(vaultUrl, path, parameters);
+        final var request = new HttpRequest(HttpMethod.PUT, uri.toString())
                 .setHeader(HttpHeaderName.CONTENT_TYPE, APPLICATION_JSON);
         sendRaw(request);
     }
 
     @Override
     public String exportActive() {
-        final URI uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_EXPORT_ACTIVE_PATH);
-        final HttpRequest request = new HttpRequest(HttpMethod.GET, uri.toString());
+        final var uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_EXPORT_ACTIVE_PATH);
+        final var request = new HttpRequest(HttpMethod.GET, uri.toString());
         return sendRaw(request).getResponseBodyAsString();
     }
 
     @Override
     public String unpackBackup(final byte[] backup) throws IOException {
-        final byte[] nonNullBackup = Optional.ofNullable(backup)
+        final var nonNullBackup = Optional.ofNullable(backup)
                 .orElseThrow(() -> new IllegalArgumentException("Backup cannot be null"));
-        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(nonNullBackup);
-             GZIPInputStream gzipInputStream = new GZIPInputStream(byteArrayInputStream)) {
-            final String json = new String(gzipInputStream.readAllBytes());
+        try (var byteArrayInputStream = new ByteArrayInputStream(nonNullBackup);
+             var gzipInputStream = new GZIPInputStream(byteArrayInputStream)) {
+            final var json = new String(gzipInputStream.readAllBytes());
             return objectReader.readTree(json).toPrettyString();
         }
     }
 
     @Override
     public byte[] compressBackup(@NonNull final String backup) throws IOException {
-        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-             GZIPOutputStream gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream)) {
+        try (var byteArrayOutputStream = new ByteArrayOutputStream();
+             var gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream)) {
             gzipOutputStream.write(backup.getBytes(StandardCharsets.UTF_8));
             gzipOutputStream.flush();
             gzipOutputStream.finish();
@@ -179,8 +182,8 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
     }
 
     private VaultModel performAliasUpdate(final Map<String, String> parameters) {
-        final URI uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_ALIAS_PATH, parameters);
-        final HttpRequest request = new HttpRequest(HttpMethod.PATCH, uri.toString())
+        final var uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_ALIAS_PATH, parameters);
+        final var request = new HttpRequest(HttpMethod.PATCH, uri.toString())
                 .setHeader(HttpHeaderName.CONTENT_TYPE, APPLICATION_JSON);
         return sendAndProcess(request, r -> r.getResponseObject(VaultModel.class));
     }
@@ -194,12 +197,12 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
     }
 
     <T> T sendAndProcess(final HttpRequest request, final Function<ResponseEntity, T> conversionFunction) {
-        final ResponseEntity responseEntity = sendRaw(request);
+        final var responseEntity = sendRaw(request);
         return conversionFunction.apply(responseEntity);
     }
 
     private ResponseEntity sendRaw(final HttpRequest request) {
-        final ResponseEntity responseEntity = doSendNotNull(request);
+        final var responseEntity = doSendNotNull(request);
         if (!responseEntity.isSuccessful()) {
             throw new LowkeyVaultException("Request was not successful. Status: " + responseEntity.getResponseCode());
         }
@@ -221,7 +224,7 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
     }
 
     private ResponseEntity doSendNotNull(final HttpRequest request) {
-        try (HttpResponse response = instance.send(request).block()) {
+        try (var response = instance.send(request).block()) {
             return new ResponseEntity(Objects.requireNonNull(response), objectReader);
         } catch (final Exception e) {
             log.info("Call to container failed: {}", e.getMessage());

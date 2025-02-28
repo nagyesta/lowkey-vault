@@ -25,7 +25,7 @@ class KeyOperationsResultTest {
     private static final int BASE_URI = 3;
 
     public static Stream<Arguments> validStringProvider() {
-        final KeyOperationsParameters fullOps = new KeyOperationsParameters();
+        final var fullOps = new KeyOperationsParameters();
         fullOps.setAlgorithm(EncryptionAlgorithm.A128CBC);
         fullOps.setAdditionalAuthData(BLANK.getBytes(StandardCharsets.UTF_8));
         fullOps.setAuthenticationTag(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8));
@@ -41,8 +41,8 @@ class KeyOperationsResultTest {
     public static Stream<Arguments> invalidBytesProvider() {
         return invalidStringProvider()
                 .map(a -> {
-                    final Object[] args = a.get();
-                    final byte[] bytes = Optional.ofNullable(args[TEXT])
+                    final var args = a.get();
+                    final var bytes = Optional.ofNullable(args[TEXT])
                             .map(String.class::cast)
                             .map(s -> s.getBytes(StandardCharsets.UTF_8))
                             .orElse(null);
@@ -51,8 +51,8 @@ class KeyOperationsResultTest {
     }
 
     public static Stream<Arguments> invalidStringProvider() {
-        final KeyOperationsParameters parameters = new KeyOperationsParameters();
-        final VersionedKeyEntityId keyId = VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
+        final var parameters = new KeyOperationsParameters();
+        final var keyId = VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
         return Stream.<Arguments>builder()
                 .add(Arguments.of(null, BLANK, parameters, keyId.vault()))
                 .add(Arguments.of(keyId, null, parameters, keyId.vault()))
@@ -66,12 +66,12 @@ class KeyOperationsResultTest {
     void testForBytesShouldImplicitlyEncodeBytesAsBase64WhenCalledWitValidInput(
             final VersionedKeyEntityId id, final String value, final KeyOperationsParameters params) {
         //given
-        final Base64.Encoder encoder = Base64.getUrlEncoder().withoutPadding();
-        final byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
-        final String encoded = encoder.encodeToString(bytes);
+        final var encoder = Base64.getUrlEncoder().withoutPadding();
+        final var bytes = value.getBytes(StandardCharsets.UTF_8);
+        final var encoded = encoder.encodeToString(bytes);
 
         //when
-        final KeyOperationsResult actual = KeyOperationsResult.forBytes(id, bytes, params, id.vault());
+        final var actual = KeyOperationsResult.forBytes(id, bytes, params, id.vault());
 
         //then
         assertResultMatches(id, encoded, params, actual);
@@ -84,7 +84,7 @@ class KeyOperationsResultTest {
         //given
 
         //when
-        final KeyOperationsResult actual = KeyOperationsResult.forString(id, value, params, id.vault());
+        final var actual = KeyOperationsResult.forString(id, value, params, id.vault());
 
         //then
         assertResultMatches(id, value, params, actual);

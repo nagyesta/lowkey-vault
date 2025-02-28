@@ -16,11 +16,11 @@ class Base64ZipKeySerializerTest {
     @Test
     void testSerializeShouldThrowExceptionWhenEncodingFails() {
         //given
-        final Base64Serializer base64Serializer = mock(Base64Serializer.class);
-        final ObjectMapper objectMapper = new ObjectMapper();
-        final Base64ZipKeySerializer underTest = new Base64ZipKeySerializer(base64Serializer, objectMapper);
-        final JsonGenerator gen = mock(JsonGenerator.class);
-        final SerializerProvider serializers = mock(SerializerProvider.class);
+        final var base64Serializer = mock(Base64Serializer.class);
+        final var objectMapper = new ObjectMapper();
+        final var underTest = new Base64ZipKeySerializer(base64Serializer, objectMapper);
+        final var gen = mock(JsonGenerator.class);
+        final var serializers = mock(SerializerProvider.class);
         when(base64Serializer.base64Encode(any())).thenThrow(new IllegalStateException("Fail"));
 
         //when
@@ -34,9 +34,9 @@ class Base64ZipKeySerializerTest {
     @Test
     void testSerializeShouldWriteNullWhenCalledWithNullInput() throws IOException {
         //given
-        final Base64ZipKeySerializer underTest = new Base64ZipKeySerializer();
-        final JsonGenerator gen = mock(JsonGenerator.class);
-        final SerializerProvider serializers = mock(SerializerProvider.class);
+        final var underTest = new Base64ZipKeySerializer();
+        final var gen = mock(JsonGenerator.class);
+        final var serializers = mock(SerializerProvider.class);
 
         //when
         underTest.serialize(null, gen, serializers);

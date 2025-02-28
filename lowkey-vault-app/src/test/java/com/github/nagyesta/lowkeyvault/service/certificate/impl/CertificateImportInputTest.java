@@ -30,8 +30,8 @@ class CertificateImportInputTest {
     private static final String EKU_1 = "1.3.6.1.5.5.7.3.1";
 
     public static Stream<Arguments> nullProvider() {
-        final CertificatePolicyModel certificatePolicyModel = new CertificatePolicyModel();
-        final String content = "cert";
+        final var certificatePolicyModel = new CertificatePolicyModel();
+        final var content = "cert";
         return Stream.<Arguments>builder()
                 .add(Arguments.of(null, content, PASSWORD, CertContentType.PEM, certificatePolicyModel))
                 .add(Arguments.of(CERT_NAME_1, null, PASSWORD, CertContentType.PEM, certificatePolicyModel))
@@ -44,10 +44,10 @@ class CertificateImportInputTest {
     @Test
     void testConstructorShouldUseValuesFromCertificateWhenCalledWithMinimalEcDataUsingPkcs12() {
         //given
-        final String certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsBase64String("/cert/ec.p12"));
+        final var certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsBase64String("/cert/ec.p12"));
 
         //when
-        final CertificateImportInput actual = new CertificateImportInput(
+        final var actual = new CertificateImportInput(
                 CERT_NAME_1, certContent, PASSWORD, CertContentType.PKCS12, new CertificatePolicyModel());
 
         //then
@@ -69,10 +69,10 @@ class CertificateImportInputTest {
     @Test
     void testConstructorShouldUseValuesFromCertificateWhenCalledWithMinimalEcDataUsingPem() {
         //given
-        final String certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsString("/cert/ec.pem"));
+        final var certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsString("/cert/ec.pem"));
 
         //when
-        final CertificateImportInput actual = new CertificateImportInput(
+        final var actual = new CertificateImportInput(
                 CERT_NAME_1, certContent, PASSWORD, CertContentType.PEM, new CertificatePolicyModel());
 
         //then
@@ -94,17 +94,17 @@ class CertificateImportInputTest {
     @Test
     void testConstructorShouldUseValuesFromParsedCertOnlyWhenCalledWithMixedEcDataUsingPem() {
         //given
-        final String certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsString("/cert/ec.pem"));
+        final var certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsString("/cert/ec.pem"));
 
-        final CertificatePolicyModel policyModel = new CertificatePolicyModel();
-        final CertificateKeyModel keyProperties = new CertificateKeyModel();
+        final var policyModel = new CertificatePolicyModel();
+        final var keyProperties = new CertificateKeyModel();
         keyProperties.setExportable(true);
         keyProperties.setReuseKey(true);
         keyProperties.setKeyType(KeyType.EC_HSM);
         keyProperties.setKeyCurveName(KeyCurveName.P_256K);
         policyModel.setKeyProperties(keyProperties);
 
-        final X509CertificateModel x509Properties = new X509CertificateModel();
+        final var x509Properties = new X509CertificateModel();
         x509Properties.setSubject(CN_ALT_EC_LOCALHOST);
         x509Properties.setKeyUsage(Set.of(KeyUsageEnum.ENCIPHER_ONLY));
         x509Properties.setExtendedKeyUsage(Set.of(EKU_1));
@@ -113,16 +113,16 @@ class CertificateImportInputTest {
                 new SubjectAlternativeNames(Set.of(DNS_WILDCARD_LOCALHOST), Set.of(EMAIL_JOHN_DOE), Set.of(IP_LOCALHOST)));
         policyModel.setX509Properties(x509Properties);
 
-        final CertificateSecretModel secretProperties = new CertificateSecretModel();
+        final var secretProperties = new CertificateSecretModel();
         secretProperties.setContentType(CertContentType.PEM.getMimeType());
         policyModel.setSecretProperties(secretProperties);
 
-        final IssuerParameterModel issuer = new IssuerParameterModel();
+        final var issuer = new IssuerParameterModel();
         issuer.setCertTransparency(true);
         policyModel.setIssuer(issuer);
 
         //when
-        final CertificateImportInput actual = new CertificateImportInput(
+        final var actual = new CertificateImportInput(
                 CERT_NAME_1, certContent, PASSWORD, CertContentType.PEM, policyModel);
 
         //then
@@ -146,10 +146,10 @@ class CertificateImportInputTest {
     @Test
     void testConstructorShouldUseValuesFromKeyWhenCalledWithMinimalEcDataUsingPkcs12() {
         //given
-        final String certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsBase64String("/cert/ec.p12"));
+        final var certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsBase64String("/cert/ec.p12"));
 
         //when
-        final CertificateImportInput actual = new CertificateImportInput(
+        final var actual = new CertificateImportInput(
                 CERT_NAME_1, certContent, PASSWORD, CertContentType.PKCS12, new CertificatePolicyModel());
 
         //then
@@ -164,10 +164,10 @@ class CertificateImportInputTest {
     @Test
     void testConstructorShouldUseValuesFromKeyWhenCalledWithMinimalRsaDataUsingPkcs12() {
         //given
-        final String certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsBase64String("/cert/rsa.p12"));
+        final var certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsBase64String("/cert/rsa.p12"));
 
         //when
-        final CertificateImportInput actual = new CertificateImportInput(
+        final var actual = new CertificateImportInput(
                 CERT_NAME_1, certContent, EMPTY_PASSWORD, CertContentType.PKCS12, new CertificatePolicyModel());
 
         //then
@@ -187,10 +187,10 @@ class CertificateImportInputTest {
     @Test
     void testConstructorShouldUseValuesFromKeyWhenCalledWithMinimalRsaDataUsingPem() {
         //given
-        final String certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsString("/cert/rsa.pem"));
+        final var certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsString("/cert/rsa.pem"));
 
         //when
-        final CertificateImportInput actual = new CertificateImportInput(
+        final var actual = new CertificateImportInput(
                 CERT_NAME_1, certContent, EMPTY_PASSWORD, CertContentType.PEM, new CertificatePolicyModel());
 
         //then

@@ -11,7 +11,7 @@ public class RsaPrivateKeyToJsonWebKeyImportRequestConverter implements Converte
 
     @Override
     public JsonWebKeyImportRequest convert(final @NonNull RSAPrivateCrtKey source) {
-        final JsonWebKeyImportRequest importRequest = new JsonWebKeyImportRequest();
+        final var importRequest = new JsonWebKeyImportRequest();
         importRequest.setKeyType(KeyType.RSA);
         importRequest.setN(source.getModulus().toByteArray());
         importRequest.setE(source.getPublicExponent().toByteArray());

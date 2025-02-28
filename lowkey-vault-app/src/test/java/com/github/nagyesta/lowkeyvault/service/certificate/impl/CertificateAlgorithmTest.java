@@ -46,8 +46,8 @@ class CertificateAlgorithmTest {
         //given
 
         //when
-        final CertificateAlgorithm actualInstance = CertificateAlgorithm.forKeyType(keyType);
-        final String actualAlgorithm = actualInstance.getAlgorithm();
+        final var actualInstance = CertificateAlgorithm.forKeyType(keyType);
+        final var actualAlgorithm = actualInstance.getAlgorithm();
 
         //then
         Assertions.assertEquals(expectedInstance, actualInstance);

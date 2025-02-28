@@ -17,11 +17,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.net.URI;
 import java.util.stream.Stream;
@@ -48,8 +46,8 @@ class KeyPolicyControllerTest {
     private AutoCloseable openMocks;
 
     public static Stream<Arguments> nullProvider() {
-        final VaultService service = mock(VaultService.class);
-        final KeyConverterRegistry registry = mock(KeyConverterRegistry.class);
+        final var service = mock(VaultService.class);
+        final var registry = mock(KeyConverterRegistry.class);
         return Stream.<Arguments>builder()
                 .add(Arguments.of(service, null))
                 .add(Arguments.of(null, registry))
@@ -89,21 +87,21 @@ class KeyPolicyControllerTest {
     @Test
     void testGetRotationPolicyShouldReturnTheRotationPolicyWhenItIsAlreadySet() {
         //given
-        final KeyEntityId entityId = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1);
-        final KeyRotationPolicy rotationPolicy = mock(KeyRotationPolicy.class);
-        final KeyRotationPolicyModel model = mock(KeyRotationPolicyModel.class);
+        final var entityId = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1);
+        final var rotationPolicy = mock(KeyRotationPolicy.class);
+        final var model = mock(KeyRotationPolicyModel.class);
         when(keyVaultFake.rotationPolicy(eq(entityId)))
                 .thenReturn(rotationPolicy);
         when(keyRotationPolicyToV73ModelConverter.convert(same(rotationPolicy), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(model);
 
         //when
-        final ResponseEntity<KeyRotationPolicyModel> actual = underTest.getRotationPolicy(KEY_NAME_1, HTTPS_LOCALHOST_8443);
+        final var actual = underTest.getRotationPolicy(KEY_NAME_1, HTTPS_LOCALHOST_8443);
 
         //then
         Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
         Assertions.assertSame(model, actual.getBody());
-        final InOrder inOrder = inOrder(keyVaultFake, keyRotationPolicyToV73ModelConverter);
+        final var inOrder = inOrder(keyVaultFake, keyRotationPolicyToV73ModelConverter);
         inOrder.verify(keyVaultFake).rotationPolicy(eq(entityId));
         inOrder.verify(keyRotationPolicyToV73ModelConverter).convert(same(rotationPolicy), eq(HTTPS_LOCALHOST_8443));
     }
@@ -111,10 +109,10 @@ class KeyPolicyControllerTest {
     @Test
     void testUpdateRotationPolicyShouldReturnTheRotationPolicyWhenItIsAlreadySet() {
         //given
-        final KeyEntityId entityId = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1);
-        final KeyRotationPolicy rotationPolicy = mock(KeyRotationPolicy.class);
-        final KeyRotationPolicyModel input = mock(KeyRotationPolicyModel.class);
-        final KeyRotationPolicyModel output = mock(KeyRotationPolicyModel.class);
+        final var entityId = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1);
+        final var rotationPolicy = mock(KeyRotationPolicy.class);
+        final var input = mock(KeyRotationPolicyModel.class);
+        final var output = mock(KeyRotationPolicyModel.class);
         when(keyVaultFake.rotationPolicy(eq(entityId)))
                 .thenReturn(rotationPolicy);
         when(rotationV73ModelToEntityConverter.convert(same(input)))
@@ -123,12 +121,12 @@ class KeyPolicyControllerTest {
                 .thenReturn(output);
 
         //when
-        final ResponseEntity<KeyRotationPolicyModel> actual = underTest.updateRotationPolicy(KEY_NAME_1, HTTPS_LOCALHOST_8443, input);
+        final var actual = underTest.updateRotationPolicy(KEY_NAME_1, HTTPS_LOCALHOST_8443, input);
 
         //then
         Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
         Assertions.assertSame(output, actual.getBody());
-        final InOrder inOrder = inOrder(keyVaultFake, rotationV73ModelToEntityConverter, keyRotationPolicyToV73ModelConverter);
+        final var inOrder = inOrder(keyVaultFake, rotationV73ModelToEntityConverter, keyRotationPolicyToV73ModelConverter);
         inOrder.verify(rotationV73ModelToEntityConverter).convert(same(input));
         inOrder.verify(keyVaultFake).setRotationPolicy(same(rotationPolicy));
         inOrder.verify(keyVaultFake).rotationPolicy(eq(entityId));

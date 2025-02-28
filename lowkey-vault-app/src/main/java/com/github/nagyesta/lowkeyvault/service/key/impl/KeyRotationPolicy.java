@@ -3,7 +3,6 @@ package com.github.nagyesta.lowkeyvault.service.key.impl;
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.constants.LifetimeActionType;
 import com.github.nagyesta.lowkeyvault.service.common.impl.BaseLifetimePolicy;
 import com.github.nagyesta.lowkeyvault.service.key.LifetimeAction;
-import com.github.nagyesta.lowkeyvault.service.key.LifetimeActionTrigger;
 import com.github.nagyesta.lowkeyvault.service.key.RotationPolicy;
 import com.github.nagyesta.lowkeyvault.service.key.constants.LifetimeActionTriggerType;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
@@ -40,8 +39,8 @@ public class KeyRotationPolicy extends BaseLifetimePolicy<KeyEntityId> implement
     @Override
     public List<OffsetDateTime> missedRotations(@NonNull final OffsetDateTime keyCreation) {
         Assert.isTrue(isAutoRotate(), "Cannot have missed rotations without a \"rotate\" lifetime action.");
-        final LifetimeActionTrigger trigger = lifetimeActions.get(LifetimeActionType.ROTATE).trigger();
-        final OffsetDateTime startPoint = findTriggerTimeOffset(keyCreation, s -> trigger.rotateAfterDays(expiryTime));
+        final var trigger = lifetimeActions.get(LifetimeActionType.ROTATE).trigger();
+        final var startPoint = findTriggerTimeOffset(keyCreation, s -> trigger.rotateAfterDays(expiryTime));
         return collectMissedTriggerDays(s -> trigger.rotateAfterDays(expiryTime), startPoint);
     }
 
@@ -53,8 +52,8 @@ public class KeyRotationPolicy extends BaseLifetimePolicy<KeyEntityId> implement
     @Override
     public void validate(final OffsetDateTime latestKeyVersionExpiry) {
         lifetimeActions.values().forEach(action -> {
-            final Period triggerPeriod = action.trigger().timePeriod();
-            final LifetimeActionTriggerType triggerType = action.trigger().triggerType();
+            final var triggerPeriod = action.trigger().timePeriod();
+            final var triggerType = action.trigger().triggerType();
             triggerType.validate(latestKeyVersionExpiry, expiryTime, triggerPeriod);
             Assert.isTrue(action.actionType() != LifetimeActionType.NOTIFY
                             || triggerType == LifetimeActionTriggerType.TIME_BEFORE_EXPIRY,

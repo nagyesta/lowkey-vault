@@ -9,7 +9,6 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.BackupListContainer;
 import com.github.nagyesta.lowkeyvault.service.EntityId;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultEntity;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultFake;
-import com.github.nagyesta.lowkeyvault.service.common.ReadOnlyVersionedEntityMultiMap;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import org.springframework.lang.NonNull;
@@ -57,26 +56,26 @@ public abstract class BaseBackupRestoreController<K extends EntityId, V extends 
     }
 
     protected M restoreEntity(final B backupModel) {
-        final URI baseUri = getSingleBaseUri(backupModel);
-        final S vault = getVaultByUri(baseUri);
-        final String id = getSingleEntityName(backupModel);
-        final K entityId = entityId(baseUri, id);
+        final var baseUri = getSingleBaseUri(backupModel);
+        final var vault = getVaultByUri(baseUri);
+        final var id = getSingleEntityName(backupModel);
+        final var entityId = entityId(baseUri, id);
         assertNameDoesNotExistYet(vault, entityId);
         backupModel.getValue().getVersions().forEach(entityVersion -> {
-            final V versionedEntityId = versionedEntityId(baseUri, id, entityVersion.getVersion());
+            final var versionedEntityId = versionedEntityId(baseUri, id, entityVersion.getVersion());
             restoreVersion(vault, versionedEntityId, entityVersion);
         });
-        final V latestVersionOfEntity = vault.getEntities().getLatestVersionOfEntity(entityId);
-        final E readOnlyEntity = vault.getEntities().getReadOnlyEntity(latestVersionOfEntity);
+        final var latestVersionOfEntity = vault.getEntities().getLatestVersionOfEntity(entityId);
+        final var readOnlyEntity = vault.getEntities().getReadOnlyEntity(latestVersionOfEntity);
         return registry().modelConverter(apiVersion()).convert(readOnlyEntity, baseUri);
     }
 
     protected abstract void restoreVersion(S vault, V versionedEntityId, BLI entityVersion);
 
     protected B backupEntity(final K entityId) {
-        final ReadOnlyVersionedEntityMultiMap<K, V, E> entities = getVaultByUri(entityId.vault())
+        final var entities = getVaultByUri(entityId.vault())
                 .getEntities();
-        final List<BLI> list = entities.getVersions(entityId).stream()
+        final var list = entities.getVersions(entityId).stream()
                 .map(version -> getEntityByNameAndVersion(entityId.vault(), entityId.id(), version))
                 .map(registry().backupConverter(apiVersion())::convert)
                 .toList();
@@ -88,7 +87,7 @@ public abstract class BaseBackupRestoreController<K extends EntityId, V extends 
     protected abstract BL getBackupList();
 
     protected String getSingleEntityName(final B backupModel) {
-        final List<String> entityNames = backupModel.getValue().getVersions().stream()
+        final var entityNames = backupModel.getValue().getVersions().stream()
                 .map(BLI::getId)
                 .distinct()
                 .toList();
@@ -97,7 +96,7 @@ public abstract class BaseBackupRestoreController<K extends EntityId, V extends 
     }
 
     protected URI getSingleBaseUri(final B backupModel) {
-        final List<URI> uris = backupModel.getValue().getVersions().stream()
+        final var uris = backupModel.getValue().getVersions().stream()
                 .map(BLI::getVaultBaseUri)
                 .distinct()
                 .toList();
@@ -106,14 +105,14 @@ public abstract class BaseBackupRestoreController<K extends EntityId, V extends 
     }
 
     private B wrapBackup(final List<BLI> list) {
-        final BL listModel = Optional.ofNullable(list)
+        final var listModel = Optional.ofNullable(list)
                 .map(l -> {
-                    final BL backupList = getBackupList();
+                    final var backupList = getBackupList();
                     backupList.setVersions(l);
                     return backupList;
                 })
                 .orElse(null);
-        final B backupModel = getBackupModel();
+        final var backupModel = getBackupModel();
         backupModel.setValue(listModel);
         return backupModel;
     }

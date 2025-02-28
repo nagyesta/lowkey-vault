@@ -1,9 +1,6 @@
 package com.github.nagyesta.lowkeyvault.service.vault.impl;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
-import com.github.nagyesta.lowkeyvault.service.certificate.CertificateVaultFake;
-import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
-import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultFake;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -75,13 +72,13 @@ class VaultFakeImplTest {
     @MethodSource("uriPairProvider")
     void testMatchesShouldUseFullMatchWhenCalled(final URI self, final URI input, final Function<URI, URI> uriMapper) {
         //given
-        final VaultFakeImpl underTest = new VaultFakeImpl(self);
+        final var underTest = new VaultFakeImpl(self);
 
         //when
-        final boolean actual = underTest.matches(input, uriMapper);
+        final var actual = underTest.matches(input, uriMapper);
 
         //then
-        final boolean expected = uriMapper.apply(self).equals(uriMapper.apply(input));
+        final var expected = uriMapper.apply(self).equals(uriMapper.apply(input));
         Assertions.assertEquals(expected, actual, "URI was expected to match: " + self);
     }
 
@@ -89,14 +86,14 @@ class VaultFakeImplTest {
     @MethodSource("uriPairProvider")
     void testMatchesShouldUseFullMatchWithAnyOfTheAliasesWhenCalled(final URI self, final URI input, final Function<URI, URI> uriMapper) {
         //given
-        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_AZURE_CLOUD);
+        final var underTest = new VaultFakeImpl(HTTPS_AZURE_CLOUD);
         underTest.setAliases(Set.of(self, HTTPS_DEFAULT_LOWKEY_VAULT));
 
         //when
-        final boolean actual = underTest.matches(input, uriMapper);
+        final var actual = underTest.matches(input, uriMapper);
 
         //then
-        final boolean expected = uriMapper.apply(self).equals(uriMapper.apply(input));
+        final var expected = uriMapper.apply(self).equals(uriMapper.apply(input));
         Assertions.assertEquals(expected, actual, "URI was expected to match alias: " + self);
     }
 
@@ -104,7 +101,7 @@ class VaultFakeImplTest {
     @Test
     void testMatchesShouldThrowExceptionWhenCalledWithNullUri() {
         //given
-        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
+        final var underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.matches(null, Function.identity()));
@@ -116,7 +113,7 @@ class VaultFakeImplTest {
     @Test
     void testMatchesShouldThrowExceptionWhenCalledWithNullMapper() {
         //given
-        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
+        final var underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.matches(HTTPS_LOCALHOST, null));
@@ -128,7 +125,7 @@ class VaultFakeImplTest {
     @Test
     void testSetAliasesShouldThrowExceptionWhenCalledWithNull() {
         //given
-        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
+        final var underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setAliases(null));
@@ -140,10 +137,10 @@ class VaultFakeImplTest {
     @MethodSource("uriProvider")
     void testBaseUriShouldReturnUriPassedToConstructorWhenCalled(final URI self) {
         //given
-        final VaultFakeImpl underTest = new VaultFakeImpl(self);
+        final var underTest = new VaultFakeImpl(self);
 
         //when
-        final URI actual = underTest.baseUri();
+        final var actual = underTest.baseUri();
 
         //then
         Assertions.assertEquals(self, actual);
@@ -153,13 +150,13 @@ class VaultFakeImplTest {
     @MethodSource("uriProvider")
     void testAliasesShouldReturnNewSetOfUrisPassedToSetAliasesWhenCalled(final URI self) {
         //given
-        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_DEFAULT_LOWKEY_VAULT);
+        final var underTest = new VaultFakeImpl(HTTPS_DEFAULT_LOWKEY_VAULT);
         final Set<URI> expected = new TreeSet<>();
         expected.add(self);
         underTest.setAliases(expected);
 
         //when
-        final Set<URI> actual = underTest.aliases();
+        final var actual = underTest.aliases();
 
         //then
         Assertions.assertIterableEquals(expected, actual);
@@ -170,8 +167,8 @@ class VaultFakeImplTest {
     @MethodSource("uriProvider")
     void testSetAliasesShouldThrowExceptionWhenBaseUriIsInTheAliasSet(final URI self) {
         //given
-        final VaultFakeImpl underTest = new VaultFakeImpl(self);
-        final Set<URI> expected = Set.of(self);
+        final var underTest = new VaultFakeImpl(self);
+        final var expected = Set.of(self);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setAliases(expected));
@@ -182,10 +179,10 @@ class VaultFakeImplTest {
     @Test
     void testKeyVaultFakeShouldNeverBeNullWhenCalled() {
         //given
-        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
+        final var underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
 
         //when
-        final KeyVaultFake actual = underTest.keyVaultFake();
+        final var actual = underTest.keyVaultFake();
 
         //then
         Assertions.assertNotNull(actual);
@@ -194,10 +191,10 @@ class VaultFakeImplTest {
     @Test
     void testSecretVaultFakeShouldNeverBeNullWhenCalled() {
         //given
-        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
+        final var underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
 
         //when
-        final SecretVaultFake actual = underTest.secretVaultFake();
+        final var actual = underTest.secretVaultFake();
 
         //then
         Assertions.assertNotNull(actual);
@@ -206,10 +203,10 @@ class VaultFakeImplTest {
     @Test
     void testCertificateVaultFakeShouldNeverBeNullWhenCalled() {
         //given
-        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
+        final var underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
 
         //when
-        final CertificateVaultFake actual = underTest.certificateVaultFake();
+        final var actual = underTest.certificateVaultFake();
 
         //then
         Assertions.assertNotNull(actual);
@@ -218,10 +215,10 @@ class VaultFakeImplTest {
     @Test
     void testGetRecoveryLevelShouldReturnRecoverableWhenCalledByDefault() {
         //given
-        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
+        final var underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
 
         //when
-        final RecoveryLevel actual = underTest.getRecoveryLevel();
+        final var actual = underTest.getRecoveryLevel();
 
         //then
         Assertions.assertEquals(RecoveryLevel.RECOVERABLE, actual);
@@ -230,10 +227,10 @@ class VaultFakeImplTest {
     @Test
     void testGetRecoverableDaysShouldReturn90WhenCalledByDefault() {
         //given
-        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
+        final var underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
 
         //when
-        final Integer actual = underTest.getRecoverableDays();
+        final var actual = underTest.getRecoverableDays();
 
         //then
         Assertions.assertEquals(RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE, actual);
@@ -254,7 +251,7 @@ class VaultFakeImplTest {
     @Test
     void testDeleteShouldThrowExceptionWhenVaultIsSubscriptionProtected() {
         //given
-        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST,
+        final var underTest = new VaultFakeImpl(HTTPS_LOCALHOST,
                 RecoveryLevel.RECOVERABLE_AND_PROTECTED_SUBSCRIPTION, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
 
         //when
@@ -266,15 +263,15 @@ class VaultFakeImplTest {
     @Test
     void testGetDeletedOnShouldBeNullWhenNotDeleted() {
         //given
-        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST,
+        final var underTest = new VaultFakeImpl(HTTPS_LOCALHOST,
                 RecoveryLevel.RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
 
         //when
-        final OffsetDateTime deletedOnBeforeDeletion = underTest.getDeletedOn();
+        final var deletedOnBeforeDeletion = underTest.getDeletedOn();
         underTest.delete();
-        final OffsetDateTime deletedOnWhileDeleted = underTest.getDeletedOn();
+        final var deletedOnWhileDeleted = underTest.getDeletedOn();
         underTest.recover();
-        final OffsetDateTime deletedOnAfterRecovery = underTest.getDeletedOn();
+        final var deletedOnAfterRecovery = underTest.getDeletedOn();
 
         //then
         Assertions.assertNull(deletedOnBeforeDeletion);
@@ -285,11 +282,11 @@ class VaultFakeImplTest {
     @Test
     void testGetCreatedOnShouldBeInThePastWhenCalled() {
         //given
-        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST,
+        final var underTest = new VaultFakeImpl(HTTPS_LOCALHOST,
                 RecoveryLevel.RECOVERABLE_AND_PROTECTED_SUBSCRIPTION, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
         Assertions.assertDoesNotThrow(() -> Thread.sleep(WAIT_MILLIS));
         //when
-        final OffsetDateTime actual = underTest.getCreatedOn();
+        final var actual = underTest.getCreatedOn();
 
         //then
         Assertions.assertTrue(actual.isBefore(OffsetDateTime.now()));
@@ -299,7 +296,7 @@ class VaultFakeImplTest {
     @ValueSource(ints = {-42, -10, -5, -3, -2, -1, 0})
     void testTimeShiftShouldThrowExceptionWhenCalledWithNegativeOrZero(final int value) {
         //given
-        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST,
+        final var underTest = new VaultFakeImpl(HTTPS_LOCALHOST,
                 RecoveryLevel.RECOVERABLE_AND_PROTECTED_SUBSCRIPTION, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
 
         //when
@@ -312,11 +309,11 @@ class VaultFakeImplTest {
     @Test
     void testTimeShiftShouldReduceTimeStampsWhenCalledWithPositive() {
         //given
-        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST,
+        final var underTest = new VaultFakeImpl(HTTPS_LOCALHOST,
                 RecoveryLevel.RECOVERABLE_AND_PURGEABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
         underTest.delete();
-        final OffsetDateTime createdOriginal = underTest.getCreatedOn();
-        final OffsetDateTime deletedOriginal = underTest.getDeletedOn();
+        final var createdOriginal = underTest.getCreatedOn();
+        final var deletedOriginal = underTest.getDeletedOn();
 
         //when
         underTest.timeShift(NUMBER_OF_SECONDS_IN_10_MINUTES, false);

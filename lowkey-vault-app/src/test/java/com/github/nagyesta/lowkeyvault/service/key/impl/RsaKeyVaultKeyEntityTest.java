@@ -64,10 +64,10 @@ class RsaKeyVaultKeyEntityTest {
 
     @SuppressWarnings("checkstyle:MagicNumber")
     public static Stream<Arguments> signDigestSource() {
-        final byte[] bytes = DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8);
-        final byte[] sha256Digest = HashUtil.hash(bytes, HashAlgorithm.SHA256);
-        final byte[] sha384Digest = HashUtil.hash(bytes, HashAlgorithm.SHA384);
-        final byte[] sha512Digest = HashUtil.hash(bytes, HashAlgorithm.SHA512);
+        final var bytes = DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8);
+        final var sha256Digest = HashUtil.hash(bytes, HashAlgorithm.SHA256);
+        final var sha384Digest = HashUtil.hash(bytes, HashAlgorithm.SHA384);
+        final var sha512Digest = HashUtil.hash(bytes, HashAlgorithm.SHA512);
         return Stream.<Arguments>builder()
                 .add(Arguments.of(bytes, sha256Digest, 2048, SignatureAlgorithm.RS256, "SHA256withRSA"))
                 .add(Arguments.of(bytes, sha384Digest, 3072, SignatureAlgorithm.RS384, "SHA384withRSA"))
@@ -95,15 +95,15 @@ class RsaKeyVaultKeyEntityTest {
     void testEncryptThenDecryptShouldReturnOriginalTextWhenCalled(final String clear, final EncryptionAlgorithm algorithm) {
         //given
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
-        final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(
+        final var underTest = new RsaKeyVaultKeyEntity(
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, algorithm.getMinKeySize(), null, false);
         underTest.setOperations(List.of(KeyOperation.ENCRYPT, KeyOperation.WRAP_KEY, KeyOperation.DECRYPT, KeyOperation.UNWRAP_KEY));
         underTest.setEnabled(true);
         Assertions.assertEquals(algorithm.getMinKeySize(), underTest.getKeySize());
 
         //when
-        final byte[] encrypted = underTest.encrypt(clear, algorithm, null);
-        final String actual = underTest.decrypt(encrypted, algorithm, null);
+        final var encrypted = underTest.encrypt(clear, algorithm, null);
+        final var actual = underTest.decrypt(encrypted, algorithm, null);
 
         //then
         Assertions.assertEquals(clear, actual);
@@ -113,7 +113,7 @@ class RsaKeyVaultKeyEntityTest {
     void testEncryptShouldThrowExceptionWhenOperationIsNotAllowed() {
         //given
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
-        final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(
+        final var underTest = new RsaKeyVaultKeyEntity(
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, EncryptionAlgorithm.RSA_OAEP_256.getMinKeySize(), null, false);
         underTest.setOperations(List.of(KeyOperation.DECRYPT));
         underTest.setEnabled(true);
@@ -129,13 +129,13 @@ class RsaKeyVaultKeyEntityTest {
     void testDecryptShouldThrowExceptionWhenOperationIsNotAllowed() {
         //given
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
-        final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(
+        final var underTest = new RsaKeyVaultKeyEntity(
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, EncryptionAlgorithm.RSA_OAEP_256.getMinKeySize(), null, false);
         underTest.setOperations(List.of(KeyOperation.ENCRYPT, KeyOperation.WRAP_KEY));
         underTest.setEnabled(true);
 
         //when
-        final byte[] encrypted = underTest.encrypt(DEFAULT_VAULT, EncryptionAlgorithm.RSA_OAEP_256, null);
+        final var encrypted = underTest.encrypt(DEFAULT_VAULT, EncryptionAlgorithm.RSA_OAEP_256, null);
         Assertions.assertThrows(IllegalStateException.class,
                 () -> underTest.decrypt(encrypted, EncryptionAlgorithm.RSA_OAEP_256, null));
 
@@ -146,7 +146,7 @@ class RsaKeyVaultKeyEntityTest {
     void testEncryptShouldThrowExceptionWhenOperationIsNotEnabled() {
         //given
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
-        final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(
+        final var underTest = new RsaKeyVaultKeyEntity(
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, EncryptionAlgorithm.RSA_OAEP_256.getMinKeySize(), null, false);
         underTest.setOperations(List.of(KeyOperation.ENCRYPT, KeyOperation.WRAP_KEY));
         underTest.setEnabled(false);
@@ -162,13 +162,13 @@ class RsaKeyVaultKeyEntityTest {
     void testDecryptShouldThrowExceptionWhenKeyIsNotEnabled() {
         //given
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
-        final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(
+        final var underTest = new RsaKeyVaultKeyEntity(
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, EncryptionAlgorithm.RSA_OAEP_256.getMinKeySize(), null, false);
         underTest.setOperations(List.of(KeyOperation.ENCRYPT, KeyOperation.WRAP_KEY, KeyOperation.DECRYPT, KeyOperation.UNWRAP_KEY));
         underTest.setEnabled(true);
 
         //when
-        final byte[] encrypted = underTest.encrypt(DEFAULT_VAULT, EncryptionAlgorithm.RSA_OAEP_256, null);
+        final var encrypted = underTest.encrypt(DEFAULT_VAULT, EncryptionAlgorithm.RSA_OAEP_256, null);
         underTest.setEnabled(false);
         Assertions.assertThrows(IllegalStateException.class,
                 () -> underTest.decrypt(encrypted, EncryptionAlgorithm.RSA_OAEP_256, null));
@@ -182,16 +182,16 @@ class RsaKeyVaultKeyEntityTest {
             final String clearSign, final String clearVerify, final SignatureAlgorithm algorithm, final int keySize) {
         //given
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
-        final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(
+        final var underTest = new RsaKeyVaultKeyEntity(
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, keySize, null, false);
         underTest.setOperations(List.of(KeyOperation.SIGN, KeyOperation.VERIFY));
         underTest.setEnabled(true);
 
         //when
-        final byte[] signHash = HashUtil.hash(clearSign.getBytes(StandardCharsets.UTF_8), algorithm.getHashAlgorithm());
-        final byte[] verifyHash = HashUtil.hash(clearVerify.getBytes(StandardCharsets.UTF_8), algorithm.getHashAlgorithm());
-        final byte[] signature = underTest.signBytes(signHash, algorithm);
-        final boolean actual = underTest.verifySignedBytes(verifyHash, algorithm, signature);
+        final var signHash = HashUtil.hash(clearSign.getBytes(StandardCharsets.UTF_8), algorithm.getHashAlgorithm());
+        final var verifyHash = HashUtil.hash(clearVerify.getBytes(StandardCharsets.UTF_8), algorithm.getHashAlgorithm());
+        final var signature = underTest.signBytes(signHash, algorithm);
+        final var actual = underTest.verifySignedBytes(verifyHash, algorithm, signature);
 
         //then
         Assertions.assertEquals(clearSign.equals(clearVerify), actual);
@@ -204,16 +204,16 @@ class RsaKeyVaultKeyEntityTest {
             final SignatureAlgorithm algorithm, final String verifyAlgorithm) throws Exception {
         //given
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
-        final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(
+        final var underTest = new RsaKeyVaultKeyEntity(
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, keySize, null, false);
         underTest.setOperations(List.of(KeyOperation.SIGN, KeyOperation.VERIFY));
         underTest.setEnabled(true);
 
         //when
-        final byte[] signature = underTest.signBytes(digest, algorithm);
+        final var signature = underTest.signBytes(digest, algorithm);
 
         //then
-        final boolean actual = checkSignature(underTest.getKey().getPublic(), signature, original, verifyAlgorithm);
+        final var actual = checkSignature(underTest.getKey().getPublic(), signature, original, verifyAlgorithm);
         Assertions.assertTrue(actual);
     }
 
@@ -221,7 +221,7 @@ class RsaKeyVaultKeyEntityTest {
     void testSignShouldThrowExceptionWhenOperationIsNotAllowed() {
         //given
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
-        final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(
+        final var underTest = new RsaKeyVaultKeyEntity(
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, EncryptionAlgorithm.RSA_OAEP_256.getMinKeySize(), null, false);
         underTest.setOperations(List.of(KeyOperation.VERIFY));
         underTest.setEnabled(true);
@@ -237,13 +237,13 @@ class RsaKeyVaultKeyEntityTest {
     void testVerifyShouldThrowExceptionWhenOperationIsNotAllowed() {
         //given
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
-        final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(
+        final var underTest = new RsaKeyVaultKeyEntity(
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, EncryptionAlgorithm.RSA_OAEP_256.getMinKeySize(), null, false);
         underTest.setOperations(List.of(KeyOperation.SIGN));
         underTest.setEnabled(true);
 
         //when
-        final byte[] signature = underTest.signBytes(
+        final var signature = underTest.signBytes(
                 HashUtil.hash(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), HashAlgorithm.SHA256),
                 SignatureAlgorithm.PS256);
         Assertions.assertThrows(IllegalStateException.class,
@@ -256,7 +256,7 @@ class RsaKeyVaultKeyEntityTest {
     void testSignShouldThrowExceptionWhenOperationIsNotEnabled() {
         //given
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
-        final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(
+        final var underTest = new RsaKeyVaultKeyEntity(
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, EncryptionAlgorithm.RSA_OAEP_256.getMinKeySize(), null, false);
         underTest.setOperations(List.of(KeyOperation.SIGN, KeyOperation.VERIFY));
         underTest.setEnabled(false);
@@ -272,13 +272,13 @@ class RsaKeyVaultKeyEntityTest {
     void testVerifyShouldThrowExceptionWhenKeyIsNotEnabled() {
         //given
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
-        final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(
+        final var underTest = new RsaKeyVaultKeyEntity(
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, EncryptionAlgorithm.RSA_OAEP_256.getMinKeySize(), null, false);
         underTest.setOperations(List.of(KeyOperation.SIGN, KeyOperation.VERIFY));
         underTest.setEnabled(true);
 
         //when
-        final byte[] signature = underTest.signBytes(
+        final var signature = underTest.signBytes(
                 HashUtil.hash(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), HashAlgorithm.SHA256),
                 SignatureAlgorithm.PS256);
         underTest.setEnabled(false);
@@ -292,17 +292,17 @@ class RsaKeyVaultKeyEntityTest {
     void testKeyCreationInputShouldReturnOriginalParameters() {
         //given
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
-        final int keySize = EncryptionAlgorithm.RSA_OAEP_256.getMinKeySize();
-        final BigInteger publicExponent = new BigInteger("3");
-        final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(
+        final var keySize = EncryptionAlgorithm.RSA_OAEP_256.getMinKeySize();
+        final var publicExponent = new BigInteger("3");
+        final var underTest = new RsaKeyVaultKeyEntity(
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, keySize, publicExponent, false);
 
         //when
-        final KeyCreationInput<?> actual = underTest.keyCreationInput();
+        final var actual = underTest.keyCreationInput();
 
         //then
         Assertions.assertInstanceOf(RsaKeyCreationInput.class, actual);
-        final RsaKeyCreationInput value = (RsaKeyCreationInput) actual;
+        final var value = (RsaKeyCreationInput) actual;
         Assertions.assertEquals(keySize, value.getKeyParameter());
         Assertions.assertEquals(publicExponent, value.getPublicExponent());
     }
@@ -310,7 +310,7 @@ class RsaKeyVaultKeyEntityTest {
     private boolean checkSignature(
             final PublicKey publicKey, final byte[] signatureToCheck,
             final byte[] originalDigest, final String algName) throws Exception {
-        final Signature sig = Signature.getInstance(algName, new BouncyCastleProvider());
+        final var sig = Signature.getInstance(algName, new BouncyCastleProvider());
         sig.initVerify(publicKey);
         sig.update(originalDigest);
         return sig.verify(signatureToCheck);

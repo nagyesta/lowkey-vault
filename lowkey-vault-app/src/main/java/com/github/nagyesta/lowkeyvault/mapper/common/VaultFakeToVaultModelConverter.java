@@ -21,7 +21,7 @@ public class VaultFakeToVaultModelConverter implements Converter<VaultFake, Vaul
 
     @NonNull
     public VaultModel convertNonNull(@NonNull final VaultFake fake) {
-        final VaultModel model = new VaultModel();
+        final var model = new VaultModel();
         model.setBaseUri(fake.baseUri());
         model.setAliases(fake.aliases());
         model.setRecoveryLevel(fake.getRecoveryLevel());

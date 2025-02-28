@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -69,7 +68,7 @@ class EpochSecondsSerializerTest {
         } else {
             verify(generator).writeNumber(anyLong());
             verify(generator, never()).writeNull();
-            final List<Long> actual = output.getAllValues();
+            final var actual = output.getAllValues();
             Assertions.assertEquals(1, actual.size());
             Assertions.assertEquals(expected, actual.get(0));
         }

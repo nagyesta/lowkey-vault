@@ -132,7 +132,7 @@ class RecoveryLevelTest {
         //given
 
         //when
-        final RecoveryLevel actual = RecoveryLevel.forValue(input);
+        final var actual = RecoveryLevel.forValue(input);
 
         //then
         Assertions.assertEquals(expected, actual);
@@ -144,7 +144,7 @@ class RecoveryLevelTest {
         //given
 
         //when
-        final boolean actual = underTest.isRecoverable();
+        final var actual = underTest.isRecoverable();
 
         //then
         Assertions.assertEquals(expected, actual);
@@ -156,7 +156,7 @@ class RecoveryLevelTest {
         //given
 
         //when
-        final boolean actual = underTest.isPurgeable();
+        final var actual = underTest.isPurgeable();
 
         //then
         Assertions.assertEquals(expected, actual);
@@ -168,7 +168,7 @@ class RecoveryLevelTest {
         //given
 
         //when
-        final boolean actual = underTest.isSubscriptionProtected();
+        final var actual = underTest.isSubscriptionProtected();
 
         //then
         Assertions.assertEquals(expected, actual);
@@ -180,7 +180,7 @@ class RecoveryLevelTest {
         //given
 
         //when
-        final boolean actual = underTest.isCustomized();
+        final var actual = underTest.isCustomized();
 
         //then
         Assertions.assertEquals(expected, actual);

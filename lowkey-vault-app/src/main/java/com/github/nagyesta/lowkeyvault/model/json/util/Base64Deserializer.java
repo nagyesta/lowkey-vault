@@ -27,7 +27,7 @@ public class Base64Deserializer extends JsonDeserializer<byte[]> {
     }
 
     protected byte[] deserializeBase64(final JsonParser parser) throws IOException {
-        final Optional<String> optional = Optional.ofNullable(parser.readValueAs(String.class));
+        final var optional = Optional.ofNullable(parser.readValueAs(String.class));
         if (optional.isEmpty()) {
             return null;
         }

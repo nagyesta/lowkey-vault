@@ -7,7 +7,6 @@ import com.github.nagyesta.lowkeyvault.mapper.common.registry.CertificateConvert
 import com.github.nagyesta.lowkeyvault.model.common.backup.CertificateBackupListItem;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificateLifetimeActionModel;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificatePropertiesModel;
-import com.github.nagyesta.lowkeyvault.service.certificate.LifetimeActionPolicy;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.CertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
@@ -18,7 +17,6 @@ import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 
-import java.net.URI;
 import java.util.List;
 import java.util.SortedSet;
 
@@ -44,10 +42,10 @@ public class CertificateEntityToV73BackupConverter
 
     @Override
     protected CertificateBackupListItem convertUniqueFields(@NonNull final ReadOnlyKeyVaultCertificateEntity source) {
-        final CertificateBackupListItem listItem = new CertificateBackupListItem();
-        final URI vaultUri = source.getId().vault();
-        final VaultFake vaultFake = vaultService.findByUri(vaultUri);
-        final ReadOnlyAsymmetricKeyVaultKeyEntity key = vaultFake
+        final var listItem = new CertificateBackupListItem();
+        final var vaultUri = source.getId().vault();
+        final var vaultFake = vaultService.findByUri(vaultUri);
+        final var key = vaultFake
                 .keyVaultFake()
                 .getEntities()
                 .getEntity(source.getKid(), ReadOnlyAsymmetricKeyVaultKeyEntity.class);
@@ -56,12 +54,12 @@ public class CertificateEntityToV73BackupConverter
         listItem.setVersion(source.getId().version());
         listItem.setKeyVersion(source.getKid().version());
         listItem.setPassword(CertContentType.BACKUP_PASSWORD);
-        final byte[] certificateBytes = source.getOriginalCertificatePolicy().getContentType()
+        final var certificateBytes = source.getOriginalCertificatePolicy().getContentType()
                 .certificatePackageForBackup(source.getCertificate(), key.getKey());
         listItem.setCertificate(certificateBytes);
         listItem.setPolicy(registry.policyConverters(supportedVersions().last()).convert(source, vaultUri));
         listItem.setIssuancePolicy(registry.issuancePolicyConverters(supportedVersions().last()).convert(source, vaultUri));
-        final List<CertificateLifetimeActionModel> lifetimeActionModels = fetchLifetimeActionModels(source, vaultFake);
+        final var lifetimeActionModels = fetchLifetimeActionModels(source, vaultFake);
         listItem.getPolicy().setLifetimeActions(lifetimeActionModels);
         listItem.getIssuancePolicy().setLifetimeActions(lifetimeActionModels);
         listItem.setAttributes(registry.propertiesConverter(supportedVersions().last()).convert(source, vaultUri));
@@ -72,7 +70,7 @@ public class CertificateEntityToV73BackupConverter
 
     private List<CertificateLifetimeActionModel> fetchLifetimeActionModels(
             final ReadOnlyKeyVaultCertificateEntity source, final VaultFake vaultFake) {
-        final LifetimeActionPolicy lifetimeActionPolicy = vaultFake.certificateVaultFake().lifetimeActionPolicy(source.getId());
+        final var lifetimeActionPolicy = vaultFake.certificateVaultFake().lifetimeActionPolicy(source.getId());
         return registry.lifetimeActionConverters(supportedVersions().last()).convert(lifetimeActionPolicy);
     }
 

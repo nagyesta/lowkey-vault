@@ -30,7 +30,7 @@ class CertAuthorityTypeTest {
         //given
 
         //when
-        final String actual = underTest.getValue();
+        final var actual = underTest.getValue();
 
         //then
         Assertions.assertEquals(expected, actual);
@@ -42,7 +42,7 @@ class CertAuthorityTypeTest {
         //given
 
         //when
-        final CertAuthorityType actual = CertAuthorityType.byValue(input);
+        final var actual = CertAuthorityType.byValue(input);
 
         //then
         Assertions.assertEquals(expected, actual);

@@ -74,7 +74,7 @@ public class AesKeyVaultKeyEntity extends KeyVaultKeyEntity<SecretKey, Integer> 
                         + encryptionAlgorithm.getValue());
         Assert.isTrue(iv != null, "IV must not be null.");
         return doCrypto(() -> {
-            final Cipher cipher = Cipher.getInstance(encryptionAlgorithm.getAlg(), KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
+            final var cipher = Cipher.getInstance(encryptionAlgorithm.getAlg(), KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
             cipher.init(Cipher.ENCRYPT_MODE, this.getKey(), new IvParameterSpec(iv));
             return cipher.doFinal(clear);
         }, "Cannot encrypt message.", log);
@@ -91,7 +91,7 @@ public class AesKeyVaultKeyEntity extends KeyVaultKeyEntity<SecretKey, Integer> 
                         + encryptionAlgorithm.getValue());
         Assert.isTrue(iv != null, "IV must not be null.");
         return doCrypto(() -> {
-            final Cipher cipher = Cipher.getInstance(encryptionAlgorithm.getAlg(), KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
+            final var cipher = Cipher.getInstance(encryptionAlgorithm.getAlg(), KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
             cipher.init(Cipher.DECRYPT_MODE, this.getKey(), new IvParameterSpec(iv));
             return cipher.doFinal(encrypted);
         }, "Cannot decrypt message.", log);

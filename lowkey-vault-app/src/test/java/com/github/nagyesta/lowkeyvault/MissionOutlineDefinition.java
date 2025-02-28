@@ -2,7 +2,6 @@ package com.github.nagyesta.lowkeyvault;
 
 import com.github.nagyesta.abortmission.core.AbortMissionCommandOps;
 import com.github.nagyesta.abortmission.core.healthcheck.MissionHealthCheckEvaluator;
-import com.github.nagyesta.abortmission.core.matcher.MissionHealthCheckMatcher;
 import com.github.nagyesta.abortmission.core.outline.MissionOutline;
 
 import java.util.Arrays;
@@ -28,15 +27,15 @@ public class MissionOutlineDefinition extends MissionOutline {
     @Override
     protected Map<String, Consumer<AbortMissionCommandOps>> defineOutline() {
         return Map.of(SHARED_CONTEXT, ops -> {
-            final MissionHealthCheckMatcher integrationTestMatcher = matcher().dependencyWith("SpringBootTest")
+            final var integrationTestMatcher = matcher().dependencyWith("SpringBootTest")
                     .extractor(MissionOutlineDefinition::annotationExtractor).build();
             final MissionHealthCheckEvaluator integrationTests = percentageBasedEvaluator(integrationTestMatcher)
                     .overrideKeyword("IT")
                     .burnInTestCount(1)
                     .abortThreshold(99)
                     .build();
-            final MissionHealthCheckMatcher notIntegrationTest = matcher().not(integrationTestMatcher).build();
-            final MissionHealthCheckMatcher test = matcher().classNamePattern(".*Test").build();
+            final var notIntegrationTest = matcher().not(integrationTestMatcher).build();
+            final var test = matcher().classNamePattern(".*Test").build();
             final MissionHealthCheckEvaluator unitTests = reportOnlyEvaluator(matcher().and(notIntegrationTest).andAtLast(test).build())
                     .overrideKeyword("UT")
                     .build();

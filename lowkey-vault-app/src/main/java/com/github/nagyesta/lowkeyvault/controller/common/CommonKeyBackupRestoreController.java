@@ -58,8 +58,8 @@ public abstract class CommonKeyBackupRestoreController extends BaseBackupRestore
     protected void restoreVersion(@NonNull final KeyVaultFake vault,
                                   @NonNull final VersionedKeyEntityId versionedEntityId,
                                   @NonNull final KeyBackupListItem entityVersion) {
-        final JsonWebKeyImportRequest keyMaterial = getKeyMaterial(entityVersion);
-        final KeyPropertiesModel attributes = entityVersion.getAttributes();
+        final var keyMaterial = getKeyMaterial(entityVersion);
+        final var attributes = entityVersion.getAttributes();
         vault.importKeyVersion(versionedEntityId, KeyImportInput.builder()
                 .key(keyMaterial)
                 .hsm(null)

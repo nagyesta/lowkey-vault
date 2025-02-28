@@ -40,7 +40,7 @@ public class CertificateLifetimeActionsPolicyToV73ModelConverter
 
     private CertificateLifetimeActionModel convertLifetimeAction(
             final Map.Entry<CertificateLifetimeActionActivity, CertificateLifetimeActionTrigger> e) {
-        final CertificateLifetimeActionModel actionModel = new CertificateLifetimeActionModel();
+        final var actionModel = new CertificateLifetimeActionModel();
         actionModel.setAction(e.getKey());
         actionModel.setTrigger(new CertificateLifetimeActionTriggerModel(e.getValue()));
         return actionModel;

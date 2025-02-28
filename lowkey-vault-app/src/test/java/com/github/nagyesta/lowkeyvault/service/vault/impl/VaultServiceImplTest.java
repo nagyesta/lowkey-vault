@@ -4,7 +4,6 @@ import com.github.nagyesta.lowkeyvault.TestConstants;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.service.exception.AlreadyExistsException;
 import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
-import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -13,7 +12,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.URI;
-import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -99,7 +97,7 @@ class VaultServiceImplTest {
     @MethodSource("valueProvider")
     void testCreateShouldThrowExceptionWhenAlreadyExists(final List<URI> vaults, final URI duplicate) {
         //given
-        final VaultServiceImpl underTest = new VaultServiceImpl(Function.identity());
+        final var underTest = new VaultServiceImpl(Function.identity());
         vaults.forEach(underTest::create);
 
         //when
@@ -112,7 +110,7 @@ class VaultServiceImplTest {
     @MethodSource("aliasValueProvider")
     void testCreateShouldThrowExceptionWhenAlreadyExists(final List<URI> vaults, final URI baseUri, final Set<URI> duplicate) {
         //given
-        final VaultServiceImpl underTest = new VaultServiceImpl(Function.identity());
+        final var underTest = new VaultServiceImpl(Function.identity());
         vaults.forEach(underTest::create);
 
         //when
@@ -125,7 +123,7 @@ class VaultServiceImplTest {
     @Test
     void testCreateShouldThrowExceptionWhenBaseUriMatchesAlias() {
         //given
-        final VaultServiceImpl underTest = new VaultServiceImpl(Function.identity());
+        final var underTest = new VaultServiceImpl(Function.identity());
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
@@ -138,12 +136,12 @@ class VaultServiceImplTest {
     @MethodSource("valueProvider")
     void testDeleteShouldReturnFalseWhenAlreadyDeleted(final List<URI> vaults, final URI delete) {
         //given
-        final VaultServiceImpl underTest = new VaultServiceImpl(Function.identity());
+        final var underTest = new VaultServiceImpl(Function.identity());
         vaults.forEach(underTest::create);
 
         //when
-        final boolean actualOriginal = underTest.delete(delete);
-        final boolean actualSecondTry = underTest.delete(delete);
+        final var actualOriginal = underTest.delete(delete);
+        final var actualSecondTry = underTest.delete(delete);
 
         //then
         Assertions.assertTrue(actualOriginal);
@@ -154,7 +152,7 @@ class VaultServiceImplTest {
     @MethodSource("valueProvider")
     void testRecoverShouldThrowExceptionWhenNotDeleted(final List<URI> vaults, final URI duplicate) {
         //given
-        final VaultServiceImpl underTest = new VaultServiceImpl(Function.identity());
+        final var underTest = new VaultServiceImpl(Function.identity());
         vaults.forEach(underTest::create);
 
         //when
@@ -167,7 +165,7 @@ class VaultServiceImplTest {
     @MethodSource("valueProvider")
     void testPurgeShouldThrowExceptionWhenNotDeleted(final List<URI> vaults, final URI duplicate) {
         //given
-        final VaultServiceImpl underTest = new VaultServiceImpl(Function.identity());
+        final var underTest = new VaultServiceImpl(Function.identity());
         vaults.forEach(underTest::create);
 
         //when
@@ -180,12 +178,12 @@ class VaultServiceImplTest {
     @MethodSource("valueProvider")
     void testFindByUriIncludeDeletedShouldReturnValueWhenItMatchesFully(final List<URI> vaults, final URI lookup) {
         //given
-        final VaultServiceImpl underTest = new VaultServiceImpl(Function.identity());
+        final var underTest = new VaultServiceImpl(Function.identity());
         vaults.forEach(underTest::create);
         vaults.stream().limit(2).forEach(underTest::delete);
 
         //when
-        final VaultFake actual = underTest.findByUriIncludeDeleted(lookup);
+        final var actual = underTest.findByUriIncludeDeleted(lookup);
 
         //then
         Assertions.assertNotNull(actual);
@@ -196,7 +194,7 @@ class VaultServiceImplTest {
     @MethodSource("missingValueProvider")
     void testFindByUriIncludeDeletedShouldThrowExceptionWhenItemDoesNotMatchFully(final List<URI> vaults, final URI lookup) {
         //given
-        final VaultServiceImpl underTest = new VaultServiceImpl(Function.identity());
+        final var underTest = new VaultServiceImpl(Function.identity());
         vaults.forEach(underTest::create);
         vaults.stream().limit(2).forEach(underTest::delete);
 
@@ -210,11 +208,11 @@ class VaultServiceImplTest {
     @MethodSource("valueProvider")
     void testFindByUriShouldReturnValueWhenItMatchesFully(final List<URI> vaults, final URI lookup) {
         //given
-        final VaultServiceImpl underTest = new VaultServiceImpl(Function.identity());
+        final var underTest = new VaultServiceImpl(Function.identity());
         vaults.forEach(underTest::create);
 
         //when
-        final VaultFake actual = underTest.findByUri(lookup);
+        final var actual = underTest.findByUri(lookup);
 
         //then
         Assertions.assertNotNull(actual);
@@ -225,13 +223,13 @@ class VaultServiceImplTest {
     @MethodSource("valueProvider")
     void testFindByUriShouldReturnValueWhenItMatchesFullyAfterRecovery(final List<URI> vaults, final URI lookup) {
         //given
-        final VaultServiceImpl underTest = new VaultServiceImpl(Function.identity());
+        final var underTest = new VaultServiceImpl(Function.identity());
         vaults.forEach(uri -> underTest.create(uri, RecoveryLevel.RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE, null));
         vaults.forEach(underTest::delete);
         vaults.forEach(underTest::recover);
 
         //when
-        final VaultFake actual = underTest.findByUri(lookup);
+        final var actual = underTest.findByUri(lookup);
 
         //then
         Assertions.assertNotNull(actual);
@@ -242,7 +240,7 @@ class VaultServiceImplTest {
     @MethodSource("valueProvider")
     void testFindByUriShouldNotReturnValueWhenItWasPurged(final List<URI> vaults, final URI lookup) {
         //given
-        final VaultServiceImpl underTest = new VaultServiceImpl(Function.identity());
+        final var underTest = new VaultServiceImpl(Function.identity());
         vaults.forEach(uri -> underTest.create(uri, RecoveryLevel.RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE, null));
         vaults.forEach(underTest::delete);
         vaults.forEach(underTest::purge);
@@ -257,7 +255,7 @@ class VaultServiceImplTest {
     @MethodSource("missingValueProvider")
     void testFindByUriShouldThrowExceptionWhenItemDoesNotMatchFully(final List<URI> vaults, final URI lookup) {
         //given
-        final VaultServiceImpl underTest = new VaultServiceImpl(Function.identity());
+        final var underTest = new VaultServiceImpl(Function.identity());
         vaults.forEach(underTest::create);
 
         //when
@@ -270,7 +268,7 @@ class VaultServiceImplTest {
     @MethodSource("valueProvider")
     void testFindByUriShouldThrowExceptionWhenItemIsDeleted(final List<URI> vaults, final URI lookup) {
         //given
-        final VaultServiceImpl underTest = new VaultServiceImpl(Function.identity());
+        final var underTest = new VaultServiceImpl(Function.identity());
         vaults.forEach(uri -> underTest
                 .create(uri, RecoveryLevel.CUSTOMIZED_RECOVERABLE, RecoveryLevel.MIN_RECOVERABLE_DAYS_INCLUSIVE, null));
         vaults.forEach(underTest::delete);
@@ -286,7 +284,7 @@ class VaultServiceImplTest {
     @MethodSource("valueMapProvider")
     void testListAndListDeletedShouldFilterBasedOnDeletedStatusWhenCalled(final Map<URI, Boolean> vaults) {
         //given
-        final VaultServiceImpl underTest = new VaultServiceImpl(Function.identity());
+        final var underTest = new VaultServiceImpl(Function.identity());
         vaults.forEach((k, v) -> {
             underTest.create(k, RecoveryLevel.CUSTOMIZED_RECOVERABLE, RecoveryLevel.MIN_RECOVERABLE_DAYS_INCLUSIVE, null);
             if (v) {
@@ -295,8 +293,8 @@ class VaultServiceImplTest {
         });
 
         //when
-        final List<VaultFake> actualActive = underTest.list();
-        final List<VaultFake> actualDeleted = underTest.listDeleted();
+        final var actualActive = underTest.list();
+        final var actualDeleted = underTest.listDeleted();
 
         //then
         vaults.forEach((k, v) -> {
@@ -314,7 +312,7 @@ class VaultServiceImplTest {
     @MethodSource("valueMapProvider")
     void testListDeletedShouldNotReturnPurgedItemsWhenCalled(final Map<URI, Boolean> vaults) {
         //given
-        final VaultServiceImpl underTest = new VaultServiceImpl(Function.identity());
+        final var underTest = new VaultServiceImpl(Function.identity());
         vaults.forEach((k, v) -> {
             if (v) {
                 underTest.create(k, RecoveryLevel.PURGEABLE, null, null);
@@ -326,7 +324,7 @@ class VaultServiceImplTest {
         Assertions.assertDoesNotThrow(() -> Thread.sleep(WAIT_MILLIS));
 
         //when
-        final List<VaultFake> actualDeleted = underTest.listDeleted();
+        final var actualDeleted = underTest.listDeleted();
 
         //then
         vaults.forEach((k, v) -> {
@@ -342,7 +340,7 @@ class VaultServiceImplTest {
     @ValueSource(ints = {-42, -10, -5, -3, -2, -1, 0})
     void testTimeShiftShouldThrowExceptionWhenCalledWithNegativeOrZero(final int value) {
         //given
-        final VaultServiceImpl underTest = new VaultServiceImpl(Function.identity());
+        final var underTest = new VaultServiceImpl(Function.identity());
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.timeShift(value, false));
@@ -353,9 +351,9 @@ class VaultServiceImplTest {
     @Test
     void testTimeShiftShouldBeForwardedToEachVaultWhenCalledWithPositive() {
         //given
-        final VaultServiceImpl underTest = new VaultServiceImpl(Function.identity());
-        final VaultFake vaultFake = underTest.create(HTTPS_LOWKEY_VAULT_8443);
-        final OffsetDateTime createdOriginal = vaultFake.getCreatedOn();
+        final var underTest = new VaultServiceImpl(Function.identity());
+        final var vaultFake = underTest.create(HTTPS_LOWKEY_VAULT_8443);
+        final var createdOriginal = vaultFake.getCreatedOn();
 
         //when
         underTest.timeShift(TestConstants.NUMBER_OF_SECONDS_IN_10_MINUTES, false);
@@ -369,7 +367,7 @@ class VaultServiceImplTest {
     void testUpdateAliasShouldThrowExceptionWhenCalledWithInvalidInput(
             final URI baseUri, final Set<URI> aliases, final URI add, final URI remove, final Class<Exception> expectedException) {
         //given
-        final VaultServiceImpl underTest = new VaultServiceImpl(Function.identity());
+        final var underTest = new VaultServiceImpl(Function.identity());
         underTest.create(baseUri, RecoveryLevel.CUSTOMIZED_RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE, aliases);
 
         //when
@@ -383,11 +381,11 @@ class VaultServiceImplTest {
     void testUpdateAliasShouldAddAndRemoveAliasesWhenCalledWithValidInput(
             final URI baseUri, final Set<URI> aliases, final URI add, final URI remove, final Set<URI> expected) {
         //given
-        final VaultServiceImpl underTest = new VaultServiceImpl(Function.identity());
+        final var underTest = new VaultServiceImpl(Function.identity());
         underTest.create(baseUri, RecoveryLevel.CUSTOMIZED_RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE, aliases);
 
         //when
-        final VaultFake actual = underTest.updateAlias(baseUri, add, remove);
+        final var actual = underTest.updateAlias(baseUri, add, remove);
 
         //then
         Assertions.assertIterableEquals(expected, new TreeSet<>(actual.aliases()));
@@ -396,7 +394,7 @@ class VaultServiceImplTest {
     @Test
     void testUpdateAliasShouldThrowExceptionWhenVaultNotFound() {
         //given
-        final VaultServiceImpl underTest = new VaultServiceImpl(Function.identity());
+        final var underTest = new VaultServiceImpl(Function.identity());
         underTest.create(HTTPS_DEFAULT_LOWKEY_VAULT_8443);
 
         //when

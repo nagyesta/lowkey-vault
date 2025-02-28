@@ -9,8 +9,6 @@ import com.github.nagyesta.lowkeyvault.service.exception.AlreadyExistsException;
 import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
 import com.github.nagyesta.lowkeyvault.service.key.KeyLifetimeAction;
 import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
-import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
-import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyRotationPolicy;
 import com.github.nagyesta.lowkeyvault.service.key.constants.LifetimeActionTriggerType;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
@@ -28,7 +26,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.Period;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -100,7 +101,7 @@ class KeyVaultFakeImplTest {
     }
 
     public static Stream<Arguments> certificateNullProvider() {
-        final RsaKeyCreationInput input = new RsaKeyCreationInput(KeyType.RSA, null, null);
+        final var input = new RsaKeyCreationInput(KeyType.RSA, null, null);
         return Stream.<Arguments>builder()
                 .add(Arguments.of(KEY_NAME_1, null, null, null))
                 .add(Arguments.of(null, input, null, null))
@@ -126,17 +127,17 @@ class KeyVaultFakeImplTest {
     @Test
     void testGetKeyVersionsShouldReturnAllKeyVersionsInChronologicalOrderWhenFound() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
-        final List<String> expected = insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1).stream()
+        final var underTest = createUnderTest();
+        final var expected = insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1).stream()
                 .map(KeyEntityId::version)
                 .collect(Collectors.toList());
         underTest.createKeyVersion(KEY_NAME_2, DETAILED_EC_KEY_CREATION_INPUT);
         underTest.createKeyVersion(KEY_NAME_3, DETAILED_EC_KEY_CREATION_INPUT);
 
-        final KeyEntityId keyEntityId = new KeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, null);
+        final var keyEntityId = new KeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, null);
 
         //when
-        final Deque<String> actual = underTest.getEntities().getVersions(keyEntityId);
+        final var actual = underTest.getEntities().getVersions(keyEntityId);
 
         //then
         Assertions.assertIterableEquals(expected, actual);
@@ -145,7 +146,7 @@ class KeyVaultFakeImplTest {
     @Test
     void testGetKeyVersionsShouldThrowExceptionWhenKeyIdIsNull() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
 
         //when
@@ -157,10 +158,10 @@ class KeyVaultFakeImplTest {
     @Test
     void testGetKeyVersionsShouldThrowExceptionWhenNotFound() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
 
-        final KeyEntityId keyEntityId = new KeyEntityId(HTTPS_LOCALHOST, KEY_NAME_2, null);
+        final var keyEntityId = new KeyEntityId(HTTPS_LOCALHOST, KEY_NAME_2, null);
 
         //when
         Assertions.assertThrows(NotFoundException.class, () -> underTest.getEntities().getVersions(keyEntityId));
@@ -171,7 +172,7 @@ class KeyVaultFakeImplTest {
     @Test
     void testGetLatestVersionOfEntityShouldThrowExceptionWhenKeyIdIsNull() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.getEntities().getLatestVersionOfEntity(null));
@@ -182,18 +183,18 @@ class KeyVaultFakeImplTest {
     @Test
     void testGetLatestVersionOfKeyShouldReturnAllKeyVersionsInChronologicalOrderWhenFound() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
-        final String expected = insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1).stream()
+        final var underTest = createUnderTest();
+        final var expected = insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1).stream()
                 .map(KeyEntityId::version)
                 .skip(COUNT - 1)
                 .findFirst().orElse(null);
         underTest.createKeyVersion(KEY_NAME_2, DETAILED_EC_KEY_CREATION_INPUT);
         underTest.createKeyVersion(KEY_NAME_3, DETAILED_EC_KEY_CREATION_INPUT);
 
-        final KeyEntityId keyEntityId = new KeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, null);
+        final var keyEntityId = new KeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, null);
 
         //when
-        final VersionedKeyEntityId actual = underTest.getEntities().getLatestVersionOfEntity(keyEntityId);
+        final var actual = underTest.getEntities().getLatestVersionOfEntity(keyEntityId);
 
         //then
         Assertions.assertEquals(expected, actual.version());
@@ -203,7 +204,7 @@ class KeyVaultFakeImplTest {
     @MethodSource("genericKeyCreateInputProvider")
     void testCreateKeyVersionShouldThrowExceptionWhenCalledWithNull(final String name, final KeyCreateDetailedInput input) {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.createKeyVersion(name, input));
@@ -217,7 +218,7 @@ class KeyVaultFakeImplTest {
     @ValueSource(strings = KEY_NAME_1)
     void testCreateKeyVersionShouldThrowExceptionWhenCalledWithNullRsa(final String keyName) {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
         final RsaKeyCreationInput input = null;
 
         //when
@@ -232,7 +233,7 @@ class KeyVaultFakeImplTest {
     @ValueSource(strings = KEY_NAME_1)
     void testCreateKeyVersionShouldThrowExceptionWhenCalledWithNullEc(final String keyName) {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
         final EcKeyCreationInput input = null;
 
         //when
@@ -247,7 +248,7 @@ class KeyVaultFakeImplTest {
     @ValueSource(strings = KEY_NAME_1)
     void testCreateKeyVersionShouldThrowExceptionWhenCalledWithNullOct(final String keyName) {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
         final OctKeyCreationInput input = null;
 
         //when
@@ -259,13 +260,13 @@ class KeyVaultFakeImplTest {
     @Test
     void testCreateKeyVersionShouldReturnIdWhenCalledWithValidRsaParameter() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
-        final KeyCreateDetailedInput input = KeyCreateDetailedInput.builder()
+        final var underTest = createUnderTest();
+        final var input = KeyCreateDetailedInput.builder()
                 .key(new RsaKeyCreationInput(KeyType.RSA_HSM, null, null))
                 .build();
 
         //when
-        final VersionedKeyEntityId actual = underTest.createKeyVersion(KEY_NAME_1, input);
+        final var actual = underTest.createKeyVersion(KEY_NAME_1, input);
 
         //then
         Assertions.assertNotNull(actual);
@@ -277,13 +278,13 @@ class KeyVaultFakeImplTest {
     @Test
     void testCreateKeyVersionShouldReturnIdWhenCalledWithValidEcParameter() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
-        final KeyCreateDetailedInput input = KeyCreateDetailedInput.builder()
+        final var underTest = createUnderTest();
+        final var input = KeyCreateDetailedInput.builder()
                 .key(new EcKeyCreationInput(KeyType.EC_HSM, KeyCurveName.P_256))
                 .build();
 
         //when
-        final VersionedKeyEntityId actual = underTest.createKeyVersion(KEY_NAME_1, input);
+        final var actual = underTest.createKeyVersion(KEY_NAME_1, input);
 
         //then
         Assertions.assertNotNull(actual);
@@ -295,13 +296,13 @@ class KeyVaultFakeImplTest {
     @Test
     void testCreateKeyVersionShouldReturnIdWhenCalledWithValidOctParameter() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
-        final KeyCreateDetailedInput input = KeyCreateDetailedInput.builder()
+        final var underTest = createUnderTest();
+        final var input = KeyCreateDetailedInput.builder()
                 .key(new OctKeyCreationInput(KeyType.OCT_HSM, null))
                 .build();
 
         //when
-        final VersionedKeyEntityId actual = underTest.createKeyVersion(KEY_NAME_1, input);
+        final var actual = underTest.createKeyVersion(KEY_NAME_1, input);
 
         //then
         Assertions.assertNotNull(actual);
@@ -314,15 +315,15 @@ class KeyVaultFakeImplTest {
     @MethodSource("keyOperationsProvider")
     void testSetKeyOperationsShouldUpdateListWhenCalledWithValidValues(final List<KeyOperation> list) {
         //given
-        final KeyVaultFake underTest = createUnderTest();
-        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
-        final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, KeyCreateDetailedInput.builder()
+        final var underTest = createUnderTest();
+        final var input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
+        final var keyEntityId = underTest.createKeyVersion(KEY_NAME_1, KeyCreateDetailedInput.builder()
                 .key(input)
                 .build());
 
         //when
         underTest.setKeyOperations(keyEntityId, list);
-        final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntities().getReadOnlyEntity(keyEntityId);
+        final var actual = underTest.getEntities().getReadOnlyEntity(keyEntityId);
 
         //then
         Assertions.assertIterableEquals(list, actual.getOperations());
@@ -333,7 +334,7 @@ class KeyVaultFakeImplTest {
     void testSetKeyOperationsShouldThrowExceptionWhenCalledWithInvalidValues(
             final VersionedKeyEntityId keyEntityId, final List<KeyOperation> list) {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setKeyOperations(keyEntityId, list));
@@ -344,20 +345,20 @@ class KeyVaultFakeImplTest {
     @Test
     void testClearTagsShouldClearPreviouslySetTagsWhenCalledOnValidKey() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
-        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
-        final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, KeyCreateDetailedInput.builder()
+        final var underTest = createUnderTest();
+        final var input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
+        final var keyEntityId = underTest.createKeyVersion(KEY_NAME_1, KeyCreateDetailedInput.builder()
                 .key(input)
                 .build());
 
         //when
         underTest.addTags(keyEntityId, TAGS_TWO_KEYS);
-        final ReadOnlyKeyVaultKeyEntity check = underTest.getEntities().getReadOnlyEntity(keyEntityId);
+        final var check = underTest.getEntities().getReadOnlyEntity(keyEntityId);
         Assumptions.assumeTrue(check.getTags().containsKey(KEY_1));
         Assumptions.assumeTrue(check.getTags().containsKey(KEY_2));
         underTest.clearTags(keyEntityId);
 
-        final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntities().getReadOnlyEntity(keyEntityId);
+        final var actual = underTest.getEntities().getReadOnlyEntity(keyEntityId);
 
         //then
         Assertions.assertEquals(Collections.emptyMap(), actual.getTags());
@@ -366,7 +367,7 @@ class KeyVaultFakeImplTest {
     @Test
     void testClearTagsShouldThrowExceptionWhenCalledWithNullKey() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.clearTags(null));
@@ -377,7 +378,7 @@ class KeyVaultFakeImplTest {
     @Test
     void testAddTagsShouldThrowExceptionWhenCalledWithNullKey() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.addTags(null, TAGS_EMPTY));
@@ -388,17 +389,17 @@ class KeyVaultFakeImplTest {
     @Test
     void testSetEnabledShouldReplacePreviouslySetValueWhenCalledOnValidKey() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
-        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
-        final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, KeyCreateDetailedInput.builder()
+        final var underTest = createUnderTest();
+        final var input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
+        final var keyEntityId = underTest.createKeyVersion(KEY_NAME_1, KeyCreateDetailedInput.builder()
                 .key(input)
                 .build());
-        final ReadOnlyKeyVaultKeyEntity check = underTest.getEntities().getReadOnlyEntity(keyEntityId);
+        final var check = underTest.getEntities().getReadOnlyEntity(keyEntityId);
         Assertions.assertTrue(check.isEnabled());
 
         //when
         underTest.setEnabled(keyEntityId, false);
-        final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntities().getReadOnlyEntity(keyEntityId);
+        final var actual = underTest.getEntities().getReadOnlyEntity(keyEntityId);
 
         //then
         Assertions.assertFalse(actual.isEnabled());
@@ -407,7 +408,7 @@ class KeyVaultFakeImplTest {
     @Test
     void testSetEnabledShouldThrowExceptionWhenCalledWithNullKey() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setEnabled(null, true));
@@ -418,18 +419,18 @@ class KeyVaultFakeImplTest {
     @Test
     void testSetExpiryShouldReplacePreviouslySetValueWhenCalledOnValidKey() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
-        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
-        final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, KeyCreateDetailedInput.builder()
+        final var underTest = createUnderTest();
+        final var input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
+        final var keyEntityId = underTest.createKeyVersion(KEY_NAME_1, KeyCreateDetailedInput.builder()
                 .key(input)
                 .build());
-        final ReadOnlyKeyVaultKeyEntity check = underTest.getEntities().getReadOnlyEntity(keyEntityId);
+        final var check = underTest.getEntities().getReadOnlyEntity(keyEntityId);
         Assertions.assertTrue(check.getExpiry().isEmpty());
         Assertions.assertTrue(check.getNotBefore().isEmpty());
 
         //when
         underTest.setExpiry(keyEntityId, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES);
-        final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntities().getReadOnlyEntity(keyEntityId);
+        final var actual = underTest.getEntities().getReadOnlyEntity(keyEntityId);
 
         //then
         Assertions.assertTrue(actual.getNotBefore().isPresent());
@@ -441,18 +442,18 @@ class KeyVaultFakeImplTest {
     @Test
     void testSetExpiryShouldReplacePreviouslySetValueWhenCalledOnValidKeyAndNotBeforeOnly() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
-        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
-        final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, KeyCreateDetailedInput.builder()
+        final var underTest = createUnderTest();
+        final var input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
+        final var keyEntityId = underTest.createKeyVersion(KEY_NAME_1, KeyCreateDetailedInput.builder()
                 .key(input)
                 .build());
-        final ReadOnlyKeyVaultKeyEntity check = underTest.getEntities().getReadOnlyEntity(keyEntityId);
+        final var check = underTest.getEntities().getReadOnlyEntity(keyEntityId);
         Assertions.assertTrue(check.getExpiry().isEmpty());
         Assertions.assertTrue(check.getNotBefore().isEmpty());
 
         //when
         underTest.setExpiry(keyEntityId, TIME_10_MINUTES_AGO, null);
-        final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntities().getReadOnlyEntity(keyEntityId);
+        final var actual = underTest.getEntities().getReadOnlyEntity(keyEntityId);
 
         //then
         Assertions.assertTrue(actual.getNotBefore().isPresent());
@@ -463,18 +464,18 @@ class KeyVaultFakeImplTest {
     @Test
     void testSetExpiryShouldReplacePreviouslySetValueWhenCalledOnValidKeyAndExpiryOnly() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
-        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
-        final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, KeyCreateDetailedInput.builder()
+        final var underTest = createUnderTest();
+        final var input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
+        final var keyEntityId = underTest.createKeyVersion(KEY_NAME_1, KeyCreateDetailedInput.builder()
                 .key(input)
                 .build());
-        final ReadOnlyKeyVaultKeyEntity check = underTest.getEntities().getReadOnlyEntity(keyEntityId);
+        final var check = underTest.getEntities().getReadOnlyEntity(keyEntityId);
         Assertions.assertTrue(check.getExpiry().isEmpty());
         Assertions.assertTrue(check.getNotBefore().isEmpty());
 
         //when
         underTest.setExpiry(keyEntityId, null, TIME_IN_10_MINUTES);
-        final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntities().getReadOnlyEntity(keyEntityId);
+        final var actual = underTest.getEntities().getReadOnlyEntity(keyEntityId);
 
         //then
         Assertions.assertTrue(actual.getNotBefore().isEmpty());
@@ -485,7 +486,7 @@ class KeyVaultFakeImplTest {
     @Test
     void testSetExpiryShouldThrowExceptionWhenCalledWithNullKey() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
@@ -497,9 +498,9 @@ class KeyVaultFakeImplTest {
     @Test
     void testSetExpiryShouldThrowExceptionWhenCalledWithNegativeTimeDuration() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
-        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
-        final VersionedKeyEntityId keyEntityId = underTest.createOctKeyVersion(KEY_NAME_1, input);
+        final var underTest = createUnderTest();
+        final var input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
+        final var keyEntityId = underTest.createOctKeyVersion(KEY_NAME_1, input);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
@@ -511,7 +512,7 @@ class KeyVaultFakeImplTest {
     @Test
     void testConstructorWithRecoveryShouldThrowExceptionWhenCalledWithInvalidData() {
         //given
-        final VaultFakeImpl vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST);
+        final var vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
@@ -524,7 +525,7 @@ class KeyVaultFakeImplTest {
     @Test
     void testConstructorWithRecoveryShouldThrowExceptionWhenCalledWithNullRecoveryLevel() {
         //given
-        final VaultFakeImpl vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST);
+        final var vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
@@ -536,14 +537,14 @@ class KeyVaultFakeImplTest {
     @Test
     void testGetEntityShouldReturnValueWhenCalledWithExistingKey() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
-        final OctKeyCreationInput input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
-        final VersionedKeyEntityId keyEntityId = underTest.createKeyVersion(KEY_NAME_1, KeyCreateDetailedInput.builder()
+        final var underTest = createUnderTest();
+        final var input = new OctKeyCreationInput(KeyType.OCT_HSM, null);
+        final var keyEntityId = underTest.createKeyVersion(KEY_NAME_1, KeyCreateDetailedInput.builder()
                 .key(input)
                 .build());
 
         //when
-        final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntities().getReadOnlyEntity(keyEntityId);
+        final var actual = underTest.getEntities().getReadOnlyEntity(keyEntityId);
 
         //then
         Assertions.assertNotNull(actual);
@@ -553,7 +554,7 @@ class KeyVaultFakeImplTest {
     @Test
     void testRawGetEntityShouldThrowExceptionWhenCalledWithNullKey() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.getEntities().getReadOnlyEntity(null));
@@ -564,7 +565,7 @@ class KeyVaultFakeImplTest {
     @Test
     void testCreateShouldThrowExceptionWhenCalledWithAlreadyDeletedKey() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
         underTest.delete(UNVERSIONED_KEY_ENTITY_ID_1);
 
@@ -577,7 +578,7 @@ class KeyVaultFakeImplTest {
     @Test
     void testDeleteShouldThrowExceptionWhenCalledWithMissingKey() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
 
         //when
@@ -589,7 +590,7 @@ class KeyVaultFakeImplTest {
     @Test
     void testDeleteShouldMoveEntityToDeletedWhenCalledWithExistingKey() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_2);
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_3);
@@ -606,7 +607,7 @@ class KeyVaultFakeImplTest {
     @Test
     void testDeleteShouldThrowExceptionWhenCalledWithNullKey() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.delete(null));
@@ -617,7 +618,7 @@ class KeyVaultFakeImplTest {
     @Test
     void testRecoverShouldThrowExceptionWhenCalledWithMissingDeletedKey() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
         Assertions.assertFalse(underTest.getDeletedEntities().containsName(KEY_NAME_1));
 
@@ -630,7 +631,7 @@ class KeyVaultFakeImplTest {
     @Test
     void testRecoverShouldMoveEntityFromDeletedWhenCalledWithExistingDeletedKey() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_2);
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_3);
@@ -648,7 +649,7 @@ class KeyVaultFakeImplTest {
     @Test
     void testRecoverShouldThrowExceptionWhenCalledWithNullKey() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.recover(null));
@@ -660,7 +661,7 @@ class KeyVaultFakeImplTest {
     @Test
     void testPurgeShouldThrowExceptionWhenCalledWithMissingDeletedKey() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
         Assertions.assertFalse(underTest.getDeletedEntities().containsName(KEY_NAME_1));
 
@@ -673,7 +674,7 @@ class KeyVaultFakeImplTest {
     @Test
     void testPurgeShouldRemoveEntityFromDeletedWhenCalledWithExistingDeletedKey() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_2);
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_3);
@@ -691,7 +692,7 @@ class KeyVaultFakeImplTest {
     @Test
     void testGetRotationPolicyShouldReturnNullWhenCalledWithPurgedKey() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_2);
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_3);
@@ -703,7 +704,7 @@ class KeyVaultFakeImplTest {
         underTest.purge(UNVERSIONED_KEY_ENTITY_ID_1);
 
         //when
-        final ReadOnlyRotationPolicy actual = underTest.rotationPolicy(UNVERSIONED_KEY_ENTITY_ID_1);
+        final var actual = underTest.rotationPolicy(UNVERSIONED_KEY_ENTITY_ID_1);
 
         //then
         Assertions.assertNull(actual);
@@ -712,7 +713,7 @@ class KeyVaultFakeImplTest {
     @Test
     void testPurgeShouldThrowExceptionWhenCalledWithNullKey() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.purge(null));
@@ -724,7 +725,7 @@ class KeyVaultFakeImplTest {
     @ValueSource(ints = {-42, -10, -5, -3, -2, -1, 0})
     void testTimeShiftShouldThrowExceptionWhenCalledWithNegativeOrZero(final int value) {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.timeShift(value));
@@ -735,32 +736,32 @@ class KeyVaultFakeImplTest {
     @Test
     void testTimeShiftShouldReduceTimeStampsWhenCalledOnActiveEntityWithPositiveValue() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
-        final VersionedKeyEntityId keyEntityId = underTest.createEcKeyVersion(KEY_NAME_1, EC_KEY_CREATION_INPUT);
+        final var underTest = createUnderTest();
+        final var keyEntityId = underTest.createEcKeyVersion(KEY_NAME_1, EC_KEY_CREATION_INPUT);
         underTest.setExpiry(keyEntityId, NOW, TIME_IN_10_MINUTES);
-        final ReadOnlyKeyVaultKeyEntity before = underTest.getEntities().getReadOnlyEntity(keyEntityId);
-        final OffsetDateTime createdOriginal = before.getCreated();
-        final OffsetDateTime updatedOriginal = before.getUpdated();
-        final KeyLifetimeActionTrigger trigger = new KeyLifetimeActionTrigger(
+        final var before = underTest.getEntities().getReadOnlyEntity(keyEntityId);
+        final var createdOriginal = before.getCreated();
+        final var updatedOriginal = before.getUpdated();
+        final var trigger = new KeyLifetimeActionTrigger(
                 Period.ofDays(MINIMUM_EXPIRY_PERIOD_IN_DAYS),
                 LifetimeActionTriggerType.TIME_AFTER_CREATE);
-        final Period expiryTime = Period.ofDays(MINIMUM_EXPIRY_PERIOD_IN_DAYS + MINIMUM_THRESHOLD_BEFORE_EXPIRY);
+        final var expiryTime = Period.ofDays(MINIMUM_EXPIRY_PERIOD_IN_DAYS + MINIMUM_THRESHOLD_BEFORE_EXPIRY);
         underTest.setRotationPolicy(new KeyRotationPolicy(keyEntityId, expiryTime,
                 Map.of(LifetimeActionType.ROTATE, new KeyLifetimeAction(LifetimeActionType.ROTATE, trigger))));
-        final ReadOnlyRotationPolicy beforePolicy = underTest.rotationPolicy(keyEntityId);
-        final OffsetDateTime createdPolicyOriginal = beforePolicy.getCreatedOn();
-        final OffsetDateTime updatedPolicyOriginal = beforePolicy.getUpdatedOn();
+        final var beforePolicy = underTest.rotationPolicy(keyEntityId);
+        final var createdPolicyOriginal = beforePolicy.getCreatedOn();
+        final var updatedPolicyOriginal = beforePolicy.getUpdatedOn();
 
         //when
         underTest.timeShift(NUMBER_OF_SECONDS_IN_10_MINUTES);
 
         //then
-        final ReadOnlyKeyVaultKeyEntity after = underTest.getEntities().getReadOnlyEntity(keyEntityId);
+        final var after = underTest.getEntities().getReadOnlyEntity(keyEntityId);
         Assertions.assertEquals(createdOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), after.getCreated());
         Assertions.assertEquals(updatedOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), after.getUpdated());
         Assertions.assertEquals(TIME_10_MINUTES_AGO, after.getNotBefore().orElse(null));
         Assertions.assertEquals(NOW, after.getExpiry().orElse(null));
-        final ReadOnlyRotationPolicy afterPolicy = underTest.rotationPolicy(keyEntityId);
+        final var afterPolicy = underTest.rotationPolicy(keyEntityId);
         Assertions.assertEquals(createdPolicyOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), afterPolicy.getCreatedOn());
         Assertions.assertEquals(updatedPolicyOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), afterPolicy.getUpdatedOn());
     }
@@ -769,21 +770,21 @@ class KeyVaultFakeImplTest {
     @Test
     void testTimeShiftShouldReduceTimeStampsWhenCalledOnDeletedEntityWithPositiveValue() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
-        final VersionedKeyEntityId keyEntityId = underTest.createEcKeyVersion(KEY_NAME_1, EC_KEY_CREATION_INPUT);
+        final var underTest = createUnderTest();
+        final var keyEntityId = underTest.createEcKeyVersion(KEY_NAME_1, EC_KEY_CREATION_INPUT);
         underTest.setExpiry(keyEntityId, NOW, TIME_IN_10_MINUTES);
         underTest.delete(keyEntityId);
-        final ReadOnlyKeyVaultKeyEntity before = underTest.getDeletedEntities().getReadOnlyEntity(keyEntityId);
-        final OffsetDateTime createdOriginal = before.getCreated();
-        final OffsetDateTime updatedOriginal = before.getUpdated();
-        final OffsetDateTime deletedOriginal = before.getDeletedDate().get();
-        final OffsetDateTime scheduledPurgeOriginal = before.getScheduledPurgeDate().get();
+        final var before = underTest.getDeletedEntities().getReadOnlyEntity(keyEntityId);
+        final var createdOriginal = before.getCreated();
+        final var updatedOriginal = before.getUpdated();
+        final var deletedOriginal = before.getDeletedDate().get();
+        final var scheduledPurgeOriginal = before.getScheduledPurgeDate().get();
 
         //when
         underTest.timeShift(NUMBER_OF_SECONDS_IN_10_MINUTES);
 
         //then
-        final ReadOnlyKeyVaultKeyEntity after = underTest.getDeletedEntities().getReadOnlyEntity(keyEntityId);
+        final var after = underTest.getDeletedEntities().getReadOnlyEntity(keyEntityId);
         Assertions.assertEquals(createdOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), after.getCreated());
         Assertions.assertEquals(updatedOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), after.getUpdated());
         Assertions.assertEquals(deletedOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), after.getDeletedDate().get());
@@ -795,31 +796,31 @@ class KeyVaultFakeImplTest {
     @Test
     void testSetRotationPolicyShouldKeepCreatedWhenCalledASecondTime() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
-        final VersionedKeyEntityId keyEntityId = underTest.createEcKeyVersion(KEY_NAME_1, EC_KEY_CREATION_INPUT);
+        final var underTest = createUnderTest();
+        final var keyEntityId = underTest.createEcKeyVersion(KEY_NAME_1, EC_KEY_CREATION_INPUT);
         underTest.setExpiry(keyEntityId, NOW, TIME_IN_10_MINUTES);
-        final KeyLifetimeActionTrigger rotateOriginal = new KeyLifetimeActionTrigger(
+        final var rotateOriginal = new KeyLifetimeActionTrigger(
                 Period.ofDays(MINIMUM_THRESHOLD_BEFORE_EXPIRY),
                 LifetimeActionTriggerType.TIME_AFTER_CREATE);
-        final KeyLifetimeActionTrigger rotateSecond = new KeyLifetimeActionTrigger(
+        final var rotateSecond = new KeyLifetimeActionTrigger(
                 Period.ofDays(MINIMUM_EXPIRY_PERIOD_IN_DAYS),
                 LifetimeActionTriggerType.TIME_AFTER_CREATE);
-        final Period expiryTime = Period.ofDays(MINIMUM_EXPIRY_PERIOD_IN_DAYS + MINIMUM_THRESHOLD_BEFORE_EXPIRY);
-        final KeyRotationPolicy rotationPolicyOriginal = new KeyRotationPolicy(keyEntityId, expiryTime,
+        final var expiryTime = Period.ofDays(MINIMUM_EXPIRY_PERIOD_IN_DAYS + MINIMUM_THRESHOLD_BEFORE_EXPIRY);
+        final var rotationPolicyOriginal = new KeyRotationPolicy(keyEntityId, expiryTime,
                 Map.of(LifetimeActionType.ROTATE, new KeyLifetimeAction(LifetimeActionType.ROTATE, rotateOriginal)));
-        final KeyRotationPolicy rotationPolicySecond = new KeyRotationPolicy(keyEntityId, expiryTime,
+        final var rotationPolicySecond = new KeyRotationPolicy(keyEntityId, expiryTime,
                 Map.of(LifetimeActionType.ROTATE, new KeyLifetimeAction(LifetimeActionType.ROTATE, rotateSecond)));
         underTest.setRotationPolicy(rotationPolicyOriginal);
-        final ReadOnlyRotationPolicy beforePolicy = underTest.rotationPolicy(keyEntityId);
-        final OffsetDateTime createdPolicyOriginal = beforePolicy.getCreatedOn();
-        final OffsetDateTime updatedPolicyOriginal = beforePolicy.getUpdatedOn();
+        final var beforePolicy = underTest.rotationPolicy(keyEntityId);
+        final var createdPolicyOriginal = beforePolicy.getCreatedOn();
+        final var updatedPolicyOriginal = beforePolicy.getUpdatedOn();
         waitABit();
 
         //when
         underTest.setRotationPolicy(rotationPolicySecond);
 
         //then
-        final ReadOnlyRotationPolicy afterPolicy = underTest.rotationPolicy(keyEntityId);
+        final var afterPolicy = underTest.rotationPolicy(keyEntityId);
         Assertions.assertEquals(createdPolicyOriginal, afterPolicy.getCreatedOn());
         Assertions.assertTrue(updatedPolicyOriginal.isBefore(afterPolicy.getUpdatedOn()));
     }
@@ -827,37 +828,37 @@ class KeyVaultFakeImplTest {
     @Test
     void testTimeShiftShouldPerformMissedRotationsWhenNecessary() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
-        final VersionedKeyEntityId keyEntityId = underTest.createEcKeyVersion(KEY_NAME_1, EC_KEY_CREATION_INPUT);
+        final var underTest = createUnderTest();
+        final var keyEntityId = underTest.createEcKeyVersion(KEY_NAME_1, EC_KEY_CREATION_INPUT);
         underTest.setExpiry(keyEntityId, NOW, TIME_IN_10_MINUTES);
-        final ReadOnlyKeyVaultKeyEntity before = underTest.getEntities().getReadOnlyEntity(keyEntityId);
-        final OffsetDateTime createdOriginal = before.getCreated();
-        final OffsetDateTime updatedOriginal = before.getUpdated();
-        final KeyLifetimeActionTrigger trigger = new KeyLifetimeActionTrigger(
+        final var before = underTest.getEntities().getReadOnlyEntity(keyEntityId);
+        final var createdOriginal = before.getCreated();
+        final var updatedOriginal = before.getUpdated();
+        final var trigger = new KeyLifetimeActionTrigger(
                 Period.ofDays(MINIMUM_EXPIRY_PERIOD_IN_DAYS),
                 LifetimeActionTriggerType.TIME_AFTER_CREATE);
-        final Period expiryTime = Period.ofDays(MINIMUM_EXPIRY_PERIOD_IN_DAYS + MINIMUM_THRESHOLD_BEFORE_EXPIRY);
+        final var expiryTime = Period.ofDays(MINIMUM_EXPIRY_PERIOD_IN_DAYS + MINIMUM_THRESHOLD_BEFORE_EXPIRY);
         underTest.setRotationPolicy(new KeyRotationPolicy(keyEntityId, expiryTime,
                 Map.of(LifetimeActionType.ROTATE, new KeyLifetimeAction(LifetimeActionType.ROTATE, trigger))));
-        final ReadOnlyRotationPolicy beforePolicy = underTest.rotationPolicy(keyEntityId);
-        final OffsetDateTime createdPolicyOriginal = beforePolicy.getCreatedOn();
-        final OffsetDateTime updatedPolicyOriginal = beforePolicy.getUpdatedOn();
+        final var beforePolicy = underTest.rotationPolicy(keyEntityId);
+        final var createdPolicyOriginal = beforePolicy.getCreatedOn();
+        final var updatedPolicyOriginal = beforePolicy.getUpdatedOn();
 
-        final int sizeBefore = underTest.getEntities().getVersions(keyEntityId).size();
+        final var sizeBefore = underTest.getEntities().getVersions(keyEntityId).size();
 
         //when
         underTest.timeShift(OFFSET_SECONDS_120_DAYS);
 
         //then
-        final int sizeAfter = underTest.getEntities().getVersions(keyEntityId).size();
-        final ReadOnlyKeyVaultKeyEntity after = underTest.getEntities().getReadOnlyEntity(keyEntityId);
+        final var sizeAfter = underTest.getEntities().getVersions(keyEntityId).size();
+        final var after = underTest.getEntities().getReadOnlyEntity(keyEntityId);
         Assertions.assertEquals(createdOriginal.minusSeconds(OFFSET_SECONDS_120_DAYS), after.getCreated());
         Assertions.assertEquals(updatedOriginal.minusSeconds(OFFSET_SECONDS_120_DAYS), after.getUpdated());
         Assertions.assertEquals(NOW.minusSeconds(OFFSET_SECONDS_120_DAYS), after.getNotBefore().orElse(null));
         Assertions.assertEquals(TIME_IN_10_MINUTES.minusSeconds(OFFSET_SECONDS_120_DAYS), after.getExpiry().orElse(null));
         Assertions.assertNotEquals(sizeAfter, sizeBefore);
         Assertions.assertEquals(ROTATIONS_UNDER_120_DAYS, sizeAfter - sizeBefore);
-        final ReadOnlyRotationPolicy afterPolicy = underTest.rotationPolicy(keyEntityId);
+        final var afterPolicy = underTest.rotationPolicy(keyEntityId);
         Assertions.assertEquals(createdPolicyOriginal.minusSeconds(OFFSET_SECONDS_120_DAYS), afterPolicy.getCreatedOn());
         Assertions.assertEquals(updatedPolicyOriginal.minusSeconds(OFFSET_SECONDS_120_DAYS), afterPolicy.getUpdatedOn());
     }
@@ -865,7 +866,7 @@ class KeyVaultFakeImplTest {
     @Test
     void testRotationPolicyShouldThrowExceptionWhenCalledWithNull() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.rotationPolicy(null));
@@ -876,7 +877,7 @@ class KeyVaultFakeImplTest {
     @Test
     void testSetRotationPolicyShouldThrowExceptionWhenCalledWithNull() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setRotationPolicy(null));
@@ -887,16 +888,16 @@ class KeyVaultFakeImplTest {
     @Test
     void testRotateKeyShouldCreateNewKeyVersionKeepingTagsAndOperationsWhenCalledWithExistingKey() {
         //given
-        final KeyCurveName keyParameter = KeyCurveName.P_384;
-        final Map<String, String> tags = Map.of(KEY_1, VALUE_1);
-        final List<KeyOperation> operations = List.of(KeyOperation.SIGN);
+        final var keyParameter = KeyCurveName.P_384;
+        final var tags = Map.of(KEY_1, VALUE_1);
+        final var operations = List.of(KeyOperation.SIGN);
 
-        final KeyVaultFake underTest = createUnderTest();
-        final VersionedKeyEntityId keyEntityId = underTest
+        final var underTest = createUnderTest();
+        final var keyEntityId = underTest
                 .createEcKeyVersion(KEY_NAME_1, new EcKeyCreationInput(KeyType.EC, keyParameter));
         underTest.setKeyOperations(keyEntityId, operations);
         underTest.addTags(keyEntityId, tags);
-        final VersionedKeyEntityId latestBeforeRotate = underTest.getEntities().getLatestVersionOfEntity(keyEntityId);
+        final var latestBeforeRotate = underTest.getEntities().getLatestVersionOfEntity(keyEntityId);
         underTest.setExpiry(keyEntityId, null, TIME_IN_10_MINUTES);
         underTest.setRotationPolicy(new DefaultKeyRotationPolicy(keyEntityId));
 
@@ -904,9 +905,9 @@ class KeyVaultFakeImplTest {
         underTest.rotateKey(keyEntityId);
 
         //then
-        final VersionedKeyEntityId latestAfterRotate = underTest.getEntities().getLatestVersionOfEntity(keyEntityId);
+        final var latestAfterRotate = underTest.getEntities().getLatestVersionOfEntity(keyEntityId);
         Assertions.assertNotEquals(latestBeforeRotate, latestAfterRotate);
-        final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntities().getReadOnlyEntity(latestAfterRotate);
+        final var actual = underTest.getEntities().getReadOnlyEntity(latestAfterRotate);
         Assertions.assertEquals(keyParameter, actual.keyCreationInput().getKeyParameter());
         Assertions.assertEquals(actual.getCreated().plusYears(1), actual.getExpiry().orElse(null));
         Assertions.assertIterableEquals(operations, actual.getOperations());
@@ -916,27 +917,27 @@ class KeyVaultFakeImplTest {
     @Test
     void testRotateKeyShouldCreateNewKeyVersionWhenNoRotationPolicyIsDefined() {
         //given
-        final KeyCurveName keyParameter = KeyCurveName.P_384;
+        final var keyParameter = KeyCurveName.P_384;
 
-        final KeyVaultFake underTest = createUnderTest();
-        final VersionedKeyEntityId keyEntityId = underTest
+        final var underTest = createUnderTest();
+        final var keyEntityId = underTest
                 .createEcKeyVersion(KEY_NAME_1, new EcKeyCreationInput(KeyType.EC, keyParameter));
-        final VersionedKeyEntityId latestBeforeRotate = underTest.getEntities().getLatestVersionOfEntity(keyEntityId);
+        final var latestBeforeRotate = underTest.getEntities().getLatestVersionOfEntity(keyEntityId);
 
         //when
         underTest.rotateKey(keyEntityId);
 
         //then
-        final VersionedKeyEntityId latestAfterRotate = underTest.getEntities().getLatestVersionOfEntity(keyEntityId);
+        final var latestAfterRotate = underTest.getEntities().getLatestVersionOfEntity(keyEntityId);
         Assertions.assertNotEquals(latestBeforeRotate, latestAfterRotate);
-        final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntities().getReadOnlyEntity(latestAfterRotate);
+        final var actual = underTest.getEntities().getReadOnlyEntity(latestAfterRotate);
         Assertions.assertEquals(keyParameter, actual.keyCreationInput().getKeyParameter());
     }
 
     @Test
     void testRotateKeyShouldThrowExceptionWhenCalledWithNull() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
+        final var underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.rotateKey(null));
@@ -947,12 +948,12 @@ class KeyVaultFakeImplTest {
     @Test
     void testCreateKeyVersionForCertificateShouldSetFieldsAndManagedFlagWhenCalledWithValidRsaParameter() {
         //given
-        final KeyVaultFake underTest = createUnderTest();
-        final List<KeyOperation> keyOperations = List.of(
+        final var underTest = createUnderTest();
+        final var keyOperations = List.of(
                 KeyOperation.SIGN, KeyOperation.VERIFY,
                 KeyOperation.ENCRYPT, KeyOperation.DECRYPT,
                 KeyOperation.WRAP_KEY, KeyOperation.UNWRAP_KEY);
-        final KeyCreateDetailedInput input = KeyCreateDetailedInput.builder()
+        final var input = KeyCreateDetailedInput.builder()
                 .key(new RsaKeyCreationInput(KeyType.RSA_HSM, null, null))
                 .notBefore(TIME_10_MINUTES_AGO)
                 .expiresOn(TIME_IN_10_MINUTES)
@@ -962,11 +963,11 @@ class KeyVaultFakeImplTest {
                 .build();
 
         //when
-        final VersionedKeyEntityId actual = underTest
+        final var actual = underTest
                 .createKeyVersion(KEY_NAME_1, input);
 
         //then
-        final ReadOnlyKeyVaultKeyEntity entity = underTest.getEntities().getReadOnlyEntity(actual);
+        final var entity = underTest.getEntities().getReadOnlyEntity(actual);
         Assertions.assertEquals(KEY_NAME_1, entity.getId().id());
         Assertions.assertEquals(TIME_10_MINUTES_AGO, entity.getNotBefore().orElse(null));
         Assertions.assertEquals(TIME_IN_10_MINUTES, entity.getExpiry().orElse(null));
@@ -981,8 +982,8 @@ class KeyVaultFakeImplTest {
             final String name, final KeyCreationInput<?> input,
             final OffsetDateTime notBefore, final OffsetDateTime expiry) {
         //given
-        final KeyVaultFake underTest = createUnderTest();
-        final KeyCreateDetailedInput detailedInput = Optional.ofNullable(input)
+        final var underTest = createUnderTest();
+        final var detailedInput = Optional.ofNullable(input)
                 .map(key -> KeyCreateDetailedInput.builder()
                         .key(key)
                         .managed(true)
@@ -1000,7 +1001,7 @@ class KeyVaultFakeImplTest {
     }
 
     private KeyVaultFake createUnderTest() {
-        final KeyVaultFake underTest = new VaultFakeImpl(HTTPS_LOCALHOST,
+        final var underTest = new VaultFakeImpl(HTTPS_LOCALHOST,
                 RecoveryLevel.RECOVERABLE_AND_PURGEABLE,
                 RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE).keyVaultFake();
         Assertions.assertInstanceOf(KeyVaultFakeImpl.class, underTest);

@@ -34,7 +34,7 @@ public abstract class BaseSecretController extends GenericEntityController<Secre
 
     protected VersionedSecretEntityId createSecretWithAttributes(
             final SecretVaultFake secretVaultFake, final String secretName, final CreateSecretRequest request) {
-        final SecretPropertiesModel properties = Objects.requireNonNullElse(request.getProperties(), new SecretPropertiesModel());
+        final var properties = Objects.requireNonNullElse(request.getProperties(), new SecretPropertiesModel());
         return secretVaultFake.createSecretVersion(secretName, SecretCreateInput.builder()
                 .value(request.getValue())
                 .contentType(request.getContentType())

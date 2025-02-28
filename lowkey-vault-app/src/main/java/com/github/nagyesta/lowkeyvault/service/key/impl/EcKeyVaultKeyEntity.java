@@ -14,7 +14,6 @@ import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import static com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil.generateEc;
 
@@ -89,7 +88,7 @@ public class EcKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, KeyCurveName
     public byte[] signBytes(final byte[] digest, final SignatureAlgorithm signatureAlgorithm) {
         validateGenericSignOrVerifyInputs(digest, signatureAlgorithm, KeyOperation.SIGN);
         Assert.state(signatureAlgorithm.isCompatibleWithCurve(getKeyCurveName()), getId() + " is not using the right key curve.");
-        final Callable<byte[]> signCallable = signCallable(digest, signatureAlgorithm, getKey().getPrivate());
+        final var signCallable = signCallable(digest, signatureAlgorithm, getKey().getPrivate());
         return doCrypto(signCallable, "Cannot sign message.", log);
     }
 
@@ -99,7 +98,7 @@ public class EcKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, KeyCurveName
                                      final byte[] signature) {
         validateGenericSignOrVerifyInputs(digest, signatureAlgorithm, KeyOperation.VERIFY);
         Assert.state(signatureAlgorithm.isCompatibleWithCurve(getKeyCurveName()), getId() + " is not using the right key curve.");
-        final Callable<Boolean> verifyCallable = verifyCallable(digest, signatureAlgorithm, signature, getKey().getPublic());
+        final var verifyCallable = verifyCallable(digest, signatureAlgorithm, signature, getKey().getPublic());
         return doCrypto(verifyCallable, "Cannot verify digest message.", log);
     }
 
@@ -114,8 +113,8 @@ public class EcKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, KeyCurveName
     }
 
     private byte[] normalizeKeyParameter(final byte[] byteArray) {
-        final int expectedLength = getKeyParam().getByteLength();
-        final int actualLength = byteArray.length;
+        final var expectedLength = getKeyParam().getByteLength();
+        final var actualLength = byteArray.length;
         //if the actual length is larger, then there is a leading 0 byte in front of the actual value
         //this is added only because the next byte would be negative and the BigInteger would be negative as well
         if (actualLength > expectedLength) {

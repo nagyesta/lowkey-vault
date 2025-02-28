@@ -12,7 +12,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import javax.crypto.SecretKey;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -40,13 +39,13 @@ class AesJsonWebKeyImportRequestConverterTest {
     @ValueSource(ints = {AES_128, AES_192, AES_256})
     void testConvertShouldReturnSecretKeyWhenCalledWithValidInput(final int size) {
         //given
-        final SecretKey expected = KeyGenUtil.generateAes(size);
-        final JsonWebKeyImportRequest request = new JsonWebKeyImportRequest();
+        final var expected = KeyGenUtil.generateAes(size);
+        final var request = new JsonWebKeyImportRequest();
         request.setKeyType(KeyType.OCT_HSM);
         request.setK(expected.getEncoded());
 
         //when
-        final SecretKey actual = underTest.convert(request);
+        final var actual = underTest.convert(request);
 
         //then
         Assertions.assertEquals(expected, actual);
@@ -55,7 +54,7 @@ class AesJsonWebKeyImportRequestConverterTest {
     @Test
     void testConvertShouldWrapExceptionWhenConversionThrowsOne() {
         //given
-        final JsonWebKeyImportRequest source = mock(JsonWebKeyImportRequest.class);
+        final var source = mock(JsonWebKeyImportRequest.class);
         when(source.getK()).thenThrow(IllegalArgumentException.class);
 
         //when
@@ -68,11 +67,11 @@ class AesJsonWebKeyImportRequestConverterTest {
     @MethodSource("sizeProvider")
     void testGetKeyParameterShouldReturnTheKeySizeWhenCalledWithValidInput(final int sizeInBytes, final int expected) {
         //given
-        final JsonWebKeyImportRequest request = mock(JsonWebKeyImportRequest.class);
+        final var request = mock(JsonWebKeyImportRequest.class);
         when(request.getK()).thenReturn(new byte[sizeInBytes]);
 
         //when
-        final Integer actual = underTest.getKeyParameter(request);
+        final var actual = underTest.getKeyParameter(request);
 
         //then
         Assertions.assertEquals(expected, actual);

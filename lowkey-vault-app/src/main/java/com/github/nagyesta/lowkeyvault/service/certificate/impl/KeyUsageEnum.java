@@ -85,7 +85,7 @@ public enum KeyUsageEnum {
 
     @JsonIgnore
     public static Set<KeyUsageEnum> parseBitString(final boolean[] usage) {
-        final boolean[] bitString = Optional.ofNullable(usage).orElse(new boolean[0]);
+        final var bitString = Optional.ofNullable(usage).orElse(new boolean[0]);
         return Arrays.stream(values())
                 .filter(e -> bitString.length > e.position && bitString[e.position])
                 .collect(Collectors.toSet());
@@ -93,7 +93,7 @@ public enum KeyUsageEnum {
 
     @JsonCreator
     public static KeyUsageEnum byValue(final String usage) {
-        final Optional<KeyUsageEnum> value = Arrays.stream(values())
+        final var value = Arrays.stream(values())
                 .filter(e -> e.value.equals(usage))
                 .findFirst();
         return value.orElseThrow(() -> new IllegalArgumentException("Unable to find key usage by value: " + value));

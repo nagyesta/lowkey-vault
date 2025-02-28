@@ -35,7 +35,7 @@ class BackupContextTest {
         //given
 
         //when
-        final BackupContext actual = new BackupContext(host, port);
+        final var actual = new BackupContext(host, port);
 
         //then
         Assertions.assertEquals(host, actual.getHost());

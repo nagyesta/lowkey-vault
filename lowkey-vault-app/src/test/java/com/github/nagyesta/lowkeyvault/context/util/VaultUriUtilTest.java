@@ -7,7 +7,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.stream.Stream;
@@ -58,7 +57,7 @@ class VaultUriUtilTest {
     @Test
     void testConstructorShouldThrowExceptionWhenCalled() throws NoSuchMethodException {
         //given
-        final Constructor<VaultUriUtil> constructor = VaultUriUtil.class.getDeclaredConstructor();
+        final var constructor = VaultUriUtil.class.getDeclaredConstructor();
         constructor.setAccessible(true);
 
         //when
@@ -73,7 +72,7 @@ class VaultUriUtilTest {
         //given
 
         //when
-        final URI actual = VaultUriUtil.vaultUri(host, port);
+        final var actual = VaultUriUtil.vaultUri(host, port);
 
         //then
         Assertions.assertEquals(expectedUri, actual);
@@ -109,7 +108,7 @@ class VaultUriUtilTest {
         //given
 
         //when
-        final URI actual = VaultUriUtil.aliasUri(authority, serverPort);
+        final var actual = VaultUriUtil.aliasUri(authority, serverPort);
 
         //then
         Assertions.assertEquals(expectedUri, actual);

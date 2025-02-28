@@ -87,7 +87,7 @@ public class ConcurrentVersionedEntityMultiMap<K extends EntityId, V extends K, 
 
     @Override
     public V getLatestVersionOfEntity(@NonNull final K entityId) {
-        final Deque<String> availableVersions = getVersions(entityId);
+        final var availableVersions = getVersions(entityId);
         return versionCreateFunction.apply(entityId.id(), availableVersions.getLast());
     }
 
@@ -132,8 +132,8 @@ public class ConcurrentVersionedEntityMultiMap<K extends EntityId, V extends K, 
     public void moveTo(@NonNull final K entityId,
                        @NonNull final VersionedEntityMultiMap<K, V, RE, ME> destination,
                        @NonNull final Function<ME, ME> applyToAll) {
-        final Map<String, ME> toKeep = entities.remove(entityId.id());
-        final Deque<String> versions = this.versions.remove(entityId.id());
+        final var toKeep = entities.remove(entityId.id());
+        final var versions = this.versions.remove(entityId.id());
         if (recoveryLevel.isRecoverable()) {
             versions.forEach(version -> destination
                     .put(versionCreateFunction.apply(entityId.id(), version), applyToAll.apply(toKeep.get(version))));
@@ -143,7 +143,7 @@ public class ConcurrentVersionedEntityMultiMap<K extends EntityId, V extends K, 
     @Override
     public void purgeExpired() {
         Assert.state(isDeleted(), "Purge cannot be called when map is not in deleted role.");
-        final List<String> purgeable = entities.entrySet().stream()
+        final var purgeable = entities.entrySet().stream()
                 .filter(e -> e.getValue().values().stream().anyMatch(ME::isPurgeExpired))
                 .map(Map.Entry::getKey)
                 .toList();
@@ -156,7 +156,7 @@ public class ConcurrentVersionedEntityMultiMap<K extends EntityId, V extends K, 
     @Override
     public void purgeDeleted(@NonNull final K entityId) {
         Assert.state(isDeleted(), "Purge cannot be called when map is not in deleted role.");
-        final Map<String, ME> map = entities.get(entityId.id());
+        final var map = entities.get(entityId.id());
         Assert.state(map.values().stream().allMatch(ME::canPurge), "The selected elements cannot be purged.");
         entities.remove(entityId.id());
         versions.remove(entityId.id());

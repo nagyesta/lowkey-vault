@@ -37,12 +37,12 @@ class ExpiryPeriodValidatorTest {
     @MethodSource("isValidProvider")
     void testIsValidShouldReturnTrueOnlyWhenCalledWithValidData(final Period input, final boolean expected) throws NoSuchFieldException {
         //given
-        final ExpiryPeriodValidator underTest = new ExpiryPeriodValidator();
-        final ExpiryPeriod annotation = this.getClass().getDeclaredField("dummy").getAnnotation(ExpiryPeriod.class);
+        final var underTest = new ExpiryPeriodValidator();
+        final var annotation = this.getClass().getDeclaredField("dummy").getAnnotation(ExpiryPeriod.class);
 
         //when
         underTest.initialize(annotation);
-        final boolean actual = underTest.isValid(input, mock(ConstraintValidatorContext.class));
+        final var actual = underTest.isValid(input, mock(ConstraintValidatorContext.class));
 
         //then
         Assertions.assertEquals(expected, actual);

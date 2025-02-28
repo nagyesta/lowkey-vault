@@ -80,7 +80,7 @@ class CommonAuthHeaderFilterTest {
     void testDoFilterInternalShouldNotCallNextOnChainWhenAuthorizationHeaderMissing(final String headerValue)
             throws ServletException, IOException {
         //given
-        final CommonAuthHeaderFilter underTest = new CommonAuthHeaderFilter(CommonAuthHeaderFilter.OMIT_DEFAULT);
+        final var underTest = new CommonAuthHeaderFilter(CommonAuthHeaderFilter.OMIT_DEFAULT);
         when(request.getHeader(eq(HttpHeaders.AUTHORIZATION))).thenReturn(headerValue);
 
         //when
@@ -101,7 +101,7 @@ class CommonAuthHeaderFilterTest {
     void testDoFilterInternalShouldAddTokenToResponseHeaderWhenCalled(final String headerValue)
             throws ServletException, IOException {
         //given
-        final CommonAuthHeaderFilter underTest = new CommonAuthHeaderFilter(CommonAuthHeaderFilter.OMIT_DEFAULT);
+        final var underTest = new CommonAuthHeaderFilter(CommonAuthHeaderFilter.OMIT_DEFAULT);
         when(request.getHeader(eq(HttpHeaders.AUTHORIZATION))).thenReturn(headerValue);
 
         //when
@@ -116,7 +116,7 @@ class CommonAuthHeaderFilterTest {
     void testDoFilterInternalShouldSetResourceOnResponseHeaderWhenCalled(final String authResource, final URI expected)
             throws ServletException, IOException {
         //given
-        final CommonAuthHeaderFilter underTest = new CommonAuthHeaderFilter(authResource);
+        final var underTest = new CommonAuthHeaderFilter(authResource);
         when(request.getHeader(eq(HttpHeaders.AUTHORIZATION))).thenReturn(HEADER_VALUE);
 
         //when
@@ -131,7 +131,7 @@ class CommonAuthHeaderFilterTest {
     void testDoFilterInternalShouldSetRequestBaseUriRequestAttributeWhenCalled(
             final String hostName, final int port, final String path, final URI expected) throws ServletException, IOException {
         //given
-        final CommonAuthHeaderFilter underTest = new CommonAuthHeaderFilter(CommonAuthHeaderFilter.OMIT_DEFAULT);
+        final var underTest = new CommonAuthHeaderFilter(CommonAuthHeaderFilter.OMIT_DEFAULT);
         when(request.getServerName()).thenReturn(hostName);
         when(request.getServerPort()).thenReturn(port);
         when(request.getRequestURI()).thenReturn(path);
@@ -149,11 +149,11 @@ class CommonAuthHeaderFilterTest {
     @Test
     void testShouldNotFilterShouldReturnTrueWhenRequestBaseUriIsPing() {
         //given
-        final CommonAuthHeaderFilter underTest = new CommonAuthHeaderFilter(CommonAuthHeaderFilter.OMIT_DEFAULT);
+        final var underTest = new CommonAuthHeaderFilter(CommonAuthHeaderFilter.OMIT_DEFAULT);
         when(request.getRequestURI()).thenReturn("/ping");
 
         //when
-        final boolean actual = underTest.shouldNotFilter(request);
+        final var actual = underTest.shouldNotFilter(request);
 
         //then
         Assertions.assertTrue(actual);

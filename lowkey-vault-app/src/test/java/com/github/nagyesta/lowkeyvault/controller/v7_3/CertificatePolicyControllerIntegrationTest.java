@@ -14,10 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.ResponseEntity;
 
 import java.net.URI;
-import java.util.Deque;
 import java.util.Set;
 
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.CERT_NAME_2;
@@ -47,16 +45,16 @@ class CertificatePolicyControllerIntegrationTest extends BaseCertificateControll
     @Test
     void testPendingCreateShouldReturnPendingCertificateWhenExists() {
         //given
-        final CreateCertificateRequest request = getCreateCertificateRequest();
+        final var request = getCreateCertificateRequest();
         certificateController.create("pending-" + CERT_NAME_2, VAULT_URI_1, request);
 
         //when
-        final ResponseEntity<KeyVaultPendingCertificateModel> actual = underTest
+        final var actual = underTest
                 .pendingCreate("pending-" + CERT_NAME_2, VAULT_URI_1);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
-        final KeyVaultPendingCertificateModel body = actual.getBody();
+        final var body = actual.getBody();
         assertPendingCreateResponseIsAsExpected(body);
     }
 
@@ -74,18 +72,18 @@ class CertificatePolicyControllerIntegrationTest extends BaseCertificateControll
     @Test
     void testPendingDeleteShouldReturnPendingCertificateWhenExists() {
         //given
-        final CreateCertificateRequest request = getCreateCertificateRequest();
-        final String certificateName = "pending-del-" + CERT_NAME_2;
+        final var request = getCreateCertificateRequest();
+        final var certificateName = "pending-del-" + CERT_NAME_2;
         certificateController.create(certificateName, VAULT_URI_1, request);
         certificateController.delete(certificateName, VAULT_URI_1);
 
         //when
-        final ResponseEntity<KeyVaultPendingCertificateModel> actual = underTest
+        final var actual = underTest
                 .pendingDelete(certificateName, VAULT_URI_1);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
-        final KeyVaultPendingCertificateModel body = actual.getBody();
+        final var body = actual.getBody();
         assertPendingCreateResponseIsAsExpected(body);
     }
 
@@ -105,7 +103,7 @@ class CertificatePolicyControllerIntegrationTest extends BaseCertificateControll
         //given
 
         //when
-        final String actual = underTest.apiVersion();
+        final var actual = underTest.apiVersion();
 
         //then
         Assertions.assertEquals(V_7_3, actual);
@@ -114,26 +112,26 @@ class CertificatePolicyControllerIntegrationTest extends BaseCertificateControll
     @Test
     void testGetPolicyShouldReturnModelWhenCalledWithValidData() {
         //given
-        final CreateCertificateRequest request = getCreateCertificateRequest();
-        final String certificateName = CERT_NAME_2 + "policy";
+        final var request = getCreateCertificateRequest();
+        final var certificateName = CERT_NAME_2 + "policy";
         certificateController.create(certificateName, VAULT_URI_1, request);
-        final Deque<String> versions = findByUri(VAULT_URI_1)
+        final var versions = findByUri(VAULT_URI_1)
                 .certificateVaultFake()
                 .getEntities()
                 .getVersions(new CertificateEntityId(VAULT_URI_1, certificateName));
 
         //when
-        final ResponseEntity<CertificatePolicyModel> actual = underTest.getPolicy(certificateName, VAULT_URI_1);
+        final var actual = underTest.getPolicy(certificateName, VAULT_URI_1);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
-        final CertificatePolicyModel body = actual.getBody();
+        final var body = actual.getBody();
         Assertions.assertNotNull(body);
-        final URI id = new VersionedCertificateEntityId(VAULT_URI_1, certificateName, versions.getFirst())
+        final var id = new VersionedCertificateEntityId(VAULT_URI_1, certificateName, versions.getFirst())
                 .asPolicyUri(VAULT_URI_1);
         Assertions.assertEquals(request.getPolicy().getSecretProperties(), body.getSecretProperties());
         Assertions.assertEquals(request.getPolicy().getKeyProperties(), body.getKeyProperties());
-        final X509CertificateModel x509Properties = request.getPolicy().getX509Properties();
+        final var x509Properties = request.getPolicy().getX509Properties();
         x509Properties.setExtendedKeyUsage(DEFAULT_EXT_KEY_USAGES);
         x509Properties.setKeyUsage(DEFAULT_EC_KEY_USAGES);
         Assertions.assertEquals(x509Properties, body.getX509Properties());
@@ -145,27 +143,27 @@ class CertificatePolicyControllerIntegrationTest extends BaseCertificateControll
     @Test
     void testUpdatePolicyShouldReturnModelWhenCalledWithValidData() {
         //given
-        final CreateCertificateRequest request = getCreateCertificateRequest();
-        final String certificateName = CERT_NAME_2 + "-update-policy";
+        final var request = getCreateCertificateRequest();
+        final var certificateName = CERT_NAME_2 + "-update-policy";
         certificateController.create(certificateName, VAULT_URI_1, request);
-        final Deque<String> versions = findByUri(VAULT_URI_1)
+        final var versions = findByUri(VAULT_URI_1)
                 .certificateVaultFake()
                 .getEntities()
                 .getVersions(new CertificateEntityId(VAULT_URI_1, certificateName));
-        final CertificatePolicyModel update = getUpdatePolicyRequest();
+        final var update = getUpdatePolicyRequest();
 
         //when
-        final ResponseEntity<CertificatePolicyModel> actual = underTest.updatePolicy(certificateName, VAULT_URI_1, update);
+        final var actual = underTest.updatePolicy(certificateName, VAULT_URI_1, update);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
-        final CertificatePolicyModel body = actual.getBody();
+        final var body = actual.getBody();
         Assertions.assertNotNull(body);
-        final URI id = new VersionedCertificateEntityId(VAULT_URI_1, certificateName, versions.getFirst())
+        final var id = new VersionedCertificateEntityId(VAULT_URI_1, certificateName, versions.getFirst())
                 .asPolicyUri(VAULT_URI_1);
         Assertions.assertEquals(update.getSecretProperties(), body.getSecretProperties());
         Assertions.assertEquals(update.getKeyProperties(), body.getKeyProperties());
-        final X509CertificateModel x509Properties = update.getX509Properties();
+        final var x509Properties = update.getX509Properties();
         x509Properties.setExtendedKeyUsage(DEFAULT_EXT_KEY_USAGES);
         x509Properties.setKeyUsage(DEFAULT_RSA_KEY_USAGES);
         Assertions.assertEquals(x509Properties, body.getX509Properties());
@@ -175,21 +173,21 @@ class CertificatePolicyControllerIntegrationTest extends BaseCertificateControll
     }
 
     private static CertificatePolicyModel getUpdatePolicyRequest() {
-        final CertificateKeyModel keyProperties = new CertificateKeyModel();
+        final var keyProperties = new CertificateKeyModel();
         keyProperties.setKeyType(KeyType.RSA);
         keyProperties.setKeySize(KeyType.RSA.validateOrDefault(null, Integer.class));
         keyProperties.setReuseKey(false);
         keyProperties.setExportable(true);
 
-        final CertificateSecretModel secretProperties = new CertificateSecretModel();
+        final var secretProperties = new CertificateSecretModel();
         secretProperties.setContentType(CertContentType.PEM.getMimeType());
 
-        final X509CertificateModel x509Properties = new X509CertificateModel();
+        final var x509Properties = new X509CertificateModel();
         x509Properties.setSubject("CN=localhost");
         x509Properties.setValidityMonths(1);
         x509Properties.setSubjectAlternativeNames(new SubjectAlternativeNames(Set.of("example.com", "*.example.com"), Set.of(), Set.of()));
 
-        final CertificatePolicyModel policy = new CertificatePolicyModel();
+        final var policy = new CertificatePolicyModel();
         policy.setKeyProperties(keyProperties);
         policy.setSecretProperties(secretProperties);
         policy.setX509Properties(x509Properties);

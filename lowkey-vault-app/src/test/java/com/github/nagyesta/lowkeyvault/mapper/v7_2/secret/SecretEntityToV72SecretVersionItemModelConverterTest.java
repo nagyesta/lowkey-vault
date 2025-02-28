@@ -60,7 +60,7 @@ class SecretEntityToV72SecretVersionItemModelConverterTest {
     }
 
     private static KeyVaultSecretItemModel secretVaultSecretItemModel(final URI asUriNoVersion, final Map<String, String> tags) {
-        final KeyVaultSecretItemModel model = new KeyVaultSecretItemModel();
+        final var model = new KeyVaultSecretItemModel();
         model.setAttributes(SECRET_PROPERTIES_MODEL);
         model.setId(asUriNoVersion.toString());
         model.setTags(tags);
@@ -90,13 +90,13 @@ class SecretEntityToV72SecretVersionItemModelConverterTest {
 
         //given
         when(vault.baseUri()).thenReturn(secretEntityId.vault());
-        final URI vaultUri = eq(secretEntityId.vault());
+        final var vaultUri = eq(secretEntityId.vault());
         when(vault.matches(vaultUri, eq(Function.identity()))).thenReturn(true);
-        final KeyVaultSecretEntity input = new KeyVaultSecretEntity(secretEntityId, vault, value, null);
+        final var input = new KeyVaultSecretEntity(secretEntityId, vault, value, null);
         input.setTags(tags);
 
         //when
-        final KeyVaultSecretItemModel actual = underTest.convert(input, vault.baseUri());
+        final var actual = underTest.convert(input, vault.baseUri());
 
         //then
         Assertions.assertEquals(expected, actual);

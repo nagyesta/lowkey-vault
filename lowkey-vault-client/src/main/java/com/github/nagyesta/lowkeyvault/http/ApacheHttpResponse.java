@@ -4,7 +4,6 @@ import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.HttpHeaders;
 import com.azure.core.http.HttpRequest;
 import com.azure.core.http.HttpResponse;
-import org.apache.http.HttpEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
 import reactor.core.publisher.Flux;
@@ -31,7 +30,7 @@ final class ApacheHttpResponse extends HttpResponse {
         this.headers = new HttpHeaders();
         Arrays.stream(apacheResponse.getAllHeaders())
                 .forEach(header -> headers.set(HttpHeaderName.fromString(header.getName()), header.getValue()));
-        final HttpEntity responseEntity = Optional.ofNullable(apacheResponse.getEntity()).orElse(new StringEntity(""));
+        final var responseEntity = Optional.ofNullable(apacheResponse.getEntity()).orElse(new StringEntity(""));
         this.entity = EntityUtils.toString(responseEntity, StandardCharsets.UTF_8);
     }
 

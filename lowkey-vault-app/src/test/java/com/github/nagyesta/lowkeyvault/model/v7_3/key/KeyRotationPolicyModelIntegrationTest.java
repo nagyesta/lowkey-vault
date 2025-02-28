@@ -8,7 +8,6 @@ import com.github.nagyesta.lowkeyvault.model.v7_3.key.constants.LifetimeActionTy
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.validator.Restore;
 import com.github.nagyesta.lowkeyvault.service.key.constants.LifetimeActionTriggerType;
 import com.github.nagyesta.lowkeyvault.service.key.impl.KeyLifetimeActionTrigger;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -27,7 +26,6 @@ import java.time.Period;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Stream;
 
 @LaunchAbortArmed
@@ -74,14 +72,14 @@ class KeyRotationPolicyModelIntegrationTest {
     @Test
     void testJsonSerializationShouldContainAllValuableFieldsWhenCalledOnFullyPopulatedObject() throws JsonProcessingException {
         //given
-        final KeyRotationPolicyModel model = new KeyRotationPolicyModel();
+        final var model = new KeyRotationPolicyModel();
         model.setId(URI.create(POLICY_URI_STRING));
         model.setLifetimeActions(List.of(ROTATE_ACTION, NOTIFY_ACTION));
         model.setAttributes(policyAttributes(EXPIRY_PERIOD_4M));
-        final String expected = readResourceAsStringRemoveWhitespace(FULL_JSON);
+        final var expected = readResourceAsStringRemoveWhitespace(FULL_JSON);
 
         //when
-        final String actual = objectMapper.writer().writeValueAsString(model);
+        final var actual = objectMapper.writer().writeValueAsString(model);
 
         //then
         Assertions.assertEquals(expected, actual);
@@ -90,14 +88,14 @@ class KeyRotationPolicyModelIntegrationTest {
     @Test
     void testJsonSerializationShouldContainAllValuableFieldsWhenCalledOnMinimalObject() throws JsonProcessingException {
         //given
-        final KeyRotationPolicyModel model = new KeyRotationPolicyModel();
+        final var model = new KeyRotationPolicyModel();
         model.setId(URI.create(POLICY_URI_STRING));
         model.setLifetimeActions(List.of(ROTATE_ACTION));
         model.setAttributes(policyAttributes(null));
-        final String expected = readResourceAsStringRemoveWhitespace(MINIMUM_JSON);
+        final var expected = readResourceAsStringRemoveWhitespace(MINIMUM_JSON);
 
         //when
-        final String actual = objectMapper.writer().writeValueAsString(model);
+        final var actual = objectMapper.writer().writeValueAsString(model);
 
         //then
         Assertions.assertEquals(expected, actual);
@@ -108,7 +106,7 @@ class KeyRotationPolicyModelIntegrationTest {
         //given
 
         //when
-        final KeyRotationPolicyModel actual = loadResourceAsObject(FULL_JSON);
+        final var actual = loadResourceAsObject(FULL_JSON);
 
         //then
         Assertions.assertEquals(POLICY_URI_STRING, actual.getId().toString());
@@ -124,7 +122,7 @@ class KeyRotationPolicyModelIntegrationTest {
         //given
 
         //when
-        final KeyRotationPolicyModel actual = loadResourceAsObject(MINIMUM_JSON);
+        final var actual = loadResourceAsObject(MINIMUM_JSON);
 
         //then
         Assertions.assertEquals(POLICY_URI_STRING, actual.getId().toString());
@@ -139,10 +137,10 @@ class KeyRotationPolicyModelIntegrationTest {
     void testValidateShouldReportViolationsWhenCalledWithInvalidData(
             final String resource, final String expectedPath) throws IOException {
         //given
-        final KeyRotationPolicyModel underTest = loadResourceAsObject(resource);
+        final var underTest = loadResourceAsObject(resource);
 
         //when
-        final Set<ConstraintViolation<KeyRotationPolicyModel>> violations = validator.validate(underTest, Restore.class);
+        final var violations = validator.validate(underTest, Restore.class);
 
         //then
         Assertions.assertEquals(1, violations.size());
@@ -151,7 +149,7 @@ class KeyRotationPolicyModelIntegrationTest {
 
     private KeyRotationPolicyAttributes policyAttributes(
             final Period expiryTime) {
-        final KeyRotationPolicyAttributes attributes = new KeyRotationPolicyAttributes();
+        final var attributes = new KeyRotationPolicyAttributes();
         attributes.setExpiryTime(expiryTime);
         attributes.setCreated(CREATED_ON);
         attributes.setUpdated(UPDATED_ON);
@@ -159,12 +157,12 @@ class KeyRotationPolicyModelIntegrationTest {
     }
 
     private KeyRotationPolicyModel loadResourceAsObject(final String resource) throws IOException {
-        final String json = ResourceUtils.loadResourceAsString(resource);
+        final var json = ResourceUtils.loadResourceAsString(resource);
         return objectMapper.reader().readValue(json, KeyRotationPolicyModel.class);
     }
 
     private String readResourceAsStringRemoveWhitespace(final String resource) {
-        final String json = ResourceUtils.loadResourceAsString(resource);
+        final var json = ResourceUtils.loadResourceAsString(resource);
         return Objects.requireNonNull(json).replaceAll("[ \\n\\r]+", "");
     }
 }

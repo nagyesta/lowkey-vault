@@ -20,9 +20,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.Deque;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -37,6 +35,8 @@ class ConcurrentVersionedEntityMultiMapTest {
 
     private
     ConcurrentVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity, KeyVaultKeyEntity<?, ?>> underTest;
+    private
+    ConcurrentVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity, KeyVaultKeyEntity<?, ?>> deleted;
     @Mock
     private RsaKeyVaultKeyEntity key1Version1Mock;
     @Mock
@@ -55,8 +55,8 @@ class ConcurrentVersionedEntityMultiMapTest {
 
     public static Stream<Arguments> nullProvider() {
         final BiFunction<String, String, VersionedKeyEntityId> function = (i, v) -> VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
-        final int days = RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE;
-        final RecoveryLevel level = RecoveryLevel.RECOVERABLE;
+        final var days = RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE;
+        final var level = RecoveryLevel.RECOVERABLE;
         return Stream.<Arguments>builder()
                 .add(Arguments.of(null, null, null, false))
                 .add(Arguments.of(level, null, null, false))
@@ -84,7 +84,7 @@ class ConcurrentVersionedEntityMultiMapTest {
     }
 
     public static Stream<Arguments> moveToNullProvider() {
-        final KeyEntityId key = UNVERSIONED_KEY_ENTITY_ID_1;
+        final var key = UNVERSIONED_KEY_ENTITY_ID_1;
         final var dest = new ConcurrentVersionedEntityMultiMap<>(RecoveryLevel.RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE,
                 (i, v) -> new VersionedKeyEntityId(HTTPS_LOCALHOST_8443, i, v), false);
         final Function<KeyVaultKeyEntity<?, ?>, KeyVaultKeyEntity<?, ?>> function = Function.identity();
@@ -138,7 +138,7 @@ class ConcurrentVersionedEntityMultiMapTest {
         putAllMocks();
 
         //when
-        final List<ReadOnlyKeyVaultKeyEntity> actual = underTest.listLatestEntities();
+        final var actual = underTest.listLatestEntities();
 
         //then
         Assertions.assertNotNull(actual);
@@ -156,7 +156,7 @@ class ConcurrentVersionedEntityMultiMapTest {
         when(key1Version3Mock.isManaged()).thenReturn(true);
 
         //when
-        final List<ReadOnlyKeyVaultKeyEntity> actual = underTest.listLatestNonManagedEntities();
+        final var actual = underTest.listLatestNonManagedEntities();
 
         //then
         Assertions.assertNotNull(actual);
@@ -170,7 +170,7 @@ class ConcurrentVersionedEntityMultiMapTest {
         //given
 
         //when
-        final List<ReadOnlyKeyVaultKeyEntity> actual = underTest.listLatestEntities();
+        final var actual = underTest.listLatestEntities();
 
         //then
         Assertions.assertNotNull(actual);
@@ -183,7 +183,7 @@ class ConcurrentVersionedEntityMultiMapTest {
         putAllMocks();
 
         //when
-        final Deque<String> actual = underTest.getVersions(VERSIONED_KEY_ENTITY_ID_1_VERSION_1);
+        final var actual = underTest.getVersions(VERSIONED_KEY_ENTITY_ID_1_VERSION_1);
 
         //then
         Assertions.assertNotNull(actual);
@@ -196,7 +196,7 @@ class ConcurrentVersionedEntityMultiMapTest {
         putAllMocks();
 
         //when
-        final Deque<String> actual = underTest.getVersions(VERSIONED_KEY_ENTITY_ID_2_VERSION_1);
+        final var actual = underTest.getVersions(VERSIONED_KEY_ENTITY_ID_2_VERSION_1);
 
         //then
         Assertions.assertNotNull(actual);
@@ -242,7 +242,7 @@ class ConcurrentVersionedEntityMultiMapTest {
         putAllMocks();
 
         //when
-        final boolean actual = underTest.containsName(KEY_NAME_1);
+        final var actual = underTest.containsName(KEY_NAME_1);
 
         //then
         Assertions.assertTrue(actual);
@@ -254,7 +254,7 @@ class ConcurrentVersionedEntityMultiMapTest {
         underTest.put(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, key1Version1Mock);
 
         //when
-        final boolean actual = underTest.containsName(KEY_NAME_2);
+        final var actual = underTest.containsName(KEY_NAME_2);
 
         //then
         Assertions.assertFalse(actual);
@@ -278,7 +278,7 @@ class ConcurrentVersionedEntityMultiMapTest {
         putAllMocks();
 
         //when
-        final boolean actual = underTest.containsEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1);
+        final var actual = underTest.containsEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1);
 
         //then
         Assertions.assertTrue(actual);
@@ -290,7 +290,7 @@ class ConcurrentVersionedEntityMultiMapTest {
         putAllMocks();
 
         //when
-        final boolean actual = underTest.containsEntity(VERSIONED_KEY_ENTITY_ID_3_VERSION_3);
+        final var actual = underTest.containsEntity(VERSIONED_KEY_ENTITY_ID_3_VERSION_3);
 
         //then
         Assertions.assertFalse(actual);
@@ -301,7 +301,7 @@ class ConcurrentVersionedEntityMultiMapTest {
         //given
 
         //when
-        final boolean actual = underTest.containsEntity(VERSIONED_KEY_ENTITY_ID_3_VERSION_3);
+        final var actual = underTest.containsEntity(VERSIONED_KEY_ENTITY_ID_3_VERSION_3);
 
         //then
         Assertions.assertFalse(actual);
@@ -370,7 +370,7 @@ class ConcurrentVersionedEntityMultiMapTest {
         putAllMocks();
 
         //when
-        final VersionedKeyEntityId actual = underTest.getLatestVersionOfEntity(UNVERSIONED_KEY_ENTITY_ID_3);
+        final var actual = underTest.getLatestVersionOfEntity(UNVERSIONED_KEY_ENTITY_ID_3);
 
         //then
         Assertions.assertEquals(VERSIONED_KEY_ENTITY_ID_3_VERSION_2, actual);
@@ -394,7 +394,7 @@ class ConcurrentVersionedEntityMultiMapTest {
         putAllMocks();
 
         //when
-        final ReadOnlyKeyVaultKeyEntity actual = underTest.getReadOnlyEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_3);
+        final var actual = underTest.getReadOnlyEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_3);
 
         //then
         Assertions.assertSame(key1Version3Mock, actual);
@@ -463,7 +463,7 @@ class ConcurrentVersionedEntityMultiMapTest {
         putAllMocks();
 
         //when
-        final ReadOnlyKeyVaultKeyEntity actual = underTest.getEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_3, ReadOnlyKeyVaultKeyEntity.class);
+        final var actual = underTest.getEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_3, ReadOnlyKeyVaultKeyEntity.class);
 
         //then
         Assertions.assertSame(key1Version3Mock, actual);
@@ -502,8 +502,8 @@ class ConcurrentVersionedEntityMultiMapTest {
                 (i, v) -> new VersionedKeyEntityId(HTTPS_LOCALHOST_8443, i, v), false);
 
         //when
-        final RecoveryLevel actualRecoveryLevel = underTest.getRecoveryLevel();
-        final Optional<Integer> actualRecoverableDays = underTest.getRecoverableDays();
+        final var actualRecoveryLevel = underTest.getRecoveryLevel();
+        final var actualRecoverableDays = underTest.getRecoverableDays();
 
         //then
         Assertions.assertEquals(recoveryLevel, actualRecoveryLevel);
@@ -518,7 +518,7 @@ class ConcurrentVersionedEntityMultiMapTest {
                 (i, v) -> new VersionedKeyEntityId(HTTPS_LOCALHOST_8443, i, v), deleted);
 
         //when
-        final boolean actual = underTest.isDeleted();
+        final var actual = underTest.isDeleted();
 
         //then
         Assertions.assertEquals(deleted, actual);
@@ -531,8 +531,7 @@ class ConcurrentVersionedEntityMultiMapTest {
         //given
         underTest = new ConcurrentVersionedEntityMultiMap<>(recoveryLevel, recoverableDays,
                 (i, v) -> new VersionedKeyEntityId(HTTPS_LOCALHOST_8443, i, v), false);
-        final ConcurrentVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity, KeyVaultKeyEntity<?, ?>>
-                deleted = new ConcurrentVersionedEntityMultiMap<>(recoveryLevel, recoverableDays,
+        deleted = new ConcurrentVersionedEntityMultiMap<>(recoveryLevel, recoverableDays,
                 (i, v) -> new VersionedKeyEntityId(HTTPS_LOCALHOST_8443, i, v), true);
         putAllMocks();
 

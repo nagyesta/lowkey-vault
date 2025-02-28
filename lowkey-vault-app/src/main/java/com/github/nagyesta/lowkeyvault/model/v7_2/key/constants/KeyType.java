@@ -284,7 +284,7 @@ public enum KeyType {
     }
 
     public <E> void validate(final E value, final Class<E> type) {
-        final SortedSet<E> validKeyParameters = getValidKeyParameters(type);
+        final var validKeyParameters = getValidKeyParameters(type);
         Assert.isTrue(value == null || validKeyParameters.contains(value),
                 "Invalid value provided: " + value + " valid values are: " + validKeyParameters);
     }

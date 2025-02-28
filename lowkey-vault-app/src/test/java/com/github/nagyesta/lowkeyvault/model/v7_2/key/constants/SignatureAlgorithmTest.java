@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 class SignatureAlgorithmTest {
 
     public static Stream<Arguments> valueProvider() {
-        final Stream.Builder<Arguments> builder = Stream.<Arguments>builder()
+        final var builder = Stream.<Arguments>builder()
                 .add(Arguments.of(null, null))
                 .add(Arguments.of(TestConstants.EMPTY, null));
         Arrays.stream(SignatureAlgorithm.values()).forEach(a -> builder.add(Arguments.of(a.getValue(), a)));
@@ -49,10 +49,10 @@ class SignatureAlgorithmTest {
     @Test
     void testIsCompatibleWithCurveShouldReturnFalseInCaseOfRsaAlgorithm() {
         //given
-        final SignatureAlgorithm underTest = SignatureAlgorithm.PS256;
+        final var underTest = SignatureAlgorithm.PS256;
 
         //when
-        final boolean actual = underTest.isCompatibleWithCurve(KeyCurveName.P_256);
+        final var actual = underTest.isCompatibleWithCurve(KeyCurveName.P_256);
 
         //then
         Assertions.assertFalse(actual);
@@ -64,7 +64,7 @@ class SignatureAlgorithmTest {
         //given
 
         //when
-        final SignatureAlgorithm actual = SignatureAlgorithm.forValue(inout);
+        final var actual = SignatureAlgorithm.forValue(inout);
 
         //then
         Assertions.assertEquals(expected, actual);

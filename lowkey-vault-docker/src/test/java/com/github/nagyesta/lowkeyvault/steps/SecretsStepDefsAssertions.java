@@ -9,7 +9,6 @@ import io.cucumber.java.en.Then;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -70,7 +69,7 @@ public class SecretsStepDefsAssertions extends CommonAssertions {
 
     @Then("the secret has {tagMap} as tags")
     public void theSecretHasTagMapAsTags(final Map<String, String> expectedMap) {
-        final Map<String, String> tags = context.getLastResult().getProperties().getTags();
+        final var tags = context.getLastResult().getProperties().getTags();
         assertContainsEqualEntries(expectedMap, tags);
     }
 
@@ -87,7 +86,7 @@ public class SecretsStepDefsAssertions extends CommonAssertions {
 
     @Then("the deleted secret recovery id contains the vault url and {name}")
     public void theDeletedSecretRecoveryIdContainsTheVaultUrlAndSecretName(final String secretName) {
-        final String recoveryId = context.getLastDeleted().getRecoveryId();
+        final var recoveryId = context.getLastDeleted().getRecoveryId();
         assertTrue(recoveryId + " did not start with " + context.getProvider().getVaultUrl(),
                 recoveryId.startsWith(context.getProvider().getVaultUrl()));
         assertTrue(recoveryId + " did not contain " + secretName,
@@ -102,14 +101,14 @@ public class SecretsStepDefsAssertions extends CommonAssertions {
 
     @Then("the list of secrets should contain {int} managed items")
     public void theListShouldContainCountManagedItems(final int count) {
-        final List<String> ids = context.getListedManagedIds();
+        final var ids = context.getListedManagedIds();
         assertEquals(count, ids.size());
     }
 
     @Then("the listed secrets are matching the ones created")
     public void theListedSecretsAreMatchingTheOnesCreated() {
-        final List<String> actual = context.getListedIds();
-        final List<String> expected = context.getCreatedEntities().values().stream()
+        final var actual = context.getListedIds();
+        final var expected = context.getCreatedEntities().values().stream()
                 .map(secrets -> new LinkedList<>(secrets).getLast().getId())
                 .map(s -> s.replaceFirst("/[0-9a-f]{32}$", ""))
                 .collect(Collectors.toList());
@@ -118,8 +117,8 @@ public class SecretsStepDefsAssertions extends CommonAssertions {
 
     @Then("the listed deleted secrets are matching the ones deleted before")
     public void theListedDeletedSecretsAreMatchingTheOnesDeletedBefore() {
-        final List<String> actual = context.getListedIds();
-        final List<String> expected = context.getDeletedRecoveryIds();
+        final var actual = context.getListedIds();
+        final var expected = context.getDeletedRecoveryIds();
         assertContainsEqualEntriesSorted(expected, actual);
     }
 

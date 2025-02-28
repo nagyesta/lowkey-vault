@@ -45,14 +45,14 @@ public class VaultServiceImpl implements VaultService {
 
     @Override
     public VaultFake create(final URI uri, final RecoveryLevel recoveryLevel, final Integer recoverableDays, final Set<URI> aliases) {
-        final Optional<Set<URI>> optionalAliases = Optional.ofNullable(aliases);
+        final var optionalAliases = Optional.ofNullable(aliases);
         optionalAliases.stream().flatMap(Set::stream).forEach(alias -> {
             Assert.isTrue(!uri.equals(alias), "Base URI cannot match alias: " + alias);
             if (findByUriAndDeleteStatus(alias, v -> true).isPresent()) {
                 throw new AlreadyExistsException("Vault alias already exists: " + alias);
             }
         });
-        final VaultFake vaultFake = create(uri, () -> new VaultFakeImpl(uri, recoveryLevel, recoverableDays));
+        final var vaultFake = create(uri, () -> new VaultFakeImpl(uri, recoveryLevel, recoverableDays));
         optionalAliases.ifPresent(vaultFake::setAliases);
         return vaultFake;
     }
@@ -75,10 +75,10 @@ public class VaultServiceImpl implements VaultService {
     @Override
     public boolean delete(final URI uri) {
         synchronized (vaultFakes) {
-            final Optional<VaultFake> vaultFake = findByUriAndDeleteStatus(uri, VaultFake::isActive);
-            boolean deleted = false;
+            final var vaultFake = findByUriAndDeleteStatus(uri, VaultFake::isActive);
+            var deleted = false;
             if (vaultFake.isPresent()) {
-                final VaultFake found = vaultFake.get();
+                final var found = vaultFake.get();
                 log.info("Deleting vault with URI: {}", uri);
                 found.delete();
                 deleted = true;
@@ -91,8 +91,8 @@ public class VaultServiceImpl implements VaultService {
     public void recover(final URI uri) {
         purgeExpired();
         synchronized (vaultFakes) {
-            final Optional<VaultFake> vaultFake = findByUriAndDeleteStatus(uri, VaultFake::isDeleted);
-            final VaultFake found = vaultFake
+            final var vaultFake = findByUriAndDeleteStatus(uri, VaultFake::isDeleted);
+            final var found = vaultFake
                     .orElseThrow(() -> new NotFoundException("Unable to find deleted vault: " + uri));
             log.info("Recovering vault with URI: {}", uri);
             found.recover();
@@ -103,8 +103,8 @@ public class VaultServiceImpl implements VaultService {
     public boolean purge(final URI uri) {
         purgeExpired();
         synchronized (vaultFakes) {
-            final Optional<VaultFake> vaultFake = findByUriAndDeleteStatus(uri, VaultFake::isDeleted);
-            final VaultFake found = vaultFake
+            final var vaultFake = findByUriAndDeleteStatus(uri, VaultFake::isDeleted);
+            final var found = vaultFake
                     .orElseThrow(() -> new NotFoundException("Unable to find deleted vault: " + uri));
             log.info("Purging vault with URI: {}", uri);
             return vaultFakes.remove(found);
@@ -124,9 +124,9 @@ public class VaultServiceImpl implements VaultService {
         log.info("Updating aliases of: {} , adding: {}, removing: {}", baseUri, add, remove);
         Assert.isTrue(add != null || remove != null, "At least one of the add/remove parameters needs to be populated.");
         Assert.isTrue(!Objects.equals(add, remove), "The URL we want to add and remove, must be different.");
-        final VaultFake fake = findByUriIncludeDeleted(baseUri);
+        final var fake = findByUriIncludeDeleted(baseUri);
 
-        final TreeSet<URI> aliases = new TreeSet<>(fake.aliases());
+        final var aliases = new TreeSet<URI>(fake.aliases());
         Optional.ofNullable(add).ifPresent(alias -> {
             if (findByUriAndDeleteStatus(add, v -> true).isPresent()) {
                 throw new AlreadyExistsException("Vault alias already exists: " + add);
@@ -151,7 +151,7 @@ public class VaultServiceImpl implements VaultService {
                 throw new AlreadyExistsException("Vault is already created with uri: " + uri);
             }
             log.info("Creating vault for URI: {}", uri);
-            final VaultFake vaultFake = vaultFakeSupplier.get();
+            final var vaultFake = vaultFakeSupplier.get();
             vaultFakes.add(vaultFake);
             return vaultFake;
         }

@@ -42,10 +42,10 @@ public class CommonAuthHeaderFilter extends OncePerRequestFilter {
                                     @NonNull final FilterChain filterChain) throws ServletException, IOException {
 
         log.debug("Adding fake authenticate header to response for request: {}", request.getRequestURI());
-        final String port = resolvePort(request.getServerPort());
-        final URI baseUri = URI.create(HTTPS + request.getServerName() + port);
+        final var port = resolvePort(request.getServerPort());
+        final var baseUri = URI.create(HTTPS + request.getServerName() + port);
         request.setAttribute(ApiConstants.REQUEST_BASE_URI, baseUri);
-        final URI authResourceUri = Optional.of(authResource)
+        final var authResourceUri = Optional.of(authResource)
                 .filter(anObject -> !OMIT_DEFAULT.equals(anObject))
                 .map(res -> URI.create(HTTPS + res))
                 .orElse(baseUri);

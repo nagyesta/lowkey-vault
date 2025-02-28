@@ -14,14 +14,14 @@ public abstract class BackupConverter<K extends EntityId, V extends K, E extends
     @NonNull
     @Override
     public BLI convert(@NonNull final E source) {
-        final BLI item = convertUniqueFields(source);
+        final var item = convertUniqueFields(source);
         return mapCommonFields(source, item);
     }
 
     protected abstract BLI convertUniqueFields(E source);
 
     private BLI mapCommonFields(final E source, final BLI item) {
-        final V entityId = source.getId();
+        final var entityId = source.getId();
         item.setVaultBaseUri(entityId.vault());
         item.setId(entityId.id());
         item.setVersion(entityId.version());

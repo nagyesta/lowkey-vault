@@ -96,7 +96,7 @@ class CertificateLifetimeActionTriggerTypeTest {
         //given
 
         //when
-        final long actual = underTest.triggersAfterDays(validityStart, expiry, value);
+        final var actual = underTest.triggersAfterDays(validityStart, expiry, value);
 
         //then
         Assertions.assertEquals(expectedValue, actual);

@@ -6,7 +6,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.time.OffsetDateTime;
 import java.time.Period;
@@ -31,7 +30,7 @@ class PeriodUtilTest {
     @Test
     void testConstructorShouldThrowExceptionWhenCalled() throws NoSuchMethodException {
         //given
-        final Constructor<PeriodUtil> constructor = PeriodUtil.class.getDeclaredConstructor();
+        final var constructor = PeriodUtil.class.getDeclaredConstructor();
         constructor.setAccessible(true);
 
         //when
@@ -55,11 +54,11 @@ class PeriodUtilTest {
     @MethodSource("validProvider")
     void testAsDaysShouldReturnNumberOfDaysWhenCalledWithValidPeriods(final String period, final int expected) {
         //given
-        final OffsetDateTime time = OffsetDateTime.of(2022, 5, 10, 0, 0, 0, 0, ZoneOffset.UTC);
-        final Period parsed = Period.parse(period);
+        final var time = OffsetDateTime.of(2022, 5, 10, 0, 0, 0, 0, ZoneOffset.UTC);
+        final var parsed = Period.parse(period);
 
         //when
-        final long actual = PeriodUtil.asDays(parsed, time);
+        final var actual = PeriodUtil.asDays(parsed, time);
 
         //then
         Assertions.assertEquals(expected, actual);

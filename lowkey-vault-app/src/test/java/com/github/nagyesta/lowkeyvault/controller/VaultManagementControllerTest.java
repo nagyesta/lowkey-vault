@@ -11,17 +11,13 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.net.URI;
-import java.time.OffsetDateTime;
 import java.util.Collections;
-import java.util.List;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.NUMBER_OF_SECONDS_IN_10_MINUTES;
@@ -42,7 +38,7 @@ class VaultManagementControllerTest {
     }
 
     private static VaultModel createVaultModel(final URI uri, final boolean deleted) {
-        final VaultModel model = new VaultModel();
+        final var model = new VaultModel();
         model.setBaseUri(uri);
         model.setRecoveryLevel(RecoveryLevel.CUSTOMIZED_RECOVERABLE);
         model.setRecoverableDays(RecoveryLevel.MIN_RECOVERABLE_DAYS_INCLUSIVE);
@@ -112,12 +108,12 @@ class VaultManagementControllerTest {
             //given
 
             //when
-            final ResponseEntity<VaultModel> actual = underTest.createVault(VAULT_MODEL);
+            final var actual = underTest.createVault(VAULT_MODEL);
 
             //then
             Assertions.assertEquals(VAULT_MODEL, actual.getBody());
             Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
-            final InOrder inOrder = inOrder(vaultService, converter);
+            final var inOrder = inOrder(vaultService, converter);
             inOrder.verify(vaultService)
                     .create(eq(HTTPS_DEFAULT_LOWKEY_VAULT),
                             eq(VAULT_MODEL.getRecoveryLevel()),
@@ -132,12 +128,12 @@ class VaultManagementControllerTest {
             //given
 
             //when
-            final ResponseEntity<List<VaultModel>> actual = underTest.listVaults();
+            final var actual = underTest.listVaults();
 
             //then
             Assertions.assertEquals(Collections.singletonList(VAULT_MODEL), actual.getBody());
             Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
-            final InOrder inOrder = inOrder(vaultService, converter);
+            final var inOrder = inOrder(vaultService, converter);
             inOrder.verify(vaultService).list();
             inOrder.verify(converter).convertNonNull(eq(vaultFakeActive));
             verifyNoMoreInteractions(vaultService, converter);
@@ -148,12 +144,12 @@ class VaultManagementControllerTest {
             //given
 
             //when
-            final ResponseEntity<List<VaultModel>> actual = underTest.listDeletedVaults();
+            final var actual = underTest.listDeletedVaults();
 
             //then
             Assertions.assertEquals(Collections.singletonList(VAULT_MODEL_DELETED), actual.getBody());
             Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
-            final InOrder inOrder = inOrder(vaultService, converter);
+            final var inOrder = inOrder(vaultService, converter);
             inOrder.verify(vaultService).listDeleted();
             inOrder.verify(converter).convertNonNull(eq(vaultFakeDeleted));
             verifyNoMoreInteractions(vaultService, converter);
@@ -164,7 +160,7 @@ class VaultManagementControllerTest {
             //given
 
             //when
-            final ResponseEntity<Boolean> actual = underTest.deleteVault(HTTPS_DEFAULT_LOWKEY_VAULT);
+            final var actual = underTest.deleteVault(HTTPS_DEFAULT_LOWKEY_VAULT);
 
             //then
             Assertions.assertEquals(true, actual.getBody());
@@ -178,12 +174,12 @@ class VaultManagementControllerTest {
             //given
 
             //when
-            final ResponseEntity<VaultModel> actual = underTest.recoverVault(HTTPS_DEFAULT_LOWKEY_VAULT_8443);
+            final var actual = underTest.recoverVault(HTTPS_DEFAULT_LOWKEY_VAULT_8443);
 
             //then
             Assertions.assertEquals(VAULT_MODEL_DELETED, actual.getBody());
             Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
-            final InOrder inOrder = inOrder(vaultService, converter);
+            final var inOrder = inOrder(vaultService, converter);
             inOrder.verify(vaultService).recover(eq(HTTPS_DEFAULT_LOWKEY_VAULT_8443));
             inOrder.verify(vaultService).findByUri(eq(HTTPS_DEFAULT_LOWKEY_VAULT_8443));
             inOrder.verify(converter).convert(same(vaultFakeDeleted));
@@ -196,7 +192,7 @@ class VaultManagementControllerTest {
             when(vaultService.purge(eq(HTTPS_DEFAULT_LOWKEY_VAULT_8443))).thenReturn(true);
 
             //when
-            final ResponseEntity<Boolean> actual = underTest.purgeVault(HTTPS_DEFAULT_LOWKEY_VAULT_8443);
+            final var actual = underTest.purgeVault(HTTPS_DEFAULT_LOWKEY_VAULT_8443);
 
             //then
             Assertions.assertEquals(true, actual.getBody());
@@ -213,7 +209,7 @@ class VaultManagementControllerTest {
             when(converter.convert(eq(vaultFakeActive))).thenReturn(VAULT_MODEL);
 
             //when
-            final ResponseEntity<VaultModel> actual = underTest
+            final var actual = underTest
                     .aliasUpdate(HTTPS_DEFAULT_LOWKEY_VAULT_8443, HTTPS_LOCALHOST_80, HTTPS_LOOP_BACK_IP);
 
             //then
@@ -229,7 +225,7 @@ class VaultManagementControllerTest {
             //given
 
             //when
-            final ResponseEntity<Void> actual = underTest.timeShiftAll(NUMBER_OF_SECONDS_IN_10_MINUTES, false);
+            final var actual = underTest.timeShiftAll(NUMBER_OF_SECONDS_IN_10_MINUTES, false);
 
             //then
             Assertions.assertEquals(HttpStatus.NO_CONTENT, actual.getStatusCode());
@@ -240,11 +236,11 @@ class VaultManagementControllerTest {
         @Test
         void testTimeShiftSingleShouldCallServiceWhenCalled() {
             //given
-            final OffsetDateTime createdOn = vaultFakeActive.getCreatedOn();
+            final var createdOn = vaultFakeActive.getCreatedOn();
             when(vaultService.findByUriIncludeDeleted(eq(HTTPS_DEFAULT_LOWKEY_VAULT))).thenReturn(vaultFakeActive);
 
             //when
-            final ResponseEntity<Void> actual = underTest
+            final var actual = underTest
                     .timeShiftSingle(HTTPS_DEFAULT_LOWKEY_VAULT, NUMBER_OF_SECONDS_IN_10_MINUTES, true);
 
             //then

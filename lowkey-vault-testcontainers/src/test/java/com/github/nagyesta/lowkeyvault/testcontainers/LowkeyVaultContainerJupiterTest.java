@@ -13,7 +13,6 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import java.security.KeyStore;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -40,12 +39,12 @@ class LowkeyVaultContainerJupiterTest extends AbstractLowkeyVaultContainerTest {
         //given + when test container is created
 
         //then
-        final String endpoint = underTest.getVaultBaseUrl(VAULT_NAME);
-        final AuthorityOverrideFunction authorityOverrideFunction = new AuthorityOverrideFunction(
+        final var endpoint = underTest.getVaultBaseUrl(VAULT_NAME);
+        final var authorityOverrideFunction = new AuthorityOverrideFunction(
                 underTest.getVaultAuthority(VAULT_NAME),
                 underTest.getEndpointAuthority());
         final TokenCredential credentials = new BasicAuthenticationCredential(underTest.getUsername(), underTest.getPassword());
-        final ApacheHttpClient httpClient = new ApacheHttpClient(authorityOverrideFunction,
+        final var httpClient = new ApacheHttpClient(authorityOverrideFunction,
                 new TrustSelfSignedStrategy(), new DefaultHostnameVerifier());
         verifyConnectionIsWorking(endpoint, httpClient, credentials);
     }
@@ -55,12 +54,12 @@ class LowkeyVaultContainerJupiterTest extends AbstractLowkeyVaultContainerTest {
         //given + when test container is created
 
         //then
-        final String endpoint = "https://" + ALIAS;
-        final AuthorityOverrideFunction authorityOverrideFunction = new AuthorityOverrideFunction(
+        final var endpoint = "https://" + ALIAS;
+        final var authorityOverrideFunction = new AuthorityOverrideFunction(
                 ALIAS,
                 underTest.getEndpointAuthority());
         final TokenCredential credentials = new BasicAuthenticationCredential(underTest.getUsername(), underTest.getPassword());
-        final ApacheHttpClient httpClient = new ApacheHttpClient(authorityOverrideFunction,
+        final var httpClient = new ApacheHttpClient(authorityOverrideFunction,
                 new TrustSelfSignedStrategy(), new DefaultHostnameVerifier());
         verifyConnectionIsWorking(endpoint, httpClient, credentials);
     }
@@ -70,10 +69,10 @@ class LowkeyVaultContainerJupiterTest extends AbstractLowkeyVaultContainerTest {
         //given test container is created
 
         //when
-        final String endpoint = underTest.getTokenEndpointUrl();
+        final var endpoint = underTest.getTokenEndpointUrl();
 
         //then
-        final ApacheHttpClient httpClient = new ApacheHttpClient(Function.identity(),
+        final var httpClient = new ApacheHttpClient(Function.identity(),
                 new TrustSelfSignedStrategy(), new DefaultHostnameVerifier());
         verifyTokenEndpointIsWorking(endpoint, httpClient);
     }
@@ -83,8 +82,8 @@ class LowkeyVaultContainerJupiterTest extends AbstractLowkeyVaultContainerTest {
         //given test container is created
 
         //when
-        final String password = underTest.getDefaultKeyStorePassword();
-        final KeyStore keyStore = underTest.getDefaultKeyStore();
+        final var password = underTest.getDefaultKeyStorePassword();
+        final var keyStore = underTest.getDefaultKeyStore();
 
         //then
         Assertions.assertNotNull(keyStore);

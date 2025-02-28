@@ -34,8 +34,8 @@ final class ApacheHttpRequest extends HttpEntityEnclosingRequestBase {
     ApacheHttpRequest(final HttpMethod method, final URL url,
                       final HttpHeaders headers, final Function<URI, URI> authorityOverrideFunction) throws URISyntaxException {
         this.method = method.name();
-        final URI uri = Objects.requireNonNull(url).toURI();
-        final URI overrideUri = Objects.requireNonNull(authorityOverrideFunction).apply(uri);
+        final var uri = Objects.requireNonNull(url).toURI();
+        final var overrideUri = Objects.requireNonNull(authorityOverrideFunction).apply(uri);
         setURI(overrideUri);
         headers.stream().forEach(header -> addHeader(header.getName(), header.getValue()));
         addHeader(org.apache.http.HttpHeaders.HOST, url.getAuthority());

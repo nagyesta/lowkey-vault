@@ -3,7 +3,9 @@ package com.github.nagyesta.lowkeyvault.mapper.v7_3.key;
 import com.github.nagyesta.lowkeyvault.context.ApiVersionAware;
 import com.github.nagyesta.lowkeyvault.mapper.common.ApiVersionAwareConverter;
 import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
-import com.github.nagyesta.lowkeyvault.model.v7_3.key.*;
+import com.github.nagyesta.lowkeyvault.model.v7_3.key.KeyLifetimeActionModel;
+import com.github.nagyesta.lowkeyvault.model.v7_3.key.KeyRotationPolicyAttributes;
+import com.github.nagyesta.lowkeyvault.model.v7_3.key.KeyRotationPolicyModel;
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.constants.LifetimeActionType;
 import com.github.nagyesta.lowkeyvault.service.key.KeyLifetimeAction;
 import com.github.nagyesta.lowkeyvault.service.key.LifetimeAction;
@@ -16,7 +18,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 import java.time.OffsetDateTime;
-import java.time.Period;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -56,8 +57,8 @@ public class KeyRotationPolicyV73ModelToEntityConverter implements ApiVersionAwa
         Assert.notNull(source.getAttributes(), "Attributes cannot be null.");
         Assert.notNull(source.getLifetimeActions(), "LifetimeActions cannot be null.");
         Assert.notEmpty(source.getLifetimeActions(), "LifetimeActions cannot be empty.");
-        final Map<LifetimeActionType, LifetimeAction> actions = convertLifetimeActions(source.getLifetimeActions());
-        final Period expiryTime = source.getAttributes().getExpiryTime();
+        final var actions = convertLifetimeActions(source.getLifetimeActions());
+        final var expiryTime = source.getAttributes().getExpiryTime();
         final RotationPolicy entity = new KeyRotationPolicy(source.getKeyEntityId(), expiryTime, actions);
         return convertAttributes(source.getAttributes(), entity);
     }
@@ -79,9 +80,9 @@ public class KeyRotationPolicyV73ModelToEntityConverter implements ApiVersionAwa
     }
 
     private LifetimeAction convertLifetimeAction(final KeyLifetimeActionModel source) {
-        final KeyLifetimeActionTriggerModel sourceTrigger = Objects.requireNonNull(source.getTrigger());
-        final KeyLifetimeActionTypeModel action = Objects.requireNonNull(source.getAction());
-        final KeyLifetimeActionTrigger trigger = new KeyLifetimeActionTrigger(
+        final var sourceTrigger = Objects.requireNonNull(source.getTrigger());
+        final var action = Objects.requireNonNull(source.getAction());
+        final var trigger = new KeyLifetimeActionTrigger(
                 sourceTrigger.getTriggerPeriod(), sourceTrigger.getTriggerType());
         return new KeyLifetimeAction(action.getType(), trigger);
     }

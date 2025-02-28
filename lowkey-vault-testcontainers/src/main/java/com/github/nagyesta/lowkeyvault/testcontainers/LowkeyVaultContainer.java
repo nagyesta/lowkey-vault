@@ -14,7 +14,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -84,24 +83,24 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
         }
 
         if (containerBuilder.getImportFile() != null) {
-            final String absolutePath = containerBuilder.getImportFile().getAbsolutePath();
+            final var absolutePath = containerBuilder.getImportFile().getAbsolutePath();
             logger().info("Using path for import file: '{}'", absolutePath);
             withFileSystemBind(absolutePath, "/import/vaults.json", containerBuilder.getImportFileBindMode());
         }
 
         if (containerBuilder.getCustomSslCertStore() != null) {
-            final String absolutePath = containerBuilder.getCustomSslCertStore().getAbsolutePath();
+            final var absolutePath = containerBuilder.getCustomSslCertStore().getAbsolutePath();
             logger().info("Using path for custom certificate: '{}'", absolutePath);
             withFileSystemBind(absolutePath, "/config/cert.store", BindMode.READ_ONLY);
         }
 
         if (containerBuilder.getExternalConfigFile() != null) {
-            final String absolutePath = containerBuilder.getExternalConfigFile().getAbsolutePath();
+            final var absolutePath = containerBuilder.getExternalConfigFile().getAbsolutePath();
             logger().info("Using path for external configuration: '{}'", absolutePath);
             withFileSystemBind(absolutePath, "/config/application.properties", BindMode.READ_ONLY);
         }
 
-        final List<String> args = new LowkeyVaultArgLineBuilder()
+        final var args = new LowkeyVaultArgLineBuilder()
                 .vaultNames(Objects.requireNonNullElse(containerBuilder.getVaultNames(), Set.of()))
                 .aliases(containerBuilder.getAliasMap())
                 .logicalHost(containerBuilder.getLogicalHost())
@@ -207,14 +206,14 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
      * @return keyStore
      */
     public KeyStore getDefaultKeyStore() {
-        final HttpRequest request = HttpRequest.newBuilder()
+        final var request = HttpRequest.newBuilder()
                 .uri(URI.create(getTokenEndpointBaseUrl() + "/metadata/default-cert/lowkey-vault.p12"))
                 .GET()
                 .build();
         try {
-            final byte[] keyStoreBytes = httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray())
+            final var keyStoreBytes = httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray())
                     .body();
-            final KeyStore keyStore = KeyStore.getInstance("PKCS12");
+            final var keyStore = KeyStore.getInstance("PKCS12");
             keyStore.load(new ByteArrayInputStream(keyStoreBytes), getDefaultKeyStorePassword().toCharArray());
             return keyStore;
         } catch (final Exception e) {
@@ -228,7 +227,7 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
      * @return password
      */
     public String getDefaultKeyStorePassword() {
-        final HttpRequest request = HttpRequest.newBuilder()
+        final var request = HttpRequest.newBuilder()
                 .uri(URI.create(getTokenEndpointBaseUrl() + "/metadata/default-cert/password"))
                 .GET()
                 .build();
@@ -252,10 +251,10 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
             final DockerImageName dockerImageName,
             final String hostArch) {
         dockerImageName.assertCompatibleWith(DEFAULT_IMAGE_NAME);
-        final boolean hostArchIsNotAmd64 = !"amd64".equals(hostArch);
-        final boolean defaultImageUsed = DEFAULT_IMAGE_NAME.getUnversionedPart().equals(dockerImageName.getUnversionedPart());
-        final String versionPart = dockerImageName.getVersionPart();
-        final boolean imageIsNotMultiArch = !versionPart.contains("-ubi9-minimal");
+        final var hostArchIsNotAmd64 = !"amd64".equals(hostArch);
+        final var defaultImageUsed = DEFAULT_IMAGE_NAME.getUnversionedPart().equals(dockerImageName.getUnversionedPart());
+        final var versionPart = dockerImageName.getVersionPart();
+        final var imageIsNotMultiArch = !versionPart.contains("-ubi9-minimal");
         if (defaultImageUsed && hostArchIsNotAmd64 && imageIsNotMultiArch) {
             logger.warn("An amd64 image is detected with non-amd64 ({}) host.", hostArch);
             logger.warn("Please consider using a multi-arch image, like: {}-ubi9-minimal", versionPart);

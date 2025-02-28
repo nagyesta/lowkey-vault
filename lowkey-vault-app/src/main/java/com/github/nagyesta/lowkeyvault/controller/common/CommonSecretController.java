@@ -8,9 +8,7 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.secret.KeyVaultSecretItemModel
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.KeyVaultSecretModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.request.CreateSecretRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.request.UpdateSecretRequest;
-import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultFake;
 import com.github.nagyesta.lowkeyvault.service.secret.id.SecretEntityId;
-import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
@@ -34,8 +32,8 @@ public abstract class CommonSecretController extends BaseSecretController {
         log.info("Received request to {} create secret: {} using API version: {}",
                 baseUri.toString(), secretName, apiVersion());
 
-        final SecretVaultFake secretVaultFake = getVaultByUri(baseUri);
-        final VersionedSecretEntityId secretEntityId = createSecretWithAttributes(secretVaultFake, secretName, request);
+        final var secretVaultFake = getVaultByUri(baseUri);
+        final var secretEntityId = createSecretWithAttributes(secretVaultFake, secretName, request);
         return ResponseEntity.ok(getModelById(secretVaultFake, secretEntityId, baseUri, true));
     }
 
@@ -45,10 +43,10 @@ public abstract class CommonSecretController extends BaseSecretController {
         log.info("Received request to {} delete secret: {} using API version: {}",
                 baseUri.toString(), secretName, apiVersion());
 
-        final SecretVaultFake secretVaultFake = getVaultByUri(baseUri);
-        final SecretEntityId entityId = new SecretEntityId(baseUri, secretName);
+        final var secretVaultFake = getVaultByUri(baseUri);
+        final var entityId = new SecretEntityId(baseUri, secretName);
         secretVaultFake.delete(entityId);
-        final VersionedSecretEntityId latestVersion = secretVaultFake.getDeletedEntities().getLatestVersionOfEntity(entityId);
+        final var latestVersion = secretVaultFake.getDeletedEntities().getLatestVersionOfEntity(entityId);
         return ResponseEntity.ok(getDeletedModelById(secretVaultFake, latestVersion, baseUri, true));
     }
 
@@ -127,8 +125,8 @@ public abstract class CommonSecretController extends BaseSecretController {
         log.info("Received request to {} update secret: {} with version: {} using API version: {}",
                 baseUri.toString(), secretName, secretVersion, apiVersion());
 
-        final SecretVaultFake secretVaultFake = getVaultByUri(baseUri);
-        final VersionedSecretEntityId entityId = versionedEntityId(baseUri, secretName, secretVersion);
+        final var secretVaultFake = getVaultByUri(baseUri);
+        final var entityId = versionedEntityId(baseUri, secretName, secretVersion);
         updateAttributes(secretVaultFake, entityId, request.getProperties());
         updateTags(secretVaultFake, entityId, request.getTags());
         return ResponseEntity.ok(getModelById(secretVaultFake, entityId, baseUri, true));
@@ -140,9 +138,9 @@ public abstract class CommonSecretController extends BaseSecretController {
         log.info("Received request to {} get deleted secret: {} using API version: {}",
                 baseUri.toString(), secretName, apiVersion());
 
-        final SecretVaultFake secretVaultFake = getVaultByUri(baseUri);
-        final SecretEntityId entityId = new SecretEntityId(baseUri, secretName);
-        final VersionedSecretEntityId latestVersion = secretVaultFake.getDeletedEntities().getLatestVersionOfEntity(entityId);
+        final var secretVaultFake = getVaultByUri(baseUri);
+        final var entityId = new SecretEntityId(baseUri, secretName);
+        final var latestVersion = secretVaultFake.getDeletedEntities().getLatestVersionOfEntity(entityId);
         return ResponseEntity.ok(getDeletedModelById(secretVaultFake, latestVersion, baseUri, false));
     }
 
@@ -152,8 +150,8 @@ public abstract class CommonSecretController extends BaseSecretController {
         log.info("Received request to {} purge deleted secret: {} using API version: {}",
                 baseUri.toString(), secretName, apiVersion());
 
-        final SecretVaultFake secretVaultFake = getVaultByUri(baseUri);
-        final SecretEntityId entityId = new SecretEntityId(baseUri, secretName);
+        final var secretVaultFake = getVaultByUri(baseUri);
+        final var entityId = new SecretEntityId(baseUri, secretName);
         secretVaultFake.purge(entityId);
         return ResponseEntity.noContent().build();
     }
@@ -164,10 +162,10 @@ public abstract class CommonSecretController extends BaseSecretController {
         log.info("Received request to {} recover deleted secret: {} using API version: {}",
                 baseUri.toString(), secretName, apiVersion());
 
-        final SecretVaultFake secretVaultFake = getVaultByUri(baseUri);
-        final SecretEntityId entityId = new SecretEntityId(baseUri, secretName);
+        final var secretVaultFake = getVaultByUri(baseUri);
+        final var entityId = new SecretEntityId(baseUri, secretName);
         secretVaultFake.recover(entityId);
-        final VersionedSecretEntityId latestVersion = secretVaultFake.getEntities().getLatestVersionOfEntity(entityId);
+        final var latestVersion = secretVaultFake.getEntities().getLatestVersionOfEntity(entityId);
         return ResponseEntity.ok(getModelById(secretVaultFake, latestVersion, baseUri, true));
     }
 }

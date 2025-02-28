@@ -36,10 +36,10 @@ class VersionedKeyEntityIdTest {
     @Test
     void testConstructorShouldGenerateAVersionWhenNotProvidedAsParameter() {
         //given
-        final VersionedKeyEntityId underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1);
+        final var underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1);
 
         //when
-        final String actual = underTest.version();
+        final var actual = underTest.version();
 
         //then
         Assertions.assertNotNull(actual);
@@ -48,10 +48,10 @@ class VersionedKeyEntityIdTest {
     @Test
     void testConstructorShouldUseVersionWhenProvidedAsParameter() {
         //given
-        final VersionedKeyEntityId underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
+        final var underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
 
         //when
-        final String actual = underTest.version();
+        final var actual = underTest.version();
 
         //then
         Assertions.assertEquals(KEY_VERSION_1, actual);
@@ -85,7 +85,7 @@ class VersionedKeyEntityIdTest {
     @Test
     void testAsRotationPolicyUriShouldThrowExceptionWhenCalledWithNull() {
         //given
-        final VersionedKeyEntityId underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
+        final var underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asRotationPolicyUri(null));
@@ -97,7 +97,7 @@ class VersionedKeyEntityIdTest {
     @Test
     void testAsUriNoversionShouldThrowExceptionWhenCalledWithNull() {
         //given
-        final VersionedKeyEntityId underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
+        final var underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asUriNoVersion(null));
@@ -108,10 +108,10 @@ class VersionedKeyEntityIdTest {
     @Test
     void testAsUriShouldGenerateUriWhenCalledBasedOnProvidedValues() {
         //given
-        final VersionedKeyEntityId underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
+        final var underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
 
         //when
-        final URI actual = underTest.asUri(HTTPS_LOCALHOST_8443);
+        final var actual = underTest.asUri(HTTPS_LOCALHOST_8443);
 
         //then
         Assertions.assertEquals(URI.create("https://localhost:8443/keys/" + KEY_NAME_1 + "/" + KEY_VERSION_1), actual);
@@ -121,7 +121,7 @@ class VersionedKeyEntityIdTest {
     @Test
     void testAsUriShouldThrowExceptionWhenCalledWithNull() {
         //given
-        final VersionedKeyEntityId underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
+        final var underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asUri(null));
@@ -132,10 +132,10 @@ class VersionedKeyEntityIdTest {
     @Test
     void testAsRecoveryUriShouldGenerateRecoveryUriWhenCalledBasedOnProvidedValues() {
         //given
-        final VersionedKeyEntityId underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
+        final var underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
 
         //when
-        final URI actual = underTest.asRecoveryUri(HTTPS_LOCALHOST_8443);
+        final var actual = underTest.asRecoveryUri(HTTPS_LOCALHOST_8443);
 
         //then
         Assertions.assertEquals(URI.create("https://localhost:8443/deletedkeys/" + KEY_NAME_1), actual);
@@ -145,7 +145,7 @@ class VersionedKeyEntityIdTest {
     @Test
     void testAsRecoveryUriShouldThrowExceptionWhenCalledWithNull() {
         //given
-        final VersionedKeyEntityId underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
+        final var underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asRecoveryUri(null));
@@ -156,11 +156,11 @@ class VersionedKeyEntityIdTest {
     @Test
     void testAsUriShouldAddQueryStringWhenCalledWithOne() {
         //given
-        final VersionedKeyEntityId underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
-        final String query = "?query=true";
+        final var underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
+        final var query = "?query=true";
 
         //when
-        final URI actual = underTest.asUri(HTTPS_LOCALHOST_8443, query);
+        final var actual = underTest.asUri(HTTPS_LOCALHOST_8443, query);
 
         //then
         Assertions.assertEquals(URI.create("https://localhost:8443/keys/" + KEY_NAME_1 + "/" + KEY_VERSION_1 + query), actual);
@@ -170,7 +170,7 @@ class VersionedKeyEntityIdTest {
     @Test
     void testAsUriShouldThrowExceptionWhenCalledWithNullQueryString() {
         //given
-        final VersionedKeyEntityId underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
+        final var underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asUri(HTTPS_LOCALHOST_8443, null));
@@ -182,7 +182,7 @@ class VersionedKeyEntityIdTest {
     @Test
     void testAsUriShouldThrowExceptionWhenCalledWithNullWithBaseUri() {
         //given
-        final VersionedKeyEntityId underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
+        final var underTest = new VersionedKeyEntityId(HTTPS_LOCALHOST, KEY_NAME_1, KEY_VERSION_1);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asUri(null, "?query"));

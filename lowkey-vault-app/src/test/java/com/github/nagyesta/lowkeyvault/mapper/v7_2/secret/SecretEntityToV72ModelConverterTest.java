@@ -78,12 +78,12 @@ class SecretEntityToV72ModelConverterTest {
 
         //given
         prepareVaultMock(baseUri);
-        final String expectedUri = secretEntityId.asUri(baseUri).toString();
-        final KeyVaultSecretEntity input = new KeyVaultSecretEntity(secretEntityId, vault, value, APPLICATION_XML.toString());
+        final var expectedUri = secretEntityId.asUri(baseUri).toString();
+        final var input = new KeyVaultSecretEntity(secretEntityId, vault, value, APPLICATION_XML.toString());
         input.setTags(tags);
 
         //when
-        final KeyVaultSecretModel actual = underTest.convert(input, secretEntityId.vault());
+        final var actual = underTest.convert(input, secretEntityId.vault());
 
         //then
         assertFieldsMatch(tags, input, expectedUri, actual);
@@ -97,13 +97,13 @@ class SecretEntityToV72ModelConverterTest {
 
         //given
         prepareVaultMock(baseUri);
-        final String expectedUri = secretEntityId.asUri(baseUri).toString();
-        final KeyVaultSecretEntity input = new KeyVaultSecretEntity(secretEntityId, vault, value, APPLICATION_XML.toString());
+        final var expectedUri = secretEntityId.asUri(baseUri).toString();
+        final var input = new KeyVaultSecretEntity(secretEntityId, vault, value, APPLICATION_XML.toString());
         input.setTags(tags);
         input.setManaged(true);
 
         //when
-        final KeyVaultSecretModel actual = underTest.convert(input, secretEntityId.vault());
+        final var actual = underTest.convert(input, secretEntityId.vault());
 
         //then
         assertFieldsMatch(tags, input, expectedUri, actual);
@@ -125,7 +125,7 @@ class SecretEntityToV72ModelConverterTest {
 
     private void prepareVaultMock(final URI baseUri) {
         when(vault.baseUri()).thenReturn(baseUri);
-        final URI vaultUri = eq(baseUri);
+        final var vaultUri = eq(baseUri);
         when(vault.matches(vaultUri, eq(Function.identity()))).thenReturn(true);
     }
 

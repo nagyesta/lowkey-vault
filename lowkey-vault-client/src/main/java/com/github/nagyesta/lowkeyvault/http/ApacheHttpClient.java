@@ -31,9 +31,9 @@ public final class ApacheHttpClient implements HttpClient {
                             final HostnameVerifier hostnameVerifier) {
         try {
             this.authorityOverrideFunction = Objects.requireNonNull(authorityOverrideFunction);
-            final SSLContextBuilder builder = new SSLContextBuilder();
+            final var builder = new SSLContextBuilder();
             builder.loadTrustMaterial(null, trustStrategy);
-            final SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(builder.build(), hostnameVerifier);
+            final var socketFactory = new SSLConnectionSocketFactory(builder.build(), hostnameVerifier);
             this.httpClient = HttpClients.custom()
                     .addInterceptorFirst(new ContentLengthHeaderRemover())
                     .setSSLSocketFactory(socketFactory).build();
@@ -50,7 +50,7 @@ public final class ApacheHttpClient implements HttpClient {
     @SuppressWarnings({"ReactiveStreamsUnusedPublisher"})
     public Mono<HttpResponse> send(final HttpRequest azureRequest) {
         try {
-            final ApacheHttpRequest apacheRequest = new ApacheHttpRequest(azureRequest.getHttpMethod(),
+            final var apacheRequest = new ApacheHttpRequest(azureRequest.getHttpMethod(),
                     azureRequest.getUrl(), azureRequest.getHeaders(), authorityOverrideFunction);
 
             final Mono<byte[]> bodyMono;
@@ -63,7 +63,7 @@ public final class ApacheHttpClient implements HttpClient {
             return bodyMono.flatMap(bodyBytes -> {
                 apacheRequest.setEntity(new ByteArrayEntity(bodyBytes));
                 try {
-                    final org.apache.http.HttpResponse response = httpClient.execute(apacheRequest);
+                    final var response = httpClient.execute(apacheRequest);
                     return Mono.just(new ApacheHttpResponse(azureRequest, response));
                 } catch (final IOException ex) {
                     return Mono.error(ex);

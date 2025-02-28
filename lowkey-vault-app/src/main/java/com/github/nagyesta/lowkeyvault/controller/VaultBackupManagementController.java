@@ -3,7 +3,6 @@ package com.github.nagyesta.lowkeyvault.controller;
 import com.github.nagyesta.lowkeyvault.management.VaultImportExportExecutor;
 import com.github.nagyesta.lowkeyvault.model.common.ErrorModel;
 import com.github.nagyesta.lowkeyvault.model.management.VaultBackupListModel;
-import com.github.nagyesta.lowkeyvault.model.management.VaultBackupModel;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import com.github.nagyesta.lowkeyvault.template.backup.VaultImporter;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,8 +19,6 @@ import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -61,8 +58,8 @@ public class VaultBackupManagementController extends ErrorHandlingAwareControlle
     @GetMapping(value = {"/export", "/export/"}, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     public ResponseEntity<VaultBackupListModel> export() {
         log.info("Received request to export active vaults.");
-        final List<VaultBackupModel> backupModels = vaultImportExportExecutor.backupVaultList(vaultService);
-        final VaultBackupListModel vaultBackupListModel = new VaultBackupListModel();
+        final var backupModels = vaultImportExportExecutor.backupVaultList(vaultService);
+        final var vaultBackupListModel = new VaultBackupListModel();
         vaultBackupListModel.setVaults(backupModels);
         log.info("Export completed.");
         return ResponseEntity.ok(vaultBackupListModel);

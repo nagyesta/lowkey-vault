@@ -45,10 +45,10 @@ class CertificateEntityIdTest {
     @Test
     void testEntityTypeShouldReturnThePredefinedLiteralWhenCalled() {
         //given
-        final CertificateEntityId underTest = UNVERSIONED_CERT_ENTITY_ID_1;
+        final var underTest = UNVERSIONED_CERT_ENTITY_ID_1;
 
         //when
-        final String actual = underTest.entityType();
+        final var actual = underTest.entityType();
 
         //then
         Assertions.assertEquals("certificate", actual);
@@ -60,7 +60,7 @@ class CertificateEntityIdTest {
         //given
 
         //when
-        final URI actual = underTest.vault();
+        final var actual = underTest.vault();
 
         //then
         Assertions.assertEquals(expected, actual);
@@ -72,7 +72,7 @@ class CertificateEntityIdTest {
         //given
 
         //when
-        final String actual = underTest.id();
+        final var actual = underTest.id();
 
         //then
         Assertions.assertEquals(expected, actual);
@@ -84,7 +84,7 @@ class CertificateEntityIdTest {
         //given
 
         //when
-        final String actual = underTest.version();
+        final var actual = underTest.version();
 
         //then
         Assertions.assertEquals(expected, actual);
@@ -94,13 +94,13 @@ class CertificateEntityIdTest {
     @Test
     void testAsUriNoVersionShouldReturnUriUsingAliasWhenCalledWithValidAlias() {
         //given
-        final CertificateEntityId underTest = UNVERSIONED_CERT_ENTITY_ID_1;
+        final var underTest = UNVERSIONED_CERT_ENTITY_ID_1;
 
         //when
-        final URI actual = underTest.asUriNoVersion(HTTPS_LOOP_BACK_IP);
+        final var actual = underTest.asUriNoVersion(HTTPS_LOOP_BACK_IP);
 
         //then
-        final String expected = HTTPS_LOOP_BACK_IP + "/certificates/" + CERT_NAME_1;
+        final var expected = HTTPS_LOOP_BACK_IP + "/certificates/" + CERT_NAME_1;
         Assertions.assertEquals(expected, actual.toString());
     }
 
@@ -123,10 +123,10 @@ class CertificateEntityIdTest {
         final CertificateEntityId underTest = VERSIONED_CERT_ENTITY_ID_1_VERSION_3;
 
         //when
-        final URI actual = underTest.asUri(HTTPS_LOOP_BACK_IP);
+        final var actual = underTest.asUri(HTTPS_LOOP_BACK_IP);
 
         //then
-        final String expected = HTTPS_LOOP_BACK_IP + "/certificates/" + CERT_NAME_1 + "/" + CERT_VERSION_3;
+        final var expected = HTTPS_LOOP_BACK_IP + "/certificates/" + CERT_NAME_1 + "/" + CERT_VERSION_3;
         Assertions.assertEquals(expected, actual.toString());
     }
 
@@ -147,13 +147,13 @@ class CertificateEntityIdTest {
     void testAsUriWithQueryShouldReturnUriUsingAliasWhenCalledWithValidAlias() {
         //given
         final CertificateEntityId underTest = VERSIONED_CERT_ENTITY_ID_1_VERSION_3;
-        final String query = "?query=1";
+        final var query = "?query=1";
 
         //when
-        final URI actual = underTest.asUri(HTTPS_LOOP_BACK_IP, query);
+        final var actual = underTest.asUri(HTTPS_LOOP_BACK_IP, query);
 
         //then
-        final String expected = HTTPS_LOOP_BACK_IP + "/certificates/" + CERT_NAME_1 + "/" + CERT_VERSION_3 + query;
+        final var expected = HTTPS_LOOP_BACK_IP + "/certificates/" + CERT_NAME_1 + "/" + CERT_VERSION_3 + query;
         Assertions.assertEquals(expected, actual.toString());
     }
 
@@ -188,10 +188,10 @@ class CertificateEntityIdTest {
         final CertificateEntityId underTest = VERSIONED_CERT_ENTITY_ID_1_VERSION_3;
 
         //when
-        final URI actual = underTest.asRecoveryUri(HTTPS_LOOP_BACK_IP);
+        final var actual = underTest.asRecoveryUri(HTTPS_LOOP_BACK_IP);
 
         //then
-        final String expected = HTTPS_LOOP_BACK_IP + "/deletedcertificates/" + CERT_NAME_1;
+        final var expected = HTTPS_LOOP_BACK_IP + "/deletedcertificates/" + CERT_NAME_1;
         Assertions.assertEquals(expected, actual.toString());
     }
 
@@ -214,10 +214,10 @@ class CertificateEntityIdTest {
         final CertificateEntityId underTest = VERSIONED_CERT_ENTITY_ID_1_VERSION_3;
 
         //when
-        final URI actual = underTest.asPolicyUri(HTTPS_LOOP_BACK_IP);
+        final var actual = underTest.asPolicyUri(HTTPS_LOOP_BACK_IP);
 
         //then
-        final String expected = HTTPS_LOOP_BACK_IP + "/certificates/" + CERT_NAME_1 + "/" + CERT_VERSION_3 + "/policy";
+        final var expected = HTTPS_LOOP_BACK_IP + "/certificates/" + CERT_NAME_1 + "/" + CERT_VERSION_3 + "/policy";
         Assertions.assertEquals(expected, actual.toString());
     }
 
@@ -240,10 +240,10 @@ class CertificateEntityIdTest {
         final CertificateEntityId underTest = VERSIONED_CERT_ENTITY_ID_1_VERSION_3;
 
         //when
-        final URI actual = underTest.asPendingOperationUri(HTTPS_LOOP_BACK_IP);
+        final var actual = underTest.asPendingOperationUri(HTTPS_LOOP_BACK_IP);
 
         //then
-        final String expected = HTTPS_LOOP_BACK_IP + "/certificates/" + CERT_NAME_1 + "/pending";
+        final var expected = HTTPS_LOOP_BACK_IP + "/certificates/" + CERT_NAME_1 + "/pending";
         Assertions.assertEquals(expected, actual.toString());
     }
 

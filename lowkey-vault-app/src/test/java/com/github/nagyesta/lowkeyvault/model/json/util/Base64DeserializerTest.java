@@ -31,7 +31,7 @@ class Base64DeserializerTest {
     private AutoCloseable openMocks;
 
     public static Stream<Arguments> base64Provider() {
-        final Base64.Encoder encoder = Base64.getUrlEncoder().withoutPadding();
+        final var encoder = Base64.getUrlEncoder().withoutPadding();
         return Stream.of(null, EMPTY, BLANK, LOCALHOST)
                 .map(s -> Optional.ofNullable(s).map(String::getBytes).orElse(null))
                 .map(b -> Arguments.of(Optional.ofNullable(b).map(encoder::encodeToString).orElse(null), b));
@@ -54,7 +54,7 @@ class Base64DeserializerTest {
         when(parser.readValueAs(eq(String.class))).thenReturn(input);
 
         //when
-        final byte[] actual = underTest.deserialize(parser, context);
+        final var actual = underTest.deserialize(parser, context);
 
         //then
         Assertions.assertArrayEquals(expected, actual);

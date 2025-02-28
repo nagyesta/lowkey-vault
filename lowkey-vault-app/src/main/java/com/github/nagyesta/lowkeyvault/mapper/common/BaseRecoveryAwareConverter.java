@@ -43,7 +43,7 @@ public abstract class BaseRecoveryAwareConverter<V extends EntityId, S extends R
     @Override
     @org.springframework.lang.NonNull
     public DT convertDeleted(@org.springframework.lang.NonNull final S source, @org.springframework.lang.NonNull final URI vaultUri) {
-        final DT model = deletedModelSupplier.get();
+        final var model = deletedModelSupplier.get();
         mapDeletedFields(source, (DeletedModel) model, vaultUri);
         return mapActiveFields(source, model, vaultUri);
     }

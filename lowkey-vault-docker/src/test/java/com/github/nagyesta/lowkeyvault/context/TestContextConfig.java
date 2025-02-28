@@ -27,7 +27,7 @@ public class TestContextConfig {
     private final KeyTestContext keyTestContext;
 
     public TestContextConfig() {
-        final ApacheHttpClientProvider provider = new ApacheHttpClientProvider(DEFAULT_CONTAINER_URL);
+        final var provider = new ApacheHttpClientProvider(DEFAULT_CONTAINER_URL);
         managementTestContext = new ManagementTestContext(provider);
         keyTestContext = new KeyTestContext(provider);
         secretTestContext = new SecretTestContext(provider);

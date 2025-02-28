@@ -67,7 +67,7 @@ public class LowkeyVaultArgLineBuilder {
 
     public LowkeyVaultArgLineBuilder aliases(final Map<String, Set<String>> aliases) {
         if (aliases != null && !aliases.isEmpty()) {
-            final String aliasMappings = new TreeMap<>(aliases).entrySet()
+            final var aliasMappings = new TreeMap<>(aliases).entrySet()
                     .stream()
                     .flatMap(e -> new TreeSet<>(e.getValue()).stream().map(alias -> e.getKey() + "=" + alias))
                     .collect(Collectors.joining(","));

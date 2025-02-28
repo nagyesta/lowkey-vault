@@ -7,7 +7,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -17,10 +16,10 @@ class Asn1ConverterUtilTest {
 
     @SuppressWarnings("checkstyle:MagicNumber")
     public static Stream<Arguments> validValueProvider() throws NoSuchAlgorithmException {
-        final SecureRandom random = SecureRandom.getInstanceStrong();
+        final var random = SecureRandom.getInstanceStrong();
         return Stream.of(32 * 2, 48 * 2, 66 * 2)
                 .map(size -> {
-                    final byte[] result = new byte[size];
+                    final var result = new byte[size];
                     random.nextBytes(result);
                     return result;
                 })
@@ -30,7 +29,7 @@ class Asn1ConverterUtilTest {
     @Test
     void testConstructorShouldThrowExceptionWhenCalled() throws NoSuchMethodException {
         //given
-        final Constructor<Asn1ConverterUtil> constructor = Asn1ConverterUtil.class.getDeclaredConstructor();
+        final var constructor = Asn1ConverterUtil.class.getDeclaredConstructor();
         constructor.setAccessible(true);
 
         //when
@@ -43,10 +42,10 @@ class Asn1ConverterUtilTest {
     @MethodSource("validValueProvider")
     void testConvertAsn1toRawShouldReturnOriginalValuesWhenCalledAfterConvertFromRawToAsn1(final byte[] signatureRaw) throws IOException {
         //given
-        final byte[] asn1 = Asn1ConverterUtil.convertFromRawToAsn1(signatureRaw);
+        final var asn1 = Asn1ConverterUtil.convertFromRawToAsn1(signatureRaw);
 
         //when
-        final byte[] raw = Asn1ConverterUtil.convertFromAsn1toRaw(asn1, signatureRaw.length / 2);
+        final var raw = Asn1ConverterUtil.convertFromAsn1toRaw(asn1, signatureRaw.length / 2);
 
         //then
         Assertions.assertArrayEquals(signatureRaw, raw);

@@ -57,14 +57,14 @@ public class KeyEntityToV72ModelConverter
     }
 
     private JsonWebKeyModel mapRsaFields(final ReadOnlyRsaKeyVaultKeyEntity entity, final URI vaultUri) {
-        final JsonWebKeyModel jsonWebKeyModel = mapCommonKeyProperties(entity, vaultUri);
+        final var jsonWebKeyModel = mapCommonKeyProperties(entity, vaultUri);
         jsonWebKeyModel.setN(entity.getN());
         jsonWebKeyModel.setE(entity.getE());
         return jsonWebKeyModel;
     }
 
     private JsonWebKeyModel mapEcFields(final ReadOnlyEcKeyVaultKeyEntity entity, final URI vaultUri) {
-        final JsonWebKeyModel jsonWebKeyModel = mapCommonKeyProperties(entity, vaultUri);
+        final var jsonWebKeyModel = mapCommonKeyProperties(entity, vaultUri);
         jsonWebKeyModel.setCurveName(entity.getKeyCurveName());
         jsonWebKeyModel.setX(entity.getX());
         jsonWebKeyModel.setY(entity.getY());
@@ -77,7 +77,7 @@ public class KeyEntityToV72ModelConverter
     }
 
     private JsonWebKeyModel mapCommonKeyProperties(final ReadOnlyKeyVaultKeyEntity entity, final URI vaultUri) {
-        final JsonWebKeyModel jsonWebKeyModel = new JsonWebKeyModel();
+        final var jsonWebKeyModel = new JsonWebKeyModel();
         jsonWebKeyModel.setId(entity.getId().asUri(vaultUri).toString());
         jsonWebKeyModel.setKeyType(entity.getKeyType());
         jsonWebKeyModel.setKeyOps(entity.getOperations());

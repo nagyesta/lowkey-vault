@@ -88,7 +88,7 @@ class KeyEntityToV72KeyItemModelConverterTest {
     }
 
     private static KeyVaultKeyItemModel keyVaultKeyItemModel(final URI asUriNoVersion, final Map<String, String> tags) {
-        final KeyVaultKeyItemModel model = new KeyVaultKeyItemModel();
+        final var model = new KeyVaultKeyItemModel();
         model.setAttributes(TestConstants.PROPERTIES_MODEL);
         model.setKeyId(asUriNoVersion.toString());
         model.setTags(tags);
@@ -98,7 +98,7 @@ class KeyEntityToV72KeyItemModelConverterTest {
     private static DeletedKeyVaultKeyItemModel deletedKeyVaultKeyItemModel(
             final VersionedKeyEntityId id, final Map<String, String> tags,
             final OffsetDateTime deleted, final OffsetDateTime scheduledPurge) {
-        final DeletedKeyVaultKeyItemModel model = new DeletedKeyVaultKeyItemModel();
+        final var model = new DeletedKeyVaultKeyItemModel();
         model.setAttributes(TestConstants.PROPERTIES_MODEL);
         model.setKeyId(id.asUriNoVersion(id.vault()).toString());
         model.setTags(tags);
@@ -130,13 +130,13 @@ class KeyEntityToV72KeyItemModelConverterTest {
 
         //given
         when(vault.baseUri()).thenReturn(keyEntityId.vault());
-        final URI vaultUri = eq(keyEntityId.vault());
+        final var vaultUri = eq(keyEntityId.vault());
         when(vault.matches(vaultUri, eq(Function.identity()))).thenReturn(true);
-        final RsaKeyVaultKeyEntity input = new RsaKeyVaultKeyEntity(keyEntityId, vault, keyParam, null, false);
+        final var input = new RsaKeyVaultKeyEntity(keyEntityId, vault, keyParam, null, false);
         input.setTags(tags);
 
         //when
-        final KeyVaultKeyItemModel actual = underTest.convert(input, vault.baseUri());
+        final var actual = underTest.convert(input, vault.baseUri());
 
         //then
         Assertions.assertEquals(expected, actual);
@@ -164,15 +164,15 @@ class KeyEntityToV72KeyItemModelConverterTest {
 
         //given
         when(vault.baseUri()).thenReturn(keyEntityId.vault());
-        final URI vaultUri = eq(keyEntityId.vault());
+        final var vaultUri = eq(keyEntityId.vault());
         when(vault.matches(vaultUri, eq(Function.identity()))).thenReturn(true);
-        final RsaKeyVaultKeyEntity input = new RsaKeyVaultKeyEntity(keyEntityId, vault, keyParam, null, false);
+        final var input = new RsaKeyVaultKeyEntity(keyEntityId, vault, keyParam, null, false);
         input.setDeletedDate(deleted);
         input.setScheduledPurgeDate(scheduledPurge);
         input.setTags(tags);
 
         //when
-        final DeletedKeyVaultKeyItemModel actual = underTest.convertDeleted(input, vault.baseUri());
+        final var actual = underTest.convertDeleted(input, vault.baseUri());
 
         //then
         Assertions.assertEquals(expected, actual);

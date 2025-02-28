@@ -25,8 +25,8 @@ public final class CertificateRequestMapperUtil {
             final CertificateVaultFake vault, final String certificateName, final CreateCertificateRequest request) {
         //validate first to avoid creating a cert if lifetime policies are invalid
         validateLifetimeActions(request.getPolicy());
-        final CertificatePropertiesModel properties = defaultIfNull(request.getProperties());
-        final VersionedCertificateEntityId certificateEntityId = vault
+        final var properties = defaultIfNull(request.getProperties());
+        final var certificateEntityId = vault
                 .createCertificateVersion(certificateName, toCertificateCreationInput(certificateName, request));
         vault.addTags(certificateEntityId, request.getTags());
         //no need to set expiry, the generation should take care of it based on the X509 properties
@@ -38,17 +38,17 @@ public final class CertificateRequestMapperUtil {
 
     public static VersionedCertificateEntityId importCertificateWithAttributes(
             final CertificateVaultFake vault, final String certificateName, final CertificateImportRequest request) {
-        final CertificatePropertiesModel properties = defaultIfNull(request.getAttributes());
+        final var properties = defaultIfNull(request.getAttributes());
         //conversion must handle validation of lifetime actions as well
-        final VersionedCertificateEntityId certificateEntityId = vault
+        final var certificateEntityId = vault
                 .importCertificateVersion(certificateName, toCertificateImportInput(certificateName, request));
         vault.addTags(certificateEntityId, request.getTags());
         //no need to set expiry, the generation should take care of it based on the X509 properties
         vault.setEnabled(certificateEntityId, properties.isEnabled());
         //no need to set managed property as this endpoint cannot create managed entities by definition
-        final CertAuthorityType certAuthorityType = vault.getEntities()
+        final var certAuthorityType = vault.getEntities()
                 .getReadOnlyEntity(certificateEntityId).getOriginalCertificatePolicy().getCertAuthorityType();
-        final CertificatePolicyModel policyModel = Objects.requireNonNullElse(request.getPolicy(), new CertificatePolicyModel());
+        final var policyModel = Objects.requireNonNullElse(request.getPolicy(), new CertificatePolicyModel());
         setLifetimeActions(vault, policyModel, certificateEntityId, certAuthorityType);
         return certificateEntityId;
     }
@@ -58,14 +58,14 @@ public final class CertificateRequestMapperUtil {
             final CertificateVaultFake vault, final VersionedCertificateEntityId entityId, final CertificatePolicyModel request) {
         //validate first to avoid updating a cert if lifetime policies are invalid
         validateLifetimeActions(request);
-        final KeyVaultCertificateEntity entity = vault.getEntities().getEntity(entityId, KeyVaultCertificateEntity.class);
+        final var entity = vault.getEntities().getEntity(entityId, KeyVaultCertificateEntity.class);
         entity.updateIssuancePolicy(convertPolicyToCertificateCreationInput(entityId.id(), request));
         //update lifetime actions
         setLifetimeActions(vault, request, entityId, entity.getOriginalCertificatePolicy().getCertAuthorityType());
     }
 
     public static String getCertificateAsString(final byte[] certificate) {
-        String value = new String(certificate, StandardCharsets.UTF_8);
+        var value = new String(certificate, StandardCharsets.UTF_8);
         if (!value.contains("BEGIN")) {
             value = Base64.getMimeEncoder().encodeToString(certificate);
         }
@@ -74,10 +74,10 @@ public final class CertificateRequestMapperUtil {
 
     public static CertificateCreationInput convertPolicyToCertificateCreationInput(
             final String certificateName, final CertificatePolicyModel policy) {
-        final X509CertificateModel x509Properties = policy.getX509Properties();
-        final IssuerParameterModel issuer = policy.getIssuer();
-        final CertificateKeyModel keyProperties = policy.getKeyProperties();
-        final Optional<SubjectAlternativeNames> sans = Optional.ofNullable(x509Properties.getSubjectAlternativeNames());
+        final var x509Properties = policy.getX509Properties();
+        final var issuer = policy.getIssuer();
+        final var keyProperties = policy.getKeyProperties();
+        final var sans = Optional.ofNullable(x509Properties.getSubjectAlternativeNames());
         return CertificateCreationInput.builder()
                 .name(certificateName)
                 .contentType(CertContentType.byMimeType(policy.getSecretProperties().getContentType()))
@@ -126,7 +126,7 @@ public final class CertificateRequestMapperUtil {
     }
 
     private static void validateLifetimeActions(final CertificatePolicyModel policy) {
-        final Integer validityMonths = Objects.requireNonNullElse(policy.getX509Properties().getValidityMonths(),
+        final var validityMonths = Objects.requireNonNullElse(policy.getX509Properties().getValidityMonths(),
                 DEFAULT_VALIDITY_MONTHS);
         Optional.ofNullable(policy.getLifetimeActions())
                 .ifPresent(actions -> actions.forEach(a -> a.getTrigger().validate(validityMonths)));
@@ -137,7 +137,7 @@ public final class CertificateRequestMapperUtil {
             final CertificatePolicyModel policy,
             final VersionedCertificateEntityId certificateEntityId,
             final CertAuthorityType certAuthorityType) {
-        final CertificateLifetimeActionPolicy lifetimeActionPolicy = Optional.ofNullable(policy.getLifetimeActions())
+        final var lifetimeActionPolicy = Optional.ofNullable(policy.getLifetimeActions())
                 .map(actions -> new CertificateLifetimeActionPolicy(certificateEntityId, convertActivityMap(actions)))
                 .orElse(new DefaultCertificateLifetimeActionPolicy(certificateEntityId, certAuthorityType));
         certificateVaultFake.setLifetimeActionPolicy(lifetimeActionPolicy);
@@ -145,13 +145,13 @@ public final class CertificateRequestMapperUtil {
 
     private static CertificateCreationInput toCertificateCreationInput(
             final String certificateName, final CreateCertificateRequest request) {
-        final CertificatePolicyModel policy = request.getPolicy();
+        final var policy = request.getPolicy();
         return convertPolicyToCertificateCreationInput(certificateName, policy);
     }
 
     private static CertificateImportInput toCertificateImportInput(
             final String certificateName, final CertificateImportRequest request) {
-        final CertificatePolicyModel policyModel = Objects.requireNonNullElse(request.getPolicy(), new CertificatePolicyModel());
+        final var policyModel = Objects.requireNonNullElse(request.getPolicy(), new CertificatePolicyModel());
         return new CertificateImportInput(
                 certificateName,
                 request.getCertificateAsString(),
@@ -161,14 +161,14 @@ public final class CertificateRequestMapperUtil {
     }
 
     private static CertContentType determineContentType(final CertificateImportRequest request) {
-        CertContentType parsed = CertContentType.PKCS12;
+        var parsed = CertContentType.PKCS12;
         if (request.getCertificateAsString().contains("BEGIN")) {
             parsed = CertContentType.PEM;
         }
         if (request.getPolicy() != null
                 && request.getPolicy().getSecretProperties() != null
                 && request.getPolicy().getSecretProperties().getContentType() != null) {
-            final String contentType = request.getPolicy().getSecretProperties().getContentType();
+            final var contentType = request.getPolicy().getSecretProperties().getContentType();
             Assert.isTrue(parsed.getMimeType().equals(contentType),
                     "Content type must match certificate content when provided.");
         }

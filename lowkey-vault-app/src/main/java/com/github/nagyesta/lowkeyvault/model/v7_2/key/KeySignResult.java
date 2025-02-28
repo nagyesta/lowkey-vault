@@ -28,7 +28,7 @@ public class KeySignResult {
     }
 
     private static KeySignResult forString(final VersionedKeyEntityId keyEntityId, final String value, final URI vaultUri) {
-        final KeySignResult result = new KeySignResult();
+        final var result = new KeySignResult();
         result.setId(keyEntityId.asUri(vaultUri));
         result.setValue(value);
         return result;

@@ -35,7 +35,7 @@ class KeyLifetimeActionTriggerModelTest {
         //given
 
         //when
-        final KeyLifetimeActionTriggerModel actual = new KeyLifetimeActionTriggerModel(Period.ZERO, null);
+        final var actual = new KeyLifetimeActionTriggerModel(Period.ZERO, null);
 
         //then
         Assertions.assertEquals(Period.ZERO, actual.getTriggerPeriod());
@@ -47,7 +47,7 @@ class KeyLifetimeActionTriggerModelTest {
         //given
 
         //when
-        final KeyLifetimeActionTriggerModel actual = new KeyLifetimeActionTriggerModel(null, Period.ZERO);
+        final var actual = new KeyLifetimeActionTriggerModel(null, Period.ZERO);
 
         //then
         Assertions.assertEquals(Period.ZERO, actual.getTriggerPeriod());

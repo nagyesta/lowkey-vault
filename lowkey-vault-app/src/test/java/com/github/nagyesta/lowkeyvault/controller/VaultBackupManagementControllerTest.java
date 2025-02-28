@@ -15,9 +15,9 @@ import static org.mockito.Mockito.mock;
 class VaultBackupManagementControllerTest {
 
     public static Stream<Arguments> nullProvider() {
-        final VaultImporter importer = mock(VaultImporter.class);
-        final VaultService service = mock(VaultService.class);
-        final VaultImportExportExecutor executor = mock(VaultImportExportExecutor.class);
+        final var importer = mock(VaultImporter.class);
+        final var service = mock(VaultService.class);
+        final var executor = mock(VaultImportExportExecutor.class);
         return Stream.<Arguments>builder()
                 .add(Arguments.of(null, service, executor))
                 .add(Arguments.of(importer, null, executor))

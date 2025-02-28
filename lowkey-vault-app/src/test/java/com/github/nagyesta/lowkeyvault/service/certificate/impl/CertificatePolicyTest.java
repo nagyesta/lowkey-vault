@@ -24,7 +24,7 @@ class CertificatePolicyTest {
     @Test
     void testSetDnsNamesShouldThrowExceptionWhenCalledWithNull() {
         //given
-        final CertificatePolicy underTest = new CertificatePolicy(CertificateCreationInput.builder().build());
+        final var underTest = new CertificatePolicy(CertificateCreationInput.builder().build());
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setDnsNames(null));
@@ -35,8 +35,8 @@ class CertificatePolicyTest {
     @Test
     void testSetDnsNamesShouldSetValueWhenCalledWithValidInput() {
         //given
-        final CertificatePolicy underTest = new CertificatePolicy(CertificateCreationInput.builder().build());
-        final Set<String> expected = Set.of(LOCALHOST);
+        final var underTest = new CertificatePolicy(CertificateCreationInput.builder().build());
+        final var expected = Set.of(LOCALHOST);
 
         //when
         underTest.setDnsNames(expected);
@@ -49,7 +49,7 @@ class CertificatePolicyTest {
     @Test
     void testSetUpnsShouldThrowExceptionWhenCalledWithNull() {
         //given
-        final CertificatePolicy underTest = new CertificatePolicy(CertificateCreationInput.builder().build());
+        final var underTest = new CertificatePolicy(CertificateCreationInput.builder().build());
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setUpns(null));
@@ -60,8 +60,8 @@ class CertificatePolicyTest {
     @Test
     void testSetUpnsShouldSetValueWhenCalledWithValidInput() {
         //given
-        final CertificatePolicy underTest = new CertificatePolicy(CertificateCreationInput.builder().build());
-        final Set<String> expected = Set.of("value");
+        final var underTest = new CertificatePolicy(CertificateCreationInput.builder().build());
+        final var expected = Set.of("value");
 
         //when
         underTest.setUpns(expected);
@@ -74,7 +74,7 @@ class CertificatePolicyTest {
     @Test
     void testSetEmailsShouldThrowExceptionWhenCalledWithNull() {
         //given
-        final CertificatePolicy underTest = new CertificatePolicy(CertificateCreationInput.builder().build());
+        final var underTest = new CertificatePolicy(CertificateCreationInput.builder().build());
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setEmails(null));
@@ -85,8 +85,8 @@ class CertificatePolicyTest {
     @Test
     void testSetEmailsShouldSetValueWhenCalledWithValidInput() {
         //given
-        final CertificatePolicy underTest = new CertificatePolicy(CertificateCreationInput.builder().build());
-        final Set<String> expected = Set.of("someone@example.com");
+        final var underTest = new CertificatePolicy(CertificateCreationInput.builder().build());
+        final var expected = Set.of("someone@example.com");
 
         //when
         underTest.setEmails(expected);
@@ -99,7 +99,7 @@ class CertificatePolicyTest {
     @Test
     void testSetKeyUsageShouldThrowExceptionWhenCalledWithNull() {
         //given
-        final CertificatePolicy underTest = new CertificatePolicy(CertificateCreationInput.builder().build());
+        final var underTest = new CertificatePolicy(CertificateCreationInput.builder().build());
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setKeyUsage(null));
@@ -110,8 +110,8 @@ class CertificatePolicyTest {
     @Test
     void testSetKeyUsageShouldSetValueWhenCalledWithValidInput() {
         //given
-        final CertificatePolicy underTest = new CertificatePolicy(CertificateCreationInput.builder().build());
-        final Set<KeyUsageEnum> expected = Set.of(KeyUsageEnum.DIGITAL_SIGNATURE);
+        final var underTest = new CertificatePolicy(CertificateCreationInput.builder().build());
+        final var expected = Set.of(KeyUsageEnum.DIGITAL_SIGNATURE);
 
         //when
         underTest.setKeyUsage(expected);
@@ -124,7 +124,7 @@ class CertificatePolicyTest {
     @Test
     void testSetExtendedKeyUsageShouldThrowExceptionWhenCalledWithNull() {
         //given
-        final CertificatePolicy underTest = new CertificatePolicy(CertificateCreationInput.builder().build());
+        final var underTest = new CertificatePolicy(CertificateCreationInput.builder().build());
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setExtendedKeyUsage(null));
@@ -135,8 +135,8 @@ class CertificatePolicyTest {
     @Test
     void testSetExtendedKeyUsageShouldSetValueWhenCalledWithValidInput() {
         //given
-        final CertificatePolicy underTest = new CertificatePolicy(CertificateCreationInput.builder().build());
-        final Set<String> expected = Set.of("1.3.6.1.5.5.7.3.2");
+        final var underTest = new CertificatePolicy(CertificateCreationInput.builder().build());
+        final var expected = Set.of("1.3.6.1.5.5.7.3.2");
 
         //when
         underTest.setExtendedKeyUsage(expected);

@@ -12,7 +12,6 @@ import com.github.nagyesta.lowkeyvault.service.secret.impl.SecretCreateInput;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import org.springframework.util.Assert;
 
-import java.security.KeyPair;
 import java.security.cert.Certificate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -27,8 +26,8 @@ public class CertificateBackingEntityGenerator {
     }
 
     public VersionedKeyEntityId generateKeyPair(final ReadOnlyCertificatePolicy input) {
-        final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
-        final OffsetDateTime expiry = now.plusMonths(input.getValidityMonths());
+        final var now = OffsetDateTime.now(ZoneOffset.UTC);
+        final var expiry = now.plusMonths(input.getValidityMonths());
         return vaultFake.keyVaultFake().createKeyVersion(input.getName(), KeyCreateDetailedInput.builder()
                 .key(input.toKeyCreationInput())
                 .keyOperations(determineKeyOperations(input))
@@ -67,11 +66,11 @@ public class CertificateBackingEntityGenerator {
             final Certificate certificate,
             final VersionedKeyEntityId kid,
             final VersionedSecretEntityId sid) {
-        final KeyPair key = vaultFake.keyVaultFake().getEntities()
+        final var key = vaultFake.keyVaultFake().getEntities()
                 .getEntity(kid, ReadOnlyAsymmetricKeyVaultKeyEntity.class).getKey();
-        final String value = input.getContentType().asBase64CertificatePackage(certificate, key);
-        final OffsetDateTime start = input.getValidityStart();
-        final OffsetDateTime expiry = start.plusMonths(input.getValidityMonths());
+        final var value = input.getContentType().asBase64CertificatePackage(certificate, key);
+        final var start = input.getValidityStart();
+        final var expiry = start.plusMonths(input.getValidityMonths());
         return vaultFake.secretVaultFake().createSecretVersion(sid, SecretCreateInput.builder()
                 .value(value)
                 .contentType(input.getContentType().getMimeType())
@@ -89,9 +88,9 @@ public class CertificateBackingEntityGenerator {
             final Certificate certificate,
             final VersionedKeyEntityId kid,
             final VersionedSecretEntityId sid) {
-        final ReadOnlyAsymmetricKeyVaultKeyEntity key = vaultFake.keyVaultFake().getEntities()
+        final var key = vaultFake.keyVaultFake().getEntities()
                 .getEntity(kid, ReadOnlyAsymmetricKeyVaultKeyEntity.class);
-        final KeyVaultSecretEntity secret = vaultFake.secretVaultFake().getEntities()
+        final var secret = vaultFake.secretVaultFake().getEntities()
                 .getEntity(sid, KeyVaultSecretEntity.class);
         secret.setValue(updated.getContentType().asBase64CertificatePackage(certificate, key.getKey()));
     }

@@ -45,8 +45,8 @@ public final class KeyGenUtil {
     @org.springframework.lang.NonNull
     public static KeyPair generateRsa(@Nullable final Integer keySize, @Nullable final BigInteger publicExponent) {
         final int nonNullKeySize = KeyType.RSA.validateOrDefault(keySize, Integer.class);
-        final BigInteger notNullPublicExponent = Objects.requireNonNullElse(publicExponent, BigInteger.valueOf(65537));
-        final RSAKeyGenParameterSpec rsaKeyGenParameterSpec = new RSAKeyGenParameterSpec(nonNullKeySize, notNullPublicExponent);
+        final var notNullPublicExponent = Objects.requireNonNullElse(publicExponent, BigInteger.valueOf(65537));
+        final var rsaKeyGenParameterSpec = new RSAKeyGenParameterSpec(nonNullKeySize, notNullPublicExponent);
         return keyPairGenerator(KeyType.RSA.getAlgorithmName(), rsaKeyGenParameterSpec).generateKeyPair();
     }
 
@@ -54,7 +54,7 @@ public final class KeyGenUtil {
     public static byte[] generateRandomBytes(final int count) {
         Assert.isTrue(count > 0, "Number of bytes must be greater than 0.");
         try {
-            final byte[] bytes = new byte[count];
+            final var bytes = new byte[count];
             new Random().nextBytes(bytes);
             return bytes;
         } catch (final Exception e) {
@@ -66,7 +66,7 @@ public final class KeyGenUtil {
     static KeyPairGenerator keyPairGenerator(final String algorithmName,
                                              final AlgorithmParameterSpec algSpec) {
         try {
-            final KeyPairGenerator keyGen = KeyPairGenerator.getInstance(algorithmName, BOUNCY_CASTLE_PROVIDER);
+            final var keyGen = KeyPairGenerator.getInstance(algorithmName, BOUNCY_CASTLE_PROVIDER);
             keyGen.initialize(algSpec);
             return keyGen;
         } catch (final Exception e) {
@@ -78,7 +78,7 @@ public final class KeyGenUtil {
     @SuppressWarnings("SameParameterValue")
     static KeyGenerator keyGenerator(final String algorithmName, final int keySize) {
         try {
-            final KeyGenerator keyGenerator = KeyGenerator.getInstance(algorithmName);
+            final var keyGenerator = KeyGenerator.getInstance(algorithmName);
             keyGenerator.init(keySize);
             return keyGenerator;
         } catch (final Exception e) {

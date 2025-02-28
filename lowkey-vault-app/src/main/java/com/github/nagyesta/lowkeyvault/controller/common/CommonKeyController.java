@@ -9,9 +9,7 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.CreateKeyRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.ImportKeyRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.UpdateKeyRequest;
-import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
-import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
@@ -37,8 +35,8 @@ public abstract class CommonKeyController extends BaseKeyController {
         log.info("Received request to {} create key: {} using API version: {}",
                 baseUri.toString(), keyName, apiVersion());
 
-        final KeyVaultFake keyVaultFake = getVaultByUri(baseUri);
-        final VersionedKeyEntityId keyEntityId = createKeyWithAttributes(keyVaultFake, keyName, request);
+        final var keyVaultFake = getVaultByUri(baseUri);
+        final var keyEntityId = createKeyWithAttributes(keyVaultFake, keyName, request);
         return ResponseEntity.ok(getModelById(keyVaultFake, keyEntityId, baseUri, true));
     }
 
@@ -49,8 +47,8 @@ public abstract class CommonKeyController extends BaseKeyController {
         log.info("Received request to {} import key: {} using API version: {}",
                 baseUri.toString(), keyName, apiVersion());
 
-        final KeyVaultFake keyVaultFake = getVaultByUri(baseUri);
-        final VersionedKeyEntityId keyEntityId = importKeyWithAttributes(keyVaultFake, keyName, request);
+        final var keyVaultFake = getVaultByUri(baseUri);
+        final var keyEntityId = importKeyWithAttributes(keyVaultFake, keyName, request);
         return ResponseEntity.ok(getModelById(keyVaultFake, keyEntityId, baseUri, true));
     }
 
@@ -60,10 +58,10 @@ public abstract class CommonKeyController extends BaseKeyController {
         log.info("Received request to {} delete key: {} using API version: {}",
                 baseUri.toString(), keyName, apiVersion());
 
-        final KeyVaultFake keyVaultFake = getVaultByUri(baseUri);
-        final KeyEntityId entityId = new KeyEntityId(baseUri, keyName);
+        final var keyVaultFake = getVaultByUri(baseUri);
+        final var entityId = new KeyEntityId(baseUri, keyName);
         keyVaultFake.delete(entityId);
-        final VersionedKeyEntityId latestVersion = keyVaultFake.getDeletedEntities().getLatestVersionOfEntity(entityId);
+        final var latestVersion = keyVaultFake.getDeletedEntities().getLatestVersionOfEntity(entityId);
         return ResponseEntity.ok(getDeletedModelById(keyVaultFake, latestVersion, baseUri, true));
     }
 
@@ -143,8 +141,8 @@ public abstract class CommonKeyController extends BaseKeyController {
         log.info("Received request to {} update key: {} with version: {} using API version: {}",
                 baseUri.toString(), keyName, keyVersion, apiVersion());
 
-        final KeyVaultFake keyVaultFake = getVaultByUri(baseUri);
-        final VersionedKeyEntityId entityId = versionedEntityId(baseUri, keyName, keyVersion);
+        final var keyVaultFake = getVaultByUri(baseUri);
+        final var entityId = versionedEntityId(baseUri, keyName, keyVersion);
         Optional.ofNullable(request.getKeyOperations())
                 .ifPresent(operations -> keyVaultFake.setKeyOperations(entityId, operations));
         updateAttributes(keyVaultFake, entityId, request.getProperties());
@@ -158,9 +156,9 @@ public abstract class CommonKeyController extends BaseKeyController {
         log.info("Received request to {} get deleted key: {} using API version: {}",
                 baseUri.toString(), keyName, apiVersion());
 
-        final KeyVaultFake keyVaultFake = getVaultByUri(baseUri);
-        final KeyEntityId entityId = new KeyEntityId(baseUri, keyName);
-        final VersionedKeyEntityId latestVersion = keyVaultFake.getDeletedEntities().getLatestVersionOfEntity(entityId);
+        final var keyVaultFake = getVaultByUri(baseUri);
+        final var entityId = new KeyEntityId(baseUri, keyName);
+        final var latestVersion = keyVaultFake.getDeletedEntities().getLatestVersionOfEntity(entityId);
         return ResponseEntity.ok(getDeletedModelById(keyVaultFake, latestVersion, baseUri, false));
     }
 
@@ -170,10 +168,10 @@ public abstract class CommonKeyController extends BaseKeyController {
         log.info("Received request to {} recover deleted key: {} using API version: {}",
                 baseUri.toString(), keyName, apiVersion());
 
-        final KeyVaultFake keyVaultFake = getVaultByUri(baseUri);
-        final KeyEntityId entityId = new KeyEntityId(baseUri, keyName);
+        final var keyVaultFake = getVaultByUri(baseUri);
+        final var entityId = new KeyEntityId(baseUri, keyName);
         keyVaultFake.recover(entityId);
-        final VersionedKeyEntityId latestVersion = keyVaultFake.getEntities().getLatestVersionOfEntity(entityId);
+        final var latestVersion = keyVaultFake.getEntities().getLatestVersionOfEntity(entityId);
         return ResponseEntity.ok(getModelById(keyVaultFake, latestVersion, baseUri, true));
     }
 
@@ -183,8 +181,8 @@ public abstract class CommonKeyController extends BaseKeyController {
         log.info("Received request to {} purge deleted key: {} using API version: {}",
                 baseUri.toString(), keyName, apiVersion());
 
-        final KeyVaultFake keyVaultFake = getVaultByUri(baseUri);
-        final KeyEntityId entityId = new KeyEntityId(baseUri, keyName);
+        final var keyVaultFake = getVaultByUri(baseUri);
+        final var entityId = new KeyEntityId(baseUri, keyName);
         keyVaultFake.purge(entityId);
         return ResponseEntity.noContent().build();
     }

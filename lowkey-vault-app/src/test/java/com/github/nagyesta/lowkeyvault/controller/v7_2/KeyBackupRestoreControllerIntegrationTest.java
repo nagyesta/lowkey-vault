@@ -7,12 +7,9 @@ import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegist
 import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupList;
 import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
-import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
-import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.impl.EcKeyCreationInput;
 import com.github.nagyesta.lowkeyvault.service.key.impl.KeyCreateDetailedInput;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
@@ -27,10 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.net.URI;
-import java.security.KeyPair;
 import java.security.interfaces.ECPublicKey;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -58,7 +53,7 @@ class KeyBackupRestoreControllerIntegrationTest extends BaseKeyBackupRestoreCont
 
     @BeforeEach
     void setUp() {
-        final String name = UUID.randomUUID().toString();
+        final var name = UUID.randomUUID().toString();
         uri = URI.create("https://" + name + ".localhost");
         vaultService.create(uri, RecoveryLevel.RECOVERABLE_AND_PURGEABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE, null);
     }
@@ -86,16 +81,16 @@ class KeyBackupRestoreControllerIntegrationTest extends BaseKeyBackupRestoreCont
     @Test
     void testRestoreEntityShouldRestoreASingleKeyWhenCalledWithValidInput() {
         //given
-        final KeyBackupModel backupModel = new KeyBackupModel();
+        final var backupModel = new KeyBackupModel();
         backupModel.setValue(new KeyBackupList());
-        final KeyPair expectedKey = addVersionToList(uri, KEY_NAME_1, KEY_VERSION_1, backupModel, TAGS_THREE_KEYS);
+        final var expectedKey = addVersionToList(uri, KEY_NAME_1, KEY_VERSION_1, backupModel, TAGS_THREE_KEYS);
 
         //when
-        final ResponseEntity<KeyVaultKeyModel> actual = underTest.restore(uri, backupModel);
+        final var actual = underTest.restore(uri, backupModel);
 
         //then
         Assertions.assertNotNull(actual);
-        final KeyVaultKeyModel actualBody = actual.getBody();
+        final var actualBody = actual.getBody();
         Assertions.assertNotNull(actualBody);
         Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
         assertRestoredKeyMatchesExpectations(actualBody, (ECPublicKey) expectedKey.getPublic(), KEY_VERSION_1, TAGS_THREE_KEYS);
@@ -104,18 +99,18 @@ class KeyBackupRestoreControllerIntegrationTest extends BaseKeyBackupRestoreCont
     @Test
     void testRestoreEntityShouldRestoreThreeKeysWhenCalledWithValidInput() {
         //given
-        final KeyBackupModel backupModel = new KeyBackupModel();
+        final var backupModel = new KeyBackupModel();
         backupModel.setValue(new KeyBackupList());
         addVersionToList(uri, KEY_NAME_1, KEY_VERSION_1, backupModel, null);
         addVersionToList(uri, KEY_NAME_1, KEY_VERSION_2, backupModel, TAGS_THREE_KEYS);
-        final KeyPair expectedKey = addVersionToList(uri, KEY_NAME_1, KEY_VERSION_3, backupModel, TAGS_EMPTY);
+        final var expectedKey = addVersionToList(uri, KEY_NAME_1, KEY_VERSION_3, backupModel, TAGS_EMPTY);
 
         //when
-        final ResponseEntity<KeyVaultKeyModel> actual = underTest.restore(uri, backupModel);
+        final var actual = underTest.restore(uri, backupModel);
 
         //then
         Assertions.assertNotNull(actual);
-        final KeyVaultKeyModel actualBody = actual.getBody();
+        final var actualBody = actual.getBody();
         Assertions.assertNotNull(actualBody);
         Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
         assertRestoredKeyMatchesExpectations(actualBody, (ECPublicKey) expectedKey.getPublic(), KEY_VERSION_3, TAGS_EMPTY);
@@ -124,7 +119,7 @@ class KeyBackupRestoreControllerIntegrationTest extends BaseKeyBackupRestoreCont
     @Test
     void testRestoreEntityShouldThrowExceptionWhenCalledWithMoreThanOneUris() {
         //given
-        final KeyBackupModel backupModel = new KeyBackupModel();
+        final var backupModel = new KeyBackupModel();
         backupModel.setValue(new KeyBackupList());
         addVersionToList(uri, KEY_NAME_1, KEY_VERSION_1, backupModel, null);
         addVersionToList(TestConstantsUri.HTTPS_DEFAULT_LOWKEY_VAULT, KEY_NAME_1, KEY_VERSION_2, backupModel, TAGS_THREE_KEYS);
@@ -138,7 +133,7 @@ class KeyBackupRestoreControllerIntegrationTest extends BaseKeyBackupRestoreCont
     @Test
     void testRestoreEntityShouldThrowExceptionWhenCalledWithMoreThanOneNames() {
         //given
-        final KeyBackupModel backupModel = new KeyBackupModel();
+        final var backupModel = new KeyBackupModel();
         backupModel.setValue(new KeyBackupList());
         addVersionToList(uri, KEY_NAME_1, KEY_VERSION_1, backupModel, null);
         addVersionToList(uri, KEY_NAME_2, KEY_VERSION_2, backupModel, TAGS_THREE_KEYS);
@@ -152,7 +147,7 @@ class KeyBackupRestoreControllerIntegrationTest extends BaseKeyBackupRestoreCont
     @Test
     void testRestoreEntityShouldThrowExceptionWhenCalledWithUnknownUri() {
         //given
-        final KeyBackupModel backupModel = new KeyBackupModel();
+        final var backupModel = new KeyBackupModel();
         backupModel.setValue(new KeyBackupList());
         addVersionToList(URI.create("https://uknknown.uri"), KEY_NAME_1, KEY_VERSION_1, backupModel, null);
 
@@ -165,7 +160,7 @@ class KeyBackupRestoreControllerIntegrationTest extends BaseKeyBackupRestoreCont
     @Test
     void testRestoreEntityShouldThrowExceptionWhenNameMatchesActiveKey() {
         //given
-        final KeyBackupModel backupModel = new KeyBackupModel();
+        final var backupModel = new KeyBackupModel();
         backupModel.setValue(new KeyBackupList());
         addVersionToList(uri, KEY_NAME_1, KEY_VERSION_1, backupModel, TAGS_EMPTY);
         addVersionToList(uri, KEY_NAME_1, KEY_VERSION_2, backupModel, TAGS_ONE_KEY);
@@ -183,12 +178,12 @@ class KeyBackupRestoreControllerIntegrationTest extends BaseKeyBackupRestoreCont
     @Test
     void testRestoreEntityShouldThrowExceptionWhenNameMatchesDeletedKey() {
         //given
-        final KeyBackupModel backupModel = new KeyBackupModel();
+        final var backupModel = new KeyBackupModel();
         backupModel.setValue(new KeyBackupList());
         addVersionToList(uri, KEY_NAME_1, KEY_VERSION_1, backupModel, TAGS_EMPTY);
         addVersionToList(uri, KEY_NAME_1, KEY_VERSION_2, backupModel, TAGS_ONE_KEY);
-        final KeyVaultFake vaultFake = vaultService.findByUri(uri).keyVaultFake();
-        final VersionedKeyEntityId keyVersion = vaultFake
+        final var vaultFake = vaultService.findByUri(uri).keyVaultFake();
+        final var keyVersion = vaultFake
                 .createKeyVersion(KEY_NAME_1, KeyCreateDetailedInput.builder()
                         .key(new EcKeyCreationInput(KeyType.EC, KeyCurveName.P_256))
                         .build());
@@ -203,18 +198,18 @@ class KeyBackupRestoreControllerIntegrationTest extends BaseKeyBackupRestoreCont
     @Test
     void testBackupEntityShouldReturnTheOriginalBackupModelWhenCalledAfterRestoreEntity() {
         //given
-        final KeyBackupModel backupModel = new KeyBackupModel();
+        final var backupModel = new KeyBackupModel();
         backupModel.setValue(new KeyBackupList());
         addVersionToList(uri, KEY_NAME_1, KEY_VERSION_1, backupModel, TAGS_EMPTY);
         addVersionToList(uri, KEY_NAME_1, KEY_VERSION_2, backupModel, TAGS_ONE_KEY);
         underTest.restore(uri, backupModel);
 
         //when
-        final ResponseEntity<KeyBackupModel> actual = underTest.backup(KEY_NAME_1, uri);
+        final var actual = underTest.backup(KEY_NAME_1, uri);
 
         //then
         Assertions.assertNotNull(actual);
-        final KeyBackupModel actualBody = actual.getBody();
+        final var actualBody = actual.getBody();
         Assertions.assertNotNull(actualBody);
         Assertions.assertEquals(backupModel, actualBody);
         Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());

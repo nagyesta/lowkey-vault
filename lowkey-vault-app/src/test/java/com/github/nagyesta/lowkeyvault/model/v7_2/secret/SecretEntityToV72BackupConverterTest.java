@@ -3,7 +3,6 @@ package com.github.nagyesta.lowkeyvault.model.v7_2.secret;
 import com.github.nagyesta.lowkeyvault.mapper.common.registry.SecretConverterRegistry;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72BackupConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72PropertiesModelConverter;
-import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupListItem;
 import com.github.nagyesta.lowkeyvault.service.secret.ReadOnlyKeyVaultSecretEntity;
 import com.github.nagyesta.lowkeyvault.service.secret.impl.KeyVaultSecretEntity;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
@@ -64,12 +63,12 @@ class SecretEntityToV72BackupConverterTest {
     @Test
     void testConvertShouldConvertPopulatedFieldsWhenCalledWithMinimalInput() {
         //given
-        final String value = LOWKEY_VAULT;
+        final var value = LOWKEY_VAULT;
         final ReadOnlyKeyVaultSecretEntity input = new KeyVaultSecretEntity(
                 VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, vaultFake, value, null);
 
         //when
-        final SecretBackupListItem actual = underTest.convert(input);
+        final var actual = underTest.convert(input);
 
         //then
         Assertions.assertNotNull(actual);
@@ -88,16 +87,16 @@ class SecretEntityToV72BackupConverterTest {
     @Test
     void testConvertShouldConvertAllFieldsWhenCalledWithFullyPopulatedInput() {
         //given
-        final String contentType = MimeTypeUtils.TEXT_PLAIN_VALUE;
-        final String value = LOWKEY_VAULT;
-        final Map<String, String> tagMap = Map.of(KEY_1, VALUE_1);
-        final KeyVaultSecretEntity input = new KeyVaultSecretEntity(
+        final var contentType = MimeTypeUtils.TEXT_PLAIN_VALUE;
+        final var value = LOWKEY_VAULT;
+        final var tagMap = Map.of(KEY_1, VALUE_1);
+        final var input = new KeyVaultSecretEntity(
                 VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, vaultFake, value, contentType);
         input.setTags(tagMap);
         input.setManaged(true);
 
         //when
-        final SecretBackupListItem actual = underTest.convert(input);
+        final var actual = underTest.convert(input);
 
         //then
         Assertions.assertNotNull(actual);

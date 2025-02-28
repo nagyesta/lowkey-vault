@@ -14,7 +14,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.security.KeyPair;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
@@ -38,10 +37,10 @@ class EcJsonWebKeyImportRequestConverterTest {
     @MethodSource("curveNameProvider")
     void testConvertShouldReturnKeyPairWhenCalledWithValidInput(final KeyCurveName keyCurveName) {
         //given
-        final KeyPair expected = KeyGenUtil.generateEc(keyCurveName);
-        final BCECPrivateKey expectedPrivate = (BCECPrivateKey) expected.getPrivate();
-        final BCECPublicKey expectedPublic = (BCECPublicKey) expected.getPublic();
-        final JsonWebKeyImportRequest request = new JsonWebKeyImportRequest();
+        final var expected = KeyGenUtil.generateEc(keyCurveName);
+        final var expectedPrivate = (BCECPrivateKey) expected.getPrivate();
+        final var expectedPublic = (BCECPublicKey) expected.getPublic();
+        final var request = new JsonWebKeyImportRequest();
         request.setKeyType(KeyType.EC);
         request.setX(expectedPublic.getQ().getAffineXCoord().getEncoded());
         request.setY(expectedPublic.getQ().getAffineYCoord().getEncoded());
@@ -49,11 +48,11 @@ class EcJsonWebKeyImportRequestConverterTest {
         request.setCurveName(keyCurveName);
 
         //when
-        final KeyPair actual = underTest.convert(request);
+        final var actual = underTest.convert(request);
 
         //then
-        final BCECPrivateKey actualPrivate = (BCECPrivateKey) actual.getPrivate();
-        final BCECPublicKey actualPublic = (BCECPublicKey) actual.getPublic();
+        final var actualPrivate = (BCECPrivateKey) actual.getPrivate();
+        final var actualPublic = (BCECPublicKey) actual.getPublic();
         Assertions.assertEquals(expectedPrivate.getD(), actualPrivate.getD());
         Assertions.assertEquals(expectedPrivate.getParameters(), actualPrivate.getParameters());
         Assertions.assertEquals(expectedPrivate.getAlgorithm(), actualPrivate.getAlgorithm());
@@ -66,7 +65,7 @@ class EcJsonWebKeyImportRequestConverterTest {
     @Test
     void testConvertShouldWrapExceptionWhenConversionThrowsOne() {
         //given
-        final JsonWebKeyImportRequest source = mock(JsonWebKeyImportRequest.class);
+        final var source = mock(JsonWebKeyImportRequest.class);
         when(source.getD()).thenThrow(IllegalArgumentException.class);
 
         //when
@@ -79,11 +78,11 @@ class EcJsonWebKeyImportRequestConverterTest {
     @MethodSource("curveNameProvider")
     void testGetKeyParameterShouldReturnTheKeyCurveNameWhenCalledWithValidInput(final KeyCurveName expected) {
         //given
-        final JsonWebKeyImportRequest request = mock(JsonWebKeyImportRequest.class);
+        final var request = mock(JsonWebKeyImportRequest.class);
         when(request.getCurveName()).thenReturn(expected);
 
         //when
-        final KeyCurveName actual = underTest.getKeyParameter(request);
+        final var actual = underTest.getKeyParameter(request);
 
         //then
         Assertions.assertEquals(expected, actual);

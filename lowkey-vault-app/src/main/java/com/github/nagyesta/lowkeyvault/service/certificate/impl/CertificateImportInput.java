@@ -49,11 +49,11 @@ public class CertificateImportInput {
                 .flatMap(Set::stream)
                 .distinct().sorted().toList());
         this.certificateData = mergePolicies(this.parsedCertificateData, policyModel);
-        final CertAuthorityType certAuthorityType = Optional.ofNullable(policyModel.getIssuer())
+        final var certAuthorityType = Optional.ofNullable(policyModel.getIssuer())
                 .map(IssuerParameterModel::getIssuer)
                 .map(CertAuthorityType::byValue)
                 .orElse(CertAuthorityType.UNKNOWN);
-        final int validityMonths = certificateData.getValidityMonths();
+        final var validityMonths = certificateData.getValidityMonths();
         Optional.ofNullable(policyModel.getLifetimeActions())
                 .ifPresent(actions -> validateLifetimeActionList(validityMonths, actions, certAuthorityType));
     }
@@ -77,8 +77,8 @@ public class CertificateImportInput {
             final X509Certificate certificate,
             final JsonWebKeyImportRequest keyData,
             final CertificatePolicyModel policyModel) {
-        final CertificateKeyModel keyProperties = Objects.requireNonNullElse(policyModel.getKeyProperties(), new CertificateKeyModel());
-        final IssuerParameterModel issuer = Objects.requireNonNullElse(policyModel.getIssuer(), new IssuerParameterModel());
+        final var keyProperties = Objects.requireNonNullElse(policyModel.getKeyProperties(), new CertificateKeyModel());
+        final var issuer = Objects.requireNonNullElse(policyModel.getIssuer(), new IssuerParameterModel());
         return ParserUtil.parseCertProperties(certificate)
                 .name(name)
                 .contentType(contentType)
@@ -93,7 +93,7 @@ public class CertificateImportInput {
 
     private static CertificatePolicy mergePolicies(
             final CertificateCreationInput parsedCertificateData, final CertificatePolicyModel policyModel) {
-        final CertificatePolicy policy = new CertificatePolicy(parsedCertificateData);
+        final var policy = new CertificatePolicy(parsedCertificateData);
         Optional.ofNullable(policyModel.getKeyProperties())
                 .ifPresent(overrideKeyProperties(policy));
         return policy;

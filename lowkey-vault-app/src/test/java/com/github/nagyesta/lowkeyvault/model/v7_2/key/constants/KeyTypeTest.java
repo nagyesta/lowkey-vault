@@ -1,7 +1,10 @@
 package com.github.nagyesta.lowkeyvault.model.v7_2.key.constants;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRequest;
-import com.github.nagyesta.lowkeyvault.service.key.*;
+import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
+import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyAesKeyVaultKeyEntity;
+import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyEcKeyVaultKeyEntity;
+import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyRsaKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -63,7 +66,7 @@ class KeyTypeTest {
         //given
 
         //when
-        final KeyType actual = KeyType.forValue(input);
+        final var actual = KeyType.forValue(input);
 
         //then
         Assertions.assertEquals(expected, actual);
@@ -76,7 +79,7 @@ class KeyTypeTest {
         //given
 
         //when
-        final Class<? extends ReadOnlyKeyVaultKeyEntity> actual = underTest.entityClass();
+        final var actual = underTest.entityClass();
 
         //then
         Assertions.assertEquals(expected, actual);
@@ -100,9 +103,9 @@ class KeyTypeTest {
         //given
 
         //when
-        final boolean actualOct = underTest.isOct();
-        final boolean actualEc = underTest.isEc();
-        final boolean actualRsa = underTest.isRsa();
+        final var actualOct = underTest.isOct();
+        final var actualEc = underTest.isEc();
+        final var actualRsa = underTest.isRsa();
 
         //then
         Assertions.assertEquals(oct, actualOct);
@@ -113,14 +116,14 @@ class KeyTypeTest {
     @Test
     void testImportOctShouldCallToCreateKeyEntityWhenCalled() {
         //given
-        final KeyType underTest = KeyType.OCT_HSM;
-        final KeyVaultFake keyVaultFake = mock(KeyVaultFake.class);
-        final VersionedKeyEntityId versionedKeyEntityId = mock(VersionedKeyEntityId.class);
-        final JsonWebKeyImportRequest request = mock(JsonWebKeyImportRequest.class);
+        final var underTest = KeyType.OCT_HSM;
+        final var keyVaultFake = mock(KeyVaultFake.class);
+        final var versionedKeyEntityId = mock(VersionedKeyEntityId.class);
+        final var request = mock(JsonWebKeyImportRequest.class);
         when(keyVaultFake.importOctKeyVersion(same(versionedKeyEntityId), same(request))).thenReturn(versionedKeyEntityId);
 
         //when
-        final VersionedKeyEntityId actual = underTest.importKey(keyVaultFake, versionedKeyEntityId, request);
+        final var actual = underTest.importKey(keyVaultFake, versionedKeyEntityId, request);
 
         //then
         Assertions.assertSame(versionedKeyEntityId, actual);
@@ -131,14 +134,14 @@ class KeyTypeTest {
     @Test
     void testImportEcShouldCallToCreateKeyEntityWhenCalled() {
         //given
-        final KeyType underTest = KeyType.EC_HSM;
-        final KeyVaultFake keyVaultFake = mock(KeyVaultFake.class);
-        final VersionedKeyEntityId versionedKeyEntityId = mock(VersionedKeyEntityId.class);
-        final JsonWebKeyImportRequest request = mock(JsonWebKeyImportRequest.class);
+        final var underTest = KeyType.EC_HSM;
+        final var keyVaultFake = mock(KeyVaultFake.class);
+        final var versionedKeyEntityId = mock(VersionedKeyEntityId.class);
+        final var request = mock(JsonWebKeyImportRequest.class);
         when(keyVaultFake.importEcKeyVersion(same(versionedKeyEntityId), same(request))).thenReturn(versionedKeyEntityId);
 
         //when
-        final VersionedKeyEntityId actual = underTest.importKey(keyVaultFake, versionedKeyEntityId, request);
+        final var actual = underTest.importKey(keyVaultFake, versionedKeyEntityId, request);
 
         //then
         Assertions.assertSame(versionedKeyEntityId, actual);
@@ -149,14 +152,14 @@ class KeyTypeTest {
     @Test
     void testImportRsaShouldCallToCreateKeyEntityWhenCalled() {
         //given
-        final KeyType underTest = KeyType.RSA_HSM;
-        final KeyVaultFake keyVaultFake = mock(KeyVaultFake.class);
-        final VersionedKeyEntityId versionedKeyEntityId = mock(VersionedKeyEntityId.class);
-        final JsonWebKeyImportRequest request = mock(JsonWebKeyImportRequest.class);
+        final var underTest = KeyType.RSA_HSM;
+        final var keyVaultFake = mock(KeyVaultFake.class);
+        final var versionedKeyEntityId = mock(VersionedKeyEntityId.class);
+        final var request = mock(JsonWebKeyImportRequest.class);
         when(keyVaultFake.importRsaKeyVersion(same(versionedKeyEntityId), same(request))).thenReturn(versionedKeyEntityId);
 
         //when
-        final VersionedKeyEntityId actual = underTest.importKey(keyVaultFake, versionedKeyEntityId, request);
+        final var actual = underTest.importKey(keyVaultFake, versionedKeyEntityId, request);
 
         //then
         Assertions.assertSame(versionedKeyEntityId, actual);

@@ -27,7 +27,7 @@ class KeyOperationTest {
         //given
 
         //when
-        final KeyOperation actual = KeyOperation.forValue(input);
+        final var actual = KeyOperation.forValue(input);
 
         //then
         Assertions.assertEquals(expected, actual);

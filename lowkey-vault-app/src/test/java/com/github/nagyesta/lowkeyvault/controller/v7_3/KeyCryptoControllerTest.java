@@ -6,14 +6,15 @@ import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyItemMode
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyVersionItemModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ModelConverter;
 import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.*;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.JsonWebKeyModel;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyPropertiesModel;
+import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.*;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.CreateKeyRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeyOperationsParameters;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeySignParameters;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeyVerifyParameters;
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.RandomBytesRequest;
-import com.github.nagyesta.lowkeyvault.model.v7_3.key.RandomBytesResponse;
 import com.github.nagyesta.lowkeyvault.service.common.ReadOnlyVersionedEntityMultiMap;
 import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
@@ -34,7 +35,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 
 import java.net.URI;
@@ -74,7 +74,7 @@ class KeyCryptoControllerTest {
     private AutoCloseable openMocks;
 
     private static KeyVaultKeyModel createResponse() {
-        final KeyVaultKeyModel model = new KeyVaultKeyModel();
+        final var model = new KeyVaultKeyModel();
         model.setKey(new JsonWebKeyModel());
         model.setAttributes(new KeyPropertiesModel());
         model.setTags(Map.of());
@@ -82,7 +82,7 @@ class KeyCryptoControllerTest {
     }
 
     public static Stream<Arguments> nullProvider() {
-        final KeyConverterRegistry registry = mock(KeyConverterRegistry.class);
+        final var registry = mock(KeyConverterRegistry.class);
         return Stream.<Arguments>builder()
                 .add(Arguments.of(null, null))
                 .add(Arguments.of(registry, null))
@@ -128,11 +128,11 @@ class KeyCryptoControllerTest {
     @ValueSource(strings = {BLANK, DEFAULT_VAULT, LOCALHOST, LOWKEY_VAULT})
     void testEncryptAndDecryptShouldGetBackOriginalInputWhenKeyAndVersionIsFound(final String clearText) {
         //given
-        final KeyEntityId baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
-        final List<KeyOperation> operations = List.of(
+        final var baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
+        final var operations = List.of(
                 KeyOperation.ENCRYPT, KeyOperation.DECRYPT, KeyOperation.WRAP_KEY, KeyOperation.UNWRAP_KEY);
-        final CreateKeyRequest request = createRequest(operations);
-        final RsaKeyVaultKeyEntity entity = (RsaKeyVaultKeyEntity) createEntity(request);
+        final var request = createRequest(operations);
+        final var entity = (RsaKeyVaultKeyEntity) createEntity(request);
         entity.setEnabled(true);
         entity.setOperations(operations);
         when(keyVaultFake.getEntities())
@@ -141,29 +141,29 @@ class KeyCryptoControllerTest {
                 .thenReturn(entity);
         when(keyEntityToV72ModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(RESPONSE);
-        final KeyOperationsParameters encryptParameters = new KeyOperationsParameters();
+        final var encryptParameters = new KeyOperationsParameters();
         encryptParameters.setAlgorithm(EncryptionAlgorithm.RSA_OAEP_256);
         encryptParameters.setValue(ENCODER.encodeToString(clearText.getBytes(StandardCharsets.UTF_8)));
 
         //when
-        final ResponseEntity<KeyOperationsResult> encrypted = underTest
+        final var encrypted = underTest
                 .encrypt(KEY_NAME_1, KEY_VERSION_3, HTTPS_LOCALHOST_8443, encryptParameters);
         Assertions.assertNotNull(encrypted);
         Assertions.assertEquals(HttpStatus.OK, encrypted.getStatusCode());
         Assertions.assertNotNull(encrypted.getBody());
         Assertions.assertNotEquals(clearText, encrypted.getBody().getValue());
 
-        final KeyOperationsParameters decryptParameters = new KeyOperationsParameters();
+        final var decryptParameters = new KeyOperationsParameters();
         decryptParameters.setAlgorithm(EncryptionAlgorithm.RSA_OAEP_256);
         decryptParameters.setValue(encrypted.getBody().getValue());
-        final ResponseEntity<KeyOperationsResult> actual = underTest
+        final var actual = underTest
                 .decrypt(KEY_NAME_1, KEY_VERSION_3, HTTPS_LOCALHOST_8443, decryptParameters);
 
         //then
         Assertions.assertNotNull(actual);
         Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
         Assertions.assertNotNull(actual.getBody());
-        final String decoded = new String(DECODER.decode(actual.getBody().getValue()), StandardCharsets.UTF_8);
+        final var decoded = new String(DECODER.decode(actual.getBody().getValue()), StandardCharsets.UTF_8);
         Assertions.assertEquals(clearText, decoded);
 
         verify(vaultService, times(2)).findByUri(eq(HTTPS_LOCALHOST_8443));
@@ -178,10 +178,10 @@ class KeyCryptoControllerTest {
     @ValueSource(strings = {BLANK, DEFAULT_VAULT, LOCALHOST, LOWKEY_VAULT})
     void testSignAndVerifyShouldReturnTrueWhenKeyAndVersionIsFoundAndCalledInSequence(final String clearText) {
         //given
-        final KeyEntityId baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
-        final List<KeyOperation> operations = List.of(KeyOperation.SIGN, KeyOperation.VERIFY);
-        final CreateKeyRequest request = createRequest(operations);
-        final RsaKeyVaultKeyEntity entity = (RsaKeyVaultKeyEntity) createEntity(request);
+        final var baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
+        final var operations = List.of(KeyOperation.SIGN, KeyOperation.VERIFY);
+        final var request = createRequest(operations);
+        final var entity = (RsaKeyVaultKeyEntity) createEntity(request);
         entity.setEnabled(true);
         entity.setOperations(operations);
         when(keyVaultFake.getEntities())
@@ -190,23 +190,23 @@ class KeyCryptoControllerTest {
                 .thenReturn(entity);
         when(keyEntityToV72ModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(RESPONSE);
-        final KeySignParameters keySignParameters = new KeySignParameters();
+        final var keySignParameters = new KeySignParameters();
         keySignParameters.setAlgorithm(SignatureAlgorithm.PS256);
         keySignParameters.setValue(ENCODER.encodeToString(HashUtil.hash(clearText.getBytes(StandardCharsets.UTF_8), HashAlgorithm.SHA256)));
 
         //when
-        final ResponseEntity<KeySignResult> signature = underTest
+        final var signature = underTest
                 .sign(KEY_NAME_1, KEY_VERSION_3, HTTPS_LOCALHOST_8443, keySignParameters);
         Assertions.assertNotNull(signature);
         Assertions.assertEquals(HttpStatus.OK, signature.getStatusCode());
         Assertions.assertNotNull(signature.getBody());
         Assertions.assertNotEquals(clearText, signature.getBody().getValue());
 
-        final KeyVerifyParameters verifyParameters = new KeyVerifyParameters();
+        final var verifyParameters = new KeyVerifyParameters();
         verifyParameters.setAlgorithm(SignatureAlgorithm.PS256);
         verifyParameters.setDigest(ENCODER.encodeToString(HashUtil.hash(clearText.getBytes(StandardCharsets.UTF_8), HashAlgorithm.SHA256)));
         verifyParameters.setValue(signature.getBody().getValue());
-        final ResponseEntity<KeyVerifyResult> actual = underTest
+        final var actual = underTest
                 .verify(KEY_NAME_1, KEY_VERSION_3, HTTPS_LOCALHOST_8443, verifyParameters);
 
         //then
@@ -226,14 +226,14 @@ class KeyCryptoControllerTest {
     @Test
     void testGetRandomBytesShouldReturnRandomBytesWhenCalledWithValidData() {
         //given
-        final RandomBytesRequest request = new RandomBytesRequest();
+        final var request = new RandomBytesRequest();
         request.setCount(128);
 
         //when
-        final ResponseEntity<RandomBytesResponse> response = underTest.getRandomBytes(request);
+        final var response = underTest.getRandomBytes(request);
 
         //then
-        final RandomBytesResponse body = response.getBody();
+        final var body = response.getBody();
         Assertions.assertNotNull(body);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assertions.assertEquals(128, body.getValue().length);
@@ -242,10 +242,10 @@ class KeyCryptoControllerTest {
     @NonNull
     private CreateKeyRequest createRequest(
             final List<KeyOperation> operations) {
-        final CreateKeyRequest keyRequest = new CreateKeyRequest();
+        final var keyRequest = new CreateKeyRequest();
         keyRequest.setKeyType(KeyType.RSA);
         keyRequest.setKeyOperations(operations);
-        final KeyPropertiesModel properties = new KeyPropertiesModel();
+        final var properties = new KeyPropertiesModel();
         properties.setExpiresOn(null);
         properties.setNotBefore(null);
         properties.setEnabled(true);

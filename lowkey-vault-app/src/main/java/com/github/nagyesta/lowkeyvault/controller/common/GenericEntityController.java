@@ -95,7 +95,7 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
     }
 
     protected M getModelById(final S entityVaultFake, final V entityId, final URI baseUri, final boolean includeDisabled) {
-        final E entity = entityVaultFake.getEntities().getReadOnlyEntity(entityId);
+        final var entity = entityVaultFake.getEntities().getReadOnlyEntity(entityId);
         if (!includeDisabled && !entity.isEnabled()) {
             throw new NotFoundException("Operation get is not allowed on a disabled entity.");
         }
@@ -103,7 +103,7 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
     }
 
     protected DM getDeletedModelById(final S entityVaultFake, final V entityId, final URI baseUri, final boolean includeDisabled) {
-        final E entity = entityVaultFake.getDeletedEntities().getReadOnlyEntity(entityId);
+        final var entity = entityVaultFake.getDeletedEntities().getReadOnlyEntity(entityId);
         if (!includeDisabled && !entity.isEnabled()) {
             throw new NotFoundException("Operation get is not allowed on a disabled entity.");
         }
@@ -116,17 +116,17 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
 
     protected KeyVaultItemListModel<I> getPageOfItemVersions(
             final URI baseUri, final String name, final PaginationContext pagination) {
-        final S entityVaultFake = getVaultByUri(baseUri);
-        final K entityId = entityId(baseUri, name);
-        final List<String> allItems = entityVaultFake.getEntities().getVersions(entityId)
+        final var entityVaultFake = getVaultByUri(baseUri);
+        final var entityId = entityId(baseUri, name);
+        final var allItems = entityVaultFake.getEntities().getVersions(entityId)
                 .stream()
                 .sorted()
                 .collect(Collectors.toList());
-        final List<I> items = filterList(pagination.getLimit(), pagination.getOffset(), allItems, v -> {
-            final E entity = getEntityByNameAndVersion(baseUri, name, v);
+        final var items = filterList(pagination.getLimit(), pagination.getOffset(), allItems, v -> {
+            final var entity = getEntityByNameAndVersion(baseUri, name, v);
             return registry.versionedItemConverter(apiVersion()).convert(entity, baseUri);
         });
-        final URI nextUri = PaginationContext.builder()
+        final var nextUri = PaginationContext.builder()
                 .base(pagination.getBase())
                 .apiVersion(pagination.getApiVersion())
                 .currentItems(items.size())
@@ -141,11 +141,11 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
 
     @SuppressWarnings("SameParameterValue")
     protected KeyVaultItemListModel<I> getPageOfItems(final URI baseUri, final PaginationContext pagination) {
-        final S entityVaultFake = getVaultByUri(baseUri);
-        final List<E> allItems = entityVaultFake.getEntities().listLatestEntities();
-        final List<I> items = filterList(pagination.getLimit(), pagination.getOffset(), allItems,
+        final var entityVaultFake = getVaultByUri(baseUri);
+        final var allItems = entityVaultFake.getEntities().listLatestEntities();
+        final var items = filterList(pagination.getLimit(), pagination.getOffset(), allItems,
                 source -> registry.itemConverter(apiVersion()).convert(source, baseUri));
-        final URI nextUri = PaginationContext.builder()
+        final var nextUri = PaginationContext.builder()
                 .base(pagination.getBase())
                 .apiVersion(pagination.getApiVersion())
                 .currentItems(items.size())
@@ -160,11 +160,11 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
 
     @SuppressWarnings("SameParameterValue")
     protected KeyVaultItemListModel<DI> getPageOfDeletedItems(final URI baseUri, final PaginationContext pagination) {
-        final S entityVaultFake = getVaultByUri(baseUri);
-        final List<E> allItems = entityVaultFake.getDeletedEntities().listLatestEntities();
-        final List<DI> items = filterList(pagination.getLimit(), pagination.getOffset(), allItems,
+        final var entityVaultFake = getVaultByUri(baseUri);
+        final var allItems = entityVaultFake.getDeletedEntities().listLatestEntities();
+        final var items = filterList(pagination.getLimit(), pagination.getOffset(), allItems,
                 source -> registry.itemConverter(apiVersion()).convertDeleted(source, baseUri));
-        final URI nextUri = PaginationContext.builder()
+        final var nextUri = PaginationContext.builder()
                 .base(pagination.getBase())
                 .apiVersion(apiVersion())
                 .currentItems(items.size())
@@ -178,14 +178,14 @@ public abstract class GenericEntityController<K extends EntityId, V extends K, E
     }
 
     protected M getLatestEntityModel(final URI baseUri, final String name) {
-        final S vaultFake = getVaultByUri(baseUri);
-        final V entityId = vaultFake.getEntities().getLatestVersionOfEntity(entityId(baseUri, name));
+        final var vaultFake = getVaultByUri(baseUri);
+        final var entityId = vaultFake.getEntities().getLatestVersionOfEntity(entityId(baseUri, name));
         return getModelById(vaultFake, entityId, baseUri, false);
     }
 
     protected M getSpecificEntityModel(final URI baseUri, final String name, final String version) {
-        final S vaultFake = getVaultByUri(baseUri);
-        final V entityId = versionedEntityId(baseUri, name, version);
+        final var vaultFake = getVaultByUri(baseUri);
+        final var entityId = versionedEntityId(baseUri, name, version);
         return getModelById(vaultFake, entityId, baseUri, false);
     }
 

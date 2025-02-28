@@ -89,8 +89,8 @@ public class VaultImportExportExecutor {
     }
 
     private VaultBackupModel backupVault(final VaultService vaultService, final VaultModel vaultModel) {
-        final VaultFake vaultFake = vaultService.findByUri(vaultModel.getBaseUri());
-        final VaultBackupModel backupModel = new VaultBackupModel();
+        final var vaultFake = vaultService.findByUri(vaultModel.getBaseUri());
+        final var backupModel = new VaultBackupModel();
         backupModel.setAttributes(vaultModel);
         backupModel.setKeys(mapKeys(vaultFake));
         backupModel.setSecrets(mapSecrets(vaultFake));

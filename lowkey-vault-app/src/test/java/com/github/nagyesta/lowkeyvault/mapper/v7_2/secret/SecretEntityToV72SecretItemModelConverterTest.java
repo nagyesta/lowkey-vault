@@ -88,7 +88,7 @@ class SecretEntityToV72SecretItemModelConverterTest {
     }
 
     private static KeyVaultSecretItemModel keyVaultSecretItemModel(final URI asUriNoVersion, final Map<String, String> tags) {
-        final KeyVaultSecretItemModel model = new KeyVaultSecretItemModel();
+        final var model = new KeyVaultSecretItemModel();
         model.setAttributes(TestConstants.SECRET_PROPERTIES_MODEL);
         model.setId(asUriNoVersion.toString());
         model.setTags(tags);
@@ -98,7 +98,7 @@ class SecretEntityToV72SecretItemModelConverterTest {
     private static DeletedKeyVaultSecretItemModel deletedKeyVaultSecretItemModel(
             final VersionedSecretEntityId id, final Map<String, String> tags,
             final OffsetDateTime deleted, final OffsetDateTime scheduledPurge) {
-        final DeletedKeyVaultSecretItemModel model = new DeletedKeyVaultSecretItemModel();
+        final var model = new DeletedKeyVaultSecretItemModel();
         model.setAttributes(TestConstants.SECRET_PROPERTIES_MODEL);
         model.setId(id.asUriNoVersion(id.vault()).toString());
         model.setTags(tags);
@@ -131,13 +131,13 @@ class SecretEntityToV72SecretItemModelConverterTest {
 
         //given
         when(vault.baseUri()).thenReturn(secretEntityId.vault());
-        final URI vaultUri = eq(secretEntityId.vault());
+        final var vaultUri = eq(secretEntityId.vault());
         when(vault.matches(vaultUri, eq(Function.identity()))).thenReturn(true);
-        final KeyVaultSecretEntity input = new KeyVaultSecretEntity(secretEntityId, vault, value, type);
+        final var input = new KeyVaultSecretEntity(secretEntityId, vault, value, type);
         input.setTags(tags);
 
         //when
-        final KeyVaultSecretItemModel actual = underTest.convert(input, vault.baseUri());
+        final var actual = underTest.convert(input, vault.baseUri());
 
         //then
         Assertions.assertEquals(expected, actual);
@@ -165,15 +165,15 @@ class SecretEntityToV72SecretItemModelConverterTest {
 
         //given
         when(vault.baseUri()).thenReturn(secretEntityId.vault());
-        final URI vaultUri = eq(secretEntityId.vault());
+        final var vaultUri = eq(secretEntityId.vault());
         when(vault.matches(vaultUri, eq(Function.identity()))).thenReturn(true);
-        final KeyVaultSecretEntity input = new KeyVaultSecretEntity(secretEntityId, vault, value, type);
+        final var input = new KeyVaultSecretEntity(secretEntityId, vault, value, type);
         input.setDeletedDate(deleted);
         input.setScheduledPurgeDate(scheduledPurge);
         input.setTags(tags);
 
         //when
-        final DeletedKeyVaultSecretItemModel actual = underTest.convertDeleted(input, vault.baseUri());
+        final var actual = underTest.convertDeleted(input, vault.baseUri());
 
         //then
         Assertions.assertEquals(expected, actual);

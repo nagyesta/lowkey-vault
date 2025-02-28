@@ -15,7 +15,6 @@ import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
 import java.util.Base64;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -34,7 +33,7 @@ class Base64CertSerializerTest {
     private AutoCloseable openMocks;
 
     public static Stream<Arguments> base64Provider() {
-        final Base64.Encoder encoder = Base64.getMimeEncoder();
+        final var encoder = Base64.getMimeEncoder();
         return Stream.of(null, EMPTY, BLANK, LOCALHOST)
                 .map(s -> Optional.ofNullable(s).map(String::getBytes).orElse(null))
                 .map(b -> Arguments.of(b, Optional.ofNullable(b).filter(v -> v.length > 0).map(encoder::encodeToString).orElse(null)));
@@ -66,7 +65,7 @@ class Base64CertSerializerTest {
         } else {
             verify(generator).writeString(anyString());
             verify(generator, never()).writeNull();
-            final List<String> actual = output.getAllValues();
+            final var actual = output.getAllValues();
             Assertions.assertEquals(1, actual.size());
             Assertions.assertEquals(expected, actual.get(0));
         }

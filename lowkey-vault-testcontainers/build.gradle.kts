@@ -18,6 +18,7 @@ project.ext {
 dependencies {
     implementation(platform("org.testcontainers:testcontainers-bom:${libs.versions.testcontainers.get()}")) //import bom
     implementation(libs.testcontainers)
+    implementation(libs.commons.compress)
     testImplementation(libs.testcontainers.jupiter)
     testImplementation(project(":lowkey-vault-client"))
     testImplementation(libs.bundles.jackson)

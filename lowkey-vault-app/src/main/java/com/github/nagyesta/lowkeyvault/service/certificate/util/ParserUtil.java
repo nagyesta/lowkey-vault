@@ -73,15 +73,15 @@ public final class ParserUtil {
     }
 
     private static int validityMonths(final X509Certificate certificate) {
-        final Instant notAfter = certificate.getNotAfter().toInstant().truncatedTo(ChronoUnit.DAYS);
-        final Instant notBefore = certificate.getNotBefore().toInstant().truncatedTo(ChronoUnit.DAYS);
+        final var notAfter = certificate.getNotAfter().toInstant().truncatedTo(ChronoUnit.DAYS);
+        final var notBefore = certificate.getNotBefore().toInstant().truncatedTo(ChronoUnit.DAYS);
         return calculateValidityMonths(notBefore, notAfter);
     }
 
     static int calculateValidityMonths(final Instant notBefore, final Instant notAfter) {
-        final OffsetDateTime start = OffsetDateTime.ofInstant(notBefore, ZoneOffset.UTC);
-        final OffsetDateTime end = OffsetDateTime.ofInstant(notAfter, ZoneOffset.UTC);
-        int count = 0;
+        final var start = OffsetDateTime.ofInstant(notBefore, ZoneOffset.UTC);
+        final var end = OffsetDateTime.ofInstant(notAfter, ZoneOffset.UTC);
+        var count = 0;
         while (end.minusMonths(count).isAfter(start)) {
             count++;
         }

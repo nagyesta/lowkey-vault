@@ -7,7 +7,6 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVerifyResult;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeyOperationsParameters;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeySignParameters;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeyVerifyParameters;
-import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
@@ -32,8 +31,8 @@ public abstract class CommonKeyCryptoController extends BaseKeyController {
         log.info("Received request to {} encrypt using key: {} with version: {} using API version: {}",
                 baseUri.toString(), keyName, keyVersion, apiVersion());
 
-        final ReadOnlyKeyVaultKeyEntity keyVaultKeyEntity = getEntityByNameAndVersion(baseUri, keyName, keyVersion);
-        final byte[] encrypted = keyVaultKeyEntity.encryptBytes(request.getValueAsBase64DecodedBytes(), request.getAlgorithm(),
+        final var keyVaultKeyEntity = getEntityByNameAndVersion(baseUri, keyName, keyVersion);
+        final var encrypted = keyVaultKeyEntity.encryptBytes(request.getValueAsBase64DecodedBytes(), request.getAlgorithm(),
                 request.getInitializationVector());
         return ResponseEntity.ok(KeyOperationsResult.forBytes(keyVaultKeyEntity.getId(), encrypted, request, baseUri));
     }
@@ -46,8 +45,8 @@ public abstract class CommonKeyCryptoController extends BaseKeyController {
         log.info("Received request to {} decrypt using key: {} with version: {} using API version: {}",
                 baseUri.toString(), keyName, keyVersion, apiVersion());
 
-        final ReadOnlyKeyVaultKeyEntity keyVaultKeyEntity = getEntityByNameAndVersion(baseUri, keyName, keyVersion);
-        final byte[] decrypted = keyVaultKeyEntity.decryptToBytes(request.getValueAsBase64DecodedBytes(), request.getAlgorithm(),
+        final var keyVaultKeyEntity = getEntityByNameAndVersion(baseUri, keyName, keyVersion);
+        final var decrypted = keyVaultKeyEntity.decryptToBytes(request.getValueAsBase64DecodedBytes(), request.getAlgorithm(),
                 request.getInitializationVector());
         return ResponseEntity.ok(KeyOperationsResult.forBytes(keyVaultKeyEntity.getId(), decrypted, request, baseUri));
     }
@@ -60,8 +59,8 @@ public abstract class CommonKeyCryptoController extends BaseKeyController {
         log.info("Received request to {} sign using key: {} with version: {} using API version: {}",
                 baseUri.toString(), keyName, keyVersion, apiVersion());
 
-        final ReadOnlyKeyVaultKeyEntity keyVaultKeyEntity = getEntityByNameAndVersion(baseUri, keyName, keyVersion);
-        final byte[] signature = keyVaultKeyEntity.signBytes(request.getValueAsBase64DecodedBytes(), request.getAlgorithm());
+        final var keyVaultKeyEntity = getEntityByNameAndVersion(baseUri, keyName, keyVersion);
+        final var signature = keyVaultKeyEntity.signBytes(request.getValueAsBase64DecodedBytes(), request.getAlgorithm());
         return ResponseEntity.ok(KeySignResult.forBytes(keyVaultKeyEntity.getId(), signature, baseUri));
     }
 
@@ -73,8 +72,8 @@ public abstract class CommonKeyCryptoController extends BaseKeyController {
         log.info("Received request to {} verify using key: {} with version: {} using API version: {}",
                 baseUri.toString(), keyName, keyVersion, apiVersion());
 
-        final ReadOnlyKeyVaultKeyEntity keyVaultKeyEntity = getEntityByNameAndVersion(baseUri, keyName, keyVersion);
-        final boolean result = keyVaultKeyEntity.verifySignedBytes(request.getDigestAsBase64DecodedBytes(), request.getAlgorithm(),
+        final var keyVaultKeyEntity = getEntityByNameAndVersion(baseUri, keyName, keyVersion);
+        final var result = keyVaultKeyEntity.verifySignedBytes(request.getDigestAsBase64DecodedBytes(), request.getAlgorithm(),
                 request.getValueAsBase64DecodedBytes());
         return ResponseEntity.ok(new KeyVerifyResult(result));
     }

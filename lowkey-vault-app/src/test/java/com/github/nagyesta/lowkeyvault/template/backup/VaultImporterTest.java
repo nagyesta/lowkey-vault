@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nagyesta.lowkeyvault.model.management.VaultBackupListModel;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,10 +20,10 @@ import static org.mockito.Mockito.mock;
 class VaultImporterTest {
 
     public static Stream<Arguments> nullProvider() {
-        final VaultImporterProperties properties = mock(VaultImporterProperties.class);
-        final BackupTemplateProcessor processor = mock(BackupTemplateProcessor.class);
-        final ObjectMapper mapper = mock(ObjectMapper.class);
-        final Validator validator = mock(Validator.class);
+        final var properties = mock(VaultImporterProperties.class);
+        final var processor = mock(BackupTemplateProcessor.class);
+        final var mapper = mock(ObjectMapper.class);
+        final var validator = mock(Validator.class);
         return Stream.<Arguments>builder()
                 .add(Arguments.of(null, processor, mapper, validator))
                 .add(Arguments.of(properties, null, mapper, validator))
@@ -51,13 +50,13 @@ class VaultImporterTest {
     void testAssertValidShouldThrowExceptionWhenValueIsInvalid() {
         //given
         //noinspection resource
-        final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        final Validator validator = factory.getValidator();
-        final VaultImporter underTest = new VaultImporter(new VaultImporterProperties(null, LOCALHOST, HTTP_PORT),
+        final var factory = Validation.buildDefaultValidatorFactory();
+        final var validator = factory.getValidator();
+        final var underTest = new VaultImporter(new VaultImporterProperties(null, LOCALHOST, HTTP_PORT),
                 new BackupTemplateProcessor(new TimeHelperSource()),
                 new ObjectMapper(),
                 validator);
-        final VaultBackupListModel input = new VaultBackupListModel();
+        final var input = new VaultBackupListModel();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.assertValid(input));
@@ -69,11 +68,11 @@ class VaultImporterTest {
     void testReadFileShouldThrowExceptionWhenFileIsNotFound() {
         //given
         //noinspection resource
-        final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        final Validator validator = factory.getValidator();
-        final VaultImporterProperties properties = new VaultImporterProperties(new File("not-found"), LOCALHOST, HTTP_PORT);
-        final BackupTemplateProcessor processor = new BackupTemplateProcessor(new TimeHelperSource());
-        final VaultImporter underTest = new VaultImporter(properties, processor, new ObjectMapper(), validator);
+        final var factory = Validation.buildDefaultValidatorFactory();
+        final var validator = factory.getValidator();
+        final var properties = new VaultImporterProperties(new File("not-found"), LOCALHOST, HTTP_PORT);
+        final var processor = new BackupTemplateProcessor(new TimeHelperSource());
+        final var underTest = new VaultImporter(properties, processor, new ObjectMapper(), validator);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.readFile(properties.getImportFile(), properties.context()));

@@ -8,8 +8,6 @@ import org.springframework.lang.NonNull;
 
 import java.security.KeyFactory;
 import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
@@ -25,11 +23,11 @@ public class EcJsonWebKeyImportRequestConverter extends BaseJsonWebKeyImportRequ
     @Override
     public KeyPair convert(@NonNull final JsonWebKeyImportRequest source) {
         try {
-            final ECParameterSpec spec = parameterSpec(source);
-            final KeyFactory factory = KeyFactory.getInstance(source.getKeyType().getAlgorithmName(),
+            final var spec = parameterSpec(source);
+            final var factory = KeyFactory.getInstance(source.getKeyType().getAlgorithmName(),
                     KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
-            final PrivateKey privateKey = factory.generatePrivate(ecPrivateKeySpec(spec, source));
-            final PublicKey publicKey = factory.generatePublic(ecPublicKeySpec(spec, source));
+            final var privateKey = factory.generatePrivate(ecPrivateKeySpec(spec, source));
+            final var publicKey = factory.generatePublic(ecPublicKeySpec(spec, source));
             return new KeyPair(publicKey, privateKey);
         } catch (final Exception e) {
             throw new CryptoException(e.getMessage(), e);
@@ -42,7 +40,7 @@ public class EcJsonWebKeyImportRequestConverter extends BaseJsonWebKeyImportRequ
     }
 
     private ECPublicKeySpec ecPublicKeySpec(final ECParameterSpec spec, final JsonWebKeyImportRequest source) {
-        final ECPoint ecPoint = new ECPoint(asInt(source.getX()), asInt(source.getY()));
+        final var ecPoint = new ECPoint(asInt(source.getX()), asInt(source.getY()));
         return new ECPublicKeySpec(ecPoint, spec);
     }
 

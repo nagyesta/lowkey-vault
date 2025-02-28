@@ -1,6 +1,5 @@
 package com.github.nagyesta.lowkeyvault.service.certificate.impl;
 
-import org.bouncycastle.asn1.x509.KeyUsage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -60,10 +59,10 @@ class KeyUsageEnumTest {
     @Test
     void testCombiningItemsShouldCreateSingleKeyUsageWhenCalledForValidSetOfUsages() {
         //given
-        final KeyUsageEnum[] values = KeyUsageEnum.values();
+        final var values = KeyUsageEnum.values();
 
         //when
-        final KeyUsage actual = Stream.of(values).collect(KeyUsageEnum.toKeyUsage());
+        final var actual = Stream.of(values).collect(KeyUsageEnum.toKeyUsage());
 
         //then
         Stream.of(values).forEach(value -> Assertions
@@ -76,7 +75,7 @@ class KeyUsageEnumTest {
         //given
 
         //when
-        final Set<KeyUsageEnum> actual = KeyUsageEnum.parseBitString(input);
+        final var actual = KeyUsageEnum.parseBitString(input);
 
         //then
         Assertions.assertIterableEquals(new TreeSet<>(expected), new TreeSet<>(actual));
@@ -88,7 +87,7 @@ class KeyUsageEnumTest {
         //given
 
         //when
-        final KeyUsageEnum actual = KeyUsageEnum.byValue(input);
+        final var actual = KeyUsageEnum.byValue(input);
 
         //then
         Assertions.assertEquals(expected, actual);

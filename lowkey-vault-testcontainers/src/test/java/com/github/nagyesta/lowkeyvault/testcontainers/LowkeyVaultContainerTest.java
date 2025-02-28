@@ -29,13 +29,13 @@ class LowkeyVaultContainerTest extends AbstractLowkeyVaultContainerTest {
             final String imageName, final String hostArch, final boolean logExpected
     ) {
         //given
-        final DockerImageName dockerImageName = DockerImageName.parse(imageName)
+        final var dockerImageName = DockerImageName.parse(imageName)
                 .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);
-        final LowkeyVaultContainer underTest = spy(LowkeyVaultContainerBuilder
+        final var underTest = spy(LowkeyVaultContainerBuilder
                 .lowkeyVault(LowkeyVaultContainer.DEFAULT_IMAGE_NAME.withTag("2.7.1"))
                 .build())
                 .withImagePullPolicy(shouldPull -> false);
-        final Logger loggerMock = mock(Logger.class);
+        final var loggerMock = mock(Logger.class);
 
         //when
         underTest.recommendMultiArchImageIfApplicable(loggerMock, dockerImageName, hostArch);

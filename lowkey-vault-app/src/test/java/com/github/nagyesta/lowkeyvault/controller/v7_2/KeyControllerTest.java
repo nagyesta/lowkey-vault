@@ -5,9 +5,6 @@ import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyItemMode
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyVersionItemModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ModelConverter;
 import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
-import com.github.nagyesta.lowkeyvault.model.common.ErrorMessage;
-import com.github.nagyesta.lowkeyvault.model.common.ErrorModel;
-import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesUpdateModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.*;
@@ -36,11 +33,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 
 import java.net.URI;
@@ -81,7 +76,7 @@ class KeyControllerTest {
     private AutoCloseable openMocks;
 
     private static KeyVaultKeyModel createResponse() {
-        final KeyVaultKeyModel model = new KeyVaultKeyModel();
+        final var model = new KeyVaultKeyModel();
         model.setKey(new JsonWebKeyModel());
         model.setAttributes(new KeyPropertiesModel());
         model.setTags(Map.of());
@@ -89,7 +84,7 @@ class KeyControllerTest {
     }
 
     private static DeletedKeyVaultKeyModel createDeletedResponse() {
-        final DeletedKeyVaultKeyModel model = new DeletedKeyVaultKeyModel();
+        final var model = new DeletedKeyVaultKeyModel();
         model.setKey(new JsonWebKeyModel());
         model.setAttributes(new KeyPropertiesModel());
         model.setTags(Map.of());
@@ -147,8 +142,8 @@ class KeyControllerTest {
     }
 
     public static Stream<Arguments> exceptionProvider() {
-        final String message = "Message";
-        final String failed = "failed";
+        final var message = "Message";
+        final var failed = "failed";
         return Stream.<Arguments>builder()
                 .add(Arguments.of(new IllegalStateException(message),
                         HttpStatus.INTERNAL_SERVER_ERROR, message, null))
@@ -187,16 +182,16 @@ class KeyControllerTest {
         //given
 
         //when
-        final ResponseEntity<ErrorModel> actual = underTest.handleException(exception);
+        final var actual = underTest.handleException(exception);
 
         //then
         Assertions.assertEquals(status, actual.getStatusCode());
-        final ErrorModel actualBody = actual.getBody();
+        final var actualBody = actual.getBody();
         Assertions.assertNotNull(actualBody);
         Assertions.assertNotNull(actualBody.error());
         Assertions.assertEquals(message, actualBody.error().getMessage());
         Assertions.assertEquals(exception.getClass().getName(), actualBody.error().getCode());
-        final ErrorMessage actualInnerError = actualBody.error().getInnerError();
+        final var actualInnerError = actualBody.error().getInnerError();
         if (innerMessage != null) {
             Assertions.assertNotNull(actualInnerError);
             Assertions.assertEquals(exception.getCause().getClass().getName(), actualInnerError.getCode());
@@ -209,21 +204,21 @@ class KeyControllerTest {
     @Test
     void testErrorHandlerConvertsIllegalArgumentExceptionWhenCaught() {
         //given
-        final HttpStatus status = HttpStatus.BAD_REQUEST;
-        final String message = "Message";
+        final var status = HttpStatus.BAD_REQUEST;
+        final var message = "Message";
         final Exception exception = new IllegalArgumentException(message);
 
         //when
-        final ResponseEntity<ErrorModel> actual = underTest.handleArgumentException(exception);
+        final var actual = underTest.handleArgumentException(exception);
 
         //then
         Assertions.assertEquals(status, actual.getStatusCode());
-        final ErrorModel actualBody = actual.getBody();
+        final var actualBody = actual.getBody();
         Assertions.assertNotNull(actualBody);
         Assertions.assertNotNull(actualBody.error());
         Assertions.assertEquals(message, actualBody.error().getMessage());
         Assertions.assertEquals(exception.getClass().getName(), actualBody.error().getCode());
-        final ErrorMessage actualInnerError = actualBody.error().getInnerError();
+        final var actualInnerError = actualBody.error().getInnerError();
         Assertions.assertNull(actualInnerError);
     }
 
@@ -249,7 +244,7 @@ class KeyControllerTest {
         //given
         when(vaultFake.getRecoveryLevel()).thenReturn(RecoveryLevel.PURGEABLE);
         when(vaultFake.getRecoverableDays()).thenReturn(null);
-        final CreateKeyRequest request = createRequest(operations, expiry, notBefore);
+        final var request = createRequest(operations, expiry, notBefore);
         final ReadOnlyKeyVaultKeyEntity entity = createEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, request);
         when(keyVaultFake.createKeyVersion(eq(KEY_NAME_1), any(KeyCreateDetailedInput.class)))
                 .thenReturn(VERSIONED_KEY_ENTITY_ID_1_VERSION_1);
@@ -265,7 +260,7 @@ class KeyControllerTest {
                 .thenReturn(RESPONSE);
 
         //when
-        final ResponseEntity<KeyVaultKeyModel> actual = underTest.create(KEY_NAME_1, HTTPS_LOCALHOST_8443, request);
+        final var actual = underTest.create(KEY_NAME_1, HTTPS_LOCALHOST_8443, request);
 
         //then
         Assertions.assertNotNull(actual);
@@ -298,34 +293,34 @@ class KeyControllerTest {
     @Test
     void testVersionsShouldFilterTheListReturnedWhenKeyIsFoundAndHasMoreVersionsThanNeeded() {
         //given
-        final int index = 30;
-        final LinkedList<String> fullList = IntStream.range(0, 42)
+        final var index = 30;
+        final var fullList = IntStream.range(0, 42)
                 .mapToObj(i -> UUID.randomUUID().toString().replaceAll("-", ""))
                 .sorted()
                 .collect(Collectors.toCollection(LinkedList::new));
-        final KeyEntityId baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
-        final String expectedNextUri = baseUri.asUri(HTTPS_LOCALHOST_8443, "versions?api-version=7.2&$skiptoken=31&maxresults=1")
+        final var baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
+        final var expectedNextUri = baseUri.asUri(HTTPS_LOCALHOST_8443, "versions?api-version=7.2&$skiptoken=31&maxresults=1")
                 .toString();
         when(keyVaultFake.getEntities())
                 .thenReturn(entities);
         when(entities.getVersions(eq(baseUri))).thenReturn(fullList);
         when(entities.getReadOnlyEntity(any())).thenAnswer(invocation -> {
-            final VersionedKeyEntityId keyEntityId = invocation.getArgument(0, VersionedKeyEntityId.class);
+            final var keyEntityId = invocation.getArgument(0, VersionedKeyEntityId.class);
             return createEntity(keyEntityId, createRequest(null, null, null));
         });
         when(keyEntityToV72KeyVersionItemModelConverter.convert(any(), any())).thenAnswer(invocation -> {
             final KeyVaultKeyEntity<?, ?> entity = invocation.getArgument(0, KeyVaultKeyEntity.class);
             return keyVaultKeyItemModel(entity.getId().asUri(HTTPS_LOCALHOST_8443), Map.of());
         });
-        final URI expected = new VersionedKeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, fullList.get(index)).asUri(HTTPS_LOCALHOST_8443);
+        final var expected = new VersionedKeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, fullList.get(index)).asUri(HTTPS_LOCALHOST_8443);
 
         //when
-        final ResponseEntity<KeyVaultItemListModel<KeyVaultKeyItemModel>> actual =
+        final var actual =
                 underTest.versions(KEY_NAME_1, HTTPS_LOCALHOST_8443, 1, index);
 
         //then
         Assertions.assertNotNull(actual);
-        final KeyVaultItemListModel<KeyVaultKeyItemModel> actualBody = actual.getBody();
+        final var actualBody = actual.getBody();
         Assertions.assertNotNull(actualBody);
         Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
         Assertions.assertEquals(expected.toString(), actualBody.getValue().get(0).getKeyId());
@@ -337,35 +332,35 @@ class KeyControllerTest {
     @Test
     void testVersionsShouldNotContainNextUriWhenLastPageIsReturnedFully() {
         //given
-        final LinkedList<String> fullList = IntStream.range(0, 25)
+        final var fullList = IntStream.range(0, 25)
                 .mapToObj(i -> UUID.randomUUID().toString().replaceAll("-", ""))
                 .sorted()
                 .collect(Collectors.toCollection(LinkedList::new));
-        final KeyEntityId baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
+        final var baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
         when(keyVaultFake.getEntities())
                 .thenReturn(entities);
         when(entities.getVersions(eq(baseUri))).thenReturn(fullList);
         when(entities.getReadOnlyEntity(any())).thenAnswer(invocation -> {
-            final VersionedKeyEntityId keyEntityId = invocation.getArgument(0, VersionedKeyEntityId.class);
+            final var keyEntityId = invocation.getArgument(0, VersionedKeyEntityId.class);
             return createEntity(keyEntityId, createRequest(null, null, null));
         });
         when(keyEntityToV72KeyVersionItemModelConverter.convert(any(), any())).thenAnswer(invocation -> {
             final KeyVaultKeyEntity<?, ?> entity = invocation.getArgument(0, KeyVaultKeyEntity.class);
             return keyVaultKeyItemModel(entity.getId().asUri(HTTPS_LOCALHOST_8443), Map.of());
         });
-        final List<URI> expected = fullList.stream()
+        final var expected = fullList.stream()
                 .map(e -> new VersionedKeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, e).asUri(HTTPS_LOCALHOST_8443))
                 .collect(Collectors.toList());
 
         //when
-        final ResponseEntity<KeyVaultItemListModel<KeyVaultKeyItemModel>> actual =
+        final var actual =
                 underTest.versions(KEY_NAME_1, HTTPS_LOCALHOST_8443, 25, 0);
 
         //then
         Assertions.assertNotNull(actual);
-        final KeyVaultItemListModel<KeyVaultKeyItemModel> actualBody = actual.getBody();
+        final var actualBody = actual.getBody();
         Assertions.assertNotNull(actualBody);
-        final List<URI> actualList = actualBody.getValue().stream()
+        final var actualList = actualBody.getValue().stream()
                 .map(KeyVaultKeyItemModel::getKeyId)
                 .map(URI::create)
                 .collect(Collectors.toList());
@@ -381,7 +376,7 @@ class KeyControllerTest {
             final List<KeyOperation> operations, final RecoveryLevel recoveryLevel, final Integer recoverableDays,
             final OffsetDateTime expiry, final OffsetDateTime notBefore) {
         //given
-        final KeyEntityId baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
+        final var baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
         when(keyVaultFake.getEntities())
                 .thenReturn(entities);
         when(keyVaultFake.getDeletedEntities())
@@ -393,7 +388,7 @@ class KeyControllerTest {
                 .thenReturn(recoverableDays);
         when(deletedEntities.getLatestVersionOfEntity((eq(baseUri))))
                 .thenReturn(VERSIONED_KEY_ENTITY_ID_1_VERSION_3);
-        final CreateKeyRequest request = createRequest(operations, expiry, notBefore);
+        final var request = createRequest(operations, expiry, notBefore);
         final ReadOnlyKeyVaultKeyEntity entity = createEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, request);
         entity.setDeletedDate(TIME_10_MINUTES_AGO);
         entity.setScheduledPurgeDate(TIME_IN_10_MINUTES);
@@ -403,7 +398,7 @@ class KeyControllerTest {
                 .thenReturn(DELETED_RESPONSE);
 
         //when
-        final ResponseEntity<KeyVaultKeyModel> actual = underTest.delete(KEY_NAME_1, HTTPS_LOCALHOST_8443);
+        final var actual = underTest.delete(KEY_NAME_1, HTTPS_LOCALHOST_8443);
 
         //then
         Assertions.assertNotNull(actual);
@@ -413,7 +408,7 @@ class KeyControllerTest {
         verify(vaultFake).keyVaultFake();
         verify(vaultFake).getRecoveryLevel();
         verify(vaultFake).getRecoverableDays();
-        final InOrder inOrder = inOrder(keyVaultFake);
+        final var inOrder = inOrder(keyVaultFake);
         inOrder.verify(keyVaultFake).delete(eq(baseUri));
         inOrder.verify(keyVaultFake, atLeastOnce()).getDeletedEntities();
         verify(keyVaultFake, never()).getEntities();
@@ -429,7 +424,7 @@ class KeyControllerTest {
             final List<KeyOperation> operations, final RecoveryLevel recoveryLevel, final Integer recoverableDays,
             final OffsetDateTime expiry, final OffsetDateTime notBefore) {
         //given
-        final KeyEntityId baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
+        final var baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
         when(keyVaultFake.getEntities())
                 .thenReturn(entities);
         when(keyVaultFake.getDeletedEntities())
@@ -441,7 +436,7 @@ class KeyControllerTest {
                 .thenReturn(recoverableDays);
         when(entities.getLatestVersionOfEntity((eq(baseUri))))
                 .thenReturn(VERSIONED_KEY_ENTITY_ID_1_VERSION_3);
-        final CreateKeyRequest request = createRequest(operations, expiry, notBefore);
+        final var request = createRequest(operations, expiry, notBefore);
         final ReadOnlyKeyVaultKeyEntity entity = createEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, request);
         entity.setDeletedDate(TIME_10_MINUTES_AGO);
         entity.setScheduledPurgeDate(TIME_IN_10_MINUTES);
@@ -451,7 +446,7 @@ class KeyControllerTest {
                 .thenReturn(RESPONSE);
 
         //when
-        final ResponseEntity<KeyVaultKeyModel> actual = underTest.recoverDeletedKey(KEY_NAME_1, HTTPS_LOCALHOST_8443);
+        final var actual = underTest.recoverDeletedKey(KEY_NAME_1, HTTPS_LOCALHOST_8443);
 
         //then
         Assertions.assertNotNull(actual);
@@ -461,7 +456,7 @@ class KeyControllerTest {
         verify(vaultFake).keyVaultFake();
         verify(vaultFake).getRecoveryLevel();
         verify(vaultFake).getRecoverableDays();
-        final InOrder inOrder = inOrder(keyVaultFake);
+        final var inOrder = inOrder(keyVaultFake);
         inOrder.verify(keyVaultFake).recover(eq(baseUri));
         inOrder.verify(keyVaultFake, atLeastOnce()).getEntities();
         verify(keyVaultFake, never()).getDeletedEntities();
@@ -477,7 +472,7 @@ class KeyControllerTest {
             final List<KeyOperation> operations, final RecoveryLevel recoveryLevel, final Integer recoverableDays,
             final OffsetDateTime expiry, final OffsetDateTime notBefore) {
         //given
-        final KeyEntityId baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
+        final var baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
         when(keyVaultFake.getDeletedEntities())
                 .thenReturn(entities);
         when(vaultFake.getRecoveryLevel())
@@ -486,7 +481,7 @@ class KeyControllerTest {
                 .thenReturn(recoverableDays);
         when(entities.getLatestVersionOfEntity((eq(baseUri))))
                 .thenReturn(VERSIONED_KEY_ENTITY_ID_1_VERSION_3);
-        final CreateKeyRequest request = createRequest(operations, expiry, notBefore);
+        final var request = createRequest(operations, expiry, notBefore);
         final ReadOnlyKeyVaultKeyEntity entity = createEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, request);
         entity.setDeletedDate(TIME_10_MINUTES_AGO);
         entity.setScheduledPurgeDate(TIME_IN_10_MINUTES);
@@ -496,7 +491,7 @@ class KeyControllerTest {
                 .thenReturn(DELETED_RESPONSE);
 
         //when
-        final ResponseEntity<DeletedKeyVaultKeyModel> actual = underTest.getDeletedKey(KEY_NAME_1, HTTPS_LOCALHOST_8443);
+        final var actual = underTest.getDeletedKey(KEY_NAME_1, HTTPS_LOCALHOST_8443);
 
         //then
         Assertions.assertNotNull(actual);
@@ -520,7 +515,7 @@ class KeyControllerTest {
             final List<KeyOperation> operations, final RecoveryLevel recoveryLevel, final Integer recoverableDays,
             final OffsetDateTime expiry, final OffsetDateTime notBefore) {
         //given
-        final KeyEntityId baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
+        final var baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
         when(keyVaultFake.getEntities())
                 .thenReturn(entities);
         when(vaultFake.getRecoveryLevel())
@@ -529,7 +524,7 @@ class KeyControllerTest {
                 .thenReturn(recoverableDays);
         when(entities.getLatestVersionOfEntity((eq(baseUri))))
                 .thenReturn(VERSIONED_KEY_ENTITY_ID_1_VERSION_3);
-        final CreateKeyRequest request = createRequest(operations, expiry, notBefore);
+        final var request = createRequest(operations, expiry, notBefore);
         final ReadOnlyKeyVaultKeyEntity entity = createEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, request);
         when(entities.getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3)))
                 .thenReturn(entity);
@@ -537,7 +532,7 @@ class KeyControllerTest {
                 .thenReturn(RESPONSE);
 
         //when
-        final ResponseEntity<KeyVaultKeyModel> actual = underTest.get(KEY_NAME_1, HTTPS_LOCALHOST_8443);
+        final var actual = underTest.get(KEY_NAME_1, HTTPS_LOCALHOST_8443);
 
         //then
         Assertions.assertNotNull(actual);
@@ -560,23 +555,23 @@ class KeyControllerTest {
             final List<KeyOperation> operations, final RecoveryLevel recoveryLevel, final Integer recoverableDays,
             final OffsetDateTime expiry, final OffsetDateTime notBefore) {
         //given
-        final KeyEntityId baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
+        final var baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
         when(keyVaultFake.getEntities())
                 .thenReturn(entities);
         when(vaultFake.getRecoveryLevel())
                 .thenReturn(recoveryLevel);
         when(vaultFake.getRecoverableDays())
                 .thenReturn(recoverableDays);
-        final CreateKeyRequest request = createRequest(operations, expiry, notBefore);
+        final var request = createRequest(operations, expiry, notBefore);
         final ReadOnlyKeyVaultKeyEntity entity = createEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, request);
         when(entities.listLatestEntities())
                 .thenReturn(List.of(entity));
-        final KeyVaultKeyItemModel keyItemModel = keyVaultKeyItemModel(baseUri.asUri(HTTPS_LOCALHOST_8443), Map.of());
+        final var keyItemModel = keyVaultKeyItemModel(baseUri.asUri(HTTPS_LOCALHOST_8443), Map.of());
         when(keyEntityToV72KeyItemModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(keyItemModel);
 
         //when
-        final ResponseEntity<KeyVaultItemListModel<KeyVaultKeyItemModel>> actual =
+        final var actual =
                 underTest.listKeys(HTTPS_LOCALHOST_8443, 1, 0);
 
         //then
@@ -603,23 +598,23 @@ class KeyControllerTest {
             final List<KeyOperation> operations, final RecoveryLevel recoveryLevel, final Integer recoverableDays,
             final OffsetDateTime expiry, final OffsetDateTime notBefore) {
         //given
-        final KeyEntityId baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
+        final var baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
         when(keyVaultFake.getEntities())
                 .thenReturn(entities);
         when(vaultFake.getRecoveryLevel())
                 .thenReturn(recoveryLevel);
         when(vaultFake.getRecoverableDays())
                 .thenReturn(recoverableDays);
-        final CreateKeyRequest request = createRequest(operations, expiry, notBefore);
+        final var request = createRequest(operations, expiry, notBefore);
         final ReadOnlyKeyVaultKeyEntity entity = createEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, request);
         when(entities.listLatestEntities())
                 .thenReturn(List.of(entity, entity, entity));
-        final KeyVaultKeyItemModel keyItemModel = keyVaultKeyItemModel(baseUri.asUri(HTTPS_LOCALHOST_8443), Map.of());
+        final var keyItemModel = keyVaultKeyItemModel(baseUri.asUri(HTTPS_LOCALHOST_8443), Map.of());
         when(keyEntityToV72KeyItemModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(keyItemModel);
 
         //when
-        final ResponseEntity<KeyVaultItemListModel<KeyVaultKeyItemModel>> actual =
+        final var actual =
                 underTest.listKeys(HTTPS_LOCALHOST_8443, 1, 0);
 
         //then
@@ -629,7 +624,7 @@ class KeyControllerTest {
         Assertions.assertNotNull(actual.getBody().getValue());
         Assertions.assertEquals(1, actual.getBody().getValue().size());
         Assertions.assertSame(keyItemModel, actual.getBody().getValue().get(0));
-        final String expectedNextLink = HTTPS_LOCALHOST_8443 + "/keys?api-version=7.2&$skiptoken=1&maxresults=1";
+        final var expectedNextLink = HTTPS_LOCALHOST_8443 + "/keys?api-version=7.2&$skiptoken=1&maxresults=1";
         Assertions.assertEquals(expectedNextLink, actual.getBody().getNextLink());
         verify(vaultService).findByUri(eq(HTTPS_LOCALHOST_8443));
         verify(vaultFake).keyVaultFake();
@@ -648,25 +643,25 @@ class KeyControllerTest {
             final List<KeyOperation> operations, final RecoveryLevel recoveryLevel, final Integer recoverableDays,
             final OffsetDateTime expiry, final OffsetDateTime notBefore) {
         //given
-        final KeyEntityId baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
+        final var baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
         when(keyVaultFake.getDeletedEntities())
                 .thenReturn(entities);
         when(vaultFake.getRecoveryLevel())
                 .thenReturn(recoveryLevel);
         when(vaultFake.getRecoverableDays())
                 .thenReturn(recoverableDays);
-        final CreateKeyRequest request = createRequest(operations, expiry, notBefore);
+        final var request = createRequest(operations, expiry, notBefore);
         final ReadOnlyKeyVaultKeyEntity entity = createEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, request);
         entity.setDeletedDate(TIME_10_MINUTES_AGO);
         entity.setScheduledPurgeDate(TIME_IN_10_MINUTES);
         when(entities.listLatestEntities())
                 .thenReturn(List.of(entity));
-        final DeletedKeyVaultKeyItemModel keyItemModel = deletedKeyVaultKeyItemModel(baseUri, Map.of());
+        final var keyItemModel = deletedKeyVaultKeyItemModel(baseUri, Map.of());
         when(keyEntityToV72KeyItemModelConverter.convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(keyItemModel);
 
         //when
-        final ResponseEntity<KeyVaultItemListModel<DeletedKeyVaultKeyItemModel>> actual =
+        final var actual =
                 underTest.listDeletedKeys(HTTPS_LOCALHOST_8443, 1, 0);
 
         //then
@@ -699,18 +694,18 @@ class KeyControllerTest {
                 .thenReturn(recoveryLevel);
         when(vaultFake.getRecoverableDays())
                 .thenReturn(recoverableDays);
-        final CreateKeyRequest request = createRequest(operations, expiry, notBefore);
+        final var request = createRequest(operations, expiry, notBefore);
         final ReadOnlyKeyVaultKeyEntity entity = createEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, request);
         entity.setDeletedDate(TIME_10_MINUTES_AGO);
         entity.setScheduledPurgeDate(TIME_IN_10_MINUTES);
-        final RecoveryLevel nonNullRecoveryLevel = Optional.ofNullable(recoveryLevel).orElse(RecoveryLevel.PURGEABLE);
+        final var nonNullRecoveryLevel = Optional.ofNullable(recoveryLevel).orElse(RecoveryLevel.PURGEABLE);
         if (!nonNullRecoveryLevel.isPurgeable()) {
             doThrow(IllegalStateException.class).when(keyVaultFake).purge(eq(UNVERSIONED_KEY_ENTITY_ID_1));
         }
 
         //when
         if (nonNullRecoveryLevel.isPurgeable()) {
-            final ResponseEntity<Void> response = underTest.purgeDeleted(KEY_NAME_1, HTTPS_LOCALHOST_8443);
+            final var response = underTest.purgeDeleted(KEY_NAME_1, HTTPS_LOCALHOST_8443);
             Assertions.assertNotNull(response);
             Assertions.assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         } else {
@@ -736,25 +731,25 @@ class KeyControllerTest {
             final List<KeyOperation> operations, final RecoveryLevel recoveryLevel, final Integer recoverableDays,
             final OffsetDateTime expiry, final OffsetDateTime notBefore) {
         //given
-        final KeyEntityId baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
+        final var baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
         when(keyVaultFake.getDeletedEntities())
                 .thenReturn(entities);
         when(vaultFake.getRecoveryLevel())
                 .thenReturn(recoveryLevel);
         when(vaultFake.getRecoverableDays())
                 .thenReturn(recoverableDays);
-        final CreateKeyRequest request = createRequest(operations, expiry, notBefore);
+        final var request = createRequest(operations, expiry, notBefore);
         final ReadOnlyKeyVaultKeyEntity entity = createEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, request);
         entity.setDeletedDate(TIME_10_MINUTES_AGO);
         entity.setScheduledPurgeDate(TIME_IN_10_MINUTES);
         when(entities.listLatestEntities())
                 .thenReturn(List.of(entity, entity, entity));
-        final DeletedKeyVaultKeyItemModel keyItemModel = deletedKeyVaultKeyItemModel(baseUri, Map.of());
+        final var keyItemModel = deletedKeyVaultKeyItemModel(baseUri, Map.of());
         when(keyEntityToV72KeyItemModelConverter.convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(keyItemModel);
 
         //when
-        final ResponseEntity<KeyVaultItemListModel<DeletedKeyVaultKeyItemModel>> actual =
+        final var actual =
                 underTest.listDeletedKeys(HTTPS_LOCALHOST_8443, 1, 0);
 
         //then
@@ -764,7 +759,7 @@ class KeyControllerTest {
         Assertions.assertNotNull(actual.getBody().getValue());
         Assertions.assertEquals(1, actual.getBody().getValue().size());
         Assertions.assertSame(keyItemModel, actual.getBody().getValue().get(0));
-        final String expectedNextLink = HTTPS_LOCALHOST_8443 + "/deletedkeys?api-version=7.2&$skiptoken=1&maxresults=1";
+        final var expectedNextLink = HTTPS_LOCALHOST_8443 + "/deletedkeys?api-version=7.2&$skiptoken=1&maxresults=1";
         Assertions.assertEquals(expectedNextLink, actual.getBody().getNextLink());
         verify(vaultService).findByUri(eq(HTTPS_LOCALHOST_8443));
         verify(vaultFake).keyVaultFake();
@@ -783,8 +778,8 @@ class KeyControllerTest {
             final List<KeyOperation> operations, final RecoveryLevel recoveryLevel, final Integer recoverableDays,
             final OffsetDateTime expiry, final OffsetDateTime notBefore) {
         //given
-        final KeyEntityId baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
-        final CreateKeyRequest request = createRequest(operations, expiry, notBefore);
+        final var baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
+        final var request = createRequest(operations, expiry, notBefore);
         final ReadOnlyKeyVaultKeyEntity entity = createEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, request);
         when(keyVaultFake.getEntities())
                 .thenReturn(entities);
@@ -798,7 +793,7 @@ class KeyControllerTest {
                 .thenReturn(RESPONSE);
 
         //when
-        final ResponseEntity<KeyVaultKeyModel> actual = underTest.getWithVersion(KEY_NAME_1, KEY_VERSION_3, HTTPS_LOCALHOST_8443);
+        final var actual = underTest.getWithVersion(KEY_NAME_1, KEY_VERSION_3, HTTPS_LOCALHOST_8443);
 
         //then
         Assertions.assertNotNull(actual);
@@ -821,9 +816,9 @@ class KeyControllerTest {
             final List<KeyOperation> operations, final OffsetDateTime expiry, final OffsetDateTime notBefore,
             final Boolean enabled, final Map<String, String> tags) {
         //given
-        final KeyEntityId baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
-        final CreateKeyRequest createKeyRequest = createRequest(null, null, null);
-        final UpdateKeyRequest updateKeyRequest = new UpdateKeyRequest();
+        final var baseUri = new KeyEntityId(HTTPS_LOCALHOST_8443, KEY_NAME_1, null);
+        final var createKeyRequest = createRequest(null, null, null);
+        final var updateKeyRequest = new UpdateKeyRequest();
         if (operations != null) {
             updateKeyRequest.setKeyOperations(operations);
         }
@@ -831,7 +826,7 @@ class KeyControllerTest {
             updateKeyRequest.setTags(tags);
         }
         if (enabled != null || expiry != null || notBefore != null) {
-            final BasePropertiesUpdateModel properties = new BasePropertiesUpdateModel();
+            final var properties = new BasePropertiesUpdateModel();
             properties.setEnabled(enabled);
             properties.setExpiresOn(expiry);
             properties.setNotBefore(notBefore);
@@ -848,7 +843,7 @@ class KeyControllerTest {
                 .thenReturn(RESPONSE);
 
         //when
-        final ResponseEntity<KeyVaultKeyModel> actual = underTest
+        final var actual = underTest
                 .updateVersion(KEY_NAME_1, KEY_VERSION_3, HTTPS_LOCALHOST_8443, updateKeyRequest);
 
         //then
@@ -861,7 +856,7 @@ class KeyControllerTest {
         verify(vaultFake).getRecoverableDays();
         verify(keyVaultFake).getEntities();
         verify(entities, never()).getLatestVersionOfEntity(eq(baseUri));
-        final InOrder inOrder = inOrder(keyVaultFake, entities);
+        final var inOrder = inOrder(keyVaultFake, entities);
         if (operations != null) {
             inOrder.verify(keyVaultFake)
                     .setKeyOperations(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3), same(updateKeyRequest.getKeyOperations()));
@@ -902,10 +897,10 @@ class KeyControllerTest {
     private CreateKeyRequest createRequest(
             final List<KeyOperation> operations,
             final OffsetDateTime expiry, final OffsetDateTime notBefore) {
-        final CreateKeyRequest keyRequest = new CreateKeyRequest();
+        final var keyRequest = new CreateKeyRequest();
         keyRequest.setKeyType(KeyType.RSA);
         keyRequest.setKeyOperations(operations);
-        final KeyPropertiesModel properties = new KeyPropertiesModel();
+        final var properties = new KeyPropertiesModel();
         properties.setExpiresOn(expiry);
         properties.setNotBefore(notBefore);
         properties.setEnabled(true);
@@ -920,7 +915,7 @@ class KeyControllerTest {
     }
 
     private KeyVaultKeyItemModel keyVaultKeyItemModel(final URI asUriNoVersion, final Map<String, String> tags) {
-        final KeyVaultKeyItemModel model = new KeyVaultKeyItemModel();
+        final var model = new KeyVaultKeyItemModel();
         model.setAttributes(new KeyPropertiesModel());
         model.setKeyId(asUriNoVersion.toString());
         model.setTags(tags);
@@ -928,7 +923,7 @@ class KeyControllerTest {
     }
 
     private DeletedKeyVaultKeyItemModel deletedKeyVaultKeyItemModel(final KeyEntityId id, final Map<String, String> tags) {
-        final DeletedKeyVaultKeyItemModel model = new DeletedKeyVaultKeyItemModel();
+        final var model = new DeletedKeyVaultKeyItemModel();
         model.setAttributes(new KeyPropertiesModel());
         model.setKeyId(id.asUriNoVersion(id.vault()).toString());
         model.setTags(tags);

@@ -37,15 +37,15 @@ public final class KeyGenUtil {
     @Nonnull
     public static KeyPair generateRsa(@Nullable final Integer keySize, @Nullable final BigInteger publicExponent) {
         final int nonNullKeySize = Objects.requireNonNullElse(keySize, 2048);
-        final BigInteger notNullPublicExponent = Objects.requireNonNullElse(publicExponent, BigInteger.valueOf(65537));
-        final RSAKeyGenParameterSpec rsaKeyGenParameterSpec = new RSAKeyGenParameterSpec(nonNullKeySize, notNullPublicExponent);
+        final var notNullPublicExponent = Objects.requireNonNullElse(publicExponent, BigInteger.valueOf(65537));
+        final var rsaKeyGenParameterSpec = new RSAKeyGenParameterSpec(nonNullKeySize, notNullPublicExponent);
         return keyPairGenerator("RSA", rsaKeyGenParameterSpec).generateKeyPair();
     }
 
     static KeyPairGenerator keyPairGenerator(final String algorithmName,
                                              final AlgorithmParameterSpec algSpec) {
         try {
-            final KeyPairGenerator keyGen = KeyPairGenerator.getInstance(algorithmName, BOUNCY_CASTLE_PROVIDER);
+            final var keyGen = KeyPairGenerator.getInstance(algorithmName, BOUNCY_CASTLE_PROVIDER);
             keyGen.initialize(algSpec);
             return keyGen;
         } catch (final Exception e) {
@@ -56,7 +56,7 @@ public final class KeyGenUtil {
     @SuppressWarnings("SameParameterValue")
     static KeyGenerator keyGenerator(final String algorithmName, final int keySize) {
         try {
-            final KeyGenerator keyGenerator = KeyGenerator.getInstance(algorithmName);
+            final var keyGenerator = KeyGenerator.getInstance(algorithmName);
             keyGenerator.init(keySize);
             return keyGenerator;
         } catch (final Exception e) {

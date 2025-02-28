@@ -14,7 +14,7 @@ import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 class KeyOperationsParametersTest {
 
     public static Stream<Arguments> base64Provider() {
-        final Base64.Encoder encoder = Base64.getUrlEncoder().withoutPadding();
+        final var encoder = Base64.getUrlEncoder().withoutPadding();
         return Stream.of(null, EMPTY, BLANK, LOCALHOST)
                 .map(s -> Optional.ofNullable(s).map(String::getBytes).orElse(null))
                 .map(b -> Arguments.of(Optional.ofNullable(b).map(encoder::encodeToString).orElse(null), b));
@@ -25,11 +25,11 @@ class KeyOperationsParametersTest {
     void testGtValueAsBase64DecodedBytesShouldReturnBase64DecodedValueWhenCalledWithString(
             final String input, final byte[] expected) {
         //given
-        final KeyOperationsParameters underTest = new KeyOperationsParameters();
+        final var underTest = new KeyOperationsParameters();
         underTest.setValue(input);
 
         //when
-        final byte[] actual = underTest.getValueAsBase64DecodedBytes();
+        final var actual = underTest.getValueAsBase64DecodedBytes();
 
         //then
         Assertions.assertArrayEquals(expected, actual);

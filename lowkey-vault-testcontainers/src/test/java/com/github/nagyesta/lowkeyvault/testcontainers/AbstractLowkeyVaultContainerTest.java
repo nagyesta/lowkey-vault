@@ -7,23 +7,16 @@ import com.azure.core.http.HttpRequest;
 import com.azure.core.http.policy.FixedDelay;
 import com.azure.core.http.policy.RetryPolicy;
 import com.azure.core.util.Context;
-import com.azure.security.keyvault.keys.KeyClient;
 import com.azure.security.keyvault.keys.KeyClientBuilder;
 import com.azure.security.keyvault.keys.KeyServiceVersion;
-import com.azure.security.keyvault.keys.cryptography.CryptographyClient;
 import com.azure.security.keyvault.keys.cryptography.CryptographyClientBuilder;
 import com.azure.security.keyvault.keys.cryptography.CryptographyServiceVersion;
 import com.azure.security.keyvault.keys.cryptography.models.DecryptParameters;
-import com.azure.security.keyvault.keys.cryptography.models.DecryptResult;
 import com.azure.security.keyvault.keys.cryptography.models.EncryptParameters;
-import com.azure.security.keyvault.keys.cryptography.models.EncryptResult;
 import com.azure.security.keyvault.keys.models.CreateOctKeyOptions;
 import com.azure.security.keyvault.keys.models.KeyOperation;
-import com.azure.security.keyvault.keys.models.KeyVaultKey;
-import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.SecretClientBuilder;
 import com.azure.security.keyvault.secrets.SecretServiceVersion;
-import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
 import org.junit.jupiter.api.Assertions;
 
 import java.nio.charset.StandardCharsets;
@@ -42,7 +35,7 @@ public class AbstractLowkeyVaultContainerTest {
     protected void verifyConnectionIsWorking(final String vaultUrl, final HttpClient httpClient, final TokenCredential credential) {
         Assertions.assertFalse(vaultUrl.endsWith(":8443"), "Vault URL should use random port instead of '8443'");
 
-        final SecretClient secretClient = new SecretClientBuilder()
+        final var secretClient = new SecretClientBuilder()
                 .vaultUrl(vaultUrl)
                 .credential(credential)
                 .httpClient(httpClient)
@@ -50,7 +43,7 @@ public class AbstractLowkeyVaultContainerTest {
                 .disableChallengeResourceVerification()
                 .retryPolicy(new RetryPolicy(new FixedDelay(0, Duration.ZERO)))
                 .buildClient();
-        final KeyClient keyClient = new KeyClientBuilder()
+        final var keyClient = new KeyClientBuilder()
                 .vaultUrl(vaultUrl)
                 .credential(credential)
                 .httpClient(httpClient)
@@ -59,18 +52,18 @@ public class AbstractLowkeyVaultContainerTest {
                 .retryPolicy(new RetryPolicy(new FixedDelay(0, Duration.ZERO)))
                 .buildClient();
 
-        final KeyVaultSecret secret = secretClient.setSecret(NAME, VALUE);
+        final var secret = secretClient.setSecret(NAME, VALUE);
         Assertions.assertNotNull(secret);
         Assertions.assertTrue(secret.getId().startsWith(vaultUrl), "Secret Id should start with vault URL '" + vaultUrl + "'");
 
-        final CreateOctKeyOptions keyOptions = new CreateOctKeyOptions(NAME)
+        final var keyOptions = new CreateOctKeyOptions(NAME)
                 .setHardwareProtected(true)
                 .setKeyOperations(KeyOperation.ENCRYPT, KeyOperation.WRAP_KEY, KeyOperation.DECRYPT, KeyOperation.UNWRAP_KEY);
-        final KeyVaultKey key = keyClient.createOctKey(keyOptions);
+        final var key = keyClient.createOctKey(keyOptions);
         Assertions.assertNotNull(key);
         Assertions.assertTrue(key.getId().startsWith(vaultUrl), "Key Id should start with vault URL '" + vaultUrl + "'");
 
-        final CryptographyClient cryptographyClient = new CryptographyClientBuilder()
+        final var cryptographyClient = new CryptographyClientBuilder()
                 .keyIdentifier(key.getId())
                 .credential(credential)
                 .httpClient(httpClient)
@@ -79,14 +72,14 @@ public class AbstractLowkeyVaultContainerTest {
                 .retryPolicy(new RetryPolicy(new FixedDelay(0, Duration.ZERO)))
                 .buildClient();
 
-        final String testMessage = "test";
-        final EncryptParameters encryptParameters = EncryptParameters.createA128CbcParameters(
+        final var testMessage = "test";
+        final var encryptParameters = EncryptParameters.createA128CbcParameters(
                 testMessage.getBytes(StandardCharsets.UTF_8), "iv-parameter-val".getBytes(StandardCharsets.UTF_8));
-        final EncryptResult encrypted = cryptographyClient
+        final var encrypted = cryptographyClient
                 .encrypt(encryptParameters, Context.NONE);
-        final DecryptParameters decryptParameters = DecryptParameters
+        final var decryptParameters = DecryptParameters
                 .createA128CbcParameters(encrypted.getCipherText(), encrypted.getIv());
-        final DecryptResult decrypted = cryptographyClient
+        final var decrypted = cryptographyClient
                 .decrypt(decryptParameters, Context.NONE);
 
         Assertions.assertEquals(testMessage, new String(decrypted.getPlainText(), StandardCharsets.UTF_8));

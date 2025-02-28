@@ -48,7 +48,7 @@ public abstract class BaseCertificateController extends GenericEntityController<
             final VersionedCertificateEntityId entityId,
             final URI baseUri,
             final boolean includeDisabled) {
-        final KeyVaultCertificateModel model = super.getModelById(entityVaultFake, entityId, baseUri, includeDisabled);
+        final var model = super.getModelById(entityVaultFake, entityId, baseUri, includeDisabled);
         populateLifetimeActions(entityVaultFake, entityId, model.getPolicy());
         return model;
     }
@@ -59,7 +59,7 @@ public abstract class BaseCertificateController extends GenericEntityController<
             final VersionedCertificateEntityId entityId,
             final URI baseUri,
             final boolean includeDisabled) {
-        final DeletedKeyVaultCertificateModel model = super.getDeletedModelById(entityVaultFake, entityId, baseUri, includeDisabled);
+        final var model = super.getDeletedModelById(entityVaultFake, entityId, baseUri, includeDisabled);
         populateLifetimeActions(entityVaultFake, entityId, model.getPolicy());
         return model;
     }

@@ -12,7 +12,6 @@ import com.github.nagyesta.lowkeyvault.service.certificate.CertificateVaultFake;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.CertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
-import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertAuthorityType;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertContentType;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateLifetimeActionPolicy;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.DefaultCertificateLifetimeActionPolicy;
@@ -54,12 +53,12 @@ public abstract class CommonCertificateBackupRestoreController extends BaseBacku
 
     public ResponseEntity<KeyVaultCertificateModel> restore(
             final URI baseUri, @Valid final CertificateBackupModel certificateBackupModel) {
-        final CertificateBackupList list = certificateBackupModel.getValue();
+        final var list = certificateBackupModel.getValue();
         log.info("Received request to {} restore certificate: {} using API version: {}",
                 baseUri.toString(), list.getVersions().get(0).getId(), apiVersion());
-        final KeyVaultCertificateModel model = restoreEntity(certificateBackupModel);
-        final CertificateVaultFake vault = getVaultByUri(baseUri);
-        final CertificateEntityId entityId = entityId(baseUri, getSingleEntityName(certificateBackupModel));
+        final var model = restoreEntity(certificateBackupModel);
+        final var vault = getVaultByUri(baseUri);
+        final var entityId = entityId(baseUri, getSingleEntityName(certificateBackupModel));
         model.getPolicy().setLifetimeActions(updateLifetimeActions(vault, entityId, list));
         return ResponseEntity.ok(model);
     }
@@ -68,9 +67,9 @@ public abstract class CommonCertificateBackupRestoreController extends BaseBacku
     protected void restoreVersion(@NonNull final CertificateVaultFake vault,
                                   @NonNull final VersionedCertificateEntityId versionedEntityId,
                                   @NonNull final CertificateBackupListItem entityVersion) {
-        final CertificatePropertiesModel attributes = Objects
+        final var attributes = Objects
                 .requireNonNullElse(entityVersion.getAttributes(), new CertificatePropertiesModel());
-        final CertificatePolicyModel issuancePolicy = Optional.ofNullable(entityVersion.getIssuancePolicy())
+        final var issuancePolicy = Optional.ofNullable(entityVersion.getIssuancePolicy())
                 .orElse(entityVersion.getPolicy());
         vault.restoreCertificateVersion(versionedEntityId, CertificateRestoreInput.builder()
                 .name(versionedEntityId.id())
@@ -101,10 +100,10 @@ public abstract class CommonCertificateBackupRestoreController extends BaseBacku
 
     private List<CertificateLifetimeActionModel> updateLifetimeActions(
             final CertificateVaultFake vault, final CertificateEntityId entityId, final CertificateBackupList list) {
-        final VersionedCertificateEntityId latestVersion = vault.getEntities().getLatestVersionOfEntity(entityId);
-        final CertAuthorityType certAuthorityType = vault.getEntities().getReadOnlyEntity(latestVersion)
+        final var latestVersion = vault.getEntities().getLatestVersionOfEntity(entityId);
+        final var certAuthorityType = vault.getEntities().getReadOnlyEntity(latestVersion)
                 .getIssuancePolicy().getCertAuthorityType();
-        final CertificateLifetimeActionPolicy lifetimeActionPolicy = Optional.ofNullable(list.getVersions())
+        final var lifetimeActionPolicy = Optional.ofNullable(list.getVersions())
                 .map(v -> v.get(v.size() - 1))
                 .map(CertificateBackupListItem::getPolicy)
                 .map(CertificatePolicyModel::getLifetimeActions)

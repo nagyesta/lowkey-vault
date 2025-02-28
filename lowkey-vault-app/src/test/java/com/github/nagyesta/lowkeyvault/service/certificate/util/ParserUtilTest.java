@@ -8,10 +8,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.security.auth.x500.X500Principal;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.security.cert.X509Certificate;
-import java.time.OffsetDateTime;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -38,7 +36,7 @@ class ParserUtilTest {
     @Test
     void testConstructorShouldThrowExceptionWhenCalled() throws NoSuchMethodException {
         //given
-        final Constructor<ParserUtil> constructor = ParserUtil.class.getDeclaredConstructor();
+        final var constructor = ParserUtil.class.getDeclaredConstructor();
         constructor.setAccessible(true);
 
         //when
@@ -52,11 +50,11 @@ class ParserUtilTest {
     @MethodSource("monthProvider")
     void testCalculateValidityMonthsShouldReturnExpectedNumberWhenCalledWithValidValues(final int realMonths) {
         //given
-        final OffsetDateTime from = NOW;
-        final OffsetDateTime to = NOW.plusMonths(realMonths);
+        final var from = NOW;
+        final var to = NOW.plusMonths(realMonths);
 
         //when
-        final int actual = ParserUtil.calculateValidityMonths(from.toInstant(), to.toInstant());
+        final var actual = ParserUtil.calculateValidityMonths(from.toInstant(), to.toInstant());
 
         //then
         Assertions.assertEquals(realMonths, actual);
@@ -67,14 +65,14 @@ class ParserUtilTest {
     void testParseCertAuthorityTypeShouldCompareIssuerAndSubjectWhenCalledWithValidCertificate(
             final String issuer, final String subject, final CertAuthorityType expected) {
         //given
-        final X500Principal issuerX500Principal = new X500Principal(issuer);
-        final X500Principal subjectX500Principal = new X500Principal(subject);
-        final X509Certificate certificate = mock(X509Certificate.class);
+        final var issuerX500Principal = new X500Principal(issuer);
+        final var subjectX500Principal = new X500Principal(subject);
+        final var certificate = mock(X509Certificate.class);
         when(certificate.getIssuerX500Principal()).thenReturn(issuerX500Principal);
         when(certificate.getSubjectX500Principal()).thenReturn(subjectX500Principal);
 
         //when
-        final CertAuthorityType actual = ParserUtil.parseCertAuthorityType(certificate);
+        final var actual = ParserUtil.parseCertAuthorityType(certificate);
 
         //then
         Assertions.assertEquals(expected, actual);

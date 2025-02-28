@@ -32,20 +32,20 @@ class ApacheHttpResponseTest {
     }
 
     static HttpResponse responseMock() throws IOException {
-        final HttpResponse response = mock(HttpResponse.class);
+        final var response = mock(HttpResponse.class);
 
-        final HttpEntity httpEntity = mock(HttpEntity.class);
+        final var httpEntity = mock(HttpEntity.class);
         when(response.getEntity()).thenReturn(httpEntity);
         when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream(BODY.getBytes(StandardCharsets.UTF_8)));
 
-        final StatusLine statusLine = mock(StatusLine.class);
+        final var statusLine = mock(StatusLine.class);
         when(response.getStatusLine()).thenReturn(statusLine);
         when(statusLine.getStatusCode()).thenReturn(STATUS_CODE);
 
-        final Header header1 = mock(Header.class);
+        final var header1 = mock(Header.class);
         when(header1.getName()).thenReturn(HEADER_1);
         when(header1.getValue()).thenReturn(HEADER_VALUE_1);
-        final Header header2 = mock(Header.class);
+        final var header2 = mock(Header.class);
         when(header2.getName()).thenReturn(HEADER_2);
         when(header2.getValue()).thenReturn(HEADER_VALUE_2);
         when(response.getAllHeaders()).thenReturn(new Header[]{header1, header2});
@@ -55,11 +55,11 @@ class ApacheHttpResponseTest {
     @Test
     void testConstructorShouldMapFieldsWhenCalled() throws IOException {
         //given
-        final HttpRequest request = mock(HttpRequest.class);
-        final HttpResponse response = responseMock();
+        final var request = mock(HttpRequest.class);
+        final var response = responseMock();
 
         //when
-        final ApacheHttpResponse actual = new ApacheHttpResponse(request, response);
+        final var actual = new ApacheHttpResponse(request, response);
 
         //then
         verifyResponse(actual);

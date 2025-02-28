@@ -7,10 +7,7 @@ import com.github.nagyesta.lowkeyvault.service.certificate.LifetimeActionPolicy;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.CertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
-import com.github.nagyesta.lowkeyvault.service.common.ReadOnlyVersionedEntityMultiMap;
 import com.github.nagyesta.lowkeyvault.service.common.impl.BaseVaultFakeImpl;
-import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
-import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.impl.KeyVaultKeyEntity;
@@ -44,14 +41,14 @@ public class CertificateVaultFakeImpl
     @Override
     public VersionedCertificateEntityId createCertificateVersion(
             @NonNull final String name, @NonNull final CertificateCreationInput input) {
-        final KeyVaultCertificateEntity entity = new KeyVaultCertificateEntity(name, input, vaultFake());
+        final var entity = new KeyVaultCertificateEntity(name, input, vaultFake());
         return addVersion(entity.getId(), entity);
     }
 
     @Override
     public VersionedCertificateEntityId importCertificateVersion(
             @NonNull final String name, @NonNull final CertificateImportInput input) {
-        final KeyVaultCertificateEntity entity = new KeyVaultCertificateEntity(
+        final var entity = new KeyVaultCertificateEntity(
                 name, input, vaultFake());
         return addVersion(entity.getId(), entity);
     }
@@ -59,7 +56,7 @@ public class CertificateVaultFakeImpl
     @Override
     public void restoreCertificateVersion(
             @NonNull final VersionedCertificateEntityId versionedEntityId, @NonNull final CertificateRestoreInput input) {
-        final KeyVaultCertificateEntity entity = new KeyVaultCertificateEntity(versionedEntityId, input, vaultFake());
+        final var entity = new KeyVaultCertificateEntity(versionedEntityId, input, vaultFake());
         addVersion(entity.getId(), entity);
     }
 
@@ -79,9 +76,9 @@ public class CertificateVaultFakeImpl
     }
 
     private void performMissedRenewalsOfPolicy(final LifetimeActionPolicy lifetimeActionPolicy) {
-        final CertificateEntityId certificateEntityId = lifetimeActionPolicy.getId();
-        final VersionedCertificateEntityId latestVersionOfEntity = getEntities().getLatestVersionOfEntity(certificateEntityId);
-        final ReadOnlyKeyVaultCertificateEntity readOnlyEntity = getEntities().getReadOnlyEntity(latestVersionOfEntity);
+        final var certificateEntityId = lifetimeActionPolicy.getId();
+        final var latestVersionOfEntity = getEntities().getLatestVersionOfEntity(certificateEntityId);
+        final var readOnlyEntity = getEntities().getReadOnlyEntity(latestVersionOfEntity);
         final Function<OffsetDateTime, OffsetDateTime> createdToExpiryFunction = s -> s
                 .plusMonths(readOnlyEntity.getIssuancePolicy().getValidityMonths());
         lifetimeActionPolicy.missedRenewalDays(readOnlyEntity.getCreated(), createdToExpiryFunction)
@@ -89,12 +86,12 @@ public class CertificateVaultFakeImpl
     }
 
     private void simulatePointInTimeRotation(final CertificateEntityId certificateEntityId, final OffsetDateTime renewalTime) {
-        final ReadOnlyKeyVaultCertificateEntity latest = latestReadOnlyCertificateVersion(certificateEntityId);
-        final CertificatePolicy input = new CertificatePolicy(latest.getIssuancePolicy());
+        final var latest = latestReadOnlyCertificateVersion(certificateEntityId);
+        final var input = new CertificatePolicy(latest.getIssuancePolicy());
         input.setValidityStart(renewalTime);
-        final VersionedKeyEntityId kid = rotateIfNeededAndGetLastKeyId(input);
-        final VersionedCertificateEntityId id = generateIdOfNewCertificateEntity(input, kid);
-        final KeyVaultCertificateEntity entity = new KeyVaultCertificateEntity(input, kid, id, vaultFake());
+        final var kid = rotateIfNeededAndGetLastKeyId(input);
+        final var id = generateIdOfNewCertificateEntity(input, kid);
+        final var entity = new KeyVaultCertificateEntity(input, kid, id, vaultFake());
         addVersion(entity.getId(), entity);
     }
 
@@ -110,23 +107,23 @@ public class CertificateVaultFakeImpl
     }
 
     private VersionedKeyEntityId rotateIfNeededAndGetLastKeyId(final ReadOnlyCertificatePolicy input) {
-        final KeyVaultFake keyVaultFake = vaultFake().keyVaultFake();
-        final ReadOnlyVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> entities = keyVaultFake
+        final var keyVaultFake = vaultFake().keyVaultFake();
+        final var entities = keyVaultFake
                 .getEntities();
         final VersionedKeyEntityId versionedKeyEntityId;
         if (input.isReuseKeyOnRenewal()) {
-            final String lastVersion = entities.getVersions(new KeyEntityId(vaultFake().baseUri(), input.getName())).getLast();
+            final var lastVersion = entities.getVersions(new KeyEntityId(vaultFake().baseUri(), input.getName())).getLast();
             versionedKeyEntityId = new VersionedKeyEntityId(vaultFake().baseUri(), input.getName(), lastVersion);
-            final OffsetDateTime notBefore = entities.getReadOnlyEntity(versionedKeyEntityId)
+            final var notBefore = entities.getReadOnlyEntity(versionedKeyEntityId)
                     .getNotBefore().orElseThrow(() -> new IllegalStateException("Managed keys should always have notBefore timestamps."));
-            final OffsetDateTime newExpiry = input.getValidityStart().plusMonths(input.getValidityMonths());
+            final var newExpiry = input.getValidityStart().plusMonths(input.getValidityMonths());
             //extend expiry until the certificate expiry
             keyVaultFake.setExpiry(versionedKeyEntityId, notBefore, newExpiry);
         } else {
             versionedKeyEntityId = keyVaultFake.rotateKey(new KeyEntityId(vaultFake().baseUri(), input.getName()));
             //update timestamps
-            final OffsetDateTime notBefore = input.getValidityStart();
-            final OffsetDateTime expiry = notBefore.plusMonths(input.getValidityMonths());
+            final var notBefore = input.getValidityStart();
+            final var expiry = notBefore.plusMonths(input.getValidityMonths());
             keyVaultFake.setExpiry(versionedKeyEntityId, notBefore, expiry);
             final KeyVaultKeyEntity<?, ?> entity = keyVaultFake.getEntities().getEntity(versionedKeyEntityId, KeyVaultKeyEntity.class);
             entity.setManaged(true);
@@ -165,9 +162,9 @@ public class CertificateVaultFakeImpl
 
     @Override
     public void setLifetimeActionPolicy(@NonNull final LifetimeActionPolicy lifetimeActionPolicy) {
-        final ReadOnlyKeyVaultCertificateEntity readOnlyEntity = latestReadOnlyCertificateVersion(lifetimeActionPolicy.getId());
+        final var readOnlyEntity = latestReadOnlyCertificateVersion(lifetimeActionPolicy.getId());
         lifetimeActionPolicy.validate(readOnlyEntity.getIssuancePolicy().getValidityMonths());
-        final LifetimeActionPolicy existingPolicy = lifetimeActionPolicy(lifetimeActionPolicy.getId());
+        final var existingPolicy = lifetimeActionPolicy(lifetimeActionPolicy.getId());
         if (existingPolicy == null) {
             lifetimeActionPolicies.put(lifetimeActionPolicy.getId().id(), lifetimeActionPolicy);
         } else {
@@ -187,7 +184,7 @@ public class CertificateVaultFakeImpl
     }
 
     private ReadOnlyKeyVaultCertificateEntity latestReadOnlyCertificateVersion(final CertificateEntityId certificateEntityId) {
-        final VersionedCertificateEntityId latestVersionOfEntity = getEntities().getLatestVersionOfEntity(certificateEntityId);
+        final var latestVersionOfEntity = getEntities().getLatestVersionOfEntity(certificateEntityId);
         return getEntities().getReadOnlyEntity(latestVersionOfEntity);
     }
 

@@ -40,7 +40,7 @@ class KeyVaultKeyEntityTest {
     @Test
     void testDoCryptoShouldCatchAndWrapExceptionsWhenTheyAreThrown() {
         //given
-        final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1,
+        final var underTest = new RsaKeyVaultKeyEntity(TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1,
                 new VaultFakeImpl(TestConstantsUri.HTTPS_LOCALHOST_8443),
                 2048, BigInteger.valueOf(3), false);
 
@@ -55,14 +55,14 @@ class KeyVaultKeyEntityTest {
     void testIsPurgeExpiredShouldReturnTrueOnlyWhenCalledAfterTheDeadline(
             final OffsetDateTime deleted, final OffsetDateTime purgeable, final boolean expected) {
         //given
-        final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1,
+        final var underTest = new RsaKeyVaultKeyEntity(TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1,
                 new VaultFakeImpl(TestConstantsUri.HTTPS_LOCALHOST_8443),
                 2048, BigInteger.valueOf(3), false);
         underTest.setDeletedDate(deleted);
         underTest.setScheduledPurgeDate(purgeable);
 
         //when
-        final boolean actual = underTest.isPurgeExpired();
+        final var actual = underTest.isPurgeExpired();
 
         //then
         Assertions.assertEquals(deleted, underTest.getDeletedDate().orElse(null));
@@ -73,12 +73,12 @@ class KeyVaultKeyEntityTest {
     @Test
     void testCanPurgeShouldReturnFalseWhenElementIsNotDeleted() {
         //given
-        final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1,
+        final var underTest = new RsaKeyVaultKeyEntity(TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1,
                 new VaultFakeImpl(TestConstantsUri.HTTPS_LOCALHOST_8443),
                 2048, BigInteger.valueOf(3), false);
 
         //when
-        final boolean actual = underTest.canPurge();
+        final var actual = underTest.canPurge();
 
         //then
         Assertions.assertFalse(actual);
@@ -87,15 +87,15 @@ class KeyVaultKeyEntityTest {
     @Test
     void testCanPurgeShouldReturnFalseWhenRecoveryLevelIsNotPurgeable() {
         //given
-        final VaultFakeImpl vaultFake = new VaultFakeImpl(TestConstantsUri.HTTPS_LOCALHOST_8443,
+        final var vaultFake = new VaultFakeImpl(TestConstantsUri.HTTPS_LOCALHOST_8443,
                 RecoveryLevel.RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
-        final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1,
+        final var underTest = new RsaKeyVaultKeyEntity(TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1,
                 vaultFake, 2048, BigInteger.valueOf(3), false);
         underTest.setDeletedDate(TIME_10_MINUTES_AGO);
         underTest.setScheduledPurgeDate(TIME_IN_10_MINUTES);
 
         //when
-        final boolean actual = underTest.canPurge();
+        final var actual = underTest.canPurge();
 
         //then
         Assertions.assertFalse(actual);
@@ -104,13 +104,13 @@ class KeyVaultKeyEntityTest {
     @Test
     void testCanPurgeShouldReturnFalseWhenRecoveryLevelIsNotPurgeableAndItemIsNotDeleted() {
         //given
-        final VaultFakeImpl vaultFake = new VaultFakeImpl(TestConstantsUri.HTTPS_LOCALHOST_8443,
+        final var vaultFake = new VaultFakeImpl(TestConstantsUri.HTTPS_LOCALHOST_8443,
                 RecoveryLevel.RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
-        final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1,
+        final var underTest = new RsaKeyVaultKeyEntity(TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1,
                 vaultFake, 2048, BigInteger.valueOf(3), false);
 
         //when
-        final boolean actual = underTest.canPurge();
+        final var actual = underTest.canPurge();
 
         //then
         Assertions.assertFalse(actual);
@@ -120,9 +120,9 @@ class KeyVaultKeyEntityTest {
     @ValueSource(ints = {-42, -10, -5, -3, -2, -1, 0})
     void testTimeShiftShouldThrowExceptionWhenCalledWithNegativeOrZero(final int value) {
         //given
-        final VaultFakeImpl vaultFake = new VaultFakeImpl(TestConstantsUri.HTTPS_LOCALHOST_8443,
+        final var vaultFake = new VaultFakeImpl(TestConstantsUri.HTTPS_LOCALHOST_8443,
                 RecoveryLevel.RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
-        final RsaKeyVaultKeyEntity underTest = new RsaKeyVaultKeyEntity(TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1,
+        final var underTest = new RsaKeyVaultKeyEntity(TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1,
                 vaultFake, 2048, BigInteger.valueOf(3), false);
 
         //when

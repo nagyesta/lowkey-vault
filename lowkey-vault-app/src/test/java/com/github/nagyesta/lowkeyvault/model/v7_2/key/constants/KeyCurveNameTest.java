@@ -27,7 +27,7 @@ class KeyCurveNameTest {
         //given
 
         //when
-        final KeyCurveName actual = KeyCurveName.forValue(input);
+        final var actual = KeyCurveName.forValue(input);
 
         //then
         Assertions.assertEquals(expected, actual);

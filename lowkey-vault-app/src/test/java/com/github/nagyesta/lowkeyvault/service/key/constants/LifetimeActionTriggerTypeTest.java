@@ -86,8 +86,8 @@ class LifetimeActionTriggerTypeTest {
             final LifetimeActionTriggerType underTest, final OffsetDateTime expires,
             final Integer expiryDays, final Integer triggerDays, final boolean valid) {
         //given
-        final Period expiryPeriod = Optional.ofNullable(expiryDays).map(Period::ofDays).orElse(null);
-        final Period triggerPeriod = Optional.ofNullable(triggerDays).map(Period::ofDays).orElse(null);
+        final var expiryPeriod = Optional.ofNullable(expiryDays).map(Period::ofDays).orElse(null);
+        final var triggerPeriod = Optional.ofNullable(triggerDays).map(Period::ofDays).orElse(null);
 
         //when
         if (valid) {
@@ -105,12 +105,12 @@ class LifetimeActionTriggerTypeTest {
             final LifetimeActionTriggerType underTest, final int expiryAfterCreateDays,
             final int createOffsetDays, final int triggerDays, final boolean expected) {
         //given
-        final OffsetDateTime createTime = TestConstants.NOW.minusDays(createOffsetDays);
-        final OffsetDateTime expiryTime = createTime.plusDays(expiryAfterCreateDays);
-        final Period triggerPeriod = Period.ofDays(triggerDays);
+        final var createTime = TestConstants.NOW.minusDays(createOffsetDays);
+        final var expiryTime = createTime.plusDays(expiryAfterCreateDays);
+        final var triggerPeriod = Period.ofDays(triggerDays);
 
         //when
-        final boolean actual = underTest.shouldTrigger(createTime, expiryTime, triggerPeriod);
+        final var actual = underTest.shouldTrigger(createTime, expiryTime, triggerPeriod);
 
         //then
         Assertions.assertEquals(expected, actual);
@@ -122,7 +122,7 @@ class LifetimeActionTriggerTypeTest {
             final LifetimeActionTriggerType underTest, final OffsetDateTime createTime,
             final OffsetDateTime expiryTime, final Integer triggerDays) {
         //given
-        final Period triggerPeriod = Optional.ofNullable(triggerDays).map(Period::ofDays).orElse(null);
+        final var triggerPeriod = Optional.ofNullable(triggerDays).map(Period::ofDays).orElse(null);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.shouldTrigger(createTime, expiryTime, triggerPeriod));

@@ -31,7 +31,7 @@ public class SecretEntityToV72BackupConverter extends BackupConverter<
 
     @Override
     protected SecretBackupListItem convertUniqueFields(@NonNull final ReadOnlyKeyVaultSecretEntity source) {
-        final SecretBackupListItem listItem = new SecretBackupListItem();
+        final var listItem = new SecretBackupListItem();
         listItem.setValue(source.getValue());
         listItem.setContentType(source.getContentType());
         return listItem;

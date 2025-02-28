@@ -2,7 +2,6 @@ package com.github.nagyesta.lowkeyvault.service.certificate.impl;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificateRestoreInput;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
@@ -54,10 +53,10 @@ class KeyVaultCertificateEntityTest {
     }
 
     public static Stream<Arguments> nullRenewalProvider() {
-        final VersionedKeyEntityId kid = VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
-        final VersionedCertificateEntityId cid = VERSIONED_CERT_ENTITY_ID_1_VERSION_1;
-        final VaultFake vaultFake = mock(VaultFake.class);
-        final CertificateCreationInput input = CertificateCreationInput.builder().build();
+        final var kid = VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
+        final var cid = VERSIONED_CERT_ENTITY_ID_1_VERSION_1;
+        final var vaultFake = mock(VaultFake.class);
+        final var input = CertificateCreationInput.builder().build();
         return Stream.<Arguments>builder()
                 .add(Arguments.of(null, null, null, null))
                 .add(Arguments.of(input, null, null, null))
@@ -72,9 +71,9 @@ class KeyVaultCertificateEntityTest {
     }
 
     public static Stream<Arguments> nullRestoreProvider() {
-        final VersionedCertificateEntityId id = VERSIONED_CERT_ENTITY_ID_1_VERSION_1;
-        final CertificateRestoreInput input = mock(CertificateRestoreInput.class);
-        final VaultFake vault = mock(VaultFake.class);
+        final var id = VERSIONED_CERT_ENTITY_ID_1_VERSION_1;
+        final var input = mock(CertificateRestoreInput.class);
+        final var vault = mock(VaultFake.class);
         return Stream.<Arguments>builder()
                 .add(Arguments.of(null, null, null))
                 .add(Arguments.of(id, null, null))
@@ -117,17 +116,17 @@ class KeyVaultCertificateEntityTest {
     @Test
     void testConstructorShouldThrowExceptionWhenCalledWithAlreadyUsedKeyName() {
         //given
-        final VersionedCertificateEntityId id = VERSIONED_CERT_ENTITY_ID_1_VERSION_1;
-        final CertificateCreationInput input = CertificateCreationInput.builder().name(id.id()).build();
+        final var id = VERSIONED_CERT_ENTITY_ID_1_VERSION_1;
+        final var input = CertificateCreationInput.builder().name(id.id()).build();
 
         final ReadOnlyVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> keyMap
                 = mock(ReadOnlyVersionedEntityMultiMap.class);
         when(keyMap.containsEntityMatching(eq(id.id()), any())).thenReturn(true);
 
-        final KeyVaultFake keyFake = mock(KeyVaultFake.class);
+        final var keyFake = mock(KeyVaultFake.class);
         when(keyFake.getEntities()).thenReturn(keyMap);
 
-        final VaultFake vault = mock(VaultFake.class);
+        final var vault = mock(VaultFake.class);
         when(vault.baseUri()).thenReturn(id.vault());
         when(vault.getRecoveryLevel()).thenReturn(RecoveryLevel.PURGEABLE);
         when(vault.getRecoverableDays()).thenReturn(null);
@@ -146,8 +145,8 @@ class KeyVaultCertificateEntityTest {
     @Test
     void testConstructorShouldThrowExceptionWhenCalledWithAlreadyUsedSecretName() {
         //given
-        final VersionedCertificateEntityId id = VERSIONED_CERT_ENTITY_ID_1_VERSION_1;
-        final CertificateCreationInput input = CertificateCreationInput.builder().name(id.id()).build();
+        final var id = VERSIONED_CERT_ENTITY_ID_1_VERSION_1;
+        final var input = CertificateCreationInput.builder().name(id.id()).build();
 
         final ReadOnlyVersionedEntityMultiMap<SecretEntityId, VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity> secretMap
                 = mock(ReadOnlyVersionedEntityMultiMap.class);
@@ -156,12 +155,12 @@ class KeyVaultCertificateEntityTest {
         final ReadOnlyVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> keyMap
                 = mock(ReadOnlyVersionedEntityMultiMap.class);
 
-        final SecretVaultFake secretFake = mock(SecretVaultFake.class);
+        final var secretFake = mock(SecretVaultFake.class);
         when(secretFake.getEntities()).thenReturn(secretMap);
-        final KeyVaultFake keyFake = mock(KeyVaultFake.class);
+        final var keyFake = mock(KeyVaultFake.class);
         when(keyFake.getEntities()).thenReturn(keyMap);
 
-        final VaultFake vault = mock(VaultFake.class);
+        final var vault = mock(VaultFake.class);
         when(vault.baseUri()).thenReturn(id.vault());
         when(vault.getRecoveryLevel()).thenReturn(RecoveryLevel.PURGEABLE);
         when(vault.getRecoverableDays()).thenReturn(null);
@@ -180,7 +179,7 @@ class KeyVaultCertificateEntityTest {
     @Test
     void testConstructorShouldGenerateMatchingVersionsWhenCalledWithValidInput() {
         //given
-        final CertificateCreationInput input = CertificateCreationInput.builder()
+        final var input = CertificateCreationInput.builder()
                 .validityStart(NOW)
                 .subject("CN=" + LOCALHOST)
                 .upns(Set.of(LOOP_BACK_IP))
@@ -202,7 +201,7 @@ class KeyVaultCertificateEntityTest {
         final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
 
         //when
-        final KeyVaultCertificateEntity entity = new KeyVaultCertificateEntity(CERT_NAME_1, input, vault);
+        final var entity = new KeyVaultCertificateEntity(CERT_NAME_1, input, vault);
 
         //then
         Assertions.assertEquals(entity.getId().vault(), entity.getKid().vault());
@@ -216,7 +215,7 @@ class KeyVaultCertificateEntityTest {
     @Test
     void testConstructorShouldSetKeyOperationsWhenCalledWithValidEcInput() {
         //given
-        final CertificateCreationInput input = CertificateCreationInput.builder()
+        final var input = CertificateCreationInput.builder()
                 .validityStart(NOW)
                 .subject("CN=" + LOCALHOST)
                 .upns(Set.of(LOOP_BACK_IP))
@@ -238,10 +237,10 @@ class KeyVaultCertificateEntityTest {
         final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
 
         //when
-        final KeyVaultCertificateEntity entity = new KeyVaultCertificateEntity(CERT_NAME_1, input, vault);
+        final var entity = new KeyVaultCertificateEntity(CERT_NAME_1, input, vault);
 
         //then
-        final List<KeyOperation> actual = vault.keyVaultFake()
+        final var actual = vault.keyVaultFake()
                 .getEntities()
                 .getEntity(entity.getKid(), EcKeyVaultKeyEntity.class)
                 .getOperations();
@@ -251,7 +250,7 @@ class KeyVaultCertificateEntityTest {
     @Test
     void testConstructorShouldSetKeyOperationsWhenCalledWithValidRsaInput() {
         //given
-        final CertificateCreationInput input = CertificateCreationInput.builder()
+        final var input = CertificateCreationInput.builder()
                 .validityStart(NOW)
                 .subject("CN=" + LOCALHOST)
                 .upns(Set.of(LOOP_BACK_IP))
@@ -273,10 +272,10 @@ class KeyVaultCertificateEntityTest {
         final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
 
         //when
-        final KeyVaultCertificateEntity entity = new KeyVaultCertificateEntity(CERT_NAME_1, input, vault);
+        final var entity = new KeyVaultCertificateEntity(CERT_NAME_1, input, vault);
 
         //then
-        final List<KeyOperation> actual = vault.keyVaultFake()
+        final var actual = vault.keyVaultFake()
                 .getEntities()
                 .getEntity(entity.getKid(), RsaKeyVaultKeyEntity.class)
                 .getOperations();
@@ -286,7 +285,7 @@ class KeyVaultCertificateEntityTest {
     @Test
     void testConstructorShouldGenerateCsrWhenCalledWithValidInput() {
         //given
-        final CertificateCreationInput input = CertificateCreationInput.builder()
+        final var input = CertificateCreationInput.builder()
                 .validityStart(NOW)
                 .subject("CN=" + LOCALHOST)
                 .upns(Set.of(LOOP_BACK_IP))
@@ -308,7 +307,7 @@ class KeyVaultCertificateEntityTest {
         final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
 
         //when
-        final KeyVaultCertificateEntity entity = new KeyVaultCertificateEntity(CERT_NAME_1, input, vault);
+        final var entity = new KeyVaultCertificateEntity(CERT_NAME_1, input, vault);
 
         //then
         Assertions.assertNotNull(entity.getEncodedCertificateSigningRequest());
@@ -317,7 +316,7 @@ class KeyVaultCertificateEntityTest {
     @Test
     void testGetEncodedCertificateSignRequestShouldReturnNullWhenCsrIsMissing() {
         //given
-        final CertificateCreationInput input = CertificateCreationInput.builder()
+        final var input = CertificateCreationInput.builder()
                 .validityStart(NOW)
                 .subject("CN=" + LOCALHOST)
                 .upns(Set.of(LOOP_BACK_IP))
@@ -337,11 +336,11 @@ class KeyVaultCertificateEntityTest {
                 .build();
 
         final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
-        final KeyVaultCertificateEntity entity = spy(new KeyVaultCertificateEntity(CERT_NAME_1, input, vault));
+        final var entity = spy(new KeyVaultCertificateEntity(CERT_NAME_1, input, vault));
         doReturn(null).when(entity).getCertificateSigningRequest();
 
         //when
-        final byte[] actual = entity.getEncodedCertificateSigningRequest();
+        final var actual = entity.getEncodedCertificateSigningRequest();
 
         //then
         Assertions.assertNull(actual);
@@ -350,7 +349,7 @@ class KeyVaultCertificateEntityTest {
     @Test
     void testGetEncodedCertificateSignRequestShouldWrapExceptionWhenErrorIsCaught() {
         //given
-        final CertificateCreationInput input = CertificateCreationInput.builder()
+        final var input = CertificateCreationInput.builder()
                 .validityStart(NOW)
                 .subject("CN=" + LOCALHOST)
                 .upns(Set.of(LOOP_BACK_IP))
@@ -370,7 +369,7 @@ class KeyVaultCertificateEntityTest {
                 .build();
 
         final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
-        final KeyVaultCertificateEntity entity = spy(new KeyVaultCertificateEntity(CERT_NAME_1, input, vault));
+        final var entity = spy(new KeyVaultCertificateEntity(CERT_NAME_1, input, vault));
         doThrow(IllegalArgumentException.class).when(entity).getCertificateSigningRequest();
 
         //when
@@ -382,7 +381,7 @@ class KeyVaultCertificateEntityTest {
     @Test
     void testGetEncodedCertificateShouldWrapExceptionWhenErrorIsCaught() {
         //given
-        final CertificateCreationInput input = CertificateCreationInput.builder()
+        final var input = CertificateCreationInput.builder()
                 .validityStart(NOW)
                 .subject("CN=" + LOCALHOST)
                 .upns(Set.of(LOOP_BACK_IP))
@@ -402,7 +401,7 @@ class KeyVaultCertificateEntityTest {
                 .build();
 
         final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
-        final KeyVaultCertificateEntity entity = spy(new KeyVaultCertificateEntity(CERT_NAME_1, input, vault));
+        final var entity = spy(new KeyVaultCertificateEntity(CERT_NAME_1, input, vault));
         doThrow(IllegalArgumentException.class).when(entity).getCertificate();
 
         //when
@@ -415,18 +414,18 @@ class KeyVaultCertificateEntityTest {
     @Test
     void testRenewalConstructorShouldThrowExceptionWhenCalledWithNotExistingKeyId() {
         //given
-        final VersionedKeyEntityId kid = VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
-        final VersionedCertificateEntityId id = VERSIONED_CERT_ENTITY_ID_1_VERSION_1;
-        final CertificateCreationInput input = CertificateCreationInput.builder().name(id.id()).build();
+        final var kid = VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
+        final var id = VERSIONED_CERT_ENTITY_ID_1_VERSION_1;
+        final var input = CertificateCreationInput.builder().name(id.id()).build();
 
         final ReadOnlyVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> keyMap
                 = mock(ReadOnlyVersionedEntityMultiMap.class);
         when(keyMap.containsEntity(eq(kid))).thenReturn(false);
 
-        final KeyVaultFake keyFake = mock(KeyVaultFake.class);
+        final var keyFake = mock(KeyVaultFake.class);
         when(keyFake.getEntities()).thenReturn(keyMap);
 
-        final VaultFake vault = mock(VaultFake.class);
+        final var vault = mock(VaultFake.class);
         when(vault.baseUri()).thenReturn(id.vault());
         when(vault.keyVaultFake()).thenReturn(keyFake);
 
@@ -443,23 +442,23 @@ class KeyVaultCertificateEntityTest {
     @Test
     void testRenewalConstructorShouldThrowExceptionWhenNoMatchingSecretNameFound() {
         //given
-        final VersionedKeyEntityId kid = VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
-        final VersionedCertificateEntityId id = VERSIONED_CERT_ENTITY_ID_1_VERSION_1;
-        final CertificateCreationInput input = CertificateCreationInput.builder().name(id.id()).build();
+        final var kid = VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
+        final var id = VERSIONED_CERT_ENTITY_ID_1_VERSION_1;
+        final var input = CertificateCreationInput.builder().name(id.id()).build();
 
         final ReadOnlyVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> keyMap
                 = mock(ReadOnlyVersionedEntityMultiMap.class);
         when(keyMap.containsEntity(eq(kid))).thenReturn(true);
-        final KeyVaultFake keyFake = mock(KeyVaultFake.class);
+        final var keyFake = mock(KeyVaultFake.class);
         when(keyFake.getEntities()).thenReturn(keyMap);
 
         final ReadOnlyVersionedEntityMultiMap<SecretEntityId, VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity> secretMap
                 = mock(ReadOnlyVersionedEntityMultiMap.class);
         when(keyMap.containsEntityMatching(eq(id.id()), any())).thenReturn(false);
-        final SecretVaultFake secretFake = mock(SecretVaultFake.class);
+        final var secretFake = mock(SecretVaultFake.class);
         when(secretFake.getEntities()).thenReturn(secretMap);
 
-        final VaultFake vault = mock(VaultFake.class);
+        final var vault = mock(VaultFake.class);
         when(vault.baseUri()).thenReturn(id.vault());
         when(vault.keyVaultFake()).thenReturn(keyFake);
         when(vault.secretVaultFake()).thenReturn(secretFake);

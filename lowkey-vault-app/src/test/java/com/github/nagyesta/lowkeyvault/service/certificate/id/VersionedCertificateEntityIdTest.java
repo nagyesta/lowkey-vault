@@ -59,7 +59,7 @@ class VersionedCertificateEntityIdTest {
         //given
 
         //when
-        final VersionedCertificateEntityId actual = new VersionedCertificateEntityId(HTTPS_LOWKEY_VAULT, CERT_NAME_1);
+        final var actual = new VersionedCertificateEntityId(HTTPS_LOWKEY_VAULT, CERT_NAME_1);
 
         //then
         Assertions.assertNotNull(actual.version());

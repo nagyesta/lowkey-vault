@@ -2,7 +2,6 @@ package com.github.nagyesta.lowkeyvault.mapper.v7_2.key;
 
 import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyPropertiesModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.EncryptionAlgorithm;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.SignatureAlgorithm;
@@ -21,7 +20,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -63,7 +61,7 @@ class KeyEntityToV72PropertiesModelConverterTest {
         underTest = new KeyEntityToV72PropertiesModelConverter(registry);
         when(vault.keyVaultFake()).thenReturn(keyVault);
         when(vault.baseUri()).thenReturn(HTTPS_LOCALHOST);
-        final URI vaultUri = eq(HTTPS_LOCALHOST);
+        final var vaultUri = eq(HTTPS_LOCALHOST);
         when(vault.matches(vaultUri, eq(Function.identity()))).thenReturn(true);
     }
 
@@ -91,7 +89,7 @@ class KeyEntityToV72PropertiesModelConverterTest {
             final Boolean enabled) {
 
         //given
-        final DummyKeyVaultKeyEntity input = new DummyKeyVaultKeyEntity();
+        final var input = new DummyKeyVaultKeyEntity();
         input.setEnabled(enabled);
         input.setExpiry(expiry);
         input.setNotBefore(notBefore);
@@ -99,7 +97,7 @@ class KeyEntityToV72PropertiesModelConverterTest {
         input.setRecoveryLevel(recoveryLevel);
 
         //when
-        final KeyPropertiesModel actual = underTest.convert(input, HTTPS_LOWKEY_VAULT);
+        final var actual = underTest.convert(input, HTTPS_LOWKEY_VAULT);
 
         //then
         Assertions.assertNotNull(actual);

@@ -13,7 +13,7 @@ import java.util.Set;
 public interface ReadOnlyCertificatePolicy {
 
     default KeyCreationInput<?> toKeyCreationInput() {
-        final CreateKeyRequest request = new CreateKeyRequest();
+        final var request = new CreateKeyRequest();
         request.setKeyType(getKeyType());
         request.setKeySize(getKeySize());
         request.setKeyCurveName(getKeyCurveName());

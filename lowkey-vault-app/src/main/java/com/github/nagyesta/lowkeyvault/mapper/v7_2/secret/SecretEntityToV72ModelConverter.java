@@ -40,7 +40,7 @@ public class SecretEntityToV72ModelConverter
         model.setTags(source.getTags());
         model.setManaged(source.isManaged());
         if (source.isManaged()) {
-            final VersionedSecretEntityId id = source.getId();
+            final var id = source.getId();
             model.setKid(new VersionedKeyEntityId(id.vault(), id.id(), id.version()).asUri(vaultUri).toString());
         }
         return model;

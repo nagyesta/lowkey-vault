@@ -12,7 +12,7 @@ public class EpochSecondsSerializer extends JsonSerializer<OffsetDateTime> {
 
     @Override
     public void serialize(final OffsetDateTime value, final JsonGenerator generator, final SerializerProvider provider) throws IOException {
-        final Optional<OffsetDateTime> optional = Optional.ofNullable(value);
+        final var optional = Optional.ofNullable(value);
         if (optional.isPresent()) {
             final long epochSeconds = optional
                     .map(OffsetDateTime::toEpochSecond)

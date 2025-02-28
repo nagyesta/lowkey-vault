@@ -1,7 +1,6 @@
 package com.github.nagyesta.lowkeyvault.controller.common;
 
 import com.github.nagyesta.lowkeyvault.controller.MetadataController;
-import com.github.nagyesta.lowkeyvault.model.TokenResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -9,12 +8,9 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
-import java.net.URL;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -39,11 +35,11 @@ class MetadataControllerTest {
     @Test
     void testGetManagedIdentityTokenShouldReturnTokenWhenCalled() throws IOException {
         //given
-        final MetadataController underTest = new MetadataController(REALM_NAME, KEY_STORE_RESOURCE, KEY_STORE_PASSWORD);
-        final URI resource = URI.create("https://localhost:8443/");
+        final var underTest = new MetadataController(REALM_NAME, KEY_STORE_RESOURCE, KEY_STORE_PASSWORD);
+        final var resource = URI.create("https://localhost:8443/");
 
         //when
-        final ResponseEntity<TokenResponse> actual = underTest.getManagedIdentityToken(resource);
+        final var actual = underTest.getManagedIdentityToken(resource);
 
         //then
         Assertions.assertNotNull(actual);
@@ -57,11 +53,11 @@ class MetadataControllerTest {
     @Test
     void testGetDefaultCertificateStoreContentShouldReturnResourceContents() throws IOException {
         //given
-        final MetadataController underTest = new MetadataController(REALM_NAME, KEY_STORE_RESOURCE, KEY_STORE_PASSWORD);
-        final byte[] expected = getResourceContent();
+        final var underTest = new MetadataController(REALM_NAME, KEY_STORE_RESOURCE, KEY_STORE_PASSWORD);
+        final var expected = getResourceContent();
 
         //when
-        final byte[] actual = underTest.getDefaultCertificateStoreContent();
+        final var actual = underTest.getDefaultCertificateStoreContent();
 
         //then
         Assertions.assertNotNull(actual);
@@ -71,10 +67,10 @@ class MetadataControllerTest {
     @Test
     void testGetDefaultCertificateStorePasswordShouldReturnPassword() throws IOException {
         //given
-        final MetadataController underTest = new MetadataController(REALM_NAME, KEY_STORE_RESOURCE, KEY_STORE_PASSWORD);
+        final var underTest = new MetadataController(REALM_NAME, KEY_STORE_RESOURCE, KEY_STORE_PASSWORD);
 
         //when
-        final String actual = underTest.getDefaultCertificateStorePassword();
+        final var actual = underTest.getDefaultCertificateStorePassword();
 
         //then
         Assertions.assertEquals(KEY_STORE_PASSWORD, actual);
@@ -92,11 +88,11 @@ class MetadataControllerTest {
     }
 
     private byte[] getResourceContent() throws IOException {
-        final URL url = getClass().getResource("/" + KEY_STORE_RESOURCE);
+        final var url = getClass().getResource("/" + KEY_STORE_RESOURCE);
         if (url == null) {
             throw new IOException("Resource not found: " + KEY_STORE_RESOURCE);
         }
-        try (InputStream inputStream = url.openStream()) {
+        try (var inputStream = url.openStream()) {
             return inputStream.readAllBytes();
         }
     }

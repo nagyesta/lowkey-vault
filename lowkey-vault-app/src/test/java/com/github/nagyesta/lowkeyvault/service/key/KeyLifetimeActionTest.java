@@ -36,11 +36,11 @@ class KeyLifetimeActionTest {
     @Test
     void testConstructorShouldSetValuesWhenCalledWithValidInput() {
         //given
-        final LifetimeActionType type = LifetimeActionType.NOTIFY;
+        final var type = LifetimeActionType.NOTIFY;
         final LifetimeActionTrigger trigger = new KeyLifetimeActionTrigger(Period.ZERO, LifetimeActionTriggerType.TIME_BEFORE_EXPIRY);
 
         //when
-        final KeyLifetimeAction actual = new KeyLifetimeAction(type, trigger);
+        final var actual = new KeyLifetimeAction(type, trigger);
 
         //then
         Assertions.assertEquals(trigger, actual.trigger());

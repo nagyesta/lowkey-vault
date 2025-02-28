@@ -56,7 +56,7 @@ public abstract class CommonSecretBackupRestoreController extends BaseBackupRest
     protected void restoreVersion(@NonNull final SecretVaultFake vault,
                                   @NonNull final VersionedSecretEntityId versionedEntityId,
                                   @NonNull final SecretBackupListItem entityVersion) {
-        final SecretPropertiesModel attributes = Objects.requireNonNullElse(entityVersion.getAttributes(), new SecretPropertiesModel());
+        final var attributes = Objects.requireNonNullElse(entityVersion.getAttributes(), new SecretPropertiesModel());
         vault.createSecretVersion(versionedEntityId, SecretCreateInput.builder()
                 .value(entityVersion.getValue())
                 .contentType(entityVersion.getContentType())

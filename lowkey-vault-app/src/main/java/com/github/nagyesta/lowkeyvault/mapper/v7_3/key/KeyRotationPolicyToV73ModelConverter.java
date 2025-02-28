@@ -40,7 +40,7 @@ public class KeyRotationPolicyToV73ModelConverter implements AliasAwareConverter
     }
 
     private KeyRotationPolicyModel convertNonNull(final ReadOnlyRotationPolicy readOnlyRotationPolicy, final URI vaultUri) {
-        final KeyRotationPolicyModel model = new KeyRotationPolicyModel();
+        final var model = new KeyRotationPolicyModel();
         model.setId(readOnlyRotationPolicy.getId().asRotationPolicyUri(vaultUri));
         model.setAttributes(convertAttributes(readOnlyRotationPolicy));
         model.setLifetimeActions(convertLifetimeActions(readOnlyRotationPolicy.getLifetimeActions()));
@@ -48,7 +48,7 @@ public class KeyRotationPolicyToV73ModelConverter implements AliasAwareConverter
     }
 
     private KeyRotationPolicyAttributes convertAttributes(final ReadOnlyRotationPolicy readOnlyRotationPolicy) {
-        final KeyRotationPolicyAttributes attributes = new KeyRotationPolicyAttributes();
+        final var attributes = new KeyRotationPolicyAttributes();
         attributes.setExpiryTime(readOnlyRotationPolicy.getExpiryTime());
         attributes.setCreated(readOnlyRotationPolicy.getCreatedOn());
         attributes.setUpdated(readOnlyRotationPolicy.getUpdatedOn());

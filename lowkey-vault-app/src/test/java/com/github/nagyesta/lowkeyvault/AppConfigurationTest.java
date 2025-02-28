@@ -18,10 +18,10 @@ class AppConfigurationTest {
     @Test
     void testDoAddVaultAliasesShouldSplitAndApplyAliasPairsWhenCalledWithValidInput() {
         //given
-        final AppConfiguration underTest = new AppConfiguration();
+        final var underTest = new AppConfiguration();
         underTest.setPort(PORT);
         underTest.setAliases("primary.localhost=localhost:30443,secondary.localhost=localhost:<port>");
-        final VaultService service = mock(VaultService.class);
+        final var service = mock(VaultService.class);
 
         //when
         underTest.doAddVaultAliases(service);
@@ -34,10 +34,10 @@ class AppConfigurationTest {
     @Test
     void testDoAddVaultAliasesShouldThrowExceptionWhenCalledWithInvalidPairs() {
         //given
-        final AppConfiguration underTest = new AppConfiguration();
+        final var underTest = new AppConfiguration();
         underTest.setPort(PORT);
         underTest.setAliases("primary.localhost,secondary.localhost=localhost:<port>=localhost:30443");
-        final VaultService service = mock(VaultService.class);
+        final var service = mock(VaultService.class);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.doAddVaultAliases(service));

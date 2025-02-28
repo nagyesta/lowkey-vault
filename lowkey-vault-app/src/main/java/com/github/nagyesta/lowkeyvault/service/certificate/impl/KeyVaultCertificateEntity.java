@@ -1,6 +1,5 @@
 package com.github.nagyesta.lowkeyvault.service.certificate.impl;
 
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRequest;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificateRestoreInput;
 import com.github.nagyesta.lowkeyvault.service.EntityId;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
@@ -58,8 +57,8 @@ public class KeyVaultCertificateEntity
         super(vault);
         Assert.state(name.equals(input.getName()),
                 "Certificate name (" + name + ") did not match name from certificate creation input: " + input.getName());
-        final KeyEntityId kid = new KeyEntityId(vault.baseUri(), name);
-        final SecretEntityId sid = new SecretEntityId(vault.baseUri(), name);
+        final var kid = new KeyEntityId(vault.baseUri(), name);
+        final var sid = new SecretEntityId(vault.baseUri(), name);
         assertNoNameCollisionWithNotManagedEntity(vault, kid, sid);
         this.issuancePolicy = new CertificatePolicy(input);
         this.originalCertificatePolicy = new CertificatePolicy(input);
@@ -67,10 +66,10 @@ public class KeyVaultCertificateEntity
         this.kid = generator.generateKeyPair(input);
         //reuse the generated key version to produce matching version numbers in all keys
         this.id = new VersionedCertificateEntityId(vault.baseUri(), name, this.kid.version());
-        final CertificateGenerator certificateGenerator = new CertificateGenerator(vault, this.kid);
+        final var certificateGenerator = new CertificateGenerator(vault, this.kid);
         this.certificate = certificateGenerator.generateCertificate(input);
         this.csr = certificateGenerator.generateCertificateSigningRequest(name, this.certificate);
-        final VersionedSecretEntityId secretEntityId = new VersionedSecretEntityId(vault.baseUri(), input.getName(), this.kid.version());
+        final var secretEntityId = new VersionedSecretEntityId(vault.baseUri(), input.getName(), this.kid.version());
         this.sid = generator.generateSecret(this.originalCertificatePolicy, this.certificate, this.kid, secretEntityId);
         this.originalCertificateContents = vault.secretVaultFake().getEntities().getReadOnlyEntity(this.sid).getValue();
         normalizeCoreTimeStamps(input, now());
@@ -93,14 +92,14 @@ public class KeyVaultCertificateEntity
                 .orElseThrow(() -> new IllegalArgumentException("Certificate data must not be null."));
         final ReadOnlyCertificatePolicy originalCertificateData = Optional.ofNullable(input.getParsedCertificateData())
                 .orElseThrow(() -> new IllegalArgumentException("Parsed certificate data must not be null."));
-        final X509Certificate certificate = Optional.ofNullable(input.getCertificate())
+        final var certificate = Optional.ofNullable(input.getCertificate())
                 .orElseThrow(() -> new IllegalArgumentException("Certificate must not be null."));
-        final JsonWebKeyImportRequest keyImportRequest = Optional.ofNullable(input.getKeyData())
+        final var keyImportRequest = Optional.ofNullable(input.getKeyData())
                 .orElseThrow(() -> new IllegalArgumentException("Key data must not be null."));
         Assert.state(name.equals(policy.getName()),
                 "Certificate name (" + name + ") did not match name from certificate creation input: " + policy.getName());
-        final KeyEntityId kid = new KeyEntityId(vault.baseUri(), name);
-        final SecretEntityId sid = new SecretEntityId(vault.baseUri(), name);
+        final var kid = new KeyEntityId(vault.baseUri(), name);
+        final var sid = new SecretEntityId(vault.baseUri(), name);
         assertNoNameCollisionWithNotManagedEntity(vault, kid, sid);
         this.issuancePolicy = new CertificatePolicy(policy);
         this.originalCertificatePolicy = new CertificatePolicy(originalCertificateData);
@@ -108,10 +107,10 @@ public class KeyVaultCertificateEntity
         this.kid = generator.importKeyPair(policy, keyImportRequest);
         //reuse the generated key version to produce matching version numbers in all keys
         this.id = new VersionedCertificateEntityId(vault.baseUri(), name, this.kid.version());
-        final CertificateGenerator certificateGenerator = new CertificateGenerator(vault, this.kid);
+        final var certificateGenerator = new CertificateGenerator(vault, this.kid);
         this.certificate = certificate;
         this.csr = certificateGenerator.generateCertificateSigningRequest(name, this.certificate);
-        final VersionedSecretEntityId secretEntityId = new VersionedSecretEntityId(vault.baseUri(), input.getName(), this.kid.version());
+        final var secretEntityId = new VersionedSecretEntityId(vault.baseUri(), input.getName(), this.kid.version());
         this.sid = generator.generateSecret(this.originalCertificatePolicy, this.certificate, this.kid, secretEntityId);
         this.originalCertificateContents = vault.secretVaultFake().getEntities().getReadOnlyEntity(this.sid).getValue();
         normalizeCoreTimeStamps(policy, now());
@@ -140,10 +139,10 @@ public class KeyVaultCertificateEntity
         this.kid = kid;
         //use the provided id, it might be different from the key id in case the key is reused.
         this.id = id;
-        final CertificateGenerator certificateGenerator = new CertificateGenerator(vault, this.kid);
+        final var certificateGenerator = new CertificateGenerator(vault, this.kid);
         this.certificate = certificateGenerator.generateCertificate(input);
         this.csr = certificateGenerator.generateCertificateSigningRequest(input.getName(), this.certificate);
-        final VersionedSecretEntityId secretEntityId = new VersionedSecretEntityId(vault.baseUri(), input.getName(), id.version());
+        final var secretEntityId = new VersionedSecretEntityId(vault.baseUri(), input.getName(), id.version());
         this.generator = new CertificateBackingEntityGenerator(vault);
         this.sid = generator.generateSecret(this.originalCertificatePolicy, this.certificate, this.kid, secretEntityId);
         this.originalCertificateContents = vault.secretVaultFake().getEntities().getReadOnlyEntity(this.sid).getValue();
@@ -165,10 +164,10 @@ public class KeyVaultCertificateEntity
         super(vault);
         final ReadOnlyCertificatePolicy policy = input.getCertificateData();
         final ReadOnlyCertificatePolicy originalCertificateData = input.getParsedCertificateData();
-        final X509Certificate certificate = input.getCertificate();
-        final JsonWebKeyImportRequest keyImportRequest = input.getKeyData();
-        final VersionedKeyEntityId kid = new VersionedKeyEntityId(vault.baseUri(), id.id(), input.getKeyVersion());
-        final VersionedSecretEntityId sid = new VersionedSecretEntityId(vault.baseUri(), id.id(), id.version());
+        final var certificate = input.getCertificate();
+        final var keyImportRequest = input.getKeyData();
+        final var kid = new VersionedKeyEntityId(vault.baseUri(), id.id(), input.getKeyVersion());
+        final var sid = new VersionedSecretEntityId(vault.baseUri(), id.id(), id.version());
         assertNoNameCollisionWithNotManagedEntity(vault, kid, sid);
         this.issuancePolicy = new CertificatePolicy(policy);
         this.originalCertificatePolicy = new CertificatePolicy(originalCertificateData);
@@ -181,7 +180,7 @@ public class KeyVaultCertificateEntity
             this.kid = generator.importKeyPair(kid, policy, keyImportRequest, input.isEnabled());
         }
         this.id = new VersionedCertificateEntityId(vault.baseUri(), id.id(), id.version());
-        final CertificateGenerator certificateGenerator = new CertificateGenerator(vault, this.kid);
+        final var certificateGenerator = new CertificateGenerator(vault, this.kid);
         this.certificate = certificate;
         this.csr = certificateGenerator.generateCertificateSigningRequest(id.id(), this.certificate);
         this.sid = generator.generateSecret(this.originalCertificatePolicy, this.certificate, this.kid, sid);
@@ -246,7 +245,7 @@ public class KeyVaultCertificateEntity
     @Override
     public byte[] getThumbprint() throws CryptoException {
         try {
-            final MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
+            final var messageDigest = MessageDigest.getInstance("SHA-1");
             messageDigest.update(getEncodedCertificate());
             return messageDigest.digest();
         } catch (final Exception e) {
@@ -289,7 +288,7 @@ public class KeyVaultCertificateEntity
             log.warn("Deleted certificate is regeneration is skipped for: {}", id);
         } else if (validityStartDateNoLongerAccurate()) {
             log.debug("Regenerating certificate: {}", id);
-            final CertificatePolicy updated = new CertificatePolicy(originalCertificatePolicy);
+            final var updated = new CertificatePolicy(originalCertificatePolicy);
             updated.setValidityStart(getCreated());
             regenerateCertificateData(vault, updated);
             generator.updateSecretValueWithNewCertificate(updated, certificate, kid, sid);
@@ -320,16 +319,16 @@ public class KeyVaultCertificateEntity
     }
 
     private void regenerateCertificateData(final VaultFake vaultFake, final CertificatePolicy updated) {
-        final CertificateGenerator certificateGenerator = new CertificateGenerator(vaultFake, this.kid);
+        final var certificateGenerator = new CertificateGenerator(vaultFake, this.kid);
         this.certificate = certificateGenerator.generateCertificate(updated);
         this.csr = certificateGenerator.generateCertificateSigningRequest(this.id.id(), this.certificate);
         this.originalCertificatePolicy = updated;
     }
 
     private boolean validityStartDateNoLongerAccurate() {
-        final OffsetDateTime validityStart = this.getNotBefore().orElse(this.getCreated());
-        final Date desiredStartOfValidity = Date.from(validityStart.truncatedTo(ChronoUnit.DAYS).toInstant());
-        final Date existingStartOfValidity = certificate.getNotBefore();
+        final var validityStart = this.getNotBefore().orElse(this.getCreated());
+        final var desiredStartOfValidity = Date.from(validityStart.truncatedTo(ChronoUnit.DAYS).toInstant());
+        final var existingStartOfValidity = certificate.getNotBefore();
         return !desiredStartOfValidity.equals(existingStartOfValidity);
     }
 }

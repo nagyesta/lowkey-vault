@@ -39,8 +39,8 @@ class Base64ZipKeySerializerDeserializerIntegrationTest {
         //given
 
         //when
-        final String json = objectMapper.writerFor(KeyBackupModel.class).writeValueAsString(null);
-        final KeyBackupModel actual = objectMapper.reader().readValue(json, KeyBackupModel.class);
+        final var json = objectMapper.writerFor(KeyBackupModel.class).writeValueAsString(null);
+        final var actual = objectMapper.reader().readValue(json, KeyBackupModel.class);
 
         //then
         Assertions.assertNull(actual);
@@ -49,11 +49,11 @@ class Base64ZipKeySerializerDeserializerIntegrationTest {
     @Test
     void testSerializeShouldReturnNullWhenCalledWithNullList() throws IOException {
         //given
-        final KeyBackupModel valueWithNullList = new KeyBackupModel();
+        final var valueWithNullList = new KeyBackupModel();
 
         //when
-        final String json = objectMapper.writer().writeValueAsString(valueWithNullList);
-        final KeyBackupModel actual = objectMapper.reader().readValue(json, KeyBackupModel.class);
+        final var json = objectMapper.writer().writeValueAsString(valueWithNullList);
+        final var actual = objectMapper.reader().readValue(json, KeyBackupModel.class);
 
         //then
         Assertions.assertEquals(valueWithNullList, actual);
@@ -62,23 +62,23 @@ class Base64ZipKeySerializerDeserializerIntegrationTest {
     @Test
     void testSerializeShouldConvertContentWhenCalledWithValidValue() throws IOException {
         //given
-        final KeyBackupListItem item = getKeyBackupListItem(TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1,
+        final var item = getKeyBackupListItem(TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1,
                 getKeyMaterial(TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1, KeyGenUtil.generateEc(KeyCurveName.P_256)),
                 getKeyPropertiesModel());
-        final KeyBackupModel input = getKeyBackupModel(item);
+        final var input = getKeyBackupModel(item);
 
         //when
-        final String json = objectMapper.writer().writeValueAsString(input);
-        final KeyBackupModel actual = objectMapper.reader().readValue(json, KeyBackupModel.class);
+        final var json = objectMapper.writer().writeValueAsString(input);
+        final var actual = objectMapper.reader().readValue(json, KeyBackupModel.class);
 
         //then
         Assertions.assertEquals(input, actual);
     }
 
     private KeyBackupModel getKeyBackupModel(final KeyBackupListItem item) {
-        final KeyBackupList list = new KeyBackupList();
+        final var list = new KeyBackupList();
         list.setVersions(List.of(item));
-        final KeyBackupModel input = new KeyBackupModel();
+        final var input = new KeyBackupModel();
         input.setValue(list);
         return input;
     }
@@ -87,7 +87,7 @@ class Base64ZipKeySerializerDeserializerIntegrationTest {
     private KeyBackupListItem getKeyBackupListItem(final KeyEntityId id,
                                                    final JsonWebKeyImportRequest keyMaterial,
                                                    final KeyPropertiesModel propertiesModel) {
-        final KeyBackupListItem item = new KeyBackupListItem();
+        final var item = new KeyBackupListItem();
         item.setId(id.id());
         item.setVaultBaseUri(id.vault());
         item.setVersion(id.version());
@@ -99,7 +99,7 @@ class Base64ZipKeySerializerDeserializerIntegrationTest {
     }
 
     private KeyPropertiesModel getKeyPropertiesModel() {
-        final KeyPropertiesModel propertiesModel = new KeyPropertiesModel();
+        final var propertiesModel = new KeyPropertiesModel();
         propertiesModel.setCreatedOn(TIME_10_MINUTES_AGO);
         propertiesModel.setUpdatedOn(NOW.minusSeconds(1));
         propertiesModel.setNotBefore(NOW);
@@ -112,7 +112,7 @@ class Base64ZipKeySerializerDeserializerIntegrationTest {
 
     @SuppressWarnings("SameParameterValue")
     private JsonWebKeyImportRequest getKeyMaterial(final KeyEntityId id, final KeyPair expected) {
-        final JsonWebKeyImportRequest keyMaterial = new JsonWebKeyImportRequest();
+        final var keyMaterial = new JsonWebKeyImportRequest();
         keyMaterial.setKeyType(KeyType.EC);
         keyMaterial.setX(((BCECPublicKey) expected.getPublic()).getQ().getAffineXCoord().getEncoded());
         keyMaterial.setY(((BCECPublicKey) expected.getPublic()).getQ().getAffineYCoord().getEncoded());

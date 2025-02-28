@@ -61,10 +61,10 @@ class KeyLifetimeActionTriggerTest {
                        final OffsetDateTime created, final OffsetDateTime expiry,
                        final boolean expected) {
         //given
-        final KeyLifetimeActionTrigger underTest = new KeyLifetimeActionTrigger(period, type);
+        final var underTest = new KeyLifetimeActionTrigger(period, type);
 
         //when
-        final boolean actual = underTest.shouldTrigger(created, expiry);
+        final var actual = underTest.shouldTrigger(created, expiry);
 
         //then
         Assertions.assertEquals(expected, actual);
@@ -74,7 +74,7 @@ class KeyLifetimeActionTriggerTest {
     @Test
     void testRotateAfterDaysShouldThrowExceptionWhenCalledWithNull() {
         //given
-        final KeyLifetimeActionTrigger underTest = new KeyLifetimeActionTrigger(PERIOD_28_DAYS, TIME_AFTER_CREATE);
+        final var underTest = new KeyLifetimeActionTrigger(PERIOD_28_DAYS, TIME_AFTER_CREATE);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.rotateAfterDays(null));

@@ -4,7 +4,6 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionTrigger;
-import com.github.nagyesta.lowkeyvault.service.certificate.CertificateVaultFake;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.*;
@@ -16,8 +15,6 @@ import java.time.Instant;
 import java.time.Month;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.Deque;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -41,11 +38,11 @@ class VaultFakeImplIntegrationTest {
     @Test
     void testTimeShiftShouldCreateNewVersionsWhenAutoRotateIsTriggeredWithActiveCertificates() {
         //given
-        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
-        final CertificateVaultFake certificateVaultFake = underTest.certificateVaultFake();
-        final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
-        final OffsetDateTime approxNow = now.plusMinutes(1);
-        final VersionedCertificateEntityId originalCertId = certificateVaultFake
+        final var underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
+        final var certificateVaultFake = underTest.certificateVaultFake();
+        final var now = OffsetDateTime.now(ZoneOffset.UTC);
+        final var approxNow = now.plusMinutes(1);
+        final var originalCertId = certificateVaultFake
                 .createCertificateVersion(CERT_NAME_1, CertificateCreationInput.builder()
                         .contentType(CertContentType.PEM)
                         .name(CERT_NAME_1)
@@ -55,7 +52,7 @@ class VaultFakeImplIntegrationTest {
                         .keyCurveName(KeyCurveName.P_521)
                         .subject("CN=localhost")
                         .build());
-        final int triggerThresholdDays = 1;
+        final var triggerThresholdDays = 1;
         certificateVaultFake.setLifetimeActionPolicy(new CertificateLifetimeActionPolicy(
                 originalCertId, Map.of(AUTO_RENEW, new CertificateLifetimeActionTrigger(DAYS_BEFORE_EXPIRY, triggerThresholdDays))
         ));
@@ -64,19 +61,19 @@ class VaultFakeImplIntegrationTest {
         underTest.timeShift(SECONDS_IN_MORE_THAN_TWO_YEARS, true);
 
         //then
-        final Deque<String> versions = underTest.certificateVaultFake().getEntities().getVersions(originalCertId);
-        final List<ReadOnlyKeyVaultCertificateEntity> entities = versions.stream()
+        final var versions = underTest.certificateVaultFake().getEntities().getVersions(originalCertId);
+        final var entities = versions.stream()
                 .map(v -> new VersionedCertificateEntityId(originalCertId.vault(), originalCertId.id(), v))
                 .map(certificateVaultFake.getEntities()::getReadOnlyEntity)
                 .toList();
         Assertions.assertEquals(EXPECTED_VERSIONS_AFTER_RENEWAL, entities.size());
-        final ReadOnlyKeyVaultCertificateEntity recreatedOriginal = entities.get(0);
-        final ReadOnlyKeyVaultCertificateEntity firstRenewal = entities.get(1);
-        final ReadOnlyKeyVaultCertificateEntity secondRenewal = entities.get(2);
+        final var recreatedOriginal = entities.get(0);
+        final var firstRenewal = entities.get(1);
+        final var secondRenewal = entities.get(2);
         assertTimestampsAreAdjustedAsExpected(approxNow, recreatedOriginal, INT_MORE_THAN_TWO_YEARS_IN_DAYS);
-        final OffsetDateTime firstRenewalDay = recreatedOriginal.getExpiry().map(v -> v.minusDays(triggerThresholdDays)).orElseThrow();
+        final var firstRenewalDay = recreatedOriginal.getExpiry().map(v -> v.minusDays(triggerThresholdDays)).orElseThrow();
         assertTimestampsAreAdjustedAsExpected(approxNow, firstRenewal, DAYS.between(firstRenewalDay, approxNow));
-        final OffsetDateTime secondRenewalDay = firstRenewal.getExpiry().map(v -> v.minusDays(triggerThresholdDays)).orElseThrow();
+        final var secondRenewalDay = firstRenewal.getExpiry().map(v -> v.minusDays(triggerThresholdDays)).orElseThrow();
         assertTimestampsAreAdjustedAsExpected(approxNow, secondRenewal, DAYS.between(secondRenewalDay, approxNow));
         Assertions.assertNotEquals(recreatedOriginal.getKid(), firstRenewal.getKid());
         Assertions.assertNotEquals(recreatedOriginal.getKid(), secondRenewal.getKid());
@@ -85,11 +82,11 @@ class VaultFakeImplIntegrationTest {
     @Test
     void testTimeShiftShouldCreateNewVersionsWhenAutoRotateIsTriggeredWithDifferentContentTypeInIssuancePolicy() {
         //given
-        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
-        final CertificateVaultFake certificateVaultFake = underTest.certificateVaultFake();
-        final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
-        final OffsetDateTime approxNow = now.plusMinutes(1);
-        final VersionedCertificateEntityId originalCertId = certificateVaultFake
+        final var underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
+        final var certificateVaultFake = underTest.certificateVaultFake();
+        final var now = OffsetDateTime.now(ZoneOffset.UTC);
+        final var approxNow = now.plusMinutes(1);
+        final var originalCertId = certificateVaultFake
                 .createCertificateVersion(CERT_NAME_1, CertificateCreationInput.builder()
                         .contentType(CertContentType.PKCS12)
                         .name(CERT_NAME_1)
@@ -99,11 +96,11 @@ class VaultFakeImplIntegrationTest {
                         .keyCurveName(KeyCurveName.P_521)
                         .subject("CN=localhost")
                         .build());
-        final int triggerThresholdDays = 1;
+        final var triggerThresholdDays = 1;
         certificateVaultFake.setLifetimeActionPolicy(new CertificateLifetimeActionPolicy(
                 originalCertId, Map.of(AUTO_RENEW, new CertificateLifetimeActionTrigger(DAYS_BEFORE_EXPIRY, triggerThresholdDays))
         ));
-        final CertificatePolicy issuancePolicy = (CertificatePolicy) certificateVaultFake.getEntities()
+        final var issuancePolicy = (CertificatePolicy) certificateVaultFake.getEntities()
                 .getEntity(originalCertId, KeyVaultCertificateEntity.class)
                 .getIssuancePolicy();
         issuancePolicy.setContentType(CertContentType.PEM);
@@ -112,8 +109,8 @@ class VaultFakeImplIntegrationTest {
         underTest.timeShift(SECONDS_IN_MORE_THAN_TWO_YEARS, true);
 
         //then
-        final Deque<String> versions = underTest.certificateVaultFake().getEntities().getVersions(originalCertId);
-        final List<ReadOnlyKeyVaultCertificateEntity> entities = versions.stream()
+        final var versions = underTest.certificateVaultFake().getEntities().getVersions(originalCertId);
+        final var entities = versions.stream()
                 .map(v -> new VersionedCertificateEntityId(originalCertId.vault(), originalCertId.id(), v))
                 .map(certificateVaultFake.getEntities()::getReadOnlyEntity)
                 .toList();
@@ -125,11 +122,11 @@ class VaultFakeImplIntegrationTest {
     @Test
     void testTimeShiftShouldCreateNewVersionsUsingSameKeyWhenAutoRotateIsTriggeredWithActiveCertificatesAllowingKeyReuse() {
         //given
-        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
-        final CertificateVaultFake certificateVaultFake = underTest.certificateVaultFake();
-        final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
-        final OffsetDateTime approxNow = now.plusMinutes(1);
-        final VersionedCertificateEntityId originalCertId = certificateVaultFake
+        final var underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
+        final var certificateVaultFake = underTest.certificateVaultFake();
+        final var now = OffsetDateTime.now(ZoneOffset.UTC);
+        final var approxNow = now.plusMinutes(1);
+        final var originalCertId = certificateVaultFake
                 .createCertificateVersion(CERT_NAME_1, CertificateCreationInput.builder()
                         .contentType(CertContentType.PEM)
                         .name(CERT_NAME_1)
@@ -140,7 +137,7 @@ class VaultFakeImplIntegrationTest {
                         .subject("CN=localhost")
                         .reuseKeyOnRenewal(true)
                         .build());
-        final int triggerThresholdDays = 1;
+        final var triggerThresholdDays = 1;
         certificateVaultFake.setLifetimeActionPolicy(new CertificateLifetimeActionPolicy(
                 originalCertId, Map.of(AUTO_RENEW, new CertificateLifetimeActionTrigger(DAYS_BEFORE_EXPIRY, triggerThresholdDays))
         ));
@@ -149,19 +146,19 @@ class VaultFakeImplIntegrationTest {
         underTest.timeShift(SECONDS_IN_MORE_THAN_TWO_YEARS, true);
 
         //then
-        final Deque<String> versions = underTest.certificateVaultFake().getEntities().getVersions(originalCertId);
-        final List<ReadOnlyKeyVaultCertificateEntity> entities = versions.stream()
+        final var versions = underTest.certificateVaultFake().getEntities().getVersions(originalCertId);
+        final var entities = versions.stream()
                 .map(v -> new VersionedCertificateEntityId(originalCertId.vault(), originalCertId.id(), v))
                 .map(certificateVaultFake.getEntities()::getReadOnlyEntity)
                 .toList();
         Assertions.assertEquals(EXPECTED_VERSIONS_AFTER_RENEWAL, entities.size());
-        final ReadOnlyKeyVaultCertificateEntity recreatedOriginal = entities.get(0);
-        final ReadOnlyKeyVaultCertificateEntity firstRenewal = entities.get(1);
-        final ReadOnlyKeyVaultCertificateEntity secondRenewal = entities.get(2);
+        final var recreatedOriginal = entities.get(0);
+        final var firstRenewal = entities.get(1);
+        final var secondRenewal = entities.get(2);
         assertTimestampsAreAdjustedAsExpected(approxNow, recreatedOriginal, INT_MORE_THAN_TWO_YEARS_IN_DAYS);
-        final OffsetDateTime firstRenewalDay = recreatedOriginal.getExpiry().map(v -> v.minusDays(triggerThresholdDays)).orElseThrow();
+        final var firstRenewalDay = recreatedOriginal.getExpiry().map(v -> v.minusDays(triggerThresholdDays)).orElseThrow();
         assertTimestampsAreAdjustedAsExpected(approxNow, firstRenewal, DAYS.between(firstRenewalDay, approxNow));
-        final OffsetDateTime secondRenewalDay = firstRenewal.getExpiry().map(v -> v.minusDays(triggerThresholdDays)).orElseThrow();
+        final var secondRenewalDay = firstRenewal.getExpiry().map(v -> v.minusDays(triggerThresholdDays)).orElseThrow();
         assertTimestampsAreAdjustedAsExpected(approxNow, secondRenewal, DAYS.between(secondRenewalDay, approxNow));
         Assertions.assertEquals(recreatedOriginal.getKid(), firstRenewal.getKid());
         Assertions.assertEquals(recreatedOriginal.getKid(), secondRenewal.getKid());
@@ -170,12 +167,12 @@ class VaultFakeImplIntegrationTest {
     @Test
     void testTimeShiftShouldNotCreateNewVersionsWhenAutoRotateIsTriggeredWithDeletedCertificatesAsTheyArePurged() {
         //given
-        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST,
+        final var underTest = new VaultFakeImpl(HTTPS_LOCALHOST,
                 RecoveryLevel.RECOVERABLE_AND_PURGEABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
-        final CertificateVaultFake certificateVaultFake = underTest.certificateVaultFake();
-        final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
-        final OffsetDateTime approxNow = now.plusMinutes(1);
-        final VersionedCertificateEntityId originalCertId = certificateVaultFake
+        final var certificateVaultFake = underTest.certificateVaultFake();
+        final var now = OffsetDateTime.now(ZoneOffset.UTC);
+        final var approxNow = now.plusMinutes(1);
+        final var originalCertId = certificateVaultFake
                 .createCertificateVersion(CERT_NAME_1, CertificateCreationInput.builder()
                         .contentType(CertContentType.PEM)
                         .name(CERT_NAME_1)
@@ -185,7 +182,7 @@ class VaultFakeImplIntegrationTest {
                         .keyCurveName(KeyCurveName.P_521)
                         .subject("CN=localhost")
                         .build());
-        final int triggerThresholdDays = 1;
+        final var triggerThresholdDays = 1;
         certificateVaultFake.setLifetimeActionPolicy(new CertificateLifetimeActionPolicy(
                 originalCertId, Map.of(AUTO_RENEW, new CertificateLifetimeActionTrigger(DAYS_BEFORE_EXPIRY, triggerThresholdDays))
         ));
@@ -195,19 +192,19 @@ class VaultFakeImplIntegrationTest {
         underTest.timeShift(SECONDS_IN_MORE_THAN_TWO_YEARS, true);
 
         //then
-        final boolean exists = underTest.certificateVaultFake().getDeletedEntities().containsName(originalCertId.id());
+        final var exists = underTest.certificateVaultFake().getDeletedEntities().containsName(originalCertId.id());
         Assertions.assertFalse(exists);
     }
 
     @Test
     void testTimeShiftShouldNotCreateNewVersionsWhenAutoRotateIsTriggeredWithDeletedCertificatesEvenIfNotPurged() {
         //given
-        final VaultFakeImpl underTest = new VaultFakeImpl(HTTPS_LOCALHOST,
+        final var underTest = new VaultFakeImpl(HTTPS_LOCALHOST,
                 RecoveryLevel.RECOVERABLE_AND_PURGEABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
-        final CertificateVaultFake certificateVaultFake = underTest.certificateVaultFake();
-        final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
-        final OffsetDateTime approxNow = now.plusMinutes(1);
-        final VersionedCertificateEntityId originalCertId = certificateVaultFake
+        final var certificateVaultFake = underTest.certificateVaultFake();
+        final var now = OffsetDateTime.now(ZoneOffset.UTC);
+        final var approxNow = now.plusMinutes(1);
+        final var originalCertId = certificateVaultFake
                 .createCertificateVersion(CERT_NAME_1, CertificateCreationInput.builder()
                         .contentType(CertContentType.PEM)
                         .name(CERT_NAME_1)
@@ -217,7 +214,7 @@ class VaultFakeImplIntegrationTest {
                         .keyCurveName(KeyCurveName.P_521)
                         .subject("CN=localhost")
                         .build());
-        final int triggerThresholdDays = 1;
+        final var triggerThresholdDays = 1;
         certificateVaultFake.setLifetimeActionPolicy(new CertificateLifetimeActionPolicy(
                 originalCertId, Map.of(AUTO_RENEW, new CertificateLifetimeActionTrigger(DAYS_BEFORE_EXPIRY, triggerThresholdDays))
         ));
@@ -227,13 +224,13 @@ class VaultFakeImplIntegrationTest {
         underTest.timeShift(SECONDS_IN_1_DAY, true);
 
         //then
-        final Deque<String> versions = underTest.certificateVaultFake().getDeletedEntities().getVersions(originalCertId);
+        final var versions = underTest.certificateVaultFake().getDeletedEntities().getVersions(originalCertId);
         Assertions.assertIterableEquals(Set.of(originalCertId.version()), versions);
     }
 
     private static void assertRenewalUsedPem(final VaultFakeImpl underTest, final ReadOnlyKeyVaultCertificateEntity certificateEntity) {
         Assertions.assertEquals(CertContentType.PEM, certificateEntity.getOriginalCertificatePolicy().getContentType());
-        final KeyVaultSecretEntity secretEntity = underTest.secretVaultFake().getEntities()
+        final var secretEntity = underTest.secretVaultFake().getEntities()
                 .getEntity(certificateEntity.getSid(), KeyVaultSecretEntity.class);
         Assertions.assertEquals(CertContentType.PEM.getMimeType(), secretEntity.getContentType());
         Assertions.assertNotNull(CertContentType.PEM.getCertificateChain(secretEntity.getValue(), ""));
@@ -249,7 +246,7 @@ class VaultFakeImplIntegrationTest {
     }
 
     private static int getMoreThanTwoYearsAvoidingLeapYear() {
-        final Instant moreThanTwoYearsAgo = Instant.now().minus(INITIAL_OFFSET_IN_DAYS, DAYS);
+        final var moreThanTwoYearsAgo = Instant.now().minus(INITIAL_OFFSET_IN_DAYS, DAYS);
         if (isEndOfFebruary(moreThanTwoYearsAgo) || isBeginningOfMarch(moreThanTwoYearsAgo)) {
             return INITIAL_OFFSET_IN_DAYS + EXTRA_OFFSET_IN_DAYS;
         }

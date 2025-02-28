@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Assertions;
 import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
@@ -16,7 +15,7 @@ public final class ResourceUtils {
     }
 
     public static String loadResourceAsString(final String resource) {
-        try (InputStream stream = ResourceUtils.class.getResourceAsStream(resource)) {
+        try (var stream = ResourceUtils.class.getResourceAsStream(resource)) {
             return StreamUtils.copyToString(stream, StandardCharsets.UTF_8);
         } catch (final IOException e) {
             Assertions.fail(e.getMessage());
@@ -25,14 +24,14 @@ public final class ResourceUtils {
     }
 
     public static String loadResourceAsBase64String(final String resource) {
-        final byte[] binaryData = loadResourceAsByteArray(resource);
+        final var binaryData = loadResourceAsByteArray(resource);
         return Optional.ofNullable(binaryData)
                 .map(binary -> Base64.getEncoder().encodeToString(binary))
                 .orElse(null);
     }
 
     public static byte[] loadResourceAsByteArray(final String resource) {
-        try (InputStream stream = ResourceUtils.class.getResourceAsStream(resource)) {
+        try (var stream = ResourceUtils.class.getResourceAsStream(resource)) {
             return StreamUtils.copyToByteArray(stream);
         } catch (final IOException e) {
             Assertions.fail(e.getMessage());

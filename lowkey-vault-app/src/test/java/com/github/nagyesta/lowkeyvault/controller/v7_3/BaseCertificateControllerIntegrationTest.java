@@ -17,6 +17,7 @@ import java.util.Set;
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.VALIDITY_MONTHS_ONE_YEAR;
 
 public class BaseCertificateControllerIntegrationTest {
+
     @Autowired
     private VaultService vaultService;
 
@@ -35,22 +36,22 @@ public class BaseCertificateControllerIntegrationTest {
     }
 
     protected CreateCertificateRequest getCreateCertificateRequest() {
-        final CreateCertificateRequest request = new CreateCertificateRequest();
-        final CertificateKeyModel keyProperties = new CertificateKeyModel();
+        final var request = new CreateCertificateRequest();
+        final var keyProperties = new CertificateKeyModel();
         keyProperties.setKeyType(KeyType.EC);
         keyProperties.setKeyCurveName(KeyCurveName.P_521);
         keyProperties.setReuseKey(false);
         keyProperties.setExportable(true);
 
-        final CertificateSecretModel secretProperties = new CertificateSecretModel();
+        final var secretProperties = new CertificateSecretModel();
         secretProperties.setContentType(CertContentType.PEM.getMimeType());
 
-        final X509CertificateModel x509Properties = new X509CertificateModel();
+        final var x509Properties = new X509CertificateModel();
         x509Properties.setSubject("CN=example.com");
         x509Properties.setValidityMonths(VALIDITY_MONTHS_ONE_YEAR);
         x509Properties.setSubjectAlternativeNames(new SubjectAlternativeNames(Set.of("*.example.com"), Set.of(), Set.of()));
 
-        final CertificatePolicyModel policy = new CertificatePolicyModel();
+        final var policy = new CertificatePolicyModel();
         policy.setKeyProperties(keyProperties);
         policy.setSecretProperties(secretProperties);
         policy.setX509Properties(x509Properties);

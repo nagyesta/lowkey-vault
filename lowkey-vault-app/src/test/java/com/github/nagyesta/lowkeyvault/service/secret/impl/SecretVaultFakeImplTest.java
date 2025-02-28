@@ -2,7 +2,6 @@ package com.github.nagyesta.lowkeyvault.service.secret.impl;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertContentType;
-import com.github.nagyesta.lowkeyvault.service.secret.ReadOnlyKeyVaultSecretEntity;
 import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultFakeImpl;
@@ -25,7 +24,7 @@ import static org.mockito.Mockito.when;
 class SecretVaultFakeImplTest {
 
     public static Stream<Arguments> certificateCreationNullProvider() {
-        final VersionedSecretEntityId entityId = VERSIONED_SECRET_ENTITY_ID_1_VERSION_1;
+        final var entityId = VERSIONED_SECRET_ENTITY_ID_1_VERSION_1;
         return Stream.<Arguments>builder()
                 .add(Arguments.of(null, LOWKEY_VAULT, CertContentType.PEM, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES))
                 .add(Arguments.of(entityId, null, CertContentType.PEM, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES))
@@ -59,7 +58,7 @@ class SecretVaultFakeImplTest {
     void testCreateSecretVersionShouldThrowExceptionWhenCalledWithNullName() {
         //given
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
-        final SecretVaultFakeImpl underTest =
+        final var underTest =
                 new SecretVaultFakeImpl(vaultFake, vaultFake.getRecoveryLevel(), vaultFake.getRecoverableDays());
 
         //when
@@ -74,7 +73,7 @@ class SecretVaultFakeImplTest {
     void testCreateSecretVersionShouldThrowExceptionWhenCalledWithNullValue() {
         //given
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
-        final SecretVaultFakeImpl underTest =
+        final var underTest =
                 new SecretVaultFakeImpl(vaultFake, vaultFake.getRecoveryLevel(), vaultFake.getRecoverableDays());
 
         //when
@@ -89,7 +88,7 @@ class SecretVaultFakeImplTest {
     void testCreateSecretVersionUsingVersionedIdShouldThrowExceptionWhenCalledWithNullValue() {
         //given
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
-        final SecretVaultFakeImpl underTest =
+        final var underTest =
                 new SecretVaultFakeImpl(vaultFake, vaultFake.getRecoveryLevel(), vaultFake.getRecoverableDays());
 
         //when
@@ -104,9 +103,9 @@ class SecretVaultFakeImplTest {
     void testCreateSecretVersionUsingVersionedIdShouldThrowExceptionWhenCalledWithNullEntityId() {
         //given
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
-        final SecretVaultFakeImpl underTest =
+        final var underTest =
                 new SecretVaultFakeImpl(vaultFake, vaultFake.getRecoveryLevel(), vaultFake.getRecoverableDays());
-        final SecretCreateInput secretCreateInput = SecretCreateInput.builder()
+        final var secretCreateInput = SecretCreateInput.builder()
                 .value(LOWKEY_VAULT)
                 .build();
 
@@ -121,16 +120,16 @@ class SecretVaultFakeImplTest {
     void testCreateSecretVersionShouldCreateNewEntityWhenCalledWithValidInput() {
         //given
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
-        final SecretVaultFakeImpl underTest =
+        final var underTest =
                 new SecretVaultFakeImpl(vaultFake, vaultFake.getRecoveryLevel(), vaultFake.getRecoverableDays());
 
         //when
-        final VersionedSecretEntityId secretVersion = underTest.createSecretVersion(SECRET_NAME_1, SecretCreateInput.builder()
+        final var secretVersion = underTest.createSecretVersion(SECRET_NAME_1, SecretCreateInput.builder()
                 .value(LOWKEY_VAULT)
                 .build());
 
         //then
-        final ReadOnlyKeyVaultSecretEntity actual = underTest.getEntities().getReadOnlyEntity(secretVersion);
+        final var actual = underTest.getEntities().getReadOnlyEntity(secretVersion);
         Assertions.assertNull(actual.getContentType());
         Assertions.assertEquals(LOWKEY_VAULT, actual.getValue());
         Assertions.assertEquals(secretVersion.asUri(HTTPS_LOCALHOST_8443), actual.getId().asUri(HTTPS_LOCALHOST_8443));
@@ -139,12 +138,12 @@ class SecretVaultFakeImplTest {
     @Test
     void testCreateVersionedSecretEntityIdShouldCreateNewEntityIdWhenCalledWithValidInput() {
         //given
-        final VaultFake vaultFake = mock(VaultFake.class);
+        final var vaultFake = mock(VaultFake.class);
         when(vaultFake.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
-        final SecretVaultFakeImpl underTest = new SecretVaultFakeImpl(vaultFake, RecoveryLevel.PURGEABLE, null);
+        final var underTest = new SecretVaultFakeImpl(vaultFake, RecoveryLevel.PURGEABLE, null);
 
         //when
-        final VersionedSecretEntityId actual = underTest.createVersionedId(SECRET_NAME_1, SECRET_VERSION_1);
+        final var actual = underTest.createVersionedId(SECRET_NAME_1, SECRET_VERSION_1);
 
         //then
         Assertions.assertEquals(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, actual);
@@ -160,10 +159,10 @@ class SecretVaultFakeImplTest {
             final OffsetDateTime notBefore,
             final OffsetDateTime expiry) {
         //given
-        final VaultFake vaultFake = mock(VaultFake.class);
+        final var vaultFake = mock(VaultFake.class);
         when(vaultFake.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
-        final SecretVaultFakeImpl underTest = new SecretVaultFakeImpl(vaultFake, RecoveryLevel.PURGEABLE, null);
-        final SecretCreateInput secretCreateInput = Optional.ofNullable(value)
+        final var underTest = new SecretVaultFakeImpl(vaultFake, RecoveryLevel.PURGEABLE, null);
+        final var secretCreateInput = Optional.ofNullable(value)
                 .map(v -> SecretCreateInput.builder()
                         .value(v)
                         .contentType(Optional.ofNullable(contentType).map(CertContentType::getMimeType).orElse(null))
@@ -188,10 +187,10 @@ class SecretVaultFakeImplTest {
             final OffsetDateTime notBefore,
             final OffsetDateTime expiry) {
         //given
-        final VaultFake vaultFake = mock(VaultFake.class);
+        final var vaultFake = mock(VaultFake.class);
         when(vaultFake.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
-        final SecretVaultFakeImpl underTest = new SecretVaultFakeImpl(vaultFake, RecoveryLevel.PURGEABLE, null);
-        final SecretCreateInput secretCreateInput = SecretCreateInput.builder()
+        final var underTest = new SecretVaultFakeImpl(vaultFake, RecoveryLevel.PURGEABLE, null);
+        final var secretCreateInput = SecretCreateInput.builder()
                 .value(value)
                 .contentType(contentType.getMimeType())
                 .notBefore(notBefore)
@@ -203,10 +202,10 @@ class SecretVaultFakeImplTest {
                 .build();
 
         //when
-        final VersionedSecretEntityId actual = underTest.createSecretVersion(id, secretCreateInput);
+        final var actual = underTest.createSecretVersion(id, secretCreateInput);
 
         //then
-        final ReadOnlyKeyVaultSecretEntity entity = underTest.getEntities().getReadOnlyEntity(actual);
+        final var entity = underTest.getEntities().getReadOnlyEntity(actual);
         Assertions.assertEquals(id.id(), entity.getId().id());
         Assertions.assertEquals(id.version(), entity.getId().version());
         Assertions.assertEquals(value, entity.getValue());
@@ -225,9 +224,9 @@ class SecretVaultFakeImplTest {
     void testCreateSecretVersionShouldThrowExceptionWhenCalledWithUpdatedOnEarlierThanCreatedOn() {
         //given
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
-        final SecretVaultFakeImpl underTest =
+        final var underTest =
                 new SecretVaultFakeImpl(vaultFake, vaultFake.getRecoveryLevel(), vaultFake.getRecoverableDays());
-        final SecretCreateInput secretCreateInput = SecretCreateInput.builder()
+        final var secretCreateInput = SecretCreateInput.builder()
                 .value(LOWKEY_VAULT)
                 .createdOn(TIME_IN_10_MINUTES)
                 .updatedOn(TIME_10_MINUTES_AGO)
@@ -245,18 +244,18 @@ class SecretVaultFakeImplTest {
     void testCreateSecretVersionShouldSetBothValuesWhenCalledWithCreatedOnAndNoUpdatedOn() {
         //given
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
-        final SecretVaultFakeImpl underTest =
+        final var underTest =
                 new SecretVaultFakeImpl(vaultFake, vaultFake.getRecoveryLevel(), vaultFake.getRecoverableDays());
-        final SecretCreateInput secretCreateInput = SecretCreateInput.builder()
+        final var secretCreateInput = SecretCreateInput.builder()
                 .value(LOWKEY_VAULT)
                 .createdOn(TIME_10_MINUTES_AGO)
                 .build();
 
         //when
-        final VersionedSecretEntityId actual = underTest.createSecretVersion(SECRET_NAME_1, secretCreateInput);
+        final var actual = underTest.createSecretVersion(SECRET_NAME_1, secretCreateInput);
 
         //then
-        final ReadOnlyKeyVaultSecretEntity entity = underTest.getEntities().getReadOnlyEntity(actual);
+        final var entity = underTest.getEntities().getReadOnlyEntity(actual);
         Assertions.assertEquals(TIME_10_MINUTES_AGO, entity.getCreated());
         Assertions.assertEquals(TIME_10_MINUTES_AGO, entity.getUpdated());
     }
@@ -265,18 +264,18 @@ class SecretVaultFakeImplTest {
     void testCreateSecretVersionShouldSetBothValuesWhenCalledWithUpdatedOnFromFutureAndNoCreatedOn() {
         //given
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
-        final SecretVaultFakeImpl underTest =
+        final var underTest =
                 new SecretVaultFakeImpl(vaultFake, vaultFake.getRecoveryLevel(), vaultFake.getRecoverableDays());
-        final SecretCreateInput secretCreateInput = SecretCreateInput.builder()
+        final var secretCreateInput = SecretCreateInput.builder()
                 .value(LOWKEY_VAULT)
                 .updatedOn(TIME_IN_10_MINUTES)
                 .build();
 
         //when
-        final VersionedSecretEntityId actual = underTest.createSecretVersion(SECRET_NAME_1, secretCreateInput);
+        final var actual = underTest.createSecretVersion(SECRET_NAME_1, secretCreateInput);
 
         //then
-        final ReadOnlyKeyVaultSecretEntity entity = underTest.getEntities().getReadOnlyEntity(actual);
+        final var entity = underTest.getEntities().getReadOnlyEntity(actual);
         Assertions.assertTrue(entity.getCreated().isAfter(NOW));
         Assertions.assertTrue(entity.getCreated().isBefore(TIME_IN_10_MINUTES));
         Assertions.assertEquals(TIME_IN_10_MINUTES, entity.getUpdated());
@@ -286,9 +285,9 @@ class SecretVaultFakeImplTest {
     void testCreateSecretVersionShouldThrowExceptionWhenCalledWithUpdatedOnFromThePastAndNoCreatedOn() {
         //given
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
-        final SecretVaultFakeImpl underTest =
+        final var underTest =
                 new SecretVaultFakeImpl(vaultFake, vaultFake.getRecoveryLevel(), vaultFake.getRecoverableDays());
-        final SecretCreateInput secretCreateInput = SecretCreateInput.builder()
+        final var secretCreateInput = SecretCreateInput.builder()
                 .value(LOWKEY_VAULT)
                 .updatedOn(TIME_10_MINUTES_AGO)
                 .build();

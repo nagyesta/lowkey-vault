@@ -1,7 +1,6 @@
 package com.github.nagyesta.lowkeyvault.template.backup;
 
 import com.github.jknack.handlebars.Handlebars;
-import com.github.jknack.handlebars.Template;
 import com.github.nagyesta.lowkeyvault.template.HandlebarsTemplateProcessor;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +20,9 @@ public class BackupTemplateProcessor implements HandlebarsTemplateProcessor<Back
 
     @Override
     public String processTemplate(@NonNull final String templateAsString, @NonNull final BackupContext context) throws IOException {
-        final Handlebars handlebars = new Handlebars();
+        final var handlebars = new Handlebars();
         handlebars.registerHelpers(timeHelperSource);
-        final Template template = handlebars.compileInline(templateAsString);
+        final var template = handlebars.compileInline(templateAsString);
         return template.apply(context);
     }
 }

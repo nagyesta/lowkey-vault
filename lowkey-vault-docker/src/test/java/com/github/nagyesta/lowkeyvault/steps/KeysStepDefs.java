@@ -1,6 +1,5 @@
 package com.github.nagyesta.lowkeyvault.steps;
 
-import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.util.Context;
 import com.azure.security.keyvault.keys.cryptography.models.*;
 import com.azure.security.keyvault.keys.models.*;
@@ -15,13 +14,15 @@ import io.cucumber.java.en.When;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.*;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -51,9 +52,9 @@ public class KeysStepDefs extends CommonAssertions {
 
     @Given("a key client is created with the vault named {name}")
     public void theKeyClientIsCreatedWithVaultNameSelected(final String vaultName) {
-        final String vaultAuthority = vaultName + ".localhost:8443";
-        final String vaultUrl = "https://" + vaultAuthority;
-        final AuthorityOverrideFunction overrideFunction = new AuthorityOverrideFunction(vaultAuthority, CONTAINER_AUTHORITY);
+        final var vaultAuthority = vaultName + ".localhost:8443";
+        final var vaultUrl = "https://" + vaultAuthority;
+        final var overrideFunction = new AuthorityOverrideFunction(vaultAuthority, CONTAINER_AUTHORITY);
         context.setProvider(new ApacheHttpClientProvider(vaultUrl, overrideFunction));
     }
 
@@ -77,109 +78,109 @@ public class KeysStepDefs extends CommonAssertions {
 
     @Given("{int} version of the EC key is created")
     public void ecKeyCreationRequestIsSentVersionsCountTimes(final int versionsCount) {
-        final CreateEcKeyOptions createKeyOptions = context.getCreateEcKeyOptions();
+        final var createKeyOptions = context.getCreateEcKeyOptions();
         IntStream.range(0, versionsCount).forEach(i -> {
-            final KeyVaultKey ecKey = context.getClient(context.getKeyServiceVersion()).createEcKey(createKeyOptions);
+            final var ecKey = context.getClient(context.getKeyServiceVersion()).createEcKey(createKeyOptions);
             context.addCreatedEntity(createKeyOptions.getName(), ecKey);
         });
     }
 
     @Given("{int} version of the OCT key is created")
     public void octKeyCreationRequestIsSentVersionsCountTimes(final int versionsCount) {
-        final CreateOctKeyOptions createKeyOptions = context.getCreateOctKeyOptions();
+        final var createKeyOptions = context.getCreateOctKeyOptions();
         IntStream.range(0, versionsCount).forEach(i -> {
-            final KeyVaultKey octKey = context.getClient(context.getKeyServiceVersion()).createOctKey(createKeyOptions);
+            final var octKey = context.getClient(context.getKeyServiceVersion()).createOctKey(createKeyOptions);
             context.addCreatedEntity(createKeyOptions.getName(), octKey);
         });
     }
 
     @Given("{int} version of the RSA key is created")
     public void rsaKeyCreationRequestIsSentVersionsCountTimes(final int versionsCount) {
-        final CreateRsaKeyOptions createKeyOptions = context.getCreateRsaKeyOptions();
+        final var createKeyOptions = context.getCreateRsaKeyOptions();
         IntStream.range(0, versionsCount).forEach(i -> {
-            final KeyVaultKey rsaKey = context.getClient(context.getKeyServiceVersion()).createRsaKey(createKeyOptions);
+            final var rsaKey = context.getClient(context.getKeyServiceVersion()).createRsaKey(createKeyOptions);
             context.addCreatedEntity(createKeyOptions.getName(), rsaKey);
         });
     }
 
     @And("the EC key is created")
     public void ecKeyCreationRequestIsSent() {
-        final CreateEcKeyOptions createKeyOptions = context.getCreateEcKeyOptions();
-        final KeyVaultKey ecKey = context.getClient(context.getKeyServiceVersion()).createEcKey(createKeyOptions);
+        final var createKeyOptions = context.getCreateEcKeyOptions();
+        final var ecKey = context.getClient(context.getKeyServiceVersion()).createEcKey(createKeyOptions);
         context.addCreatedEntity(createKeyOptions.getName(), ecKey);
     }
 
     @And("the OCT key is created")
     public void octKeyCreationRequestIsSent() {
-        final CreateOctKeyOptions createKeyOptions = context.getCreateOctKeyOptions();
-        final KeyVaultKey octKey = context.getClient(context.getKeyServiceVersion()).createOctKey(createKeyOptions);
+        final var createKeyOptions = context.getCreateOctKeyOptions();
+        final var octKey = context.getClient(context.getKeyServiceVersion()).createOctKey(createKeyOptions);
         context.addCreatedEntity(createKeyOptions.getName(), octKey);
     }
 
     @And("the RSA key is created")
     public void rsaKeyCreationRequestIsSent() {
-        final CreateRsaKeyOptions createKeyOptions = context.getCreateRsaKeyOptions();
-        final KeyVaultKey rsaKey = context.getClient(context.getKeyServiceVersion()).createRsaKey(createKeyOptions);
+        final var createKeyOptions = context.getCreateRsaKeyOptions();
+        final var rsaKey = context.getClient(context.getKeyServiceVersion()).createRsaKey(createKeyOptions);
         context.addCreatedEntity(createKeyOptions.getName(), rsaKey);
     }
 
     @And("an EC key is imported with {name} as name and {ecCurveName} curve {hsm} HSM")
     public void ecKeyImportedWithNameAndParameters(final String name, final KeyCurveName curveName, final boolean hsm) {
-        final KeyPair keyPair = KeyGenUtil.generateEc(curveName);
+        final var keyPair = KeyGenUtil.generateEc(curveName);
         context.setKeyPair(keyPair);
-        final JsonWebKey key = JsonWebKey.fromEc(keyPair, BOUNCY_CASTLE_PROVIDER)
+        final var key = JsonWebKey.fromEc(keyPair, BOUNCY_CASTLE_PROVIDER)
                 .setKeyOps(List.of(KeyOperation.SIGN));
         if (hsm) {
             key.setKeyType(KeyType.EC_HSM);
         }
-        final ImportKeyOptions options = new ImportKeyOptions(name, key)
+        final var options = new ImportKeyOptions(name, key)
                 .setHardwareProtected(hsm);
-        final KeyVaultKey ecKey = context.getClient(context.getKeyServiceVersion()).importKey(options);
+        final var ecKey = context.getClient(context.getKeyServiceVersion()).importKey(options);
         context.addCreatedEntity(name, ecKey);
     }
 
     @And("an RSA key is imported with {name} as name and {rsaKeySize} bits of key size {hsm} HSM")
     public void rsaKeyImportedWithNameAndParameters(final String name, final int size, final boolean hsm) {
-        final KeyPair keyPair = KeyGenUtil.generateRsa(size, null);
+        final var keyPair = KeyGenUtil.generateRsa(size, null);
         context.setKeyPair(keyPair);
-        final JsonWebKey key = JsonWebKey.fromRsa(keyPair)
+        final var key = JsonWebKey.fromRsa(keyPair)
                 .setKeyOps(List.of(KeyOperation.SIGN, KeyOperation.ENCRYPT, KeyOperation.WRAP_KEY));
         if (hsm) {
             key.setKeyType(KeyType.RSA_HSM);
         }
-        final ImportKeyOptions options = new ImportKeyOptions(name, key)
+        final var options = new ImportKeyOptions(name, key)
                 .setHardwareProtected(hsm);
-        final KeyVaultKey rsaKey = context.getClient(context.getKeyServiceVersion()).importKey(options);
+        final var rsaKey = context.getClient(context.getKeyServiceVersion()).importKey(options);
         context.addCreatedEntity(name, rsaKey);
     }
 
     @And("an OCT key is imported with {name} as name and {octKeySize} bits of key size with HSM")
     public void octKeyImportedWithNameAndParameters(final String name, final int size) {
-        final SecretKey secretKey = KeyGenUtil.generateAes(size);
+        final var secretKey = KeyGenUtil.generateAes(size);
         context.setSecretKey(secretKey);
-        final JsonWebKey key = JsonWebKey.fromAes(secretKey)
+        final var key = JsonWebKey.fromAes(secretKey)
                 .setKeyOps(List.of(KeyOperation.ENCRYPT, KeyOperation.WRAP_KEY))
                 .setKeyType(KeyType.OCT_HSM);
-        final ImportKeyOptions options = new ImportKeyOptions(name, key)
+        final var options = new ImportKeyOptions(name, key)
                 .setHardwareProtected(true);
-        final KeyVaultKey rsaKey = context.getClient(context.getKeyServiceVersion()).importKey(options);
+        final var rsaKey = context.getClient(context.getKeyServiceVersion()).importKey(options);
         context.addCreatedEntity(name, rsaKey);
     }
 
     @When("the first key version of {name} is fetched with providing a version")
     public void fetchFirstKeyVersion(final String name) {
-        final List<KeyVaultKey> versionsCreated = context.getCreatedEntities().get(name);
-        final String version = versionsCreated.get(0).getProperties().getVersion();
-        final KeyVaultKey vaultKey = context.getClient(context.getKeyServiceVersion()).getKey(name, version);
+        final var versionsCreated = context.getCreatedEntities().get(name);
+        final var version = versionsCreated.get(0).getProperties().getVersion();
+        final var vaultKey = context.getClient(context.getKeyServiceVersion()).getKey(name, version);
         context.addFetchedKey(name, vaultKey);
         assertEquals(version, vaultKey.getProperties().getVersion());
     }
 
     @When("the last key version of {name} is fetched without providing a version")
     public void fetchLatestKeyVersion(final String name) {
-        final KeyVaultKey vaultKey = context.getClient(context.getKeyServiceVersion()).getKey(name);
-        final List<KeyVaultKey> versionsCreated = context.getCreatedEntities().get(name);
-        final String expectedLastVersionId = versionsCreated.get(versionsCreated.size() - 1).getId();
+        final var vaultKey = context.getClient(context.getKeyServiceVersion()).getKey(name);
+        final var versionsCreated = context.getCreatedEntities().get(name);
+        final var expectedLastVersionId = versionsCreated.get(versionsCreated.size() - 1).getId();
         context.addFetchedKey(name, vaultKey);
         assertEquals(expectedLastVersionId, vaultKey.getId());
     }
@@ -211,21 +212,21 @@ public class KeysStepDefs extends CommonAssertions {
 
     @And("the key is deleted")
     public void theKeyIsDeleted() {
-        final DeletedKey actual = context.getClient(context.getKeyServiceVersion())
+        final var actual = context.getClient(context.getKeyServiceVersion())
                 .beginDeleteKey(context.getLastResult().getName()).waitForCompletion().getValue();
         context.setLastDeleted(actual);
     }
 
     @When("the key properties are listed")
     public void theKeyPropertiesAreListed() {
-        final PagedIterable<KeyProperties> actual = context.getClient(context.getKeyServiceVersion()).listPropertiesOfKeys();
-        final List<KeyProperties> propertyList = actual.stream()
+        final var actual = context.getClient(context.getKeyServiceVersion()).listPropertiesOfKeys();
+        final var propertyList = actual.stream()
                 .toList();
-        final List<String> list = propertyList.stream()
+        final var list = propertyList.stream()
                 .map(KeyProperties::getId)
                 .collect(Collectors.toList());
         context.setListedIds(list);
-        final List<String> managedList = propertyList.stream()
+        final var managedList = propertyList.stream()
                 .filter(keyProperties -> TRUE == keyProperties.isManaged())
                 .map(KeyProperties::getId)
                 .collect(Collectors.toList());
@@ -262,8 +263,8 @@ public class KeysStepDefs extends CommonAssertions {
     @Given("{int} keys with {name} prefix are deleted")
     public void countKeysWithKeyNamePrefixAreDeleted(
             final int count, final String prefix) {
-        final List<String> deleted = IntStream.range(0, count).mapToObj(i -> {
-            final DeletedKey actual = context.getClient(context.getKeyServiceVersion())
+        final var deleted = IntStream.range(0, count).mapToObj(i -> {
+            final var actual = context.getClient(context.getKeyServiceVersion())
                     .beginDeleteKey(prefix + (i + 1)).waitForCompletion().getValue();
             context.setLastDeleted(actual);
             return actual;
@@ -273,8 +274,8 @@ public class KeysStepDefs extends CommonAssertions {
 
     @When("the deleted key properties are listed")
     public void theDeletedKeyPropertiesAreListed() {
-        final PagedIterable<DeletedKey> actual = context.getClient(context.getKeyServiceVersion()).listDeletedKeys();
-        final List<String> list = actual.stream()
+        final var actual = context.getClient(context.getKeyServiceVersion()).listDeletedKeys();
+        final var list = actual.stream()
                 .map(DeletedKey::getRecoveryId)
                 .collect(Collectors.toList());
         context.setListedIds(list);
@@ -282,22 +283,22 @@ public class KeysStepDefs extends CommonAssertions {
 
     @When("the key is recovered")
     public void theKeyIsRecovered() {
-        final DeletedKey deleted = context.getLastDeleted();
-        final KeyVaultKey key = context.getClient(context.getKeyServiceVersion())
+        final var deleted = context.getLastDeleted();
+        final var key = context.getClient(context.getKeyServiceVersion())
                 .beginRecoverDeletedKey(deleted.getName()).waitForCompletion().getValue();
         context.addFetchedKey(key.getName(), key);
     }
 
     @When("the key is purged")
     public void theKeyIsPurged() {
-        final DeletedKey deleted = context.getLastDeleted();
+        final var deleted = context.getLastDeleted();
         context.getClient(context.getKeyServiceVersion()).purgeDeletedKey(deleted.getName());
     }
 
     @When("the last version of the key is prepared for an update")
     public void theLastVersionOfTheKeyIsPreparedForAnUpdate() {
-        final KeyVaultKey lastResult = context.getLastResult();
-        final KeyProperties updatedProperties = context.getClient(context.getKeyServiceVersion())
+        final var lastResult = context.getLastResult();
+        final var updatedProperties = context.getClient(context.getKeyServiceVersion())
                 .getKey(lastResult.getName(), lastResult.getProperties().getVersion()).getProperties();
         context.setUpdateProperties(updatedProperties);
     }
@@ -329,26 +330,26 @@ public class KeysStepDefs extends CommonAssertions {
 
     @When("the key update request is sent")
     public void theUpdateRequestIsSent() {
-        final KeyVaultKey key = context.getClient(context.getKeyServiceVersion())
+        final var key = context.getClient(context.getKeyServiceVersion())
                 .updateKeyProperties(context.getUpdateProperties(), context.getUpdateKeyOperations());
-        final KeyProperties properties = key.getProperties();
+        final var properties = key.getProperties();
         context.addFetchedKey(properties.getName(), key);
     }
 
     @When("the created key is used to encrypt {clearText} with {algorithm}")
     public void theCreatedKeyIsUsedToEncryptClearTextWithAlgorithm(final byte[] text, final EncryptionAlgorithm algorithm) {
-        final String keyId = context.getLastResult().getKey().getId();
+        final var keyId = context.getLastResult().getKey().getId();
         context.setCryptographyClient(context.getProvider().getCryptoClient(keyId, context.getCryptoServiceVersion()));
-        final EncryptResult encryptResult = context.getCryptographyClient()
+        final var encryptResult = context.getCryptographyClient()
                 .encrypt(encryptParams(algorithm, text), Context.NONE);
         context.setEncryptResult(encryptResult);
     }
 
     @When("the created key is used to sign {clearText} with {signAlgorithm}")
     public void theCreatedKeyIsUsedToSignClearTextWithAlgorithm(final byte[] text, final SignatureAlgorithm algorithm) {
-        final String keyId = context.getLastResult().getKey().getId();
+        final var keyId = context.getLastResult().getKey().getId();
         context.setCryptographyClient(context.getProvider().getCryptoClient(keyId, context.getCryptoServiceVersion()));
-        final SignResult signResult = context.getCryptographyClient().signData(algorithm, text);
+        final var signResult = context.getCryptographyClient().signData(algorithm, text);
         context.setSignatureResult(signResult.getSignature());
     }
 
@@ -366,62 +367,62 @@ public class KeysStepDefs extends CommonAssertions {
 
     @And("the encrypted value is decrypted with {algorithm}")
     public void theEncryptedValueIsDecryptedWithAlgorithm(final EncryptionAlgorithm algorithm) {
-        final String keyId = context.getLastResult().getKey().getId();
+        final var keyId = context.getLastResult().getKey().getId();
         context.setCryptographyClient(context.getProvider().getCryptoClient(keyId, context.getCryptoServiceVersion()));
-        final DecryptResult decryptResult = context.getCryptographyClient()
+        final var decryptResult = context.getCryptographyClient()
                 .decrypt(decryptParams(algorithm, context.getEncryptResult()), Context.NONE);
         context.setDecryptResult(decryptResult);
     }
 
     @And("the encrypted value is decrypted using the original OCT key using {algorithm}")
     public void theEncryptedValueIsDecryptedUsingTheOriginalOctKeyWithAlgorithm(final EncryptionAlgorithm algorithm) throws Exception {
-        final Cipher cipher = Cipher.getInstance(getSymmetricalEncryptionAlgName(algorithm), BOUNCY_CASTLE_PROVIDER);
-        final EncryptResult encryptResult = context.getEncryptResult();
+        final var cipher = Cipher.getInstance(getSymmetricalEncryptionAlgName(algorithm), BOUNCY_CASTLE_PROVIDER);
+        final var encryptResult = context.getEncryptResult();
         cipher.init(Cipher.DECRYPT_MODE, context.getSecretKey(), new IvParameterSpec(encryptResult.getIv()));
-        final byte[] plain = cipher.doFinal(encryptResult.getCipherText());
+        final var plain = cipher.doFinal(encryptResult.getCipherText());
         context.setDecryptResult(new DecryptResult(plain, algorithm, context.getLastResult().getId()));
     }
 
     @And("the signature of {clearText} is verified with {signAlgorithm}")
     public void theSignValueIsVerifiedWithAlgorithm(final byte[] text, final SignatureAlgorithm algorithm) {
-        final String keyId = context.getLastResult().getKey().getId();
+        final var keyId = context.getLastResult().getKey().getId();
         context.setCryptographyClient(context.getProvider().getCryptoClient(keyId, context.getCryptoServiceVersion()));
-        final VerifyResult verifyResult = context.getCryptographyClient().verifyData(algorithm, text, context.getSignatureResult());
+        final var verifyResult = context.getCryptographyClient().verifyData(algorithm, text, context.getSignatureResult());
         context.setVerifyResult(verifyResult.isValid());
     }
 
     @And("the EC signature of {clearText} is verified using the original public key with {signAlgorithm}")
     public void theEcSignValueIsVerifiedUsingOriginalPublicKeyWithAlgorithm(final byte[] text, final SignatureAlgorithm algorithm)
             throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-        final Signature ecVerify = Signature.getInstance(getAsymmetricSignatureAlgorithm(algorithm), BOUNCY_CASTLE_PROVIDER);
+        final var ecVerify = Signature.getInstance(getAsymmetricSignatureAlgorithm(algorithm), BOUNCY_CASTLE_PROVIDER);
         ecVerify.initVerify(context.getKeyPair().getPublic());
         ecVerify.update(text);
-        final boolean result = ecVerify.verify(context.getSignatureResult());
+        final var result = ecVerify.verify(context.getSignatureResult());
         context.setVerifyResult(result);
     }
 
     @And("the RSA signature of {clearText} is verified using the original public key with {signAlgorithm}")
     public void theRsaSignValueIsVerifiedUsingOriginalPublicKeyWithAlgorithm(final byte[] text, final SignatureAlgorithm algorithm)
             throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-        final Signature rsaVerify = Signature.getInstance(getAsymmetricSignatureAlgorithm(algorithm), BOUNCY_CASTLE_PROVIDER);
+        final var rsaVerify = Signature.getInstance(getAsymmetricSignatureAlgorithm(algorithm), BOUNCY_CASTLE_PROVIDER);
         rsaVerify.initVerify(context.getKeyPair().getPublic());
         rsaVerify.update(text);
-        final boolean result = rsaVerify.verify(context.getSignatureResult());
+        final var result = rsaVerify.verify(context.getSignatureResult());
         context.setVerifyResult(result);
     }
 
     @And("the key named {name} is backed up")
     public void theKeyNamedNameIsBackedUp(final String name) {
-        final byte[] bytes = context.getClient(context.getKeyServiceVersion()).backupKey(name);
+        final var bytes = context.getClient(context.getKeyServiceVersion()).backupKey(name);
         context.setBackupBytes(name, bytes);
     }
 
     @SuppressWarnings({"ResultOfMethodCallIgnored", "resource"})
     @And("the key named {name} is backed up to resource")
     public void theKeyNamedNameIsBackedUpToResource(final String name) throws IOException {
-        final byte[] bytes = context.getClient(context.getKeyServiceVersion()).backupKey(name);
-        final String s = context.getLowkeyVaultManagementClient().unpackBackup(bytes);
-        final File file = new File("/home/esta/IdeaProjects/github/lowkey-vault/lowkey-vault-docker/src/test/resources"
+        final var bytes = context.getClient(context.getKeyServiceVersion()).backupKey(name);
+        final var s = context.getLowkeyVaultManagementClient().unpackBackup(bytes);
+        final var file = new File("/home/esta/IdeaProjects/github/lowkey-vault/lowkey-vault-docker/src/test/resources"
                 + "/json/backups/" + name + ".json");
         file.createNewFile();
         new FileWriter(file).append(s).close();
@@ -430,29 +431,29 @@ public class KeysStepDefs extends CommonAssertions {
 
     @And("the key named {name} is restored")
     public void theKeyNamedNameIsRestored(final String name) {
-        final byte[] bytes = context.getBackupBytes(name);
-        final KeyVaultKey key = context.getClient(context.getKeyServiceVersion()).restoreKeyBackup(bytes);
+        final var bytes = context.getBackupBytes(name);
+        final var key = context.getClient(context.getKeyServiceVersion()).restoreKeyBackup(bytes);
         context.addFetchedKey(name, key);
     }
 
     @And("the key named {name} is restored from classpath resource")
     public void theKeyIsRestoredFromClasspath(final String name) throws IOException {
-        final String content = readResourceContent("/json/backups/" + name + ".json");
-        final byte[] bytes = context.getLowkeyVaultManagementClient().compressBackup(content);
-        final KeyVaultKey key = context.getClient(context.getKeyServiceVersion()).restoreKeyBackup(bytes);
+        final var content = readResourceContent("/json/backups/" + name + ".json");
+        final var bytes = context.getLowkeyVaultManagementClient().compressBackup(content);
+        final var key = context.getClient(context.getKeyServiceVersion()).restoreKeyBackup(bytes);
         context.addFetchedKey(key.getName(), key);
     }
 
     @When("the vault is called for {int} bytes of random data")
     public void theVaultIsCalledForBytesOfRandomData(final int count) {
-        final byte[] bytes = context.getClient(context.getKeyServiceVersion()).getRandomBytes(count);
+        final var bytes = context.getClient(context.getKeyServiceVersion()).getRandomBytes(count);
         context.setBackupBytes("random", bytes);
     }
 
     @When("the key named {name} is rotated")
     public void theKeyIsRotated(final String name) {
-        final String oldId = context.getLastResult().getId();
-        final KeyVaultKey keyVaultKey = context.getClient(context.getKeyServiceVersion()).rotateKey(name);
+        final var oldId = context.getLastResult().getId();
+        final var keyVaultKey = context.getClient(context.getKeyServiceVersion()).rotateKey(name);
         assertTrue(!oldId.equals(keyVaultKey.getId()));
         context.addFetchedKey(name, keyVaultKey);
     }
@@ -551,8 +552,8 @@ public class KeysStepDefs extends CommonAssertions {
 
     @And("the rotation policy is set to rotate after {int} days with expiry of {int} days")
     public void theRotationPolicyIsSetToRotateAfterDaysWithExpiryDays(final int rotateDays, final int expiryDays) {
-        final String name = context.getLastResult().getName();
-        final KeyRotationLifetimeAction action = new KeyRotationLifetimeAction(KeyRotationPolicyAction.ROTATE)
+        final var name = context.getLastResult().getName();
+        final var action = new KeyRotationLifetimeAction(KeyRotationPolicyAction.ROTATE)
                 .setTimeAfterCreate("P" + rotateDays + "D");
         context.getClient(context.getKeyServiceVersion())
                 .updateKeyRotationPolicy(name, new KeyRotationPolicy()

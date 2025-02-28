@@ -28,7 +28,7 @@ public class SecretVaultFakeImpl
     @Override
     public VersionedSecretEntityId createSecretVersion(
             @NonNull final String secretName, final SecretCreateInput input) {
-        final VersionedSecretEntityId entityId = new VersionedSecretEntityId(vaultFake().baseUri(), secretName);
+        final var entityId = new VersionedSecretEntityId(vaultFake().baseUri(), secretName);
         return createSecretVersion(entityId, input);
     }
 
@@ -39,8 +39,8 @@ public class SecretVaultFakeImpl
                 "Managed secret (name=" + entityId.id() + ") must have notBefore and expiresOn parameters set!");
         Assert.isTrue(!input.isManaged() || input.getContentType() != null,
                 "Managed secret (name=" + entityId.id() + ") must have the content type parameter set!");
-        final KeyVaultSecretEntity secretEntity = new KeyVaultSecretEntity(entityId, vaultFake(), input.getValue(), input.getContentType());
-        final VersionedSecretEntityId secretEntityId = addVersion(entityId, secretEntity);
+        final var secretEntity = new KeyVaultSecretEntity(entityId, vaultFake(), input.getValue(), input.getContentType());
+        final var secretEntityId = addVersion(entityId, secretEntity);
         addTags(secretEntityId, input.getTags());
         setExpiry(secretEntityId, input.getNotBefore(), input.getExpiresOn());
         setEnabled(secretEntityId, input.isEnabled());

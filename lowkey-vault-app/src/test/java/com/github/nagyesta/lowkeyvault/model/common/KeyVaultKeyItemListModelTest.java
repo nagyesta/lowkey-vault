@@ -38,11 +38,11 @@ class KeyVaultKeyItemListModelTest {
     @Test
     void testConstructorShouldCreateNewInstanceWhenCalledWithValidData() {
         //given
-        final List<KeyVaultKeyItemModel> list = List.of(
+        final var list = List.of(
                 keyVaultKeyItemModel(VERSIONED_KEY_ENTITY_ID_1_VERSION_1.asUri(HTTPS_LOCALHOST_8443)));
 
         //when
-        final KeyVaultItemListModel<KeyVaultKeyItemModel> actual = new KeyVaultItemListModel<>(list, null);
+        final var actual = new KeyVaultItemListModel<KeyVaultKeyItemModel>(list, null);
 
         //then
         Assertions.assertNotNull(actual);
@@ -51,7 +51,7 @@ class KeyVaultKeyItemListModelTest {
     }
 
     private KeyVaultKeyItemModel keyVaultKeyItemModel(final URI asUriNoVersion) {
-        final KeyVaultKeyItemModel model = new KeyVaultKeyItemModel();
+        final var model = new KeyVaultKeyItemModel();
         model.setAttributes(com.github.nagyesta.lowkeyvault.TestConstants.PROPERTIES_MODEL);
         model.setKeyId(asUriNoVersion.toString());
         model.setTags(com.github.nagyesta.lowkeyvault.TestConstants.TAGS_ONE_KEY);

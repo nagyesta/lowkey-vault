@@ -1,24 +1,74 @@
 {
-  "extends": [
-    "config:recommended",
-    ":gitSignOff"
-  ],
-  "assignees": [
-    "nagyesta"
-  ],
-  "assigneesSampleSize": 1,
-  "commitMessageSuffix": "{patch}",
-  "separateMajorMinor": true,
-  "separateMinorPatch": true,
-  "github-actions": {
-    "pinDigests": true
-  },
-  "packageRules": [
-    {
-      "matchCategories": [
-        "docker"
-      ],
-      "pinDigests": true
-    }
-  ]
+    "extends": [
+        "config:recommended",
+        ":gitSignOff"
+    ],
+    "assignees": [
+        "nagyesta"
+    ],
+    "assigneesSampleSize": 1,
+    "commitMessageSuffix": "{patch}",
+    "separateMajorMinor": true,
+    "separateMinorPatch": true,
+    "github-actions": {
+        "pinDigests": true
+    },
+    "packageRules": [
+        {
+            "matchCategories": [
+                "docker"
+            ],
+            "pinDigests": true
+        },
+        {
+            "matchManagers": [
+                "github-actions"
+            ]
+        },
+        {
+            "matchPackageNames": [
+                "com.fasterxml.jackson.core:{/,}**",
+                "com.fasterxml.jackson.dataformat:{/,}**",
+                "com.fasterxml.jackson.datatype:{/,}**"
+            ]
+        },
+        {
+            "matchPackageNames": [
+                "com.github.nagyesta.abort-mission:{/,}**",
+                "com.github.nagyesta.abort-mission.boosters:{/,}**"
+            ]
+        },
+        {
+            "matchPackageNames": [
+                "com.azure:{/,}**"
+            ]
+        },
+        {
+            "matchPackageNames": [
+                "io.cucumber:{/,}**"
+            ]
+        },
+        {
+            "matchPackageNames": [
+                "ch.qos.logback:{/,}**"
+            ]
+        },
+        {
+            "matchPackageNames": [
+                "org.testcontainers:{/,}**"
+            ]
+        },
+        {
+            "matchPackageNames": [
+                "org.apache.tomcat:{/,}**",
+                "org.apache.tomcat.embed:{/,}**"
+            ]
+        },
+        {
+            "matchPackageNames": [
+                "org.springframework:{/,}**",
+                "org.springframework.boot:{/,}**"
+            ]
+        }
+    ]
 }

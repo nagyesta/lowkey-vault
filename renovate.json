@@ -21,11 +21,13 @@
             "pinDigests": true
         },
         {
+            "groupName": "Github Actions",
             "matchManagers": [
                 "github-actions"
             ]
         },
         {
+            "groupName": "Jackson dependencies",
             "matchPackageNames": [
                 "com.fasterxml.jackson.core:{/,}**",
                 "com.fasterxml.jackson.dataformat:{/,}**",
@@ -33,38 +35,45 @@
             ]
         },
         {
+            "groupName": "Abort Mission dependencies",
             "matchPackageNames": [
                 "com.github.nagyesta.abort-mission:{/,}**",
                 "com.github.nagyesta.abort-mission.boosters:{/,}**"
             ]
         },
         {
+            "groupName": "Azure SDK dependencies",
             "matchPackageNames": [
                 "com.azure:{/,}**"
             ]
         },
         {
+            "groupName": "Cucumber dependencies",
             "matchPackageNames": [
                 "io.cucumber:{/,}**"
             ]
         },
         {
+            "groupName": "Logback dependencies",
             "matchPackageNames": [
                 "ch.qos.logback:{/,}**"
             ]
         },
         {
+            "groupName": "Testcontainers dependencies",
             "matchPackageNames": [
                 "org.testcontainers:{/,}**"
             ]
         },
         {
+            "groupName": "Tomcat dependencies",
             "matchPackageNames": [
                 "org.apache.tomcat:{/,}**",
                 "org.apache.tomcat.embed:{/,}**"
             ]
         },
         {
+            "groupName": "Spring dependencies",
             "matchPackageNames": [
                 "org.springframework:{/,}**",
                 "org.springframework.boot:{/,}**"

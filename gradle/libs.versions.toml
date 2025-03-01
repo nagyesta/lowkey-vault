@@ -22,7 +22,7 @@ jupiter = "5.12.0"
 abortMission = "5.2.0"
 checkstyle = "10.21.3"
 jacoco = "0.8.12"
-jackson = { strictly = "2.18.2" }
+jackson = { strictly = "2.18.3" }
 openApiUi = "2.8.5"
 
 abortMissionPlugin = "5.0.124"

@@ -1,6 +1,6 @@
 [versions]
 springBoot = "3.4.3"
-spring = "6.2.3"
+spring = "6.2.4"
 snakeYaml = "2.4"
 tomcat = "10.1.39"
 logback = "1.5.17"

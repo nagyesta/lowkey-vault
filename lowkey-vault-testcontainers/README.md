@@ -35,7 +35,11 @@ classpath.
     <version>RELEASE</version>
     <scope>test</scope>
 </dependency>
-<!-- In case you wish to use the provided Lowkey Vault Client too -->
+<!-- 
+  In case you wish to use the provided Lowkey Vault Client too.
+  This is necessary for some advanced features like the client 
+  factory or setting secrets when the trust store is not merged. 
+-->
 <dependency>
     <groupId>com.github.nagyesta.lowkey-vault</groupId>
     <artifactId>lowkey-vault-client</artifactId>
@@ -49,6 +53,8 @@ classpath.
 ```groovy
 testImplementation 'com.github.nagyesta.lowkey-vault:lowkey-vault-testcontainers:+'
 //In case you wish to use the provided Lowkey Vault Client too
+//This is necessary for some advanced features like the client 
+//factory or setting secrets when the trust store is not merged.
 testImplementation 'com.github.nagyesta.lowkey-vault:lowkey-vault-client:+'
 ```
 
@@ -193,7 +199,34 @@ class Test {
 
 ```
 
+#### Example using Spring
+
+In this example we are starting Lowkey vault with the Spring Cloud Azure Starter using a JDBC container.
+
+```java
+import org.testcontainers.utility.DockerImageName;
+import com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContainer;
+import static com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContainerBuilder.*;
+
+class Test {
+    public LowkeyVaultContainer startVault(final JdbcDatabaseContainer jdbcContainer) {
+        //Please consider using latest image regardless of the value in the example
+        final DockerImageName imageName = DockerImageName.parse("nagyesta/lowkey-vault:<version>");
+        final LowkeyVaultContainer lowkeyVaultContainer = lowkeyVault(imageName)
+                .hostTokenPort(18080) //ses the token port as it is needed for Managed Identity simulation
+                .dependsOnContainer(jdbcContainer, springJdbcSecretSupplier())
+                .mergeTrustStores()
+                .setPropertiesAfterStartup(springCloudAzureKeyVaultPropertySupplier())
+                .build();
+        lowkeyVaultContainer.start();
+        return lowkeyVaultContainer;
+    }
+}
+
+```
+
 ### Other examples
 
 * [Generic](src/test/java/com/github/nagyesta/lowkeyvault/testcontainers/LowkeyVaultContainerVanillaTest.java)
 * [JUnit Jupiter](src/test/java/com/github/nagyesta/lowkeyvault/testcontainers/LowkeyVaultContainerJupiterTest.java)
+* [Lowkey Vault Example](https://github.com/nagyesta/lowkey-vault-example)

@@ -1,9 +1,6 @@
 package com.github.nagyesta.lowkeyvault.testcontainers;
 
-import com.azure.core.credential.BasicAuthenticationCredential;
-import com.azure.core.credential.TokenCredential;
 import com.github.nagyesta.lowkeyvault.http.ApacheHttpClient;
-import com.github.nagyesta.lowkeyvault.http.AuthorityOverrideFunction;
 import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.junit.jupiter.api.Assertions;
@@ -13,6 +10,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -39,14 +37,7 @@ class LowkeyVaultContainerJupiterTest extends AbstractLowkeyVaultContainerTest {
         //given + when test container is created
 
         //then
-        final var endpoint = underTest.getVaultBaseUrl(VAULT_NAME);
-        final var authorityOverrideFunction = new AuthorityOverrideFunction(
-                underTest.getVaultAuthority(VAULT_NAME),
-                underTest.getEndpointAuthority());
-        final TokenCredential credentials = new BasicAuthenticationCredential(underTest.getUsername(), underTest.getPassword());
-        final var httpClient = new ApacheHttpClient(authorityOverrideFunction,
-                new TrustSelfSignedStrategy(), new DefaultHostnameVerifier());
-        verifyConnectionIsWorking(endpoint, httpClient, credentials);
+        verifyConnectionIsWorking(underTest, VAULT_NAME);
     }
 
     @Test
@@ -54,14 +45,8 @@ class LowkeyVaultContainerJupiterTest extends AbstractLowkeyVaultContainerTest {
         //given + when test container is created
 
         //then
-        final var endpoint = "https://" + ALIAS;
-        final var authorityOverrideFunction = new AuthorityOverrideFunction(
-                ALIAS,
-                underTest.getEndpointAuthority());
-        final TokenCredential credentials = new BasicAuthenticationCredential(underTest.getUsername(), underTest.getPassword());
-        final var httpClient = new ApacheHttpClient(authorityOverrideFunction,
-                new TrustSelfSignedStrategy(), new DefaultHostnameVerifier());
-        verifyConnectionIsWorking(endpoint, httpClient, credentials);
+        final var endpoint = URI.create("https://" + ALIAS);
+        verifyConnectionIsWorking(underTest, endpoint);
     }
 
     @Test

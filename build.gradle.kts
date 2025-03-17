@@ -160,7 +160,8 @@ subprojects {
                             "com.github.nagyesta.lowkeyvault.service.exception.AlreadyExistsException",
                             "com.github.nagyesta.lowkeyvault.service.exception.NotFoundException",
                             "com.github.nagyesta.lowkeyvault.service.exception.CryptoException",
-                            "com.github.nagyesta.lowkeyvault.exception.VaultNotFoundException"
+                            "com.github.nagyesta.lowkeyvault.exception.VaultNotFoundException",
+                            "com.github.nagyesta.lowkeyvault.testcontainers.ContainerDependency"
                     )
                 }
             }

@@ -1,5 +1,9 @@
 package com.github.nagyesta.lowkeyvault.testcontainers;
 
+import com.azure.core.credential.BasicAuthenticationCredential;
+import com.azure.security.keyvault.secrets.SecretClient;
+import com.azure.security.keyvault.secrets.SecretClientBuilder;
+import com.azure.security.keyvault.secrets.SecretServiceVersion;
 import org.slf4j.Logger;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.BindMode;
@@ -14,8 +18,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 
 import static com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContainerBuilder.lowkeyVault;
 
@@ -35,6 +39,11 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
     private static final String DOT = ".";
     private static final String TOKEN_ENDPOINT_PATH = "/metadata/identity/oauth2/token";
     private final HttpClient httpClient = HttpClient.newHttpClient();
+    private final boolean mergeTrustStores;
+    private final List<ContainerDependency<?>> dependsOnContainers;
+    private final Function<LowkeyVaultContainer, Map<String, String>> lowkeyVaultSystemPropertySupplier;
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private Optional<KeyStoreMerger> keyStoreMerger = Optional.empty();
 
     /**
      * Creates a new instance.
@@ -115,6 +124,14 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
 
         withEnv("LOWKEY_ARGS", String.join(" ", args));
         waitingFor(Wait.forLogMessage("(?s).*Started LowkeyVaultApp.*$", 1));
+        mergeTrustStores = containerBuilder.isMergeTrustStores();
+        dependsOnContainers = containerBuilder.getDependsOnContainers();
+        dependsOnContainers.stream()
+                .map(ContainerDependency::getContainer)
+                .forEach(this::dependsOn);
+        lowkeyVaultSystemPropertySupplier = Objects.requireNonNullElse(
+                containerBuilder.getLowkeyVaultSystemPropertySupplier(),
+                c -> Map.of());
     }
 
     /**
@@ -260,5 +277,89 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
             logger.warn("Please consider using a multi-arch image, like: {}-ubi9-minimal", versionPart);
             logger.warn("See more information: https://github.com/nagyesta/lowkey-vault/tree/main/lowkey-vault-docker#arm-builds");
         }
+    }
+
+    /**
+     * Provides a {@link LowkeyVaultClientFactory} instance to help with creating clients.
+     *
+     * @return factory
+     */
+    public LowkeyVaultClientFactory getClientFactory() {
+        return new LowkeyVaultClientFactory(this);
+    }
+
+    @Override
+    public void start() {
+        super.start();
+        mergeTrustStoresIfNecessary();
+        autoSetDependencySecrets();
+        lowkeyVaultSystemPropertySupplier.apply(this).forEach((key, value) -> {
+            logger().info("Setting system property '{}' to '{}'", key, value);
+            System.setProperty(key, value);
+        });
+    }
+
+    @Override
+    public void stop() {
+        super.stop();
+        keyStoreMerger.ifPresent(KeyStoreMerger::close);
+    }
+
+    private void autoSetDependencySecrets() {
+        if (!dependsOnContainers.isEmpty()) {
+            final var secretClient = getSecretClient();
+            dependsOnContainers.forEach(dependency -> {
+                final var secrets = dependency.getSecrets();
+                secrets.forEach((name, value) -> {
+                    logger().info("Saving secret '{}' with value '{}' to default vault", name, value);
+                    secretClient.setSecret(name, value);
+                });
+            });
+        }
+    }
+
+    private SecretClient getSecretClient() {
+        final SecretClient secretClient;
+        if (shouldUseOfficialAzureClients()) {
+            logger().info("Using official Azure Secret Client to save secrets to default vault.");
+            secretClient = new SecretClientBuilder()
+                    .vaultUrl(getDefaultVaultBaseUrl())
+                    .disableChallengeResourceVerification()
+                    .credential(new BasicAuthenticationCredential(getUsername(), getPassword()))
+                    .serviceVersion(SecretServiceVersion.V7_5)
+                    .buildClient();
+        } else {
+            logger().info("Using Lowkey Vault Secret Client to save secrets to default vault.");
+            secretClient = getClientFactory()
+                    .getSecretClientBuilderForDefaultVault()
+                    .buildClient();
+        }
+        return secretClient;
+    }
+
+    private boolean shouldUseOfficialAzureClients() {
+        return mergeTrustStores || lowkeyVaultClientIsNotPresent();
+    }
+
+    private boolean lowkeyVaultClientIsNotPresent() {
+        try {
+            Class.forName("com.github.nagyesta.lowkeyvault.http.ApacheHttpClient");
+            return false;
+        } catch (final ClassNotFoundException e) {
+            return true;
+        }
+    }
+
+    private void mergeTrustStoresIfNecessary() {
+        if (!mergeTrustStores) {
+            logger().debug("Not merging trust stores.");
+            return;
+        }
+        logger().info("Merging trust stores");
+        final var defaultKeyStore = getDefaultKeyStore();
+        final var defaultKeyStorePassword = getDefaultKeyStorePassword();
+        final var merger = new KeyStoreMerger(defaultKeyStore, defaultKeyStorePassword.toCharArray());
+        merger.mergeDefaultTrustStore();
+        keyStoreMerger = Optional.of(merger);
     }
 }

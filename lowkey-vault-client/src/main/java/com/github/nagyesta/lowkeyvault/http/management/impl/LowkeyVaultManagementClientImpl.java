@@ -49,9 +49,10 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
     private final ObjectReader objectReader;
     private final ObjectWriter objectWriter;
 
-    public LowkeyVaultManagementClientImpl(@NonNull final String vaultUrl,
-                                           @NonNull final HttpClient instance,
-                                           @NonNull final ObjectMapper objectMapper) {
+    public LowkeyVaultManagementClientImpl(
+            @NonNull final String vaultUrl,
+            @NonNull final HttpClient instance,
+            @NonNull final ObjectMapper objectMapper) {
         this.vaultUrl = vaultUrl;
         this.instance = instance;
         this.objectReader = objectMapper.reader();
@@ -73,9 +74,10 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
     }
 
     @Override
-    public VaultModel createVault(@NonNull final URI baseUri,
-                                  @NonNull final RecoveryLevel recoveryLevel,
-                                  @Nullable final Integer recoverableDays) {
+    public VaultModel createVault(
+            @NonNull final URI baseUri,
+            @NonNull final RecoveryLevel recoveryLevel,
+            @Nullable final Integer recoverableDays) {
         final var body = vaultModelAsString(baseUri, recoveryLevel, recoverableDays);
         final var uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_PATH);
         final var request = new HttpRequest(HttpMethod.POST, uri.toString())
@@ -115,14 +117,18 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
     }
 
     @Override
-    public VaultModel addAlias(@NonNull final URI baseUri, @NonNull final URI alias) {
+    public VaultModel addAlias(
+            @NonNull final URI baseUri,
+            @NonNull final URI alias) {
         return performAliasUpdate(new TreeMap<>(
                 Map.of(BASE_URI_QUERY_PARAM, baseUri.toString(), ALIAS_URI_ADD_QUERY_PARAM, alias.toString())
         ));
     }
 
     @Override
-    public VaultModel removeAlias(@NonNull final URI baseUri, @NonNull final URI alias) {
+    public VaultModel removeAlias(
+            @NonNull final URI baseUri,
+            @NonNull final URI alias) {
         return performAliasUpdate(new TreeMap<>(
                 Map.of(BASE_URI_QUERY_PARAM, baseUri.toString(), ALIAS_URI_REMOVE_QUERY_PARAM, alias.toString())
         ));
@@ -196,7 +202,9 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
         }
     }
 
-    <T> T sendAndProcess(final HttpRequest request, final Function<ResponseEntity, T> conversionFunction) {
+    <T> T sendAndProcess(
+            final HttpRequest request,
+            final Function<ResponseEntity, T> conversionFunction) {
         final var responseEntity = sendRaw(request);
         return conversionFunction.apply(responseEntity);
     }

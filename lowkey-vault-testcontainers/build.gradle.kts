@@ -19,19 +19,19 @@ dependencies {
     implementation(platform("org.testcontainers:testcontainers-bom:${libs.versions.testcontainers.get()}")) //import bom
     implementation(libs.testcontainers)
     implementation(libs.commons.compress)
+    compileOnly(libs.testcontainers.jdbc)
+    implementation(project(":lowkey-vault-client"))
+    implementation(libs.httpclient)
+    implementation(libs.azure.security.keyvault.secrets)
+    implementation(libs.azure.security.keyvault.keys)
+    implementation(libs.azure.security.keyvault.certificates)
     testImplementation(libs.testcontainers.jupiter)
-    testImplementation(project(":lowkey-vault-client"))
     testImplementation(libs.bundles.jackson)
-    testImplementation(libs.httpclient)
     testImplementation(libs.commons.codec)
-    testImplementation(libs.azure.security.keyvault.keys) {
-        exclude(group = "io.netty")
-    }
-    testImplementation(libs.azure.security.keyvault.secrets) {
-        exclude(group = "io.netty")
-    }
     testImplementation(libs.mockito.core)
     testImplementation(libs.jupiter)
+    testImplementation(libs.testcontainers.mysql)
+    testRuntimeOnly(libs.mysql.driver)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(libs.logback.classic)
 }
@@ -39,6 +39,7 @@ dependencies {
 licensee {
     allow("Apache-2.0")
     allow("MIT")
+    allow("MIT-0")
     allow("EPL-1.0")
     allow("BSD-2-Clause")
 }
@@ -117,7 +118,13 @@ publishing {
                 asNode().apply {
                     (get("dependencies") as NodeList).forEach { depsNode ->
                         ((depsNode as Node).get("dependency") as NodeList).forEach { depNode ->
-                            ((depNode as Node).get("scope") as NodeList).forEach { scope ->
+                            val artifactIdNode = ((depNode as Node).get("artifactId") as NodeList).last() as Node
+                            if (artifactIdNode.text() != "testcontainers"
+                                    && artifactIdNode.text() != "commons-compress"
+                                    && artifactIdNode.text() != "azure-security-keyvault-secrets") {
+                                depNode.appendNode("optional", "true")
+                            }
+                            (depNode.get("scope") as NodeList).forEach { scope ->
                                 if (scope is Node && "runtime" == scope.text()) {
                                     scope.setValue("compile")
                                 }

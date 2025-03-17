@@ -16,6 +16,7 @@ azureKeyVaultKeyClient = "4.9.3"
 azureKeyVaultSecretsClient = "4.9.3"
 azureKeyVaultCertClient = "4.7.3"
 testcontainers = "1.20.6"
+mysqlDriver = "9.1.0"
 cucumber = "7.21.1"
 mockitoCore = "5.16.1"
 jupiter = "5.12.1"
@@ -102,7 +103,10 @@ jackson-dataformat-xml = { module = "com.fasterxml.jackson.dataformat:jackson-da
 jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
 
 testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
+testcontainers-jdbc = { module = "org.testcontainers:jdbc", version.ref = "testcontainers" }
+testcontainers-mysql = { module = "org.testcontainers:mysql", version.ref = "testcontainers" }
 testcontainers-jupiter = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers" }
+mysql-driver = { module = "com.mysql:mysql-connector-j", version.ref = "mysqlDriver"}
 
 [bundles]
 spring-boot-app = [

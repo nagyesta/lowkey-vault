@@ -352,7 +352,7 @@ public final class LowkeyVaultContainerBuilder {
      */
     public static <T extends LowkeyVaultContainer> Function<T, Map<String, String>> springCloudAzureKeyVaultPropertySupplier() {
         return lowkeyVaultContainer -> Map.of(
-                "spring.cloud.azure.keyvault.secret.property-sources[0].endpoint", lowkeyVaultContainer.getDefaultVaultBaseUrl(),
+                "spring.cloud.azure.keyvault.secret.property-sources[0].endpoint", lowkeyVaultContainer.getEndpointBaseUrl(),
                 "spring.cloud.azure.keyvault.secret.property-sources[0].challenge-resource-verification-enabled", "false"
         );
     }

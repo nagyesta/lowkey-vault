@@ -573,7 +573,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
             final var actualUrl = System.getProperty("spring.cloud.azure.keyvault.secret.property-sources[0].endpoint");
             final var actualCRV = System.getProperty(
                     "spring.cloud.azure.keyvault.secret.property-sources[0].challenge-resource-verification-enabled");
-            assertEquals(underTest.getDefaultVaultBaseUrl(), actualUrl);
+            assertEquals(underTest.getEndpointBaseUrl(), actualUrl);
             assertEquals("false", actualCRV);
             final var secretClient = new SecretClientBuilder()
                     .vaultUrl(actualUrl)

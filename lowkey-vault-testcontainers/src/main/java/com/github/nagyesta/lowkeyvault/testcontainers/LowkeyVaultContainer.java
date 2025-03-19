@@ -39,6 +39,7 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
     private static final String DOT = ".";
     private static final String TOKEN_ENDPOINT_PATH = "/metadata/identity/oauth2/token";
     private final HttpClient httpClient = HttpClient.newHttpClient();
+    private final Integer logicalPort;
     private final boolean mergeTrustStores;
     private final List<ContainerDependency<?>> dependsOnContainers;
     private final Function<LowkeyVaultContainer, Map<String, String>> lowkeyVaultSystemPropertySupplier;
@@ -90,6 +91,7 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
         } else {
             addExposedPort(CONTAINER_TOKEN_PORT);
         }
+        this.logicalPort = containerBuilder.getLogicalPort();
 
         if (containerBuilder.getImportFile() != null) {
             final var absolutePath = containerBuilder.getImportFile().getAbsolutePath();
@@ -177,7 +179,7 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
      * @return authority of the default vault base URL.
      */
     public String getDefaultVaultAuthority() {
-        return LOCALHOST + PORT_SEPARATOR + getMappedPort(CONTAINER_PORT);
+        return LOCALHOST + PORT_SEPARATOR + getLogicalPort();
     }
 
     /**
@@ -187,7 +189,7 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
      * @return authority of the given vault base URL.
      */
     public String getVaultAuthority(final String vaultName) {
-        return Objects.requireNonNull(vaultName) + DOT + LOCALHOST + PORT_SEPARATOR + getMappedPort(CONTAINER_PORT);
+        return Objects.requireNonNull(vaultName) + DOT + LOCALHOST + PORT_SEPARATOR + getLogicalPort();
     }
 
     /**
@@ -197,6 +199,16 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
      */
     public String getEndpointAuthority() {
         return getHost() + PORT_SEPARATOR + getMappedPort(CONTAINER_PORT);
+    }
+
+
+    /**
+     * Returns the base URL of the endpoint we can use to access the container.
+     *
+     * @return endpoint base URL.
+     */
+    public String getEndpointBaseUrl() {
+        return HTTPS + getEndpointAuthority();
     }
 
     /**
@@ -303,6 +315,11 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
     public void stop() {
         super.stop();
         keyStoreMerger.ifPresent(KeyStoreMerger::close);
+    }
+
+    private int getLogicalPort() {
+        return Optional.ofNullable(logicalPort)
+                .orElse(getMappedPort(CONTAINER_PORT));
     }
 
     private void autoSetDependencySecrets() {

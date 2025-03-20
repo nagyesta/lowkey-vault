@@ -33,7 +33,7 @@ springBootPlugin = "3.4.3"
 gitVersionerPlugin = "1.6.7"
 owaspPlugin = "12.1.0"
 cycloneDxBomPlugin = "2.2.0"
-licenseePlugin = "1.12.0"
+licenseePlugin = "1.13.0"
 nexusPublishPlugin = "2.0.0"
 
 [libraries]

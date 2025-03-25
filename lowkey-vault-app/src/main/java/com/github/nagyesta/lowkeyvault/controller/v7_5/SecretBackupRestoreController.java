@@ -36,7 +36,7 @@ public class SecretBackupRestoreController extends CommonSecretBackupRestoreCont
     }
 
     @Override
-    @PostMapping(value = {"/secrets/{secretName}/backup", "/secrets/{secretName}/backup/"},
+    @PostMapping(value = "/secrets/{secretName}/backup",
             params = API_VERSION_7_5,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<SecretBackupModel> backup(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String secretName,
@@ -45,7 +45,7 @@ public class SecretBackupRestoreController extends CommonSecretBackupRestoreCont
     }
 
     @Override
-    @PostMapping(value = {"/secrets/restore", "/secrets/restore/"},
+    @PostMapping(value = "/secrets/restore",
             params = API_VERSION_7_5,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)

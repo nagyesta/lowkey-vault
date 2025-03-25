@@ -36,7 +36,7 @@ public class KeyBackupRestoreController extends CommonPolicyAwareKeyBackupRestor
     }
 
     @Override
-    @PostMapping(value = {"/keys/{keyName}/backup", "/keys/{keyName}/backup/"},
+    @PostMapping(value = "/keys/{keyName}/backup",
             params = API_VERSION_7_4,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyBackupModel>
@@ -46,7 +46,7 @@ public class KeyBackupRestoreController extends CommonPolicyAwareKeyBackupRestor
     }
 
     @Override
-    @PostMapping(value = {"/keys/restore", "/keys/restore/"},
+    @PostMapping(value = "/keys/restore",
             params = API_VERSION_7_4,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)

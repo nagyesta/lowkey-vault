@@ -33,7 +33,7 @@ public class CertificatePolicyController extends CommonCertificatePolicyControll
     }
 
     @Override
-    @GetMapping(value = {"/certificates/{certificateName}/pending", "/certificates/{certificateName}/pending/"},
+    @GetMapping(value = "/certificates/{certificateName}/pending",
             params = API_VERSION_7_5,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultPendingCertificateModel> pendingCreate(
@@ -43,7 +43,7 @@ public class CertificatePolicyController extends CommonCertificatePolicyControll
     }
 
     @Override
-    @DeleteMapping(value = {"/certificates/{certificateName}/pending", "/certificates/{certificateName}/pending/"},
+    @DeleteMapping(value = "/certificates/{certificateName}/pending",
             params = API_VERSION_7_5,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultPendingCertificateModel> pendingDelete(
@@ -53,7 +53,7 @@ public class CertificatePolicyController extends CommonCertificatePolicyControll
     }
 
     @Override
-    @GetMapping(value = {"/certificates/{certificateName}/policy", "/certificates/{certificateName}/policy/"},
+    @GetMapping(value = "/certificates/{certificateName}/policy",
             params = API_VERSION_7_5,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<CertificatePolicyModel> getPolicy(
@@ -63,7 +63,7 @@ public class CertificatePolicyController extends CommonCertificatePolicyControll
     }
 
     @Override
-    @PatchMapping(value = {"/certificates/{certificateName}/policy", "/certificates/{certificateName}/policy/"},
+    @PatchMapping(value = "/certificates/{certificateName}/policy",
             params = API_VERSION_7_5,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<CertificatePolicyModel> updatePolicy(

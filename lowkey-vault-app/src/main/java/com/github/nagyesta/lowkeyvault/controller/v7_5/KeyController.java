@@ -40,7 +40,7 @@ public class KeyController extends CommonKeyController {
     }
 
     @Override
-    @PostMapping(value = {"/keys/{keyName}/create", "/keys/{keyName}/create/"},
+    @PostMapping(value = "/keys/{keyName}/create",
             params = API_VERSION_7_5,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
@@ -52,7 +52,7 @@ public class KeyController extends CommonKeyController {
     }
 
     @Override
-    @PutMapping(value = {"/keys/{keyName}", "/keys/{keyName}/"},
+    @PutMapping(value = "/keys/{keyName}",
             params = API_VERSION_7_5,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
@@ -64,7 +64,7 @@ public class KeyController extends CommonKeyController {
     }
 
     @Override
-    @DeleteMapping(value = {"/keys/{keyName}", "/keys/{keyName}/"},
+    @DeleteMapping(value = "/keys/{keyName}",
             params = API_VERSION_7_5,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultKeyModel> delete(
@@ -74,7 +74,7 @@ public class KeyController extends CommonKeyController {
     }
 
     @Override
-    @GetMapping(value = {"/keys/{keyName}/versions", "/keys/{keyName}/versions/"},
+    @GetMapping(value = "/keys/{keyName}/versions",
             params = API_VERSION_7_5,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultItemListModel<KeyVaultKeyItemModel>> versions(
@@ -86,7 +86,7 @@ public class KeyController extends CommonKeyController {
     }
 
     @Override
-    @GetMapping(value = {"/keys", "/keys/"},
+    @GetMapping(value = "/keys",
             params = API_VERSION_7_5,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultItemListModel<KeyVaultKeyItemModel>> listKeys(
@@ -97,8 +97,7 @@ public class KeyController extends CommonKeyController {
     }
 
     @Override
-    @GetMapping(value = {"/deletedkeys", "/deletedkeys/",
-            "/deletedKeys", "/deletedKeys/"},
+    @GetMapping(value = {"/deletedkeys", "/deletedKeys"},
             params = API_VERSION_7_5,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultItemListModel<DeletedKeyVaultKeyItemModel>> listDeletedKeys(
@@ -109,7 +108,7 @@ public class KeyController extends CommonKeyController {
     }
 
     @Override
-    @GetMapping(value = {"/keys/{keyName}", "/keys/{keyName}/"},
+    @GetMapping(value = "/keys/{keyName}",
             params = API_VERSION_7_5,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultKeyModel> get(
@@ -119,7 +118,7 @@ public class KeyController extends CommonKeyController {
     }
 
     @Override
-    @GetMapping(value = {"/keys/{keyName}/{keyVersion}", "/keys/{keyName}/{keyVersion}/"},
+    @GetMapping(value = "/keys/{keyName}/{keyVersion}",
             params = API_VERSION_7_5,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultKeyModel> getWithVersion(
@@ -130,7 +129,7 @@ public class KeyController extends CommonKeyController {
     }
 
     @Override
-    @PatchMapping(value = {"/keys/{keyName}/{keyVersion}", "/keys/{keyName}/{keyVersion}/"},
+    @PatchMapping(value = "/keys/{keyName}/{keyVersion}",
             params = API_VERSION_7_5,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
@@ -142,7 +141,7 @@ public class KeyController extends CommonKeyController {
         return super.updateVersion(keyName, keyVersion, baseUri, request);
     }
 
-    @PostMapping(value = {"/keys/{keyName}/rotate", "/keys/{keyName}/rotate/"},
+    @PostMapping(value = "/keys/{keyName}/rotate",
             params = API_VERSION_7_5,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultKeyModel> rotateKey(
@@ -157,8 +156,7 @@ public class KeyController extends CommonKeyController {
     }
 
     @Override
-    @GetMapping(value = {"/deletedkeys/{keyName}", "/deletedkeys/{keyName}/",
-            "/deletedKeys/{keyName}", "/deletedKeys/{keyName}/"},
+    @GetMapping(value = {"/deletedkeys/{keyName}", "/deletedKeys/{keyName}"},
             params = API_VERSION_7_5,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<DeletedKeyVaultKeyModel> getDeletedKey(
@@ -168,8 +166,7 @@ public class KeyController extends CommonKeyController {
     }
 
     @Override
-    @PostMapping(value = {"/deletedkeys/{keyName}/recover", "/deletedkeys/{keyName}/recover/",
-            "/deletedKeys/{keyName}/recover", "/deletedKeys/{keyName}/recover/"},
+    @PostMapping(value = {"/deletedkeys/{keyName}/recover", "/deletedKeys/{keyName}/recover"},
             params = API_VERSION_7_5,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultKeyModel> recoverDeletedKey(
@@ -179,8 +176,7 @@ public class KeyController extends CommonKeyController {
     }
 
     @Override
-    @DeleteMapping(value = {"/deletedkeys/{keyName}", "/deletedkeys/{keyName}/",
-            "/deletedKeys/{keyName}", "/deletedKeys/{keyName}/"},
+    @DeleteMapping(value = {"/deletedkeys/{keyName}", "/deletedKeys/{keyName}"},
             params = API_VERSION_7_5,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> purgeDeleted(

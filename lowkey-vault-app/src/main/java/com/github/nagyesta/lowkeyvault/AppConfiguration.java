@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
+import org.springframework.web.filter.UrlHandlerFilter;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -108,5 +109,12 @@ public class AppConfiguration {
         requestLoggingFilter.setIncludePayload(true);
         requestLoggingFilter.setMaxPayloadLength(PAYLOAD_LENGTH_BYTES);
         return requestLoggingFilter;
+    }
+
+    @Bean
+    public UrlHandlerFilter useTrailingSlashesFilter() {
+        return UrlHandlerFilter
+                .trailingSlashHandler("/**").wrapRequest()
+                .build();
     }
 }

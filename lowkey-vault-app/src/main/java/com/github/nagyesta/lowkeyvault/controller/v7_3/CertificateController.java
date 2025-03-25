@@ -34,7 +34,7 @@ public class CertificateController extends CommonCertificateController {
 
     @Override
     @PostMapping(
-            value = {"/certificates/{certificateName}/create", "/certificates/{certificateName}/create/"},
+            value = "/certificates/{certificateName}/create",
             params = API_VERSION_7_3,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
@@ -47,7 +47,7 @@ public class CertificateController extends CommonCertificateController {
 
     @Override
     @PostMapping(
-            value = {"/certificates/{certificateName}/import", "/certificates/{certificateName}/import/"},
+            value = "/certificates/{certificateName}/import",
             params = API_VERSION_7_3,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
@@ -60,7 +60,7 @@ public class CertificateController extends CommonCertificateController {
 
     @Override
     @GetMapping(
-            value = {"/certificates/{certificateName}", "/certificates/{certificateName}/"},
+            value = "/certificates/{certificateName}",
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultCertificateModel> get(
@@ -71,7 +71,7 @@ public class CertificateController extends CommonCertificateController {
 
     @Override
     @GetMapping(
-            value = {"/certificates/{certificateName}/{certificateVersion}", "/certificates/{certificateName}/{certificateVersion}/"},
+            value = "/certificates/{certificateName}/{certificateVersion}",
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultCertificateModel> getWithVersion(
@@ -83,7 +83,7 @@ public class CertificateController extends CommonCertificateController {
 
     @Override
     @DeleteMapping(
-            value = {"/certificates/{certificateName}", "/certificates/{certificateName}/"},
+            value = "/certificates/{certificateName}",
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<DeletedKeyVaultCertificateModel> delete(
@@ -94,8 +94,7 @@ public class CertificateController extends CommonCertificateController {
 
     @Override
     @GetMapping(
-            value = {"/deletedcertificates/{certificateName}", "/deletedcertificates/{certificateName}/",
-                    "/deletedCertificates/{certificateName}", "/deletedCertificates/{certificateName}/"},
+            value = {"/deletedcertificates/{certificateName}", "/deletedCertificates/{certificateName}"},
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<DeletedKeyVaultCertificateModel> getDeletedCertificate(
@@ -106,8 +105,7 @@ public class CertificateController extends CommonCertificateController {
 
     @Override
     @PostMapping(
-            value = {"/deletedcertificates/{certificateName}/recover", "/deletedcertificates/{certificateName}/recover/",
-                    "/deletedCertificates/{certificateName}/recover", "/deletedCertificates/{certificateName}/recover/"},
+            value = {"/deletedcertificates/{certificateName}/recover", "/deletedCertificates/{certificateName}/recover"},
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultCertificateModel> recoverDeletedCertificate(
@@ -118,8 +116,7 @@ public class CertificateController extends CommonCertificateController {
 
     @Override
     @DeleteMapping(
-            value = {"/deletedcertificates/{certificateName}", "/deletedcertificates/{certificateName}/",
-                    "/deletedCertificates/{certificateName}", "/deletedCertificates/{certificateName}/"},
+            value = {"/deletedcertificates/{certificateName}", "/deletedCertificates/{certificateName}"},
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> purgeDeleted(
@@ -130,7 +127,7 @@ public class CertificateController extends CommonCertificateController {
 
     @Override
     @GetMapping(
-            value = {"/certificates/{certificateName}/versions", "/certificates/{certificateName}/versions/"},
+            value = "/certificates/{certificateName}/versions",
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultItemListModel<KeyVaultCertificateItemModel>> versions(
@@ -143,7 +140,7 @@ public class CertificateController extends CommonCertificateController {
 
     @Override
     @GetMapping(
-            value = {"/certificates", "/certificates/"},
+            value = "/certificates",
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultItemListModel<KeyVaultCertificateItemModel>> listCertificates(
@@ -156,8 +153,7 @@ public class CertificateController extends CommonCertificateController {
 
     @Override
     @GetMapping(
-            value = {"/deletedcertificates", "/deletedcertificates/",
-                    "/deletedCertificates", "/deletedCertificates/"},
+            value = {"/deletedcertificates", "/deletedCertificates"},
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultItemListModel<DeletedKeyVaultCertificateItemModel>> listDeletedCertificates(
@@ -170,7 +166,7 @@ public class CertificateController extends CommonCertificateController {
 
     @Override
     @PatchMapping(
-            value = {"/certificates/{certificateName}/{certificateVersion}", "/certificates/{certificateName}/{certificateVersion}/"},
+            value = "/certificates/{certificateName}/{certificateVersion}",
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeyVaultCertificateModel> updateCertificateProperties(

@@ -2,6 +2,7 @@ package com.github.nagyesta.lowkeyvault.controller.common;
 
 import com.github.nagyesta.lowkeyvault.controller.MetadataController;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -37,7 +38,7 @@ class ControllerRequestMappingTest {
                 });
 
         //then
-        assertEveryMappingHasBothVersions(results);
+        assertNoMappingHasTrailingSlash(results);
     }
 
     @Test
@@ -56,7 +57,7 @@ class ControllerRequestMappingTest {
                 });
 
         //then
-        assertEveryMappingHasBothVersions(results);
+        assertNoMappingHasTrailingSlash(results);
     }
 
     @Test
@@ -75,7 +76,7 @@ class ControllerRequestMappingTest {
                 });
 
         //then
-        assertEveryMappingHasBothVersions(results);
+        assertNoMappingHasTrailingSlash(results);
     }
 
     @Test
@@ -94,7 +95,7 @@ class ControllerRequestMappingTest {
                 });
 
         //then
-        assertEveryMappingHasBothVersions(results);
+        assertNoMappingHasTrailingSlash(results);
     }
 
     @Test
@@ -113,7 +114,7 @@ class ControllerRequestMappingTest {
                 });
 
         //then
-        assertEveryMappingHasBothVersions(results);
+        assertNoMappingHasTrailingSlash(results);
     }
 
     @Test
@@ -132,10 +133,10 @@ class ControllerRequestMappingTest {
                 });
 
         //then
-        assertEveryMappingHasBothVersions(results);
+        assertNoMappingHasTrailingSlash(results);
     }
 
-    private static void assertEveryMappingHasBothVersions(final Map<Class<?>, Map<Method, List<String>>> results) {
+    private static void assertNoMappingHasTrailingSlash(final Map<Class<?>, Map<Method, List<String>>> results) {
         results.forEach((clazz, methodMap) -> methodMap
                 .forEach((method, pathMappings) -> {
                     final var className = clazz.getName();
@@ -144,11 +145,11 @@ class ControllerRequestMappingTest {
                             "Method " + methodName + " should have the default path mappings in " + className + ".\n"
                                     + "expected to have both: {\"\", \"/\"}");
                     pathMappings.stream()
-                            .filter(path -> !path.endsWith("/"))
+                            .filter(path -> path.endsWith("/"))
                             .forEach(path -> {
-                                Assertions.assertTrue(pathMappings.contains(path + "/"),
-                                        "Method " + methodName + " should have a pair with trailing slash in " + className + ".\n"
-                                                + "expected to have both: {\"" + path + "\", \"" + path + "/\"}\n"
+                                Assertions.fail(
+                                        "Method " + methodName + " mustn't have a pair with trailing slash in " + className + ".\n"
+                                                + "expected to have only: \"" + StringUtils.stripEnd(path, "/") + "\"\n"
                                                 + "in: " + pathMappings + "\n");
                             });
                 }));

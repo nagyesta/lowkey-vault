@@ -53,7 +53,7 @@ public class VaultManagementController extends ErrorHandlingAwareController {
                             content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorModel.class)))},
             requestBody = @RequestBody(
                     content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = VaultModel.class))))
-    @PostMapping(value = {"", "/"}, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @PostMapping(value = "", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<VaultModel> createVault(@Valid @org.springframework.web.bind.annotation.RequestBody final VaultModel model) {
         log.info("Received request to create vault with uri: {}, recovery level: {}, recoverable days: {}",
                 model.getBaseUri(), model.getRecoveryLevel(), model.getRecoverableDays());
@@ -70,7 +70,7 @@ public class VaultManagementController extends ErrorHandlingAwareController {
                                     array = @ArraySchema(schema = @Schema(implementation = VaultModel.class)))),
                     @ApiResponse(responseCode = "500", description = "Internal error",
                             content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorModel.class)))})
-    @GetMapping(value = {"", "/"}, produces = APPLICATION_JSON_VALUE)
+    @GetMapping(value = "", produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<List<VaultModel>> listVaults() {
         log.info("Received request to list vaults.");
         final var vaultFake = vaultService.list().stream()
@@ -88,7 +88,7 @@ public class VaultManagementController extends ErrorHandlingAwareController {
                                     array = @ArraySchema(schema = @Schema(implementation = VaultModel.class)))),
                     @ApiResponse(responseCode = "500", description = "Internal error",
                             content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorModel.class)))})
-    @GetMapping(value = {"/deleted", "/deleted/"}, produces = APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/deleted", produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<List<VaultModel>> listDeletedVaults() {
         log.info("Received request to list deleted vaults.");
         final var vaultFake = vaultService.listDeleted().stream()
@@ -113,7 +113,7 @@ public class VaultManagementController extends ErrorHandlingAwareController {
             parameters = {
                     @Parameter(name = "baseUri",
                             example = BASE_URI, description = "The base URI of the vault we want delete.", required = true)})
-    @DeleteMapping(value = {"", "/"}, produces = APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "", produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> deleteVault(@RequestParam final URI baseUri) {
         log.info("Received request to delete vault with uri: {}", baseUri);
         return ResponseEntity.ok(vaultService.delete(baseUri));
@@ -134,7 +134,7 @@ public class VaultManagementController extends ErrorHandlingAwareController {
                     @Parameter(name = "baseUri",
                             example = BASE_URI, description = "The base URI of the vault we want to recover.", required = true)},
             requestBody = @RequestBody(content = @Content(mediaType = APPLICATION_JSON_VALUE)))
-    @PutMapping(value = {"/recover", "/recover/"}, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/recover", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<VaultModel> recoverVault(@RequestParam final URI baseUri) {
         log.info("Received request to recover deleted vault with uri: {}", baseUri);
         vaultService.recover(baseUri);
@@ -157,7 +157,7 @@ public class VaultManagementController extends ErrorHandlingAwareController {
             parameters = {
                     @Parameter(name = "baseUri",
                             example = BASE_URI, description = "The base URI of the vault we want to purge.", required = true)})
-    @DeleteMapping(value = {"/purge", "/purge/"}, produces = APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/purge", produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> purgeVault(@RequestParam final URI baseUri) {
         log.info("Received request to purge deleted vault with uri: {}", baseUri);
         return ResponseEntity.ok(vaultService.purge(baseUri));
@@ -182,7 +182,7 @@ public class VaultManagementController extends ErrorHandlingAwareController {
                     @Parameter(name = "remove", example = ALIAS2,
                             description = "The base URI we want to remove from the aliases of the vault.")},
             requestBody = @RequestBody(content = @Content(mediaType = APPLICATION_JSON_VALUE)))
-    @PatchMapping(value = {"/alias", "/alias/"}, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @PatchMapping(value = "/alias", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<VaultModel> aliasUpdate(@RequestParam final URI baseUri,
                                                   @RequestParam(required = false) final URI add,
                                                   @RequestParam(required = false) final URI remove) {
@@ -205,7 +205,7 @@ public class VaultManagementController extends ErrorHandlingAwareController {
                     @Parameter(name = "regenerateCertificates", example = FALSE,
                             description = "Whether we allow regeneration of certificates to let their validity match the new time-frame.")},
             requestBody = @RequestBody(content = @Content(mediaType = APPLICATION_JSON_VALUE)))
-    @PutMapping(value = {"/time/all", "/time/all/"}, params = {"seconds"},
+    @PutMapping(value = "/time/all", params = {"seconds"},
             consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> timeShiftAll(
             @RequestParam final int seconds,
@@ -234,7 +234,7 @@ public class VaultManagementController extends ErrorHandlingAwareController {
                     @Parameter(name = "regenerateCertificates", example = FALSE,
                             description = "Whether we allow regeneration of certificates to let their validity match the new time-frame.")},
             requestBody = @RequestBody(content = @Content(mediaType = APPLICATION_JSON_VALUE)))
-    @PutMapping(value = {"/time", "/time/"}, params = {"baseUri", "seconds"},
+    @PutMapping(value = "/time", params = {"baseUri", "seconds"},
             consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> timeShiftSingle(
             @RequestParam final URI baseUri, @RequestParam final int seconds,

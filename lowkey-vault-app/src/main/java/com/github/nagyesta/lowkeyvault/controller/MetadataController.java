@@ -33,7 +33,7 @@ public class MetadataController {
         this.keyStorePassword = keyStorePassword;
     }
 
-    @GetMapping(value = {"/metadata/identity/oauth2/token", "/metadata/identity/oauth2/token/"})
+    @GetMapping(value = "/metadata/identity/oauth2/token")
     public ResponseEntity<TokenResponse> getManagedIdentityToken(@RequestParam("resource") final URI resource) {
         final var body = new TokenResponse(resource);
         log.info("Returning token: {}", body);

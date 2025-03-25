@@ -338,6 +338,7 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
     private SecretClient getSecretClient() {
         final SecretClient secretClient;
         if (shouldUseOfficialAzureClients()) {
+            warnAboutLogicalPortIfMisconfigured();
             logger().info("Using official Azure Secret Client to save secrets to default vault.");
             secretClient = new SecretClientBuilder()
                     .vaultUrl(getDefaultVaultBaseUrl())
@@ -352,6 +353,13 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
                     .buildClient();
         }
         return secretClient;
+    }
+
+    private void warnAboutLogicalPortIfMisconfigured() {
+        if (logicalPort != null && lowkeyVaultClientIsNotPresent()) {
+            logger().warn("Logical port is set but lowkey vault client is not present. This is most probably a configuration issue.");
+            logger().warn("Please revisit your configuration!");
+        }
     }
 
     private boolean shouldUseOfficialAzureClients() {

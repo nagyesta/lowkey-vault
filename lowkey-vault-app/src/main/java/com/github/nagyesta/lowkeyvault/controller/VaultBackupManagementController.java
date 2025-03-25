@@ -55,7 +55,7 @@ public class VaultBackupManagementController extends ErrorHandlingAwareControlle
                                     mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = ErrorModel.class)
                             ))})
-    @GetMapping(value = {"/export", "/export/"}, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/export", produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     public ResponseEntity<VaultBackupListModel> export() {
         log.info("Received request to export active vaults.");
         final var backupModels = vaultImportExportExecutor.backupVaultList(vaultService);

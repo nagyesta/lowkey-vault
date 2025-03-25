@@ -37,7 +37,7 @@ public class CertificateBackupRestoreController extends CommonCertificateBackupR
     }
 
     @Override
-    @PostMapping(value = {"/certificates/{certificateName}/backup", "/certificates/{certificateName}/backup/"},
+    @PostMapping(value = "/certificates/{certificateName}/backup",
             params = API_VERSION_7_4,
             produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<CertificateBackupModel> backup(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
@@ -46,7 +46,7 @@ public class CertificateBackupRestoreController extends CommonCertificateBackupR
     }
 
     @Override
-    @PostMapping(value = {"/certificates/restore", "/certificates/restore/"},
+    @PostMapping(value = "/certificates/restore",
             params = API_VERSION_7_4,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)

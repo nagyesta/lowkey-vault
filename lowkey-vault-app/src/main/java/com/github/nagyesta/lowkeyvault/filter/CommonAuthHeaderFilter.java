@@ -29,7 +29,7 @@ public class CommonAuthHeaderFilter extends OncePerRequestFilter {
     private static final String HTTPS = "https://";
     private static final String BEARER_FAKE_TOKEN = "Bearer resource=\"%s\", authorization_uri=\"%s\"";
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
-    private final Set<String> skipUrisIfMatch = Set.of("/ping", "/management/**", "/api/**", "/metadata/**");
+    private final Set<String> skipUrisIfMatch = Set.of("/ping", "/ping/", "/management/**", "/api/**", "/metadata/**");
     private final String authResource;
 
     public CommonAuthHeaderFilter(

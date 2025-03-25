@@ -28,7 +28,7 @@ openApiUi = "2.8.6"
 
 abortMissionPlugin = "5.0.126"
 indexScanPlugin = "3.0.0"
-lombokPlugin = "8.13"
+lombokPlugin = "8.13.1"
 springBootPlugin = "3.4.4"
 gitVersionerPlugin = "1.6.7"
 owaspPlugin = "12.1.0"

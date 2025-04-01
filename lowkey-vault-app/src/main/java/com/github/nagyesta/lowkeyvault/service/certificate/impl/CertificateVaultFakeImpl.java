@@ -18,7 +18,7 @@ import lombok.NonNull;
 import java.time.OffsetDateTime;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 public class CertificateVaultFakeImpl
         extends BaseVaultFakeImpl<CertificateEntityId, VersionedCertificateEntityId,
@@ -27,27 +27,32 @@ public class CertificateVaultFakeImpl
 
     private final ConcurrentMap<String, LifetimeActionPolicy> lifetimeActionPolicies = new ConcurrentHashMap<>();
 
-    public CertificateVaultFakeImpl(@org.springframework.lang.NonNull final VaultFake vaultFake,
-                                    @org.springframework.lang.NonNull final RecoveryLevel recoveryLevel,
-                                    final Integer recoverableDays) {
+    public CertificateVaultFakeImpl(
+            @org.springframework.lang.NonNull final VaultFake vaultFake,
+            @org.springframework.lang.NonNull final RecoveryLevel recoveryLevel,
+            final Integer recoverableDays) {
         super(vaultFake, recoveryLevel, recoverableDays);
     }
 
     @Override
-    protected VersionedCertificateEntityId createVersionedId(final String id, final String version) {
+    protected VersionedCertificateEntityId createVersionedId(
+            final String id,
+            final String version) {
         return new VersionedCertificateEntityId(vaultFake().baseUri(), id, version);
     }
 
     @Override
     public VersionedCertificateEntityId createCertificateVersion(
-            @NonNull final String name, @NonNull final CertificateCreationInput input) {
+            @NonNull final String name,
+            @NonNull final CertificateCreationInput input) {
         final var entity = new KeyVaultCertificateEntity(name, input, vaultFake());
         return addVersion(entity.getId(), entity);
     }
 
     @Override
     public VersionedCertificateEntityId importCertificateVersion(
-            @NonNull final String name, @NonNull final CertificateImportInput input) {
+            @NonNull final String name,
+            @NonNull final CertificateImportInput input) {
         final var entity = new KeyVaultCertificateEntity(
                 name, input, vaultFake());
         return addVersion(entity.getId(), entity);
@@ -55,7 +60,8 @@ public class CertificateVaultFakeImpl
 
     @Override
     public void restoreCertificateVersion(
-            @NonNull final VersionedCertificateEntityId versionedEntityId, @NonNull final CertificateRestoreInput input) {
+            @NonNull final VersionedCertificateEntityId versionedEntityId,
+            @NonNull final CertificateRestoreInput input) {
         final var entity = new KeyVaultCertificateEntity(versionedEntityId, input, vaultFake());
         addVersion(entity.getId(), entity);
     }
@@ -79,13 +85,15 @@ public class CertificateVaultFakeImpl
         final var certificateEntityId = lifetimeActionPolicy.getId();
         final var latestVersionOfEntity = getEntities().getLatestVersionOfEntity(certificateEntityId);
         final var readOnlyEntity = getEntities().getReadOnlyEntity(latestVersionOfEntity);
-        final Function<OffsetDateTime, OffsetDateTime> createdToExpiryFunction = s -> s
+        final UnaryOperator<OffsetDateTime> createdToExpiryFunction = s -> s
                 .plusMonths(readOnlyEntity.getIssuancePolicy().getValidityMonths());
         lifetimeActionPolicy.missedRenewalDays(readOnlyEntity.getCreated(), createdToExpiryFunction)
                 .forEach(renewalTime -> simulatePointInTimeRotation(certificateEntityId, renewalTime));
     }
 
-    private void simulatePointInTimeRotation(final CertificateEntityId certificateEntityId, final OffsetDateTime renewalTime) {
+    private void simulatePointInTimeRotation(
+            final CertificateEntityId certificateEntityId,
+            final OffsetDateTime renewalTime) {
         final var latest = latestReadOnlyCertificateVersion(certificateEntityId);
         final var input = new CertificatePolicy(latest.getIssuancePolicy());
         input.setValidityStart(renewalTime);
@@ -96,7 +104,8 @@ public class CertificateVaultFakeImpl
     }
 
     private VersionedCertificateEntityId generateIdOfNewCertificateEntity(
-            final ReadOnlyCertificatePolicy input, final VersionedKeyEntityId kid) {
+            final ReadOnlyCertificatePolicy input,
+            final VersionedKeyEntityId kid) {
         final VersionedCertificateEntityId id;
         if (input.isReuseKeyOnRenewal()) {
             id = new VersionedCertificateEntityId(vaultFake().baseUri(), input.getName());

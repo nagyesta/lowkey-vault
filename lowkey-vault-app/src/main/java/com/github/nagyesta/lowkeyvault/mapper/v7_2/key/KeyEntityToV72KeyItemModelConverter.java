@@ -37,7 +37,9 @@ public class KeyEntityToV72KeyItemModelConverter
 
     @Override
     protected <M extends KeyVaultKeyItemModel> M mapActiveFields(
-            final ReadOnlyKeyVaultKeyEntity source, final M model, final URI vaultUri) {
+            final ReadOnlyKeyVaultKeyEntity source,
+            final M model,
+            final URI vaultUri) {
         model.setKeyId(convertKeyId(source, vaultUri));
         model.setAttributes(registry.propertiesConverter(supportedVersions().last()).convert(source, vaultUri));
         model.setTags(source.getTags());
@@ -47,7 +49,9 @@ public class KeyEntityToV72KeyItemModelConverter
         return model;
     }
 
-    protected String convertKeyId(final ReadOnlyKeyVaultKeyEntity source, final URI vaultUri) {
+    protected String convertKeyId(
+            final ReadOnlyKeyVaultKeyEntity source,
+            final URI vaultUri) {
         return source.getId().asUriNoVersion(vaultUri).toString();
     }
 

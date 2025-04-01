@@ -8,13 +8,15 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Objects;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 
 /**
  * Modified class based on <a href="https://github.com/Azure/azure-sdk-for-java/wiki/Custom-HTTP-Clients">Azure SDK wiki</a>.
  */
-final class ApacheHttpRequest extends HttpEntityEnclosingRequestBase {
+final class ApacheHttpRequest
+        extends HttpEntityEnclosingRequestBase {
+
     private final String method;
 
     /**
@@ -31,8 +33,11 @@ final class ApacheHttpRequest extends HttpEntityEnclosingRequestBase {
      *                                  and send the request there just like a proxy would.
      * @throws URISyntaxException When the URI is malformed.
      */
-    ApacheHttpRequest(final HttpMethod method, final URL url,
-                      final HttpHeaders headers, final Function<URI, URI> authorityOverrideFunction) throws URISyntaxException {
+    ApacheHttpRequest(
+            final HttpMethod method,
+            final URL url,
+            final HttpHeaders headers,
+            final UnaryOperator<URI> authorityOverrideFunction) throws URISyntaxException {
         this.method = method.name();
         final var uri = Objects.requireNonNull(url).toURI();
         final var overrideUri = Objects.requireNonNull(authorityOverrideFunction).apply(uri);

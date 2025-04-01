@@ -1,9 +1,6 @@
 package com.github.nagyesta.lowkeyvault.controller.common;
 
 import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyItemModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyVersionItemModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ModelConverter;
 import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupList;
 import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupListItem;
 import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupModel;
@@ -28,13 +25,14 @@ import java.net.URI;
  * Common logic of backup and restore controllers across the different API versions.
  */
 @Slf4j
-public abstract class CommonKeyBackupRestoreController extends BaseBackupRestoreController<KeyEntityId, VersionedKeyEntityId,
-        ReadOnlyKeyVaultKeyEntity, KeyVaultKeyModel, DeletedKeyVaultKeyModel, KeyVaultKeyItemModel,
-        DeletedKeyVaultKeyItemModel, KeyEntityToV72ModelConverter, KeyEntityToV72KeyItemModelConverter,
-        KeyEntityToV72KeyVersionItemModelConverter, KeyVaultFake, KeyPropertiesModel, KeyBackupListItem,
-        KeyBackupList, KeyBackupModel, KeyConverterRegistry> {
+public abstract class CommonKeyBackupRestoreController
+        extends BaseBackupRestoreController<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity,
+        KeyVaultKeyModel, DeletedKeyVaultKeyModel, KeyVaultKeyItemModel, DeletedKeyVaultKeyItemModel,
+        KeyVaultFake, KeyPropertiesModel, KeyBackupListItem, KeyBackupList, KeyBackupModel, KeyConverterRegistry> {
 
-    protected CommonKeyBackupRestoreController(@NonNull final KeyConverterRegistry registry, @NonNull final VaultService vaultService) {
+    protected CommonKeyBackupRestoreController(
+            @NonNull final KeyConverterRegistry registry,
+            @NonNull final VaultService vaultService) {
         super(registry, vaultService, VaultFake::keyVaultFake);
     }
 
@@ -55,9 +53,10 @@ public abstract class CommonKeyBackupRestoreController extends BaseBackupRestore
     }
 
     @Override
-    protected void restoreVersion(@NonNull final KeyVaultFake vault,
-                                  @NonNull final VersionedKeyEntityId versionedEntityId,
-                                  @NonNull final KeyBackupListItem entityVersion) {
+    protected void restoreVersion(
+            @NonNull final KeyVaultFake vault,
+            @NonNull final VersionedKeyEntityId versionedEntityId,
+            @NonNull final KeyBackupListItem entityVersion) {
         final var keyMaterial = getKeyMaterial(entityVersion);
         final var attributes = entityVersion.getAttributes();
         vault.importKeyVersion(versionedEntityId, KeyImportInput.builder()

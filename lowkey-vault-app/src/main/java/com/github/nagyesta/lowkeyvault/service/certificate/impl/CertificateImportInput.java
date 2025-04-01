@@ -34,11 +34,12 @@ public class CertificateImportInput {
 
     private final CertificatePolicyModel policyModel;
 
-    public CertificateImportInput(@NonNull final String name,
-                                  @NonNull final String certificateContent,
-                                  @Nullable final String password,
-                                  @NonNull final CertContentType contentType,
-                                  @NonNull final CertificatePolicyModel policyModel) {
+    public CertificateImportInput(
+            @NonNull final String name,
+            @NonNull final String certificateContent,
+            @Nullable final String password,
+            @NonNull final CertContentType contentType,
+            @NonNull final CertificatePolicyModel policyModel) {
         this.name = name;
         this.certificate = (X509Certificate) contentType.getCertificateChain(certificateContent, password).get(0);
         this.keyData = contentType.getKey(certificateContent, password);
@@ -59,13 +60,17 @@ public class CertificateImportInput {
     }
 
     private static void validateLifetimeActionList(
-            final int validityMonths, final List<CertificateLifetimeActionModel> actions, final CertAuthorityType certAuthorityType) {
+            final int validityMonths,
+            final List<CertificateLifetimeActionModel> actions,
+            final CertAuthorityType certAuthorityType) {
         Assert.isTrue(actions.size() < 2, "Only 0 or 1 lifetime actions are allowed.");
         actions.forEach(a -> validateAction(validityMonths, a, certAuthorityType));
     }
 
     private static void validateAction(
-            final int validityMonths, final CertificateLifetimeActionModel actionModel, final CertAuthorityType certAuthorityType) {
+            final int validityMonths,
+            final CertificateLifetimeActionModel actionModel,
+            final CertAuthorityType certAuthorityType) {
         Assert.isTrue(certAuthorityType == CertAuthorityType.SELF_SIGNED || actionModel.getAction() == EMAIL_CONTACTS,
                 "Only EmailContacts action allowed for imported certificates with UNKNOWN issuer.");
         actionModel.getTrigger().validate(validityMonths);
@@ -92,7 +97,8 @@ public class CertificateImportInput {
     }
 
     private static CertificatePolicy mergePolicies(
-            final CertificateCreationInput parsedCertificateData, final CertificatePolicyModel policyModel) {
+            final CertificateCreationInput parsedCertificateData,
+            final CertificatePolicyModel policyModel) {
         final var policy = new CertificatePolicy(parsedCertificateData);
         Optional.ofNullable(policyModel.getKeyProperties())
                 .ifPresent(overrideKeyProperties(policy));

@@ -7,7 +7,8 @@ import java.time.OffsetDateTime;
 import java.time.Period;
 import java.util.Map;
 
-public interface RotationPolicy extends ReadOnlyRotationPolicy, TimeAware {
+public interface RotationPolicy
+        extends ReadOnlyRotationPolicy, TimeAware {
 
     void setLifetimeActions(Map<LifetimeActionType, LifetimeAction> lifetimeActions);
 

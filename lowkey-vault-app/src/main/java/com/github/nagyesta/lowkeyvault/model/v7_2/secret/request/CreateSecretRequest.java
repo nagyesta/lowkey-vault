@@ -14,15 +14,12 @@ public class CreateSecretRequest {
 
     @JsonProperty("contentType")
     private String contentType;
-
     @NotNull
     @NotBlank
     @JsonProperty("value")
     private String value;
-
     @JsonProperty("attributes")
     private SecretPropertiesModel properties;
-
     @JsonProperty("tags")
     private Map<String, String> tags = Map.of();
 

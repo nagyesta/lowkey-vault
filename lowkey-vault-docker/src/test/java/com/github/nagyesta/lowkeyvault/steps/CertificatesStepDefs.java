@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.github.nagyesta.lowkeyvault.context.TestContextConfig.CONTAINER_AUTHORITY;
@@ -188,7 +187,7 @@ public class CertificatesStepDefs extends CommonAssertions {
         final var client = context.getClient(context.getCertificateServiceVersion());
         final var actual = client.listPropertiesOfCertificates()
                 .mapPage(CertificateProperties::getId)
-                .stream().collect(Collectors.toList());
+                .stream().toList();
         context.setListedIds(actual);
     }
 
@@ -197,7 +196,7 @@ public class CertificatesStepDefs extends CommonAssertions {
         final var client = context.getClient(context.getCertificateServiceVersion());
         final var actual = client.listPropertiesOfCertificateVersions(context.getLastResult().getName())
                 .mapPage(CertificateProperties::getId)
-                .stream().collect(Collectors.toList());
+                .stream().toList();
         context.setListedIds(actual);
     }
 
@@ -231,7 +230,7 @@ public class CertificatesStepDefs extends CommonAssertions {
                 .listDeletedCertificates()
                 .stream()
                 .map(DeletedCertificate::getRecoveryId)
-                .collect(Collectors.toList());
+                .toList();
         context.setDeletedRecoveryIds(recoveryIds);
     }
 

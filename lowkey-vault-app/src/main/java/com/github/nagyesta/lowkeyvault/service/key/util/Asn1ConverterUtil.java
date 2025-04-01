@@ -14,7 +14,9 @@ public final class Asn1ConverterUtil {
         throw new IllegalCallerException("Utility cannot be instantiated.");
     }
 
-    public static byte[] convertFromAsn1toRaw(final byte[] signatureAsn1, final int paramLength) {
+    public static byte[] convertFromAsn1toRaw(
+            final byte[] signatureAsn1,
+            final int paramLength) {
         // Parse ASN.1 encoded signature
         final var sequence = ASN1Sequence.getInstance(signatureAsn1);
         final var rBytes = ((ASN1Integer) sequence.getObjectAt(0)).getValue().toByteArray();
@@ -29,7 +31,8 @@ public final class Asn1ConverterUtil {
         return rawRSSignature;
     }
 
-    public static byte[] convertFromRawToAsn1(final byte[] signatureRaw) throws IOException {
+    public static byte[] convertFromRawToAsn1(
+            final byte[] signatureRaw) throws IOException {
         final var byteLength = signatureRaw.length / 2;
         final var r = new BigInteger(1, signatureRaw, 0, byteLength);
         final var s = new BigInteger(1, signatureRaw, byteLength, byteLength);
@@ -43,7 +46,11 @@ public final class Asn1ConverterUtil {
         return signature.getEncoded();
     }
 
-    private static void mergeInto(final byte[] sourceBytes, final byte[] destination, final int offset, final int paramLength) {
+    private static void mergeInto(
+            final byte[] sourceBytes,
+            final byte[] destination,
+            final int offset,
+            final int paramLength) {
         final var copyLength = Math.min(paramLength, sourceBytes.length);
         final var startIndex = Math.max(0, sourceBytes.length - paramLength);
         System.arraycopy(sourceBytes, startIndex, destination, offset + paramLength - copyLength, copyLength);

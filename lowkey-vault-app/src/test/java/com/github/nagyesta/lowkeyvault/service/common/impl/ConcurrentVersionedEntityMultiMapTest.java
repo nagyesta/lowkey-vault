@@ -22,12 +22,11 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -87,7 +86,7 @@ class ConcurrentVersionedEntityMultiMapTest {
         final var key = UNVERSIONED_KEY_ENTITY_ID_1;
         final var dest = new ConcurrentVersionedEntityMultiMap<>(RecoveryLevel.RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE,
                 (i, v) -> new VersionedKeyEntityId(HTTPS_LOCALHOST_8443, i, v), false);
-        final Function<KeyVaultKeyEntity<?, ?>, KeyVaultKeyEntity<?, ?>> function = Function.identity();
+        final UnaryOperator<KeyVaultKeyEntity<?, ?>> function = same -> same;
         return Stream.<Arguments>builder()
                 .add(Arguments.of(null, null, null))
                 .add(Arguments.of(key, null, null))
@@ -536,7 +535,7 @@ class ConcurrentVersionedEntityMultiMapTest {
         putAllMocks();
 
         //when
-        underTest.moveTo(UNVERSIONED_KEY_ENTITY_ID_1, deleted, (e) -> {
+        underTest.moveTo(UNVERSIONED_KEY_ENTITY_ID_1, deleted, e -> {
             e.setDeletedDate(TestConstants.NOW);
             return e;
         });
@@ -547,9 +546,9 @@ class ConcurrentVersionedEntityMultiMapTest {
         Assertions.assertTrue(underTest.containsName(KEY_NAME_3));
         if (recoveryLevel.isRecoverable()) {
             Assertions.assertTrue(deleted.containsName(KEY_NAME_1));
-            verify(key1Version1Mock).setDeletedDate(eq(TestConstants.NOW));
-            verify(key1Version2Mock).setDeletedDate(eq(TestConstants.NOW));
-            verify(key1Version3Mock).setDeletedDate(eq(TestConstants.NOW));
+            verify(key1Version1Mock).setDeletedDate(TestConstants.NOW);
+            verify(key1Version2Mock).setDeletedDate(TestConstants.NOW);
+            verify(key1Version3Mock).setDeletedDate(TestConstants.NOW);
             Assertions.assertIterableEquals(List.of(key1Version3Mock), deleted.listLatestEntities());
         } else {
             Assertions.assertFalse(deleted.containsName(KEY_NAME_1));
@@ -562,7 +561,7 @@ class ConcurrentVersionedEntityMultiMapTest {
     void testMoveToShouldThrowExceptionWhenCalledWithNullType(
             final KeyEntityId entityId,
             final VersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity, KeyVaultKeyEntity<?, ?>> dest,
-            final Function<KeyVaultKeyEntity<?, ?>, KeyVaultKeyEntity<?, ?>> applyToAll) {
+            final UnaryOperator<KeyVaultKeyEntity<?, ?>> applyToAll) {
         //given
         putAllMocks();
 

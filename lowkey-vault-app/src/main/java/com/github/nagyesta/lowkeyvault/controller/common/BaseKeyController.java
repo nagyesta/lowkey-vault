@@ -1,12 +1,7 @@
 package com.github.nagyesta.lowkeyvault.controller.common;
 
 import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyItemModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyVersionItemModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ModelConverter;
-import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupList;
 import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupListItem;
-import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesUpdateModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.*;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.CreateKeyRequest;
@@ -25,18 +20,21 @@ import org.springframework.lang.NonNull;
 import java.util.Objects;
 
 @Slf4j
-public abstract class BaseKeyController extends GenericEntityController<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity,
+public abstract class BaseKeyController
+        extends GenericEntityController<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity,
         KeyVaultKeyModel, DeletedKeyVaultKeyModel, KeyVaultKeyItemModel, DeletedKeyVaultKeyItemModel,
-        KeyEntityToV72ModelConverter, KeyEntityToV72KeyItemModelConverter, KeyEntityToV72KeyVersionItemModelConverter,
-        KeyVaultFake, KeyPropertiesModel, KeyBackupListItem, KeyBackupList, KeyBackupModel, KeyConverterRegistry> {
+        KeyVaultFake, KeyPropertiesModel, KeyBackupListItem, KeyConverterRegistry> {
 
-    protected BaseKeyController(@NonNull final KeyConverterRegistry registry,
-                                @NonNull final VaultService vaultService) {
+    protected BaseKeyController(
+            @NonNull final KeyConverterRegistry registry,
+            @NonNull final VaultService vaultService) {
         super(registry, vaultService, VaultFake::keyVaultFake);
     }
 
     protected VersionedKeyEntityId createKeyWithAttributes(
-            final KeyVaultFake keyVaultFake, final String keyName, final CreateKeyRequest request) {
+            final KeyVaultFake keyVaultFake,
+            final String keyName,
+            final CreateKeyRequest request) {
         final var properties = Objects.requireNonNullElse(request.getProperties(), new KeyPropertiesModel());
         //no need to set managed property as this endpoint cannot create managed entities by definition
         return keyVaultFake.createKeyVersion(keyName, KeyCreateDetailedInput.builder()
@@ -52,7 +50,9 @@ public abstract class BaseKeyController extends GenericEntityController<KeyEntit
     }
 
     protected VersionedKeyEntityId importKeyWithAttributes(
-            final KeyVaultFake keyVaultFake, final String keyName, final ImportKeyRequest request) {
+            final KeyVaultFake keyVaultFake,
+            final String keyName,
+            final ImportKeyRequest request) {
         final var properties = Objects
                 .requireNonNullElse(request.getProperties(), new BasePropertiesUpdateModel());
         return keyVaultFake.importKeyVersion(keyName, KeyImportInput.builder()

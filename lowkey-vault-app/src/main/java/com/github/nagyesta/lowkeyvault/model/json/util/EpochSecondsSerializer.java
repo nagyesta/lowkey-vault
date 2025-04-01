@@ -8,16 +8,19 @@ import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 
-public class EpochSecondsSerializer extends JsonSerializer<OffsetDateTime> {
+public class EpochSecondsSerializer
+        extends JsonSerializer<OffsetDateTime> {
 
     @Override
-    public void serialize(final OffsetDateTime value, final JsonGenerator generator, final SerializerProvider provider) throws IOException {
+    public void serialize(
+            final OffsetDateTime value,
+            final JsonGenerator generator,
+            final SerializerProvider provider) throws IOException {
         final var optional = Optional.ofNullable(value);
-        if (optional.isPresent()) {
-            final long epochSeconds = optional
-                    .map(OffsetDateTime::toEpochSecond)
-                    .get();
-            generator.writeNumber(epochSeconds);
+        final var optionalEpochSeconds = optional
+                .map(OffsetDateTime::toEpochSecond);
+        if (optionalEpochSeconds.isPresent()) {
+            generator.writeNumber(optionalEpochSeconds.get());
         } else {
             generator.writeNull();
         }

@@ -12,17 +12,18 @@ import org.springframework.util.Assert;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 @Slf4j
-public class VaultServiceImpl implements VaultService {
+public class VaultServiceImpl
+        implements VaultService {
 
-    private final Function<URI, URI> uriMapper;
+    private final UnaryOperator<URI> uriMapper;
     private final Set<VaultFake> vaultFakes = new CopyOnWriteArraySet<>();
 
-    public VaultServiceImpl(@NonNull final Function<URI, URI> uriMapper) {
+    public VaultServiceImpl(@NonNull final UnaryOperator<URI> uriMapper) {
         this.uriMapper = uriMapper;
     }
 

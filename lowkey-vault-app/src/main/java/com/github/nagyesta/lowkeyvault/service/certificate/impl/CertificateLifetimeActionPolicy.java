@@ -5,15 +5,19 @@ import com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeAc
 import com.github.nagyesta.lowkeyvault.service.certificate.LifetimeActionPolicy;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.CertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.common.impl.BaseLifetimePolicy;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import org.springframework.util.Assert;
 
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.function.ToLongFunction;
+import java.util.function.UnaryOperator;
 
-public class CertificateLifetimeActionPolicy extends BaseLifetimePolicy<CertificateEntityId> implements LifetimeActionPolicy {
+@EqualsAndHashCode(callSuper = true)
+public class CertificateLifetimeActionPolicy
+        extends BaseLifetimePolicy<CertificateEntityId> implements LifetimeActionPolicy {
 
     private Map<CertificateLifetimeActionActivity, CertificateLifetimeActionTrigger> lifetimeActions;
 
@@ -46,11 +50,12 @@ public class CertificateLifetimeActionPolicy extends BaseLifetimePolicy<Certific
     }
 
     @Override
-    public List<OffsetDateTime> missedRenewalDays(final OffsetDateTime validityStart,
-                                                  final Function<OffsetDateTime, OffsetDateTime> createdToExpiryFunction) {
+    public List<OffsetDateTime> missedRenewalDays(
+            final OffsetDateTime validityStart,
+                                                  final UnaryOperator<OffsetDateTime> createdToExpiryFunction) {
         Assert.isTrue(isAutoRenew(), "Cannot have missed renewals without an \"AutoRenew\" lifetime action.");
         final var trigger = lifetimeActions.get(CertificateLifetimeActionActivity.AUTO_RENEW);
-        final Function<OffsetDateTime, Long> triggerAfterDaysFunction = s -> trigger
+        final ToLongFunction<OffsetDateTime> triggerAfterDaysFunction = s -> trigger
                 .triggersAfterDays(s, createdToExpiryFunction.apply(s));
         final var startPoint = findTriggerTimeOffset(validityStart, triggerAfterDaysFunction);
         return collectMissedTriggerDays(triggerAfterDaysFunction, startPoint);

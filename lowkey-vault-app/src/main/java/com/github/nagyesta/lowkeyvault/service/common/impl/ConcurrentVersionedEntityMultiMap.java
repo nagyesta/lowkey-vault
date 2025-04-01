@@ -13,11 +13,20 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * A concurrent multi-map implementation supporting different versions of the entities.
+ *
+ * @param <K>  The type of the key (not versioned).
+ * @param <V>  The versioned key type.
+ * @param <RE> The read-only entity type.
+ * @param <ME> The modifiable entity type.
+ */
+@SuppressWarnings("java:S119") //It is easier to ensure that the types are consistent this way
 public class ConcurrentVersionedEntityMultiMap<K extends EntityId, V extends K, RE extends BaseVaultEntity<V>, ME extends RE>
         implements VersionedEntityMultiMap<K, V, RE, ME> {
 
@@ -28,10 +37,11 @@ public class ConcurrentVersionedEntityMultiMap<K extends EntityId, V extends K, 
     private final Integer recoverableDays;
     private final boolean deleted;
 
-    public ConcurrentVersionedEntityMultiMap(@NonNull final RecoveryLevel recoveryLevel,
-                                             final Integer recoverableDays,
-                                             @NonNull final BiFunction<String, String, V> versionCreateFunction,
-                                             final boolean deleted) {
+    public ConcurrentVersionedEntityMultiMap(
+            @NonNull final RecoveryLevel recoveryLevel,
+            final Integer recoverableDays,
+            @NonNull final BiFunction<String, String, V> versionCreateFunction,
+            final boolean deleted) {
         this.versionCreateFunction = versionCreateFunction;
         recoveryLevel.checkValidRecoverableDays(recoverableDays);
         this.recoveryLevel = recoveryLevel;
@@ -69,7 +79,9 @@ public class ConcurrentVersionedEntityMultiMap<K extends EntityId, V extends K, 
     }
 
     @Override
-    public boolean containsEntityMatching(final String name, final Predicate<RE> predicate) {
+    public boolean containsEntityMatching(
+            final String name,
+            final Predicate<RE> predicate) {
         return containsName(name) && entities.get(name).values().stream().anyMatch(predicate);
     }
 
@@ -103,13 +115,17 @@ public class ConcurrentVersionedEntityMultiMap<K extends EntityId, V extends K, 
     }
 
     @Override
-    public void put(@NonNull final V entityId, @NonNull final ME entity) {
+    public void put(
+            @NonNull final V entityId,
+            @NonNull final ME entity) {
         entities.computeIfAbsent(entityId.id(), id -> new ConcurrentHashMap<>()).put(entityId.version(), entity);
         versions.computeIfAbsent(entityId.id(), id -> new ConcurrentLinkedDeque<>()).add(entityId.version());
     }
 
     @Override
-    public <R extends RE> R getEntity(@NonNull final V entityId, @NonNull final Class<R> type) {
+    public <R extends RE> R getEntity(
+            @NonNull final V entityId,
+            @NonNull final Class<R> type) {
         return type.cast(this.getEntity(entityId));
     }
 
@@ -129,13 +145,14 @@ public class ConcurrentVersionedEntityMultiMap<K extends EntityId, V extends K, 
     }
 
     @Override
-    public void moveTo(@NonNull final K entityId,
-                       @NonNull final VersionedEntityMultiMap<K, V, RE, ME> destination,
-                       @NonNull final Function<ME, ME> applyToAll) {
+    public void moveTo(
+            @NonNull final K entityId,
+            @NonNull final VersionedEntityMultiMap<K, V, RE, ME> destination,
+            @NonNull final UnaryOperator<ME> applyToAll) {
         final var toKeep = entities.remove(entityId.id());
-        final var versions = this.versions.remove(entityId.id());
+        final var changedVersions = this.versions.remove(entityId.id());
         if (recoveryLevel.isRecoverable()) {
-            versions.forEach(version -> destination
+            changedVersions.forEach(version -> destination
                     .put(versionCreateFunction.apply(entityId.id(), version), applyToAll.apply(toKeep.get(version))));
         }
     }

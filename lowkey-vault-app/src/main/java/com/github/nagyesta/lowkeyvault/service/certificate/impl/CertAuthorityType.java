@@ -20,7 +20,9 @@ public enum CertAuthorityType {
     private final String value;
     private final CertificateLifetimeActionActivity defaultAction;
 
-    CertAuthorityType(final String value, final CertificateLifetimeActionActivity action) {
+    CertAuthorityType(
+            final String value,
+            final CertificateLifetimeActionActivity action) {
         this.value = value;
         this.defaultAction = action;
     }

@@ -16,7 +16,7 @@ import java.util.Set;
 
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.VALIDITY_MONTHS_ONE_YEAR;
 
-public class BaseCertificateControllerIntegrationTest {
+public abstract class BaseCertificateControllerIntegrationTest {
 
     @Autowired
     private VaultService vaultService;

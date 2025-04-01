@@ -11,10 +11,12 @@ import org.springframework.util.Assert;
 @Getter
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class EcKeyCreationInput extends KeyCreationInput<KeyCurveName> {
+public class EcKeyCreationInput
+        extends KeyCreationInput<KeyCurveName> {
 
-    public EcKeyCreationInput(@NonNull final KeyType keyType,
-                              final KeyCurveName keyParameter) {
+    public EcKeyCreationInput(
+            @NonNull final KeyType keyType,
+            final KeyCurveName keyParameter) {
         super(keyType, keyParameter);
         Assert.isTrue(keyType.isEc(), "KeyType must be EC.");
         Assert.notNull(keyParameter, "KeyCurveName must not be null.");

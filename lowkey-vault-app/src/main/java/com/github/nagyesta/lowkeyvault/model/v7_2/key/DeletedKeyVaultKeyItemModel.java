@@ -15,7 +15,8 @@ import java.time.OffsetDateTime;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class DeletedKeyVaultKeyItemModel extends KeyVaultKeyItemModel implements DeletedModel {
+public class DeletedKeyVaultKeyItemModel
+        extends KeyVaultKeyItemModel implements DeletedModel {
 
     @JsonProperty("recoveryId")
     private String recoveryId;

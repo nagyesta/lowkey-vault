@@ -30,7 +30,7 @@ public class KeyRotationPolicyModel {
     @Size(min = 1, max = 2, groups = {Restore.class, Update.class})
     @JsonProperty("lifetimeActions")
     private List<KeyLifetimeActionModel> lifetimeActions;
-
     @JsonIgnore
     private KeyEntityId keyEntityId;
+
 }

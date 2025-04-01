@@ -7,7 +7,8 @@ import org.springframework.core.convert.converter.Converter;
 
 import java.security.interfaces.RSAPrivateCrtKey;
 
-public class RsaPrivateKeyToJsonWebKeyImportRequestConverter implements Converter<RSAPrivateCrtKey, JsonWebKeyImportRequest> {
+public class RsaPrivateKeyToJsonWebKeyImportRequestConverter
+        implements Converter<RSAPrivateCrtKey, JsonWebKeyImportRequest> {
 
     @Override
     public JsonWebKeyImportRequest convert(final @NonNull RSAPrivateCrtKey source) {

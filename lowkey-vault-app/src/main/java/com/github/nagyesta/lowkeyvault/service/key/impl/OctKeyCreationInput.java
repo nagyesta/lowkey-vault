@@ -10,10 +10,12 @@ import org.springframework.util.Assert;
 @Getter
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class OctKeyCreationInput extends KeyCreationInput<Integer> {
+public class OctKeyCreationInput
+        extends KeyCreationInput<Integer> {
 
-    public OctKeyCreationInput(@NonNull final KeyType keyType,
-                               final Integer keyParameter) {
+    public OctKeyCreationInput(
+            @NonNull final KeyType keyType,
+            final Integer keyParameter) {
         super(keyType, keyParameter);
         Assert.isTrue(keyType.isOct(), "KeyType must be OCT.");
     }

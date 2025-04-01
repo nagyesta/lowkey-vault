@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 
 public class CertificateBackingEntityGenerator {
+
     private final VaultFake vaultFake;
 
     public CertificateBackingEntityGenerator(final VaultFake vaultFake) {
@@ -39,8 +40,10 @@ public class CertificateBackingEntityGenerator {
     }
 
     public VersionedKeyEntityId importKeyPair(
-            final ReadOnlyCertificatePolicy input, final JsonWebKeyImportRequest keyImportRequest) {
-        return importKeyPair(new VersionedKeyEntityId(vaultFake.baseUri(), input.getName()), input, keyImportRequest, true);
+            final ReadOnlyCertificatePolicy input,
+            final JsonWebKeyImportRequest keyImportRequest) {
+        return importKeyPair(
+                new VersionedKeyEntityId(vaultFake.baseUri(), input.getName()), input, keyImportRequest, true);
     }
 
     public VersionedKeyEntityId importKeyPair(

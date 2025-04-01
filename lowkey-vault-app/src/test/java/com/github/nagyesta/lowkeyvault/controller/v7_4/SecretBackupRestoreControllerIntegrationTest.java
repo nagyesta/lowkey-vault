@@ -30,7 +30,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
@@ -43,7 +42,7 @@ import static org.mockito.Mockito.mock;
 class SecretBackupRestoreControllerIntegrationTest {
 
     @Autowired
-    @Qualifier("SecretBackupRestoreControllerV74")
+    @Qualifier("secretBackupRestoreControllerV74")
     private SecretBackupRestoreController underTest;
     @Autowired
     private VaultService vaultService;
@@ -59,7 +58,6 @@ class SecretBackupRestoreControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        final var name = UUID.randomUUID().toString();
         uri = getRandomVaultUri();
         vaultService.create(uri, RecoveryLevel.RECOVERABLE_AND_PURGEABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE, null);
     }

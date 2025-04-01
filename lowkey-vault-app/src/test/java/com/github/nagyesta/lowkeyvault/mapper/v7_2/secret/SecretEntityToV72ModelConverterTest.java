@@ -20,14 +20,14 @@ import org.mockito.MockitoAnnotations;
 import java.net.URI;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsSecrets.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOWKEY_VAULT;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_XML;
@@ -125,8 +125,7 @@ class SecretEntityToV72ModelConverterTest {
 
     private void prepareVaultMock(final URI baseUri) {
         when(vault.baseUri()).thenReturn(baseUri);
-        final var vaultUri = eq(baseUri);
-        when(vault.matches(vaultUri, eq(Function.identity()))).thenReturn(true);
+        when(vault.matches(baseUri, uri -> uri)).thenReturn(true);
     }
 
     private void assertFieldsMatch(final Map<String, String> tags,

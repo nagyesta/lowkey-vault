@@ -104,7 +104,7 @@ public final class LowkeyVaultContainerBuilder {
             }
         });
         aliasMap.values().stream().flatMap(Collection::stream).forEach(host -> {
-            if (!host.matches("^[0-9a-z\\-_.]+(:[0-9]+|:<port>)?$")) {
+            if (!host.matches("^[0-9a-z\\-_.]+(:\\d+|:<port>)?$")) {
                 throw new IllegalArgumentException("Vault aliases must match '^[0-9a-z\\-_.]+(:[0-9]+|:<port>)?$'. Found: " + host);
             }
         });
@@ -184,7 +184,7 @@ public final class LowkeyVaultContainerBuilder {
      * @deprecated No longer recommended, containers start with relaxed port configuration by default,
      * therefore the random port assigned by Testcontainers can be used in Vault URLs without issues.
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public LowkeyVaultContainerBuilder hostPort(final int hostPort) {
         if (hostPort < 1) {
             throw new IllegalArgumentException("Host port cannot be zero or negative.");
@@ -430,6 +430,7 @@ public final class LowkeyVaultContainerBuilder {
         return mergeTrustStores;
     }
 
+    @SuppressWarnings("java:S1452") //we cannot possibly know these types
     public List<ContainerDependency<?>> getDependsOnContainers() {
         return List.copyOf(dependsOnContainers);
     }

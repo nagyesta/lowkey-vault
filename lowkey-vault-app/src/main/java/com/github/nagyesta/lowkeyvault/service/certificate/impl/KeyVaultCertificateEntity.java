@@ -57,9 +57,9 @@ public class KeyVaultCertificateEntity
         super(vault);
         Assert.state(name.equals(input.getName()),
                 "Certificate name (" + name + ") did not match name from certificate creation input: " + input.getName());
-        final var kid = new KeyEntityId(vault.baseUri(), name);
-        final var sid = new SecretEntityId(vault.baseUri(), name);
-        assertNoNameCollisionWithNotManagedEntity(vault, kid, sid);
+        final var tempKid = new KeyEntityId(vault.baseUri(), name);
+        final var tempSid = new SecretEntityId(vault.baseUri(), name);
+        assertNoNameCollisionWithNotManagedEntity(vault, tempKid, tempSid);
         this.issuancePolicy = new CertificatePolicy(input);
         this.originalCertificatePolicy = new CertificatePolicy(input);
         this.generator = new CertificateBackingEntityGenerator(vault);
@@ -92,15 +92,15 @@ public class KeyVaultCertificateEntity
                 .orElseThrow(() -> new IllegalArgumentException("Certificate data must not be null."));
         final ReadOnlyCertificatePolicy originalCertificateData = Optional.ofNullable(input.getParsedCertificateData())
                 .orElseThrow(() -> new IllegalArgumentException("Parsed certificate data must not be null."));
-        final var certificate = Optional.ofNullable(input.getCertificate())
+        final var tempCertificate = Optional.ofNullable(input.getCertificate())
                 .orElseThrow(() -> new IllegalArgumentException("Certificate must not be null."));
         final var keyImportRequest = Optional.ofNullable(input.getKeyData())
                 .orElseThrow(() -> new IllegalArgumentException("Key data must not be null."));
         Assert.state(name.equals(policy.getName()),
                 "Certificate name (" + name + ") did not match name from certificate creation input: " + policy.getName());
-        final var kid = new KeyEntityId(vault.baseUri(), name);
-        final var sid = new SecretEntityId(vault.baseUri(), name);
-        assertNoNameCollisionWithNotManagedEntity(vault, kid, sid);
+        final var tempKid = new KeyEntityId(vault.baseUri(), name);
+        final var tempSid = new SecretEntityId(vault.baseUri(), name);
+        assertNoNameCollisionWithNotManagedEntity(vault, tempKid, tempSid);
         this.issuancePolicy = new CertificatePolicy(policy);
         this.originalCertificatePolicy = new CertificatePolicy(originalCertificateData);
         this.generator = new CertificateBackingEntityGenerator(vault);
@@ -108,7 +108,7 @@ public class KeyVaultCertificateEntity
         //reuse the generated key version to produce matching version numbers in all keys
         this.id = new VersionedCertificateEntityId(vault.baseUri(), name, this.kid.version());
         final var certificateGenerator = new CertificateGenerator(vault, this.kid);
-        this.certificate = certificate;
+        this.certificate = tempCertificate;
         this.csr = certificateGenerator.generateCertificateSigningRequest(name, this.certificate);
         final var secretEntityId = new VersionedSecretEntityId(vault.baseUri(), input.getName(), this.kid.version());
         this.sid = generator.generateSecret(this.originalCertificatePolicy, this.certificate, this.kid, secretEntityId);
@@ -164,26 +164,26 @@ public class KeyVaultCertificateEntity
         super(vault);
         final ReadOnlyCertificatePolicy policy = input.getCertificateData();
         final ReadOnlyCertificatePolicy originalCertificateData = input.getParsedCertificateData();
-        final var certificate = input.getCertificate();
+        final var tempCertificate = input.getCertificate();
         final var keyImportRequest = input.getKeyData();
-        final var kid = new VersionedKeyEntityId(vault.baseUri(), id.id(), input.getKeyVersion());
-        final var sid = new VersionedSecretEntityId(vault.baseUri(), id.id(), id.version());
-        assertNoNameCollisionWithNotManagedEntity(vault, kid, sid);
+        final var tempKid = new VersionedKeyEntityId(vault.baseUri(), id.id(), input.getKeyVersion());
+        final var tempSid = new VersionedSecretEntityId(vault.baseUri(), id.id(), id.version());
+        assertNoNameCollisionWithNotManagedEntity(vault, tempKid, tempSid);
         this.issuancePolicy = new CertificatePolicy(policy);
         this.originalCertificatePolicy = new CertificatePolicy(originalCertificateData);
         this.generator = new CertificateBackingEntityGenerator(vault);
-        if (vault.keyVaultFake().getEntities().containsEntity(kid)) {
+        if (vault.keyVaultFake().getEntities().containsEntity(tempKid)) {
             //key already exists, just extend expiry
-            this.kid = kid;
+            this.kid = tempKid;
             vault.keyVaultFake().getEntities().getEntity(kid, KeyVaultKeyEntity.class).setExpiry(input.getExpires());
         } else {
-            this.kid = generator.importKeyPair(kid, policy, keyImportRequest, input.isEnabled());
+            this.kid = generator.importKeyPair(tempKid, policy, keyImportRequest, input.isEnabled());
         }
         this.id = new VersionedCertificateEntityId(vault.baseUri(), id.id(), id.version());
         final var certificateGenerator = new CertificateGenerator(vault, this.kid);
-        this.certificate = certificate;
+        this.certificate = tempCertificate;
         this.csr = certificateGenerator.generateCertificateSigningRequest(id.id(), this.certificate);
-        this.sid = generator.generateSecret(this.originalCertificatePolicy, this.certificate, this.kid, sid);
+        this.sid = generator.generateSecret(this.originalCertificatePolicy, this.certificate, this.kid, tempSid);
         this.originalCertificateContents = vault.secretVaultFake().getEntities().getReadOnlyEntity(this.sid).getValue();
         this.updateIssuancePolicy(convertPolicyToCertificateCreationInput(input.getName(), input.getIssuancePolicy()));
         this.setExpiry(input.getExpires());
@@ -243,6 +243,7 @@ public class KeyVaultCertificateEntity
     }
 
     @Override
+    @SuppressWarnings("java:S4790") //must adhere to the standard
     public byte[] getThumbprint() throws CryptoException {
         try {
             final var messageDigest = MessageDigest.getInstance("SHA-1");
@@ -298,7 +299,9 @@ public class KeyVaultCertificateEntity
     }
 
     private static void assertNoNameCollisionWithNotManagedEntity(
-            final VaultFake vault, final KeyEntityId kid, final SecretEntityId sid) {
+            final VaultFake vault,
+            final KeyEntityId kid,
+            final SecretEntityId sid) {
         Assert.state(!vault.keyVaultFake().getEntities().containsEntityMatching(kid.id(), KeyVaultCertificateEntity::isNotManaged),
                 "Key must not exist to be able to store certificate data in it. " + kid.asUriNoVersion(vault.baseUri()));
         Assert.state(!vault.secretVaultFake().getEntities().containsEntityMatching(sid.id(), KeyVaultCertificateEntity::isNotManaged),
@@ -309,7 +312,9 @@ public class KeyVaultCertificateEntity
         return !e.isManaged();
     }
 
-    private void normalizeCoreTimeStamps(final ReadOnlyCertificatePolicy certPolicy, final OffsetDateTime createOrUpdate) {
+    private void normalizeCoreTimeStamps(
+            final ReadOnlyCertificatePolicy certPolicy,
+            final OffsetDateTime createOrUpdate) {
         this.setNotBefore(certPolicy.getValidityStart());
         this.setExpiry(certPolicy.getValidityStart().plusMonths(certPolicy.getValidityMonths()));
         this.setEnabled(true);
@@ -318,7 +323,9 @@ public class KeyVaultCertificateEntity
         this.setUpdatedOn(createOrUpdate);
     }
 
-    private void regenerateCertificateData(final VaultFake vaultFake, final CertificatePolicy updated) {
+    private void regenerateCertificateData(
+            final VaultFake vaultFake,
+            final CertificatePolicy updated) {
         final var certificateGenerator = new CertificateGenerator(vaultFake, this.kid);
         this.certificate = certificateGenerator.generateCertificate(updated);
         this.csr = certificateGenerator.generateCertificateSigningRequest(this.id.id(), this.certificate);

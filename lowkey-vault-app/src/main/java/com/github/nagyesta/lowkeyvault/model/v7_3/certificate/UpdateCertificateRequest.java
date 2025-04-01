@@ -10,7 +10,6 @@ public class UpdateCertificateRequest {
 
     @JsonProperty("attributes")
     private CertificatePropertiesModel attributes;
-
     @JsonProperty("tags")
     private Map<String, String> tags;
 }

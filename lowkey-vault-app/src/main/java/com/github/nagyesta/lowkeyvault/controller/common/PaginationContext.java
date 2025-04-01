@@ -14,6 +14,23 @@ import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.API_VERS
 @Data
 @Builder
 public class PaginationContext {
+
+    /**
+     * Default page size used when returning available versions of an entity.
+     */
+    public static final String DEFAULT_MAX = "25";
+    /**
+     * Default offset used  when returning available versions of an entity.
+     */
+    public static final String SKIP_ZERO = "0";
+    /**
+     * Parameter name for the page size when returning versions of an entity.
+     */
+    public static final String MAX_RESULTS_PARAM = "maxresults";
+    /**
+     * Parameter name for the offset when returning versions of an entity.
+     */
+    public static final String SKIP_TOKEN_PARAM = "$skiptoken";
     private static final String AND = "&";
     private static final String EQUALS = "=";
     private static final String QUESTION_MARK = "?";
@@ -33,8 +50,8 @@ public class PaginationContext {
         if (hasMorePages()) {
             nextUri = URI.create(base
                     + QUESTION_MARK + API_VERSION_PREFIX + apiVersion
-                    + AND + GenericEntityController.SKIP_TOKEN_PARAM + EQUALS + skipValue()
-                    + AND + GenericEntityController.MAX_RESULTS_PARAM + EQUALS + limit
+                    + AND + SKIP_TOKEN_PARAM + EQUALS + skipValue()
+                    + AND + MAX_RESULTS_PARAM + EQUALS + limit
                     + additionalParametersAsQuery());
         }
         return nextUri;

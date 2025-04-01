@@ -38,4 +38,5 @@ public class KeyRotationPolicyAttributes {
     @ExpiryPeriod
     @JsonProperty("expiryTime")
     private Period expiryTime;
+
 }

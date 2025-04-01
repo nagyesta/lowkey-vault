@@ -10,6 +10,7 @@ import lombok.NonNull;
 
 public interface CertificateVaultFake
         extends BaseVaultFake<CertificateEntityId, VersionedCertificateEntityId, ReadOnlyKeyVaultCertificateEntity> {
+
     VersionedCertificateEntityId createCertificateVersion(@NonNull String name, @NonNull CertificateCreationInput input);
 
     VersionedCertificateEntityId importCertificateVersion(@NonNull String name, @NonNull CertificateImportInput input);

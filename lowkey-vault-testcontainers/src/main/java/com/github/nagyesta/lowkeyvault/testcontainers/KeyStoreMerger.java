@@ -1,8 +1,12 @@
 package com.github.nagyesta.lowkeyvault.testcontainers;
 
+import org.apache.commons.lang3.SystemUtils;
+
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.security.KeyStore;
 import java.util.Optional;
 
@@ -35,6 +39,7 @@ public final class KeyStoreMerger implements AutoCloseable {
     /**
      * The default password of the default Java trust store.
      */
+    @SuppressWarnings("java:S2068") //this is a well-know password of the JRE
     public static final String DEFAULT_PASSWORD = "changeit";
     private static final String JAVA_HOME = "java.home";
     private static final String LIB = "lib";
@@ -127,13 +132,31 @@ public final class KeyStoreMerger implements AutoCloseable {
     Path storeToTempFile(
             final KeyStore originalTrustStore, final char[] storePassword) {
         try {
-            final var tempFile = Files.createTempFile("lowkey-vault-trust-store-", ".keystore");
+            final var tempFile = createTempKeyStoreFile();
             originalTrustStore.store(Files.newOutputStream(tempFile), storePassword);
             tempFile.toFile().deleteOnExit();
             return tempFile;
         } catch (final Exception e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    @SuppressWarnings("java:S5443") //permissions are limited, ignoring false positive
+    private Path createTempKeyStoreFile() throws IOException {
+        final Path tempFilePath;
+        if (SystemUtils.IS_OS_UNIX) {
+            final var attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"));
+            tempFilePath = Files.createTempFile("lowkey-vault-trust-store-", ".keystore", attr);
+        } else {
+            tempFilePath = Files.createTempFile("lowkey-vault-trust-store-", ".keystore");
+            final var tempFile = tempFilePath.toFile();
+            if (!tempFile.setReadable(true, true)
+                    || !tempFile.setWritable(true, true)
+                    || !tempFile.setExecutable(true, true)) {
+                throw new IllegalStateException("Unable to limit permissions for temporary key store");
+            }
+        }
+        return tempFilePath;
     }
 
     private KeyStore loadOriginal(final Path storeLocation, final String storeType, final char[] storePassword) {

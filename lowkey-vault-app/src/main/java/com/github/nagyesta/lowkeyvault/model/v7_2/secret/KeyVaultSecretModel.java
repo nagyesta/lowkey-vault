@@ -12,22 +12,16 @@ public class KeyVaultSecretModel {
 
     @JsonProperty("id")
     private String id;
-
     @JsonProperty("kid")
     private String kid;
-
     @JsonProperty("value")
     private String value;
-
     @JsonProperty("contentType")
     private String contentType;
-
     @JsonProperty("attributes")
     private SecretPropertiesModel attributes;
-
     @JsonProperty("tags")
     private Map<String, String> tags;
-
     @JsonProperty("managed")
     private Boolean managed;
 

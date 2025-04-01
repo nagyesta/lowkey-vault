@@ -61,10 +61,6 @@
 
     <!-- Checks for Headers                                -->
     <!-- See http://checkstyle.sf.net/config_header.html   -->
-    <!-- <module name="Header"> -->
-    <!--   <property name="headerFile" value="${checkstyle.header.file}"/> -->
-    <!--   <property name="fileExtensions" value="java"/> -->
-    <!-- </module> -->
 
     <module name="TreeWalker">
 
@@ -137,11 +133,6 @@
         <module name="AvoidInlineConditionals"/>
         <module name="EmptyStatement"/>
         <module name="EqualsHashCode"/>
-        <!--        <module name="HiddenField">-->
-        <!--            <property name="ignoreConstructorParameter" value="true"/>-->
-        <!--            <property name="ignoreSetter" value="true"/>-->
-        <!--            <property name="setterCanReturnItsClass" value="true"/>-->
-        <!--        </module>-->
         <module name="IllegalInstantiation"/>
         <module name="InnerAssignment"/>
         <module name="MagicNumber">
@@ -153,9 +144,6 @@
 
         <!-- Checks for class design                         -->
         <!-- See http://checkstyle.sf.net/config_design.html -->
-        <!--        <module name="DesignForExtension">-->
-        <!--            <property name="ignoredAnnotations" value="Override,Generated,ParameterizedTest,Test,Bean,PostMapping,GetMapping,DeleteMapping"/>-->
-        <!--        </module>-->
         <module name="FinalClass"/>
         <module name="HideUtilityClassConstructor"/>
         <module name="InterfaceIsType"/>

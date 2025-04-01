@@ -16,19 +16,25 @@ import java.util.function.Supplier;
  * @param <T>  The active target type.
  * @param <DT> The deleted target type.
  */
+@SuppressWarnings("java:S119") //It is easier to ensure that the types are consistent this way
 public abstract class BaseRecoveryAwareConverter<V extends EntityId, S extends ReadOnlyDeletedEntity<V>, T, DT extends T>
         implements RecoveryAwareConverter<S, T, DT> {
 
     private final Supplier<T> modelSupplier;
     private final Supplier<DT> deletedModelSupplier;
 
-    protected BaseRecoveryAwareConverter(final Supplier<T> modelSupplier, final Supplier<DT> deletedModelSupplier) {
+    protected BaseRecoveryAwareConverter(
+            final Supplier<T> modelSupplier,
+            final Supplier<DT> deletedModelSupplier) {
         this.modelSupplier = modelSupplier;
         this.deletedModelSupplier = deletedModelSupplier;
         Assert.isInstanceOf(DeletedModel.class, deletedModelSupplier.get());
     }
 
-    protected void mapDeletedFields(final S source, final DeletedModel model, final URI vaultUri) {
+    protected void mapDeletedFields(
+            final S source,
+            final DeletedModel model,
+            final URI vaultUri) {
         model.setRecoveryId(source.getId().asRecoveryUri(vaultUri).toString());
         model.setDeletedDate(source.getDeletedDate().orElseThrow());
         model.setScheduledPurgeDate(source.getScheduledPurgeDate().orElseThrow());
@@ -36,13 +42,17 @@ public abstract class BaseRecoveryAwareConverter<V extends EntityId, S extends R
 
     @Override
     @org.springframework.lang.NonNull
-    public T convert(@org.springframework.lang.NonNull final S source, @org.springframework.lang.NonNull final URI vaultUri) {
+    public T convert(
+            @org.springframework.lang.NonNull final S source,
+            @org.springframework.lang.NonNull final URI vaultUri) {
         return mapActiveFields(source, modelSupplier.get(), vaultUri);
     }
 
     @Override
     @org.springframework.lang.NonNull
-    public DT convertDeleted(@org.springframework.lang.NonNull final S source, @org.springframework.lang.NonNull final URI vaultUri) {
+    public DT convertDeleted(
+            @org.springframework.lang.NonNull final S source,
+            @org.springframework.lang.NonNull final URI vaultUri) {
         final var model = deletedModelSupplier.get();
         mapDeletedFields(source, (DeletedModel) model, vaultUri);
         return mapActiveFields(source, model, vaultUri);

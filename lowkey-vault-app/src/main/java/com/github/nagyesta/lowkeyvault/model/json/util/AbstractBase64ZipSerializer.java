@@ -23,14 +23,18 @@ public abstract class AbstractBase64ZipSerializer<E> extends JsonSerializer<E> {
     private final Base64Serializer base64Serializer;
     private final ObjectMapper objectMapper;
 
-    protected AbstractBase64ZipSerializer(final Base64Serializer base64Serializer, final ObjectMapper objectMapper) {
+    protected AbstractBase64ZipSerializer(
+            final Base64Serializer base64Serializer,
+            final ObjectMapper objectMapper) {
         this.base64Serializer = base64Serializer;
         this.objectMapper = objectMapper;
     }
 
     @Override
-    public void serialize(final E value, final JsonGenerator gen,
-                          final SerializerProvider serializers) throws IOException {
+    public void serialize(
+            final E value,
+            final JsonGenerator gen,
+            final SerializerProvider serializers) throws IOException {
         final var base64 = Optional.ofNullable(value)
                 .map(this::compressObject)
                 .orElse(null);

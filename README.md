@@ -9,8 +9,9 @@
 
 [![JavaCI](https://img.shields.io/github/actions/workflow/status/nagyesta/lowkey-vault/gradle.yml?logo=github&branch=main)](https://github.com/nagyesta/lowkey-vault/actions/workflows/gradle.yml)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/5577/badge)](https://bestpractices.coreinfrastructure.org/projects/5577)
-[![code-climate-maintainability](https://img.shields.io/codeclimate/maintainability/nagyesta/lowkey-vault?logo=code%20climate)](https://img.shields.io/codeclimate/maintainability/nagyesta/lowkey-vault?logo=code%20climate)
-[![code-climate-tech-debt](https://img.shields.io/codeclimate/tech-debt/nagyesta/lowkey-vault?logo=code%20climate)](https://img.shields.io/codeclimate/tech-debt/nagyesta/lowkey-vault?logo=code%20climate)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=nagyesta_lowkey-vault&metric=coverage)](https://sonarcloud.io/summary/new_code?id=nagyesta_lowkey-vault)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=nagyesta_lowkey-vault&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=nagyesta_lowkey-vault)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=nagyesta_lowkey-vault&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=nagyesta_lowkey-vault)
 [![last_commit](https://img.shields.io/github/last-commit/nagyesta/lowkey-vault?logo=git)](https://img.shields.io/github/last-commit/nagyesta/lowkey-vault?logo=git)
 [![badge-abort-mission-armed-green](https://raw.githubusercontent.com/nagyesta/abort-mission/wiki_assets/.github/assets/badge-abort-mission-armed-green.svg)](https://github.com/nagyesta/abort-mission)
 

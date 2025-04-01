@@ -62,6 +62,7 @@ public class CreateKeyRequest {
 
     @JsonIgnore
     @NonNull
+    @SuppressWarnings("java:S1452") //at this point we cannot possibly know which algorithm is used
     public KeyCreationInput<?> toKeyCreationInput() {
         if (keyType.isEc()) {
             return new EcKeyCreationInput(keyType, Objects.requireNonNullElse(keyCurveName, KeyCurveName.P_256));

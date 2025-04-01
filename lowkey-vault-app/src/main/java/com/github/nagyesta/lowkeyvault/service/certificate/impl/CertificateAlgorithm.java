@@ -7,7 +7,6 @@ import lombok.NonNull;
 import java.util.Arrays;
 import java.util.Set;
 
-@SuppressWarnings("LombokGetterMayBeUsed")
 public enum CertificateAlgorithm {
 
     /**
@@ -23,7 +22,9 @@ public enum CertificateAlgorithm {
     private final String algorithm;
     private final Set<KeyType> keyTypes;
 
-    CertificateAlgorithm(final String algorithm, final Set<KeyType> keyTypes) {
+    CertificateAlgorithm(
+            final String algorithm,
+            final Set<KeyType> keyTypes) {
         this.algorithm = algorithm;
         this.keyTypes = keyTypes;
     }

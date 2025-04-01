@@ -47,7 +47,10 @@ public enum KeyOperation {
 
     @JsonCreator
     public static KeyOperation forValue(final String name) {
-        return Arrays.stream(values()).filter(keyType -> keyType.getValue().equals(name)).findFirst().orElse(null);
+        return Arrays.stream(values())
+                .filter(keyType -> keyType.getValue().equals(name))
+                .findFirst()
+                .orElse(null);
     }
 
     @JsonValue

@@ -30,12 +30,16 @@ dependencies {
     implementation(libs.bundles.jackson)
     implementation(libs.httpclient)
     implementation(libs.commons.codec)
+
     compileOnly(libs.findbugs.jsr305)
+
     annotationProcessor(libs.lombok)
+
     testImplementation(libs.mockito.core)
     testImplementation(libs.jupiter)
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(libs.logback.classic)
+
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 licensee {
@@ -55,6 +59,8 @@ java {
 }
 
 val copyLegalDocs = tasks.register<Copy>("copyLegalDocs") {
+    group = "documentation"
+    description = "Copies legal files and reports."
     from(file("${project.rootProject.projectDir}/LICENSE"))
     from(layout.buildDirectory.file("reports/licensee/artifacts.json").get().asFile)
     from(layout.buildDirectory.file("reports/bom.json").get().asFile)

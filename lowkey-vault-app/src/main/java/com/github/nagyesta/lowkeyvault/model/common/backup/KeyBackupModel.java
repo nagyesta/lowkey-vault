@@ -13,7 +13,8 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class KeyBackupModel extends BaseBackupModel<KeyPropertiesModel, KeyBackupListItem, KeyBackupList> {
+public class KeyBackupModel
+        extends BaseBackupModel<KeyPropertiesModel, KeyBackupListItem, KeyBackupList> {
 
     @JsonSerialize(using = Base64ZipKeySerializer.class)
     @Override

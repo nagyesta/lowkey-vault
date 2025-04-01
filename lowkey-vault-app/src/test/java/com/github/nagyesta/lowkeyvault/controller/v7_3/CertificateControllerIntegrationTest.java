@@ -47,7 +47,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
     private static final URI VAULT_URI_1 = getRandomVaultUri();
     private static final URI VAULT_URI_2 = getRandomVaultUri();
     @Autowired
-    @Qualifier("CertificateControllerV73")
+    @Qualifier("certificateControllerV73")
     private CertificateController underTest;
 
     @BeforeEach

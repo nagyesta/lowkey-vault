@@ -10,6 +10,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Set;
 
+@SuppressWarnings("java:S1452") //we don't know it in advance what kind of algorithm we are using
 public interface ReadOnlyCertificatePolicy {
 
     default KeyCreationInput<?> toKeyCreationInput() {

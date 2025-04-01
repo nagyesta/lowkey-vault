@@ -14,9 +14,10 @@ public class VaultImporterProperties {
     private final String importTemplateHost;
     private final int importTemplatePort;
 
-    public VaultImporterProperties(@Value("${LOWKEY_IMPORT_LOCATION}") final File importFile,
-                                   @Value("${LOWKEY_IMPORT_TEMPLATE_HOST:localhost}") final String importTemplateHost,
-                                   @Value("${LOWKEY_IMPORT_TEMPLATE_PORT:${server.port}}") final int importTemplatePort) {
+    public VaultImporterProperties(
+            @Value("${LOWKEY_IMPORT_LOCATION}") final File importFile,
+            @Value("${LOWKEY_IMPORT_TEMPLATE_HOST:localhost}") final String importTemplateHost,
+            @Value("${LOWKEY_IMPORT_TEMPLATE_PORT:${server.port}}") final int importTemplatePort) {
         this.importFile = importFile;
         this.importTemplateHost = importTemplateHost;
         this.importTemplatePort = importTemplatePort;

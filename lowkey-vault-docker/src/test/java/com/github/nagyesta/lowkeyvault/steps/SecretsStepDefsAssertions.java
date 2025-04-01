@@ -10,7 +10,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static com.github.nagyesta.lowkeyvault.context.KeyTestContext.NOW;
 
@@ -111,7 +110,7 @@ public class SecretsStepDefsAssertions extends CommonAssertions {
         final var expected = context.getCreatedEntities().values().stream()
                 .map(secrets -> new LinkedList<>(secrets).getLast().getId())
                 .map(s -> s.replaceFirst("/[0-9a-f]{32}$", ""))
-                .collect(Collectors.toList());
+                .toList();
         assertContainsEqualEntriesSorted(expected, actual);
     }
 

@@ -13,6 +13,7 @@ import lombok.NonNull;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class KeyLifetimeActionTypeModel {
+
     @NotNull(groups = {Restore.class, Update.class})
     @JsonProperty("type")
     private LifetimeActionType type;

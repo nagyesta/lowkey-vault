@@ -15,16 +15,15 @@ import java.time.OffsetDateTime;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class DeletedKeyVaultCertificateModel extends KeyVaultCertificateModel implements DeletedModel {
+public class DeletedKeyVaultCertificateModel
+        extends KeyVaultCertificateModel implements DeletedModel {
 
     @JsonProperty("recoveryId")
     private String recoveryId;
-
     @JsonProperty("deletedDate")
     @JsonSerialize(using = EpochSecondsSerializer.class)
     @JsonDeserialize(using = EpochSecondsDeserializer.class)
     private OffsetDateTime deletedDate;
-
     @JsonProperty("scheduledPurgeDate")
     @JsonSerialize(using = EpochSecondsSerializer.class)
     @JsonDeserialize(using = EpochSecondsDeserializer.class)

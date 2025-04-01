@@ -14,16 +14,18 @@ public enum LifetimeActionTriggerType {
      */
     TIME_AFTER_CREATE {
         @Override
-        public boolean shouldTrigger(@NonNull final OffsetDateTime createTime,
-                                     final OffsetDateTime expiryTime,
-                                     @NonNull final Period triggerPeriod) {
+        public boolean shouldTrigger(
+                @NonNull final OffsetDateTime createTime,
+                final OffsetDateTime expiryTime,
+                @NonNull final Period triggerPeriod) {
             return createTime.plusDays(PeriodUtil.asDays(triggerPeriod)).isBefore(OffsetDateTime.now());
         }
 
         @Override
-        public void validate(final OffsetDateTime expiryTime,
-                             @NonNull final Period expiryPeriod,
-                             @NonNull final Period triggerPeriod) {
+        public void validate(
+                final OffsetDateTime expiryTime,
+                @NonNull final Period expiryPeriod,
+                @NonNull final Period triggerPeriod) {
             super.validate(expiryTime, expiryPeriod, triggerPeriod);
             final var threshold = expiryPeriod.minusDays(MINIMUM_THRESHOLD_BEFORE_EXPIRY);
             Assert.isTrue(PeriodUtil.asDays(threshold) >= PeriodUtil.asDays(triggerPeriod),
@@ -36,16 +38,18 @@ public enum LifetimeActionTriggerType {
      */
     TIME_BEFORE_EXPIRY {
         @Override
-        public boolean shouldTrigger(final OffsetDateTime createTime,
-                                     @NonNull final OffsetDateTime expiryTime,
-                                     @NonNull final Period triggerPeriod) {
+        public boolean shouldTrigger(
+                final OffsetDateTime createTime,
+                @NonNull final OffsetDateTime expiryTime,
+                @NonNull final Period triggerPeriod) {
             return expiryTime.minusDays(PeriodUtil.asDays(triggerPeriod)).isBefore(OffsetDateTime.now());
         }
 
         @Override
-        public void validate(final OffsetDateTime expiryTime,
-                             @NonNull final Period expiryPeriod,
-                             @NonNull final Period triggerPeriod) {
+        public void validate(
+                final OffsetDateTime expiryTime,
+                @NonNull final Period expiryPeriod,
+                @NonNull final Period triggerPeriod) {
             super.validate(expiryTime, expiryPeriod, triggerPeriod);
             Assert.notNull(expiryTime, "Expiry time is not set, before expiry triggers are not allowed.");
             Assert.isTrue(PeriodUtil.asDays(triggerPeriod) >= MINIMUM_THRESHOLD_BEFORE_EXPIRY,
@@ -62,13 +66,13 @@ public enum LifetimeActionTriggerType {
      */
     public static final int MINIMUM_EXPIRY_PERIOD_IN_DAYS = 28;
 
-    public abstract boolean shouldTrigger(OffsetDateTime createTime,
-                                          OffsetDateTime expiryTime,
-                                          Period triggerPeriod);
+    public abstract boolean shouldTrigger(OffsetDateTime createTime, OffsetDateTime expiryTime, Period triggerPeriod);
 
-    public void validate(final OffsetDateTime expiryTime,
-                         final Period expiryPeriod,
-                         final Period triggerPeriod) {
+    @SuppressWarnings("java:S1172") //the subclasses need these parameters for their implementation
+    public void validate(
+            final OffsetDateTime expiryTime,
+            final Period expiryPeriod,
+            final Period triggerPeriod) {
         Assert.isTrue(PeriodUtil.asDays(expiryPeriod) >= MINIMUM_EXPIRY_PERIOD_IN_DAYS,
                 "Expiry period must be at least " + MINIMUM_EXPIRY_PERIOD_IN_DAYS + " days.");
     }

@@ -28,7 +28,9 @@ public class KeyLifetimeActionModel {
     public KeyLifetimeActionModel() {
     }
 
-    public KeyLifetimeActionModel(final KeyLifetimeActionTypeModel action, final KeyLifetimeActionTriggerModel trigger) {
+    public KeyLifetimeActionModel(
+            final KeyLifetimeActionTypeModel action,
+            final KeyLifetimeActionTriggerModel trigger) {
         this();
         this.action = action;
         this.trigger = trigger;

@@ -117,11 +117,12 @@ class KeyVaultCertificateEntityTest {
     void testConstructorShouldThrowExceptionWhenCalledWithAlreadyUsedKeyName() {
         //given
         final var id = VERSIONED_CERT_ENTITY_ID_1_VERSION_1;
-        final var input = CertificateCreationInput.builder().name(id.id()).build();
+        final var name = id.id();
+        final var input = CertificateCreationInput.builder().name(name).build();
 
         final ReadOnlyVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> keyMap
                 = mock(ReadOnlyVersionedEntityMultiMap.class);
-        when(keyMap.containsEntityMatching(eq(id.id()), any())).thenReturn(true);
+        when(keyMap.containsEntityMatching(eq(name), any())).thenReturn(true);
 
         final var keyFake = mock(KeyVaultFake.class);
         when(keyFake.getEntities()).thenReturn(keyMap);
@@ -133,12 +134,12 @@ class KeyVaultCertificateEntityTest {
         when(vault.keyVaultFake()).thenReturn(keyFake);
 
         //when
-        Assertions.assertThrows(IllegalStateException.class, () -> new KeyVaultCertificateEntity(id.id(), input, vault));
+        Assertions.assertThrows(IllegalStateException.class, () -> new KeyVaultCertificateEntity(name, input, vault));
 
         //then + exception
         verify(vault).keyVaultFake();
         verify(keyFake).getEntities();
-        verify(keyMap).containsEntityMatching(eq(id.id()), any());
+        verify(keyMap).containsEntityMatching(eq(name), any());
     }
 
     @SuppressWarnings("unchecked")
@@ -146,11 +147,12 @@ class KeyVaultCertificateEntityTest {
     void testConstructorShouldThrowExceptionWhenCalledWithAlreadyUsedSecretName() {
         //given
         final var id = VERSIONED_CERT_ENTITY_ID_1_VERSION_1;
-        final var input = CertificateCreationInput.builder().name(id.id()).build();
+        final var name = id.id();
+        final var input = CertificateCreationInput.builder().name(name).build();
 
         final ReadOnlyVersionedEntityMultiMap<SecretEntityId, VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity> secretMap
                 = mock(ReadOnlyVersionedEntityMultiMap.class);
-        when(secretMap.containsEntityMatching(eq(id.id()), any())).thenReturn(true);
+        when(secretMap.containsEntityMatching(eq(name), any())).thenReturn(true);
 
         final ReadOnlyVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> keyMap
                 = mock(ReadOnlyVersionedEntityMultiMap.class);
@@ -168,12 +170,12 @@ class KeyVaultCertificateEntityTest {
         when(vault.keyVaultFake()).thenReturn(keyFake);
 
         //when
-        Assertions.assertThrows(IllegalStateException.class, () -> new KeyVaultCertificateEntity(id.id(), input, vault));
+        Assertions.assertThrows(IllegalStateException.class, () -> new KeyVaultCertificateEntity(name, input, vault));
 
         //then + exception
         verify(vault).secretVaultFake();
         verify(secretFake).getEntities();
-        verify(secretMap).containsEntityMatching(eq(id.id()), any());
+        verify(secretMap).containsEntityMatching(eq(name), any());
     }
 
     @Test
@@ -420,7 +422,7 @@ class KeyVaultCertificateEntityTest {
 
         final ReadOnlyVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> keyMap
                 = mock(ReadOnlyVersionedEntityMultiMap.class);
-        when(keyMap.containsEntity(eq(kid))).thenReturn(false);
+        when(keyMap.containsEntity(kid)).thenReturn(false);
 
         final var keyFake = mock(KeyVaultFake.class);
         when(keyFake.getEntities()).thenReturn(keyMap);
@@ -435,7 +437,7 @@ class KeyVaultCertificateEntityTest {
         //then + exception
         verify(vault).keyVaultFake();
         verify(keyFake).getEntities();
-        verify(keyMap).containsEntity(eq(kid));
+        verify(keyMap).containsEntity(kid);
     }
 
     @SuppressWarnings("unchecked")
@@ -448,7 +450,7 @@ class KeyVaultCertificateEntityTest {
 
         final ReadOnlyVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> keyMap
                 = mock(ReadOnlyVersionedEntityMultiMap.class);
-        when(keyMap.containsEntity(eq(kid))).thenReturn(true);
+        when(keyMap.containsEntity(kid)).thenReturn(true);
         final var keyFake = mock(KeyVaultFake.class);
         when(keyFake.getEntities()).thenReturn(keyMap);
 
@@ -469,7 +471,7 @@ class KeyVaultCertificateEntityTest {
         //then + exception
         verify(vault).keyVaultFake();
         verify(keyFake).getEntities();
-        verify(keyMap).containsEntity(eq(kid));
+        verify(keyMap).containsEntity(kid);
         verify(secretFake).getEntities();
         verify(secretMap).containsEntityMatching(eq(id.id()), any());
     }

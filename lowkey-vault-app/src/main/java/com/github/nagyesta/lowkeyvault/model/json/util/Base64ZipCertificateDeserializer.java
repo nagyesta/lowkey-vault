@@ -5,12 +5,14 @@ import com.github.nagyesta.lowkeyvault.model.common.backup.CertificateBackupList
 
 public class Base64ZipCertificateDeserializer extends AbstractBase64ZipDeserializer<CertificateBackupList> {
 
+    @SuppressWarnings("unused") //used from annotations
     public Base64ZipCertificateDeserializer() {
         this(new Base64Deserializer(), new ObjectMapper());
     }
 
-    protected Base64ZipCertificateDeserializer(final Base64Deserializer base64Deserializer,
-                                               final ObjectMapper objectMapper) {
+    protected Base64ZipCertificateDeserializer(
+            final Base64Deserializer base64Deserializer,
+            final ObjectMapper objectMapper) {
         super(base64Deserializer, objectMapper);
     }
 

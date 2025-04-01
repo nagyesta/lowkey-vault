@@ -13,7 +13,6 @@ import io.cucumber.java.en.When;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.github.nagyesta.lowkeyvault.context.KeyTestContext.NOW;
@@ -129,12 +128,12 @@ public class SecretsStepDefs extends CommonAssertions {
                 .toList();
         final var list = propertyList.stream()
                 .map(SecretProperties::getId)
-                .collect(Collectors.toList());
+                .toList();
         context.setListedIds(list);
         final var managedList = propertyList.stream()
                 .filter(secretProperties -> TRUE == secretProperties.isManaged())
                 .map(SecretProperties::getId)
-                .collect(Collectors.toList());
+                .toList();
         context.setListedManagedIds(managedList);
     }
 
@@ -146,7 +145,7 @@ public class SecretsStepDefs extends CommonAssertions {
                     .beginDeleteSecret(prefix + (i + 1)).waitForCompletion().getValue();
             context.setLastDeleted(actual);
             return actual;
-        }).map(DeletedSecret::getRecoveryId).collect(Collectors.toList());
+        }).map(DeletedSecret::getRecoveryId).toList();
         context.setDeletedRecoveryIds(deleted);
     }
 
@@ -155,7 +154,7 @@ public class SecretsStepDefs extends CommonAssertions {
         final var actual = context.getClient(context.getSecretServiceVersion()).listDeletedSecrets();
         final var list = actual.stream()
                 .map(DeletedSecret::getRecoveryId)
-                .collect(Collectors.toList());
+                .toList();
         context.setListedIds(list);
     }
 

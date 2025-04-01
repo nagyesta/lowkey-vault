@@ -13,7 +13,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,16 +22,17 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequestMapping(value = "/management/vault", produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
-public class VaultBackupManagementController extends ErrorHandlingAwareController implements InitializingBean {
+public class VaultBackupManagementController
+        extends ErrorHandlingAwareController implements InitializingBean {
 
     private final VaultImporter vaultImporter;
     private final VaultService vaultService;
     private final VaultImportExportExecutor vaultImportExportExecutor;
 
-    @Autowired
-    public VaultBackupManagementController(@NonNull final VaultImporter vaultImporter,
-                                           @NonNull final VaultService vaultService,
-                                           @NonNull final VaultImportExportExecutor vaultImportExportExecutor) {
+    public VaultBackupManagementController(
+            @NonNull final VaultImporter vaultImporter,
+            @NonNull final VaultService vaultService,
+            @NonNull final VaultImportExportExecutor vaultImportExportExecutor) {
         this.vaultImporter = vaultImporter;
         this.vaultService = vaultService;
         this.vaultImportExportExecutor = vaultImportExportExecutor;

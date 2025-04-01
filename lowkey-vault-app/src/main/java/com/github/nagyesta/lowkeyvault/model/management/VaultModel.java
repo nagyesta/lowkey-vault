@@ -19,6 +19,7 @@ import static com.github.nagyesta.lowkeyvault.openapi.Examples.*;
 
 @Data
 public class VaultModel {
+
     @Schema(example = BASE_URI, description = "The base URI of the vault.")
     @NotNull
     @JsonProperty("baseUri")

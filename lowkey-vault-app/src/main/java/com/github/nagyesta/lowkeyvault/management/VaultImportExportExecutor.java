@@ -39,17 +39,21 @@ public class VaultImportExportExecutor {
     private final CertificateBackupRestoreController certificateBackupRestoreController;
 
     @Autowired
-    public VaultImportExportExecutor(@NonNull final VaultManagementController vaultManagementController,
-                                     @NonNull final KeyBackupRestoreController keyBackupRestoreController,
-                                     @NonNull final SecretBackupRestoreController secretBackupRestoreController,
-                                     @NonNull final CertificateBackupRestoreController certificateBackupRestoreController) {
+    public VaultImportExportExecutor(
+            @NonNull final VaultManagementController vaultManagementController,
+            @NonNull final KeyBackupRestoreController keyBackupRestoreController,
+            @NonNull final SecretBackupRestoreController secretBackupRestoreController,
+            @NonNull final CertificateBackupRestoreController certificateBackupRestoreController) {
         this.vaultManagementController = vaultManagementController;
         this.keyBackupRestoreController = keyBackupRestoreController;
         this.secretBackupRestoreController = secretBackupRestoreController;
         this.certificateBackupRestoreController = certificateBackupRestoreController;
     }
 
-    public void restoreVault(@NonNull final VaultImporter vaultImporter, @NonNull final URI baseUri, @NonNull final VaultModel vault) {
+    public void restoreVault(
+            @NonNull final VaultImporter vaultImporter,
+            @NonNull final URI baseUri,
+            @NonNull final VaultModel vault) {
         vaultManagementController.createVault(vault);
         vaultImporter.getKeys().getOrDefault(baseUri, Collections.emptyList())
                 .forEach(key -> keyBackupRestoreController.restore(baseUri, key));
@@ -64,31 +68,39 @@ public class VaultImportExportExecutor {
                 .map(ResponseEntity::getBody)
                 .orElse(Collections.emptyList()).stream()
                 .map(vaultModel -> backupVault(vaultService, vaultModel))
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    private KeyBackupList backupKey(final URI baseUri, final String name) {
+    private KeyBackupList backupKey(
+            final URI baseUri,
+            final String name) {
         return Optional.ofNullable(keyBackupRestoreController.backup(name, baseUri))
                 .map(ResponseEntity::getBody)
                 .map(KeyBackupModel::getValue)
                 .orElseThrow(() -> new NotFoundException("Key not found: " + name));
     }
 
-    private SecretBackupList backupSecret(final URI baseUri, final String name) {
+    private SecretBackupList backupSecret(
+            final URI baseUri,
+            final String name) {
         return Optional.ofNullable(secretBackupRestoreController.backup(name, baseUri))
                 .map(ResponseEntity::getBody)
                 .map(SecretBackupModel::getValue)
                 .orElseThrow(() -> new NotFoundException("Secret not found: " + name));
     }
 
-    private CertificateBackupList backupCertificate(final URI baseUri, final String name) {
+    private CertificateBackupList backupCertificate(
+            final URI baseUri,
+            final String name) {
         return Optional.ofNullable(certificateBackupRestoreController.backup(name, baseUri))
                 .map(ResponseEntity::getBody)
                 .map(CertificateBackupModel::getValue)
                 .orElseThrow(() -> new NotFoundException("Certificate not found: " + name));
     }
 
-    private VaultBackupModel backupVault(final VaultService vaultService, final VaultModel vaultModel) {
+    private VaultBackupModel backupVault(
+            final VaultService vaultService,
+            final VaultModel vaultModel) {
         final var vaultFake = vaultService.findByUri(vaultModel.getBaseUri());
         final var backupModel = new VaultBackupModel();
         backupModel.setAttributes(vaultModel);

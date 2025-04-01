@@ -6,6 +6,7 @@ import com.github.nagyesta.lowkeyvault.service.key.LifetimeAction;
 import com.github.nagyesta.lowkeyvault.service.key.RotationPolicy;
 import com.github.nagyesta.lowkeyvault.service.key.constants.LifetimeActionTriggerType;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import org.springframework.util.Assert;
 
@@ -14,11 +15,14 @@ import java.time.Period;
 import java.util.List;
 import java.util.Map;
 
-public class KeyRotationPolicy extends BaseLifetimePolicy<KeyEntityId> implements RotationPolicy {
+@EqualsAndHashCode(callSuper = true)
+public class KeyRotationPolicy
+        extends BaseLifetimePolicy<KeyEntityId> implements RotationPolicy {
     private Period expiryTime;
     private Map<LifetimeActionType, LifetimeAction> lifetimeActions;
 
-    public KeyRotationPolicy(@org.springframework.lang.NonNull final KeyEntityId keyEntityId,
+    public KeyRotationPolicy(
+            @org.springframework.lang.NonNull final KeyEntityId keyEntityId,
                              @NonNull final Period expiryTime,
                              @NonNull final Map<LifetimeActionType, LifetimeAction> lifetimeActions) {
         super(keyEntityId);
@@ -68,7 +72,8 @@ public class KeyRotationPolicy extends BaseLifetimePolicy<KeyEntityId> implement
     }
 
     @Override
-    public void setLifetimeActions(@NonNull final Map<LifetimeActionType, LifetimeAction> lifetimeActions) {
+    public void setLifetimeActions(
+            @NonNull final Map<LifetimeActionType, LifetimeAction> lifetimeActions) {
         Assert.isTrue(notifyIsNotRemoved(lifetimeActions), "Notify action cannot be removed.");
         this.lifetimeActions = Map.copyOf(lifetimeActions);
         this.markUpdate();

@@ -22,9 +22,10 @@ class Base64ZipKeySerializerTest {
         final var gen = mock(JsonGenerator.class);
         final var serializers = mock(SerializerProvider.class);
         when(base64Serializer.base64Encode(any())).thenThrow(new IllegalStateException("Fail"));
+        final var backupList = new KeyBackupList();
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.serialize(new KeyBackupList(), gen, serializers));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.serialize(backupList, gen, serializers));
 
         //then + exception
         verify(base64Serializer).base64Encode(any());

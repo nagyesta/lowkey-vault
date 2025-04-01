@@ -17,7 +17,6 @@ public class CertificateLifetimeActionModel {
     @NotNull
     @JsonProperty("trigger")
     private CertificateLifetimeActionTriggerModel trigger;
-
     @Valid
     @NotNull
     @JsonProperty("action")

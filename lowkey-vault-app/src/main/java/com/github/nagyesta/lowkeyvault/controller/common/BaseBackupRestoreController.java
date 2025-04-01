@@ -1,7 +1,6 @@
 package com.github.nagyesta.lowkeyvault.controller.common;
 
 import com.github.nagyesta.lowkeyvault.mapper.common.BaseEntityConverterRegistry;
-import com.github.nagyesta.lowkeyvault.mapper.common.RecoveryAwareConverter;
 import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.BaseBackupListItem;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.BaseBackupModel;
@@ -29,9 +28,6 @@ import java.util.function.Function;
  * @param <DM>  The deleted entity model type.
  * @param <I>   The item model type.
  * @param <DI>  The deleted item model type.
- * @param <MC>  The model converter, converting entities to entity models.
- * @param <IC>  The item converter, converting version item entities to item models.
- * @param <VIC> The versioned item converter, converting version item entities to item models.
  * @param <S>   The fake type holding the entities.
  * @param <PM>  The type of the PropertiesModel.
  * @param <BLI> The list item type of the backup lists.
@@ -39,14 +35,16 @@ import java.util.function.Function;
  * @param <B>   The type of the backup model.
  * @param <R>   The ConverterRegistry used for conversions.
  */
+@SuppressWarnings("java:S119") //It is easier to ensure that the types are consistent this way
 public abstract class BaseBackupRestoreController<K extends EntityId, V extends K, E extends BaseVaultEntity<V>,
-        M, DM extends M, I, DI extends I, MC extends RecoveryAwareConverter<E, M, DM>,
-        IC extends RecoveryAwareConverter<E, I, DI>, VIC extends RecoveryAwareConverter<E, I, DI>,
-        S extends BaseVaultFake<K, V, E>, PM extends BasePropertiesModel,
-        BLI extends BaseBackupListItem<PM>, BL extends BackupListContainer<BLI>,
+        M, DM extends M, I, DI extends I,
+        S extends BaseVaultFake<K, V, E>,
+        PM extends BasePropertiesModel,
+        BLI extends BaseBackupListItem<PM>,
+        BL extends BackupListContainer<BLI>,
         B extends BaseBackupModel<PM, BLI, BL>,
-        R extends BaseEntityConverterRegistry<K, V, E, M, DM, PM, I, DI, BLI, BL, B>>
-        extends GenericEntityController<K, V, E, M, DM, I, DI, MC, IC, VIC, S, PM, BLI, BL, B, R> {
+        R extends BaseEntityConverterRegistry<K, V, E, M, DM, PM, I, DI, BLI>>
+        extends GenericEntityController<K, V, E, M, DM, I, DI, S, PM, BLI, R> {
 
     protected BaseBackupRestoreController(
             @NonNull final R registry,
@@ -117,7 +115,9 @@ public abstract class BaseBackupRestoreController<K extends EntityId, V extends 
         return backupModel;
     }
 
-    private void assertNameDoesNotExistYet(final S vault, final K entityId) {
+    private void assertNameDoesNotExistYet(
+            final S vault,
+            final K entityId) {
         Assert.isTrue(!vault.getEntities().containsName(entityId.id()),
                 "Vault already contains entity with name: " + entityId.id());
         Assert.isTrue(!vault.getDeletedEntities().containsName(entityId.id()),

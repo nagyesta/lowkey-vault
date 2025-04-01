@@ -13,7 +13,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @Slf4j
 public class ErrorHandlingAwareController {
 
-    @ExceptionHandler({IllegalStateException.class, AlreadyExistsException.class, CryptoException.class, NotFoundException.class})
+    @ExceptionHandler({
+            IllegalStateException.class,
+            AlreadyExistsException.class,
+            CryptoException.class,
+            NotFoundException.class})
     public ResponseEntity<ErrorModel> handleException(final Exception exception) {
         var status = HttpStatus.INTERNAL_SERVER_ERROR;
         final var exceptionClass = exception.getClass();

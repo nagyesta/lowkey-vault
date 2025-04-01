@@ -3,9 +3,7 @@ package com.github.nagyesta.lowkeyvault.mapper.common.registry;
 import com.github.nagyesta.lowkeyvault.mapper.common.AliasAwareConverter;
 import com.github.nagyesta.lowkeyvault.mapper.common.ApiVersionAwareConverter;
 import com.github.nagyesta.lowkeyvault.mapper.common.BaseEntityConverterRegistry;
-import com.github.nagyesta.lowkeyvault.model.common.backup.CertificateBackupList;
 import com.github.nagyesta.lowkeyvault.model.common.backup.CertificateBackupListItem;
-import com.github.nagyesta.lowkeyvault.model.common.backup.CertificateBackupModel;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.*;
 import com.github.nagyesta.lowkeyvault.service.certificate.LifetimeActionPolicy;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
@@ -19,10 +17,10 @@ import java.util.List;
 import java.util.Map;
 
 @EqualsAndHashCode(callSuper = true)
-public class CertificateConverterRegistry extends BaseEntityConverterRegistry<CertificateEntityId, VersionedCertificateEntityId,
+public class CertificateConverterRegistry
+        extends BaseEntityConverterRegistry<CertificateEntityId, VersionedCertificateEntityId,
         ReadOnlyKeyVaultCertificateEntity, KeyVaultCertificateModel, DeletedKeyVaultCertificateModel, CertificatePropertiesModel,
-        KeyVaultCertificateItemModel, DeletedKeyVaultCertificateItemModel, CertificateBackupListItem, CertificateBackupList,
-        CertificateBackupModel> {
+        KeyVaultCertificateItemModel, DeletedKeyVaultCertificateItemModel, CertificateBackupListItem> {
 
     private final Map<String, AliasAwareConverter<ReadOnlyKeyVaultCertificateEntity, CertificatePolicyModel>>
             policyConverters = new HashMap<>();
@@ -34,12 +32,17 @@ public class CertificateConverterRegistry extends BaseEntityConverterRegistry<Ce
             lifetimeActionConverters = new HashMap<>();
 
     @Override
-    public CertificateEntityId entityId(final URI baseUri, final String name) {
+    public CertificateEntityId entityId(
+            final URI baseUri,
+            final String name) {
         return new CertificateEntityId(baseUri, name);
     }
 
     @Override
-    public VersionedCertificateEntityId versionedEntityId(final URI baseUri, final String name, final String version) {
+    public VersionedCertificateEntityId versionedEntityId(
+            final URI baseUri,
+            final String name,
+            final String version) {
         return new VersionedCertificateEntityId(baseUri, name, version);
     }
 

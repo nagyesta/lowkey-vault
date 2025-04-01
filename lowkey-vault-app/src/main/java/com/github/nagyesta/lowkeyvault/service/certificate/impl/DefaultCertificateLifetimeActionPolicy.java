@@ -9,12 +9,14 @@ import java.util.Map;
 
 import static com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionTriggerType.LIFETIME_PERCENTAGE;
 
-public class DefaultCertificateLifetimeActionPolicy extends CertificateLifetimeActionPolicy {
+public class DefaultCertificateLifetimeActionPolicy
+        extends CertificateLifetimeActionPolicy {
 
     private static final int DEFAULT_TRIGGER_PERCENTAGE = 80;
 
     public DefaultCertificateLifetimeActionPolicy(
-            final CertificateEntityId certificateEntityId, final CertAuthorityType certAuthorityType) {
+            final CertificateEntityId certificateEntityId,
+            final CertAuthorityType certAuthorityType) {
         super(certificateEntityId, defaultMapForType(certAuthorityType));
     }
 

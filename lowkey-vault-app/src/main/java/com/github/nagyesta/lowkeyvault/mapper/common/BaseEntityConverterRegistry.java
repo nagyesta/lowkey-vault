@@ -2,19 +2,17 @@ package com.github.nagyesta.lowkeyvault.mapper.common;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.BaseBackupListItem;
-import com.github.nagyesta.lowkeyvault.model.v7_2.common.BaseBackupModel;
-import com.github.nagyesta.lowkeyvault.model.v7_2.key.BackupListContainer;
 import com.github.nagyesta.lowkeyvault.service.EntityId;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultEntity;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings("java:S119") //It is easier to ensure that the types are consistent this way
 public abstract class BaseEntityConverterRegistry<K extends EntityId, V extends K,
         E extends BaseVaultEntity<V>, M, DM extends M, PM extends BasePropertiesModel, IM, DIM extends IM,
-        BLI extends BaseBackupListItem<PM>, BL extends BackupListContainer<BLI>,
-        B extends BaseBackupModel<PM, BLI, BL>>
-        implements EntityConverterRegistry<K, V, E, M, DM, PM, IM, DIM, BLI, BL, B> {
+        BLI extends BaseBackupListItem<PM>>
+        implements EntityConverterRegistry<K, V, E, M, DM, PM, IM, DIM, BLI> {
 
     private final Map<String, RecoveryAwareConverter<E, M, DM>> modelConverters = new HashMap<>();
     private final Map<String, AliasAwareConverter<E, PM>> propertiesConverters = new HashMap<>();

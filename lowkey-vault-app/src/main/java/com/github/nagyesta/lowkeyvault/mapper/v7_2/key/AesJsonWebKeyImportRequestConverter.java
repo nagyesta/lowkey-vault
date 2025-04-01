@@ -10,7 +10,8 @@ import javax.crypto.spec.SecretKeySpec;
 /**
  * Converts import requests to AES key pairs.
  */
-public class AesJsonWebKeyImportRequestConverter extends BaseJsonWebKeyImportRequestConverter<SecretKey, Integer> {
+public class AesJsonWebKeyImportRequestConverter
+        extends BaseJsonWebKeyImportRequestConverter<SecretKey, Integer> {
 
     private static final int AES_BYTES_TO_KEY_SIZE_BITS_MULTIPLIER = 8;
 

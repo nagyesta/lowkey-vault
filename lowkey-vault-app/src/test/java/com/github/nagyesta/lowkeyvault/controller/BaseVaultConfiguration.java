@@ -6,14 +6,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import java.util.function.Function;
-
 @Profile("vault")
 @Configuration
 public class BaseVaultConfiguration {
 
     @Bean
     public VaultService vaultService() {
-        return new VaultServiceImpl(Function.identity());
+        return new VaultServiceImpl(uri -> uri);
     }
 }

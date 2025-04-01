@@ -11,7 +11,6 @@ public class IssuerParameterModel {
 
     @JsonProperty("cert_transparency")
     private boolean certTransparency;
-
     @JsonProperty("cty")
     private String certType;
     @JsonProperty("name")

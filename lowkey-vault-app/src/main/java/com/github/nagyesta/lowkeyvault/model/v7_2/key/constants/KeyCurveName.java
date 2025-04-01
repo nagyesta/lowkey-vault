@@ -36,22 +36,32 @@ public enum KeyCurveName {
     private final int bitLength;
     private final Set<String> equivalentAlgs;
 
-    KeyCurveName(final String value, final String alg, final Set<String> equivalentAlgs, final int bitLength) {
+    KeyCurveName(
+            final String value,
+            final String alg,
+            final Set<String> equivalentAlgs,
+            final int bitLength) {
         this.value = value;
         this.alg = alg;
         this.bitLength = bitLength;
-        final var algSet = new TreeSet<String>(equivalentAlgs);
+        final var algSet = new TreeSet<>(equivalentAlgs);
         algSet.add(alg);
         this.equivalentAlgs = algSet;
     }
 
     @JsonCreator
     public static KeyCurveName forValue(final String name) {
-        return Arrays.stream(values()).filter(keyType -> keyType.getValue().equals(name)).findFirst().orElse(null);
+        return Arrays.stream(values())
+                .filter(keyType -> keyType.getValue().equals(name))
+                .findFirst()
+                .orElse(null);
     }
 
     public static KeyCurveName forAlg(final String name) {
-        return Arrays.stream(values()).filter(keyType -> keyType.equivalentAlgs.contains(name)).findFirst().orElse(null);
+        return Arrays.stream(values())
+                .filter(keyType -> keyType.equivalentAlgs.contains(name))
+                .findFirst()
+                .orElse(null);
     }
 
     @JsonValue

@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
@@ -44,14 +43,14 @@ public class MetadataController {
 
     @GetMapping(value = "/metadata/default-cert/lowkey-vault.p12",
             produces = MimeTypeUtils.APPLICATION_OCTET_STREAM_VALUE)
-    public @ResponseBody byte[] getDefaultCertificateStoreContent() {
+    public byte[] getDefaultCertificateStoreContent() {
         log.info("Returning default certificate store.");
         return keyStoreContent;
     }
 
     @GetMapping(value = "/metadata/default-cert/password",
             produces = MimeTypeUtils.TEXT_PLAIN_VALUE)
-    public @ResponseBody String getDefaultCertificateStorePassword() {
+    public String getDefaultCertificateStorePassword() {
         log.info("Returning default certificate store password.");
         return keyStorePassword;
     }

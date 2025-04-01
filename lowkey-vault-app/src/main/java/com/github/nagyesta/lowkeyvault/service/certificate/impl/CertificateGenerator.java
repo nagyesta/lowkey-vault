@@ -35,16 +35,18 @@ import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class CertificateGenerator {
+
     private static final int NUMBER_OF_BITS_SERIAL = 160;
     private final VaultFake vault;
     private final VersionedKeyEntityId kid;
     private final SecureRandom secureRandom = new SecureRandom();
 
-    public CertificateGenerator(@NonNull final VaultFake vault, @NonNull final VersionedKeyEntityId kid) {
+    public CertificateGenerator(
+            @NonNull final VaultFake vault,
+            @NonNull final VersionedKeyEntityId kid) {
         this.vault = vault;
         this.kid = kid;
     }
@@ -89,8 +91,9 @@ public class CertificateGenerator {
         }
     }
 
-    private X509Certificate generateCertificate(final ReadOnlyCertificatePolicy input, final KeyPair keyPair)
-            throws IOException, OperatorCreationException, CertificateException {
+    private X509Certificate generateCertificate(
+            final ReadOnlyCertificatePolicy input,
+            final KeyPair keyPair) throws IOException, OperatorCreationException, CertificateException {
 
         final var builder = createCertificateBuilder(input, keyPair);
 
@@ -125,7 +128,8 @@ public class CertificateGenerator {
     }
 
     private X509v3CertificateBuilder createCertificateBuilder(
-            final ReadOnlyCertificatePolicy input, final KeyPair keyPair) throws IOException {
+            final ReadOnlyCertificatePolicy input,
+            final KeyPair keyPair) throws IOException {
         final var subject = generateSubject(input.getSubject());
         final X509v3CertificateBuilder certificate = new JcaX509v3CertificateBuilder(
                 subject, generateSerial(), input.certNotBefore(), input.certExpiry(), subject, keyPair.getPublic());
@@ -139,8 +143,9 @@ public class CertificateGenerator {
     }
 
     private X509CertificateHolder buildCertificate(
-            final X509v3CertificateBuilder certificate, final KeyType keyType, final KeyPair keyPair)
-            throws OperatorCreationException {
+            final X509v3CertificateBuilder certificate,
+            final KeyType keyType,
+            final KeyPair keyPair) throws OperatorCreationException {
         final var signer = new JcaContentSignerBuilder(CertificateAlgorithm.forKeyType(keyType).getAlgorithm())
                 .setProvider(KeyGenUtil.BOUNCY_CASTLE_PROVIDER)
                 .build(keyPair.getPrivate());
@@ -166,33 +171,35 @@ public class CertificateGenerator {
     private GeneralName[] generateSubjectAlternativeNamesArray(final ReadOnlyCertificatePolicy input) {
         final var emails = Objects.requireNonNullElse(input.getEmails(), Collections.<String>emptyList()).stream()
                 .map(email -> new GeneralName(GeneralName.rfc822Name, email))
-                .collect(Collectors.toList());
+                .toList();
         final var dnsNames = Objects.requireNonNullElse(input.getDnsNames(), Collections.<String>emptyList()).stream()
                 .map(dns -> new GeneralName(GeneralName.dNSName, dns))
-                .collect(Collectors.toList());
+                .toList();
         final var ips = Objects.requireNonNullElse(input.getUpns(), Collections.<String>emptyList()).stream()
                 .map(ip -> new GeneralName(GeneralName.iPAddress, ip))
-                .collect(Collectors.toList());
+                .toList();
         final var subjectAlternativeNames = Stream.of(emails, dnsNames, ips)
                 .flatMap(List::stream)
                 .toList();
         return subjectAlternativeNames.toArray(new GeneralName[]{});
     }
 
-    private void addExtensionOptionally(final X509v3CertificateBuilder builder,
-                                        final ASN1ObjectIdentifier name,
-                                        final boolean isCritical,
-                                        final ASN1Encodable value) throws IOException {
-            if (value == null) {
-                return;
-            }
-            addExtensionQuietly(builder, name, isCritical, value.toASN1Primitive().getEncoded());
+    private void addExtensionOptionally(
+            final X509v3CertificateBuilder builder,
+            final ASN1ObjectIdentifier name,
+            final boolean isCritical,
+            final ASN1Encodable value) throws IOException {
+        if (value == null) {
+            return;
+        }
+        addExtensionQuietly(builder, name, isCritical, value.toASN1Primitive().getEncoded());
     }
 
-    private void addExtensionQuietly(final X509v3CertificateBuilder builder,
-                                     final ASN1ObjectIdentifier name,
-                                     final boolean isCritical,
-                                     final byte[] value) {
+    private void addExtensionQuietly(
+            final X509v3CertificateBuilder builder,
+            final ASN1ObjectIdentifier name,
+            final boolean isCritical,
+            final byte[] value) {
         try {
             builder.addExtension(name, isCritical, value);
         } catch (final CertIOException e) {
@@ -211,10 +218,11 @@ public class CertificateGenerator {
                 certificate.getExtensionValue(extension.getId()));
     }
 
-    private void addAttributeQuietly(final PKCS10CertificationRequestBuilder builder,
-                              final ASN1ObjectIdentifier name,
-                              final boolean isCritical,
-                              final byte[] value) {
+    private void addAttributeQuietly(
+            final PKCS10CertificationRequestBuilder builder,
+            final ASN1ObjectIdentifier name,
+            final boolean isCritical,
+            final byte[] value) {
         try {
             if (value == null) {
                 return;

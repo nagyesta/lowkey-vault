@@ -10,11 +10,11 @@ import java.util.Optional;
 
 public class Base64Serializer extends JsonSerializer<byte[]> {
 
-    private static final Base64.Encoder ENCODER = Base64.getUrlEncoder().withoutPadding();
+    private static final Base64.Encoder DEFAULT_ENCODER = Base64.getUrlEncoder().withoutPadding();
     private final Base64.Encoder encoder;
 
     public Base64Serializer() {
-        this(ENCODER);
+        this(DEFAULT_ENCODER);
     }
 
     protected Base64Serializer(final Base64.Encoder encoder) {
@@ -22,7 +22,10 @@ public class Base64Serializer extends JsonSerializer<byte[]> {
     }
 
     @Override
-    public void serialize(final byte[] value, final JsonGenerator generator, final SerializerProvider provider) throws IOException {
+    public void serialize(
+            final byte[] value,
+            final JsonGenerator generator,
+            final SerializerProvider provider) throws IOException {
         final var text = base64Encode(value);
         if (text != null) {
             generator.writeString(text);

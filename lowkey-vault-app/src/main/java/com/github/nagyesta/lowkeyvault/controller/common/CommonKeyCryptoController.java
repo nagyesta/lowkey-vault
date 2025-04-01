@@ -17,9 +17,12 @@ import org.springframework.lang.NonNull;
 import java.net.URI;
 
 @Slf4j
-public abstract class CommonKeyCryptoController extends BaseKeyController {
+public abstract class CommonKeyCryptoController
+        extends BaseKeyController {
 
-    protected CommonKeyCryptoController(@NonNull final KeyConverterRegistry registry, @NonNull final VaultService vaultService) {
+    protected CommonKeyCryptoController(
+            @NonNull final KeyConverterRegistry registry,
+            @NonNull final VaultService vaultService) {
         super(registry, vaultService);
     }
 

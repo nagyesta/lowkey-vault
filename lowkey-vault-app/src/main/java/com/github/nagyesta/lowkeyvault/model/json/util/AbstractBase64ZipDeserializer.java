@@ -17,18 +17,23 @@ import java.util.zip.GZIPInputStream;
  * @param <E> The type of the entity.
  */
 @Slf4j
-public abstract class AbstractBase64ZipDeserializer<E> extends JsonDeserializer<E> {
+public abstract class AbstractBase64ZipDeserializer<E>
+        extends JsonDeserializer<E> {
 
     private final Base64Deserializer base64Deserializer;
     private final ObjectMapper objectMapper;
 
-    protected AbstractBase64ZipDeserializer(final Base64Deserializer base64Deserializer, final ObjectMapper objectMapper) {
+    protected AbstractBase64ZipDeserializer(
+            final Base64Deserializer base64Deserializer,
+            final ObjectMapper objectMapper) {
         this.base64Deserializer = base64Deserializer;
         this.objectMapper = objectMapper;
     }
 
     @Override
-    public E deserialize(final JsonParser jsonParser, final DeserializationContext context) throws IOException {
+    public E deserialize(
+            final JsonParser jsonParser,
+            final DeserializationContext context) throws IOException {
         final var bytes = Optional.ofNullable(base64Deserializer.deserializeBase64(jsonParser));
         return bytes.filter(v -> v.length > 0)
                 .map(this::decompressWrappedObject)

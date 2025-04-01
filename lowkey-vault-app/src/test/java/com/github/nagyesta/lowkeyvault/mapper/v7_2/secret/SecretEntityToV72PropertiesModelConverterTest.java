@@ -17,14 +17,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.time.OffsetDateTime;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsSecrets.VERSIONED_SECRET_ENTITY_ID_1_VERSION_1;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 class SecretEntityToV72PropertiesModelConverterTest {
@@ -58,8 +56,7 @@ class SecretEntityToV72PropertiesModelConverterTest {
         underTest = new SecretEntityToV72PropertiesModelConverter(registry);
         when(vault.secretVaultFake()).thenReturn(secretVault);
         when(vault.baseUri()).thenReturn(HTTPS_LOCALHOST);
-        final var vaultUri = eq(HTTPS_LOCALHOST);
-        when(vault.matches(vaultUri, eq(Function.identity()))).thenReturn(true);
+        when(vault.matches(HTTPS_LOCALHOST, uri -> uri)).thenReturn(true);
     }
 
     @AfterEach

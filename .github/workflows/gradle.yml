@@ -5,34 +5,35 @@ name: JavaCI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths-ignore:
-      - 'README.md'
-      - '**/README.md'
-      - 'CODE_OF_CONDUCT.md'
-      - 'CONTRIBUTING.md'
-      - 'pull_request_template.md'
-      - '.lift/.toml'
-      - '**/.lift/.toml'
-      - 'SECURITY.md'
-      - 'LICENSE'
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/assets/**'
-      - '.github/workflows/**'
-      - '.github/pr-labeler.yml'
-      - 'renovate.json'
-      - '.whitesource'
-      - 'gradle/libs.versions.toml'
-      - 'gradle/verification-metadata.xml'
-      - 'gradle/verification-metadata-clean.xml'
-      - 'lowkey-vault-docker/src/docker/Dockerfile'
-      - 'gradle/wrapper/gradle-wrapper.properties'
-      - 'gradle/wrapper/gradle-wrapper.jar'
-      - 'gradlew'
-      - 'gradlew.bat'
-      - 'config/ossindex/exclusions.txt'
-      - '.idea/**'
-      - '.gitignore'
+      - "README.md"
+      - "**/README.md"
+      - "CODE_OF_CONDUCT.md"
+      - "CONTRIBUTING.md"
+      - "pull_request_template.md"
+      - ".lift/.toml"
+      - "**/.lift/.toml"
+      - "SECURITY.md"
+      - "LICENSE"
+      - ".github/ISSUE_TEMPLATE/**"
+      - ".github/assets/**"
+      - ".github/workflows/**"
+      - ".github/pr-labeler.yml"
+      - "renovate.json"
+      - ".whitesource"
+      - "gradle/libs.versions.toml"
+      - "gradle/verification-metadata.xml"
+      - "gradle/verification-metadata-clean.xml"
+      - "lowkey-vault-docker/src/docker/Dockerfile"
+      - "gradle/wrapper/gradle-wrapper.properties"
+      - "gradle/wrapper/gradle-wrapper.jar"
+      - "gradlew"
+      - "gradlew.bat"
+      - "config/ossindex/exclusions.txt"
+      - ".idea/**"
+      - ".gitignore"
+      - ".qlty/**"
 
 permissions: read-all
 
@@ -68,8 +69,10 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build with Gradle
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: >
-          ./gradlew publish publishToSonatype closeAndReleaseSonatypeStagingRepository
+          ./gradlew publish publishToSonatype sonar closeAndReleaseSonatypeStagingRepository
           -x test -x dockerBuild -x dockerRun -x dockerStop
           -PgithubUser=${{ secrets.PUBLISH_USER_NAME }}
           -PgithubToken=${{ secrets.PUBLISH_KEY }}
@@ -82,27 +85,3 @@ jobs:
         if: always()
         run: |
           rm -rf ${{ runner.temp }}/.gnupg/
-      - name: Upload coverage to Codecov - App
-        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./lowkey-vault-app/build/reports/jacoco/report.xml
-          disable_search: true
-          flags: app
-          fail_ci_if_error: false
-      - name: Upload coverage to Codecov - Client
-        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./lowkey-vault-client/build/reports/jacoco/report.xml
-          disable_search: true
-          flags: client
-          fail_ci_if_error: false
-      - name: Upload coverage to Codecov - Testcontainers
-        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./lowkey-vault-testcontainers/build/reports/jacoco/report.xml
-          disable_search: true
-          flags: testcontainers
-          fail_ci_if_error: false

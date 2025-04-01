@@ -64,7 +64,7 @@ class ResponseEntityTest {
         //given
         final var response = mock(HttpResponse.class);
         when(response.getStatusCode()).thenReturn(code);
-        when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.empty());
+        when(response.getBodyAsString(StandardCharsets.UTF_8)).thenReturn(Mono.empty());
         final var underTest = new ResponseEntity(response, mock(ObjectReader.class));
 
         //when
@@ -73,7 +73,7 @@ class ResponseEntityTest {
         //then
         Assertions.assertEquals(expected, actual);
         verify(response).getStatusCode();
-        verify(response).getBodyAsString(eq(StandardCharsets.UTF_8));
+        verify(response).getBodyAsString(StandardCharsets.UTF_8);
     }
 
     @ParameterizedTest
@@ -82,7 +82,7 @@ class ResponseEntityTest {
         //given
         final var response = mock(HttpResponse.class);
         when(response.getStatusCode()).thenReturn(code);
-        when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.empty());
+        when(response.getBodyAsString(StandardCharsets.UTF_8)).thenReturn(Mono.empty());
         final var underTest = new ResponseEntity(response, mock(ObjectReader.class));
 
         //when
@@ -91,7 +91,7 @@ class ResponseEntityTest {
         //then
         Assertions.assertEquals(code, actual);
         verify(response).getStatusCode();
-        verify(response).getBodyAsString(eq(StandardCharsets.UTF_8));
+        verify(response).getBodyAsString(StandardCharsets.UTF_8);
     }
 
     @Test
@@ -100,7 +100,7 @@ class ResponseEntityTest {
         final var expected = new VaultModel(URI.create(HTTPS_DEFAULT_LOCALHOST_8443), null, null, null, null, null);
         final var response = mock(HttpResponse.class);
         when(response.getStatusCode()).thenReturn(HttpStatus.SC_OK);
-        when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.just(VAULT_MODEL));
+        when(response.getBodyAsString(StandardCharsets.UTF_8)).thenReturn(Mono.just(VAULT_MODEL));
         final var reader = new ObjectMapper().reader();
         final var underTest = new ResponseEntity(response, reader);
 
@@ -110,7 +110,7 @@ class ResponseEntityTest {
         //then
         Assertions.assertEquals(expected, actual);
         verify(response).getStatusCode();
-        verify(response).getBodyAsString(eq(StandardCharsets.UTF_8));
+        verify(response).getBodyAsString(StandardCharsets.UTF_8);
     }
 
     @Test
@@ -120,7 +120,7 @@ class ResponseEntityTest {
         final var expected = Collections.singletonList(vaultModel);
         final var response = mock(HttpResponse.class);
         when(response.getStatusCode()).thenReturn(HttpStatus.SC_OK);
-        when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.just(VAULT_MODEL_LIST));
+        when(response.getBodyAsString(StandardCharsets.UTF_8)).thenReturn(Mono.just(VAULT_MODEL_LIST));
         final var reader = new ObjectMapper().reader();
         final var underTest = new ResponseEntity(response, reader);
 
@@ -130,7 +130,7 @@ class ResponseEntityTest {
         //then
         Assertions.assertEquals(expected, actual);
         verify(response).getStatusCode();
-        verify(response).getBodyAsString(eq(StandardCharsets.UTF_8));
+        verify(response).getBodyAsString(StandardCharsets.UTF_8);
     }
 
     @Test
@@ -139,9 +139,9 @@ class ResponseEntityTest {
         //given
         final var response = mock(HttpResponse.class);
         when(response.getStatusCode()).thenReturn(HttpStatus.SC_OK);
-        when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.just(VAULT_MODEL));
+        when(response.getBodyAsString(StandardCharsets.UTF_8)).thenReturn(Mono.just(VAULT_MODEL));
         final var reader = mock(ObjectReader.class);
-        when(reader.forType(eq(VaultModel.class))).thenReturn(reader);
+        when(reader.forType(VaultModel.class)).thenReturn(reader);
         when(reader.readValue(anyString())).thenThrow(JsonProcessingException.class);
         final var underTest = new ResponseEntity(response, reader);
 
@@ -157,9 +157,9 @@ class ResponseEntityTest {
         //given
         final var response = mock(HttpResponse.class);
         when(response.getStatusCode()).thenReturn(HttpStatus.SC_OK);
-        when(response.getBodyAsString(eq(StandardCharsets.UTF_8))).thenReturn(Mono.just(VAULT_MODEL_LIST));
+        when(response.getBodyAsString(StandardCharsets.UTF_8)).thenReturn(Mono.just(VAULT_MODEL_LIST));
         final var reader = mock(ObjectReader.class);
-        when(reader.forType(eq(VAULT_MODEL_LIST_TYPE_REF))).thenReturn(reader);
+        when(reader.forType(VAULT_MODEL_LIST_TYPE_REF)).thenReturn(reader);
         when(reader.readValue(anyString())).thenThrow(JsonProcessingException.class);
         final var underTest = new ResponseEntity(response, reader);
 

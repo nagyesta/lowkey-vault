@@ -215,10 +215,11 @@ class AesKeyVaultKeyEntityTest {
         final var underTest = new AesKeyVaultKeyEntity(
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, KeyType.OCT.getValidKeyParameters(Integer.class).first(), false);
         underTest.setEnabled(true);
+        final var bytes = DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8);
 
         //when
         Assertions.assertThrows(UnsupportedOperationException.class,
-                () -> underTest.signBytes(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.ES256));
+                () -> underTest.signBytes(bytes, SignatureAlgorithm.ES256));
 
         //then + exception
     }
@@ -230,11 +231,11 @@ class AesKeyVaultKeyEntityTest {
         final var underTest = new AesKeyVaultKeyEntity(
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, KeyType.OCT.getValidKeyParameters(Integer.class).first(), false);
         underTest.setEnabled(true);
+        final var bytes = DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8);
 
         //when
         Assertions.assertThrows(UnsupportedOperationException.class,
-                () -> underTest.verifySignedBytes(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8),
-                        SignatureAlgorithm.ES256, DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8)));
+                () -> underTest.verifySignedBytes(bytes, SignatureAlgorithm.ES256, bytes));
 
         //then + exception
     }
@@ -246,10 +247,11 @@ class AesKeyVaultKeyEntityTest {
         final var underTest = new AesKeyVaultKeyEntity(
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, KeyType.OCT.getValidKeyParameters(Integer.class).first(), false);
         underTest.setEnabled(true);
+        final var operations = List.of(KeyOperation.SIGN, KeyOperation.VERIFY);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.setOperations(List.of(KeyOperation.SIGN, KeyOperation.VERIFY)));
+                () -> underTest.setOperations(operations));
 
         //then + exception
     }

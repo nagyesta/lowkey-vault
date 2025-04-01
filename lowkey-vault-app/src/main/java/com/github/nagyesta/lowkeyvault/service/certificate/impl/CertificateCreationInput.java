@@ -10,7 +10,8 @@ import java.time.OffsetDateTime;
 import java.util.Set;
 
 @Data
-public class CertificateCreationInput implements ReadOnlyCertificatePolicy {
+public class CertificateCreationInput
+        implements ReadOnlyCertificatePolicy {
 
     /**
      * Default number of months used for certificate validity.

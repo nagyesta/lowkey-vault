@@ -24,13 +24,18 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Slf4j
 @RestController
 @Validated
-@Component("KeyPolicyControllerV74")
-public class KeyPolicyController extends CommonKeyPolicyController {
+@Component("keyPolicyControllerV74")
+@SuppressWarnings("java:S110")
+public class KeyPolicyController
+        extends CommonKeyPolicyController {
 
-    public KeyPolicyController(@NonNull final KeyConverterRegistry registry, @NonNull final VaultService vaultService) {
+    public KeyPolicyController(
+            @NonNull final KeyConverterRegistry registry,
+            @NonNull final VaultService vaultService) {
         super(registry, vaultService);
     }
 
+    @Override
     @GetMapping(value = {"/keys/{keyName}/rotationpolicy", "/keys/{keyName}/rotationPolicy"},
             params = API_VERSION_7_4,
             produces = APPLICATION_JSON_VALUE)
@@ -40,6 +45,7 @@ public class KeyPolicyController extends CommonKeyPolicyController {
         return super.getRotationPolicy(keyName, baseUri);
     }
 
+    @Override
     @PutMapping(value = {"/keys/{keyName}/rotationpolicy", "/keys/{keyName}/rotationPolicy"},
             params = API_VERSION_7_4,
             consumes = APPLICATION_JSON_VALUE,

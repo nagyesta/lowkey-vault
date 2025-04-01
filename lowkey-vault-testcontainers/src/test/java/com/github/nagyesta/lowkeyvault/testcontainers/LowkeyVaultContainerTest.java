@@ -43,12 +43,12 @@ class LowkeyVaultContainerTest extends AbstractLowkeyVaultContainerTest {
         //then
         if (logExpected) {
             verify(loggerMock).warn(
-                    eq("An amd64 image is detected with non-amd64 ({}) host."), eq(hostArch));
+                    "An amd64 image is detected with non-amd64 ({}) host.", hostArch);
             verify(loggerMock).warn(
-                    eq("Please consider using a multi-arch image, like: {}-ubi9-minimal"),
-                    eq(StringUtils.substringAfterLast(imageName, ":")));
+                    "Please consider using a multi-arch image, like: {}-ubi9-minimal",
+                    StringUtils.substringAfterLast(imageName, ":"));
             verify(loggerMock).warn(
-                    eq("See more information: https://github.com/nagyesta/lowkey-vault/tree/main/lowkey-vault-docker#arm-builds"));
+                    "See more information: https://github.com/nagyesta/lowkey-vault/tree/main/lowkey-vault-docker#arm-builds");
         }
         verifyNoMoreInteractions(loggerMock);
     }

@@ -21,14 +21,12 @@ import java.security.KeyStore;
 import java.util.*;
 import java.util.function.Function;
 
-import static com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContainerBuilder.lowkeyVault;
-
-@SuppressWarnings("resource")
+@SuppressWarnings({"resource", "java:S2160"}) //the super-class implements equals
 public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer> {
 
     static final DockerImageName DEFAULT_IMAGE_NAME = DockerImageName.parse("nagyesta/lowkey-vault");
     private static final String DUMMY_USERNAME = "DUMMY";
-    private static final String DUMMY_PASSWORD = "DUMMY";
+    private static final String DUMMY_PASSWORD = UUID.randomUUID().toString();
     private static final int CONTAINER_PORT = 8443;
     private static final int CONTAINER_TOKEN_PORT = 8080;
     @SuppressWarnings("HttpUrlsUsage")
@@ -37,6 +35,7 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
     private static final String PORT_SEPARATOR = ":";
     private static final String LOCALHOST = "localhost";
     private static final String DOT = ".";
+    @SuppressWarnings("java:S1075") //this is not supposed to be configurable
     private static final String TOKEN_ENDPOINT_PATH = "/metadata/identity/oauth2/token";
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private final Integer logicalPort;
@@ -45,29 +44,6 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
     private final Function<LowkeyVaultContainer, Map<String, String>> lowkeyVaultSystemPropertySupplier;
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private Optional<KeyStoreMerger> keyStoreMerger = Optional.empty();
-
-    /**
-     * Creates a new instance.
-     *
-     * @param dockerImageName specified docker image name to run
-     * @deprecated Use {@link LowkeyVaultContainerBuilder} instead
-     */
-    @Deprecated
-    public LowkeyVaultContainer(final DockerImageName dockerImageName) {
-        this(lowkeyVault(dockerImageName));
-    }
-
-    /**
-     * Creates a new instance and sets vault names.
-     *
-     * @param dockerImageName specified docker image name to run
-     * @param vaultNames      The names of the vaults we want to initialize at startup
-     * @deprecated Use {@link LowkeyVaultContainerBuilder} instead
-     */
-    @Deprecated
-    public LowkeyVaultContainer(final DockerImageName dockerImageName, final Set<String> vaultNames) {
-        this(lowkeyVault(dockerImageName).vaultNames(vaultNames));
-    }
 
     /**
      * Constructor for builder.
@@ -245,6 +221,9 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
             final var keyStore = KeyStore.getInstance("PKCS12");
             keyStore.load(new ByteArrayInputStream(keyStoreBytes), getDefaultKeyStorePassword().toCharArray());
             return keyStore;
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Failed to get default key store", e);
         } catch (final Exception e) {
             throw new IllegalStateException("Failed to get default key store", e);
         }
@@ -262,6 +241,9 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
                 .build();
         try {
             return httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)).body();
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Failed to get default key store password", e);
         } catch (final Exception e) {
             throw new IllegalStateException("Failed to get default key store password", e);
         }

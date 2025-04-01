@@ -20,8 +20,9 @@ public class KeyLifetimeActionTriggerModel {
     private Period triggerPeriod;
 
     @JsonCreator
-    public KeyLifetimeActionTriggerModel(@JsonProperty("timeBeforeExpiry") final Period timeBeforeExpiry,
-                                         @JsonProperty("timeAfterCreate") final Period timeAfterCreate) {
+    public KeyLifetimeActionTriggerModel(
+            @JsonProperty("timeBeforeExpiry") final Period timeBeforeExpiry,
+            @JsonProperty("timeAfterCreate") final Period timeAfterCreate) {
         Assert.isTrue(timeBeforeExpiry == null || timeAfterCreate == null,
                 "TimeBeforeExpiry and TimeAfterCreate cannot be populated at the same time.");
         Assert.isTrue(timeBeforeExpiry != null || timeAfterCreate != null,

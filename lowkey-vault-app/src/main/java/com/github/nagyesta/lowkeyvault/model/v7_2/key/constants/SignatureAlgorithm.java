@@ -13,31 +13,31 @@ import java.util.Arrays;
 @SuppressWarnings("checkstyle:JavadocVariable")
 public enum SignatureAlgorithm {
 
-    ES256("ES256", "NONEwithECDSA", KeyType.EC, HashAlgorithm.SHA256) {
+    ES256("ES256", Constants.NONE_WITH_ECDSA, KeyType.EC, HashAlgorithm.SHA256) {
         @Override
         public boolean isCompatibleWithCurve(final KeyCurveName keyCurveName) {
             return KeyCurveName.P_256 == keyCurveName;
         }
     },
-    ES256K("ES256K", "NONEwithECDSA", KeyType.EC, HashAlgorithm.SHA256) {
+    ES256K("ES256K", Constants.NONE_WITH_ECDSA, KeyType.EC, HashAlgorithm.SHA256) {
         @Override
         public boolean isCompatibleWithCurve(final KeyCurveName keyCurveName) {
             return KeyCurveName.P_256K == keyCurveName;
         }
     },
-    ES384("ES384", "NONEwithECDSA", KeyType.EC, HashAlgorithm.SHA384) {
+    ES384("ES384", Constants.NONE_WITH_ECDSA, KeyType.EC, HashAlgorithm.SHA384) {
         @Override
         public boolean isCompatibleWithCurve(final KeyCurveName keyCurveName) {
             return KeyCurveName.P_384 == keyCurveName;
         }
     },
-    ES512("ES512", "NONEwithECDSA", KeyType.EC, HashAlgorithm.SHA512) {
+    ES512("ES512", Constants.NONE_WITH_ECDSA, KeyType.EC, HashAlgorithm.SHA512) {
         @Override
         public boolean isCompatibleWithCurve(final KeyCurveName keyCurveName) {
             return KeyCurveName.P_521 == keyCurveName;
         }
     },
-    PS256("PS256", "NONEwithRSAandMGF1", KeyType.RSA, HashAlgorithm.SHA256) {
+    PS256("PS256", Constants.NONE_WITH_RSA_AND_MGF_1, KeyType.RSA, HashAlgorithm.SHA256) {
         @Override
         public Signature getSignatureInstance() throws GeneralSecurityException {
             final var signature = super.getSignatureInstance();
@@ -45,7 +45,7 @@ public enum SignatureAlgorithm {
             return signature;
         }
     },
-    PS384("PS384", "NONEwithRSAandMGF1", KeyType.RSA, HashAlgorithm.SHA384) {
+    PS384("PS384", Constants.NONE_WITH_RSA_AND_MGF_1, KeyType.RSA, HashAlgorithm.SHA384) {
         @Override
         public Signature getSignatureInstance() throws GeneralSecurityException {
             final var signature = super.getSignatureInstance();
@@ -53,7 +53,7 @@ public enum SignatureAlgorithm {
             return signature;
         }
     },
-    PS512("PS512", "NONEwithRSAandMGF1", KeyType.RSA, HashAlgorithm.SHA512) {
+    PS512("PS512", Constants.NONE_WITH_RSA_AND_MGF_1, KeyType.RSA, HashAlgorithm.SHA512) {
         @Override
         public Signature getSignatureInstance() throws GeneralSecurityException {
             final var signature = super.getSignatureInstance();
@@ -61,19 +61,19 @@ public enum SignatureAlgorithm {
             return signature;
         }
     },
-    RS256("RS256", "NoneWithRSA", KeyType.RSA, HashAlgorithm.SHA256) {
+    RS256("RS256", Constants.NONE_WITH_RSA, KeyType.RSA, HashAlgorithm.SHA256) {
         @Override
         public byte[] transformDigest(final byte[] digest) throws IOException {
             return getHashAlgorithm().encodeDigest(digest);
         }
     },
-    RS384("RS384", "NoneWithRSA", KeyType.RSA, HashAlgorithm.SHA384) {
+    RS384("RS384", Constants.NONE_WITH_RSA, KeyType.RSA, HashAlgorithm.SHA384) {
         @Override
         public byte[] transformDigest(final byte[] digest) throws IOException {
             return getHashAlgorithm().encodeDigest(digest);
         }
     },
-    RS512("RS512", "NoneWithRSA", KeyType.RSA, HashAlgorithm.SHA512) {
+    RS512("RS512", Constants.NONE_WITH_RSA, KeyType.RSA, HashAlgorithm.SHA512) {
         @Override
         public byte[] transformDigest(final byte[] digest) throws IOException {
             return getHashAlgorithm().encodeDigest(digest);
@@ -85,10 +85,11 @@ public enum SignatureAlgorithm {
     private final KeyType compatibleType;
     private final HashAlgorithm hashAlgorithm;
 
-    SignatureAlgorithm(final String value,
-                       final String alg,
-                       final KeyType compatibleType,
-                       final HashAlgorithm hashAlgorithm) {
+    SignatureAlgorithm(
+            final String value,
+            final String alg,
+            final KeyType compatibleType,
+            final HashAlgorithm hashAlgorithm) {
         this.value = value;
         this.alg = alg;
         this.compatibleType = compatibleType;
@@ -121,6 +122,7 @@ public enum SignatureAlgorithm {
     }
 
     @JsonIgnore
+    @SuppressWarnings("java:S1130") //the subclasses need the exception
     public byte[] transformDigest(final byte[] digest) throws IOException {
         return digest;
     }
@@ -133,5 +135,11 @@ public enum SignatureAlgorithm {
     @JsonIgnore
     public Signature getSignatureInstance() throws GeneralSecurityException {
         return Signature.getInstance(getAlg(), KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
+    }
+
+    private static final class Constants {
+        public static final String NONE_WITH_ECDSA = "NONEwithECDSA";
+        public static final String NONE_WITH_RSA_AND_MGF_1 = "NONEwithRSAandMGF1";
+        public static final String NONE_WITH_RSA = "NoneWithRSA";
     }
 }

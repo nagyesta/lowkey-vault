@@ -12,7 +12,7 @@ import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.NUMBER_OF_SECONDS_IN_10_MINUTES;
@@ -34,15 +34,16 @@ class VaultFakeImplTest {
     }
 
     public static Stream<Arguments> uriPairProvider() {
+        final UnaryOperator<URI> identity = uri -> uri;
         return Stream.<Arguments>builder()
-                .add(Arguments.of(HTTPS_LOCALHOST, HTTPS_LOCALHOST_80, Function.identity()))
-                .add(Arguments.of(HTTPS_LOCALHOST, HTTPS_LOCALHOST_8443, Function.identity()))
-                .add(Arguments.of(HTTPS_LOCALHOST_80, HTTPS_LOCALHOST_8443, Function.identity()))
-                .add(Arguments.of(HTTPS_LOCALHOST, HTTPS_LOCALHOST, Function.identity()))
+                .add(Arguments.of(HTTPS_LOCALHOST, HTTPS_LOCALHOST_80, identity))
+                .add(Arguments.of(HTTPS_LOCALHOST, HTTPS_LOCALHOST_8443, identity))
+                .add(Arguments.of(HTTPS_LOCALHOST_80, HTTPS_LOCALHOST_8443, identity))
+                .add(Arguments.of(HTTPS_LOCALHOST, HTTPS_LOCALHOST, identity))
                 .add(Arguments.of(HTTPS_LOWKEY_VAULT_8443, HTTPS_LOWKEY_VAULT_443,
-                        (Function<URI, URI>) uri -> replacePortWith(uri, TOMCAT_SECURE_PORT)))
+                        (UnaryOperator<URI>) uri -> replacePortWith(uri, TOMCAT_SECURE_PORT)))
                 .add(Arguments.of(HTTPS_LOWKEY_VAULT_443, HTTPS_LOWKEY_VAULT_8443,
-                        (Function<URI, URI>) uri -> replacePortWith(uri, TOMCAT_SECURE_PORT)))
+                        (UnaryOperator<URI>) uri -> replacePortWith(uri, TOMCAT_SECURE_PORT)))
                 .build();
     }
 
@@ -70,7 +71,7 @@ class VaultFakeImplTest {
 
     @ParameterizedTest
     @MethodSource("uriPairProvider")
-    void testMatchesShouldUseFullMatchWhenCalled(final URI self, final URI input, final Function<URI, URI> uriMapper) {
+    void testMatchesShouldUseFullMatchWhenCalled(final URI self, final URI input, final UnaryOperator<URI> uriMapper) {
         //given
         final var underTest = new VaultFakeImpl(self);
 
@@ -84,7 +85,7 @@ class VaultFakeImplTest {
 
     @ParameterizedTest
     @MethodSource("uriPairProvider")
-    void testMatchesShouldUseFullMatchWithAnyOfTheAliasesWhenCalled(final URI self, final URI input, final Function<URI, URI> uriMapper) {
+    void testMatchesShouldUseFullMatchWithAnyOfTheAliasesWhenCalled(final URI self, final URI input, final UnaryOperator<URI> uriMapper) {
         //given
         final var underTest = new VaultFakeImpl(HTTPS_AZURE_CLOUD);
         underTest.setAliases(Set.of(self, HTTPS_DEFAULT_LOWKEY_VAULT));
@@ -104,7 +105,7 @@ class VaultFakeImplTest {
         final var underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.matches(null, Function.identity()));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.matches(null, uri -> uri));
 
         //then + exception
     }
@@ -279,6 +280,7 @@ class VaultFakeImplTest {
         Assertions.assertNull(deletedOnAfterRecovery);
     }
 
+    @SuppressWarnings("java:S2925") //this is a fixed duration wait to let the timestamps change
     @Test
     void testGetCreatedOnShouldBeInThePastWhenCalled() {
         //given

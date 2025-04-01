@@ -6,7 +6,8 @@ import lombok.NonNull;
 import java.time.OffsetDateTime;
 import java.util.Map;
 
-public interface LifetimeActionPolicy extends ReadOnlyLifetimeActionPolicy, TimeAware {
+public interface LifetimeActionPolicy
+        extends ReadOnlyLifetimeActionPolicy, TimeAware {
 
     void setCreatedOn(@NonNull OffsetDateTime createdOn);
 

@@ -11,10 +11,13 @@ import org.springframework.lang.NonNull;
 import java.util.Optional;
 
 @Slf4j
-public abstract class CommonPolicyAwareKeyBackupRestoreController extends CommonKeyBackupRestoreController {
+@SuppressWarnings("java:S110")
+public abstract class CommonPolicyAwareKeyBackupRestoreController
+        extends CommonKeyBackupRestoreController {
 
-    public CommonPolicyAwareKeyBackupRestoreController(
-            @NonNull final KeyConverterRegistry registry, @NonNull final VaultService vaultService) {
+    protected CommonPolicyAwareKeyBackupRestoreController(
+            @NonNull final KeyConverterRegistry registry,
+            @NonNull final VaultService vaultService) {
         super(registry, vaultService);
     }
 

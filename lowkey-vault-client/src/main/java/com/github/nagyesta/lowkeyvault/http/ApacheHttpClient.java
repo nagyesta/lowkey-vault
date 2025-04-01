@@ -4,6 +4,7 @@ import com.azure.core.http.HttpClient;
 import com.azure.core.http.HttpRequest;
 import com.azure.core.http.HttpResponse;
 import com.azure.core.util.FluxUtil;
+import com.github.nagyesta.lowkeyvault.http.management.LowkeyVaultException;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.entity.ByteArrayEntity;
@@ -16,19 +17,22 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * Modified class based on <a href="https://github.com/Azure/azure-sdk-for-java/wiki/Custom-HTTP-Clients">
  * https://github.com/Azure/azure-sdk-for-java/wiki/Custom-HTTP-Clients</a>.
  */
-public final class ApacheHttpClient implements HttpClient {
-    private final org.apache.http.client.HttpClient httpClient;
-    private final Function<URI, URI> authorityOverrideFunction;
+public final class ApacheHttpClient
+        implements HttpClient {
 
-    public ApacheHttpClient(final Function<URI, URI> authorityOverrideFunction,
-                            final TrustStrategy trustStrategy,
-                            final HostnameVerifier hostnameVerifier) {
+    private final org.apache.http.client.HttpClient httpClient;
+    private final UnaryOperator<URI> authorityOverrideFunction;
+
+    public ApacheHttpClient(
+            final UnaryOperator<URI> authorityOverrideFunction,
+            final TrustStrategy trustStrategy,
+            final HostnameVerifier hostnameVerifier) {
         try {
             this.authorityOverrideFunction = Objects.requireNonNull(authorityOverrideFunction);
             final var builder = new SSLContextBuilder();
@@ -38,11 +42,13 @@ public final class ApacheHttpClient implements HttpClient {
                     .addInterceptorFirst(new ContentLengthHeaderRemover())
                     .setSSLSocketFactory(socketFactory).build();
         } catch (final Exception e) {
-            throw new RuntimeException(e);
+            throw new LowkeyVaultException("Failed to create HTTP client.", e);
         }
     }
 
-    ApacheHttpClient(final org.apache.http.client.HttpClient httpClient, final Function<URI, URI> authorityOverrideFunction) {
+    ApacheHttpClient(
+            final org.apache.http.client.HttpClient httpClient,
+            final UnaryOperator<URI> authorityOverrideFunction) {
         this.httpClient = Objects.requireNonNull(httpClient);
         this.authorityOverrideFunction = Objects.requireNonNull(authorityOverrideFunction);
     }

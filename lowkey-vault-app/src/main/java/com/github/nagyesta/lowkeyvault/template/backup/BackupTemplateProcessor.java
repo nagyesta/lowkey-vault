@@ -9,7 +9,8 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
-public class BackupTemplateProcessor implements HandlebarsTemplateProcessor<BackupContext> {
+public class BackupTemplateProcessor
+        implements HandlebarsTemplateProcessor<BackupContext> {
 
     private final TimeHelperSource timeHelperSource;
 
@@ -19,7 +20,9 @@ public class BackupTemplateProcessor implements HandlebarsTemplateProcessor<Back
     }
 
     @Override
-    public String processTemplate(@NonNull final String templateAsString, @NonNull final BackupContext context) throws IOException {
+    public String processTemplate(
+            @NonNull final String templateAsString,
+            @NonNull final BackupContext context) throws IOException {
         final var handlebars = new Handlebars();
         handlebars.registerHelpers(timeHelperSource);
         final var template = handlebars.compileInline(templateAsString);

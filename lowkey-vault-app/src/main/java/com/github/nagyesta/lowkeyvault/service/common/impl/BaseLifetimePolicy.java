@@ -10,10 +10,11 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.ToLongFunction;
 
 @Data
-public class BaseLifetimePolicy<E extends EntityId> implements TimeAware {
+public class BaseLifetimePolicy<E extends EntityId>
+        implements TimeAware {
 
     private final E id;
     @NonNull
@@ -39,13 +40,13 @@ public class BaseLifetimePolicy<E extends EntityId> implements TimeAware {
     }
 
     protected List<OffsetDateTime> collectMissedTriggerDays(
-            final Function<OffsetDateTime, Long> triggerAfterDaysFunction,
+            final ToLongFunction<OffsetDateTime> triggerAfterDaysFunction,
             final OffsetDateTime startPoint) {
         final var now = OffsetDateTime.now(ZoneOffset.UTC);
         final List<OffsetDateTime> rotationTimes = new ArrayList<>();
         var latestDay = startPoint;
-        while (latestDay.plusDays(triggerAfterDaysFunction.apply(latestDay)).isBefore(now)) {
-            latestDay = latestDay.plusDays(triggerAfterDaysFunction.apply(latestDay));
+        while (latestDay.plusDays(triggerAfterDaysFunction.applyAsLong(latestDay)).isBefore(now)) {
+            latestDay = latestDay.plusDays(triggerAfterDaysFunction.applyAsLong(latestDay));
             rotationTimes.add(latestDay);
         }
         return List.copyOf(rotationTimes);
@@ -53,8 +54,9 @@ public class BaseLifetimePolicy<E extends EntityId> implements TimeAware {
 
     protected OffsetDateTime findTriggerTimeOffset(
             final OffsetDateTime entityCreation,
-            final Function<OffsetDateTime, Long> triggerAfterDaysFunction) {
-        final var relativeToLifetimeActionPolicy = createdOn.minusDays(triggerAfterDaysFunction.apply(createdOn));
+            final ToLongFunction<OffsetDateTime> triggerAfterDaysFunction) {
+        final var daysUntilTrigger = triggerAfterDaysFunction.applyAsLong(createdOn);
+        final var relativeToLifetimeActionPolicy = createdOn.minusDays(daysUntilTrigger);
         var startPoint = entityCreation;
         if (entityCreation.isBefore(relativeToLifetimeActionPolicy)) {
             startPoint = relativeToLifetimeActionPolicy;

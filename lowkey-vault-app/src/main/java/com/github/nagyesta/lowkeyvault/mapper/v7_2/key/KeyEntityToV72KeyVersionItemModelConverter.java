@@ -20,7 +20,9 @@ public class KeyEntityToV72KeyVersionItemModelConverter extends KeyEntityToV72Ke
     }
 
     @Override
-    protected String convertKeyId(final ReadOnlyKeyVaultKeyEntity source, final URI vaultUri) {
+    protected String convertKeyId(
+            final ReadOnlyKeyVaultKeyEntity source,
+            final URI vaultUri) {
         return source.getId().asUri(vaultUri).toString();
     }
 }

@@ -13,7 +13,8 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class CertificateBackupModel extends BaseBackupModel<CertificatePropertiesModel, CertificateBackupListItem, CertificateBackupList> {
+public class CertificateBackupModel
+        extends BaseBackupModel<CertificatePropertiesModel, CertificateBackupListItem, CertificateBackupList> {
 
     @JsonSerialize(using = Base64ZipCertificateSerializer.class)
     @Override

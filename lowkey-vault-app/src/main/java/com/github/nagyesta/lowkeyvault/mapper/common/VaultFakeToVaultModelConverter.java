@@ -10,7 +10,8 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 
 @Component
-public class VaultFakeToVaultModelConverter implements Converter<VaultFake, VaultModel> {
+public class VaultFakeToVaultModelConverter
+        implements Converter<VaultFake, VaultModel> {
 
     @Override
     public VaultModel convert(@Nullable final VaultFake source) {

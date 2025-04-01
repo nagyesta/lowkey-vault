@@ -225,10 +225,11 @@ class RsaKeyVaultKeyEntityTest {
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, EncryptionAlgorithm.RSA_OAEP_256.getMinKeySize(), null, false);
         underTest.setOperations(List.of(KeyOperation.VERIFY));
         underTest.setEnabled(true);
+        final var bytes = DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8);
 
         //when
         Assertions.assertThrows(IllegalStateException.class,
-                () -> underTest.signBytes(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.PS256));
+                () -> underTest.signBytes(bytes, SignatureAlgorithm.PS256));
 
         //then + exception
     }
@@ -241,13 +242,14 @@ class RsaKeyVaultKeyEntityTest {
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, EncryptionAlgorithm.RSA_OAEP_256.getMinKeySize(), null, false);
         underTest.setOperations(List.of(KeyOperation.SIGN));
         underTest.setEnabled(true);
+        final var bytes = DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8);
 
         //when
         final var signature = underTest.signBytes(
-                HashUtil.hash(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), HashAlgorithm.SHA256),
+                HashUtil.hash(bytes, HashAlgorithm.SHA256),
                 SignatureAlgorithm.PS256);
         Assertions.assertThrows(IllegalStateException.class,
-                () -> underTest.verifySignedBytes(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.PS256, signature));
+                () -> underTest.verifySignedBytes(bytes, SignatureAlgorithm.PS256, signature));
 
         //then + exception
     }
@@ -260,10 +262,11 @@ class RsaKeyVaultKeyEntityTest {
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, EncryptionAlgorithm.RSA_OAEP_256.getMinKeySize(), null, false);
         underTest.setOperations(List.of(KeyOperation.SIGN, KeyOperation.VERIFY));
         underTest.setEnabled(false);
+        final var bytes = DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8);
 
         //when
         Assertions.assertThrows(IllegalStateException.class,
-                () -> underTest.signBytes(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.PS256));
+                () -> underTest.signBytes(bytes, SignatureAlgorithm.PS256));
 
         //then + exception
     }
@@ -276,14 +279,15 @@ class RsaKeyVaultKeyEntityTest {
                 VERSIONED_KEY_ENTITY_ID_1_VERSION_1, vaultFake, EncryptionAlgorithm.RSA_OAEP_256.getMinKeySize(), null, false);
         underTest.setOperations(List.of(KeyOperation.SIGN, KeyOperation.VERIFY));
         underTest.setEnabled(true);
+        final var bytes = DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8);
 
         //when
         final var signature = underTest.signBytes(
-                HashUtil.hash(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), HashAlgorithm.SHA256),
+                HashUtil.hash(bytes, HashAlgorithm.SHA256),
                 SignatureAlgorithm.PS256);
         underTest.setEnabled(false);
         Assertions.assertThrows(IllegalStateException.class,
-                () -> underTest.verifySignedBytes(DEFAULT_VAULT.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.PS256, signature));
+                () -> underTest.verifySignedBytes(bytes, SignatureAlgorithm.PS256, signature));
 
         //then + exception
     }

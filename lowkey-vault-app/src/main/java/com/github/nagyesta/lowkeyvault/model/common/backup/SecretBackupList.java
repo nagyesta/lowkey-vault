@@ -12,7 +12,8 @@ import java.util.List;
 
 @Getter
 @EqualsAndHashCode
-public class SecretBackupList implements BackupListContainer<SecretBackupListItem> {
+public class SecretBackupList
+        implements BackupListContainer<SecretBackupListItem> {
 
     @Valid
     @NotNull

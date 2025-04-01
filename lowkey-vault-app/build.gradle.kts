@@ -41,7 +41,6 @@ dependencies {
 
 licensee {
     allow("Apache-2.0")
-    allow("MIT")
     allow("EPL-1.0")
     allow("EPL-2.0")
     allowUrl("https://www.bouncycastle.org/licence.html")
@@ -64,6 +63,8 @@ java {
 }
 
 val copyLegalDocs = tasks.register<Copy>("copyLegalDocs") {
+    group = "documentation"
+    description = "Copies legal files and reports."
     from(file("${project.rootProject.projectDir}/LICENSE"))
     from(layout.buildDirectory.file("reports/licensee/artifacts.json").get().asFile)
     from(layout.buildDirectory.file("reports/bom.json").get().asFile)
@@ -112,6 +113,8 @@ tasks.getByName<Task>("resolveMainClassName") {
 }
 
 tasks.register<Exec>("regenerateCertJks") {
+    group = "other"
+    description = "Regenerates the JKS certificate store used by Lowkey Vault."
     outputs.file("${project.projectDir}/src/main/resources/cert/keystore.jks")
     workingDir(file("${project.projectDir}/src/main/resources/cert"))
     outputs.upToDateWhen { false }
@@ -138,6 +141,8 @@ tasks.register<Exec>("regenerateCertJks") {
     logging.captureStandardError(LogLevel.ERROR)
 }
 tasks.register<Exec>("regenerateCert") {
+    group = "other"
+    description = "Regenerates the P12 certificate store used by Lowkey Vault."
     outputs.file("${project.projectDir}/src/main/resources/cert/keystore.p12")
     outputs.file("${project.projectDir}/src/main/resources/cert/keystore.jks")
     inputs.file("${project.projectDir}/src/main/resources/cert/keystore.jks")

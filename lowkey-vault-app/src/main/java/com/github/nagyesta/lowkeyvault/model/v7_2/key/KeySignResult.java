@@ -20,14 +20,18 @@ public class KeySignResult {
     @JsonProperty("value")
     private String value;
 
-    public static KeySignResult forBytes(@org.springframework.lang.NonNull final VersionedKeyEntityId keyEntityId,
-                                         @org.springframework.lang.NonNull final byte[] value,
-                                         @org.springframework.lang.NonNull final URI vaultUri) {
+    public static KeySignResult forBytes(
+            @org.springframework.lang.NonNull final VersionedKeyEntityId keyEntityId,
+            @org.springframework.lang.NonNull final byte[] value,
+            @org.springframework.lang.NonNull final URI vaultUri) {
         Assert.notNull(value, "Value must not be null.");
         return forString(keyEntityId, ENCODER.encodeToString(value), vaultUri);
     }
 
-    private static KeySignResult forString(final VersionedKeyEntityId keyEntityId, final String value, final URI vaultUri) {
+    private static KeySignResult forString(
+            final VersionedKeyEntityId keyEntityId,
+            final String value,
+            final URI vaultUri) {
         final var result = new KeySignResult();
         result.setId(keyEntityId.asUri(vaultUri));
         result.setValue(value);

@@ -16,17 +16,14 @@ public class X509CertificateModel {
     @NotBlank
     @JsonProperty("subject")
     private String subject;
-
     @JsonProperty("ekus")
     private Set<String> extendedKeyUsage;
-
     @JsonProperty("key_usage")
     private Set<KeyUsageEnum> keyUsage;
-
     @JsonProperty("validity_months")
     private Integer validityMonths;
-
     @JsonProperty("sans")
     @Valid
     private SubjectAlternativeNames subjectAlternativeNames;
+
 }

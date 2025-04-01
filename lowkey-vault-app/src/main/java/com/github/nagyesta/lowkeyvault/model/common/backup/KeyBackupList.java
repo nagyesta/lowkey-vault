@@ -17,7 +17,8 @@ import java.util.List;
 @Getter
 @EqualsAndHashCode
 @ToString
-public class KeyBackupList implements BackupListContainer<KeyBackupListItem> {
+public class KeyBackupList
+        implements BackupListContainer<KeyBackupListItem> {
 
     @Valid
     @NotNull

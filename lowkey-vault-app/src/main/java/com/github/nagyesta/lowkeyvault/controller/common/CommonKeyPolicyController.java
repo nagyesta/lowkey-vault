@@ -16,9 +16,12 @@ import org.springframework.validation.annotation.Validated;
 import java.net.URI;
 
 @Slf4j
-public abstract class CommonKeyPolicyController extends BaseKeyController {
+public abstract class CommonKeyPolicyController
+        extends BaseKeyController {
 
-    public CommonKeyPolicyController(@NonNull final KeyConverterRegistry registry, @NonNull final VaultService vaultService) {
+    protected CommonKeyPolicyController(
+            @NonNull final KeyConverterRegistry registry,
+            @NonNull final VaultService vaultService) {
         super(registry, vaultService);
     }
 
@@ -45,7 +48,9 @@ public abstract class CommonKeyPolicyController extends BaseKeyController {
     }
 
     private ResponseEntity<KeyRotationPolicyModel> getRotationPolicyResponseEntity(
-            final KeyVaultFake keyVaultFake, final KeyEntityId keyEntityId, final URI baseUri) {
+            final KeyVaultFake keyVaultFake,
+            final KeyEntityId keyEntityId,
+            final URI baseUri) {
         final var policy = keyVaultFake.rotationPolicy(keyEntityId);
         final var converter = registry()
                 .rotationPolicyModelConverter(apiVersion());

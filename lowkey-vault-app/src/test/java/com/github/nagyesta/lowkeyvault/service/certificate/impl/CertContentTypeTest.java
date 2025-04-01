@@ -385,9 +385,10 @@ class CertContentTypeTest {
         //given
         final var store = ResourceUtils.loadResourceAsString("/cert/rsa.pem");
         final var chain = CertContentType.PEM.getCertificateChain(Objects.requireNonNull(store), "");
+        final var certificate = chain.get(0);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asBase64CertificatePackage(chain.get(0), null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asBase64CertificatePackage(certificate, null));
 
         //then + exception
     }
@@ -396,10 +397,11 @@ class CertContentTypeTest {
     @MethodSource("instanceProvider")
     void testAsBase64CertificatePackageShouldThrowExceptionWhenCalledWithNullCertificate(final CertContentType underTest) {
         //given
+        final var keyPair = KeyGenUtil.generateEc(KeyCurveName.P_521);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.asBase64CertificatePackage(null, KeyGenUtil.generateEc(KeyCurveName.P_521)));
+                () -> underTest.asBase64CertificatePackage(null, keyPair));
 
         //then + exception
     }

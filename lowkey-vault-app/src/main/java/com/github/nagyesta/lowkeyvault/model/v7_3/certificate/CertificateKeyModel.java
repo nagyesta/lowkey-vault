@@ -14,21 +14,17 @@ public class CertificateKeyModel {
 
     @JsonProperty("exportable")
     private boolean exportable;
-
     @JsonProperty("crv")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private KeyCurveName keyCurveName;
-
     @NotNull
     @JsonProperty("kty")
     private KeyType keyType;
-
     @Min(1024)
     @Max(4096)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("key_size")
     private Integer keySize = null;
-
     @JsonProperty("reuse_key")
     private boolean reuseKey;
 

@@ -25,7 +25,7 @@ import java.util.Map;
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.KEY_NAME_1;
 
-public class BaseKeyBackupRestoreControllerIntegrationTest {
+public abstract class BaseKeyBackupRestoreControllerIntegrationTest {
 
     @SuppressWarnings({"checkstyle:VisibilityModifier", "checkstyle:JavadocVariable"})
     protected URI uri;

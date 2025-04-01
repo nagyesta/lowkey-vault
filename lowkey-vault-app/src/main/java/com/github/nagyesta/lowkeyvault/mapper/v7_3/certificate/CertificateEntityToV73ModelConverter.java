@@ -32,7 +32,9 @@ public class CertificateEntityToV73ModelConverter
 
     @Override
     protected <M extends KeyVaultCertificateModel> M mapActiveFields(
-            final ReadOnlyKeyVaultCertificateEntity source, final M model, final URI vaultUri) {
+            final ReadOnlyKeyVaultCertificateEntity source,
+            final M model,
+            final URI vaultUri) {
         model.setId(source.getId().asUri(vaultUri).toString());
         model.setKid(source.getKid().asUri(vaultUri).toString());
         model.setSid(source.getSid().asUri(vaultUri).toString());

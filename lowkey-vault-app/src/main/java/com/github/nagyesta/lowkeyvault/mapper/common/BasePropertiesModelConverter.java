@@ -8,7 +8,9 @@ public abstract class BasePropertiesModelConverter<V extends EntityId,
         E extends BaseVaultEntity<V>, M extends BasePropertiesModel>
         implements AliasAwareConverter<E, M> {
 
-    protected M mapCommonFields(final E entity, final M attributes) {
+    protected M mapCommonFields(
+            final E entity,
+            final M attributes) {
         attributes.setCreatedOn(entity.getCreated());
         attributes.setUpdatedOn(entity.getUpdated());
         attributes.setEnabled(entity.isEnabled());

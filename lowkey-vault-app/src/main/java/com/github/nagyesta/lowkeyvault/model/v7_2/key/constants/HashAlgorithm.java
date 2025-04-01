@@ -14,8 +14,9 @@ import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
 import java.util.Optional;
 
-@SuppressWarnings({"checkstyle:JavadocVariable", "LombokGetterMayBeUsed"})
+@SuppressWarnings("checkstyle:JavadocVariable")
 public enum HashAlgorithm {
+
     SHA256("SHA-256", 32, NISTObjectIdentifiers.id_sha256),
     SHA384("SHA-384", 48, NISTObjectIdentifiers.id_sha384),
     SHA512("SHA-512", 64, NISTObjectIdentifiers.id_sha512);
@@ -25,7 +26,10 @@ public enum HashAlgorithm {
     private final ASN1ObjectIdentifier algorithmIdentifier;
     private final int digestLength;
 
-    HashAlgorithm(final String algorithmName, final int digestLength, final ASN1ObjectIdentifier algorithmIdentifier) {
+    HashAlgorithm(
+            final String algorithmName,
+            final int digestLength,
+            final ASN1ObjectIdentifier algorithmIdentifier) {
         this.algorithmName = algorithmName;
         this.algorithmIdentifier = algorithmIdentifier;
         this.digestLength = digestLength;

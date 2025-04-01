@@ -33,7 +33,7 @@ import java.net.URI;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * Modified class based on <a href="https://github.com/Azure/azure-sdk-for-java/wiki/Custom-HTTP-Clients">Azure SDK wiki</a>.
@@ -44,7 +44,7 @@ public final class ApacheHttpClientProvider {
 
     @Getter
     private final String vaultUrl;
-    private final Function<URI, URI> hostOverrideFunction;
+    private final UnaryOperator<URI> hostOverrideFunction;
 
     private final TrustStrategy trustStrategy;
 
@@ -61,9 +61,12 @@ public final class ApacheHttpClientProvider {
      * @param hostOverrideFunction The function mapping between the logical host name used by vault URLs
      *                             and the host name used by the host machine for accessing Lowkey Vault.
      *                             e.g. Maps from *.localhost:8443 to localhost:30443.
-     * @see ApacheHttpRequest#ApacheHttpRequest(com.azure.core.http.HttpMethod, java.net.URL, com.azure.core.http.HttpHeaders, Function)
+     * @see ApacheHttpRequest#ApacheHttpRequest(com.azure.core.http.HttpMethod,
+     * java.net.URL, com.azure.core.http.HttpHeaders, UnaryOperator)
      */
-    public ApacheHttpClientProvider(final String vaultUrl, final Function<URI, URI> hostOverrideFunction) {
+    public ApacheHttpClientProvider(
+            final String vaultUrl,
+            final UnaryOperator<URI> hostOverrideFunction) {
         this(vaultUrl, hostOverrideFunction, null, null);
     }
 
@@ -79,15 +82,17 @@ public final class ApacheHttpClientProvider {
      *                             Defaults to {@link TrustSelfSignedStrategy} when null.
      * @param hostnameVerifier     The host name verifier we are using when the SSL certs are verified.
      *                             Defaults to {@link DefaultHostnameVerifier} when null.
-     * @see ApacheHttpRequest#ApacheHttpRequest(com.azure.core.http.HttpMethod, java.net.URL, com.azure.core.http.HttpHeaders, Function)
+     * @see ApacheHttpRequest#ApacheHttpRequest(com.azure.core.http.HttpMethod,
+     * java.net.URL, com.azure.core.http.HttpHeaders, UnaryOperator)
      */
-    public ApacheHttpClientProvider(final String vaultUrl,
-                                    final Function<URI, URI> hostOverrideFunction,
-                                    final TrustStrategy trustStrategy,
-                                    final HostnameVerifier hostnameVerifier) {
+    public ApacheHttpClientProvider(
+            final String vaultUrl,
+            final UnaryOperator<URI> hostOverrideFunction,
+            final TrustStrategy trustStrategy,
+            final HostnameVerifier hostnameVerifier) {
         this.vaultUrl = vaultUrl;
         this.hostOverrideFunction = Optional.ofNullable(hostOverrideFunction)
-                .orElse(Function.identity());
+                .orElse(uri -> uri);
         this.trustStrategy = Optional.ofNullable(trustStrategy).orElse(new TrustSelfSignedStrategy());
         this.hostnameVerifier = Optional.ofNullable(hostnameVerifier).orElse(new DefaultHostnameVerifier());
     }
@@ -152,7 +157,9 @@ public final class ApacheHttpClientProvider {
         return getCryptoAsyncClient(webKeyId, CryptographyServiceVersion.V7_4);
     }
 
-    public CryptographyAsyncClient getCryptoAsyncClient(final String webKeyId, final CryptographyServiceVersion version) {
+    public CryptographyAsyncClient getCryptoAsyncClient(
+            final String webKeyId,
+            final CryptographyServiceVersion version) {
         return getCryptoBuilder(webKeyId).serviceVersion(version).buildAsyncClient();
     }
 
@@ -160,44 +167,54 @@ public final class ApacheHttpClientProvider {
         return getCryptoClient(webKeyId, CryptographyServiceVersion.V7_4);
     }
 
-    public CryptographyClient getCryptoClient(final String webKeyId, final CryptographyServiceVersion version) {
+    public CryptographyClient getCryptoClient(
+            final String webKeyId,
+            final CryptographyServiceVersion version) {
         return getCryptoBuilder(webKeyId).serviceVersion(version).buildClient();
     }
 
     private KeyClientBuilder getKeyBuilder() {
         return new KeyClientBuilder()
                 .vaultUrl(getVaultUrl())
-                .credential(new BasicAuthenticationCredential(DUMMY, DUMMY))
+                .credential(getCredential())
                 .httpClient(createInstance())
                 .disableChallengeResourceVerification()
-                .retryPolicy(new RetryPolicy(new FixedDelay(0, Duration.ZERO)));
+                .retryPolicy(getRetryPolicy());
     }
 
     private CertificateClientBuilder getCertificateBuilder() {
         return new CertificateClientBuilder()
                 .vaultUrl(getVaultUrl())
-                .credential(new BasicAuthenticationCredential(DUMMY, DUMMY))
+                .credential(getCredential())
                 .httpClient(createInstance())
                 .disableChallengeResourceVerification()
-                .retryPolicy(new RetryPolicy(new FixedDelay(0, Duration.ZERO)));
+                .retryPolicy(getRetryPolicy());
     }
 
     private SecretClientBuilder getSecretBuilder() {
         return new SecretClientBuilder()
                 .vaultUrl(getVaultUrl())
-                .credential(new BasicAuthenticationCredential(DUMMY, DUMMY))
+                .credential(getCredential())
                 .httpClient(createInstance())
                 .disableChallengeResourceVerification()
-                .retryPolicy(new RetryPolicy(new FixedDelay(0, Duration.ZERO)));
+                .retryPolicy(getRetryPolicy());
     }
 
     private CryptographyClientBuilder getCryptoBuilder(final String webKeyId) {
         return new CryptographyClientBuilder()
                 .keyIdentifier(Objects.requireNonNull(webKeyId))
-                .credential(new BasicAuthenticationCredential(DUMMY, DUMMY))
+                .credential(getCredential())
                 .httpClient(createInstance())
                 .disableChallengeResourceVerification()
-                .retryPolicy(new RetryPolicy(new FixedDelay(0, Duration.ZERO)));
+                .retryPolicy(getRetryPolicy());
+    }
+
+    private RetryPolicy getRetryPolicy() {
+        return new RetryPolicy(new FixedDelay(0, Duration.ZERO));
+    }
+
+    private BasicAuthenticationCredential getCredential() {
+        return new BasicAuthenticationCredential(DUMMY, DUMMY);
     }
 
 }

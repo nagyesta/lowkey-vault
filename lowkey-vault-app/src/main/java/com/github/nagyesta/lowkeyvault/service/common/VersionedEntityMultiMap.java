@@ -4,8 +4,9 @@ import com.github.nagyesta.lowkeyvault.service.EntityId;
 import lombok.NonNull;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
+@SuppressWarnings("java:S119") //It is easier to ensure that the types are consistent this way
 public interface VersionedEntityMultiMap<K extends EntityId, V extends K, RE extends BaseVaultEntity<V>, ME extends RE>
         extends ReadOnlyVersionedEntityMultiMap<K, V, RE> {
 
@@ -15,7 +16,7 @@ public interface VersionedEntityMultiMap<K extends EntityId, V extends K, RE ext
 
     boolean isDeleted();
 
-    void moveTo(K entityId, VersionedEntityMultiMap<K, V, RE, ME> destination, Function<ME, ME> applyToAll);
+    void moveTo(K entityId, VersionedEntityMultiMap<K, V, RE, ME> destination, UnaryOperator<ME> applyToAll);
 
     void purgeExpired();
 

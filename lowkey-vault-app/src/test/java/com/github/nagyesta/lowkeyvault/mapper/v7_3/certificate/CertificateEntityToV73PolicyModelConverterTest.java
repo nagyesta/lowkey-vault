@@ -29,6 +29,7 @@ class CertificateEntityToV73PolicyModelConverterTest {
                         ReadOnlyKeyVaultCertificateEntity::getOriginalCertificatePolicy) {
                     @Override
                     public void afterPropertiesSet() {
+                        //no-op
                     }
                 });
 
@@ -45,6 +46,7 @@ class CertificateEntityToV73PolicyModelConverterTest {
                 () -> new BaseCertificateEntityToV73PolicyModelConverter(CertificatePolicyModel::new, null) {
                     @Override
                     public void afterPropertiesSet() {
+                        //no-op
                     }
                 });
 

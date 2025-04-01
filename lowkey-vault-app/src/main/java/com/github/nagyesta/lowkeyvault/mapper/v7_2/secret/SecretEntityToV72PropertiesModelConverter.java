@@ -31,7 +31,9 @@ public class SecretEntityToV72PropertiesModelConverter
 
     @Override
     @NonNull
-    public SecretPropertiesModel convert(@NonNull final ReadOnlyKeyVaultSecretEntity source, @NonNull final URI vaultUri) {
+    public SecretPropertiesModel convert(
+            @NonNull final ReadOnlyKeyVaultSecretEntity source,
+            @NonNull final URI vaultUri) {
         return mapCommonFields(source, new SecretPropertiesModel());
     }
 

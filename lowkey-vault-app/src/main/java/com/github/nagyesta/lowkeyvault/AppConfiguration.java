@@ -18,7 +18,7 @@ import org.springframework.web.filter.UrlHandlerFilter;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import static com.github.nagyesta.lowkeyvault.context.util.VaultUriUtil.replacePortWith;
 
@@ -48,7 +48,7 @@ public class AppConfiguration {
     }
 
     @Bean
-    public Function<URI, URI> portMapper() {
+    public UnaryOperator<URI> portMapper() {
         if (useRelaxedPorts) {
             log.info("Using relaxed vault URI matching (ignoring ports).");
         } else {
@@ -56,8 +56,8 @@ public class AppConfiguration {
         }
         return Optional.of(useRelaxedPorts)
                 .filter(BooleanUtils::isTrue)
-                .map(use -> (Function<URI, URI>) uri -> replacePortWith(uri, port))
-                .orElse(Function.identity());
+                .map(use -> (UnaryOperator<URI>) uri -> replacePortWith(uri, port))
+                .orElse(uri -> uri);
     }
 
     private void autoRegisterVaults(final VaultService service) {

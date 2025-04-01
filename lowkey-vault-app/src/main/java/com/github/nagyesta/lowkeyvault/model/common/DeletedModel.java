@@ -1,6 +1,7 @@
 package com.github.nagyesta.lowkeyvault.model.common;
 
 public interface DeletedModel {
+
     String getRecoveryId();
 
     java.time.OffsetDateTime getDeletedDate();

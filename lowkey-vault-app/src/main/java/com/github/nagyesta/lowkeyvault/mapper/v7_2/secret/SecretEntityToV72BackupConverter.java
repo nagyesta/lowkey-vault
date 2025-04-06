@@ -14,8 +14,9 @@ import org.springframework.lang.NonNull;
 
 import java.util.SortedSet;
 
-public class SecretEntityToV72BackupConverter extends BackupConverter<
-        SecretEntityId, VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity, SecretPropertiesModel, SecretBackupListItem> {
+public class SecretEntityToV72BackupConverter
+        extends BackupConverter<SecretEntityId, VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity,
+        SecretPropertiesModel, SecretBackupListItem> {
 
     private final SecretConverterRegistry registry;
 

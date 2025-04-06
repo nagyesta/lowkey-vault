@@ -14,7 +14,9 @@ import java.net.URI;
  * @param <S> the source type
  * @param <T> the target type
  */
-public interface AliasAwareConverter<S, T> extends ApiVersionAware, InitializingBean {
+public interface AliasAwareConverter<S, T>
+        extends ApiVersionAware, InitializingBean {
+
     @Nullable
     T convert(S source, @NonNull URI vaultUri);
 }

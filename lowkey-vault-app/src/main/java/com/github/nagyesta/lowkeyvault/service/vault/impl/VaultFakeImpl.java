@@ -18,7 +18,7 @@ import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 @Slf4j
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, doNotUseGetters = true)
@@ -53,7 +53,7 @@ public class VaultFakeImpl implements VaultFake {
     }
 
     @Override
-    public boolean matches(@NonNull final URI vaultUri, @NonNull final Function<URI, URI> uriMapper) {
+    public boolean matches(@NonNull final URI vaultUri, @NonNull final UnaryOperator<URI> uriMapper) {
         final var lookupUri = uriMapper.apply(vaultUri);
         return uriMapper.apply(this.vaultUri).equals(lookupUri) || this.aliases.stream()
                 .map(uriMapper)

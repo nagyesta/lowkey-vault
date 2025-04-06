@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
+import java.io.IOException;
 import java.security.KeyPair;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
@@ -18,20 +19,23 @@ import java.util.List;
 import static com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil.generateEc;
 
 @Slf4j
-public class EcKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, KeyCurveName> implements ReadOnlyEcKeyVaultKeyEntity {
+public class EcKeyVaultKeyEntity
+        extends KeyVaultKeyEntity<KeyPair, KeyCurveName> implements ReadOnlyEcKeyVaultKeyEntity {
 
-    public EcKeyVaultKeyEntity(@NonNull final VersionedKeyEntityId id,
-                               @NonNull final VaultFake vault,
-                               @NonNull final KeyCurveName keyParam,
-                               final boolean hsm) {
+    public EcKeyVaultKeyEntity(
+            @NonNull final VersionedKeyEntityId id,
+            @NonNull final VaultFake vault,
+            @NonNull final KeyCurveName keyParam,
+            final boolean hsm) {
         super(id, vault, generateEc(keyParam), keyParam, hsm);
     }
 
-    public EcKeyVaultKeyEntity(@NonNull final VersionedKeyEntityId id,
-                               @NonNull final VaultFake vault,
-                               @NonNull final KeyPair keyPair,
-                               final KeyCurveName curveName,
-                               final Boolean hsm) {
+    public EcKeyVaultKeyEntity(
+            @NonNull final VersionedKeyEntityId id,
+            @NonNull final VaultFake vault,
+            @NonNull final KeyPair keyPair,
+            final KeyCurveName curveName,
+            final Boolean hsm) {
         super(id, vault, keyPair, KeyType.EC.validateOrDefault(curveName, KeyCurveName.class), hsm);
     }
 
@@ -75,17 +79,24 @@ public class EcKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, KeyCurveName
     }
 
     @Override
-    public byte[] encryptBytes(final byte[] clear, final EncryptionAlgorithm encryptionAlgorithm, final byte[] iv) {
+    public byte[] encryptBytes(
+            final byte[] clear,
+            final EncryptionAlgorithm encryptionAlgorithm, final byte[] iv) {
         throw new UnsupportedOperationException("Encrypt is not supported for EC keys.");
     }
 
     @Override
-    public byte[] decryptToBytes(final byte[] encrypted, final EncryptionAlgorithm encryptionAlgorithm, final byte[] iv) {
+    public byte[] decryptToBytes(
+            final byte[] encrypted,
+            final EncryptionAlgorithm encryptionAlgorithm,
+            final byte[] iv) {
         throw new UnsupportedOperationException("Decrypt is not supported for EC keys.");
     }
 
     @Override
-    public byte[] signBytes(final byte[] digest, final SignatureAlgorithm signatureAlgorithm) {
+    public byte[] signBytes(
+            final byte[] digest,
+            final SignatureAlgorithm signatureAlgorithm) {
         validateGenericSignOrVerifyInputs(digest, signatureAlgorithm, KeyOperation.SIGN);
         Assert.state(signatureAlgorithm.isCompatibleWithCurve(getKeyCurveName()), getId() + " is not using the right key curve.");
         final var signCallable = signCallable(digest, signatureAlgorithm, getKey().getPrivate());
@@ -93,9 +104,10 @@ public class EcKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, KeyCurveName
     }
 
     @Override
-    public boolean verifySignedBytes(final byte[] digest,
-                                     final SignatureAlgorithm signatureAlgorithm,
-                                     final byte[] signature) {
+    public boolean verifySignedBytes(
+            final byte[] digest,
+            final SignatureAlgorithm signatureAlgorithm,
+            final byte[] signature) {
         validateGenericSignOrVerifyInputs(digest, signatureAlgorithm, KeyOperation.VERIFY);
         Assert.state(signatureAlgorithm.isCompatibleWithCurve(getKeyCurveName()), getId() + " is not using the right key curve.");
         final var verifyCallable = verifyCallable(digest, signatureAlgorithm, signature, getKey().getPublic());
@@ -103,12 +115,12 @@ public class EcKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, KeyCurveName
     }
 
     @Override
-    protected byte[] postProcessGeneratedSignature(final byte[] signature) throws Exception {
+    protected byte[] postProcessGeneratedSignature(final byte[] signature) {
         return Asn1ConverterUtil.convertFromAsn1toRaw(signature, getKeyCurveName().getByteLength());
     }
 
     @Override
-    protected byte[] preProcessVerifiableSignature(final byte[] rawSignature) throws Exception {
+    protected byte[] preProcessVerifiableSignature(final byte[] rawSignature) throws IOException {
         return Asn1ConverterUtil.convertFromRawToAsn1(rawSignature);
     }
 

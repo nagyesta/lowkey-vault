@@ -1,9 +1,6 @@
 package com.github.nagyesta.lowkeyvault.controller.common;
 
 import com.github.nagyesta.lowkeyvault.mapper.common.registry.CertificateConverterRegistry;
-import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntityToV73CertificateItemModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntityToV73CertificateVersionItemModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntityToV73ModelConverter;
 import com.github.nagyesta.lowkeyvault.model.common.backup.CertificateBackupList;
 import com.github.nagyesta.lowkeyvault.model.common.backup.CertificateBackupListItem;
 import com.github.nagyesta.lowkeyvault.model.common.backup.CertificateBackupModel;
@@ -31,15 +28,15 @@ import java.util.Optional;
 import static com.github.nagyesta.lowkeyvault.controller.common.util.CertificateRequestMapperUtil.convertActivityMap;
 
 @Slf4j
-public abstract class CommonCertificateBackupRestoreController extends BaseBackupRestoreController<CertificateEntityId,
-        VersionedCertificateEntityId, ReadOnlyKeyVaultCertificateEntity, KeyVaultCertificateModel, DeletedKeyVaultCertificateModel,
-        KeyVaultCertificateItemModel, DeletedKeyVaultCertificateItemModel, CertificateEntityToV73ModelConverter,
-        CertificateEntityToV73CertificateItemModelConverter, CertificateEntityToV73CertificateVersionItemModelConverter,
+public abstract class CommonCertificateBackupRestoreController
+        extends BaseBackupRestoreController<CertificateEntityId, VersionedCertificateEntityId, ReadOnlyKeyVaultCertificateEntity,
+        KeyVaultCertificateModel, DeletedKeyVaultCertificateModel, KeyVaultCertificateItemModel, DeletedKeyVaultCertificateItemModel,
         CertificateVaultFake, CertificatePropertiesModel, CertificateBackupListItem, CertificateBackupList, CertificateBackupModel,
         CertificateConverterRegistry> {
 
     protected CommonCertificateBackupRestoreController(
-            @NonNull final CertificateConverterRegistry registry, @NonNull final VaultService vaultService) {
+            @NonNull final CertificateConverterRegistry registry,
+            @NonNull final VaultService vaultService) {
         super(registry, vaultService, VaultFake::certificateVaultFake);
     }
 
@@ -64,9 +61,10 @@ public abstract class CommonCertificateBackupRestoreController extends BaseBacku
     }
 
     @Override
-    protected void restoreVersion(@NonNull final CertificateVaultFake vault,
-                                  @NonNull final VersionedCertificateEntityId versionedEntityId,
-                                  @NonNull final CertificateBackupListItem entityVersion) {
+    protected void restoreVersion(
+            @NonNull final CertificateVaultFake vault,
+            @NonNull final VersionedCertificateEntityId versionedEntityId,
+            @NonNull final CertificateBackupListItem entityVersion) {
         final var attributes = Objects
                 .requireNonNullElse(entityVersion.getAttributes(), new CertificatePropertiesModel());
         final var issuancePolicy = Optional.ofNullable(entityVersion.getIssuancePolicy())
@@ -99,7 +97,9 @@ public abstract class CommonCertificateBackupRestoreController extends BaseBacku
     }
 
     private List<CertificateLifetimeActionModel> updateLifetimeActions(
-            final CertificateVaultFake vault, final CertificateEntityId entityId, final CertificateBackupList list) {
+            final CertificateVaultFake vault,
+            final CertificateEntityId entityId,
+            final CertificateBackupList list) {
         final var latestVersion = vault.getEntities().getLatestVersionOfEntity(entityId);
         final var certAuthorityType = vault.getEntities().getReadOnlyEntity(latestVersion)
                 .getIssuancePolicy().getCertAuthorityType();

@@ -13,7 +13,6 @@ import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
@@ -29,11 +28,14 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Slf4j
 @RestController
 @Validated
-@Component("KeyCryptoControllerV72")
-public class KeyCryptoController extends CommonKeyCryptoController {
+@Component("keyCryptoControllerV72")
+@SuppressWarnings("java:S110")
+public class KeyCryptoController
+        extends CommonKeyCryptoController {
 
-    @Autowired
-    public KeyCryptoController(@NonNull final KeyConverterRegistry registry, @NonNull final VaultService vaultService) {
+    public KeyCryptoController(
+            @NonNull final KeyConverterRegistry registry,
+            @NonNull final VaultService vaultService) {
         super(registry, vaultService);
     }
 

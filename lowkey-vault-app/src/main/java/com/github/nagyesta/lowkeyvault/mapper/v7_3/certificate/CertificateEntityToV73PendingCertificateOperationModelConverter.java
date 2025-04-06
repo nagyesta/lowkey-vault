@@ -29,7 +29,8 @@ public class CertificateEntityToV73PendingCertificateOperationModelConverter
     }
 
     public @org.springframework.lang.NonNull KeyVaultPendingCertificateModel convert(
-            final @NonNull ReadOnlyKeyVaultCertificateEntity source, final @NonNull URI baseUri) {
+            final @NonNull ReadOnlyKeyVaultCertificateEntity source,
+            final @NonNull URI baseUri) {
         final var model = new KeyVaultPendingCertificateModel();
         model.setId(source.getId().asPendingOperationUri(baseUri).toString());
         model.setIssuer(new IssuerParameterModel(CertAuthorityType.SELF_SIGNED));

@@ -163,7 +163,7 @@ class VersionedSecretEntityIdTest {
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asUri(HTTPS_LOCALHOST_8443, null));
 
-        //then + exception;
+        //then + exception
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -175,6 +175,6 @@ class VersionedSecretEntityIdTest {
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asUri(null, "?query"));
 
-        //then + exception;
+        //then + exception
     }
 }

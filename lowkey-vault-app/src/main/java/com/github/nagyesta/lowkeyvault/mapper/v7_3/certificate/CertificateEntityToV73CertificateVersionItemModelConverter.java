@@ -16,7 +16,9 @@ public class CertificateEntityToV73CertificateVersionItemModelConverter
     }
 
     @Override
-    protected String convertCertificateId(final ReadOnlyKeyVaultCertificateEntity source, final URI vaultUri) {
+    protected String convertCertificateId(
+            final ReadOnlyKeyVaultCertificateEntity source,
+            final URI vaultUri) {
         return source.getId().asUri(vaultUri).toString();
     }
 

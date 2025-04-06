@@ -16,9 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.SortedSet;
-import java.util.stream.Collectors;
 
-public class KeyRotationPolicyToV73ModelConverter implements AliasAwareConverter<ReadOnlyRotationPolicy, KeyRotationPolicyModel> {
+public class KeyRotationPolicyToV73ModelConverter
+        implements AliasAwareConverter<ReadOnlyRotationPolicy, KeyRotationPolicyModel> {
 
     private final KeyConverterRegistry registry;
 
@@ -33,13 +33,17 @@ public class KeyRotationPolicyToV73ModelConverter implements AliasAwareConverter
     }
 
     @Override
-    public KeyRotationPolicyModel convert(@Nullable final ReadOnlyRotationPolicy source, @NonNull final URI vaultUri) {
+    public KeyRotationPolicyModel convert(
+            @Nullable final ReadOnlyRotationPolicy source,
+            @NonNull final URI vaultUri) {
         return Optional.ofNullable(source)
                 .map(readOnlyRotationPolicy -> convertNonNull(readOnlyRotationPolicy, vaultUri))
                 .orElse(null);
     }
 
-    private KeyRotationPolicyModel convertNonNull(final ReadOnlyRotationPolicy readOnlyRotationPolicy, final URI vaultUri) {
+    private KeyRotationPolicyModel convertNonNull(
+            final ReadOnlyRotationPolicy readOnlyRotationPolicy,
+            final URI vaultUri) {
         final var model = new KeyRotationPolicyModel();
         model.setId(readOnlyRotationPolicy.getId().asRotationPolicyUri(vaultUri));
         model.setAttributes(convertAttributes(readOnlyRotationPolicy));
@@ -59,7 +63,7 @@ public class KeyRotationPolicyToV73ModelConverter implements AliasAwareConverter
         return lifetimeActions.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .map(e -> this.convertLifetimeAction(e.getValue()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private KeyLifetimeActionModel convertLifetimeAction(final LifetimeAction lifetimeAction) {

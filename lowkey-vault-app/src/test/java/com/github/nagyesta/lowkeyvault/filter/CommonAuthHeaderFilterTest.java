@@ -81,13 +81,13 @@ class CommonAuthHeaderFilterTest {
             throws ServletException, IOException {
         //given
         final var underTest = new CommonAuthHeaderFilter(CommonAuthHeaderFilter.OMIT_DEFAULT);
-        when(request.getHeader(eq(HttpHeaders.AUTHORIZATION))).thenReturn(headerValue);
+        when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(headerValue);
 
         //when
         underTest.doFilterInternal(request, response, chain);
 
         //then
-        verify(request, atLeastOnce()).getHeader(eq(HttpHeaders.AUTHORIZATION));
+        verify(request, atLeastOnce()).getHeader(HttpHeaders.AUTHORIZATION);
         if (StringUtils.hasText(headerValue)) {
             verify(chain).doFilter(same(request), same(response));
         } else {
@@ -102,7 +102,7 @@ class CommonAuthHeaderFilterTest {
             throws ServletException, IOException {
         //given
         final var underTest = new CommonAuthHeaderFilter(CommonAuthHeaderFilter.OMIT_DEFAULT);
-        when(request.getHeader(eq(HttpHeaders.AUTHORIZATION))).thenReturn(headerValue);
+        when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(headerValue);
 
         //when
         underTest.doFilterInternal(request, response, chain);
@@ -117,7 +117,7 @@ class CommonAuthHeaderFilterTest {
             throws ServletException, IOException {
         //given
         final var underTest = new CommonAuthHeaderFilter(authResource);
-        when(request.getHeader(eq(HttpHeaders.AUTHORIZATION))).thenReturn(HEADER_VALUE);
+        when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(HEADER_VALUE);
 
         //when
         underTest.doFilterInternal(request, response, chain);
@@ -143,7 +143,7 @@ class CommonAuthHeaderFilterTest {
         verify(request).getServerName();
         verify(request).getServerPort();
         verify(request, atLeastOnce()).getRequestURI();
-        verify(request).setAttribute(eq(ApiConstants.REQUEST_BASE_URI), eq(expected));
+        verify(request).setAttribute(ApiConstants.REQUEST_BASE_URI, expected);
     }
 
     @Test

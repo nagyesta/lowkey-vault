@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+@SuppressWarnings("java:S119") //It is easier to ensure that the types are consistent this way
 public interface ReadOnlyVersionedEntityMultiMap<K extends EntityId, V extends K, RE extends BaseVaultEntity<V>> {
 
     List<RE> listLatestEntities();

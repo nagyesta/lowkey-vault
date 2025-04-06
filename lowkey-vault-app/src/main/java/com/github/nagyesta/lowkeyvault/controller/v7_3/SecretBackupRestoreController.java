@@ -9,7 +9,6 @@ import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
@@ -27,11 +26,14 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @Validated
 @DependsOn("secretModelConverter")
-@Component("SecretBackupRestoreControllerV73")
-public class SecretBackupRestoreController extends CommonSecretBackupRestoreController {
+@Component("secretBackupRestoreControllerV73")
+@SuppressWarnings("java:S110")
+public class SecretBackupRestoreController
+        extends CommonSecretBackupRestoreController {
 
-    @Autowired
-    public SecretBackupRestoreController(@NonNull final SecretConverterRegistry registry, @NonNull final VaultService vaultService) {
+    public SecretBackupRestoreController(
+            @NonNull final SecretConverterRegistry registry,
+            @NonNull final VaultService vaultService) {
         super(registry, vaultService);
     }
 
@@ -39,8 +41,9 @@ public class SecretBackupRestoreController extends CommonSecretBackupRestoreCont
     @PostMapping(value = "/secrets/{secretName}/backup",
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<SecretBackupModel> backup(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String secretName,
-                                                    @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
+    public ResponseEntity<SecretBackupModel> backup(
+            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String secretName,
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
         return super.backup(secretName, baseUri);
     }
 
@@ -49,8 +52,9 @@ public class SecretBackupRestoreController extends CommonSecretBackupRestoreCont
             params = API_VERSION_7_3,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<KeyVaultSecretModel> restore(@RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
-                                                       @Valid @RequestBody final SecretBackupModel secretBackupModel) {
+    public ResponseEntity<KeyVaultSecretModel> restore(
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
+            @Valid @RequestBody final SecretBackupModel secretBackupModel) {
         return super.restore(baseUri, secretBackupModel);
     }
 

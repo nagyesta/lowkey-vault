@@ -10,10 +10,8 @@ public class GenerateCertificateRequest {
 
     @JsonProperty("attributes")
     private CertificatePropertiesModel attributes;
-
     @JsonProperty("policy")
     private CertificatePolicyModel policy;
-
     @JsonProperty("tags")
     private Map<String, String> tags;
 }

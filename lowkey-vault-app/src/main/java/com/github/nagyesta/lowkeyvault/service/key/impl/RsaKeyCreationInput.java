@@ -12,13 +12,15 @@ import java.math.BigInteger;
 @Getter
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class RsaKeyCreationInput extends KeyCreationInput<Integer> {
+public class RsaKeyCreationInput
+        extends KeyCreationInput<Integer> {
 
     private final BigInteger publicExponent;
 
-    public RsaKeyCreationInput(@NonNull final KeyType keyType,
-                               final Integer keyParameter,
-                               final BigInteger publicExponent) {
+    public RsaKeyCreationInput(
+            @NonNull final KeyType keyType,
+            final Integer keyParameter,
+            final BigInteger publicExponent) {
         super(keyType, keyParameter);
         Assert.isTrue(keyType.isRsa(), "KeyType must be RSA.");
         this.publicExponent = publicExponent;

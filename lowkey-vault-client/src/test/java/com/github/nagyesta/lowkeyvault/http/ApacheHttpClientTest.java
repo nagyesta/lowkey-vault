@@ -17,7 +17,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import static org.mockito.Mockito.mock;
@@ -31,13 +31,14 @@ class ApacheHttpClientTest {
     private static final String HEADER_VALUE_2 = "HeaderValue2";
     private static final String LOCALHOST = "localhost";
     private static final String ALTERNATIVE_HOST = "alternative.example.com";
-    private static final Function<URI, URI> LOCALHOST_TO_ALTERNATIVE = new AuthorityOverrideFunction(LOCALHOST, ALTERNATIVE_HOST);
+    private static final UnaryOperator<URI> LOCALHOST_TO_ALTERNATIVE = new AuthorityOverrideFunction(LOCALHOST, ALTERNATIVE_HOST);
     private static final String EMPTY = "";
 
     public static Stream<Arguments> validProvider() {
+        final UnaryOperator<URI> identity = uri -> uri;
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, Function.identity(), LOCALHOST))
-                .add(Arguments.of(EMPTY, Function.identity(), LOCALHOST))
+                .add(Arguments.of(null, (UnaryOperator<URI>) uri -> uri, LOCALHOST))
+                .add(Arguments.of(EMPTY, identity, LOCALHOST))
                 .add(Arguments.of(null, LOCALHOST_TO_ALTERNATIVE, ALTERNATIVE_HOST))
                 .add(Arguments.of(EMPTY, LOCALHOST_TO_ALTERNATIVE, ALTERNATIVE_HOST))
                 .build();
@@ -46,7 +47,7 @@ class ApacheHttpClientTest {
     @ParameterizedTest
     @MethodSource("validProvider")
     void testConstructorShouldConvertValuesWhenCalled(
-            final String body, final Function<URI, URI> hostOverrideFunction, final String expectedHost) throws IOException {
+            final String body, final UnaryOperator<URI> hostOverrideFunction, final String expectedHost) throws IOException {
         //given
         final var method = HttpMethod.POST;
         final var url = new URL("https://localhost");

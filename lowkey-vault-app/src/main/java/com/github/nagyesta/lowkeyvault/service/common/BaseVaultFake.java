@@ -12,7 +12,8 @@ import java.util.Map;
  * @param <V> The versioned key type.
  * @param <E> The entity type.
  */
-public interface BaseVaultFake<K extends EntityId, V extends K, E extends BaseVaultEntity<V>> extends TimeAware {
+public interface BaseVaultFake<K extends EntityId, V extends K, E extends BaseVaultEntity<V>>
+        extends TimeAware {
 
     ReadOnlyVersionedEntityMultiMap<K, V, E> getEntities();
 

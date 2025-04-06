@@ -19,21 +19,24 @@ dependencies {
     implementation(platform("org.testcontainers:testcontainers-bom:${libs.versions.testcontainers.get()}")) //import bom
     implementation(libs.testcontainers)
     implementation(libs.commons.compress)
-    compileOnly(libs.testcontainers.jdbc)
     implementation(project(":lowkey-vault-client"))
     implementation(libs.httpclient)
     implementation(libs.azure.security.keyvault.secrets)
     implementation(libs.azure.security.keyvault.keys)
     implementation(libs.azure.security.keyvault.certificates)
+
+    compileOnly(libs.testcontainers.jdbc)
+
     testImplementation(libs.testcontainers.jupiter)
     testImplementation(libs.bundles.jackson)
     testImplementation(libs.commons.codec)
     testImplementation(libs.mockito.core)
     testImplementation(libs.jupiter)
     testImplementation(libs.testcontainers.mysql)
+    testImplementation(libs.logback.classic)
+
     testRuntimeOnly(libs.mysql.driver)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation(libs.logback.classic)
 }
 
 licensee {
@@ -54,6 +57,8 @@ java {
 }
 
 val copyLegalDocs = tasks.register<Copy>("copyLegalDocs") {
+    group = "documentation"
+    description = "Copies legal files and reports."
     from(file("${project.rootProject.projectDir}/LICENSE"))
     from(layout.buildDirectory.file("reports/licensee/artifacts.json").get().asFile)
     from(layout.buildDirectory.file("reports/bom.json").get().asFile)

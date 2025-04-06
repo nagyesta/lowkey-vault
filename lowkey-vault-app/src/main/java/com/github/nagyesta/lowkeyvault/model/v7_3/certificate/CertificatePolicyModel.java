@@ -14,31 +14,25 @@ public class CertificatePolicyModel {
 
     @JsonProperty("id")
     private String id;
-
     @Valid
     @NotNull
     @JsonProperty("key_props")
     private CertificateKeyModel keyProperties;
-
     @Valid
     @NotNull
     @JsonProperty("secret_props")
     private CertificateSecretModel secretProperties;
-
     @Valid
     @NotNull
     @JsonProperty("x509_props")
     private X509CertificateModel x509Properties;
-
     @Valid
     @NotNull
     @JsonProperty("issuer")
     private IssuerParameterModel issuer;
-
     @Valid
     @JsonProperty("attributes")
     private CertificatePropertiesModel attributes;
-
     @Valid
     @Size(max = 1) //only one can be set on the UI
     @JsonProperty("lifetime_actions")

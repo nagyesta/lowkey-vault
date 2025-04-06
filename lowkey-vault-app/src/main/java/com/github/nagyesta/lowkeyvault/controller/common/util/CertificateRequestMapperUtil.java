@@ -17,12 +17,15 @@ import java.util.stream.Collectors;
 import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateCreationInput.*;
 
 public final class CertificateRequestMapperUtil {
+
     private CertificateRequestMapperUtil() {
         throw new IllegalCallerException("Utility cannot be instantiated.");
     }
 
     public static VersionedCertificateEntityId createCertificateWithAttributes(
-            final CertificateVaultFake vault, final String certificateName, final CreateCertificateRequest request) {
+            final CertificateVaultFake vault,
+            final String certificateName,
+            final CreateCertificateRequest request) {
         //validate first to avoid creating a cert if lifetime policies are invalid
         validateLifetimeActions(request.getPolicy());
         final var properties = defaultIfNull(request.getProperties());
@@ -37,7 +40,9 @@ public final class CertificateRequestMapperUtil {
     }
 
     public static VersionedCertificateEntityId importCertificateWithAttributes(
-            final CertificateVaultFake vault, final String certificateName, final CertificateImportRequest request) {
+            final CertificateVaultFake vault,
+            final String certificateName,
+            final CertificateImportRequest request) {
         final var properties = defaultIfNull(request.getAttributes());
         //conversion must handle validation of lifetime actions as well
         final var certificateEntityId = vault
@@ -55,7 +60,9 @@ public final class CertificateRequestMapperUtil {
 
 
     public static void updateIssuancePolicy(
-            final CertificateVaultFake vault, final VersionedCertificateEntityId entityId, final CertificatePolicyModel request) {
+            final CertificateVaultFake vault,
+            final VersionedCertificateEntityId entityId,
+            final CertificatePolicyModel request) {
         //validate first to avoid updating a cert if lifetime policies are invalid
         validateLifetimeActions(request);
         final var entity = vault.getEntities().getEntity(entityId, KeyVaultCertificateEntity.class);
@@ -73,7 +80,8 @@ public final class CertificateRequestMapperUtil {
     }
 
     public static CertificateCreationInput convertPolicyToCertificateCreationInput(
-            final String certificateName, final CertificatePolicyModel policy) {
+            final String certificateName,
+            final CertificatePolicyModel policy) {
         final var x509Properties = policy.getX509Properties();
         final var issuer = policy.getIssuer();
         final var keyProperties = policy.getKeyProperties();
@@ -144,17 +152,19 @@ public final class CertificateRequestMapperUtil {
     }
 
     private static CertificateCreationInput toCertificateCreationInput(
-            final String certificateName, final CreateCertificateRequest request) {
+            final String certificateName,
+            final CreateCertificateRequest request) {
         final var policy = request.getPolicy();
         return convertPolicyToCertificateCreationInput(certificateName, policy);
     }
 
     private static CertificateImportInput toCertificateImportInput(
-            final String certificateName, final CertificateImportRequest request) {
+            final String certificateName,
+            final CertificateImportRequest request) {
         final var policyModel = Objects.requireNonNullElse(request.getPolicy(), new CertificatePolicyModel());
         return new CertificateImportInput(
                 certificateName,
-                request.getCertificateAsString(),
+                getCertificateAsString(request.getCertificate()),
                 request.getPassword(),
                 determineContentType(request),
                 policyModel);
@@ -162,7 +172,7 @@ public final class CertificateRequestMapperUtil {
 
     private static CertContentType determineContentType(final CertificateImportRequest request) {
         var parsed = CertContentType.PKCS12;
-        if (request.getCertificateAsString().contains("BEGIN")) {
+        if (getCertificateAsString(request.getCertificate()).contains("BEGIN")) {
             parsed = CertContentType.PEM;
         }
         if (request.getPolicy() != null

@@ -1,6 +1,7 @@
 package com.github.nagyesta.lowkeyvault.model.v7_3.certificate;
 
 import com.github.nagyesta.lowkeyvault.ResourceUtils;
+import com.github.nagyesta.lowkeyvault.controller.common.util.CertificateRequestMapperUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +19,7 @@ class CertificateImportRequestTest {
         underTest.setCertificate(certContent);
 
         //when
-        final var actual = underTest.getCertificateAsString();
+        final var actual = CertificateRequestMapperUtil.getCertificateAsString(underTest.getCertificate());
 
         //then
         Assertions.assertArrayEquals(certContent, Base64.getMimeDecoder().decode(actual));
@@ -32,7 +33,7 @@ class CertificateImportRequestTest {
         underTest.setCertificate(certContent);
 
         //when
-        final var actual = underTest.getCertificateAsString();
+        final var actual = CertificateRequestMapperUtil.getCertificateAsString(underTest.getCertificate());
 
         //then
         Assertions.assertArrayEquals(certContent, actual.getBytes(StandardCharsets.UTF_8));

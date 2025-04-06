@@ -13,7 +13,8 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class KeyBackupListItem extends BaseBackupListItem<KeyPropertiesModel> {
+public class KeyBackupListItem
+        extends BaseBackupListItem<KeyPropertiesModel> {
     @Valid
     @NotNull
     @JsonProperty("keyMaterial")

@@ -16,7 +16,10 @@ public final class TimeShiftContext {
 
     private final URI vaultBaseUri;
 
-    private TimeShiftContext(final int seconds, final URI vaultBaseUri, final boolean regenerateCertificates) {
+    private TimeShiftContext(
+            final int seconds,
+            final URI vaultBaseUri,
+            final boolean regenerateCertificates) {
         this.seconds = seconds;
         this.vaultBaseUri = vaultBaseUri;
         this.regenerateCertificates = regenerateCertificates;

@@ -16,13 +16,14 @@ import java.util.function.Function;
 /**
  * The base implementation of the backup/restore controllers.
  *
- * @param <K>   The type of the entity id (not versioned).
- * @param <V>   The versioned entity id type.
- * @param <E>   The entity type.
- * @param <S>   The fake type holding the entities.
+ * @param <K> The type of the entity id (not versioned).
+ * @param <V> The versioned entity id type.
+ * @param <E> The entity type.
+ * @param <S> The fake type holding the entities.
  */
-public abstract class BaseEntityReadController<K extends EntityId, V extends K, E extends BaseVaultEntity<V>,
-        S extends BaseVaultFake<K, V, E>> extends ErrorHandlingAwareController {
+public abstract class BaseEntityReadController<K extends EntityId,
+        V extends K, E extends BaseVaultEntity<V>, S extends BaseVaultFake<K, V, E>>
+        extends ErrorHandlingAwareController {
 
     /**
      * RegExp of entity names (key name, secret name, certificate name).
@@ -35,13 +36,17 @@ public abstract class BaseEntityReadController<K extends EntityId, V extends K, 
     private final VaultService vaultService;
     private final Function<VaultFake, S> toEntityVault;
 
-    protected BaseEntityReadController(@NonNull final VaultService vaultService,
-                                       @org.springframework.lang.NonNull final Function<VaultFake, S> toEntityVault) {
+    protected BaseEntityReadController(
+            @NonNull final VaultService vaultService,
+            @org.springframework.lang.NonNull final Function<VaultFake, S> toEntityVault) {
         this.vaultService = vaultService;
         this.toEntityVault = toEntityVault;
     }
 
-    protected E getEntityByNameAndVersion(final URI baseUri, final String name, final String version) {
+    protected E getEntityByNameAndVersion(
+            final URI baseUri,
+            final String name,
+            final String version) {
         final var vaultFake = getVaultByUri(baseUri);
         final var entityId = versionedEntityId(baseUri, name, version);
         return vaultFake.getEntities().getReadOnlyEntity(entityId);

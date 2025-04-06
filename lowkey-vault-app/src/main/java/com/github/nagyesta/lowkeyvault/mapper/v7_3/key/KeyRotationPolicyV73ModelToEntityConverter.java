@@ -22,7 +22,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class KeyRotationPolicyV73ModelToEntityConverter implements ApiVersionAwareConverter<KeyRotationPolicyModel, RotationPolicy> {
+public class KeyRotationPolicyV73ModelToEntityConverter
+        implements ApiVersionAwareConverter<KeyRotationPolicyModel, RotationPolicy> {
 
     private final KeyConverterRegistry registry;
 
@@ -67,7 +68,9 @@ public class KeyRotationPolicyV73ModelToEntityConverter implements ApiVersionAwa
         return source.getLifetimeActions() != null && !source.getLifetimeActions().isEmpty();
     }
 
-    private RotationPolicy convertAttributes(final KeyRotationPolicyAttributes source, final RotationPolicy entity) {
+    private RotationPolicy convertAttributes(
+            final KeyRotationPolicyAttributes source,
+            final RotationPolicy entity) {
         entity.setCreatedOn(Optional.ofNullable(source).map(KeyRotationPolicyAttributes::getCreated).orElse(OffsetDateTime.now()));
         entity.setUpdatedOn(Optional.ofNullable(source).map(KeyRotationPolicyAttributes::getUpdated).orElse(OffsetDateTime.now()));
         return entity;

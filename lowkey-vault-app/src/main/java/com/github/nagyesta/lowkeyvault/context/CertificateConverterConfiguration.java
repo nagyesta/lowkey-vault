@@ -65,7 +65,10 @@ public class CertificateConverterConfiguration {
     }
 
     @Bean
-    @DependsOn({"certificatePropertiesConverter", "certificatePolicyConverter", "certificateIssuancePolicyConverter",
+    @DependsOn({
+            "certificatePropertiesConverter",
+            "certificatePolicyConverter",
+            "certificateIssuancePolicyConverter",
             "certificateLifetimeActionConverter"})
     public CertificateEntityToV73BackupConverter certificateBackupConverter() {
         return new CertificateEntityToV73BackupConverter(certificateConverterRegistry(), vaultService);

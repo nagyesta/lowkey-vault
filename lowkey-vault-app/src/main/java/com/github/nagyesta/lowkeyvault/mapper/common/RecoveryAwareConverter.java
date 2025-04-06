@@ -14,7 +14,9 @@ import java.net.URI;
  * @param <T>  The active target type.
  * @param <DT> The deleted target type.
  */
-public interface RecoveryAwareConverter<S, T, DT extends T> extends ApiVersionAware, InitializingBean {
+@SuppressWarnings("java:S119") //It is easier to ensure that the types are consistent this way
+public interface RecoveryAwareConverter<S, T, DT extends T>
+        extends ApiVersionAware, InitializingBean {
 
     @Nullable
     T convert(S source, @NonNull URI vaultUri);

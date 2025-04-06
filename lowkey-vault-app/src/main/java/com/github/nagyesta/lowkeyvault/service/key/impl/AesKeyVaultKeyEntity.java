@@ -20,20 +20,23 @@ import java.util.List;
 import static com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil.generateAes;
 
 @Slf4j
-public class AesKeyVaultKeyEntity extends KeyVaultKeyEntity<SecretKey, Integer> implements ReadOnlyAesKeyVaultKeyEntity {
+public class AesKeyVaultKeyEntity
+        extends KeyVaultKeyEntity<SecretKey, Integer> implements ReadOnlyAesKeyVaultKeyEntity {
 
-    public AesKeyVaultKeyEntity(@NonNull final VersionedKeyEntityId id,
-                                @NonNull final VaultFake vault,
-                                final Integer keyParam,
-                                final boolean hsm) {
+    public AesKeyVaultKeyEntity(
+            @NonNull final VersionedKeyEntityId id,
+            @NonNull final VaultFake vault,
+            final Integer keyParam,
+            final boolean hsm) {
         super(id, vault, generateAes(keyParam), KeyType.OCT_HSM.validateOrDefault(keyParam, Integer.class), hsm);
     }
 
-    public AesKeyVaultKeyEntity(@NonNull final VersionedKeyEntityId id,
-                                @NonNull final VaultFake vault,
-                                @NonNull final SecretKey key,
-                                final Integer keySize,
-                                final boolean hsm) {
+    public AesKeyVaultKeyEntity(
+            @NonNull final VersionedKeyEntityId id,
+            @NonNull final VaultFake vault,
+            @NonNull final SecretKey key,
+            final Integer keySize,
+            final boolean hsm) {
         super(id, vault, key, KeyType.OCT_HSM.validateOrDefault(keySize, Integer.class), hsm);
     }
 
@@ -64,7 +67,8 @@ public class AesKeyVaultKeyEntity extends KeyVaultKeyEntity<SecretKey, Integer> 
 
     @Override
     public byte[] encryptBytes(
-            @NonNull final byte[] clear, @NonNull final EncryptionAlgorithm encryptionAlgorithm,
+            @NonNull final byte[] clear,
+            @NonNull final EncryptionAlgorithm encryptionAlgorithm,
             final byte[] iv) {
         Assert.state(getOperations().contains(KeyOperation.ENCRYPT), getId() + " does not have ENCRYPT operation assigned.");
         Assert.state(getOperations().contains(KeyOperation.WRAP_KEY), getId() + " does not have WRAP_KEY operation assigned.");
@@ -81,8 +85,10 @@ public class AesKeyVaultKeyEntity extends KeyVaultKeyEntity<SecretKey, Integer> 
     }
 
     @Override
-    public byte[] decryptToBytes(@NonNull final byte[] encrypted, @NonNull final EncryptionAlgorithm encryptionAlgorithm,
-                                 final byte[] iv) {
+    public byte[] decryptToBytes(
+            @NonNull final byte[] encrypted,
+            @NonNull final EncryptionAlgorithm encryptionAlgorithm,
+            final byte[] iv) {
         Assert.state(getOperations().contains(KeyOperation.DECRYPT), getId() + " does not have DECRYPT operation assigned.");
         Assert.state(getOperations().contains(KeyOperation.UNWRAP_KEY), getId() + " does not have UNWRAP_KEY operation assigned.");
         Assert.state(isEnabled(), getId() + " is not enabled.");
@@ -98,14 +104,17 @@ public class AesKeyVaultKeyEntity extends KeyVaultKeyEntity<SecretKey, Integer> 
     }
 
     @Override
-    public byte[] signBytes(final byte[] digest, final SignatureAlgorithm encryptionAlgorithm) {
+    public byte[] signBytes(
+            final byte[] digest,
+            final SignatureAlgorithm encryptionAlgorithm) {
         throw new UnsupportedOperationException("Sign is not supported for OCT keys.");
     }
 
     @Override
-    public boolean verifySignedBytes(final byte[] digest,
-                                     final SignatureAlgorithm encryptionAlgorithm,
-                                     final byte[] signature) {
+    public boolean verifySignedBytes(
+            final byte[] digest,
+            final SignatureAlgorithm encryptionAlgorithm,
+            final byte[] signature) {
         throw new UnsupportedOperationException("Verify is not supported for OCT keys.");
     }
 }

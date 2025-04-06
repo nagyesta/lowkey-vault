@@ -61,7 +61,11 @@ public enum KeyUsageEnum {
     private final int position;
     private final Set<KeyOperation> keyOperations;
 
-    KeyUsageEnum(final String value, final int code, final int position, final Set<KeyOperation> keyOperations) {
+    KeyUsageEnum(
+            final String value,
+            final int code,
+            final int position,
+            final Set<KeyOperation> keyOperations) {
         this.value = value;
         this.code = code;
         this.position = position;

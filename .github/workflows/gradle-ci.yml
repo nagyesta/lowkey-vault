@@ -5,30 +5,31 @@ name: JavaCI-PR
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths-ignore:
-      - 'README.md'
-      - '**/README.md'
-      - 'CODE_OF_CONDUCT.md'
-      - 'CONTRIBUTING.md'
-      - 'pull_request_template.md'
-      - '.lift/.toml'
-      - '**/.lift/.toml'
-      - 'SECURITY.md'
-      - 'LICENSE'
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/assets/**'
-      - '.github/workflows/**'
-      - '!.github/workflows/gradle-ci.yml'
-      - '.github/pr-labeler.yml'
-      - 'renovate.json'
-      - '.whitesource'
-      - 'gradle/libs.versions.toml'
-      - 'config/ossindex/exclusions.txt'
-      - '.idea/**'
-      - '.gitignore'
+      - "README.md"
+      - "**/README.md"
+      - "CODE_OF_CONDUCT.md"
+      - "CONTRIBUTING.md"
+      - "pull_request_template.md"
+      - ".lift/.toml"
+      - "**/.lift/.toml"
+      - "SECURITY.md"
+      - "LICENSE"
+      - ".github/ISSUE_TEMPLATE/**"
+      - ".github/assets/**"
+      - ".github/workflows/**"
+      - "!.github/workflows/gradle-ci.yml"
+      - ".github/pr-labeler.yml"
+      - "renovate.json"
+      - ".whitesource"
+      - "gradle/libs.versions.toml"
+      - "config/ossindex/exclusions.txt"
+      - ".idea/**"
+      - ".gitignore"
+      - ".qlty/**"
 
 permissions: read-all
 
@@ -49,7 +50,9 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@06832c7b30a0129d7fb559bcc6e43d26f6374244 # v4.3.1
       - name: Build with Gradle
-        run: ./gradlew printVersion build
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: ./gradlew printVersion build sonar
       - name: Upload Test reports - App
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -75,30 +78,3 @@ jobs:
           name: test-report-lowkey-vault-testcontainers
           path: lowkey-vault-testcontainers/build/reports/tests/test
           retention-days: 5
-      - name: Upload coverage to Codecov - App
-        if: ${{ github.repository_owner == 'nagyesta' }}
-        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
-        with:
-            token: ${{ secrets.CODECOV_TOKEN }}
-            files: ./lowkey-vault-app/build/reports/jacoco/report.xml
-            disable_search: true
-            flags: app
-            fail_ci_if_error: false
-      - name: Upload coverage to Codecov - Client
-        if: ${{ github.repository_owner == 'nagyesta' }}
-        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
-        with:
-            token: ${{ secrets.CODECOV_TOKEN }}
-            files: ./lowkey-vault-client/build/reports/jacoco/report.xml
-            disable_search: true
-            flags: client
-            fail_ci_if_error: false
-      - name: Upload coverage to Codecov - Testcontainers
-        if: ${{ github.repository_owner == 'nagyesta' }}
-        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
-        with:
-            token: ${{ secrets.CODECOV_TOKEN }}
-            files: ./lowkey-vault-testcontainers/build/reports/jacoco/report.xml
-            disable_search: true
-            flags: testcontainers
-            fail_ci_if_error: false

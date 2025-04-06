@@ -8,7 +8,8 @@ import jakarta.validation.ConstraintValidatorContext;
 import java.time.Period;
 import java.util.Optional;
 
-public class ExpiryPeriodValidator implements ConstraintValidator<ExpiryPeriod, Period> {
+public class ExpiryPeriodValidator
+        implements ConstraintValidator<ExpiryPeriod, Period> {
 
     @Override
     public void initialize(final ExpiryPeriod constraintAnnotation) {
@@ -16,7 +17,9 @@ public class ExpiryPeriodValidator implements ConstraintValidator<ExpiryPeriod, 
     }
 
     @Override
-    public boolean isValid(final Period value, final ConstraintValidatorContext context) {
+    public boolean isValid(
+            final Period value,
+            final ConstraintValidatorContext context) {
         return Optional.ofNullable(value)
                 .map(PeriodUtil::asDays)
                 .map(totalDays -> totalDays >= LifetimeActionTriggerType.MINIMUM_EXPIRY_PERIOD_IN_DAYS)

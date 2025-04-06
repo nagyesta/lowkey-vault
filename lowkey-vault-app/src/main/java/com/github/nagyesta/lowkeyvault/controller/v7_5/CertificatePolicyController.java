@@ -9,7 +9,6 @@ import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
@@ -25,10 +24,13 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Slf4j
 @RestController
 @Validated
-@Component("CertificatePolicyControllerV75")
-public class CertificatePolicyController extends CommonCertificatePolicyController {
-    @Autowired
-    public CertificatePolicyController(@NonNull final CertificateConverterRegistry registry, @NonNull final VaultService vaultService) {
+@Component("certificatePolicyControllerV75")
+@SuppressWarnings("java:S110")
+public class CertificatePolicyController
+        extends CommonCertificatePolicyController {
+    public CertificatePolicyController(
+            @NonNull final CertificateConverterRegistry registry,
+            @NonNull final VaultService vaultService) {
         super(registry, vaultService);
     }
 

@@ -9,6 +9,7 @@ import java.util.Map;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class KeyVaultKeyItemModel {
+
     @JsonProperty("kid")
     private String keyId;
 

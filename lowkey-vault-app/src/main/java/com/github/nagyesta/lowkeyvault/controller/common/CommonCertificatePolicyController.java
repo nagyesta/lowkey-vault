@@ -15,7 +15,8 @@ import java.net.URI;
 import java.util.Objects;
 
 @Slf4j
-public abstract class CommonCertificatePolicyController extends BaseCertificateController {
+public abstract class CommonCertificatePolicyController
+        extends BaseCertificateController {
 
     protected CommonCertificatePolicyController(
             @NonNull final CertificateConverterRegistry registry,

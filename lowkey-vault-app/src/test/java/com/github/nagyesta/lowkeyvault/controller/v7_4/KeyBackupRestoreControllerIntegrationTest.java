@@ -48,7 +48,7 @@ class KeyBackupRestoreControllerIntegrationTest extends BaseKeyBackupRestoreCont
     private static final Period EXPIRY_TIME = Period.ofDays(LifetimeActionTriggerType.MINIMUM_EXPIRY_PERIOD_IN_DAYS);
     private static final Period TRIGGER_TIME = Period.ofDays(LifetimeActionTriggerType.MINIMUM_THRESHOLD_BEFORE_EXPIRY);
     @Autowired
-    @Qualifier("KeyBackupRestoreControllerV74")
+    @Qualifier("keyBackupRestoreControllerV74")
     private KeyBackupRestoreController underTest;
     @Autowired
     private VaultService vaultService;

@@ -209,7 +209,6 @@ class CertificateVaultFakeImplTest {
     @Test
     void testDeleteShouldShouldThrowExceptionWhenCalledWithNull() {
         //given
-        final var entityId = new CertificateEntityId(HTTPS_LOCALHOST_8443, CERT_NAME_1);
         final var vault = mock(VaultFake.class);
         when(vault.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
         final var underTest = prepareWithCertificateCreated(vault);

@@ -8,6 +8,7 @@ import org.springframework.lang.NonNull;
 
 import java.util.Map;
 
+@SuppressWarnings("java:S119") //It is easier to ensure that the types are consistent this way
 public abstract class BackupConverter<K extends EntityId, V extends K, E extends BaseVaultEntity<V>, P extends BasePropertiesModel,
         BLI extends BaseBackupListItem<P>> implements ApiVersionAwareConverter<E, BLI> {
 
@@ -20,7 +21,9 @@ public abstract class BackupConverter<K extends EntityId, V extends K, E extends
 
     protected abstract BLI convertUniqueFields(E source);
 
-    private BLI mapCommonFields(final E source, final BLI item) {
+    private BLI mapCommonFields(
+            final E source,
+            final BLI item) {
         final var entityId = source.getId();
         item.setVaultBaseUri(entityId.vault());
         item.setId(entityId.id());

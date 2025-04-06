@@ -9,18 +9,15 @@ import java.util.Map;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class KeyVaultSecretItemModel {
+
     @JsonProperty("id")
     private String id;
-
     @JsonProperty("contentType")
     private String contentType;
-
     @JsonProperty("attributes")
     private SecretPropertiesModel attributes;
-
     @JsonProperty("tags")
     private Map<String, String> tags;
-
     @JsonProperty("managed")
     private Boolean managed;
 

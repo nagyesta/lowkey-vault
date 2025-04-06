@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 
 import static com.github.nagyesta.lowkeyvault.context.TestContextConfig.CONTAINER_AUTHORITY;
 
@@ -39,7 +38,7 @@ public class ManagementStepDefs extends CommonAssertions {
     @When("OpenAPI ui is available")
     public void openApiUiIsAvailable() throws MalformedURLException {
         final var swaggerUri = URI.create("https://" + CONTAINER_AUTHORITY+"/api/swagger-ui/index.html");
-        final var client = new ApacheHttpClient(Function.identity(), new TrustSelfSignedStrategy(), new NoopHostnameVerifier());
+        final var client = new ApacheHttpClient(uri -> uri, new TrustSelfSignedStrategy(), new NoopHostnameVerifier());
         final var response = client.send(new HttpRequest(HttpMethod.GET, swaggerUri.toURL())).block();
         assertNotNull(response);
         assertEquals(200, Objects.requireNonNull(response).getStatusCode());

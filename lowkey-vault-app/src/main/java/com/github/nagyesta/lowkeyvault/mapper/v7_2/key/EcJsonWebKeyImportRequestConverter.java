@@ -17,7 +17,8 @@ import java.security.spec.ECPublicKeySpec;
 /**
  * Converts import requests to EC key pairs.
  */
-public class EcJsonWebKeyImportRequestConverter extends BaseJsonWebKeyImportRequestConverter<KeyPair, KeyCurveName> {
+public class EcJsonWebKeyImportRequestConverter
+        extends BaseJsonWebKeyImportRequestConverter<KeyPair, KeyCurveName> {
 
     @NonNull
     @Override
@@ -39,12 +40,16 @@ public class EcJsonWebKeyImportRequestConverter extends BaseJsonWebKeyImportRequ
         return source.getCurveName();
     }
 
-    private ECPublicKeySpec ecPublicKeySpec(final ECParameterSpec spec, final JsonWebKeyImportRequest source) {
+    private ECPublicKeySpec ecPublicKeySpec(
+            final ECParameterSpec spec,
+            final JsonWebKeyImportRequest source) {
         final var ecPoint = new ECPoint(asInt(source.getX()), asInt(source.getY()));
         return new ECPublicKeySpec(ecPoint, spec);
     }
 
-    private ECPrivateKeySpec ecPrivateKeySpec(final ECParameterSpec spec, final JsonWebKeyImportRequest source) {
+    private ECPrivateKeySpec ecPrivateKeySpec(
+            final ECParameterSpec spec,
+            final JsonWebKeyImportRequest source) {
         return new ECPrivateKeySpec(asInt(source.getD()), spec);
     }
 

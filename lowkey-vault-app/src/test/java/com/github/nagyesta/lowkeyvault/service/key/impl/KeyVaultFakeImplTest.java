@@ -30,7 +30,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -130,7 +129,7 @@ class KeyVaultFakeImplTest {
         final var underTest = createUnderTest();
         final var expected = insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1).stream()
                 .map(KeyEntityId::version)
-                .collect(Collectors.toList());
+                .toList();
         underTest.createKeyVersion(KEY_NAME_2, DETAILED_EC_KEY_CREATION_INPUT);
         underTest.createKeyVersion(KEY_NAME_3, DETAILED_EC_KEY_CREATION_INPUT);
 
@@ -148,9 +147,10 @@ class KeyVaultFakeImplTest {
         //given
         final var underTest = createUnderTest();
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
+        final var entities = underTest.getEntities();
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.getEntities().getVersions(null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> entities.getVersions(null));
 
         //then + exception
     }
@@ -162,9 +162,10 @@ class KeyVaultFakeImplTest {
         insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
 
         final var keyEntityId = new KeyEntityId(HTTPS_LOCALHOST, KEY_NAME_2, null);
+        final var entities = underTest.getEntities();
 
         //when
-        Assertions.assertThrows(NotFoundException.class, () -> underTest.getEntities().getVersions(keyEntityId));
+        Assertions.assertThrows(NotFoundException.class, () -> entities.getVersions(keyEntityId));
 
         //then + exception
     }
@@ -173,9 +174,10 @@ class KeyVaultFakeImplTest {
     void testGetLatestVersionOfEntityShouldThrowExceptionWhenKeyIdIsNull() {
         //given
         final var underTest = createUnderTest();
+        final var entities = underTest.getEntities();
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.getEntities().getLatestVersionOfEntity(null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> entities.getLatestVersionOfEntity(null));
 
         //then + exception
     }
@@ -555,9 +557,10 @@ class KeyVaultFakeImplTest {
     void testRawGetEntityShouldThrowExceptionWhenCalledWithNullKey() {
         //given
         final var underTest = createUnderTest();
+        final var entities = underTest.getEntities();
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.getEntities().getReadOnlyEntity(null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> entities.getReadOnlyEntity(null));
 
         //then + exception
     }
@@ -1011,9 +1014,10 @@ class KeyVaultFakeImplTest {
     private List<VersionedKeyEntityId> insertMultipleVersionsOfSameKey(final KeyVaultFake underTest, final String keyName) {
         return IntStream.range(0, COUNT)
                 .mapToObj(i -> underTest.createEcKeyVersion(keyName, EC_KEY_CREATION_INPUT))
-                .collect(Collectors.toList());
+                .toList();
     }
 
+    @SuppressWarnings("java:S2925") //this is a fixed duration wait to let the "now" timestamp change
     private static void waitABit() {
         try {
             Thread.sleep(Duration.ofSeconds(1).toMillis());

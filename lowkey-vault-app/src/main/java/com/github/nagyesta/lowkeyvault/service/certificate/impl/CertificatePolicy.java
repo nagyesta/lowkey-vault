@@ -9,7 +9,8 @@ import java.time.OffsetDateTime;
 import java.util.Set;
 
 @Data
-public class CertificatePolicy implements ReadOnlyCertificatePolicy {
+public class CertificatePolicy
+        implements ReadOnlyCertificatePolicy {
 
     private String name;
     private CertAuthorityType certAuthorityType;

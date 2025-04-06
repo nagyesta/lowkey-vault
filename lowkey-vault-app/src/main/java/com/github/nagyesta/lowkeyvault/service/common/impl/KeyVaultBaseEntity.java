@@ -12,7 +12,8 @@ import java.util.Map;
 import java.util.Optional;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-public abstract class KeyVaultBaseEntity<V extends EntityId> extends KeyVaultLifecycleAwareEntity implements BaseVaultEntity<V> {
+public abstract class KeyVaultBaseEntity<V extends EntityId>
+        extends KeyVaultLifecycleAwareEntity implements BaseVaultEntity<V> {
     private final RecoveryLevel recoveryLevel;
     private final Integer recoverableDays;
     private Map<String, String> tags;

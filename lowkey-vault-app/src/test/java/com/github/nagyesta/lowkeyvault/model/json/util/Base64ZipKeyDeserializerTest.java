@@ -21,14 +21,14 @@ class Base64ZipKeyDeserializerTest {
         final var underTest = new Base64ZipKeyDeserializer(base64Deserializer, objectMapper);
         final var jsonParser = mock(JsonParser.class);
         final var context = mock(DeserializationContext.class);
-        when(base64Deserializer.deserializeBase64(eq(jsonParser))).thenReturn(new byte[1]);
+        when(base64Deserializer.deserializeBase64(jsonParser)).thenReturn(new byte[1]);
         when(objectMapper.reader()).thenThrow(new IllegalStateException("Fail"));
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.deserialize(jsonParser, context));
 
         //then + exception
-        verify(base64Deserializer).deserializeBase64(eq(jsonParser));
+        verify(base64Deserializer).deserializeBase64(jsonParser);
     }
 
     @Test
@@ -36,7 +36,7 @@ class Base64ZipKeyDeserializerTest {
         //given
         final var underTest = new Base64ZipKeyDeserializer();
         final var jsonParser = mock(JsonParser.class);
-        when(jsonParser.readValueAs(eq(String.class))).thenReturn("");
+        when(jsonParser.readValueAs(String.class)).thenReturn("");
         final var context = mock(DeserializationContext.class);
 
         //when
@@ -44,7 +44,7 @@ class Base64ZipKeyDeserializerTest {
 
         //then
         Assertions.assertNull(actual);
-        verify(jsonParser).readValueAs(eq(String.class));
+        verify(jsonParser).readValueAs(String.class);
     }
 
     @Test

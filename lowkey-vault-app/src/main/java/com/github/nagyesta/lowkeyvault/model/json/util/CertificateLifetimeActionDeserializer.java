@@ -8,12 +8,15 @@ import org.springframework.util.Assert;
 
 import java.io.IOException;
 
-public class CertificateLifetimeActionDeserializer extends JsonDeserializer<CertificateLifetimeActionActivity> {
+public class CertificateLifetimeActionDeserializer
+        extends JsonDeserializer<CertificateLifetimeActionActivity> {
 
     private static final String INNER_NODE_NAME = "action_type";
 
     @Override
-    public CertificateLifetimeActionActivity deserialize(final JsonParser parser, final DeserializationContext context) throws IOException {
+    public CertificateLifetimeActionActivity deserialize(
+            final JsonParser parser,
+            final DeserializationContext context) throws IOException {
         final var node = parser.readValueAsTree();
         Assert.isTrue(node.isObject(), "The \"action\" node must represent an object.");
         final var actionType = node.path(INNER_NODE_NAME);

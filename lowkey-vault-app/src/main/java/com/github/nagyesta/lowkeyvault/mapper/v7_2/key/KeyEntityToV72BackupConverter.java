@@ -60,18 +60,24 @@ public class KeyEntityToV72BackupConverter
         return keyMaterial;
     }
 
-    private void convertOctFields(final ReadOnlyAesKeyVaultKeyEntity source, final JsonWebKeyImportRequest keyMaterial) {
+    private void convertOctFields(
+            final ReadOnlyAesKeyVaultKeyEntity source,
+            final JsonWebKeyImportRequest keyMaterial) {
         keyMaterial.setK(source.getK());
     }
 
-    private void convertEcFields(final ReadOnlyEcKeyVaultKeyEntity source, final JsonWebKeyImportRequest keyMaterial) {
+    private void convertEcFields(
+            final ReadOnlyEcKeyVaultKeyEntity source,
+            final JsonWebKeyImportRequest keyMaterial) {
         keyMaterial.setCurveName(source.getKeyCurveName());
         keyMaterial.setX(source.getX());
         keyMaterial.setY(source.getY());
         keyMaterial.setD(source.getD());
     }
 
-    private void convertRsaFields(final ReadOnlyRsaKeyVaultKeyEntity source, final JsonWebKeyImportRequest keyMaterial) {
+    private void convertRsaFields(
+            final ReadOnlyRsaKeyVaultKeyEntity source,
+            final JsonWebKeyImportRequest keyMaterial) {
         keyMaterial.setN(source.getN());
         keyMaterial.setE(source.getE());
         keyMaterial.setD(source.getD());
@@ -83,7 +89,8 @@ public class KeyEntityToV72BackupConverter
     }
 
     private JsonWebKeyImportRequest populateCommonKeyFields(
-            final ReadOnlyKeyVaultKeyEntity source, final JsonWebKeyImportRequest keyMaterial) {
+            final ReadOnlyKeyVaultKeyEntity source,
+            final JsonWebKeyImportRequest keyMaterial) {
         keyMaterial.setId(source.getId().asUri(source.getId().vault()).toString());
         keyMaterial.setKeyType(source.getKeyType());
         keyMaterial.setKeyOps(source.getOperations());

@@ -8,7 +8,8 @@ import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.springframework.core.convert.converter.Converter;
 
-public class EcPrivateKeyToJsonWebKeyImportRequestConverter implements Converter<BCECPrivateKey, JsonWebKeyImportRequest> {
+public class EcPrivateKeyToJsonWebKeyImportRequestConverter
+        implements Converter<BCECPrivateKey, JsonWebKeyImportRequest> {
 
     @Override
     public JsonWebKeyImportRequest convert(final @NonNull BCECPrivateKey source) {

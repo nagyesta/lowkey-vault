@@ -93,13 +93,13 @@ class KeyCryptoControllerTest {
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
-        when(registry.modelConverter(eq(ApiConstants.V_7_3))).thenReturn(keyEntityToV72ModelConverter);
-        when(registry.itemConverter(eq(ApiConstants.V_7_3))).thenReturn(keyEntityToV72KeyItemModelConverter);
-        when(registry.versionedItemConverter(eq(ApiConstants.V_7_3))).thenReturn(keyEntityToV72KeyVersionItemModelConverter);
+        when(registry.modelConverter(ApiConstants.V_7_3)).thenReturn(keyEntityToV72ModelConverter);
+        when(registry.itemConverter(ApiConstants.V_7_3)).thenReturn(keyEntityToV72KeyItemModelConverter);
+        when(registry.versionedItemConverter(ApiConstants.V_7_3)).thenReturn(keyEntityToV72KeyVersionItemModelConverter);
         when(registry.versionedEntityId(any(URI.class), anyString(), anyString())).thenCallRealMethod();
         when(registry.entityId(any(URI.class), anyString())).thenCallRealMethod();
         underTest = new KeyCryptoController(registry, vaultService);
-        when(vaultService.findByUri(eq(HTTPS_LOCALHOST_8443))).thenReturn(vaultFake);
+        when(vaultService.findByUri(HTTPS_LOCALHOST_8443)).thenReturn(vaultFake);
         when(vaultFake.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
         when(vaultFake.keyVaultFake()).thenReturn(keyVaultFake);
     }
@@ -137,7 +137,7 @@ class KeyCryptoControllerTest {
         entity.setOperations(operations);
         when(keyVaultFake.getEntities())
                 .thenReturn(entities);
-        when(entities.getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3)))
+        when(entities.getReadOnlyEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_3))
                 .thenReturn(entity);
         when(keyEntityToV72ModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(RESPONSE);
@@ -166,11 +166,11 @@ class KeyCryptoControllerTest {
         final var decoded = new String(DECODER.decode(actual.getBody().getValue()), StandardCharsets.UTF_8);
         Assertions.assertEquals(clearText, decoded);
 
-        verify(vaultService, times(2)).findByUri(eq(HTTPS_LOCALHOST_8443));
+        verify(vaultService, times(2)).findByUri(HTTPS_LOCALHOST_8443);
         verify(vaultFake, times(2)).keyVaultFake();
         verify(keyVaultFake, times(2)).getEntities();
-        verify(entities, never()).getLatestVersionOfEntity(eq(baseUri));
-        verify(entities, times(2)).getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3));
+        verify(entities, never()).getLatestVersionOfEntity(baseUri);
+        verify(entities, times(2)).getReadOnlyEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_3);
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")
@@ -186,7 +186,7 @@ class KeyCryptoControllerTest {
         entity.setOperations(operations);
         when(keyVaultFake.getEntities())
                 .thenReturn(entities);
-        when(entities.getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3)))
+        when(entities.getReadOnlyEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_3))
                 .thenReturn(entity);
         when(keyEntityToV72ModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(RESPONSE);
@@ -215,11 +215,11 @@ class KeyCryptoControllerTest {
         Assertions.assertNotNull(actual.getBody());
         Assertions.assertTrue(actual.getBody().isValue());
 
-        verify(vaultService, times(2)).findByUri(eq(HTTPS_LOCALHOST_8443));
+        verify(vaultService, times(2)).findByUri(HTTPS_LOCALHOST_8443);
         verify(vaultFake, times(2)).keyVaultFake();
         verify(keyVaultFake, times(2)).getEntities();
-        verify(entities, never()).getLatestVersionOfEntity(eq(baseUri));
-        verify(entities, times(2)).getReadOnlyEntity(eq(VERSIONED_KEY_ENTITY_ID_1_VERSION_3));
+        verify(entities, never()).getLatestVersionOfEntity(baseUri);
+        verify(entities, times(2)).getReadOnlyEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_3);
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")

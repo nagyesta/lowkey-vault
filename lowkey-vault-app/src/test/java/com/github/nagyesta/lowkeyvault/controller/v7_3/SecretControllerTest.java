@@ -128,14 +128,14 @@ class SecretControllerTest {
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
-        when(registry.modelConverter(eq(ApiConstants.V_7_3))).thenReturn(secretEntityToV72ModelConverter);
-        when(registry.itemConverter(eq(ApiConstants.V_7_3))).thenReturn(secretEntityToV72SecretItemModelConverter);
-        when(registry.versionedItemConverter(eq(ApiConstants.V_7_3)))
+        when(registry.modelConverter(ApiConstants.V_7_3)).thenReturn(secretEntityToV72ModelConverter);
+        when(registry.itemConverter(ApiConstants.V_7_3)).thenReturn(secretEntityToV72SecretItemModelConverter);
+        when(registry.versionedItemConverter(ApiConstants.V_7_3))
                 .thenReturn(secretEntityToV72SecretVersionItemModelConverter);
         when(registry.versionedEntityId(any(URI.class), anyString(), anyString())).thenCallRealMethod();
         when(registry.entityId(any(URI.class), anyString())).thenCallRealMethod();
         underTest = new SecretController(registry, vaultService);
-        when(vaultService.findByUri(eq(HTTPS_LOCALHOST_8443))).thenReturn(vaultFake);
+        when(vaultService.findByUri(HTTPS_LOCALHOST_8443)).thenReturn(vaultFake);
         when(vaultFake.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
         when(vaultFake.secretVaultFake()).thenReturn(secretVaultFake);
     }
@@ -178,7 +178,7 @@ class SecretControllerTest {
                 .thenReturn(recoveryLevel);
         when(vaultFake.getRecoverableDays())
                 .thenReturn(recoverableDays);
-        when(entities.getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1)))
+        when(entities.getReadOnlyEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1))
                 .thenReturn(entity);
         when(secretEntityToV72ModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(RESPONSE);
@@ -190,7 +190,7 @@ class SecretControllerTest {
         Assertions.assertNotNull(actual);
         Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
         Assertions.assertSame(RESPONSE, actual.getBody());
-        verify(vaultService).findByUri(eq(HTTPS_LOCALHOST_8443));
+        verify(vaultService).findByUri(HTTPS_LOCALHOST_8443);
         verify(vaultFake).secretVaultFake();
         verify(secretVaultFake).createSecretVersion(eq(SECRET_NAME_1), any(SecretCreateInput.class));
         verify(vaultFake).getRecoveryLevel();
@@ -207,7 +207,7 @@ class SecretControllerTest {
         //given
         when(secretVaultFake.getEntities())
                 .thenReturn(entities);
-        when(entities.getVersions(eq(new SecretEntityId(HTTPS_LOCALHOST_8443, SECRET_NAME_1, null))))
+        when(entities.getVersions(new SecretEntityId(HTTPS_LOCALHOST_8443, SECRET_NAME_1, null)))
                 .thenThrow(new NotFoundException("not found"));
 
         //when
@@ -231,7 +231,7 @@ class SecretControllerTest {
                 .toString();
         when(secretVaultFake.getEntities())
                 .thenReturn(entities);
-        when(entities.getVersions(eq(baseUri))).thenReturn(fullList);
+        when(entities.getVersions(baseUri)).thenReturn(fullList);
         when(entities.getReadOnlyEntity(any())).thenAnswer(invocation -> {
             final var secretEntityId = invocation.getArgument(0, VersionedSecretEntityId.class);
             return createEntity(secretEntityId, createRequest(null, null));
@@ -268,7 +268,7 @@ class SecretControllerTest {
         final var baseUri = new SecretEntityId(HTTPS_LOCALHOST_8443, SECRET_NAME_1, null);
         when(secretVaultFake.getEntities())
                 .thenReturn(entities);
-        when(entities.getVersions(eq(baseUri))).thenReturn(fullList);
+        when(entities.getVersions(baseUri)).thenReturn(fullList);
         when(entities.getReadOnlyEntity(any())).thenAnswer(invocation -> {
             final var secretEntityId = invocation.getArgument(0, VersionedSecretEntityId.class);
             return createEntity(secretEntityId, createRequest(null, null));
@@ -279,7 +279,7 @@ class SecretControllerTest {
         });
         final var expected = fullList.stream()
                 .map(e -> new VersionedSecretEntityId(HTTPS_LOCALHOST_8443, SECRET_NAME_1, e).asUri(HTTPS_LOCALHOST_8443))
-                .collect(Collectors.toList());
+                .toList();
 
         //when
         final var actual =
@@ -292,7 +292,7 @@ class SecretControllerTest {
         final var actualList = actualBody.getValue().stream()
                 .map(KeyVaultSecretItemModel::getId)
                 .map(URI::create)
-                .collect(Collectors.toList());
+                .toList();
         Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
         Assertions.assertIterableEquals(expected, actualList);
         Assertions.assertNull(actualBody.getNextLink());
@@ -310,18 +310,18 @@ class SecretControllerTest {
                 .thenReturn(entities);
         when(secretVaultFake.getDeletedEntities())
                 .thenReturn(deletedEntities);
-        doNothing().when(secretVaultFake).delete(eq(baseUri));
+        doNothing().when(secretVaultFake).delete(baseUri);
         when(vaultFake.getRecoveryLevel())
                 .thenReturn(recoveryLevel);
         when(vaultFake.getRecoverableDays())
                 .thenReturn(recoverableDays);
-        when(deletedEntities.getLatestVersionOfEntity((eq(baseUri))))
+        when(deletedEntities.getLatestVersionOfEntity(baseUri))
                 .thenReturn(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3);
         final var request = createRequest(expiry, notBefore);
         final ReadOnlyKeyVaultSecretEntity entity = createEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, request);
         entity.setDeletedDate(TIME_10_MINUTES_AGO);
         entity.setScheduledPurgeDate(TIME_IN_10_MINUTES);
-        when(deletedEntities.getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3)))
+        when(deletedEntities.getReadOnlyEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3))
                 .thenReturn(entity);
         when(secretEntityToV72ModelConverter.convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(DELETED_RESPONSE);
@@ -333,16 +333,16 @@ class SecretControllerTest {
         Assertions.assertNotNull(actual);
         Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
         Assertions.assertSame(DELETED_RESPONSE, actual.getBody());
-        verify(vaultService).findByUri(eq(HTTPS_LOCALHOST_8443));
+        verify(vaultService).findByUri(HTTPS_LOCALHOST_8443);
         verify(vaultFake).secretVaultFake();
         verify(vaultFake).getRecoveryLevel();
         verify(vaultFake).getRecoverableDays();
         final var inOrder = inOrder(secretVaultFake);
-        inOrder.verify(secretVaultFake).delete(eq(baseUri));
+        inOrder.verify(secretVaultFake).delete(baseUri);
         inOrder.verify(secretVaultFake, atLeastOnce()).getDeletedEntities();
         verify(secretVaultFake, never()).getEntities();
-        verify(deletedEntities).getLatestVersionOfEntity(eq(baseUri));
-        verify(deletedEntities).getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3));
+        verify(deletedEntities).getLatestVersionOfEntity(baseUri);
+        verify(deletedEntities).getReadOnlyEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3);
         verify(secretEntityToV72ModelConverter).convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
@@ -358,18 +358,18 @@ class SecretControllerTest {
                 .thenReturn(entities);
         when(secretVaultFake.getDeletedEntities())
                 .thenReturn(deletedEntities);
-        doNothing().when(secretVaultFake).delete(eq(baseUri));
+        doNothing().when(secretVaultFake).delete(baseUri);
         when(vaultFake.getRecoveryLevel())
                 .thenReturn(recoveryLevel);
         when(vaultFake.getRecoverableDays())
                 .thenReturn(recoverableDays);
-        when(entities.getLatestVersionOfEntity((eq(baseUri))))
+        when(entities.getLatestVersionOfEntity(baseUri))
                 .thenReturn(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3);
         final var request = createRequest(expiry, notBefore);
         final ReadOnlyKeyVaultSecretEntity entity = createEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, request);
         entity.setDeletedDate(TIME_10_MINUTES_AGO);
         entity.setScheduledPurgeDate(TIME_IN_10_MINUTES);
-        when(entities.getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3)))
+        when(entities.getReadOnlyEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3))
                 .thenReturn(entity);
         when(secretEntityToV72ModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(RESPONSE);
@@ -381,16 +381,16 @@ class SecretControllerTest {
         Assertions.assertNotNull(actual);
         Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
         Assertions.assertSame(RESPONSE, actual.getBody());
-        verify(vaultService).findByUri(eq(HTTPS_LOCALHOST_8443));
+        verify(vaultService).findByUri(HTTPS_LOCALHOST_8443);
         verify(vaultFake).secretVaultFake();
         verify(vaultFake).getRecoveryLevel();
         verify(vaultFake).getRecoverableDays();
         final var inOrder = inOrder(secretVaultFake);
-        inOrder.verify(secretVaultFake).recover(eq(baseUri));
+        inOrder.verify(secretVaultFake).recover(baseUri);
         inOrder.verify(secretVaultFake, atLeastOnce()).getEntities();
         verify(secretVaultFake, never()).getDeletedEntities();
-        verify(entities).getLatestVersionOfEntity(eq(baseUri));
-        verify(entities).getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3));
+        verify(entities).getLatestVersionOfEntity(baseUri);
+        verify(entities).getReadOnlyEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3);
         verify(secretEntityToV72ModelConverter).convert(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
@@ -408,13 +408,13 @@ class SecretControllerTest {
                 .thenReturn(recoveryLevel);
         when(vaultFake.getRecoverableDays())
                 .thenReturn(recoverableDays);
-        when(entities.getLatestVersionOfEntity((eq(baseUri))))
+        when(entities.getLatestVersionOfEntity(baseUri))
                 .thenReturn(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3);
         final var request = createRequest(expiry, notBefore);
         final ReadOnlyKeyVaultSecretEntity entity = createEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, request);
         entity.setDeletedDate(TIME_10_MINUTES_AGO);
         entity.setScheduledPurgeDate(TIME_IN_10_MINUTES);
-        when(entities.getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3)))
+        when(entities.getReadOnlyEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3))
                 .thenReturn(entity);
         when(secretEntityToV72ModelConverter.convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(DELETED_RESPONSE);
@@ -426,14 +426,14 @@ class SecretControllerTest {
         Assertions.assertNotNull(actual);
         Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
         Assertions.assertSame(DELETED_RESPONSE, actual.getBody());
-        verify(vaultService).findByUri(eq(HTTPS_LOCALHOST_8443));
+        verify(vaultService).findByUri(HTTPS_LOCALHOST_8443);
         verify(vaultFake).secretVaultFake();
         verify(vaultFake).getRecoveryLevel();
         verify(vaultFake).getRecoverableDays();
         verify(secretVaultFake, never()).getEntities();
         verify(secretVaultFake, atLeastOnce()).getDeletedEntities();
-        verify(entities).getLatestVersionOfEntity(eq(baseUri));
-        verify(entities).getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3));
+        verify(entities).getLatestVersionOfEntity(baseUri);
+        verify(entities).getReadOnlyEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3);
         verify(secretEntityToV72ModelConverter).convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
@@ -451,14 +451,14 @@ class SecretControllerTest {
                 .thenReturn(recoveryLevel);
         when(vaultFake.getRecoverableDays())
                 .thenReturn(recoverableDays);
-        when(entities.getLatestVersionOfEntity((eq(baseUri))))
+        when(entities.getLatestVersionOfEntity(baseUri))
                 .thenReturn(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3);
         final var request = createRequest(expiry, notBefore);
         final ReadOnlyKeyVaultSecretEntity entity = createEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, request);
         entity.setEnabled(false);
         entity.setDeletedDate(TIME_10_MINUTES_AGO);
         entity.setScheduledPurgeDate(TIME_IN_10_MINUTES);
-        when(entities.getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3)))
+        when(entities.getReadOnlyEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3))
                 .thenReturn(entity);
         when(secretEntityToV72ModelConverter.convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(DELETED_RESPONSE);
@@ -467,14 +467,14 @@ class SecretControllerTest {
         Assertions.assertThrows(NotFoundException.class, () -> underTest.getDeletedSecret(SECRET_NAME_1, HTTPS_LOCALHOST_8443));
 
         //then
-        verify(vaultService).findByUri(eq(HTTPS_LOCALHOST_8443));
+        verify(vaultService).findByUri(HTTPS_LOCALHOST_8443);
         verify(vaultFake).secretVaultFake();
         verify(vaultFake).getRecoveryLevel();
         verify(vaultFake).getRecoverableDays();
         verify(secretVaultFake, never()).getEntities();
         verify(secretVaultFake, atLeastOnce()).getDeletedEntities();
-        verify(entities).getLatestVersionOfEntity(eq(baseUri));
-        verify(entities).getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3));
+        verify(entities).getLatestVersionOfEntity(baseUri);
+        verify(entities).getReadOnlyEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3);
         verify(secretEntityToV72ModelConverter, never()).convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
@@ -496,11 +496,11 @@ class SecretControllerTest {
         final ReadOnlyKeyVaultSecretEntity entity = createEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, request);
         entity.setDeletedDate(TIME_10_MINUTES_AGO);
         entity.setScheduledPurgeDate(TIME_IN_10_MINUTES);
-        when(entities.getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3)))
+        when(entities.getReadOnlyEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3))
                 .thenReturn(entity);
         final var nonNullRecoveryLevel = Optional.ofNullable(recoveryLevel).orElse(RecoveryLevel.PURGEABLE);
         if (!nonNullRecoveryLevel.isPurgeable()) {
-            doThrow(IllegalStateException.class).when(secretVaultFake).purge(eq(UNVERSIONED_SECRET_ENTITY_ID_1));
+            doThrow(IllegalStateException.class).when(secretVaultFake).purge(UNVERSIONED_SECRET_ENTITY_ID_1);
         }
 
         //when
@@ -513,15 +513,15 @@ class SecretControllerTest {
         }
 
         //then
-        verify(vaultService).findByUri(eq(HTTPS_LOCALHOST_8443));
+        verify(vaultService).findByUri(HTTPS_LOCALHOST_8443);
         verify(vaultFake).secretVaultFake();
         verify(vaultFake).getRecoveryLevel();
         verify(vaultFake).getRecoverableDays();
         verify(secretVaultFake, never()).getEntities();
         verify(secretVaultFake, never()).getDeletedEntities();
-        verify(secretVaultFake, atLeastOnce()).purge(eq(UNVERSIONED_SECRET_ENTITY_ID_1));
-        verify(entities, never()).getLatestVersionOfEntity(eq(baseUri));
-        verify(entities, never()).getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3));
+        verify(secretVaultFake, atLeastOnce()).purge(UNVERSIONED_SECRET_ENTITY_ID_1);
+        verify(entities, never()).getLatestVersionOfEntity(baseUri);
+        verify(entities, never()).getReadOnlyEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3);
         verify(secretEntityToV72ModelConverter, never()).convertDeleted(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
@@ -539,11 +539,11 @@ class SecretControllerTest {
                 .thenReturn(recoveryLevel);
         when(vaultFake.getRecoverableDays())
                 .thenReturn(recoverableDays);
-        when(entities.getLatestVersionOfEntity((eq(baseUri))))
+        when(entities.getLatestVersionOfEntity(baseUri))
                 .thenReturn(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3);
         final var request = createRequest(expiry, notBefore);
         final ReadOnlyKeyVaultSecretEntity entity = createEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, request);
-        when(entities.getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3)))
+        when(entities.getReadOnlyEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3))
                 .thenReturn(entity);
         when(secretEntityToV72ModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(RESPONSE);
@@ -555,13 +555,13 @@ class SecretControllerTest {
         Assertions.assertNotNull(actual);
         Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
         Assertions.assertSame(RESPONSE, actual.getBody());
-        verify(vaultService).findByUri(eq(HTTPS_LOCALHOST_8443));
+        verify(vaultService).findByUri(HTTPS_LOCALHOST_8443);
         verify(vaultFake).secretVaultFake();
         verify(vaultFake).getRecoveryLevel();
         verify(vaultFake).getRecoverableDays();
         verify(secretVaultFake, atLeastOnce()).getEntities();
-        verify(entities).getLatestVersionOfEntity(eq(baseUri));
-        verify(entities).getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3));
+        verify(entities).getLatestVersionOfEntity(baseUri);
+        verify(entities).getReadOnlyEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3);
         verify(secretEntityToV72ModelConverter).convert(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
@@ -598,7 +598,7 @@ class SecretControllerTest {
         Assertions.assertNotNull(actual.getBody().getValue());
         Assertions.assertEquals(1, actual.getBody().getValue().size());
         Assertions.assertSame(secretItemModel, actual.getBody().getValue().get(0));
-        verify(vaultService).findByUri(eq(HTTPS_LOCALHOST_8443));
+        verify(vaultService).findByUri(HTTPS_LOCALHOST_8443);
         verify(vaultFake).secretVaultFake();
         verify(vaultFake).getRecoveryLevel();
         verify(vaultFake).getRecoverableDays();
@@ -643,7 +643,7 @@ class SecretControllerTest {
         Assertions.assertSame(secretItemModel, actual.getBody().getValue().get(0));
         final var expectedNextLink = HTTPS_LOCALHOST_8443 + "/secrets?api-version=7.3&$skiptoken=1&maxresults=1";
         Assertions.assertEquals(expectedNextLink, actual.getBody().getNextLink());
-        verify(vaultService).findByUri(eq(HTTPS_LOCALHOST_8443));
+        verify(vaultService).findByUri(HTTPS_LOCALHOST_8443);
         verify(vaultFake).secretVaultFake();
         verify(vaultFake).getRecoveryLevel();
         verify(vaultFake).getRecoverableDays();
@@ -689,7 +689,7 @@ class SecretControllerTest {
         Assertions.assertNotNull(actual.getBody().getValue());
         Assertions.assertEquals(1, actual.getBody().getValue().size());
         Assertions.assertSame(secretItemModel, actual.getBody().getValue().get(0));
-        verify(vaultService).findByUri(eq(HTTPS_LOCALHOST_8443));
+        verify(vaultService).findByUri(HTTPS_LOCALHOST_8443);
         verify(vaultFake).secretVaultFake();
         verify(vaultFake).getRecoveryLevel();
         verify(vaultFake).getRecoverableDays();
@@ -736,7 +736,7 @@ class SecretControllerTest {
         Assertions.assertSame(secretItemModel, actual.getBody().getValue().get(0));
         final var expectedNextLink = HTTPS_LOCALHOST_8443 + "/deletedsecrets?api-version=7.3&$skiptoken=1&maxresults=1";
         Assertions.assertEquals(expectedNextLink, actual.getBody().getNextLink());
-        verify(vaultService).findByUri(eq(HTTPS_LOCALHOST_8443));
+        verify(vaultService).findByUri(HTTPS_LOCALHOST_8443);
         verify(vaultFake).secretVaultFake();
         verify(vaultFake).getRecoveryLevel();
         verify(vaultFake).getRecoverableDays();
@@ -762,7 +762,7 @@ class SecretControllerTest {
                 .thenReturn(recoveryLevel);
         when(vaultFake.getRecoverableDays())
                 .thenReturn(recoverableDays);
-        when(entities.getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3)))
+        when(entities.getReadOnlyEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3))
                 .thenReturn(entity);
         when(secretEntityToV72ModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(RESPONSE);
@@ -774,13 +774,13 @@ class SecretControllerTest {
         Assertions.assertNotNull(actual);
         Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
         Assertions.assertSame(RESPONSE, actual.getBody());
-        verify(vaultService).findByUri(eq(HTTPS_LOCALHOST_8443));
+        verify(vaultService).findByUri(HTTPS_LOCALHOST_8443);
         verify(vaultFake).secretVaultFake();
         verify(vaultFake).getRecoveryLevel();
         verify(vaultFake).getRecoverableDays();
         verify(secretVaultFake).getEntities();
-        verify(entities, never()).getLatestVersionOfEntity(eq(baseUri));
-        verify(entities).getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3));
+        verify(entities, never()).getLatestVersionOfEntity(baseUri);
+        verify(entities).getReadOnlyEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3);
         verify(secretEntityToV72ModelConverter).convert(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
@@ -801,7 +801,7 @@ class SecretControllerTest {
                 .thenReturn(recoveryLevel);
         when(vaultFake.getRecoverableDays())
                 .thenReturn(recoverableDays);
-        when(entities.getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3)))
+        when(entities.getReadOnlyEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3))
                 .thenReturn(entity);
         when(secretEntityToV72ModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(RESPONSE);
@@ -811,13 +811,13 @@ class SecretControllerTest {
                 underTest.getWithVersion(SECRET_NAME_1, SECRET_VERSION_3, HTTPS_LOCALHOST_8443));
 
         //then
-        verify(vaultService).findByUri(eq(HTTPS_LOCALHOST_8443));
+        verify(vaultService).findByUri(HTTPS_LOCALHOST_8443);
         verify(vaultFake).secretVaultFake();
         verify(vaultFake).getRecoveryLevel();
         verify(vaultFake).getRecoverableDays();
         verify(secretVaultFake).getEntities();
-        verify(entities, never()).getLatestVersionOfEntity(eq(baseUri));
-        verify(entities).getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3));
+        verify(entities, never()).getLatestVersionOfEntity(baseUri);
+        verify(entities).getReadOnlyEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3);
         verify(secretEntityToV72ModelConverter, never()).convert(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
@@ -846,7 +846,7 @@ class SecretControllerTest {
                 .thenReturn(entities);
         when(vaultFake.getRecoveryLevel())
                 .thenReturn(RecoveryLevel.PURGEABLE);
-        when(entities.getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3)))
+        when(entities.getReadOnlyEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3))
                 .thenReturn(entity);
         when(secretEntityToV72ModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(RESPONSE);
@@ -859,39 +859,39 @@ class SecretControllerTest {
         Assertions.assertNotNull(actual);
         Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
         Assertions.assertSame(RESPONSE, actual.getBody());
-        verify(vaultService).findByUri(eq(HTTPS_LOCALHOST_8443));
+        verify(vaultService).findByUri(HTTPS_LOCALHOST_8443);
         verify(vaultFake).secretVaultFake();
         verify(vaultFake).getRecoveryLevel();
         verify(vaultFake).getRecoverableDays();
         verify(secretVaultFake).getEntities();
-        verify(entities, never()).getLatestVersionOfEntity(eq(baseUri));
+        verify(entities, never()).getLatestVersionOfEntity(baseUri);
         final var inOrder = inOrder(secretVaultFake, entities);
         if (enabled != null) {
             inOrder.verify(secretVaultFake)
-                    .setEnabled(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3), eq(enabled));
+                    .setEnabled(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3, enabled);
         } else {
             inOrder.verify(secretVaultFake, never())
                     .setEnabled(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3), anyBoolean());
         }
         if (expiry != null || notBefore != null) {
             inOrder.verify(secretVaultFake)
-                    .setExpiry(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3), eq(notBefore), eq(expiry));
+                    .setExpiry(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3, notBefore, expiry);
         } else {
             inOrder.verify(secretVaultFake, never())
                     .setExpiry(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3), any(), any());
         }
         if (tags != null) {
             inOrder.verify(secretVaultFake)
-                    .clearTags(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3));
+                    .clearTags(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3);
             inOrder.verify(secretVaultFake)
                     .addTags(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3), same(updateSecretRequest.getTags()));
         } else {
             inOrder.verify(secretVaultFake, never())
-                    .clearTags(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3));
+                    .clearTags(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3);
             inOrder.verify(secretVaultFake, never())
                     .addTags(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3), anyMap());
         }
-        inOrder.verify(entities).getReadOnlyEntity(eq(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3));
+        inOrder.verify(entities).getReadOnlyEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_3);
         verify(secretEntityToV72ModelConverter).convert(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 

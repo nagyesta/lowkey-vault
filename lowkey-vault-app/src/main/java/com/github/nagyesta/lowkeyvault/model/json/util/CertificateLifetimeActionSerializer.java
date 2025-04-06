@@ -7,12 +7,14 @@ import com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeAc
 
 import java.io.IOException;
 
-public class CertificateLifetimeActionSerializer extends JsonSerializer<CertificateLifetimeActionActivity> {
+public class CertificateLifetimeActionSerializer
+        extends JsonSerializer<CertificateLifetimeActionActivity> {
 
     @Override
-    public void serialize(final CertificateLifetimeActionActivity value,
-                          final JsonGenerator generator,
-                          final SerializerProvider provider) throws IOException {
+    public void serialize(
+            final CertificateLifetimeActionActivity value,
+            final JsonGenerator generator,
+            final SerializerProvider provider) throws IOException {
         generator.writeStartObject();
         generator.writeStringField("action_type", value.getValue());
         generator.writeEndObject();

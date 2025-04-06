@@ -14,14 +14,16 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 final class ResponseEntity {
+
     public static final ListTypeReference VAULT_MODEL_LIST_TYPE_REF = new ListTypeReference();
     @Getter
     private final int responseCode;
     private final String responseBody;
     private final ObjectReader reader;
 
-    ResponseEntity(@NonNull final HttpResponse response,
-                   @NonNull final ObjectReader reader) {
+    ResponseEntity(
+            @NonNull final HttpResponse response,
+            @NonNull final ObjectReader reader) {
         this.responseBody = response.getBodyAsString(StandardCharsets.UTF_8).block();
         this.responseCode = response.getStatusCode();
         this.reader = reader;

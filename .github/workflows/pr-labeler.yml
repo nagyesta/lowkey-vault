@@ -1,7 +1,5 @@
 name: PullRequestLabeler
-on:
-  pull_request:
-    types: [opened]
+on: pull_request
 
 permissions: read-all
 
@@ -9,10 +7,54 @@ jobs:
   pr-labeler:
     runs-on: ubuntu-latest
     steps:
-      - name: Label PR
-        if: ${{ github.repository_owner == 'nagyesta' }}
-        uses: TimonVS/pr-labeler-action@f9c084306ce8b3f488a8f3ee1ccedc6da131d1af # v5.0.0
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          configuration-path: .github/pr-labeler.yml # optional, .github/pr-labeler.yml is the default value
+          fetch-depth: 0
+          token: ${{ secrets.PUBLISH_KEY }}
+      - name: Get branch name
+        id: get-branch-name
         env:
-          GITHUB_TOKEN: ${{ secrets.PUBLISH_KEY }}
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "BRANCH_NAME=${HEAD_REF}" >> $GITHUB_OUTPUT
+          else
+            echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+      - name: Convert to label
+        id: convert-to-label
+        run: |
+          if [[ "${{ steps.get-branch-name.outputs.BRANCH_NAME }}" == feature/* ]]; then
+            echo "LABEL_NAME=enhancement" >> $GITHUB_OUTPUT
+          elif [[ "${{ steps.get-branch-name.outputs.BRANCH_NAME }}" == bugfix/* ]]; then
+            echo "LABEL_NAME=bug" >> $GITHUB_OUTPUT
+          elif [[ "${{ steps.get-branch-name.outputs.BRANCH_NAME }}" == bug/* ]]; then
+            echo "LABEL_NAME=bug" >> $GITHUB_OUTPUT
+          elif [[ "${{ steps.get-branch-name.outputs.BRANCH_NAME }}" == renovate/* ]]; then
+            echo "LABEL_NAME=dependency" >> $GITHUB_OUTPUT
+          elif [[ "${{ steps.get-branch-name.outputs.BRANCH_NAME }}" == dep/* ]]; then
+            echo "LABEL_NAME=dependency" >> $GITHUB_OUTPUT
+          elif [[ "${{ steps.get-branch-name.outputs.BRANCH_NAME }}" == docs/* ]]; then
+            echo "LABEL_NAME=documentation" >> $GITHUB_OUTPUT
+          elif [[ "${{ steps.get-branch-name.outputs.BRANCH_NAME }}" == release/* ]]; then
+            echo "LABEL_NAME=release" >> $GITHUB_OUTPUT
+          elif [[ "${{ steps.get-branch-name.outputs.BRANCH_NAME }}" == chore/* ]]; then
+            echo "LABEL_NAME=chore" >> $GITHUB_OUTPUT
+          else
+            echo "LABEL_NAME=none" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+      - name: Add label
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        if: ${{ steps.convert-to-label.outputs.LABEL_NAME != 'none' }}
+        with:
+          github-token: ${{ secrets.PUBLISH_KEY }}
+          script: |
+            github.rest.issues.addLabels({
+              issue_number: ${{ github.event.pull_request.number }},
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ["${{ steps.convert-to-label.outputs.LABEL_NAME }}"]
+            });

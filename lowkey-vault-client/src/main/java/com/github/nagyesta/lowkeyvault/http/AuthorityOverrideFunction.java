@@ -2,31 +2,36 @@ package com.github.nagyesta.lowkeyvault.http;
 
 import java.net.URI;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
-public final class AuthorityOverrideFunction implements Function<URI, URI> {
+public final class AuthorityOverrideFunction
+        implements UnaryOperator<URI> {
 
-    private static final String OPTIONAL_PORT_REGEX = "(:[0-9]+)?";
-    private static final String IP_ADDRESS_REGEX =
-            "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])";
+    private static final String OPTIONAL_PORT_REGEX = "(:\\d+)?";
+    private static final String IP_OCTET_REGEX = "(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])";
+    private static final String IP_ADDRESS_REGEX = "(" + IP_OCTET_REGEX + "\\.){3}" + IP_OCTET_REGEX;
     private static final Pattern IPV4_REGEX = Pattern.compile("^" + IP_ADDRESS_REGEX + OPTIONAL_PORT_REGEX + "$");
     private static final Pattern ONLY_NUMBERS_AND_DOTS_REGEX = Pattern.compile("^[0-9\\\\.:]+$");
-    private static final String HOST_REGEX =
-            "(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])";
+    private static final String HOST_SEGMENT_REGEX = "([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])";
+    private static final String HOST_REGEX = "(" + HOST_SEGMENT_REGEX + "\\.){0,20}" + HOST_SEGMENT_REGEX;
     private static final Pattern HOSTNAME_REGEX = Pattern.compile("^" + HOST_REGEX + OPTIONAL_PORT_REGEX + "$");
 
     private final String vaultAuthority;
     private final String containerAuthority;
 
-    public AuthorityOverrideFunction(final String vaultAuthority, final String containerAuthority) {
+    public AuthorityOverrideFunction(
+            final String vaultAuthority,
+            final String containerAuthority) {
         validate(vaultAuthority, "vaultAuthority");
         validate(containerAuthority, "containerAuthority");
         this.vaultAuthority = vaultAuthority;
         this.containerAuthority = containerAuthority;
     }
 
-    private static void validate(final String hostOrIpv4AddressWithPort, final String paramName) {
+    private static void validate(
+            final String hostOrIpv4AddressWithPort,
+            final String paramName) {
         if (hostOrIpv4AddressWithPort == null) {
             throw new IllegalArgumentException(paramName + " must not be null!");
         }

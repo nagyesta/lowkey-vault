@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.CERT_NAME_1;
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.CERT_VERSION_3;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOWKEY_VAULT;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,7 +33,7 @@ class CertificateEntityToV73CertificateVersionItemModelConverterTest {
         //given
         final var registry = mock(CertificateConverterRegistry.class);
         final var properties = mock(CertificateEntityToV73PropertiesModelConverter.class);
-        when(registry.propertiesConverter(eq(ApiConstants.V_7_3))).thenReturn(properties);
+        when(registry.propertiesConverter(ApiConstants.V_7_3)).thenReturn(properties);
         registry.registerPropertiesConverter(properties);
         final var underTest =
                 new CertificateEntityToV73CertificateVersionItemModelConverter(registry);

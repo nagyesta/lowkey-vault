@@ -15,7 +15,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static com.github.nagyesta.lowkeyvault.context.KeyTestContext.NOW;
 
@@ -146,7 +145,7 @@ public class KeysStepDefsAssertions extends CommonAssertions {
         final var expected = context.getCreatedEntities().values().stream()
                 .map(keyVaultKeys -> new LinkedList<>(keyVaultKeys).getLast().getId())
                 .map(s -> s.replaceFirst("/[0-9a-f]{32}$", ""))
-                .collect(Collectors.toList());
+                .toList();
         assertContainsEqualEntriesSorted(expected, actual);
     }
 

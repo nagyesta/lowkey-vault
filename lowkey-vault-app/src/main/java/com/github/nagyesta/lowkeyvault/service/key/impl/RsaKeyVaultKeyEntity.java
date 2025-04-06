@@ -21,21 +21,24 @@ import java.security.interfaces.RSAPublicKey;
 import static com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil.generateRsa;
 
 @Slf4j
-public class RsaKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, Integer> implements ReadOnlyRsaKeyVaultKeyEntity {
+public class RsaKeyVaultKeyEntity
+        extends KeyVaultKeyEntity<KeyPair, Integer> implements ReadOnlyRsaKeyVaultKeyEntity {
 
-    public RsaKeyVaultKeyEntity(@NonNull final VersionedKeyEntityId id,
-                                @NonNull final VaultFake vault,
-                                final Integer keyParam,
-                                final BigInteger publicExponent,
-                                final boolean hsm) {
+    public RsaKeyVaultKeyEntity(
+            @NonNull final VersionedKeyEntityId id,
+            @NonNull final VaultFake vault,
+            final Integer keyParam,
+            final BigInteger publicExponent,
+            final boolean hsm) {
         super(id, vault, generateRsa(keyParam, publicExponent), KeyType.RSA.validateOrDefault(keyParam, Integer.class), hsm);
     }
 
-    public RsaKeyVaultKeyEntity(@NonNull final VersionedKeyEntityId id,
-                                @NonNull final VaultFake vault,
-                                @NonNull final KeyPair keyPair,
-                                final Integer keySize,
-                                final Boolean hsm) {
+    public RsaKeyVaultKeyEntity(
+            @NonNull final VersionedKeyEntityId id,
+            @NonNull final VaultFake vault,
+            @NonNull final KeyPair keyPair,
+            final Integer keySize,
+            final Boolean hsm) {
         super(id, vault, keyPair, KeyType.RSA.validateOrDefault(keySize, Integer.class), hsm);
     }
 
@@ -99,9 +102,14 @@ public class RsaKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, Integer> im
     }
 
     @Override
-    public byte[] encryptBytes(@NonNull final byte[] clear, @NonNull final EncryptionAlgorithm encryptionAlgorithm, final byte[] iv) {
-        Assert.state(getOperations().contains(KeyOperation.ENCRYPT), getId() + " does not have ENCRYPT operation assigned.");
-        Assert.state(getOperations().contains(KeyOperation.WRAP_KEY), getId() + " does not have WRAP_KEY operation assigned.");
+    public byte[] encryptBytes(
+            @NonNull final byte[] clear,
+            @NonNull final EncryptionAlgorithm encryptionAlgorithm,
+            final byte[] iv) {
+        Assert.state(getOperations().contains(KeyOperation.ENCRYPT),
+                getId() + " does not have ENCRYPT operation assigned.");
+        Assert.state(getOperations().contains(KeyOperation.WRAP_KEY),
+                getId() + " does not have WRAP_KEY operation assigned.");
         Assert.state(isEnabled(), getId() + " is not enabled.");
         return doCrypto(() -> {
             final var cipher = Cipher.getInstance(encryptionAlgorithm.getAlg(), KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
@@ -111,9 +119,14 @@ public class RsaKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, Integer> im
     }
 
     @Override
-    public byte[] decryptToBytes(@NonNull final byte[] encrypted, @NonNull final EncryptionAlgorithm encryptionAlgorithm, final byte[] iv) {
-        Assert.state(getOperations().contains(KeyOperation.DECRYPT), getId() + " does not have DECRYPT operation assigned.");
-        Assert.state(getOperations().contains(KeyOperation.UNWRAP_KEY), getId() + " does not have UNWRAP_KEY operation assigned.");
+    public byte[] decryptToBytes(
+            @NonNull final byte[] encrypted,
+            @NonNull final EncryptionAlgorithm encryptionAlgorithm,
+            final byte[] iv) {
+        Assert.state(getOperations().contains(KeyOperation.DECRYPT),
+                getId() + " does not have DECRYPT operation assigned.");
+        Assert.state(getOperations().contains(KeyOperation.UNWRAP_KEY),
+                getId() + " does not have UNWRAP_KEY operation assigned.");
         Assert.state(isEnabled(), getId() + " is not enabled.");
         return doCrypto(() -> {
             final var cipher = Cipher.getInstance(encryptionAlgorithm.getAlg(), KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
@@ -123,16 +136,19 @@ public class RsaKeyVaultKeyEntity extends KeyVaultKeyEntity<KeyPair, Integer> im
     }
 
     @Override
-    public byte[] signBytes(final byte[] digest, final SignatureAlgorithm signatureAlgorithm) {
+    public byte[] signBytes(
+            final byte[] digest,
+            final SignatureAlgorithm signatureAlgorithm) {
         validateGenericSignOrVerifyInputs(digest, signatureAlgorithm, KeyOperation.SIGN);
         final var signCallable = signCallable(digest, signatureAlgorithm, getKey().getPrivate());
         return doCrypto(signCallable, "Cannot sign message.", log);
     }
 
     @Override
-    public boolean verifySignedBytes(final byte[] digest,
-                                     final SignatureAlgorithm signatureAlgorithm,
-                                     final byte[] signature) {
+    public boolean verifySignedBytes(
+            final byte[] digest,
+            final SignatureAlgorithm signatureAlgorithm,
+            final byte[] signature) {
         validateGenericSignOrVerifyInputs(digest, signatureAlgorithm, KeyOperation.VERIFY);
         final var verifyCallable = verifyCallable(digest, signatureAlgorithm, signature, getKey().getPublic());
         return doCrypto(verifyCallable, "Cannot verify digest message.", log);

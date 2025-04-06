@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    alias(libs.plugins.sonar.qube)
     alias(libs.plugins.abort.mission)
 }
 
@@ -39,6 +40,8 @@ java {
 }
 
 var copyAppJar = tasks.register<Copy>("copyAppJar") {
+    group = "build"
+    description = "Copies the application Jar to the Docker build folder."
     inputs.file(rootProject.project(":lowkey-vault-app").tasks.named("bootJar").get().outputs.files.singleFile)
     outputs.file(layout.buildDirectory.file("docker/lowkey-vault.jar").get().asFile)
     from(rootProject.project(":lowkey-vault-app").tasks.named("bootJar").get().outputs.files.singleFile)
@@ -51,6 +54,8 @@ var copyAppJar = tasks.register<Copy>("copyAppJar") {
 }
 
 var copyDockerFile = tasks.register<Copy>("copyDockerFile") {
+    group = "build"
+    description = "Copies the Dockerfile to the Docker build folder."
     inputs.file(file("src/docker/Dockerfile"))
     outputs.file(layout.buildDirectory.file("docker/Dockerfile").get().asFile)
     from(file("src/docker/Dockerfile"))
@@ -60,6 +65,7 @@ var copyDockerFile = tasks.register<Copy>("copyDockerFile") {
 
 var dockerBuild = tasks.register<Exec>("dockerBuild") {
     group = "Docker"
+    description = "Builds the Docker image."
     inputs.file(layout.buildDirectory.file("docker/lowkey-vault.jar").get().asFile)
     inputs.dir(layout.buildDirectory.dir("docker"))
     workingDir = layout.buildDirectory.dir("docker").get().asFile
@@ -75,6 +81,7 @@ var dockerBuild = tasks.register<Exec>("dockerBuild") {
 
 var dockerRun = tasks.register<Exec>("dockerRun") {
     group = "Docker"
+    description = "Starts a container from the Docker image."
     inputs.dir(layout.buildDirectory.dir("docker"))
     workingDir = layout.buildDirectory.dir("docker").get().asFile
     environment(mapOf("LOWKEY_ARGS" to "--LOWKEY_DEBUG_REQUEST_LOG=false " +
@@ -94,6 +101,7 @@ var dockerRun = tasks.register<Exec>("dockerRun") {
 
 var dockerStop = tasks.register<Exec>("dockerStop") {
     group = "Docker"
+    description = "Stops the Docker container."
     inputs.dir(layout.buildDirectory.dir("docker"))
     workingDir = layout.buildDirectory.dir("docker").get().asFile
     commandLine = listOf("docker", "stop", "lowkey-vault")
@@ -102,6 +110,7 @@ var dockerStop = tasks.register<Exec>("dockerStop") {
 
 var dockerPush = tasks.register<Exec>("dockerPush") {
     group = "Docker"
+    description = "Pushes the Docker image."
     inputs.dir(layout.buildDirectory.dir("docker"))
     workingDir = layout.buildDirectory.dir("docker").get().asFile
     commandLine = listOf("docker", "push", "nagyesta/lowkey-vault:${rootProject.version}")
@@ -124,11 +133,22 @@ tasks.test {
     finalizedBy(dockerStop)
 }
 
+sonar {
+    properties {
+        //no jacoco report because there are no sources
+        property("sonar.organization", rootProject.extra.get("sonarOrganization") as String)
+        property("sonar.projectKey", rootProject.extra.get("sonarProjectKey") as String)
+        property("sonar.host.url", rootProject.extra.get("sonarHostUrl") as String)
+    }
+}
+
 abortMission {
     toolVersion = libs.versions.abortMission.get()
 }
 
 tasks.register("publish") {
+    group = "publishing"
+    description = "Technical task to make sure Docker steps are triggered by regular publish steps."
     dependsOn("build")
     dependsOn(dockerPush)
 }

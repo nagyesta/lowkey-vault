@@ -73,9 +73,11 @@ class VaultImporterTest {
         final var properties = new VaultImporterProperties(new File("not-found"), LOCALHOST, HTTP_PORT);
         final var processor = new BackupTemplateProcessor(new TimeHelperSource());
         final var underTest = new VaultImporter(properties, processor, new ObjectMapper(), validator);
+        final var importFile = properties.getImportFile();
+        final var context = properties.context();
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.readFile(properties.getImportFile(), properties.context()));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.readFile(importFile, context));
 
         //then exception
     }

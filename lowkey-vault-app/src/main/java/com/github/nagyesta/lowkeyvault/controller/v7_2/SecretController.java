@@ -14,7 +14,6 @@ import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
@@ -23,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 
+import static com.github.nagyesta.lowkeyvault.controller.common.PaginationContext.*;
 import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.API_VERSION_7_2;
 import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.V_7_2;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -30,11 +30,14 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Slf4j
 @RestController
 @Validated
-@Component("SecretControllerV72")
-public class SecretController extends CommonSecretController {
+@Component("secretControllerV72")
+@SuppressWarnings("java:S110")
+public class SecretController
+        extends CommonSecretController {
 
-    @Autowired
-    public SecretController(@NonNull final SecretConverterRegistry registry, @NonNull final VaultService vaultService) {
+    public SecretController(
+            @NonNull final SecretConverterRegistry registry,
+            @NonNull final VaultService vaultService) {
         super(registry, vaultService);
     }
 

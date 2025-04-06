@@ -32,7 +32,9 @@ public class SecretEntityToV72ModelConverter
 
     @Override
     protected <M extends KeyVaultSecretModel> M mapActiveFields(
-            final ReadOnlyKeyVaultSecretEntity source, final M model, final URI vaultUri) {
+            final ReadOnlyKeyVaultSecretEntity source,
+            final M model,
+            final URI vaultUri) {
         model.setId(source.getId().asUri(vaultUri).toString());
         model.setContentType(source.getContentType());
         model.setValue(source.getValue());

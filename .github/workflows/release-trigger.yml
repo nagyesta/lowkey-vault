@@ -2,18 +2,19 @@ name: ReleaseTrigger
 on:
   workflow_dispatch:
     inputs:
+      # qlty-ignore: checkov:CKV_GHA_7
       execution:
-        description: 'Type of execution'
+        description: "Type of execution"
         required: true
-        default: 'Manual'
+        default: "Manual"
         type: choice
         options:
           - Manual
   schedule:
     # * is a special character in YAML, so we have to quote this string
-    - cron: '0 4 10 * *'
+    - cron: "0 4 10 * *"
 
-permissions: 
+permissions:
   contents: read
 
 jobs:
@@ -29,7 +30,7 @@ jobs:
       - name: Check existing tag
         id: check
         run: |
-          echo "::set-output name=has_tag::$(git log --format='format:%d' --decorate-refs="refs/tags/v*" -n 1 | grep tag | wc -l)"
+          echo "has_tag::$(git log --format='format:%d' --decorate-refs="refs/tags/v*" -n 1 | grep tag | wc -l)"
       - name: Debug
         run: |
           echo "Has tag: ${{ steps.check.outputs.has_tag }}"
@@ -57,8 +58,8 @@ jobs:
           github-token: ${{ secrets.PUBLISH_KEY }}
           script: |
             github.rest.pulls.create({
-              owner: "${{ github.repository_owner }}",
-              repo: "lowkey-vault",
+              owner: context.repo.owner,
+              repo: context.repo.repo,
               head: "release/run-${{ github.run_number }}",
               base: "main",
               title: "Triggering a release {patch}"

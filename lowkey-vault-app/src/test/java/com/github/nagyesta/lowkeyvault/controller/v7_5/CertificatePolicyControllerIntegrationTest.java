@@ -33,10 +33,10 @@ class CertificatePolicyControllerIntegrationTest extends BaseCertificateControll
 
     private static final URI VAULT_URI_1 = getRandomVaultUri();
     @Autowired
-    @Qualifier("CertificatePolicyControllerV75")
+    @Qualifier("certificatePolicyControllerV75")
     private CertificatePolicyController underTest;
     @Autowired
-    @Qualifier("CertificateControllerV75")
+    @Qualifier("certificateControllerV75")
     private CertificateController certificateController;
 
     @BeforeEach

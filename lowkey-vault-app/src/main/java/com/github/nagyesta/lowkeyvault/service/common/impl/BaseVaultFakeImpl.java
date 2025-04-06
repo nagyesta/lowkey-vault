@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
  * @param <RE> The read-only entity type.
  * @param <ME> The modifiable entity type.
  */
+@SuppressWarnings("java:S119") //It is easier to ensure that the types are consistent this way
 public abstract class BaseVaultFakeImpl<K extends EntityId, V extends K, RE extends BaseVaultEntity<V>, ME extends RE>
         implements BaseVaultFake<K, V, RE> {
 
@@ -33,9 +34,10 @@ public abstract class BaseVaultFakeImpl<K extends EntityId, V extends K, RE exte
     private final VersionedEntityMultiMap<K, V, RE, ME> entities;
     private final VersionedEntityMultiMap<K, V, RE, ME> deletedEntities;
 
-    protected BaseVaultFakeImpl(@NonNull final VaultFake vaultFake,
-                                @NonNull final RecoveryLevel recoveryLevel,
-                                final Integer recoverableDays) {
+    protected BaseVaultFakeImpl(
+            @NonNull final VaultFake vaultFake,
+            @NonNull final RecoveryLevel recoveryLevel,
+            final Integer recoverableDays) {
         recoveryLevel.checkValidRecoverableDays(recoverableDays);
         this.vaultFake = vaultFake;
         entities = new ConcurrentVersionedEntityMultiMap<>(
@@ -60,21 +62,26 @@ public abstract class BaseVaultFakeImpl<K extends EntityId, V extends K, RE exte
     }
 
     @Override
-    public void addTags(@NonNull final V entityId, final Map<String, String> tags) {
-        final var newTags = new TreeMap<String, String>(entities.getEntity(entityId).getTags());
+    public void addTags(
+            @NonNull final V entityId,
+            final Map<String, String> tags) {
+        final var newTags = new TreeMap<>(entities.getEntity(entityId).getTags());
         newTags.putAll(Objects.requireNonNullElse(tags, Collections.emptyMap()));
         entities.getEntity(entityId).setTags(newTags);
     }
 
     @Override
-    public void setEnabled(@NonNull final V entityId, final boolean enabled) {
+    public void setEnabled(
+            @NonNull final V entityId,
+            final boolean enabled) {
         entities.getEntity(entityId).setEnabled(enabled);
     }
 
     @Override
-    public void setExpiry(@NonNull final V entityId,
-                          final OffsetDateTime notBefore,
-                          final OffsetDateTime expiry) {
+    public void setExpiry(
+            @NonNull final V entityId,
+            final OffsetDateTime notBefore,
+            final OffsetDateTime expiry) {
         if (expiry != null && notBefore != null && notBefore.isAfter(expiry)) {
             throw new IllegalArgumentException("Expiry cannot be before notBefore.");
         }
@@ -83,7 +90,10 @@ public abstract class BaseVaultFakeImpl<K extends EntityId, V extends K, RE exte
         entity.setExpiry(expiry);
     }
 
-    protected void setCreatedAndUpdatedOn(final V entityId, final OffsetDateTime created, final OffsetDateTime updated) {
+    protected void setCreatedAndUpdatedOn(
+            final V entityId,
+            final OffsetDateTime created,
+            final OffsetDateTime updated) {
         if (created == null && updated == null) {
             return;
         }
@@ -138,7 +148,9 @@ public abstract class BaseVaultFakeImpl<K extends EntityId, V extends K, RE exte
                 .collect(Collectors.toSet());
     }
 
-    protected void setManaged(final V entityId, final boolean managed) {
+    protected void setManaged(
+            final V entityId,
+            final boolean managed) {
         entities.getEntity(entityId).setManaged(managed);
     }
 
@@ -156,8 +168,9 @@ public abstract class BaseVaultFakeImpl<K extends EntityId, V extends K, RE exte
         return vaultFake;
     }
 
-    protected V addVersion(@org.springframework.lang.NonNull final V entityId,
-                           @org.springframework.lang.NonNull final ME entity) {
+    protected V addVersion(
+            @org.springframework.lang.NonNull final V entityId,
+            @org.springframework.lang.NonNull final ME entity) {
         assertNoConflict(entityId);
         entities.put(entityId, entity);
         return entityId;

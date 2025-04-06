@@ -20,6 +20,7 @@ import static com.github.nagyesta.lowkeyvault.openapi.Examples.EXCEPTION;
 @EqualsAndHashCode
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ErrorMessage {
+
     @Schema(example = EXCEPTION, description = "The class of the exception caused.")
     @JsonProperty("code")
     private String code;

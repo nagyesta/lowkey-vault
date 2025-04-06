@@ -42,7 +42,7 @@ import static org.mockito.Mockito.mock;
 class SecretBackupRestoreControllerIntegrationTest {
 
     @Autowired
-    @Qualifier("SecretBackupRestoreControllerV72")
+    @Qualifier("secretBackupRestoreControllerV72")
     private SecretBackupRestoreController underTest;
     @Autowired
     private VaultService vaultService;

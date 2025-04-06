@@ -20,7 +20,7 @@ class ContentLengthHeaderRemoverTest {
         underTest.process(request, context);
 
         //then
-        verify(request).removeHeaders(eq(HTTP.CONTENT_LEN));
+        verify(request).removeHeaders(HTTP.CONTENT_LEN);
         verifyNoMoreInteractions(request, context);
     }
 }

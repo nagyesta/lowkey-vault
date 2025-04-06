@@ -28,7 +28,8 @@ import static com.azure.core.http.ContentType.APPLICATION_JSON;
 import static com.github.nagyesta.lowkeyvault.http.management.impl.ResponseEntity.VAULT_MODEL_LIST_TYPE_REF;
 
 @Slf4j
-public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagementClient {
+public final class LowkeyVaultManagementClientImpl
+        implements LowkeyVaultManagementClient {
 
     private static final String PING_PATH = "/ping";
     private static final String MANAGEMENT_VAULT_PATH = "/management/vault";
@@ -61,8 +62,9 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
 
     @Override
     public <T extends Throwable> void verifyConnectivity(
-            final int retries, final int waitMillis, @NonNull final Supplier<T> exceptionProvider)
-            throws T, InterruptedException {
+            final int retries,
+            final int waitMillis,
+            @NonNull final Supplier<T> exceptionProvider) throws T, InterruptedException {
         final var request = new HttpRequest(HttpMethod.GET, vaultUrl + PING_PATH);
         for (var i = 0; i < retries; i++) {
             Thread.sleep(waitMillis);
@@ -194,7 +196,10 @@ public final class LowkeyVaultManagementClientImpl implements LowkeyVaultManagem
         return sendAndProcess(request, r -> r.getResponseObject(VaultModel.class));
     }
 
-    String vaultModelAsString(final URI baseUri, final RecoveryLevel recoveryLevel, final Integer recoverableDays) {
+    String vaultModelAsString(
+            final URI baseUri,
+            final RecoveryLevel recoveryLevel,
+            final Integer recoverableDays) {
         try {
             return objectWriter.writeValueAsString(new VaultModel(baseUri, null, recoveryLevel, recoverableDays, null, null));
         } catch (final JsonProcessingException e) {

@@ -11,7 +11,9 @@ public class KeyCreationInput<T> {
 
     private T keyParameter;
 
-    public KeyCreationInput(@NonNull final KeyType keyType, final T keyParameter) {
+    public KeyCreationInput(
+            @NonNull final KeyType keyType,
+            final T keyParameter) {
         this.keyType = keyType;
         this.keyParameter = keyParameter;
     }

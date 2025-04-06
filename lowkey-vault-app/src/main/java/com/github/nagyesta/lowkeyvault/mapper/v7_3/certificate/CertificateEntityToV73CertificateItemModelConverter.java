@@ -32,12 +32,14 @@ public class CertificateEntityToV73CertificateItemModelConverter
     }
 
     protected void register(final CertificateConverterRegistry registry) {
-        this.registry.registerItemConverter(this);
+        registry.registerItemConverter(this);
     }
 
     @Override
     protected <M extends KeyVaultCertificateItemModel> M mapActiveFields(
-            final ReadOnlyKeyVaultCertificateEntity source, final M model, final URI vaultUri) {
+            final ReadOnlyKeyVaultCertificateEntity source,
+            final M model,
+            final URI vaultUri) {
         model.setCertificateId(convertCertificateId(source, vaultUri));
         model.setThumbprint(source.getThumbprint());
         model.setAttributes(registry.propertiesConverter(supportedVersions().last()).convert(source, vaultUri));
@@ -45,7 +47,9 @@ public class CertificateEntityToV73CertificateItemModelConverter
         return model;
     }
 
-    protected String convertCertificateId(final ReadOnlyKeyVaultCertificateEntity source, final URI vaultUri) {
+    protected String convertCertificateId(
+            final ReadOnlyKeyVaultCertificateEntity source,
+            final URI vaultUri) {
         return source.getId().asUriNoVersion(vaultUri).toString();
     }
 

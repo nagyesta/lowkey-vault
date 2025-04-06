@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.azure.security.keyvault.keys.cryptography.models.EncryptionAlgorithm.*;
@@ -224,12 +223,12 @@ public class KeysStepDefs extends CommonAssertions {
                 .toList();
         final var list = propertyList.stream()
                 .map(KeyProperties::getId)
-                .collect(Collectors.toList());
+                .toList();
         context.setListedIds(list);
         final var managedList = propertyList.stream()
                 .filter(keyProperties -> TRUE == keyProperties.isManaged())
                 .map(KeyProperties::getId)
-                .collect(Collectors.toList());
+                .toList();
         context.setListedManagedIds(managedList);
     }
 
@@ -268,7 +267,7 @@ public class KeysStepDefs extends CommonAssertions {
                     .beginDeleteKey(prefix + (i + 1)).waitForCompletion().getValue();
             context.setLastDeleted(actual);
             return actual;
-        }).map(DeletedKey::getRecoveryId).collect(Collectors.toList());
+        }).map(DeletedKey::getRecoveryId).toList();
         context.setDeletedRecoveryIds(deleted);
     }
 
@@ -277,7 +276,7 @@ public class KeysStepDefs extends CommonAssertions {
         final var actual = context.getClient(context.getKeyServiceVersion()).listDeletedKeys();
         final var list = actual.stream()
                 .map(DeletedKey::getRecoveryId)
-                .collect(Collectors.toList());
+                .toList();
         context.setListedIds(list);
     }
 

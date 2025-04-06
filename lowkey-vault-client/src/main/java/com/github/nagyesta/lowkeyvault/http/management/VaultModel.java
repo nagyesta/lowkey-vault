@@ -15,6 +15,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class VaultModel {
+
     @JsonProperty("baseUri")
     private URI baseUri;
     @JsonProperty("aliases")

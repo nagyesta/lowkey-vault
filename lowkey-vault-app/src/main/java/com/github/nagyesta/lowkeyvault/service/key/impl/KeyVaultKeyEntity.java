@@ -12,6 +12,7 @@ import lombok.NonNull;
 import org.slf4j.Logger;
 import org.springframework.util.Assert;
 
+import java.io.IOException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Collections;
@@ -24,7 +25,8 @@ import java.util.concurrent.Callable;
  * @param <T> The type of the key.
  * @param <S> The type of the key parameter.
  */
-public abstract class KeyVaultKeyEntity<T, S> extends KeyVaultBaseEntity<VersionedKeyEntityId> implements ReadOnlyKeyVaultKeyEntity {
+public abstract class KeyVaultKeyEntity<T, S>
+        extends KeyVaultBaseEntity<VersionedKeyEntityId> implements ReadOnlyKeyVaultKeyEntity {
 
     @Getter
     private final T key;
@@ -33,11 +35,12 @@ public abstract class KeyVaultKeyEntity<T, S> extends KeyVaultBaseEntity<Version
     private final VersionedKeyEntityId id;
     private List<KeyOperation> operations;
 
-    protected KeyVaultKeyEntity(@NonNull final VersionedKeyEntityId id,
-                                @org.springframework.lang.NonNull final VaultFake vault,
-                                @org.springframework.lang.NonNull final T key,
-                                @org.springframework.lang.NonNull final S keyParam,
-                                final boolean hsm) {
+    protected KeyVaultKeyEntity(
+            @NonNull final VersionedKeyEntityId id,
+            @org.springframework.lang.NonNull final VaultFake vault,
+            @org.springframework.lang.NonNull final T key,
+            @org.springframework.lang.NonNull final S keyParam,
+            final boolean hsm) {
         super(vault);
         this.id = id;
         this.key = key;
@@ -75,7 +78,11 @@ public abstract class KeyVaultKeyEntity<T, S> extends KeyVaultBaseEntity<Version
         return Collections.emptyList();
     }
 
-    protected <R> R doCrypto(final Callable<R> task, final String message, final Logger log) {
+    @SuppressWarnings("java:S2139") //this exception may not be logged later
+    protected <R> R doCrypto(
+            final Callable<R> task,
+            final String message,
+            final Logger log) {
         try {
             return task.call();
         } catch (final Exception e) {
@@ -85,7 +92,9 @@ public abstract class KeyVaultKeyEntity<T, S> extends KeyVaultBaseEntity<Version
     }
 
     protected void validateGenericSignOrVerifyInputs(
-            final byte[] digest, final SignatureAlgorithm signatureAlgorithm, final KeyOperation keyOperation) {
+            final byte[] digest,
+            final SignatureAlgorithm signatureAlgorithm,
+            final KeyOperation keyOperation) {
         Assert.state(getOperations().contains(keyOperation),
                 getId() + " does not have " + keyOperation.name() + " operation assigned.");
         Assert.state(isEnabled(), getId() + " is not enabled.");
@@ -93,7 +102,9 @@ public abstract class KeyVaultKeyEntity<T, S> extends KeyVaultBaseEntity<Version
     }
 
     protected Callable<byte[]> signCallable(
-            final byte[] digest, final SignatureAlgorithm signatureAlgorithm, final PrivateKey privateKey) {
+            final byte[] digest,
+            final SignatureAlgorithm signatureAlgorithm,
+            final PrivateKey privateKey) {
         return () -> {
             final var sign = signatureAlgorithm.getSignatureInstance();
             sign.initSign(privateKey);
@@ -104,7 +115,10 @@ public abstract class KeyVaultKeyEntity<T, S> extends KeyVaultBaseEntity<Version
     }
 
     protected Callable<Boolean> verifyCallable(
-            final byte[] digest, final SignatureAlgorithm signatureAlgorithm, final byte[] rawSignature, final PublicKey publicKey) {
+            final byte[] digest,
+            final SignatureAlgorithm signatureAlgorithm,
+            final byte[] rawSignature,
+            final PublicKey publicKey) {
         return () -> {
             final var verify = signatureAlgorithm.getSignatureInstance();
             verify.initVerify(publicKey);
@@ -114,11 +128,12 @@ public abstract class KeyVaultKeyEntity<T, S> extends KeyVaultBaseEntity<Version
         };
     }
 
-    protected byte[] postProcessGeneratedSignature(final byte[] signature) throws Exception {
+    protected byte[] postProcessGeneratedSignature(final byte[] signature) {
         return signature;
     }
 
-    protected byte[] preProcessVerifiableSignature(final byte[] rawSignature) throws Exception {
+    @SuppressWarnings("java:S1130") //exception is thrown by some of the subclasses
+    protected byte[] preProcessVerifiableSignature(final byte[] rawSignature) throws IOException {
         return rawSignature;
     }
 }

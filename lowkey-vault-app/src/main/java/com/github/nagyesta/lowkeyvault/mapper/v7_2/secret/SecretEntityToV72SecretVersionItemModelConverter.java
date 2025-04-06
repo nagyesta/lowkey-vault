@@ -15,12 +15,15 @@ public class SecretEntityToV72SecretVersionItemModelConverter
         super(registry);
     }
 
+    @Override
     protected void register(final SecretConverterRegistry registry) {
         registry.registerVersionedItemConverter(this);
     }
 
     @Override
-    protected String convertSecretId(final ReadOnlyKeyVaultSecretEntity source, final URI vaultUri) {
+    protected String convertSecretId(
+            final ReadOnlyKeyVaultSecretEntity source,
+            final URI vaultUri) {
         return source.getId().asUri(vaultUri).toString();
     }
 }

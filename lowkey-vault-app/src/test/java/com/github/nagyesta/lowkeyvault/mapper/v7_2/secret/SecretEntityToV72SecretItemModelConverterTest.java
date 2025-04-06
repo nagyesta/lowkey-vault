@@ -22,14 +22,14 @@ import org.mockito.MockitoAnnotations;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsSecrets.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOWKEY_VAULT;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -131,8 +131,7 @@ class SecretEntityToV72SecretItemModelConverterTest {
 
         //given
         when(vault.baseUri()).thenReturn(secretEntityId.vault());
-        final var vaultUri = eq(secretEntityId.vault());
-        when(vault.matches(vaultUri, eq(Function.identity()))).thenReturn(true);
+        when(vault.matches(secretEntityId.vault(), uri -> uri)).thenReturn(true);
         final var input = new KeyVaultSecretEntity(secretEntityId, vault, value, type);
         input.setTags(tags);
 
@@ -165,8 +164,7 @@ class SecretEntityToV72SecretItemModelConverterTest {
 
         //given
         when(vault.baseUri()).thenReturn(secretEntityId.vault());
-        final var vaultUri = eq(secretEntityId.vault());
-        when(vault.matches(vaultUri, eq(Function.identity()))).thenReturn(true);
+        when(vault.matches(secretEntityId.vault(), uri -> uri)).thenReturn(true);
         final var input = new KeyVaultSecretEntity(secretEntityId, vault, value, type);
         input.setDeletedDate(deleted);
         input.setScheduledPurgeDate(scheduledPurge);

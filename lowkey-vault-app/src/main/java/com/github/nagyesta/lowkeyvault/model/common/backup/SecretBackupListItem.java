@@ -11,7 +11,8 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class SecretBackupListItem extends BaseBackupListItem<SecretPropertiesModel> {
+public class SecretBackupListItem
+        extends BaseBackupListItem<SecretPropertiesModel> {
     @NotNull
     @JsonProperty("value")
     private String value;

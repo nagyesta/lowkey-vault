@@ -25,7 +25,10 @@ public final class KeyGenUtil {
     /**
      * The single instance of the Bouncy Castle provider we need.
      */
+    @SuppressWarnings("java:S2386") //this object can be reused
     public static final BouncyCastleProvider BOUNCY_CASTLE_PROVIDER = new BouncyCastleProvider();
+    @SuppressWarnings("java:S2245") //this is not intended to be used in a real-life scenario for cryptography
+    private static final Random RANDOM = new Random();
 
     private KeyGenUtil() {
         throw new IllegalCallerException("Utility cannot be instantiated.");
@@ -55,7 +58,7 @@ public final class KeyGenUtil {
         Assert.isTrue(count > 0, "Number of bytes must be greater than 0.");
         try {
             final var bytes = new byte[count];
-            new Random().nextBytes(bytes);
+            RANDOM.nextBytes(bytes);
             return bytes;
         } catch (final Exception e) {
             log.error(e.getMessage(), e);

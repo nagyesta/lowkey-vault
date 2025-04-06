@@ -14,7 +14,8 @@ import java.security.spec.RSAPublicKeySpec;
 /**
  * Converts import requests to RSA key pairs.
  */
-public class RsaJsonWebKeyImportRequestConverter extends BaseJsonWebKeyImportRequestConverter<KeyPair, Integer> {
+public class RsaJsonWebKeyImportRequestConverter
+        extends BaseJsonWebKeyImportRequestConverter<KeyPair, Integer> {
 
     private static final int RSA_MODULUS_BYTES_TO_KEY_SIZE_BITS_MULTIPLIER = 8;
 

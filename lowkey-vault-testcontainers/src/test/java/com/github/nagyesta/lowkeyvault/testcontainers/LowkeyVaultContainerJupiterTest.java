@@ -14,7 +14,6 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 
 import static com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContainerBuilder.lowkeyVault;
 
@@ -57,7 +56,7 @@ class LowkeyVaultContainerJupiterTest extends AbstractLowkeyVaultContainerTest {
         final var endpoint = underTest.getTokenEndpointUrl();
 
         //then
-        final var httpClient = new ApacheHttpClient(Function.identity(),
+        final var httpClient = new ApacheHttpClient(uri -> uri,
                 new TrustSelfSignedStrategy(), new DefaultHostnameVerifier());
         verifyTokenEndpointIsWorking(endpoint, httpClient);
     }

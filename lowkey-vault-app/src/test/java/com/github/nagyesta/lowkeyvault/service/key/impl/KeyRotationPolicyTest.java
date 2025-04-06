@@ -16,7 +16,6 @@ import java.time.OffsetDateTime;
 import java.time.Period;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
@@ -275,9 +274,10 @@ class KeyRotationPolicyTest {
         //given
         final Map<LifetimeActionType, LifetimeAction> map = Map.of(LifetimeActionType.NOTIFY, NOTIFY_42_DAYS_BEFORE_EXPIRY);
         final var underTest = new KeyRotationPolicy(UNVERSIONED_KEY_ENTITY_ID_1, Period.ZERO, map);
+        final Map<LifetimeActionType, LifetimeAction> lifetimeActions = Map.of();
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setLifetimeActions(Map.of()));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setLifetimeActions(lifetimeActions));
 
         //then + exception
     }
@@ -391,9 +391,10 @@ class KeyRotationPolicyTest {
     void testMissedRotationsShouldThrowExceptionWhenThereIsNoRotateAction() {
         //given
         final var underTest = new KeyRotationPolicy(UNVERSIONED_KEY_ENTITY_ID_1, Period.parse(DAYS_100), Map.of());
+        final var now = OffsetDateTime.now();
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.missedRotations(OffsetDateTime.now()));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.missedRotations(now));
 
         //then + exception
     }
@@ -419,7 +420,7 @@ class KeyRotationPolicyTest {
         //then
         final var expected = expectedRotationsDaysAgo.stream()
                 .map(NOW::minusDays)
-                .collect(Collectors.toList());
+                .toList();
         Assertions.assertIterableEquals(expected, actual);
     }
 }

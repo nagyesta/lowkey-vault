@@ -69,7 +69,8 @@ public class CertificateEntityToV73BackupConverter
     }
 
     private List<CertificateLifetimeActionModel> fetchLifetimeActionModels(
-            final ReadOnlyKeyVaultCertificateEntity source, final VaultFake vaultFake) {
+            final ReadOnlyKeyVaultCertificateEntity source,
+            final VaultFake vaultFake) {
         final var lifetimeActionPolicy = vaultFake.certificateVaultFake().lifetimeActionPolicy(source.getId());
         return registry.lifetimeActionConverters(supportedVersions().last()).convert(lifetimeActionPolicy);
     }

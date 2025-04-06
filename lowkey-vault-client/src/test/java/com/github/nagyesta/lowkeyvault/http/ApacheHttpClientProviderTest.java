@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.function.Function;
-
 import static org.mockito.Mockito.mock;
 
 class ApacheHttpClientProviderTest {
@@ -19,7 +17,7 @@ class ApacheHttpClientProviderTest {
     @Test
     void testGetKeyAsyncClientShouldReturnClientWhenCalled() {
         //given
-        final var underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, Function.identity());
+        final var underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, uri -> uri);
 
         //when
         final var client = underTest.getKeyAsyncClient();
@@ -31,7 +29,7 @@ class ApacheHttpClientProviderTest {
     @Test
     void testGetKeyClientShouldReturnClientWhenCalled() {
         //given
-        final var underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, Function.identity());
+        final var underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, uri -> uri);
 
         //when
         final var client = underTest.getKeyClient();
@@ -43,7 +41,7 @@ class ApacheHttpClientProviderTest {
     @Test
     void testGetSecretAsyncClientShouldReturnClientWhenCalled() {
         //given
-        final var underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, Function.identity());
+        final var underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, uri -> uri);
 
         //when
         final var client = underTest.getSecretAsyncClient();
@@ -55,7 +53,7 @@ class ApacheHttpClientProviderTest {
     @Test
     void testGetSecretClientShouldReturnClientWhenCalled() {
         //given
-        final var underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, Function.identity());
+        final var underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, uri -> uri);
 
         //when
         final var client = underTest.getSecretClient();
@@ -92,7 +90,7 @@ class ApacheHttpClientProviderTest {
     @Test
     void testGetLowkeyVaultManagementClientShouldReturnClientWhenCalled() {
         //given
-        final var underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, Function.identity());
+        final var underTest = new ApacheHttpClientProvider(HTTPS_LOCALHOST_8443, uri -> uri);
 
         //when
         final var client = underTest.getLowkeyVaultManagementClient(mock(ObjectMapper.class));

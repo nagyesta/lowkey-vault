@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,15 +26,16 @@ import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 @Slf4j
 @RestController
 @RequestMapping(value = "/management/vault", produces = APPLICATION_JSON_VALUE)
-public class VaultManagementController extends ErrorHandlingAwareController {
+public class VaultManagementController
+        extends ErrorHandlingAwareController {
 
     private final VaultService vaultService;
 
     private final VaultFakeToVaultModelConverter vaultFakeToVaultModelConverter;
 
-    @Autowired
-    public VaultManagementController(@NonNull final VaultService vaultService,
-                                     @NonNull final VaultFakeToVaultModelConverter vaultFakeToVaultModelConverter) {
+    public VaultManagementController(
+            @NonNull final VaultService vaultService,
+            @NonNull final VaultFakeToVaultModelConverter vaultFakeToVaultModelConverter) {
         this.vaultService = vaultService;
         this.vaultFakeToVaultModelConverter = vaultFakeToVaultModelConverter;
     }
@@ -94,7 +94,7 @@ public class VaultManagementController extends ErrorHandlingAwareController {
         final var vaultFake = vaultService.listDeleted().stream()
                 .map(vaultFakeToVaultModelConverter::convertNonNull)
                 .toList();
-        log.info("Returning {} vaults.", vaultFake.size());
+        log.info("Returning {} deleted vaults.", vaultFake.size());
         return ResponseEntity.ok(vaultFake);
     }
 
@@ -183,9 +183,10 @@ public class VaultManagementController extends ErrorHandlingAwareController {
                             description = "The base URI we want to remove from the aliases of the vault.")},
             requestBody = @RequestBody(content = @Content(mediaType = APPLICATION_JSON_VALUE)))
     @PatchMapping(value = "/alias", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<VaultModel> aliasUpdate(@RequestParam final URI baseUri,
-                                                  @RequestParam(required = false) final URI add,
-                                                  @RequestParam(required = false) final URI remove) {
+    public ResponseEntity<VaultModel> aliasUpdate(
+            @RequestParam final URI baseUri,
+            @RequestParam(required = false) final URI add,
+            @RequestParam(required = false) final URI remove) {
         log.info("Received request to update alias of vault with uri: {}", baseUri);
         final var fake = vaultService.updateAlias(baseUri, add, remove);
         return ResponseEntity.ok(vaultFakeToVaultModelConverter.convert(fake));

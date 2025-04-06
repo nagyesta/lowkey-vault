@@ -40,7 +40,7 @@ class KeyControllerIntegrationTest {
     @Autowired
     private VaultService vaultService;
     @Autowired
-    @Qualifier("KeyControllerV72")
+    @Qualifier("keyControllerV72")
     private KeyController underTest;
     @Autowired
     private ObjectMapper objectMapper;

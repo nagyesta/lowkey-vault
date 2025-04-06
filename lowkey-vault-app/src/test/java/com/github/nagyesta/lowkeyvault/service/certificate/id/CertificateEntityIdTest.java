@@ -113,7 +113,7 @@ class CertificateEntityIdTest {
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asUriNoVersion(null));
 
-        //then + exception;
+        //then + exception
     }
 
     @SuppressWarnings("UnnecessaryLocalVariable")
@@ -139,7 +139,7 @@ class CertificateEntityIdTest {
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asUri(null));
 
-        //then + exception;
+        //then + exception
     }
 
     @SuppressWarnings("UnnecessaryLocalVariable")
@@ -166,7 +166,7 @@ class CertificateEntityIdTest {
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asUri(null, "?query=1"));
 
-        //then + exception;
+        //then + exception
     }
 
     @SuppressWarnings({"UnnecessaryLocalVariable", "ConstantConditions"})
@@ -178,7 +178,7 @@ class CertificateEntityIdTest {
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asUri(HTTPS_LOCALHOST_8443, null));
 
-        //then + exception;
+        //then + exception
     }
 
     @SuppressWarnings("UnnecessaryLocalVariable")
@@ -204,7 +204,7 @@ class CertificateEntityIdTest {
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asRecoveryUri(null));
 
-        //then + exception;
+        //then + exception
     }
 
     @SuppressWarnings("UnnecessaryLocalVariable")
@@ -230,7 +230,7 @@ class CertificateEntityIdTest {
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asPolicyUri(null));
 
-        //then + exception;
+        //then + exception
     }
 
     @SuppressWarnings("UnnecessaryLocalVariable")
@@ -256,7 +256,7 @@ class CertificateEntityIdTest {
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asPendingOperationUri(null));
 
-        //then + exception;
+        //then + exception
     }
 
 }

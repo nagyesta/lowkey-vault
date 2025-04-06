@@ -14,27 +14,32 @@ public class SecretVaultFakeImpl
         extends BaseVaultFakeImpl<SecretEntityId, VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity, KeyVaultSecretEntity>
         implements SecretVaultFake {
 
-    public SecretVaultFakeImpl(@org.springframework.lang.NonNull final VaultFake vaultFake,
-                               @org.springframework.lang.NonNull final RecoveryLevel recoveryLevel,
-                               final Integer recoverableDays) {
+    public SecretVaultFakeImpl(
+            @org.springframework.lang.NonNull final VaultFake vaultFake,
+            @org.springframework.lang.NonNull final RecoveryLevel recoveryLevel,
+            final Integer recoverableDays) {
         super(vaultFake, recoveryLevel, recoverableDays);
     }
 
     @Override
-    protected VersionedSecretEntityId createVersionedId(final String id, final String version) {
+    protected VersionedSecretEntityId createVersionedId(
+            final String id,
+            final String version) {
         return new VersionedSecretEntityId(vaultFake().baseUri(), id, version);
     }
 
     @Override
     public VersionedSecretEntityId createSecretVersion(
-            @NonNull final String secretName, final SecretCreateInput input) {
+            @NonNull final String secretName,
+            final SecretCreateInput input) {
         final var entityId = new VersionedSecretEntityId(vaultFake().baseUri(), secretName);
         return createSecretVersion(entityId, input);
     }
 
     @Override
     public VersionedSecretEntityId createSecretVersion(
-            @NonNull final VersionedSecretEntityId entityId, @NonNull final SecretCreateInput input) {
+            @NonNull final VersionedSecretEntityId entityId,
+            @NonNull final SecretCreateInput input) {
         Assert.isTrue(!input.isManaged() || (input.getExpiresOn() != null && input.getNotBefore() != null),
                 "Managed secret (name=" + entityId.id() + ") must have notBefore and expiresOn parameters set!");
         Assert.isTrue(!input.isManaged() || input.getContentType() != null,

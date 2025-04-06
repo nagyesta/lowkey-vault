@@ -38,7 +38,7 @@ public class ParameterTypeDefs {
                 .map(a -> Arrays.stream(a)
                         .map(KeyOperation::fromString)
                         .distinct()
-                        .collect(Collectors.toList()))
+                        .toList())
                 .orElse(Collections.emptyList());
     }
 
@@ -103,7 +103,7 @@ public class ParameterTypeDefs {
     @ParameterType("[0-9a-zA-Z\\*\\-_\\.,]+")
     public SubjectAlternativeNames sans(final String san) {
         final var names = new SubjectAlternativeNames();
-        final var dnsNames = Arrays.stream(san.split(",")).collect(Collectors.toList());
+        final var dnsNames = Arrays.stream(san.split(",")).toList();
         names.setDnsNames(dnsNames);
         return names;
     }

@@ -78,7 +78,9 @@ public final class ParserUtil {
         return calculateValidityMonths(notBefore, notAfter);
     }
 
-    static int calculateValidityMonths(final Instant notBefore, final Instant notAfter) {
+    static int calculateValidityMonths(
+            final Instant notBefore,
+            final Instant notAfter) {
         final var start = OffsetDateTime.ofInstant(notBefore, ZoneOffset.UTC);
         final var end = OffsetDateTime.ofInstant(notAfter, ZoneOffset.UTC);
         var count = 0;
@@ -88,7 +90,9 @@ public final class ParserUtil {
         return count;
     }
 
-    private static Set<String> getCertificateAlternativeNamesByType(final X509Certificate certificate, final int type) {
+    private static Set<String> getCertificateAlternativeNamesByType(
+            final X509Certificate certificate,
+            final int type) {
         try {
             return Optional.ofNullable(certificate.getSubjectAlternativeNames()).orElse(Set.of())
                     .stream()

@@ -1,9 +1,6 @@
 package com.github.nagyesta.lowkeyvault.controller.common;
 
 import com.github.nagyesta.lowkeyvault.mapper.common.registry.SecretConverterRegistry;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72ModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72SecretItemModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72SecretVersionItemModelConverter;
 import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupList;
 import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupListItem;
 import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupModel;
@@ -25,14 +22,15 @@ import java.net.URI;
 import java.util.Objects;
 
 @Slf4j
-public abstract class CommonSecretBackupRestoreController extends BaseBackupRestoreController<SecretEntityId, VersionedSecretEntityId,
-        ReadOnlyKeyVaultSecretEntity, KeyVaultSecretModel, DeletedKeyVaultSecretModel, KeyVaultSecretItemModel,
-        DeletedKeyVaultSecretItemModel, SecretEntityToV72ModelConverter, SecretEntityToV72SecretItemModelConverter,
-        SecretEntityToV72SecretVersionItemModelConverter, SecretVaultFake, SecretPropertiesModel, SecretBackupListItem,
-        SecretBackupList, SecretBackupModel, SecretConverterRegistry> {
+public abstract class CommonSecretBackupRestoreController
+        extends BaseBackupRestoreController<SecretEntityId, VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity,
+        KeyVaultSecretModel, DeletedKeyVaultSecretModel, KeyVaultSecretItemModel, DeletedKeyVaultSecretItemModel,
+        SecretVaultFake, SecretPropertiesModel, SecretBackupListItem, SecretBackupList, SecretBackupModel,
+        SecretConverterRegistry> {
 
     protected CommonSecretBackupRestoreController(
-            @NonNull final SecretConverterRegistry registry, @NonNull final VaultService vaultService) {
+            @NonNull final SecretConverterRegistry registry,
+            @NonNull final VaultService vaultService) {
         super(registry, vaultService, VaultFake::secretVaultFake);
     }
 
@@ -53,9 +51,10 @@ public abstract class CommonSecretBackupRestoreController extends BaseBackupRest
     }
 
     @Override
-    protected void restoreVersion(@NonNull final SecretVaultFake vault,
-                                  @NonNull final VersionedSecretEntityId versionedEntityId,
-                                  @NonNull final SecretBackupListItem entityVersion) {
+    protected void restoreVersion(
+            @NonNull final SecretVaultFake vault,
+            @NonNull final VersionedSecretEntityId versionedEntityId,
+            @NonNull final SecretBackupListItem entityVersion) {
         final var attributes = Objects.requireNonNullElse(entityVersion.getAttributes(), new SecretPropertiesModel());
         vault.createSecretVersion(versionedEntityId, SecretCreateInput.builder()
                 .value(entityVersion.getValue())

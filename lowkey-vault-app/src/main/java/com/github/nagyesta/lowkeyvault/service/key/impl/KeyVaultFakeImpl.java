@@ -37,19 +37,24 @@ public class KeyVaultFakeImpl
     private final AesJsonWebKeyImportRequestConverter aesConverter = new AesJsonWebKeyImportRequestConverter();
     private final ConcurrentMap<String, RotationPolicy> rotationPolicies = new ConcurrentHashMap<>();
 
-    public KeyVaultFakeImpl(@org.springframework.lang.NonNull final VaultFake vaultFake,
-                            @org.springframework.lang.NonNull final RecoveryLevel recoveryLevel,
-                            final Integer recoverableDays) {
+    public KeyVaultFakeImpl(
+            @org.springframework.lang.NonNull final VaultFake vaultFake,
+            @org.springframework.lang.NonNull final RecoveryLevel recoveryLevel,
+            final Integer recoverableDays) {
         super(vaultFake, recoveryLevel, recoverableDays);
     }
 
     @Override
-    protected VersionedKeyEntityId createVersionedId(final String id, final String version) {
+    protected VersionedKeyEntityId createVersionedId(
+            final String id,
+            final String version) {
         return new VersionedKeyEntityId(vaultFake().baseUri(), id, version);
     }
 
     @Override
-    public VersionedKeyEntityId createKeyVersion(@NonNull final String keyName, @NonNull final KeyCreateDetailedInput input) {
+    public VersionedKeyEntityId createKeyVersion(
+            @NonNull final String keyName,
+            @NonNull final KeyCreateDetailedInput input) {
         Assert.isTrue(!input.isManaged() || (input.getExpiresOn() != null && input.getNotBefore() != null),
                 "Managed key (name=" + keyName + ") must have notBefore and expiresOn parameters set!");
         final var keyEntityId = input.getKey().getKeyType().createKey(this, keyName, input.getKey());
@@ -65,13 +70,17 @@ public class KeyVaultFakeImpl
     }
 
     @Override
-    public VersionedKeyEntityId importKeyVersion(final String keyName, final KeyImportInput input) {
+    public VersionedKeyEntityId importKeyVersion(
+            final String keyName,
+            final KeyImportInput input) {
         final var keyEntityId = new VersionedKeyEntityId(vaultFake().baseUri(), keyName);
         return importKeyVersion(keyEntityId, input);
     }
 
     @Override
-    public VersionedKeyEntityId importKeyVersion(final VersionedKeyEntityId keyEntityId, final KeyImportInput input) {
+    public VersionedKeyEntityId importKeyVersion(
+            final VersionedKeyEntityId keyEntityId,
+            final KeyImportInput input) {
         Assert.isTrue(input.getHsm() == null || input.getHsm() == input.getKey().getKeyType().isHsm(),
                 "When HSM property is set in request, key type must match it.");
         final var keyType = Objects.requireNonNull(input.getKey()).getKeyType();
@@ -87,7 +96,8 @@ public class KeyVaultFakeImpl
 
     @Override
     public VersionedKeyEntityId importRsaKeyVersion(
-            final VersionedKeyEntityId keyEntityId, final JsonWebKeyImportRequest key) {
+            final VersionedKeyEntityId keyEntityId,
+            final JsonWebKeyImportRequest key) {
         final var keyType = Objects.requireNonNull(key).getKeyType();
         Assert.isTrue(keyType.isRsa(), "RSA key expected, but found: " + keyType.name());
         final var keyEntity = new RsaKeyVaultKeyEntity(keyEntityId, vaultFake(), rsaConverter.convert(key),
@@ -98,7 +108,8 @@ public class KeyVaultFakeImpl
 
     @Override
     public VersionedKeyEntityId importEcKeyVersion(
-            final VersionedKeyEntityId keyEntityId, final JsonWebKeyImportRequest key) {
+            final VersionedKeyEntityId keyEntityId,
+            final JsonWebKeyImportRequest key) {
         final var keyType = Objects.requireNonNull(key).getKeyType();
         Assert.isTrue(keyType.isEc(), "EC key expected, but found: " + keyType.name());
         final var keyEntity = new EcKeyVaultKeyEntity(keyEntityId, vaultFake(), ecConverter.convert(key),
@@ -109,7 +120,8 @@ public class KeyVaultFakeImpl
 
     @Override
     public VersionedKeyEntityId importOctKeyVersion(
-            final VersionedKeyEntityId keyEntityId, final JsonWebKeyImportRequest key) {
+            final VersionedKeyEntityId keyEntityId,
+            final JsonWebKeyImportRequest key) {
         final var keyType = Objects.requireNonNull(key).getKeyType();
         Assert.isTrue(keyType.isOct(), "OCT key expected, but found: " + keyType.name());
         Assert.isTrue(keyType.isHsm(), "OCT keys are only supported using HSM.");
@@ -121,7 +133,8 @@ public class KeyVaultFakeImpl
 
     @Override
     public VersionedKeyEntityId createRsaKeyVersion(
-            @NonNull final String keyName, @NonNull final RsaKeyCreationInput input) {
+            @NonNull final String keyName,
+            @NonNull final RsaKeyCreationInput input) {
         final var keyEntityId = new VersionedKeyEntityId(vaultFake().baseUri(), keyName);
         final var keyEntity = new RsaKeyVaultKeyEntity(keyEntityId, vaultFake(),
                 input.getKeyParameter(), input.getPublicExponent(), input.getKeyType().isHsm());
@@ -131,7 +144,8 @@ public class KeyVaultFakeImpl
 
     @Override
     public VersionedKeyEntityId createEcKeyVersion(
-            @NonNull final String keyName, @NonNull final EcKeyCreationInput input) {
+            @NonNull final String keyName,
+            @NonNull final EcKeyCreationInput input) {
         final var keyEntityId = new VersionedKeyEntityId(vaultFake().baseUri(), keyName);
         input.getKeyType().validate(input.getKeyParameter(), KeyCurveName.class);
         final var keyEntity = new EcKeyVaultKeyEntity(keyEntityId, vaultFake(),
@@ -142,7 +156,8 @@ public class KeyVaultFakeImpl
 
     @Override
     public VersionedKeyEntityId createOctKeyVersion(
-            @NonNull final String keyName, @NonNull final OctKeyCreationInput input) {
+            @NonNull final String keyName,
+            @NonNull final OctKeyCreationInput input) {
         final var keyEntityId = new VersionedKeyEntityId(vaultFake().baseUri(), keyName);
         Assert.isTrue(input.getKeyType().isHsm(), "OCT keys are only supported using HSM.");
         final var keyEntity = new AesKeyVaultKeyEntity(keyEntityId, vaultFake(),
@@ -152,8 +167,9 @@ public class KeyVaultFakeImpl
     }
 
     @Override
-    public void setKeyOperations(@NonNull final VersionedKeyEntityId keyEntityId,
-                                 final List<KeyOperation> keyOperations) {
+    public void setKeyOperations(
+            @NonNull final VersionedKeyEntityId keyEntityId,
+            final List<KeyOperation> keyOperations) {
         getEntitiesInternal().getEntity(keyEntityId).setOperations(Objects.requireNonNullElse(keyOperations, Collections.emptyList()));
     }
 
@@ -204,7 +220,9 @@ public class KeyVaultFakeImpl
                 .build());
     }
 
-    private void setExpiryBasedOnRotationPolicy(final VersionedKeyEntityId keyEntityId, final KeyVaultKeyEntity<?, ?> keyEntity) {
+    private void setExpiryBasedOnRotationPolicy(
+            final VersionedKeyEntityId keyEntityId,
+            final KeyVaultKeyEntity<?, ?> keyEntity) {
         final var expiryDays = Optional.ofNullable(rotationPolicies)
                 .map(policies -> policies.get(keyEntityId.id()))
                 .map(ReadOnlyRotationPolicy::getExpiryTime)
@@ -225,7 +243,9 @@ public class KeyVaultFakeImpl
                 .forEach(rotationTime -> simulatePointInTimeRotation(keyEntityId, rotationTime));
     }
 
-    private void simulatePointInTimeRotation(final KeyEntityId keyEntityId, final OffsetDateTime rotationTime) {
+    private void simulatePointInTimeRotation(
+            final KeyEntityId keyEntityId,
+            final OffsetDateTime rotationTime) {
         final var now = OffsetDateTime.now(ZoneOffset.UTC);
         final var diffSeconds = (int) (now.toEpochSecond() - rotationTime.toEpochSecond());
         final var versionedKeyEntityId = rotateKey(keyEntityId);

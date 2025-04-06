@@ -16,6 +16,7 @@ import lombok.Data;
  */
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@SuppressWarnings("java:S119") //It is easier to ensure that the types are consistent this way
 public class BaseBackupModel<P extends BasePropertiesModel, BLI extends BaseBackupListItem<P>, BL extends BackupListContainer<BLI>> {
 
     @Valid

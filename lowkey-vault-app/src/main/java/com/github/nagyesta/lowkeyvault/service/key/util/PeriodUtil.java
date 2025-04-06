@@ -16,7 +16,9 @@ public final class PeriodUtil {
         return asDays(period, OffsetDateTime.now());
     }
 
-    static long asDays(final Period period, final OffsetDateTime relativeTo) {
+    static long asDays(
+            final Period period,
+            final OffsetDateTime relativeTo) {
         return ChronoUnit.DAYS.between(relativeTo, relativeTo.plus(period));
     }
 }

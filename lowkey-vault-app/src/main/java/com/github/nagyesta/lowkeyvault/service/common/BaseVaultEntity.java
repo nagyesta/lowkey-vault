@@ -13,7 +13,8 @@ import java.util.Optional;
  *
  * @param <V> The type of the versioned ID identifying this entity.
  */
-public interface BaseVaultEntity<V extends EntityId> extends ReadOnlyDeletedEntity<V>, TimeAware {
+public interface BaseVaultEntity<V extends EntityId>
+        extends ReadOnlyDeletedEntity<V>, TimeAware {
 
     boolean isEnabled();
 

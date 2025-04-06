@@ -21,7 +21,8 @@ import java.util.Set;
 
 @Component
 @Slf4j
-public class CommonAuthHeaderFilter extends OncePerRequestFilter {
+public class CommonAuthHeaderFilter
+        extends OncePerRequestFilter {
 
     static final String OMIT_DEFAULT = "";
     private static final int DEFAULT_HTTPS_PORT = 443;
@@ -38,8 +39,10 @@ public class CommonAuthHeaderFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(final HttpServletRequest request, final HttpServletResponse response,
-                                    @NonNull final FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            final HttpServletRequest request,
+            final HttpServletResponse response,
+            @NonNull final FilterChain filterChain) throws ServletException, IOException {
 
         log.debug("Adding fake authenticate header to response for request: {}", request.getRequestURI());
         final var port = resolvePort(request.getServerPort());

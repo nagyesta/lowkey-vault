@@ -9,7 +9,6 @@ import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
@@ -27,12 +26,14 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @Validated
 @DependsOn({"certificateBackupConverter", "certificateModelConverter"})
-@Component("CertificateBackupRestoreControllerV73")
-public class CertificateBackupRestoreController extends CommonCertificateBackupRestoreController {
+@Component("certificateBackupRestoreControllerV73")
+@SuppressWarnings("java:S110")
+public class CertificateBackupRestoreController
+        extends CommonCertificateBackupRestoreController {
 
-    @Autowired
     public CertificateBackupRestoreController(
-            @NonNull final CertificateConverterRegistry registry, @NonNull final VaultService vaultService) {
+            @NonNull final CertificateConverterRegistry registry,
+            @NonNull final VaultService vaultService) {
         super(registry, vaultService);
     }
 
@@ -40,8 +41,9 @@ public class CertificateBackupRestoreController extends CommonCertificateBackupR
     @PostMapping(value = "/certificates/{certificateName}/backup",
             params = API_VERSION_7_3,
             produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<CertificateBackupModel> backup(@PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
-                                                         @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
+    public ResponseEntity<CertificateBackupModel> backup(
+            @PathVariable @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri) {
         return super.backup(certificateName, baseUri);
     }
 
@@ -50,8 +52,9 @@ public class CertificateBackupRestoreController extends CommonCertificateBackupR
             params = API_VERSION_7_3,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<KeyVaultCertificateModel> restore(@RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
-                                                            @Valid @RequestBody final CertificateBackupModel certificateBackupModel) {
+    public ResponseEntity<KeyVaultCertificateModel> restore(
+            @RequestAttribute(name = ApiConstants.REQUEST_BASE_URI) final URI baseUri,
+            @Valid @RequestBody final CertificateBackupModel certificateBackupModel) {
         return super.restore(baseUri, certificateBackupModel);
     }
 

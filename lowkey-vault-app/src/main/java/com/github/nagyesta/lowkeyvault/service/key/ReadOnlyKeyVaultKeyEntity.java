@@ -12,18 +12,27 @@ import org.springframework.util.Assert;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public interface ReadOnlyKeyVaultKeyEntity extends BaseVaultEntity<VersionedKeyEntityId>, ReadOnlyDeletedEntity<VersionedKeyEntityId> {
+public interface ReadOnlyKeyVaultKeyEntity
+        extends BaseVaultEntity<VersionedKeyEntityId>, ReadOnlyDeletedEntity<VersionedKeyEntityId> {
 
     KeyType getKeyType();
 
+    @SuppressWarnings("java:S1452")
+        //we cannot know what kind of algorithm is used
     KeyCreationInput<?> keyCreationInput();
 
-    default byte[] encrypt(final String clear, final EncryptionAlgorithm encryptionAlgorithm, final byte[] iv) {
+    default byte[] encrypt(
+            final String clear,
+            final EncryptionAlgorithm encryptionAlgorithm,
+            final byte[] iv) {
         Assert.hasText(clear, "Clear text must not be blank.");
         return encryptBytes(clear.getBytes(StandardCharsets.UTF_8), encryptionAlgorithm, iv);
     }
 
-    default String decrypt(final byte[] encrypted, final EncryptionAlgorithm encryptionAlgorithm, final byte[] iv) {
+    default String decrypt(
+            final byte[] encrypted,
+            final EncryptionAlgorithm encryptionAlgorithm,
+            final byte[] iv) {
         return new String(decryptToBytes(encrypted, encryptionAlgorithm, iv));
     }
 

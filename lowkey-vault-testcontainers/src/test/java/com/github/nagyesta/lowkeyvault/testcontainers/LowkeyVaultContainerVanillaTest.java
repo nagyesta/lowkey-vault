@@ -21,7 +21,6 @@ import org.testcontainers.utility.DockerImageName;
 import java.io.File;
 import java.net.URI;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContainer.DEFAULT_IMAGE_NAME;
@@ -29,7 +28,6 @@ import static com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContaine
 import static org.junit.jupiter.api.Assertions.*;
 
 @Isolated
-@SuppressWarnings("resource")
 class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
 
     private static final String VAULT_NAME = "default";
@@ -41,7 +39,6 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
 
     public static Stream<Arguments> invalidDataProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of((Collection<String>) null))
                 .add(Arguments.of(Collections.singleton("")))
                 .add(Arguments.of(Collections.singleton(" ")))
                 .add(Arguments.of(Collections.singleton("- -")))
@@ -84,7 +81,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         }
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"deprecation", "removal"})
     @Test
     void testContainerShouldStartUpWhenCalledWithFixedHostPort() {
         //given
@@ -217,6 +214,20 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         }
     }
 
+    @Test
+    void testConstructorShouldThrowExceptionWhenCalledWithNulVaultNames() {
+        //given
+        final var imageName = DockerImageName
+                .parse(getCurrentLowkeyVaultImageName())
+                .asCompatibleSubstituteFor(DEFAULT_IMAGE_NAME);
+        final var builder = lowkeyVault(imageName);
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.vaultNames(null));
+
+        //then + exceptions
+    }
+
     @ParameterizedTest
     @MethodSource("invalidDataProvider")
     void testConstructorShouldThrowExceptionWhenCalledWithInvalidVaultNames(final Set<String> input) {
@@ -224,23 +235,25 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(DEFAULT_IMAGE_NAME);
+        final var builder = lowkeyVault(imageName).vaultNames(input);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> lowkeyVault(imageName).vaultNames(input).build());
+        Assertions.assertThrows(IllegalArgumentException.class, builder::build);
 
         //then + exceptions
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"deprecation", "removal"})
     @Test
     void testBuilderShouldThrowExceptionWhenCalledWithInvalidHostPortNumber() {
         //given
         final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(DEFAULT_IMAGE_NAME);
+        final var builder = lowkeyVault(imageName);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> lowkeyVault(imageName).hostPort(0));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.hostPort(0));
 
         //then + exceptions
     }
@@ -251,9 +264,10 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(DEFAULT_IMAGE_NAME);
+        final var builder = lowkeyVault(imageName);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> lowkeyVault(imageName).logicalPort(0));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.logicalPort(0));
 
         //then + exceptions
     }
@@ -264,9 +278,10 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(DEFAULT_IMAGE_NAME);
+        final var builder = lowkeyVault(imageName);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> lowkeyVault(imageName).logicalHost(null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.logicalHost(null));
 
         //then + exceptions
     }
@@ -277,9 +292,10 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(DEFAULT_IMAGE_NAME);
+        final var builder = lowkeyVault(imageName);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> lowkeyVault(imageName).importFile(null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.importFile(null));
 
         //then + exceptions
     }
@@ -290,10 +306,11 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(DEFAULT_IMAGE_NAME);
+        final var builder = lowkeyVault(imageName);
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> lowkeyVault(imageName).customSslCertificate(null, null, null));
+                () -> builder.customSslCertificate(null, null, null));
 
         //then + exceptions
     }
@@ -304,10 +321,12 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(DEFAULT_IMAGE_NAME);
+        final var builder = lowkeyVault(imageName);
+        final var notValid = Map.of(LOCALHOST, Set.of("not valid"));
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> lowkeyVault(imageName).vaultAliases(Map.of(LOCALHOST, Set.of("not valid"))));
+                () -> builder.vaultAliases(notValid));
 
         //then + exceptions
     }
@@ -318,10 +337,12 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(DEFAULT_IMAGE_NAME);
+        final var builder = lowkeyVault(imageName);
+        final var notValid = Map.of("not valid", Set.of(LOCALHOST));
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> lowkeyVault(imageName).vaultAliases(Map.of("not valid", Set.of(LOCALHOST))));
+                () -> builder.vaultAliases(notValid));
 
         //then + exceptions
     }
@@ -332,9 +353,10 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(DEFAULT_IMAGE_NAME);
+        final var builder = lowkeyVault(imageName);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> lowkeyVault(imageName).vaultAliases(null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.vaultAliases(null));
 
         //then + exceptions
     }
@@ -345,9 +367,10 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(DEFAULT_IMAGE_NAME);
+        final var builder = lowkeyVault(imageName);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> lowkeyVault(imageName).additionalArgs(null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.additionalArgs(null));
 
         //then + exceptions
     }
@@ -368,9 +391,10 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(DEFAULT_IMAGE_NAME);
+        final var builder = lowkeyVault(imageName);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> lowkeyVault(imageName).externalConfigFile(null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.externalConfigFile(null));
 
         //then + exceptions
     }
@@ -382,9 +406,10 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(DEFAULT_IMAGE_NAME);
         final var certFile = new File(Objects.requireNonNull(getClass().getResource("/cert.jks")).getFile());
+        final var builder = lowkeyVault(imageName);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> lowkeyVault(imageName).externalConfigFile(certFile));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.externalConfigFile(certFile));
 
         //then + exceptions
     }
@@ -419,9 +444,10 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(DEFAULT_IMAGE_NAME);
+        final var builder = lowkeyVault(imageName);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> lowkeyVault(imageName).hostTokenPort(0));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.hostTokenPort(0));
 
         //then + exceptions
     }
@@ -432,7 +458,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         final String imageName = null;
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> lowkeyVault(imageName).hostTokenPort(0));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> lowkeyVault(imageName));
 
         //then + exceptions
     }
@@ -455,7 +481,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
 
             //then
             final var endpoint = underTest.getTokenEndpointUrl();
-            final var httpClient = new ApacheHttpClient(Function.identity(),
+            final var httpClient = new ApacheHttpClient(uri -> uri,
                     new TrustSelfSignedStrategy(), new DefaultHostnameVerifier());
             verifyTokenEndpointIsWorking(endpoint, httpClient);
         }

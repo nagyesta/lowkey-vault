@@ -19,6 +19,7 @@ import java.util.Map;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class BaseBackupListItem<P extends BasePropertiesModel> {
+
     @NotNull
     @JsonProperty("vaultBaseUri")
     private URI vaultBaseUri;

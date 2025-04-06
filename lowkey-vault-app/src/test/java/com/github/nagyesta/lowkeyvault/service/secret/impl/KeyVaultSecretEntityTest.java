@@ -29,10 +29,11 @@ class KeyVaultSecretEntityTest {
     void testConstructorShouldThrowExceptionWhenCalledWithNull(
             final VersionedSecretEntityId id, final VaultFake vault, final String value) {
         //given
+        final var applicationJsonString = APPLICATION_JSON.toString();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new KeyVaultSecretEntity(id, vault, value, APPLICATION_JSON.toString()));
+                () -> new KeyVaultSecretEntity(id, vault, value, applicationJsonString));
 
         //then + exception
     }

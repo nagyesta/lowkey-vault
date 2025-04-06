@@ -12,10 +12,8 @@ public class UpdateSecretRequest {
 
     @JsonProperty("contentType")
     private String contentType;
-
     @JsonProperty("attributes")
     private BasePropertiesUpdateModel properties;
-
     @JsonProperty("tags")
     private Map<String, String> tags;
 

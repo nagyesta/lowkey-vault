@@ -11,7 +11,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.OffsetDateTime;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.NOW;
@@ -21,9 +20,9 @@ import static com.github.nagyesta.lowkeyvault.service.certificate.CertificateLif
 import static com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionTriggerType.DAYS_BEFORE_EXPIRY;
 import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateCreationInput.DEFAULT_VALIDITY_MONTHS;
 import static java.time.temporal.ChronoUnit.DAYS;
-import static org.mockito.Mockito.*;
 
 class CertificateLifetimeActionPolicyTest {
+    private static final int DAYS_27 = 27;
     private static final int DAYS_60 = 60;
     private static final int MONTHS_100 = 100;
     private static final OffsetDateTime DATE_100_MONTHS_AGO = NOW.minusMonths(MONTHS_100);
@@ -53,8 +52,8 @@ class CertificateLifetimeActionPolicyTest {
     @Test
     void testGetLifetimeActionsShouldReturnTheMapSetPreviouslyWhenCalled() {
         //given
-        final var expected =
-                Map.of(EMAIL_CONTACTS, new CertificateLifetimeActionTrigger(DAYS_BEFORE_EXPIRY, 10));
+        final var trigger = new CertificateLifetimeActionTrigger(DAYS_BEFORE_EXPIRY, 10);
+        final var expected = Map.of(EMAIL_CONTACTS, trigger);
         final var underTest = new CertificateLifetimeActionPolicy(UNVERSIONED_CERT_ENTITY_ID_1, expected);
 
         //when
@@ -67,8 +66,8 @@ class CertificateLifetimeActionPolicyTest {
     @Test
     void testSetLifetimeActionsShouldOverwriteTheMapWhenCalledWithValidData() {
         //given
-        final var expected =
-                Map.of(EMAIL_CONTACTS, new CertificateLifetimeActionTrigger(DAYS_BEFORE_EXPIRY, 10));
+        final var trigger = new CertificateLifetimeActionTrigger(DAYS_BEFORE_EXPIRY, 10);
+        final var expected = Map.of(EMAIL_CONTACTS, trigger);
         final var underTest = new CertificateLifetimeActionPolicy(UNVERSIONED_CERT_ENTITY_ID_1, Map.of());
 
         //when
@@ -82,8 +81,8 @@ class CertificateLifetimeActionPolicyTest {
     @Test
     void testIsAutoRenewShouldReturnFalseWhenCalledWithOnlyEmailContactsSet() {
         //given
-        final var expected =
-                Map.of(EMAIL_CONTACTS, new CertificateLifetimeActionTrigger(DAYS_BEFORE_EXPIRY, 10));
+        final var trigger = new CertificateLifetimeActionTrigger(DAYS_BEFORE_EXPIRY, 10);
+        final var expected = Map.of(EMAIL_CONTACTS, trigger);
         final var underTest = new CertificateLifetimeActionPolicy(UNVERSIONED_CERT_ENTITY_ID_1, expected);
 
         //when
@@ -97,8 +96,7 @@ class CertificateLifetimeActionPolicyTest {
     void testIsAutoRenewShouldReturnTrueWhenCalledWithBothTypesInMap() {
         //given
         final var trigger = new CertificateLifetimeActionTrigger(DAYS_BEFORE_EXPIRY, 10);
-        final var expected = Map
-                .of(EMAIL_CONTACTS, trigger, AUTO_RENEW, trigger);
+        final var expected = Map.of(EMAIL_CONTACTS, trigger, AUTO_RENEW, trigger);
         final var underTest = new CertificateLifetimeActionPolicy(UNVERSIONED_CERT_ENTITY_ID_1, expected);
 
         //when
@@ -111,27 +109,37 @@ class CertificateLifetimeActionPolicyTest {
     @Test
     void testValidateShouldCallValidateOfAllTriggersWhenCalled() {
         //given
-        final var emailTrigger = mock(CertificateLifetimeActionTrigger.class);
-        final var renewTrigger = mock(CertificateLifetimeActionTrigger.class);
-        final var expected = Map
-                .of(EMAIL_CONTACTS, emailTrigger, AUTO_RENEW, renewTrigger);
+        final var emailTrigger = new CertificateLifetimeActionTrigger(DAYS_BEFORE_EXPIRY, DAYS_27);
+        final var renewTrigger = new CertificateLifetimeActionTrigger(DAYS_BEFORE_EXPIRY, DAYS_60);
+        final var expected = Map.of(EMAIL_CONTACTS, emailTrigger, AUTO_RENEW, renewTrigger);
         final var underTest = new CertificateLifetimeActionPolicy(UNVERSIONED_CERT_ENTITY_ID_1, expected);
 
         //when
-        underTest.validate(1);
+        underTest.validate(VALIDITY_MONTHS);
 
-        //then
-        verify(emailTrigger).validate(eq(1));
-        verify(renewTrigger).validate(eq(1));
+        //then no exception
+    }
+
+    @Test
+    void testValidateShouldThrowExceptionWhenCalledWithInvalidTriggers() {
+        //given
+        final var emailTrigger = new CertificateLifetimeActionTrigger(DAYS_BEFORE_EXPIRY, DAYS_27);
+        final var renewTrigger = new CertificateLifetimeActionTrigger(DAYS_BEFORE_EXPIRY, DAYS_60);
+        final var expected = Map.of(EMAIL_CONTACTS, emailTrigger, AUTO_RENEW, renewTrigger);
+        final var underTest = new CertificateLifetimeActionPolicy(UNVERSIONED_CERT_ENTITY_ID_1, expected);
+
+        //when
+        Assertions.assertThrows(IllegalStateException.class, () -> underTest.validate(1));
+
+        //then exception
     }
 
     @Test
     void testMissedRenewalDaysShouldReturnMissedRenewalDatesWhenCalledOnPolicyWithMissedRenewals() {
         //given
-        final var emailTrigger = mock(CertificateLifetimeActionTrigger.class);
+        final var emailTrigger = new CertificateLifetimeActionTrigger(DAYS_BEFORE_EXPIRY, DAYS_60);
         final var renewTrigger = new CertificateLifetimeActionTrigger(DAYS_BEFORE_EXPIRY, DAYS_60);
-        final var actions = Map
-                .of(EMAIL_CONTACTS, emailTrigger, AUTO_RENEW, renewTrigger);
+        final var actions = Map.of(EMAIL_CONTACTS, emailTrigger, AUTO_RENEW, renewTrigger);
         final var underTest = new CertificateLifetimeActionPolicy(UNVERSIONED_CERT_ENTITY_ID_1, actions);
         underTest.setCreatedOn(DATE_100_MONTHS_AGO);
 
@@ -143,9 +151,8 @@ class CertificateLifetimeActionPolicyTest {
         final var expected = Stream.iterate(firstRenewal, a -> DAYS.between(nextRenewal(NOW.minusDays(a)), NOW))
                 .limit(MONTHS_100 / VALIDITY_MONTHS + 1)
                 .map(NOW::minusDays)
-                .collect(Collectors.toList());
+                .toList();
         Assertions.assertIterableEquals(expected, actual);
-        verifyNoInteractions(emailTrigger);
     }
 
     private static OffsetDateTime nextRenewal(final OffsetDateTime start) {

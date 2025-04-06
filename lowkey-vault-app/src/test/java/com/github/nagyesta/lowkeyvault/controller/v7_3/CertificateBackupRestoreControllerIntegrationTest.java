@@ -25,7 +25,6 @@ import java.net.URI;
 import java.util.Deque;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.*;
@@ -40,7 +39,7 @@ class CertificateBackupRestoreControllerIntegrationTest {
     @Autowired
     private CertificateController certificateController;
     @Autowired
-    @Qualifier("CertificateBackupRestoreControllerV73")
+    @Qualifier("certificateBackupRestoreControllerV73")
     private CertificateBackupRestoreController underTest;
 
     public static Stream<Arguments> certTypeProvider() {
@@ -139,7 +138,7 @@ class CertificateBackupRestoreControllerIntegrationTest {
                 .map(v -> new VersionedSecretEntityId(entityId.vault(), entityId.id(), v))
                 .map(vaultFake.secretVaultFake().getEntities()::getReadOnlyEntity)
                 .map(ReadOnlyKeyVaultSecretEntity::getValue)
-                .collect(Collectors.toList());
+                .toList();
         Assertions.assertEquals(2, secrets.size());
         return secrets;
     }
@@ -159,7 +158,7 @@ class CertificateBackupRestoreControllerIntegrationTest {
             final URI baseUri, final Deque<String> versions) {
         final var certs = versions.stream()
                 .map(v -> certificateController.getWithVersion(CERTIFICATE_BACKUP_TEST, v, baseUri).getBody())
-                .collect(Collectors.toList());
+                .toList();
         Assertions.assertEquals(2, certs.size());
         return certs;
     }

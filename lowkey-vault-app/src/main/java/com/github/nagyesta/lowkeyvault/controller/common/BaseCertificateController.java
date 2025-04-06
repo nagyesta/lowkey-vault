@@ -1,12 +1,7 @@
 package com.github.nagyesta.lowkeyvault.controller.common;
 
 import com.github.nagyesta.lowkeyvault.mapper.common.registry.CertificateConverterRegistry;
-import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntityToV73CertificateItemModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntityToV73CertificateVersionItemModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntityToV73ModelConverter;
-import com.github.nagyesta.lowkeyvault.model.common.backup.CertificateBackupList;
 import com.github.nagyesta.lowkeyvault.model.common.backup.CertificateBackupListItem;
-import com.github.nagyesta.lowkeyvault.model.common.backup.CertificateBackupModel;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.*;
 import com.github.nagyesta.lowkeyvault.service.certificate.CertificateVaultFake;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
@@ -21,11 +16,10 @@ import java.net.URI;
 import java.util.Optional;
 
 @Slf4j
-public abstract class BaseCertificateController extends GenericEntityController<CertificateEntityId, VersionedCertificateEntityId,
-        ReadOnlyKeyVaultCertificateEntity, KeyVaultCertificateModel, DeletedKeyVaultCertificateModel, KeyVaultCertificateItemModel,
-        DeletedKeyVaultCertificateItemModel, CertificateEntityToV73ModelConverter, CertificateEntityToV73CertificateItemModelConverter,
-        CertificateEntityToV73CertificateVersionItemModelConverter, CertificateVaultFake, CertificatePropertiesModel,
-        CertificateBackupListItem, CertificateBackupList, CertificateBackupModel, CertificateConverterRegistry> {
+public abstract class BaseCertificateController
+        extends GenericEntityController<CertificateEntityId, VersionedCertificateEntityId, ReadOnlyKeyVaultCertificateEntity,
+        KeyVaultCertificateModel, DeletedKeyVaultCertificateModel, KeyVaultCertificateItemModel, DeletedKeyVaultCertificateItemModel,
+        CertificateVaultFake, CertificatePropertiesModel, CertificateBackupListItem, CertificateConverterRegistry> {
 
     /**
      * Default parameter value for including the pending certificates.
@@ -65,7 +59,9 @@ public abstract class BaseCertificateController extends GenericEntityController<
     }
 
     protected void populateLifetimeActions(
-            final CertificateVaultFake vaultFake, final VersionedCertificateEntityId entityId, final CertificatePolicyModel model) {
+            final CertificateVaultFake vaultFake,
+            final VersionedCertificateEntityId entityId,
+            final CertificatePolicyModel model) {
         Optional.ofNullable(vaultFake.lifetimeActionPolicy(entityId))
                 .map(registry().lifetimeActionConverters(apiVersion())::convert)
                 .ifPresent(model::setLifetimeActions);

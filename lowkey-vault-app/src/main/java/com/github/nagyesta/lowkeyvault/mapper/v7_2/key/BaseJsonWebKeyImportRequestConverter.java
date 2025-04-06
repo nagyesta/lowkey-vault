@@ -11,7 +11,8 @@ import java.math.BigInteger;
  * @param <T> return type.
  * @param <P> the input parameter (key size or curve name)
  */
-public abstract class BaseJsonWebKeyImportRequestConverter<T, P> implements Converter<JsonWebKeyImportRequest, T> {
+public abstract class BaseJsonWebKeyImportRequestConverter<T, P>
+        implements Converter<JsonWebKeyImportRequest, T> {
 
     public abstract P getKeyParameter(JsonWebKeyImportRequest request);
 

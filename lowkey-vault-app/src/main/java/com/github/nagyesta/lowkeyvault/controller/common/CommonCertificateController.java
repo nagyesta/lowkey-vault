@@ -19,7 +19,8 @@ import static com.github.nagyesta.lowkeyvault.controller.common.util.Certificate
 import static com.github.nagyesta.lowkeyvault.controller.common.util.CertificateRequestMapperUtil.importCertificateWithAttributes;
 
 @Slf4j
-public abstract class CommonCertificateController extends BaseCertificateController {
+public abstract class CommonCertificateController
+        extends BaseCertificateController {
 
     protected CommonCertificateController(
             @NonNull final CertificateConverterRegistry registry,

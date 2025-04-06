@@ -12,7 +12,8 @@ import java.io.IOException;
 
 @Component
 @Slf4j
-public class PortSeparationFilter extends OncePerRequestFilter {
+public class PortSeparationFilter
+        extends OncePerRequestFilter {
 
     @SuppressWarnings("NullableProblems")
     @Override

@@ -10,7 +10,8 @@ import lombok.EqualsAndHashCode;
 import java.util.List;
 
 @EqualsAndHashCode
-public class CertificateBackupList implements BackupListContainer<CertificateBackupListItem> {
+public class CertificateBackupList
+        implements BackupListContainer<CertificateBackupListItem> {
 
     @Valid
     @NotNull

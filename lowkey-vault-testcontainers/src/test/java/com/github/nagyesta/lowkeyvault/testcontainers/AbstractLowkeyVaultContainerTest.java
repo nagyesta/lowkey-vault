@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
+@SuppressWarnings("java:S2187") //this is a test class
 public class AbstractLowkeyVaultContainerTest {
 
     private static final String NAME = "name";

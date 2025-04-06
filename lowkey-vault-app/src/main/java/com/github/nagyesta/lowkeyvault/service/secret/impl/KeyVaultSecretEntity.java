@@ -9,17 +9,20 @@ import lombok.Setter;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
-public class KeyVaultSecretEntity extends KeyVaultBaseEntity<VersionedSecretEntityId> implements ReadOnlyKeyVaultSecretEntity {
+public class KeyVaultSecretEntity
+        extends KeyVaultBaseEntity<VersionedSecretEntityId>
+        implements ReadOnlyKeyVaultSecretEntity {
 
     @Setter
     private String value;
     private final String contentType;
     private final VersionedSecretEntityId id;
 
-    public KeyVaultSecretEntity(@NonNull final VersionedSecretEntityId id,
-                                @org.springframework.lang.NonNull final VaultFake vault,
-                                @org.springframework.lang.NonNull final String value,
-                                @Nullable final String contentType) {
+    public KeyVaultSecretEntity(
+            @NonNull final VersionedSecretEntityId id,
+            @org.springframework.lang.NonNull final VaultFake vault,
+            @org.springframework.lang.NonNull final String value,
+            @Nullable final String contentType) {
         super(vault);
         Assert.hasText(value, "Value must not be null or blank.");
         this.id = id;

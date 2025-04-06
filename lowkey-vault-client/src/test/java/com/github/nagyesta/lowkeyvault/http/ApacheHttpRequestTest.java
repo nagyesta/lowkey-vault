@@ -9,7 +9,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
-import java.util.function.Function;
 
 class ApacheHttpRequestTest {
 
@@ -26,7 +25,7 @@ class ApacheHttpRequestTest {
         final var headers = new HttpHeaders(Map.of(HEADER_1, HEADER_VALUE_1, HEADER_2, HEADER_VALUE_2));
 
         //when
-        final var actual = new ApacheHttpRequest(method, url, headers, Function.identity());
+        final var actual = new ApacheHttpRequest(method, url, headers, uri -> uri);
 
         //then
         Assertions.assertEquals(method.toString(), actual.getMethod());

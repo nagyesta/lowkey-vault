@@ -19,9 +19,12 @@ import org.springframework.lang.NonNull;
 import java.net.URI;
 
 @Slf4j
-public abstract class CommonSecretController extends BaseSecretController {
+public abstract class CommonSecretController
+        extends BaseSecretController {
 
-    protected CommonSecretController(@NonNull final SecretConverterRegistry registry, @NonNull final VaultService vaultService) {
+    protected CommonSecretController(
+            @NonNull final SecretConverterRegistry registry,
+            @NonNull final VaultService vaultService) {
         super(registry, vaultService);
     }
 

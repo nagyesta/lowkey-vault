@@ -1,6 +1,7 @@
 package com.github.nagyesta.lowkeyvault.http.management;
 
-public class LowkeyVaultException extends RuntimeException {
+public class LowkeyVaultException
+        extends RuntimeException {
 
     public LowkeyVaultException(final String message) {
         super(message);

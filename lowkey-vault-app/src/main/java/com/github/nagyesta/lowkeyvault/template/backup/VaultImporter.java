@@ -25,7 +25,8 @@ import java.util.stream.Collectors;
 
 @Component
 @Slf4j
-public class VaultImporter implements InitializingBean {
+public class VaultImporter
+        implements InitializingBean {
 
     private final VaultImporterProperties vaultImporterProperties;
     private final BackupTemplateProcessor backupTemplateProcessor;
@@ -41,7 +42,8 @@ public class VaultImporter implements InitializingBean {
     private final Map<URI, List<CertificateBackupModel>> certificates;
 
     @Autowired
-    public VaultImporter(@NonNull final VaultImporterProperties vaultImporterProperties,
+    public VaultImporter(
+            @NonNull final VaultImporterProperties vaultImporterProperties,
                          @NonNull final BackupTemplateProcessor backupTemplateProcessor,
                          @NonNull final ObjectMapper objectMapper,
                          @NonNull final Validator validator) {

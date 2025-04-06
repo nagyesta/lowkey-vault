@@ -9,7 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ImportKeyValidator implements ConstraintValidator<ValidImportKey, JsonWebKeyImportRequest> {
+public class ImportKeyValidator
+        implements ConstraintValidator<ValidImportKey, JsonWebKeyImportRequest> {
 
     private final Validator validator;
 
@@ -24,7 +25,9 @@ public class ImportKeyValidator implements ConstraintValidator<ValidImportKey, J
     }
 
     @Override
-    public boolean isValid(final JsonWebKeyImportRequest value, final ConstraintValidatorContext context) {
+    public boolean isValid(
+            final JsonWebKeyImportRequest value,
+            final ConstraintValidatorContext context) {
         final var group = findGroup(value.getKeyType());
         final var violations = validator.validate(value, group);
         violations.forEach(v -> context.buildConstraintViolationWithTemplate(v.getMessageTemplate())

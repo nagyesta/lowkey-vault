@@ -7,6 +7,7 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
 @Component
+@SuppressWarnings("java:S6829") //cannot add autowired to the default constructor
 public class TimeHelperSource {
 
     private final OffsetDateTime now;
@@ -15,10 +16,9 @@ public class TimeHelperSource {
         this(OffsetDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS));
     }
 
-    public TimeHelperSource(final OffsetDateTime now) {
+    TimeHelperSource(final OffsetDateTime now) {
         this.now = now;
     }
-
 
     public CharSequence now(final int offset) {
         return String.valueOf(now.plusSeconds(offset).toEpochSecond());

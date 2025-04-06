@@ -19,8 +19,8 @@ jobs:
         with:
           script: |
             github.rest.repos.createRelease({
-              owner: "${{ github.repository_owner }}",
-              repo: "lowkey-vault",
+              owner: context.repo.owner,
+              repo: context.repo.repo,
               tag_name: "${{ github.ref_name }}",
               generate_release_notes: true,
               draft: true

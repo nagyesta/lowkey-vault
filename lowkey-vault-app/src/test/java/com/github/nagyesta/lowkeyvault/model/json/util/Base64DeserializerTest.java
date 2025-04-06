@@ -17,7 +17,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -51,13 +50,13 @@ class Base64DeserializerTest {
     @MethodSource("base64Provider")
     void testDeserializeShouldDecodeBase64WhenCalled(final String input, final byte[] expected) throws IOException {
         //given
-        when(parser.readValueAs(eq(String.class))).thenReturn(input);
+        when(parser.readValueAs(String.class)).thenReturn(input);
 
         //when
         final var actual = underTest.deserialize(parser, context);
 
         //then
         Assertions.assertArrayEquals(expected, actual);
-        verify(parser).readValueAs(eq(String.class));
+        verify(parser).readValueAs(String.class);
     }
 }

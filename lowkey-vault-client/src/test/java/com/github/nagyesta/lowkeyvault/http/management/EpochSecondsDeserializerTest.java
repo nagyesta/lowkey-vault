@@ -18,7 +18,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -54,13 +53,13 @@ class EpochSecondsDeserializerTest {
     @MethodSource("valueProvider")
     void testDeserializeShouldCreateOffsetDateTimeWhenCalled(final Long input, final OffsetDateTime expected) throws IOException {
         //given
-        when(parser.readValueAs(eq(Long.class))).thenReturn(input);
+        when(parser.readValueAs(Long.class)).thenReturn(input);
 
         //when
         final var actual = underTest.deserialize(parser, context);
 
         //then
         Assertions.assertEquals(expected, actual);
-        verify(parser).readValueAs(eq(Long.class));
+        verify(parser).readValueAs(Long.class);
     }
 }

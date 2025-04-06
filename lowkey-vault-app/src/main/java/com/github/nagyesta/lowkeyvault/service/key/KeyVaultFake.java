@@ -10,7 +10,8 @@ import com.github.nagyesta.lowkeyvault.service.key.impl.*;
 
 import java.util.List;
 
-public interface KeyVaultFake extends BaseVaultFake<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> {
+public interface KeyVaultFake
+        extends BaseVaultFake<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> {
 
     VersionedKeyEntityId createKeyVersion(String keyName, KeyCreateDetailedInput input);
 

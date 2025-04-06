@@ -21,10 +21,12 @@ import java.net.URI;
 import java.util.Optional;
 
 @Slf4j
-public abstract class CommonKeyController extends BaseKeyController {
+public abstract class CommonKeyController
+        extends BaseKeyController {
 
-    protected CommonKeyController(@NonNull final KeyConverterRegistry registry,
-                                  @NonNull final VaultService vaultService) {
+    protected CommonKeyController(
+            @NonNull final KeyConverterRegistry registry,
+            @NonNull final VaultService vaultService) {
         super(registry, vaultService);
     }
 

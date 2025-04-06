@@ -39,7 +39,7 @@ import static org.mockito.Mockito.mock;
 class KeyBackupRestoreControllerIntegrationTest extends BaseKeyBackupRestoreControllerIntegrationTest {
 
     @Autowired
-    @Qualifier("KeyBackupRestoreControllerV72")
+    @Qualifier("keyBackupRestoreControllerV72")
     private KeyBackupRestoreController underTest;
     @Autowired
     private VaultService vaultService;

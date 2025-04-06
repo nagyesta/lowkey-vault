@@ -9,12 +9,14 @@ import java.util.function.Supplier;
 
 public interface LowkeyVaultManagementClient {
 
-    <T extends Throwable> void verifyConnectivity(int retries, int waitMillis, Supplier<T> exceptionProvider)
-            throws T, InterruptedException;
+    <T extends Throwable> void verifyConnectivity(
+            int retries,
+            int waitMillis, Supplier<T> exceptionProvider) throws T, InterruptedException;
 
-    VaultModel createVault(@NonNull URI baseUri,
-                           @NonNull RecoveryLevel recoveryLevel,
-                           @NonNull Integer recoverableDays);
+    VaultModel createVault(
+            @NonNull URI baseUri,
+            @NonNull RecoveryLevel recoveryLevel,
+            @NonNull Integer recoverableDays);
 
     List<VaultModel> listVaults();
 

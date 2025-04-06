@@ -14,7 +14,6 @@ import org.springframework.lang.NonNull;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
-import java.util.stream.Collectors;
 
 public class CertificateLifetimeActionsPolicyToV73ModelConverter
         implements ApiVersionAwareConverter<LifetimeActionPolicy, List<CertificateLifetimeActionModel>> {
@@ -35,7 +34,7 @@ public class CertificateLifetimeActionsPolicyToV73ModelConverter
     public List<CertificateLifetimeActionModel> convert(@NonNull final LifetimeActionPolicy source) {
         return source.getLifetimeActions().entrySet().stream()
                 .map(this::convertLifetimeAction)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private CertificateLifetimeActionModel convertLifetimeAction(

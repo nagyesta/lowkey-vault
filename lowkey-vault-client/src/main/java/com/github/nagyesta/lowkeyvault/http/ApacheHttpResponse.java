@@ -19,12 +19,16 @@ import java.util.Optional;
 /**
  * Modified class based on <a href="https://github.com/Azure/azure-sdk-for-java/wiki/Custom-HTTP-Clients">Azure SDK Custom HTTP Clients</a>.
  */
-final class ApacheHttpResponse extends HttpResponse {
+final class ApacheHttpResponse
+        extends HttpResponse {
+
     private final int statusCode;
     private final HttpHeaders headers;
     private final String entity;
 
-    ApacheHttpResponse(final HttpRequest request, final org.apache.http.HttpResponse apacheResponse) throws IOException {
+    ApacheHttpResponse(
+            final HttpRequest request,
+            final org.apache.http.HttpResponse apacheResponse) throws IOException {
         super(request);
         this.statusCode = apacheResponse.getStatusLine().getStatusCode();
         this.headers = new HttpHeaders();

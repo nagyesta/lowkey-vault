@@ -15,7 +15,8 @@ import java.util.Objects;
 @Getter
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class CertificateRestoreInput extends CertificateImportInput {
+public class CertificateRestoreInput
+        extends CertificateImportInput {
 
     private final String keyVersion;
     private final CertificatePolicyModel issuancePolicy;

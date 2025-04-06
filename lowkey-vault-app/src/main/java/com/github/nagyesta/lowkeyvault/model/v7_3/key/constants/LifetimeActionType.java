@@ -23,7 +23,10 @@ public enum LifetimeActionType {
 
     @JsonCreator
     public static LifetimeActionType forValue(final String name) {
-        return Arrays.stream(values()).filter(actionType -> actionType.getValue().equals(name)).findFirst().orElse(null);
+        return Arrays.stream(values())
+                .filter(actionType -> actionType.getValue().equals(name))
+                .findFirst()
+                .orElse(null);
     }
 
     @JsonValue

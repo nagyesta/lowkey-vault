@@ -26,7 +26,7 @@ jacoco = "0.8.13"
 jackson = { strictly = "2.18.3" }
 openApiUi = "2.8.6"
 
-abortMissionPlugin = "5.0.126"
+abortMissionPlugin = "5.0.133"
 indexScanPlugin = "3.0.0"
 lombokPlugin = "8.13.1"
 springBootPlugin = "3.4.4"

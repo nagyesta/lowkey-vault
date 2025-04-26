@@ -1,13 +1,12 @@
 ---
 name: Feature request
 about: It works fine but something is missing to make it better. Please tell us more!
-title: ''
+title: ""
 labels: enhancement
-assignees: ''
-
+assignees: ""
 ---
 
-#### Is your feature request related to a problem? Please describe.
+#### Is your feature request related to a problem? Please describe
 
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 

@@ -1,11 +1,10 @@
 ---
 name: Question
 about: Do you need to find out something but can't find it in our readme? Please feel
-  free to ask!
-title: ''
+    free to ask!
+title: ""
 labels: question
-assignees: ''
-
+assignees: ""
 ---
 
 #### Question

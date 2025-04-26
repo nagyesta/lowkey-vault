@@ -40,7 +40,7 @@ I have an app using Azure Key Vault and:
 1. Either download manually the Spring Boot app from the packages or
    use [Maven Central](https://search.maven.org/search?q=com.github.nagyesta.lowkey-vault).
 2. Start Lowkey Vault jar
-3. Use ```https://localhost:8443``` as key vault URI when using
+3. Use `https://localhost:8443` as key vault URI when using
    the [Azure Key Vault Key client](https://docs.microsoft.com/en-us/azure/key-vault/keys/quick-create-java)
    or the [Azure Key Vault Secret client](https://docs.microsoft.com/en-us/azure/key-vault/secrets/quick-create-java)
    and set any basic credentials (Lowkey Vault will check whether they are there but ignore the value.)
@@ -60,11 +60,10 @@ I have an app using Azure Key Vault and:
 > [!TIP]
 > Lowkey Vault offers a multi-arch image variant too. You can find the relevant project [here](https://github.com/nagyesta/lowkey-vault-docker-buildx).
 
-
-1. Pull the most recent version from ```nagyesta/lowkey-vault```
-   - You can find a list of all the available tags [here](https://hub.docker.com/r/nagyesta/lowkey-vault/tags)
-2. ```docker run --rm  -p 8443:8443 nagyesta/lowkey-vault:<version>```
-3. Use ```https://localhost:8443``` as key vault URI when using
+1. Pull the most recent version from `nagyesta/lowkey-vault`
+    - You can find a list of all the available tags [here](https://hub.docker.com/r/nagyesta/lowkey-vault/tags)
+2. `docker run --rm  -p 8443:8443 nagyesta/lowkey-vault:<version>`
+3. Use `https://localhost:8443` as key vault URI when using
    the [Azure Key Vault Key client](https://docs.microsoft.com/en-us/azure/key-vault/keys/quick-create-java)
    or the [Azure Key Vault Secret client](https://docs.microsoft.com/en-us/azure/key-vault/secrets/quick-create-java)
    and set any basic credentials (Lowkey Vault will check whether they are there but ignore the value.)
@@ -86,10 +85,10 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 
 ### Keys
 
-- API version supported: ```7.2```, partially ```7.3```, ```7.4```, ```7.5```
-- Create key (```RSA```, ```EC```, ```OCT```)
+- API version supported: `7.2`, partially `7.3`, `7.4`, `7.5`
+- Create key (`RSA`, `EC`, `OCT`)
     - Including metadata
-- Import key  (```RSA```, ```EC```, ```OCT```)
+- Import key (`RSA`, `EC`, `OCT`)
     - Including metadata
 - Get available key versions
 - Get key
@@ -104,37 +103,37 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 - Recover deleted key
 - Purge deleted key
 - Encrypt/Decrypt/Wrap/Unwrap keys
-    - ```RSA``` (```2k```/```3k```/```4k```)
-        - ```RSA1_5```
-        - ```RSA-OAEP```
-        - ```RSA-OAEP-256```
-    - ```AES``` (```128```/```192```/```256```)
-        - ```AES-CBC```
-        - ```AES-CBC Pad```
+    - `RSA` (`2k`/`3k`/`4k`)
+        - `RSA1_5`
+        - `RSA-OAEP`
+        - `RSA-OAEP-256`
+    - `AES` (`128`/`192`/`256`)
+        - `AES-CBC`
+        - `AES-CBC Pad`
 - Sign/Verify digest with keys
-    - ```RSA``` (```2k```/```3k```/```4k```)
-        - ```PS256```
-        - ```PS384```
-        - ```PS512```
-        - ```RS256```
-        - ```RS384```
-        - ```RS512```
-    - ```EC``` (```P-256```/```P-256K```/```P-384```/```P-521```)
-        - ```ES256```
-        - ```ES256K```
-        - ```ES384```
-        - ```ES512```
+    - `RSA` (`2k`/`3k`/`4k`)
+        - `PS256`
+        - `PS384`
+        - `PS512`
+        - `RS256`
+        - `RS384`
+        - `RS512`
+    - `EC` (`P-256`/`P-256K`/`P-384`/`P-521`)
+        - `ES256`
+        - `ES256K`
+        - `ES384`
+        - `ES512`
 - Backup and restore keys
 - Get random bytes
 - Rotate keys
-  - Manually
-  - Automatically when time-shift is used with an applicable rotation policy
+    - Manually
+    - Automatically when time-shift is used with an applicable rotation policy
 - Get rotation policy
 - Update rotation policy
 
 ### Secrets
 
-- API version supported: ```7.2```, ```7.3```, ```7.4```, ```7.5```
+- API version supported: `7.2`, `7.3`, `7.4`, `7.5`
 - Set secret
     - Including metadata
 - Get available secret versions
@@ -153,7 +152,7 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 
 ### Certificates
 
-- API version supported: ```7.3```, ```7.4```, ```7.5```
+- API version supported: `7.3`, `7.4`, `7.5`
 - Create certificate
     - Self-signed only
     - Using `PKCS12` (`.pfx`) or `PEM` (`.pem`) formats
@@ -192,17 +191,17 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 - Recover deleted vault
 - Purge vault
 - Time-shift (simulate the passing of time)
-  - A single vault
-  - All vaults
+    - A single vault
+    - All vaults
 - Export vault contents (to be able to import it at startup later)
 
 #### Swagger
 
 - Management API (HTTPS port)
-  - Built-in, auto-generated: [https://localhost:8443/api/swagger-ui/index.html](https://localhost:8443/api/swagger-ui/index.html)
-  - SwaggerHub, published: [https://app.swaggerhub.com/apis-docs/nagyesta/Lowkey-Vault-Management-API/v2.6.x](https://app.swaggerhub.com/apis-docs/nagyesta/Lowkey-Vault-Management-API/v2.6.x)
+    - Built-in, auto-generated: [https://localhost:8443/api/swagger-ui/index.html](https://localhost:8443/api/swagger-ui/index.html)
+    - SwaggerHub, published: [https://app.swaggerhub.com/apis-docs/nagyesta/Lowkey-Vault-Management-API/v2.6.x](https://app.swaggerhub.com/apis-docs/nagyesta/Lowkey-Vault-Management-API/v2.6.x)
 - Metadata API (HTTP port)
-  - SwaggerHub, published: [https://app.swaggerhub.com/apis-docs/nagyesta/Lowkey-Vault-Metadata-API/v2.6.x](https://app.swaggerhub.com/apis-docs/nagyesta/Lowkey-Vault-Metadata-API/v2.6.x)
+    - SwaggerHub, published: [https://app.swaggerhub.com/apis-docs/nagyesta/Lowkey-Vault-Metadata-API/v2.6.x](https://app.swaggerhub.com/apis-docs/nagyesta/Lowkey-Vault-Metadata-API/v2.6.x)
 
 ### Port mappings (Default)
 
@@ -212,16 +211,16 @@ Used for metadata endpoints
 
 - Simulating Managed Identity Token endpoint `GET /metadata/identity/oauth2/token?resource=<resource>`.
 - Obtaining the default certificates of Lowkey Vault
-  - The default `PKCS12` keystore: `GET /metadata/default-cert/lowkey-vault.p12`
-  - The password protecting the default keystore: `GET /metadata/default-cert/password` 
+    - The default `PKCS12` keystore: `GET /metadata/default-cert/lowkey-vault.p12`
+    - The password protecting the default keystore: `GET /metadata/default-cert/password`
 
 > [!TIP]  
-> Managed Identity Token endpoint provides the same Managed Identity stub as [Assumed Identity](https://github.com/nagyesta/assumed-identity). If you want to use Lowkey Vault with Managed Identity, this functionality allows you to do so with a single container.  
+> Managed Identity Token endpoint provides the same Managed Identity stub as [Assumed Identity](https://github.com/nagyesta/assumed-identity). If you want to use Lowkey Vault with Managed Identity, this functionality allows you to do so with a single container.
 
 #### HTTPS `:8443`
 
 - Readiness/Liveness `/ping`
-- Management API 
+- Management API
 - Key Vault APIs
 
 ## Startup parameters

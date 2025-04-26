@@ -1,5 +1,0 @@
-enhancement: feature/*
-bug: bugfix/*
-dependency: renovate/*
-documentation: docs/*
-release: release/*

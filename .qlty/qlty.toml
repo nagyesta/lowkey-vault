@@ -129,3 +129,6 @@ file_patterns = ["CODE_OF_CONDUCT.md"]
 [[ignore]]
 rules = ["radarlint:java:S119"]
 
+[[ignore]]
+rules = ["prettier:fmt"]
+file_patterns = ["**.json"]

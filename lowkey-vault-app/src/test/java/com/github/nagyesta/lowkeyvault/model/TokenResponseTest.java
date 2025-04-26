@@ -14,7 +14,7 @@ class TokenResponseTest {
 
     private static final int EXPECTED_EXPIRY = 48 * 3600;
     private static final long MIN_EXPIRES_ON = Instant.now().plusSeconds(EXPECTED_EXPIRY).getEpochSecond();
-    private static final int TOKEN_TYPE = 1;
+    private static final String TOKEN_TYPE = "Bearer";
     private static final String DUMMY_TOKEN = "dummy";
     private static final URI RESOURCE = URI.create("https://localhost:8443/path");
 
@@ -57,7 +57,7 @@ class TokenResponseTest {
     @MethodSource("nullValuesProvider")
     void testConstructorShouldThrowExceptionWhenCalledWithNulls(
             final URI resource, final String accessToken, final String refreshToken,
-            final long expiresIn, final long expiresOn, final int tokenType) {
+            final long expiresIn, final long expiresOn, final String tokenType) {
         //given
 
         //when

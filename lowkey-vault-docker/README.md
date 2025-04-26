@@ -24,7 +24,7 @@ This is the root of the Docker image. Visit the [Readme](../README.md) in the re
 
 ## Startup parameters
 
-In case you need to change any of the default parameters, you can use the ```LOWKEY_ARGS``` environment variable with
+In case you need to change any of the default parameters, you can use the `LOWKEY_ARGS` environment variable with
 all necessary arguments supported by [Lowkey Vault App](../lowkey-vault-app/README.md). [Gradle example](build.gradle.kts#L63).
 
 Shell example:
@@ -61,21 +61,20 @@ docker run --rm --name lowkey -e LOWKEY_ARGS -d -p 8443 nagyesta/lowkey-vault:<v
 
 ### Using simulated Managed Identity
 
-In case you want to rely on the built-in simulated Managed Identity token endpoint, you must make sure 
+In case you want to rely on the built-in simulated Managed Identity token endpoint, you must make sure
 to forward the relevant `8080` HTTP only port as well. The host port you are using can be anything you
-would like to use in this case. This will make the `/metadata/identity/oauth2/token` endpoint available. 
-Please check the [example projects](../README.md#example-projects) to see how you can use the provided 
+would like to use in this case. This will make the `/metadata/identity/oauth2/token` endpoint available.
+Please check the [example projects](../README.md#example-projects) to see how you can use the provided
 endpoint.
 
 ```shell
 docker run --rm --name lowkey -d -p 8080:8080 -p 8444:8444 nagyesta/lowkey-vault:<version>
 ```
 
-
 ### External configuration
 
-Since Lowkey Vault is a Spring Boot application, the default mechanism for Spring Boot external 
-configuration can work as well. For example, if there is a ./config/application.properties file relative 
+Since Lowkey Vault is a Spring Boot application, the default mechanism for Spring Boot external
+configuration can work as well. For example, if there is a ./config/application.properties file relative
 to the folder where the Jar is running, the contents will be picked up automatically. To utilize this, the
-recommended option is to attach a *.properties file to /config/application.properties (path inside the
+recommended option is to attach a \*.properties file to /config/application.properties (path inside the
 container) using a volume.

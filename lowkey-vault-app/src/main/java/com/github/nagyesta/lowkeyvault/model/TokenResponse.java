@@ -14,13 +14,14 @@ public record TokenResponse(
         @NonNull @JsonProperty("refresh_token") String refreshToken,
         @JsonProperty("expires_in") long expiresIn,
         @JsonProperty("expires_on") long expiresOn,
-        @JsonProperty("tokenType") int tokenType) {
+        @JsonProperty("token_type") String tokenType) {
 
     private static final long EXPIRES_IN = 48 * 3600L;
     private static final String TOKEN = "dummy";
+    private static final String BEARER = "Bearer";
 
     public TokenResponse(@NotNull final URI resource) {
-        this(resource, TOKEN, TOKEN, EXPIRES_IN, Instant.now().plusSeconds(EXPIRES_IN).getEpochSecond(), 1);
+        this(resource, TOKEN, TOKEN, EXPIRES_IN, Instant.now().plusSeconds(EXPIRES_IN).getEpochSecond(), BEARER);
         Assert.hasText(resource.toString(), "Resource must not be empty");
     }
 }

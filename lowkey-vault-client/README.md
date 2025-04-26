@@ -15,6 +15,7 @@
 
 This is the root of the Java HTTP Client Provider that is solving some certificate and base URI issues in our tests.
 Visit the [Readme](../README.md) in the repo root for more information about the project in general.
+
 ## Usage
 
 1. Either download manually the .jar from the packages or

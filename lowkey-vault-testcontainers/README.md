@@ -37,10 +37,10 @@ classpath.
     <version>RELEASE</version>
     <scope>test</scope>
 </dependency>
-<!-- 
+<!--
   In case you wish to use the provided Lowkey Vault Client too.
-  This is necessary for some advanced features like the client 
-  factory or setting secrets when the trust store is not merged. 
+  This is necessary for some advanced features like the client
+  factory or setting secrets when the trust store is not merged.
 -->
 <dependency>
     <groupId>com.github.nagyesta.lowkey-vault</groupId>
@@ -55,7 +55,7 @@ classpath.
 ```groovy
 testImplementation 'com.github.nagyesta.lowkey-vault:lowkey-vault-testcontainers:+'
 //In case you wish to use the provided Lowkey Vault Client too
-//This is necessary for some advanced features like the client 
+//This is necessary for some advanced features like the client
 //factory or setting secrets when the trust store is not merged.
 testImplementation 'com.github.nagyesta.lowkey-vault:lowkey-vault-client:+'
 ```
@@ -66,7 +66,7 @@ The recommended way of creating a container is by using [LowkeyVaultContainerBui
 
 #### Example auto-registering a vault
 
-In this example we would like to register the ```https://default.localhost:8443``` vault and let the container start using a random
+In this example we would like to register the `https://default.localhost:8443` vault and let the container start using a random
 port on the host machine.
 
 ```java
@@ -93,10 +93,9 @@ class Test {
 > [!TIP]
 > Lowkey Vault offers a multi-arch image variant too. You can find the relevant project [here](https://github.com/nagyesta/lowkey-vault-docker-buildx).
 
-
 #### Example importing contents from file
 
-In this example we are importing a file including the placeholder specific configuration and setting additional parameters 
+In this example we are importing a file including the placeholder specific configuration and setting additional parameters
 to use a specific port on the host machine and disable automatic vault registration.
 
 ```java
@@ -109,7 +108,7 @@ class Test {
         //Please consider using latest image regardless of the value in the example
         final DockerImageName imageName = DockerImageName.parse("nagyesta/lowkey-vault:<version>");
         final LowkeyVaultContainer lowkeyVaultContainer = lowkeyVault(imageName)
-                .noAutoRegistration()  
+                .noAutoRegistration()
                 .importFile(importFile, BindMode.READ_ONLY)
                 .logicalPort(8443)
                 .logicalHost("127.0.0.1")
@@ -124,7 +123,7 @@ class Test {
 
 > [!NOTE]
 > Since `v2.7.0`, the container can use a dynamically allocated port thanks to the relaxed port matching feature. This will ignore the port number when searching for a vault based on the request authority (essentially only matching based
-on the request's hostname).
+> on the request's hostname).
 
 #### Example using your own certificate file
 
@@ -178,7 +177,7 @@ class Test {
 
 #### Example using aliases
 
-In this example we are starting Lowkey vault with additional aliases (```https://alias1``` and ```https://alias2:8443```)
+In this example we are starting Lowkey vault with additional aliases (`https://alias1` and `https://alias2:8443`)
 defined for the default vault named `https://localhost:8443`.
 
 ```java
@@ -229,6 +228,6 @@ class Test {
 
 ### Other examples
 
-* [Generic](src/test/java/com/github/nagyesta/lowkeyvault/testcontainers/LowkeyVaultContainerVanillaTest.java)
-* [JUnit Jupiter](src/test/java/com/github/nagyesta/lowkeyvault/testcontainers/LowkeyVaultContainerJupiterTest.java)
-* [Lowkey Vault Example](https://github.com/nagyesta/lowkey-vault-example)
+- [Generic](src/test/java/com/github/nagyesta/lowkeyvault/testcontainers/LowkeyVaultContainerVanillaTest.java)
+- [JUnit Jupiter](src/test/java/com/github/nagyesta/lowkeyvault/testcontainers/LowkeyVaultContainerJupiterTest.java)
+- [Lowkey Vault Example](https://github.com/nagyesta/lowkey-vault-example)

@@ -15,6 +15,9 @@ import java.util.List;
 
 final class ResponseEntity {
 
+    /**
+     * The list type needed for JSON serialization.
+     */
     public static final ListTypeReference VAULT_MODEL_LIST_TYPE_REF = new ListTypeReference();
     @Getter
     private final int responseCode;

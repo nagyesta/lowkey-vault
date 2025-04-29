@@ -15,7 +15,7 @@ import static org.mockito.Mockito.mock;
 
 class CertificateLifetimeActionsPolicyToV73ModelConverterTest {
 
-    public static final CertificateLifetimeActionTrigger TRIGGER_AT_80_PERCENT =
+    private static final CertificateLifetimeActionTrigger TRIGGER_AT_80_PERCENT =
             new CertificateLifetimeActionTrigger(CertificateLifetimeActionTriggerType.LIFETIME_PERCENTAGE, 80);
 
     @Test

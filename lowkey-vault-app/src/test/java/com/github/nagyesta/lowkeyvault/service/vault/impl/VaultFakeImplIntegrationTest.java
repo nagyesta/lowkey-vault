@@ -33,7 +33,7 @@ class VaultFakeImplIntegrationTest {
     private static final int INT_MORE_THAN_TWO_YEARS_IN_DAYS = getMoreThanTwoYearsAvoidingLeapYear();
     private static final int SECONDS_IN_1_DAY = 24 * 3600;
     private static final int SECONDS_IN_MORE_THAN_TWO_YEARS = INT_MORE_THAN_TWO_YEARS_IN_DAYS * SECONDS_IN_1_DAY;
-    public static final int EXPECTED_VERSIONS_AFTER_RENEWAL = 3;
+    private static final int EXPECTED_VERSIONS_AFTER_RENEWAL = 3;
 
     @Test
     void testTimeShiftShouldCreateNewVersionsWhenAutoRotateIsTriggeredWithActiveCertificates() {

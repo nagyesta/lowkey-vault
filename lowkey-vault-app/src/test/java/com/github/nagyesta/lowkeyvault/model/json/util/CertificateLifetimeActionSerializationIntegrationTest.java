@@ -16,10 +16,10 @@ import java.io.IOException;
 
 class CertificateLifetimeActionSerializationIntegrationTest {
 
-    public static final String VALID_FULL_AUTO_RENEW = "{\"action\":{\"action_type\":\"AutoRenew\"}}";
-    public static final String VALID_NULL_ACTION_TYPE = "{\"action\":null}";
-    public static final String INVALID_NULL_ACTION_TYPE = "{\"action\":{\"action_type\":null}}";
-    public static final String INVALID_UNKNOWN_ACTION_TYPE = "{\"action\":{\"action_type\":\"unknown\"}}";
+    private static final String VALID_FULL_AUTO_RENEW = "{\"action\":{\"action_type\":\"AutoRenew\"}}";
+    private static final String VALID_NULL_ACTION_TYPE = "{\"action\":null}";
+    private static final String INVALID_NULL_ACTION_TYPE = "{\"action\":{\"action_type\":null}}";
+    private static final String INVALID_UNKNOWN_ACTION_TYPE = "{\"action\":{\"action_type\":\"unknown\"}}";
 
     @Test
     void testSerializeShouldGenerateObjectRepresentationWhenCalledWithNonNullValue() throws JsonProcessingException {

@@ -35,7 +35,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     private static final int ALT_HOST_TOKEN_PORT = 18080;
     private static final int DEFAULT_PORT = 8443;
     private static final String LOCALHOST = "localhost";
-    public static final String EXAMPLE_COM = "example.com";
+    private static final String EXAMPLE_COM = "example.com";
 
     public static Stream<Arguments> invalidDataProvider() {
         return Stream.<Arguments>builder()

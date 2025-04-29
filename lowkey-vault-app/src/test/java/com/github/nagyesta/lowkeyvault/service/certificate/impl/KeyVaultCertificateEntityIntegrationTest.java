@@ -31,8 +31,8 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
 class KeyVaultCertificateEntityIntegrationTest {
-    public static final int TWO_YEARS_IN_MONTHS = 24;
-    public static final int THIRTY_YEARS_IN_MONTHS = 360;
+    private static final int TWO_YEARS_IN_MONTHS = 24;
+    private static final int THIRTY_YEARS_IN_MONTHS = 360;
 
     @Test
     void testImportConstructorShouldGenerateMatchingVersionsWhenCalledWithValidInput() {

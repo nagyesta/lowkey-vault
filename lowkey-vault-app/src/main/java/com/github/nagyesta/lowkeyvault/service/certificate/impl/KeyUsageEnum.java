@@ -136,8 +136,14 @@ public enum KeyUsageEnum {
     }
 
     private static final class KeyOps {
+        /**
+         * Collects the key operations related to digital signatures and their verification.
+         */
         public static final Set<KeyOperation>
                 SIGN_VERIFY = Set.of(KeyOperation.SIGN, KeyOperation.VERIFY);
+        /**
+         * Collects the key operations related to encryption and decryption.
+         */
         public static final Set<KeyOperation>
                 ENCRYPT_DECRYPT = Set.of(KeyOperation.ENCRYPT, KeyOperation.DECRYPT, KeyOperation.WRAP_KEY, KeyOperation.UNWRAP_KEY);
     }

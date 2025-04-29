@@ -21,7 +21,7 @@ import static com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContaine
 class LowkeyVaultContainerJupiterTest extends AbstractLowkeyVaultContainerTest {
 
     private static final String VAULT_NAME = "jupiter";
-    public static final String ALIAS = "lowkey-vault.local";
+    private static final String ALIAS = "lowkey-vault.local";
 
     @Container
     private final LowkeyVaultContainer underTest = lowkeyVault(DockerImageName

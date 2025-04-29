@@ -17,11 +17,11 @@ import static com.github.nagyesta.lowkeyvault.service.key.constants.LifetimeActi
 
 class KeyLifetimeActionTriggerTest {
 
-    public static final OffsetDateTime A_WEEK_AGO = NOW.minusDays(MINIMUM_THRESHOLD_BEFORE_EXPIRY);
-    public static final OffsetDateTime IN_A_WEEK = NOW.plusDays(MINIMUM_THRESHOLD_BEFORE_EXPIRY);
-    public static final OffsetDateTime IN_A_WEEK_AND_10_MINUTES = TIME_IN_10_MINUTES.plusDays(MINIMUM_THRESHOLD_BEFORE_EXPIRY);
-    public static final Period PERIOD_A_WEEK = Period.ofDays(MINIMUM_THRESHOLD_BEFORE_EXPIRY);
-    public static final Period PERIOD_28_DAYS = Period.ofDays(MINIMUM_EXPIRY_PERIOD_IN_DAYS);
+    private static final OffsetDateTime A_WEEK_AGO = NOW.minusDays(MINIMUM_THRESHOLD_BEFORE_EXPIRY);
+    private static final OffsetDateTime IN_A_WEEK = NOW.plusDays(MINIMUM_THRESHOLD_BEFORE_EXPIRY);
+    private static final OffsetDateTime IN_A_WEEK_AND_10_MINUTES = TIME_IN_10_MINUTES.plusDays(MINIMUM_THRESHOLD_BEFORE_EXPIRY);
+    private static final Period PERIOD_A_WEEK = Period.ofDays(MINIMUM_THRESHOLD_BEFORE_EXPIRY);
+    private static final Period PERIOD_28_DAYS = Period.ofDays(MINIMUM_EXPIRY_PERIOD_IN_DAYS);
 
     public static Stream<Arguments> invalidProvider() {
         return Stream.<Arguments>builder()

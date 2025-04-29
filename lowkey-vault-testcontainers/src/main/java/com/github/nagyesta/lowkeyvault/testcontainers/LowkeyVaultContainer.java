@@ -339,8 +339,11 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
 
     private void warnAboutLogicalPortIfMisconfigured() {
         if (logicalPort != null && lowkeyVaultClientIsNotPresent()) {
-            logger().warn("Logical port is set but lowkey vault client is not present. This is most probably a configuration issue.");
-            logger().warn("Please revisit your configuration!");
+            logger().warn("Logical port is set but lowkey vault client is not present on the classpath.");
+            logger().warn("This is strongly suggesting that you have a configuration issue.");
+            logger().warn("Please verify your configuration! To try resolving this issue you can:");
+            logger().warn("- add the Lowkey Vault client (com.github.nagyesta.lowkey-vault:lowkey-vault-client) as a test dependency");
+            logger().warn("- stop using the logical port configuration to let us use the official Azure clients");
         }
     }
 

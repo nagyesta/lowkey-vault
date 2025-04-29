@@ -34,8 +34,8 @@ import static org.mockito.Mockito.*;
 
 class LowkeyVaultManagementClientImplTest {
 
-    public static final String SIMPLE_JSON = "{\"property\":42}";
-    public static final String SIMPLE_JSON_PRETTY = "{\n\t\"property\": 42\n}";
+    private static final String SIMPLE_JSON = "{\"property\":42}";
+    private static final String SIMPLE_JSON_PRETTY = "{\n\t\"property\": 42\n}";
     private static final String HTTPS_LOCALHOST = "https://localhost";
     private static final String HTTPS_ALIAS_LOCALHOST = "https://alias.localhost";
     private static final String JSON = "{}";

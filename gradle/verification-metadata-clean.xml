@@ -8,6 +8,7 @@
             <trust file=".*-javadoc[.]jar" regex="true"/>
             <trust file=".*-sources[.]jar" regex="true"/>
             <trust file=".*[.]module" regex="true"/>
+            <trust file=".*[.]zip" regex="true"/>
         </trusted-artifacts>
     </configuration>
 </verification-metadata>

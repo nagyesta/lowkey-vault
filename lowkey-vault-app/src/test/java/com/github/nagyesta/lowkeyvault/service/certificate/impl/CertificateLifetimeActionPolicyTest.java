@@ -26,7 +26,7 @@ class CertificateLifetimeActionPolicyTest {
     private static final int DAYS_60 = 60;
     private static final int MONTHS_100 = 100;
     private static final OffsetDateTime DATE_100_MONTHS_AGO = NOW.minusMonths(MONTHS_100);
-    public static final int VALIDITY_MONTHS = 12;
+    private static final int VALIDITY_MONTHS = 12;
 
     public static Stream<Arguments> nullProvider() {
         return Stream.<Arguments>builder()

@@ -9,7 +9,7 @@
 
 [![JavaCI](https://img.shields.io/github/actions/workflow/status/nagyesta/lowkey-vault/gradle.yml?logo=github&branch=main)](https://github.com/nagyesta/lowkey-vault/actions/workflows/gradle.yml)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/5577/badge)](https://bestpractices.coreinfrastructure.org/projects/5577)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=nagyesta_lowkey-vault&metric=coverage)](https://sonarcloud.io/summary/new_code?id=nagyesta_lowkey-vault)
+[![Sonar Coverage](https://img.shields.io/sonar/coverage/nagyesta_lowkey-vault?server=https%3A%2F%2Fsonarcloud.io&logo=sonarcloud&logoColor=white)](https://sonarcloud.io/summary/new_code?id=nagyesta_lowkey-vault)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=nagyesta_lowkey-vault&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=nagyesta_lowkey-vault)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=nagyesta_lowkey-vault&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=nagyesta_lowkey-vault)
 [![last_commit](https://img.shields.io/github/last-commit/nagyesta/lowkey-vault?logo=git)](https://img.shields.io/github/last-commit/nagyesta/lowkey-vault?logo=git)
@@ -82,6 +82,15 @@ See examples under [Lowkey Vault Testcontainers](lowkey-vault-testcontainers/REA
 ## Features
 
 Lowkey Vault is far from supporting all Azure Key Vault features. The list supported functionality can be found here:
+
+### General
+
+- Configure custom port to access Lowkey Vault
+- Use multiple aliases to access the same vault using different host names/ports
+- Automatically create default vaults on start-up
+- Simulate Managed Identity with fake token endpoint
+- Import previously exported contents during start-up
+- Automatically export contents after each change to a predefined file
 
 ### Keys
 
@@ -243,4 +252,5 @@ Used for metadata endpoints
 - Some encryption/signature algorithms are not supported. Please refer to the ["Features"](#features) section for the up-to-date list of supported algorithms.
 - Only self-signed certificates are supported by the certificate API.
 - Time shift cannot renew/recreate deleted certificates. Please consider performing deletions after time shift as a workaround.
-- Recovery options cannot be configured for vaults created during start-up
+- Recovery options cannot be configured for vaults created during start-up 
+- The Docker container uses the root user due to a limitation that prevented the custom user from writing the export file when the Docker UID on the host did not match the user's UID inside the container as a regular user.

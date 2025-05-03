@@ -25,6 +25,9 @@ import java.util.function.Function;
 public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer> {
 
     static final DockerImageName DEFAULT_IMAGE_NAME = DockerImageName.parse("nagyesta/lowkey-vault");
+    static final String IMPORT_FILE_CONTAINER_PATH = "/import/vaults.json";
+    static final String CONFIG_CERT_STORE_CONTAINER_PATH = "/config/cert.store";
+    static final String CONFIG_APPLICATION_PROPERTIES_CONTAINER_PATH = "/config/application.properties";
     private static final String DUMMY_USERNAME = "DUMMY";
     private static final String DUMMY_PASSWORD = UUID.randomUUID().toString();
     private static final int CONTAINER_PORT = 8443;
@@ -52,6 +55,7 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
      */
     LowkeyVaultContainer(final LowkeyVaultContainerBuilder containerBuilder) {
         super(containerBuilder.getDockerImageName());
+        containerBuilder.validate();
 
         recommendMultiArchImageIfApplicable(logger(),
                 containerBuilder.getDockerImageName(),
@@ -72,28 +76,35 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
         if (containerBuilder.getImportFile() != null) {
             final var absolutePath = containerBuilder.getImportFile().getAbsolutePath();
             logger().info("Using path for import file: '{}'", absolutePath);
-            withFileSystemBind(absolutePath, "/import/vaults.json", containerBuilder.getImportFileBindMode());
+            withFileSystemBind(absolutePath, IMPORT_FILE_CONTAINER_PATH, containerBuilder.getImportFileBindMode());
         }
 
         if (containerBuilder.getCustomSslCertStore() != null) {
             final var absolutePath = containerBuilder.getCustomSslCertStore().getAbsolutePath();
             logger().info("Using path for custom certificate: '{}'", absolutePath);
-            withFileSystemBind(absolutePath, "/config/cert.store", BindMode.READ_ONLY);
+            withFileSystemBind(absolutePath, CONFIG_CERT_STORE_CONTAINER_PATH, BindMode.READ_ONLY);
         }
 
         if (containerBuilder.getExternalConfigFile() != null) {
             final var absolutePath = containerBuilder.getExternalConfigFile().getAbsolutePath();
             logger().info("Using path for external configuration: '{}'", absolutePath);
-            withFileSystemBind(absolutePath, "/config/application.properties", BindMode.READ_ONLY);
+            withFileSystemBind(absolutePath, CONFIG_APPLICATION_PROPERTIES_CONTAINER_PATH, BindMode.READ_ONLY);
         }
 
-        final var args = new LowkeyVaultArgLineBuilder()
+        final var argLineBuilder = new LowkeyVaultArgLineBuilder()
                 .vaultNames(Objects.requireNonNullElse(containerBuilder.getVaultNames(), Set.of()))
                 .aliases(containerBuilder.getAliasMap())
                 .logicalHost(containerBuilder.getLogicalHost())
-                .logicalPort(containerBuilder.getLogicalPort())
+                .logicalPort(containerBuilder.getLogicalPort());
+
+        if (containerBuilder.isPersistent()) {
+            argLineBuilder.usePersistence(IMPORT_FILE_CONTAINER_PATH);
+        } else if (containerBuilder.getImportFile() != null) {
+            argLineBuilder.importFile(IMPORT_FILE_CONTAINER_PATH);
+        }
+
+        final var args = argLineBuilder
                 .debug(containerBuilder.isDebug())
-                .importFile(containerBuilder.getImportFile())
                 .customSSLCertificate(containerBuilder.getCustomSslCertStore(),
                         containerBuilder.getCustomSslCertPassword(),
                         containerBuilder.getCustomSslCertType())

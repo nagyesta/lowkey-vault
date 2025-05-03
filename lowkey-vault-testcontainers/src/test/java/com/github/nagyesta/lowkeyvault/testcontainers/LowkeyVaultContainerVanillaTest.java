@@ -1,7 +1,10 @@
 package com.github.nagyesta.lowkeyvault.testcontainers;
 
 import com.azure.core.credential.BasicAuthenticationCredential;
+import com.azure.security.keyvault.certificates.models.CertificateProperties;
+import com.azure.security.keyvault.keys.models.KeyProperties;
 import com.azure.security.keyvault.secrets.SecretClientBuilder;
+import com.azure.security.keyvault.secrets.models.SecretProperties;
 import com.github.nagyesta.lowkeyvault.http.ApacheHttpClient;
 import com.github.nagyesta.lowkeyvault.http.AuthorityOverrideFunction;
 import org.apache.http.conn.ssl.DefaultHostnameVerifier;
@@ -19,8 +22,12 @@ import org.testcontainers.images.PullPolicy;
 import org.testcontainers.utility.DockerImageName;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContainer.DEFAULT_IMAGE_NAME;
@@ -36,6 +43,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     private static final int DEFAULT_PORT = 8443;
     private static final String LOCALHOST = "localhost";
     private static final String EXAMPLE_COM = "example.com";
+    private static final String MYSQL_IMAGE_NAME = "mysql:9.2.0";
 
     public static Stream<Arguments> invalidDataProvider() {
         return Stream.<Arguments>builder()
@@ -181,6 +189,62 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
             final var httpClient = new ApacheHttpClient(authorityOverrideFunction,
                     new TrustAllStrategy(), new NoopHostnameVerifier());
             verifyConnectionIsWorking(underTest, httpClient, URI.create(endpoint));
+        }
+    }
+
+    @Test
+    void testContainerShouldLoadPreviouslyExportedStateWhenCalledWithEmptyImportFileActivatedPersistenceAndTheContainerIsRestarted()
+            throws IOException {
+        //given
+        final var imageName = DockerImageName
+                .parse(getCurrentLowkeyVaultImageName())
+                .asCompatibleSubstituteFor(DEFAULT_IMAGE_NAME);
+        //noinspection ConstantConditions
+        final var importFile = getTempPath().toFile();
+        //noinspection ConstantConditions
+        Files.copy(Path.of(getClass().getResource("/empty-import.json").getFile()), importFile.toPath());
+        final var underTest = lowkeyVault(imageName)
+                .noAutoRegistration()
+                .persistent(importFile)
+                .build()
+                .withImagePullPolicy(PullPolicy.defaultPolicy());
+
+        try (underTest) {
+            underTest.start();
+            verifyConnectionIsWorking(underTest);
+            //modifications are saved
+            underTest.stop();
+
+            //when
+            underTest.start();
+
+            //then
+            final var clientFactory = underTest.getClientFactory();
+            verifyConnectivity(clientFactory);
+            final var actualSecretNames = clientFactory.getSecretClientBuilderForDefaultVault()
+                    .buildClient()
+                    .listPropertiesOfSecrets()
+                    .stream()
+                    .map(SecretProperties::getName)
+                    .collect(Collectors.toList());
+            final var actualKeyNames = clientFactory.getKeyClientBuilderForDefaultVault()
+                    .buildClient()
+                    .listPropertiesOfKeys()
+                    .stream()
+                    .map(KeyProperties::getName)
+                    .collect(Collectors.toList());
+            final var actualCertificateNames = clientFactory.getCertificateClientBuilderForDefaultVault()
+                    .buildClient()
+                    .listPropertiesOfCertificates()
+                    .stream()
+                    .map(CertificateProperties::getName)
+                    .collect(Collectors.toList());
+
+            Assertions.assertIterableEquals(List.of(CERT_EXAMPLE_COM, NAME), actualSecretNames);
+            Assertions.assertIterableEquals(List.of(CERT_EXAMPLE_COM, NAME), actualKeyNames);
+            Assertions.assertIterableEquals(List.of(CERT_EXAMPLE_COM), actualCertificateNames);
+        } finally {
+            Files.deleteIfExists(importFile.toPath());
         }
     }
 
@@ -490,7 +554,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testContainerShouldStartWhenItDependsOnJdbcContainer() {
         //given
-        final var mysql = new MySQLContainer<>("mysql:9.2.0");
+        final var mysql = new MySQLContainer<>(MYSQL_IMAGE_NAME);
 
         final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
@@ -517,7 +581,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testContainerShouldSetSecretsAfterStartUpWhenItDependsOnJdbcContainer() {
         //given
-        final var mysql = new MySQLContainer<>("mysql:9.2.0");
+        final var mysql = new MySQLContainer<>(MYSQL_IMAGE_NAME);
 
         final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
@@ -549,7 +613,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testContainerShouldSetSecretsAfterStartUpWhenItDependsOnJdbcContainerAndTrustStoresAreMerged() {
         //given
-        final var mysql = new MySQLContainer<>("mysql:9.2.0");
+        final var mysql = new MySQLContainer<>(MYSQL_IMAGE_NAME);
 
         final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
@@ -585,7 +649,10 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         System.clearProperty(KeyStoreMerger.BACKUP_TRUST_STORE_LOCATION_PROPERTY);
         System.clearProperty(KeyStoreMerger.BACKUP_TRUST_STORE_TYPE_PROPERTY);
         System.clearProperty(KeyStoreMerger.BACKUP_TRUST_STORE_PASSWORD_PROPERTY);
-        final var underTest = lowkeyVault(DEFAULT_IMAGE_NAME.withTag("2.13.0").toString())
+        final var imageName = DockerImageName
+                .parse(getCurrentLowkeyVaultImageName())
+                .asCompatibleSubstituteFor(DEFAULT_IMAGE_NAME);
+        final var underTest = lowkeyVault(imageName)
                 .setPropertiesAfterStartup(springCloudAzureKeyVaultPropertySupplier())
                 .mergeTrustStores()
                 .build()

@@ -5,6 +5,8 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContainer.IMPORT_FILE_CONTAINER_PATH;
+
 public class LowkeyVaultArgLineBuilder {
     private static final String NO_AUTO_REGISTRATION_VALUE = "-";
     private static final Set<String> NO_AUTO_REGISTRATION = Set.of(NO_AUTO_REGISTRATION_VALUE);
@@ -49,9 +51,29 @@ public class LowkeyVaultArgLineBuilder {
         return this;
     }
 
+    public LowkeyVaultArgLineBuilder usePersistence(final String containerPath) {
+        importFile(containerPath);
+        exportFile(containerPath);
+        return this;
+    }
+
+    /**
+     * Defines the import file from the host file system.
+     * @param file the import file on the host
+     * @return builder
+     * @deprecated Marked for removal, please use {@link #importFile(String)}.
+     */
+    @Deprecated(forRemoval = true)
     public LowkeyVaultArgLineBuilder importFile(final File file) {
         if (file != null) {
-            args.add("--LOWKEY_IMPORT_LOCATION=/import/vaults.json");
+            return importFile(IMPORT_FILE_CONTAINER_PATH);
+        }
+        return this;
+    }
+
+    public LowkeyVaultArgLineBuilder importFile(final String containerPath) {
+        if (containerPath != null) {
+            args.add("--LOWKEY_IMPORT_LOCATION=" + containerPath);
         }
         return this;
     }
@@ -85,6 +107,12 @@ public class LowkeyVaultArgLineBuilder {
 
     public List<String> build() {
         return Collections.unmodifiableList(args);
+    }
+
+    private void exportFile(final String containerPath) {
+        if (containerPath != null) {
+            args.add("--LOWKEY_EXPORT_LOCATION=" + containerPath);
+        }
     }
 
     private void assertVaultNamesAreValid(final Set<String> vaultNames) {

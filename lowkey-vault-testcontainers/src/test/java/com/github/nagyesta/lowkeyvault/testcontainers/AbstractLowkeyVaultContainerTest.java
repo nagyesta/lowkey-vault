@@ -20,21 +20,31 @@ import com.azure.security.keyvault.secrets.SecretClientBuilder;
 import com.github.nagyesta.lowkeyvault.http.ApacheHttpClient;
 import org.junit.jupiter.api.Assertions;
 
+import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
 @SuppressWarnings("java:S2187") //this is a test class
 public class AbstractLowkeyVaultContainerTest {
 
-    private static final String NAME = "name";
+    static final String NAME = "name";
+    static final String CERT_EXAMPLE_COM = "cert-example-com";
     private static final String VALUE = "value";
     private static final int SUCCESS = 200;
     private static final int DEFAULT_HTTPS_PORT = 8443;
 
-    protected String getCurrentLowkeyVaultImageName() {
+    protected static String getCurrentLowkeyVaultImageName() {
         return "lowkey-vault:" + System.getProperty("imageVersion");
+    }
+
+    protected static Path getTempPath() throws IOException {
+        final var path = Files.createTempFile("lowkey-vault-", ".temp");
+        Files.deleteIfExists(path);
+        return path;
     }
 
     protected void verifyConnectionIsWorking(
@@ -86,6 +96,15 @@ public class AbstractLowkeyVaultContainerTest {
                 clientFactory.getCertificateClientBuilderFor(vaultUri).httpClient(httpClient));
     }
 
+    protected void verifyConnectivity(final LowkeyVaultClientFactory clientFactory) {
+        try {
+            clientFactory.getLowkeyVaultManagementClient().verifyConnectivity(1, 1, IllegalStateException::new);
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+            fail(e.getMessage());
+        }
+    }
+
     private void verifyConnectionIsWorking(
             final SecretClientBuilder secretClientBuilder,
             final KeyClientBuilder keyClientBuilder,
@@ -95,15 +114,6 @@ public class AbstractLowkeyVaultContainerTest {
         verifyCertificateCanBeCreated(certificateClientBuilder);
         final var key = verifyKeyCanBeCreated(keyClientBuilder);
         verifyKeyCanBeUsedForCryptography(cryptographyClientBuilder, key);
-    }
-
-    private void verifyConnectivity(final LowkeyVaultClientFactory clientFactory) {
-        try {
-            clientFactory.getLowkeyVaultManagementClient().verifyConnectivity(1, 1, IllegalStateException::new);
-        } catch (final InterruptedException e) {
-            Thread.currentThread().interrupt();
-            fail(e.getMessage());
-        }
     }
 
     private static void verifyKeyCanBeUsedForCryptography(
@@ -151,7 +161,7 @@ public class AbstractLowkeyVaultContainerTest {
                 .setKeyCurveName(CertificateKeyCurveName.P_256)
                 .setContentType(CertificateContentType.PKCS12);
         final var cert = certificateClientBuilder.buildClient()
-                .beginCreateCertificate("cert-example-com", policy).waitForCompletion().getValue();
+                .beginCreateCertificate(CERT_EXAMPLE_COM, policy).waitForCompletion().getValue();
         Assertions.assertNotNull(cert);
         Assertions.assertNotNull(cert.getId());
     }

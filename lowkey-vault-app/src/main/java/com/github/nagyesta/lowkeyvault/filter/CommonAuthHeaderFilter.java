@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
@@ -20,9 +21,12 @@ import java.util.Optional;
 import java.util.Set;
 
 @Component
+@Order(CommonAuthHeaderFilter.PRECEDENCE)
 @Slf4j
 public class CommonAuthHeaderFilter
         extends OncePerRequestFilter {
+
+    static final int PRECEDENCE = 100;
 
     static final String OMIT_DEFAULT = "";
     private static final int DEFAULT_HTTPS_PORT = 443;

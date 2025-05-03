@@ -44,9 +44,9 @@ public class VaultImporter
     @Autowired
     public VaultImporter(
             @NonNull final VaultImporterProperties vaultImporterProperties,
-                         @NonNull final BackupTemplateProcessor backupTemplateProcessor,
-                         @NonNull final ObjectMapper objectMapper,
-                         @NonNull final Validator validator) {
+            @NonNull final BackupTemplateProcessor backupTemplateProcessor,
+            @NonNull final ObjectMapper objectMapper,
+            @NonNull final Validator validator) {
         this.vaultImporterProperties = vaultImporterProperties;
         this.backupTemplateProcessor = backupTemplateProcessor;
         this.objectMapper = objectMapper;

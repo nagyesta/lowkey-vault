@@ -5,15 +5,21 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import static com.github.nagyesta.lowkeyvault.filter.PortSeparationFilter.PRECEDENCE;
+
 @Component
 @Slf4j
+@Order(PRECEDENCE)
 public class PortSeparationFilter
         extends OncePerRequestFilter {
+
+    static final int PRECEDENCE = 50;
 
     @SuppressWarnings("NullableProblems")
     @Override

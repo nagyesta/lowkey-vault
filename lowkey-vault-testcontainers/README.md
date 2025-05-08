@@ -8,7 +8,7 @@
 [![Docker Hub](https://img.shields.io/docker/v/nagyesta/lowkey-vault?sort=date&arch=arm64&logo=docker&label=multi-arch)](https://hub.docker.com/r/nagyesta/lowkey-vault)
 
 [![JavaCI](https://img.shields.io/github/actions/workflow/status/nagyesta/lowkey-vault/gradle.yml?logo=github&branch=main)](https://github.com/nagyesta/lowkey-vault/actions/workflows/gradle.yml)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=nagyesta_lowkey-vault&metric=coverage)](https://sonarcloud.io/summary/new_code?id=nagyesta_lowkey-vault)
+[![Sonar Coverage](https://img.shields.io/sonar/coverage/nagyesta_lowkey-vault?server=https%3A%2F%2Fsonarcloud.io&logo=sonarcloud&logoColor=white)](https://sonarcloud.io/summary/new_code?id=nagyesta_lowkey-vault)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=nagyesta_lowkey-vault&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=nagyesta_lowkey-vault)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=nagyesta_lowkey-vault&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=nagyesta_lowkey-vault)
 [![badge-abort-mission-armed-green](https://raw.githubusercontent.com/nagyesta/abort-mission/wiki_assets/.github/assets/badge-abort-mission-armed-green.svg)](https://github.com/nagyesta/abort-mission)
@@ -118,12 +118,57 @@ class Test {
         return lowkeyVaultContainer;
     }
 }
-
 ```
 
 > [!NOTE]
 > Since `v2.7.0`, the container can use a dynamically allocated port thanks to the relaxed port matching feature. This will ignore the port number when searching for a vault based on the request authority (essentially only matching based
 > on the request's hostname).
+
+
+### Example using persistent vaults
+
+There are some use-cases, where it is important to be able to export the content of the vault automatically after each change.
+In these cases, the export feature can be turned on by defining the file where the content should be written.
+This feature is available using `v3.1.0` or higher. The module will help us mount the import/export file using read 
+and write mode to be able to persist the exported content on the host machine.
+
+> [!NOTE]
+> The exports are not using any placeholders, it is recommended to keep using the relaxed port matching feature which is turned-on by default using the `LowkeyVaultContainer`.
+
+> [!WARNING]
+> This feature is not active by default because it can degrade the performance of Lowkey Vault significantly.
+
+> [!TIP]
+> Turning on persistence using the `LowkeyVaultContainer` will use the same file as import and export locations, allowing you to continue from where you have left off the last time.
+
+> [!TIP]
+> When first starting your Lowkey Vault container with the persistence feature turned on, you will need either an initial import file or you need to make sure to create your vaults using the management API.
+
+> [!CAUTION]
+> Despite the fact that the persistence can help you use the same vault contents every time when you run Lowkey Vault, please keep in mind, that you should never use Lowkey Vault to store real secrets/keys/certificates because it does absolutely nothing to keep them safe.
+
+Example:
+
+```java
+import org.testcontainers.utility.DockerImageName;
+import com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContainer;
+import static com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContainerBuilder.lowkeyVault;
+
+class Test {
+    public LowkeyVaultContainer startVault(final File stateFile) {
+        //Please consider using latest image regardless of the value in the example
+        final DockerImageName imageName = DockerImageName.parse("nagyesta/lowkey-vault:<version>");
+        final LowkeyVaultContainer lowkeyVaultContainer = lowkeyVault(imageName)
+                .noAutoRegistration()
+                .persistent(stateFile)
+                .build()
+                .withImagePullPolicy(PullPolicy.defaultPolicy());
+        lowkeyVaultContainer.start();
+        return lowkeyVaultContainer;
+    }
+}
+
+```
 
 #### Example using your own certificate file
 

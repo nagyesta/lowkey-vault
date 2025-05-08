@@ -6,7 +6,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.nagyesta.lowkey-vault/lowkey-vault-app?logo=apache-maven)](https://search.maven.org/search?q=com.github.nagyesta.lowkey-vault)
 
 [![JavaCI](https://img.shields.io/github/actions/workflow/status/nagyesta/lowkey-vault/gradle.yml?logo=github&branch=main)](https://github.com/nagyesta/lowkey-vault/actions/workflows/gradle.yml)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=nagyesta_lowkey-vault&metric=coverage)](https://sonarcloud.io/summary/new_code?id=nagyesta_lowkey-vault)
+[![Sonar Coverage](https://img.shields.io/sonar/coverage/nagyesta_lowkey-vault?server=https%3A%2F%2Fsonarcloud.io&logo=sonarcloud&logoColor=white)](https://sonarcloud.io/summary/new_code?id=nagyesta_lowkey-vault)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=nagyesta_lowkey-vault&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=nagyesta_lowkey-vault)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=nagyesta_lowkey-vault&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=nagyesta_lowkey-vault)
 [![badge-abort-mission-armed-green](https://raw.githubusercontent.com/nagyesta/abort-mission/wiki_assets/.github/assets/badge-abort-mission-armed-green.svg)](https://github.com/nagyesta/abort-mission)
@@ -156,10 +156,37 @@ we can use `{{now <seconds>}}` placeholders (with positive or negative values as
 with the `<UTC_Epoch_seconds_now> + <seconds>` formula. This can allow you to use relative timestamps, in case
 your tests need a key of certain age relative to the time of the test execution.
 
+> [!TIP]
+> Since we want to import vault content, in order to avoid collisions, it is recommended to disable automatic vault registration when using the import feature by adding the `--LOWKEY_VAULT_NAMES=-` argument.
+
 Example:
 
 ```shell
 java -jar lowkey-vault-app-<version>.jar --LOWKEY_IMPORT_LOCATION=export.json --LOWKEY_IMPORT_TEMPLATE_HOST=127.0.0.1 --LOWKEY_IMPORT_TEMPLATE_PORT=443
+```
+
+### Exporting vault content on change
+
+There are some use-cases, where it is important to be able to export the content of the vault automatically after each change.
+In these cases, the export feature can be turned on by defining the file where the content should be written. 
+This feature is available using `v3.1.0` or higher.
+
+> [!NOTE]
+> The exports are not using any placeholders, it is recommended to always use the same host AND either always use the same port or turn on relaxed port matching.
+
+> [!WARNING]
+> This feature is not active by default because it can degrade the performance of Lowkey Vault significantly.
+
+> [!TIP]
+> Combining this feature with the import feature and using the same file as import source and export target can help you make Lowkey Vault persistent, allowing you to continue from where you have left off the last time.
+
+> [!CAUTION]
+> Despite the fact that the persistence can help you use the same vault contents every time when you run Lowkey Vault, please keep in mind, that you should never use Lowkey Vault to store real secrets/keys/certificates because it does absolutely nothing to keep them safe.
+
+Example:
+
+```shell
+java -jar lowkey-vault-app-<version>.jar --LOWKEY_EXPORT_LOCATION=export.json
 ```
 
 ### External configuration

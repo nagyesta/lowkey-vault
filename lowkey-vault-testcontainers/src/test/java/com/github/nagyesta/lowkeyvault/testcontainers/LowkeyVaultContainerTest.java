@@ -1,12 +1,16 @@
 package com.github.nagyesta.lowkeyvault.testcontainers;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.Logger;
+import org.testcontainers.containers.BindMode;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 import org.testcontainers.utility.DockerImageName;
 
+import java.io.File;
 import java.util.stream.Stream;
 
 import static org.mockito.Mockito.*;
@@ -14,12 +18,13 @@ import static org.mockito.Mockito.*;
 class LowkeyVaultContainerTest extends AbstractLowkeyVaultContainerTest {
 
     public static Stream<Arguments> imageRecommendationInputProvider() {
+        final var imageName = getCurrentLowkeyVaultImageName();
         return Stream.<Arguments>builder()
-                .add(Arguments.of("nagyesta/lowkey-vault:2.7.1", "amd64", false))
-                .add(Arguments.of("nagyesta/lowkey-vault:2.7.1", "arm64", true))
-                .add(Arguments.of("nagyesta/lowkey-vault:2.7.1-ubi9-minimal", "amd64", false))
-                .add(Arguments.of("lowkey-vault:2.7.1", "amd64", false))
-                .add(Arguments.of("lowkey-vault:2.7.1", "arm64", false))
+                .add(Arguments.of("nagyesta/" + imageName, "amd64", false))
+                .add(Arguments.of("nagyesta/" + imageName, "arm64", true))
+                .add(Arguments.of("nagyesta/" + imageName + "-ubi9-minimal", "amd64", false))
+                .add(Arguments.of(imageName, "amd64", false))
+                .add(Arguments.of(imageName, "arm64", false))
                 .build();
     }
 
@@ -51,5 +56,32 @@ class LowkeyVaultContainerTest extends AbstractLowkeyVaultContainerTest {
                     "See more information: https://github.com/nagyesta/lowkey-vault/tree/main/lowkey-vault-docker#arm-builds");
         }
         verifyNoMoreInteractions(loggerMock);
+    }
+
+    @Test
+    void testContainerBuilderShouldThrowExceptionWhenPersistenceIsSetButImportFileIsMissing() {
+        //given
+        final var underTest = LowkeyVaultContainerBuilder
+                .lowkeyVault(getCurrentLowkeyVaultImageName())
+                .persistent();
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, underTest::build);
+
+        //then + exception
+    }
+
+    @Test
+    void testContainerBuilderShouldThrowExceptionWhenPersistenceIsSetButImportFileBindModeIsReadOnly() {
+        //given
+        final var underTest = LowkeyVaultContainerBuilder
+                .lowkeyVault(getCurrentLowkeyVaultImageName())
+                .importFile(new File("import"), BindMode.READ_ONLY)
+                .persistent();
+
+        //when
+        Assertions.assertThrows(IllegalArgumentException.class, underTest::build);
+
+        //then + exception
     }
 }

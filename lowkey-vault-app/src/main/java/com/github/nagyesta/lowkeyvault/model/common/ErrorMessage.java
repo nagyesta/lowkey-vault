@@ -31,7 +31,7 @@ public class ErrorMessage {
     @JsonProperty("message")
     private String message;
 
-    static ErrorMessage fromException(final Throwable t) {
+    public static ErrorMessage fromException(final Throwable t) {
         return Optional.ofNullable(t)
                 .map(throwable -> new ErrorMessage(
                         throwable.getClass().getName(),

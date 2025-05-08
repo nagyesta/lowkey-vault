@@ -15,6 +15,7 @@ public final class LowkeyVaultContainerBuilder {
     private Set<String> vaultNames = Set.of();
     private Map<String, Set<String>> aliasMap = Map.of();
     private File importFile;
+    private boolean persistent = false;
     private BindMode importFileBindMode;
     private File customSslCertStore;
     private String customSslCertPassword;
@@ -114,7 +115,6 @@ public final class LowkeyVaultContainerBuilder {
         return this;
     }
 
-
     /**
      * Specifies a file for import. The file will be attached as a volume and used as import source.
      *
@@ -123,6 +123,31 @@ public final class LowkeyVaultContainerBuilder {
      */
     public LowkeyVaultContainerBuilder importFile(final File importFile) {
         return importFile(importFile, BindMode.READ_ONLY);
+    }
+
+    /**
+     * Sets up automatic export to the import file.
+     * The {@link #importFile(File, BindMode)} method must be called separately.
+     *
+     * @return this
+     */
+    public LowkeyVaultContainerBuilder persistent() {
+        this.persistent = true;
+        return this;
+    }
+
+    /**
+     * Specifies a file for import and export. The file will be attached as a volume and used as import source and export target.
+     * <br/>
+     * Conveniently combines the {@link #importFile(File, BindMode)} and {@link #persistent()} methods.
+     *
+     * @param vaultStateFile The file we want to use for persistence.
+     * @return this
+     */
+    public LowkeyVaultContainerBuilder persistent(final File vaultStateFile) {
+        importFile(vaultStateFile, BindMode.READ_WRITE);
+        persistent();
+        return this;
     }
 
     /**
@@ -357,6 +382,19 @@ public final class LowkeyVaultContainerBuilder {
         );
     }
 
+    public void validate() {
+        if (persistent) {
+            if (importFile == null) {
+                throw new IllegalArgumentException(
+                        "Persistence cannot be set when the import file is not specified! Please specify a valid import file!");
+            }
+            if (importFileBindMode == BindMode.READ_ONLY) {
+                throw new IllegalArgumentException(
+                        "Persistence cannot be set when the import file bind mode is read-only! Please use read-write mode!");
+            }
+        }
+    }
+
     /**
      * Builds the container.
      *
@@ -376,6 +414,10 @@ public final class LowkeyVaultContainerBuilder {
 
     public Map<String, Set<String>> getAliasMap() {
         return aliasMap;
+    }
+
+    public boolean isPersistent() {
+        return persistent;
     }
 
     public File getImportFile() {

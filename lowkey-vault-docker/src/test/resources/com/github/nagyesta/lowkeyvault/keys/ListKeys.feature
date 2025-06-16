@@ -17,6 +17,7 @@ Feature: Key list
             | 7.3 | 03    | 2     | list-rsa-key-name |
             | 7.4 | 04    | 2     | list-rsa-key-name |
             | 7.5 | 05    | 2     | list-rsa-key-name |
+            | 7.6 | 06    | 2     | list-rsa-key-name |
 
     @Key @KeyCreate @KeyList @EC @CreateVault
     Scenario Outline: EC_LIST_01 EC keys are created with the key client then all are listed
@@ -38,7 +39,7 @@ Feature: Key list
             | 7.3 | 06    | 25    | listEcKey        |
             | 7.3 | 07    | 42    | list-ec-key-name |
             | 7.4 | 08    | 2     | list-ec-key-name |
-            | 7.5 | 09    | 2     | list-ec-key-name |
+            | 7.6 | 10    | 2     | list-ec-key-name |
 
     @Key @KeyCreate @KeyList @OCT @CreateVault
     Scenario Outline: OCT_LIST_01 OCT keys are created with the key client then all are listed

@@ -28,6 +28,7 @@ Feature: Key backup and restore
             | 7.3 | backupRsaKey-07 | 4096    | RS512     | The quick brown fox jumps over the lazy dog. |
             | 7.4 | backupRsaKey-08 | 2048    | PS256     | The quick brown fox jumps over the lazy dog. |
             | 7.5 | backupRsaKey-09 | 2048    | PS256     | The quick brown fox jumps over the lazy dog. |
+            | 7.6 | backupRsaKey-10 | 2048    | PS256     | The quick brown fox jumps over the lazy dog. |
 
     @Key @KeyImport @KeySign @KeyBackup @KeyRestore @EC
     Scenario Outline: EC_BACKUP_01 An EC key is imported, backed up, vault is recreated then after restore, the key is verified
@@ -59,6 +60,7 @@ Feature: Key backup and restore
             | 7.3 | backupEc-09 | P-521     | ES512     | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
             | 7.4 | backupEc-10 | P-256K    | ES256K    | The quick brown fox jumps over the lazy dog.                     |
             | 7.5 | backupEc-11 | P-256K    | ES256K    | The quick brown fox jumps over the lazy dog.                     |
+            | 7.6 | backupEc-12 | P-256K    | ES256K    | The quick brown fox jumps over the lazy dog.                     |
 
 
     @Key @KeyImport @KeyEncrypt @KeyBackup @KeyRestore @OCT
@@ -89,6 +91,7 @@ Feature: Key backup and restore
             | 7.3 | backupOct-07 | 256     | A256CBC    | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
             | 7.4 | backupOct-08 | 256     | A256CBC    | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
             | 7.5 | backupOct-09 | 256     | A256CBC    | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
+            | 7.6 | backupOct-10 | 256     | A256CBC    | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
 
     @Key @KeyImport @KeyEncrypt @KeyBackup @KeyRestore @RSA
     Scenario Outline: RSA_BACKUP_02 An RSA key is restored from json, backed up, then the backup content is compared to the source
@@ -109,6 +112,7 @@ Feature: Key backup and restore
             | 7.3 | jsonBackupRsa-4096-73 |
             | 7.4 | jsonBackupRsa-2048-74 |
             | 7.5 | jsonBackupRsa-2048-75 |
+            | 7.6 | jsonBackupRsa-2048-76 |
 
     @Key @KeyImport @KeyEncrypt @KeyBackup @KeyRestore @EC
     Scenario Outline: EC_BACKUP_02 An EC key is restored from json, backed up, then the backup content is compared to the source
@@ -131,6 +135,7 @@ Feature: Key backup and restore
             | 7.3 | jsonBackupEc-521-73  |
             | 7.4 | jsonBackupEc-384-74  |
             | 7.5 | jsonBackupEc-384-75  |
+            | 7.6 | jsonBackupEc-384-76  |
 
     @Key @KeyImport @KeyEncrypt @KeyBackup @KeyRestore @OCT
     Scenario Outline: OCT_BACKUP_02 An OCT key is restored from json, backed up, then the backup content is compared to the source
@@ -151,3 +156,4 @@ Feature: Key backup and restore
             | 7.3 | jsonBackupOct-256-73 |
             | 7.4 | jsonBackupOct-192-74 |
             | 7.5 | jsonBackupOct-192-75 |
+            | 7.6 | jsonBackupOct-192-76 |

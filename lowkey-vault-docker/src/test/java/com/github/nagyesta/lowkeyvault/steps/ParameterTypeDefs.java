@@ -42,7 +42,7 @@ public class ParameterTypeDefs {
                 .orElse(Collections.emptyList());
     }
 
-    @ParameterType("(7.2|7.3|7.4|7.5)")
+    @ParameterType("(7.2|7.3|7.4|7.5|7.6)")
     public String api(final String api) {
         return api;
     }

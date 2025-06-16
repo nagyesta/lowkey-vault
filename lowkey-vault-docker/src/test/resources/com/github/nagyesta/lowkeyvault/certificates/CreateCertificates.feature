@@ -29,6 +29,8 @@ Feature: Certificate creation
             | 7.4 | with    | 74-createRsaCert2048PemHsm  | 2048    | enabled       | PEM    | CN=localhost   |
             | 7.5 | without | 75-createRsaCert2048Pem     | 2048    | enabled       | PEM    | CN=localhost   |
             | 7.5 | with    | 75-createRsaCert2048PemHsm  | 2048    | enabled       | PEM    | CN=localhost   |
+            | 7.6 | without | 76-createRsaCert2048Pem     | 2048    | enabled       | PEM    | CN=localhost   |
+            | 7.6 | with    | 76-createRsaCert2048PemHsm  | 2048    | enabled       | PEM    | CN=localhost   |
 
     @Certificate @CertificateCreate @EC
     Scenario Outline: EC_CERT_CREATE_01 Single versions of EC certificates can be created with the certificate client
@@ -66,6 +68,8 @@ Feature: Certificate creation
             | 7.4 | with    | 74-createEcCertP256PemHsm   | P-256     | enabled       | PEM    | CN=localhost   |
             | 7.5 | without | 75-createEcCertP256Pem      | P-256     | enabled       | PEM    | CN=localhost   |
             | 7.5 | with    | 75-createEcCertP256PemHsm   | P-256     | enabled       | PEM    | CN=localhost   |
+            | 7.6 | without | 76-createEcCertP256Pem      | P-256     | enabled       | PEM    | CN=localhost   |
+            | 7.6 | with    | 76-createEcCertP256PemHsm   | P-256     | enabled       | PEM    | CN=localhost   |
 
     @Certificate @CertificateCreate @RSA
     Scenario Outline: RSA_CERT_CREATE_02 Single versions of RSA certificates can be created using lifetime actions
@@ -89,6 +93,7 @@ Feature: Certificate creation
             | 7.3 | 73-createRsaCertPemRenewAction | 75           | percent lifetime   | AutoRenew     | PEM    |
             | 7.4 | 74-createRsaCertPemAction      | 20           | days before expiry | EmailContacts | PEM    |
             | 7.5 | 75-createRsaCertPemAction      | 20           | days before expiry | EmailContacts | PEM    |
+            | 7.6 | 76-createRsaCertPemAction      | 20           | days before expiry | EmailContacts | PEM    |
 
     @Certificate @CertificateCreate @EC
     Scenario Outline: EC_CERT_CREATE_02 Single versions of EC certificates can be created using lifetime actions
@@ -111,6 +116,7 @@ Feature: Certificate creation
             | 7.3 | 73-createEcCertPkcsAction | 80           | percent lifetime   | AutoRenew     | PKCS12 |
             | 7.4 | 74-createEcCertPemAction  | 10           | days before expiry | EmailContacts | PEM    |
             | 7.5 | 75-createEcCertPemAction  | 10           | days before expiry | EmailContacts | PEM    |
+            | 7.6 | 76-createEcCertPemAction  | 10           | days before expiry | EmailContacts | PEM    |
 
     @Certificate @CertificateCreate @RSA
     Scenario Outline: RSA_CERT_CREATE_03 Two versions of the same RSA certificates can be created using the same name
@@ -133,6 +139,7 @@ Feature: Certificate creation
             | 7.3 | 73-createRsaCertPkcsDouble | PKCS12 |
             | 7.4 | 74-createRsaCertPemDouble  | PEM    |
             | 7.5 | 75-createRsaCertPemDouble  | PEM    |
+            | 7.6 | 76-createRsaCertPemDouble  | PEM    |
 
     @Certificate @CertificateCreate @EC
     Scenario Outline: EC_CERT_CREATE_03 Two versions of the same EC certificates can be created using the same name
@@ -155,3 +162,4 @@ Feature: Certificate creation
             | 7.3 | 73-createEcCertPkcsDouble | PKCS12 |
             | 7.4 | 74-createEcCertPemDouble  | PEM    |
             | 7.5 | 75-createEcCertPemDouble  | PEM    |
+            | 7.6 | 76-createEcCertPemDouble  | PEM    |

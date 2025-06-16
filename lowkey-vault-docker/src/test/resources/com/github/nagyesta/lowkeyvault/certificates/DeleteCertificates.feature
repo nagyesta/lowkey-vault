@@ -15,6 +15,7 @@ Feature: Certificate delete/purge/recover
             | 7.3 | 1     | rsa-localhost.pem |
             | 7.4 | 2     | rsa-localhost.pem |
             | 7.5 | 3     | rsa-localhost.pem |
+            | 7.6 | 4     | rsa-localhost.pem |
 
     @Certificate @CertificateImport @CertificateDelete @EC @CreateVault
     Scenario Outline: EC_CERT_DELETE_01 Single versions of multiple EC certificates imported and deleted then get as deleted
@@ -31,6 +32,7 @@ Feature: Certificate delete/purge/recover
             | 7.3 | 1     | ec521-ec-localhost.pem |
             | 7.4 | 2     | ec521-ec-localhost.pem |
             | 7.5 | 3     | ec521-ec-localhost.pem |
+            | 7.6 | 4     | ec521-ec-localhost.pem |
 
     @Certificate @CertificateImport @CertificateDelete @RSA @CreateVault
     Scenario Outline: RSA_CERT_PURGE_01 Single versions of multiple RSA certificates imported and deleted then purged
@@ -50,6 +52,7 @@ Feature: Certificate delete/purge/recover
             | 7.3 | 1     | rsa-localhost.pem |
             | 7.4 | 2     | rsa-localhost.pem |
             | 7.5 | 3     | rsa-localhost.pem |
+            | 7.6 | 4     | rsa-localhost.pem |
 
     @Certificate @CertificateImport @CertificateDelete @EC @CreateVault
     Scenario Outline: EC_CERT_PURGE_01 Single versions of multiple EC certificates imported and deleted then purged
@@ -69,6 +72,7 @@ Feature: Certificate delete/purge/recover
             | 7.3 | 1     | ec521-ec-localhost.pem |
             | 7.4 | 2     | ec521-ec-localhost.pem |
             | 7.5 | 3     | ec521-ec-localhost.pem |
+            | 7.6 | 4     | ec521-ec-localhost.pem |
 
     @Certificate @CertificateImport @CertificateDelete @RSA @CreateVault
     Scenario Outline: RSA_CERT_RECOVER_01 Single versions of multiple RSA certificates imported and deleted then recovered
@@ -88,6 +92,7 @@ Feature: Certificate delete/purge/recover
             | 7.3 | 1     | rsa-localhost.pem |
             | 7.4 | 2     | rsa-localhost.pem |
             | 7.5 | 3     | rsa-localhost.pem |
+            | 7.6 | 4     | rsa-localhost.pem |
 
     @Certificate @CertificateImport @CertificateDelete @EC @CreateVault
     Scenario Outline: EC_CERT_RECOVER_01 Single versions of multiple EC certificates imported and deleted then recovered
@@ -107,3 +112,4 @@ Feature: Certificate delete/purge/recover
             | 7.3 | 1     | ec521-ec-localhost.pem |
             | 7.4 | 2     | ec521-ec-localhost.pem |
             | 7.5 | 3     | ec521-ec-localhost.pem |
+            | 7.6 | 4     | ec521-ec-localhost.pem |

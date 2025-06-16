@@ -31,6 +31,7 @@ Feature: Key rotation
             | 7.3 | without | 73-rotateRsaKeyMap        | 2048    | 257    | enabled       | null                                                 | null    | null      | aKey:aValue,b1:b2 |
             | 7.4 | without | 74-rotateRsaKeyMap        | 2048    | 257    | enabled       | null                                                 | null    | null      | aKey:aValue,b1:b2 |
             | 7.5 | without | 75-rotateRsaKeyMap        | 2048    | 257    | enabled       | null                                                 | null    | null      | aKey:aValue,b1:b2 |
+            | 7.6 | without | 76-rotateRsaKeyMap        | 2048    | 257    | enabled       | null                                                 | null    | null      | aKey:aValue,b1:b2 |
 
     @Key @KeyCreate @KeyRotate @EC
     Scenario Outline: EC_ROTATE_01 Single versions of EC keys can be created with the key client, then rotated and result observed
@@ -63,6 +64,7 @@ Feature: Key rotation
             | 7.3 | without | 73-rotateEcKeyNotEnabled | P-256     | 32     | not enabled   | null               | null    | null      | null              |
             | 7.4 | without | 74-rotateEcKeyNotEnabled | P-256     | 32     | not enabled   | null               | null    | null      | null              |
             | 7.5 | without | 75-rotateEcKeyNotEnabled | P-256     | 32     | not enabled   | null               | null    | null      | null              |
+            | 7.6 | without | 76-rotateEcKeyNotEnabled | P-256     | 32     | not enabled   | null               | null    | null      | null              |
 
     @Key @KeyCreate @KeyRotate @OCT
     Scenario Outline: OCT_ROTATE_01 Single versions of OCT keys can be created with the key client, then rotated and result observed
@@ -96,3 +98,4 @@ Feature: Key rotation
             | 7.3 | with | 73-rotateOctKeyNotEnabled | 128     | not enabled   | null                                     | null    | null      | null              |
             | 7.4 | with | 74-rotateOctKey           | 128     | enabled       | null                                     | null    | null      | null              |
             | 7.5 | with | 75-rotateOctKey           | 128     | enabled       | null                                     | null    | null      | null              |
+            | 7.6 | with | 76-rotateOctKey           | 128     | enabled       | null                                     | null    | null      | null              |

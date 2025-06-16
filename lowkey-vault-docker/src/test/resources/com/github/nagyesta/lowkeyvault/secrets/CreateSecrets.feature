@@ -38,3 +38,4 @@ Feature: Secret creation
             | 7.3 | 73-createSecretNotEnabled | not enabled   | text/plain       | Not enabled                                  | null    | null      | null              |
             | 7.4 | 74-createSecretDates      | enabled       | text/plain       | Only sometimes.                              | 4321    | 1234      | null              |
             | 7.5 | 75-createSecretDates      | enabled       | text/plain       | Only sometimes.                              | 4321    | 1234      | null              |
+            | 7.6 | 76-createSecretDates      | enabled       | text/plain       | Only sometimes.                              | 4321    | 1234      | null              |

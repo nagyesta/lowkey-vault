@@ -23,6 +23,7 @@ Feature: Key sign and verify
             | 7.3 | signRsaKey-07 | 4096    | RS512     | The quick brown fox jumps over the lazy dog. |
             | 7.4 | signRsaKey-08 | 2048    | PS256     | The quick brown fox jumps over the lazy dog. |
             | 7.5 | signRsaKey-09 | 2048    | PS256     | The quick brown fox jumps over the lazy dog. |
+            | 7.6 | signRsaKey-10 | 2048    | PS256     | The quick brown fox jumps over the lazy dog. |
 
     @Key @KeyCreate @KeySign @EC
     Scenario Outline: EC_SIGN_01 An EC key is created with the key client then used for sign and verify operations
@@ -49,3 +50,4 @@ Feature: Key sign and verify
             | 7.3 | signEc-09 | P-521     | ES512     | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
             | 7.4 | signEc-10 | P-521     | ES512     | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
             | 7.5 | signEc-11 | P-521     | ES512     | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |
+            | 7.6 | signEc-12 | P-521     | ES512     | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do. |

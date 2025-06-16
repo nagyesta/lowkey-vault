@@ -44,6 +44,7 @@ Feature: Key get
             | 7.3 | 4             | without | 73-get01RsaKeyDates        | 2048    | 257    | null                                                 | 4321    | 1234      | null              |
             | 7.4 | 4             | without | 74-get01RsaKeyDates        | 2048    | 257    | null                                                 | 4321    | 1234      | null              |
             | 7.5 | 4             | without | 75-get01RsaKeyDates        | 2048    | 257    | null                                                 | 4321    | 1234      | null              |
+            | 7.6 | 4             | without | 76-get01RsaKeyDates        | 2048    | 257    | null                                                 | 4321    | 1234      | null              |
 
     @Key @KeyCreate @KeyGet @EC
     Scenario Outline: EC_GET_01 Multiple versions of EC keys are created with the key client then the latest is fetched
@@ -89,6 +90,7 @@ Feature: Key get
             | 7.3 | 4             | without | 73-get01EcKeyDates      | P-256     | 32     | null               | 4321    | 1234      | null              |
             | 7.4 | 4             | without | 74-get01EcKeyDates      | P-256     | 32     | null               | 4321    | 1234      | null              |
             | 7.5 | 4             | without | 75-get01EcKeyDates      | P-256     | 32     | null               | 4321    | 1234      | null              |
+            | 7.6 | 4             | without | 76-get01EcKeyDates      | P-256     | 32     | null               | 4321    | 1234      | null              |
 
     @Key @KeyCreate @KeyGet @OCT
     Scenario Outline: OCT_GET_01 Multiple versions of OCT keys are created with the key client then the latest is fetched
@@ -131,6 +133,7 @@ Feature: Key get
             | 7.3 | 4             | with | 73-get01OctKeyDates      | 128     | null                                     | 4321    | 1234      | null              |
             | 7.4 | 4             | with | 74-get01OctKeyDates      | 128     | null                                     | 4321    | 1234      | null              |
             | 7.5 | 4             | with | 75-get01OctKeyDates      | 128     | null                                     | 4321    | 1234      | null              |
+            | 7.6 | 4             | with | 76-get01OctKeyDates      | 128     | null                                     | 4321    | 1234      | null              |
 
 
     @Key @KeyCreate @KeyGet @RSA
@@ -156,6 +159,7 @@ Feature: Key get
             | 7.3 | 3             | without | 73-get02-rsa-key-name | 2048    | 257    |
             | 7.4 | 3             | without | 74-get02-rsa-key-name | 2048    | 257    |
             | 7.5 | 3             | without | 75-get02-rsa-key-name | 2048    | 257    |
+            | 7.6 | 3             | without | 76-get02-rsa-key-name | 2048    | 257    |
 
     @Key @KeyCreate @KeyGet @EC
     Scenario Outline: EC_GET_02 Multiple versions of EC keys are created with the key client then the first is fetched by version
@@ -180,6 +184,7 @@ Feature: Key get
             | 7.3 | 6             | without | 73-get02EcKey256k | P-256K    | 32     |
             | 7.4 | 5             | without | 74-get02EcKey256  | P-256     | 32     |
             | 7.5 | 5             | without | 75-get02EcKey256  | P-256     | 32     |
+            | 7.6 | 5             | without | 76-get02EcKey256  | P-256     | 32     |
 
     @Key @KeyCreate @KeyGet @OCT
     Scenario Outline: OCT_GET_02 Multiple versions of OCT keys are created with the key client then the first is fetched by version
@@ -204,7 +209,7 @@ Feature: Key get
             | 7.3 | 5             | with | 73-get02OctKey    | 128     |
             | 7.3 | 6             | with | 73-get02OctKey192 | 192     |
             | 7.4 | 6             | with | 74-get02OctKey192 | 192     |
-            | 7.5 | 6             | with | 75-get02OctKey192 | 192     |
+            | 7.6 | 6             | with | 76-get02OctKey192 | 192     |
 
 
     @Key @KeyCreate @KeyGet @RSA
@@ -223,6 +228,7 @@ Feature: Key get
             | 7.3 | 2             | without | 73-get03RsaKeyNotEnabled | 2048    |
             | 7.4 | 2             | without | 74-get03RsaKeyNotEnabled | 2048    |
             | 7.5 | 2             | without | 75-get03RsaKeyNotEnabled | 2048    |
+            | 7.6 | 2             | without | 76-get03RsaKeyNotEnabled | 2048    |
 
     @Key @KeyCreate @KeyGet @EC
     Scenario Outline: EC_GET_03 Multiple versions of disabled EC keys are created with the key client then the latest is fetched
@@ -240,6 +246,7 @@ Feature: Key get
             | 7.3 | 4             | without | 73-get03EcKeyNotEnabled | P-256     |
             | 7.4 | 4             | without | 74-get03EcKeyNotEnabled | P-256     |
             | 7.5 | 4             | without | 75-get03EcKeyNotEnabled | P-256     |
+            | 7.6 | 4             | without | 76-get03EcKeyNotEnabled | P-256     |
 
     @Key @KeyCreate @KeyGet @OCT
     Scenario Outline: OCT_GET_03 Multiple versions of disabled OCT keys are created with the key client then the latest is fetched
@@ -257,6 +264,7 @@ Feature: Key get
             | 7.3 | 3             | 73-get03OctKeyNotEnabled | 128     |
             | 7.4 | 3             | 74-get03OctKeyNotEnabled | 128     |
             | 7.5 | 3             | 75-get03OctKeyNotEnabled | 128     |
+            | 7.6 | 3             | 76-get03OctKeyNotEnabled | 128     |
 
     @Key @KeyCreate @KeyGet @KeyUpdate @EC
     Scenario Outline: EC_UPDATE_01 Multiple versions of EC keys are created with the key client then the latest is updated and fetched
@@ -303,3 +311,4 @@ Feature: Key get
             | 7.3 | 3             | without | 73-update01EcKeyNotEnabled | P-256     | 32     | not enabled   | null               | null    | null      | null              |
             | 7.4 | 4             | without | 74-update01EcKeyDates      | P-256     | 32     | enabled       | null               | 4321    | 1234      | null              |
             | 7.5 | 4             | without | 75-update01EcKeyDates      | P-256     | 32     | enabled       | null               | 4321    | 1234      | null              |
+            | 7.6 | 4             | without | 76-update01EcKeyDates      | P-256     | 32     | enabled       | null               | 4321    | 1234      | null              |

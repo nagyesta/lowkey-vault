@@ -54,7 +54,7 @@ class CertificateEntityToV73CertificateItemModelConverterTest {
         //given
         final var properties = mock(CertificateEntityToV73PropertiesModelConverter.class);
         final var registry = mock(CertificateConverterRegistry.class);
-        when(registry.propertiesConverter(ApiConstants.V_7_5)).thenReturn(properties);
+        when(registry.propertiesConverter(ApiConstants.V_7_6)).thenReturn(properties);
         final var underTest =
                 new CertificateEntityToV73CertificateItemModelConverter(registry);
         final var expectedThumbprint = THUMBPRINT;

@@ -1,0 +1,56 @@
+{
+  "versions": [
+    {
+      "vaultBaseUri": "https://keys-backup-jsonBackupEc-384-76.localhost:8443",
+      "entityId": "jsonBackupEc-384-76",
+      "entityVersion": "7f4c0a2ef5454e07a533e597434984a8",
+      "attributes": {
+        "enabled": true,
+        "created": 1649503879,
+        "updated": 1649503879,
+        "recoveryLevel": "Recoverable+Purgeable",
+        "exp": 1659871879,
+        "recoverableDays": 90
+      },
+      "tags": {},
+      "managed": false,
+      "keyMaterial": {
+        "crv": "P-384",
+        "d": "bd2taaXwxvA_DRUZ1wMT28l8TnaMDz1mn2Z2x_pJT_nkZ11BNS1FFxJvjYHIvoU4",
+        "key_ops": [
+          "sign"
+        ],
+        "kid": "https://keys-backup-jsonBackupEc-384-76.localhost:8443/keys/jsonBackupEc-384-76/7f4c0a2ef5454e07a533e597434984a8",
+        "kty": "EC",
+        "x": "KzD2vTm-aSjXN_RFlY7P78R6hpfdJcSHTC9WM7QXmf0VJro3cXdFOZk6vrx5WDjE",
+        "y": "pjLyFfCNzQ7yZUFc6iVS8eSWoRXY84sg3pzcSlkgn5LPYf9Vx7QSgAXfbRtmHGt_"
+      }
+    }
+  ],
+  "rotationPolicy": {
+    "id": "https://keys-backup-jsonBackupEc-384-76.localhost:8443/keys/jsonBackupEc-384-76/rotationpolicy",
+    "lifetimeActions": [
+      {
+        "trigger": {
+          "timeBeforeExpiry": "P30D"
+        },
+        "action": {
+          "type": "notify"
+        }
+      },
+      {
+        "trigger": {
+          "timeAfterCreate": "P100D"
+        },
+        "action": {
+          "type": "rotate"
+        }
+      }
+    ],
+    "attributes": {
+      "expiryTime": "P120D",
+      "created": 1649503879,
+      "updated": 1649503879
+    }
+  }
+}

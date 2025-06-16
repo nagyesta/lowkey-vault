@@ -22,6 +22,7 @@ Feature: Secret delete and recover
             | 7.3 | secrets-alias-delete | 4             | 73-deleteSecretXmlA | application/xml | <?xml version="1.0"?><none/>                 |
             | 7.4 | secrets-alias-delete | 4             | 74-deleteSecretXmlA | application/xml | <?xml version="1.0"?><none/>                 |
             | 7.5 | secrets-alias-delete | 4             | 75-deleteSecretXmlA | application/xml | <?xml version="1.0"?><none/>                 |
+            | 7.6 | secrets-alias-delete | 4             | 76-deleteSecretXmlA | application/xml | <?xml version="1.0"?><none/>                 |
 
     @Secret @SecretCreate @SecretDelete @SecretRecover @SecretAlias
     Scenario Outline: SECRET_RECOVER_01 Multiple versions of secrets are created with the secret client then deleted and recovered
@@ -45,6 +46,7 @@ Feature: Secret delete and recover
             | 7.3 | secrets-alias-delete | 4             | 73-recoverSecretXmlA | application/xml | <?xml version="1.0"?><none/>                 |
             | 7.4 | secrets-delete       | 5             | 74-recoverSecret2    | text/plain      | The quick brown fox jumps over the lazy dog. |
             | 7.5 | secrets-delete       | 5             | 75-recoverSecret2    | text/plain      | The quick brown fox jumps over the lazy dog. |
+            | 7.6 | secrets-delete       | 5             | 76-recoverSecret2    | text/plain      | The quick brown fox jumps over the lazy dog. |
 
     @Secret @SecretCreate @SecretDelete @SecretPurge
     Scenario Outline: SECRET_PURGE_01 Multiple versions of secrets are created with the secret client then deleted and purged
@@ -69,3 +71,4 @@ Feature: Secret delete and recover
             | 7.3 | 4             | 73-purgeSecretXml | application/xml | <?xml version="1.0"?><none/>                 |
             | 7.4 | 4             | 74-purgeSecretXml | application/xml | <?xml version="1.0"?><none/>                 |
             | 7.5 | 4             | 75-purgeSecretXml | application/xml | <?xml version="1.0"?><none/>                 |
+            | 7.6 | 4             | 76-purgeSecretXml | application/xml | <?xml version="1.0"?><none/>                 |

@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
@@ -18,27 +19,25 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Optional;
-import java.util.Set;
 
 @Component
+@ConditionalOnExpression("${LOWKEY_ENABLE_AUTH}")
 @Order(CommonAuthHeaderFilter.PRECEDENCE)
 @Slf4j
 public class CommonAuthHeaderFilter
         extends OncePerRequestFilter {
 
-    static final int PRECEDENCE = 100;
+    static final int PRECEDENCE = 125;
 
     static final String OMIT_DEFAULT = "";
-    private static final int DEFAULT_HTTPS_PORT = 443;
-    private static final String PORT_SEPARATOR = ":";
     private static final String HTTPS = "https://";
     private static final String BEARER_FAKE_TOKEN = "Bearer resource=\"%s\", authorization_uri=\"%s\"";
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
-    private final Set<String> skipUrisIfMatch = Set.of("/ping", "/ping/", "/management/**", "/api/**", "/metadata/**");
     private final String authResource;
 
     public CommonAuthHeaderFilter(
             @lombok.NonNull @Value("${LOWKEY_AUTH_RESOURCE:}") final String authResource) {
+        log.info("Authentication is enforced.");
         this.authResource = authResource;
     }
 
@@ -47,11 +46,8 @@ public class CommonAuthHeaderFilter
             final HttpServletRequest request,
             final HttpServletResponse response,
             @NonNull final FilterChain filterChain) throws ServletException, IOException {
-
+        final var baseUri = (URI) request.getAttribute(ApiConstants.REQUEST_BASE_URI);
         log.debug("Adding fake authenticate header to response for request: {}", request.getRequestURI());
-        final var port = resolvePort(request.getServerPort());
-        final var baseUri = URI.create(HTTPS + request.getServerName() + port);
-        request.setAttribute(ApiConstants.REQUEST_BASE_URI, baseUri);
         final var authResourceUri = Optional.of(authResource)
                 .filter(anObject -> !OMIT_DEFAULT.equals(anObject))
                 .map(res -> URI.create(HTTPS + res))
@@ -68,14 +64,8 @@ public class CommonAuthHeaderFilter
 
     @Override
     protected boolean shouldNotFilter(@NonNull final HttpServletRequest request) {
-        return skipUrisIfMatch.stream()
+        return ApiConstants.NON_VAULT_URIS.stream()
                 .anyMatch(pattern -> antPathMatcher.matchStart(pattern, request.getRequestURI()));
     }
 
-    private String resolvePort(final int port) {
-        if (port == DEFAULT_HTTPS_PORT) {
-            return OMIT_DEFAULT;
-        }
-        return PORT_SEPARATOR + port;
-    }
 }

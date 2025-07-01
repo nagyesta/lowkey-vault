@@ -128,6 +128,22 @@ java -jar lowkey-vault-app-<version>.jar --LOWKEY_AUTH_RESOURCE="vault.azure.net
 > [!WARNING]
 > This property is only intended to be used in case you absolutely cannot disable your challenge resource verification because it raises the complexity of your setup significantly and there are no guarantees that the clients will keep working with this workaround. Therefore, this is NOT recommended to be used. Please consider following [the official guidance](https://devblogs.microsoft.com/azure-sdk/guidance-for-applications-using-the-key-vault-libraries/) instead.
 
+### Turning off authentication
+
+Authentication is on by default in case of Lowkey Vault to simulate the behaviour of a real Azure Key Vault. However, there might be some
+scenarios when you cannot possibly change the code or configuration of the client so turning off authentication looks like the only option.
+In these cases you can set the `LOWKEY_ENABLE_AUTH` flag to `false` to completely disable authentication.
+
+```
+java -jar lowkey-vault-app-<version>.jar --LOWKEY_ENABLE_AUTH=false
+```
+
+> [!WARNING]
+> This property is only intended to be used as a last resort.
+
+> [!NOTE]
+> Please keep in mind, that the real Azure Key Vault will require authentication and you are not testing this mechanism when this flag is used.
+
 ### Using the Token endpoint with a custom realm
 
 By default, the Token endpoint includes the `WWW-Authenticate` response header with the `Basic realm=assumed-identity` value.
@@ -194,3 +210,4 @@ java -jar lowkey-vault-app-<version>.jar --LOWKEY_EXPORT_LOCATION=export.json
 Since Lowkey Vault is a Spring Boot application, the default mechanism for Spring Boot external configuration can work as well. For example,
 if there is a ./config/application.properties file relative to the folder where you are running Lowkey Vault, the contents will be picked up
 automatically. For more information please see [the Spring Boot documentation](https://docs.spring.io/spring-boot/docs/2.1.9.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-application-property-files).
+

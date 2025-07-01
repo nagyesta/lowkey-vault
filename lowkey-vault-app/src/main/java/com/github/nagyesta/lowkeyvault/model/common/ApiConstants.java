@@ -1,11 +1,17 @@
 package com.github.nagyesta.lowkeyvault.model.common;
 
+import java.util.Set;
+
 public final class ApiConstants {
 
     /**
      * Parameter for getting the request base URI.
      */
     public static final String REQUEST_BASE_URI = "requestBaseUri";
+    /**
+     * The paths which are not used by any key vault functionality.
+     */
+    public static final Set<String> NON_VAULT_URIS = Set.of("/ping", "/ping/", "/management/**", "/api/**", "/metadata/**");
     /**
      * The version of the v7.2 API.
      */

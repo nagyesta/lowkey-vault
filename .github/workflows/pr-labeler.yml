@@ -28,6 +28,8 @@ jobs:
         run: |
           if [[ "${{ steps.get-branch-name.outputs.BRANCH_NAME }}" == feature/* ]]; then
             echo "LABEL_NAME=enhancement" >> $GITHUB_OUTPUT
+          elif [[ "${{ steps.get-branch-name.outputs.BRANCH_NAME }}" == feat/* ]]; then
+            echo "LABEL_NAME=enhancement" >> $GITHUB_OUTPUT
           elif [[ "${{ steps.get-branch-name.outputs.BRANCH_NAME }}" == bugfix/* ]]; then
             echo "LABEL_NAME=bug" >> $GITHUB_OUTPUT
           elif [[ "${{ steps.get-branch-name.outputs.BRANCH_NAME }}" == bug/* ]]; then

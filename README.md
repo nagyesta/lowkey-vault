@@ -218,7 +218,10 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 
 Used for metadata endpoints
 
-- Simulating Managed Identity Token endpoint `GET /metadata/identity/oauth2/token?resource=<resource>`.
+- Managed Identity Token API
+    - Simulating Managed Identity Token endpoint `GET /metadata/identity/oauth2/token?resource=<resource>`.
+    - OpenID configuration `GET /metadata/identity/.well-known/openid-configuration`
+    - The Key used for token signatures `GET /metadata/identity/.well-known/openid-configuration/jwks`
 - Obtaining the default certificates of Lowkey Vault
     - The default `PKCS12` keystore: `GET /metadata/default-cert/lowkey-vault.p12`
     - The password protecting the default keystore: `GET /metadata/default-cert/password`

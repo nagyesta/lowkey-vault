@@ -3,12 +3,13 @@ springBoot = "3.5.3"
 spring = "6.2.8"
 snakeYaml = "2.4"
 tomcat = "11.0.9"
+jjwt = "0.12.6"
 logback = "1.5.18"
 bouncycastle = "1.81"
 hibernateValidator = "9.0.1.Final"
 findbugs = "3.0.2"
 lombok = "1.18.38"
-handlebars="4.4.0"
+handlebars = "4.4.0"
 httpClient = "4.5.14"
 commonsCodec = "1.18.0"
 commonsCompress = "1.27.1"
@@ -17,7 +18,7 @@ azureKeyVaultSecretsClient = "4.10.0"
 azureKeyVaultCertClient = "4.8.0"
 testcontainers = "1.21.3"
 mysqlDriver = "9.3.0"
-cucumber = "7.25.0"
+cucumber = "7.26.0"
 mockitoCore = "5.18.0"
 jupiter = "5.13.3"
 abortMission = "6.0.64"
@@ -60,6 +61,10 @@ tomcat-embed-core = { module = "org.apache.tomcat.embed:tomcat-embed-core", vers
 tomcat-embed-el = { module = "org.apache.tomcat.embed:tomcat-embed-el", version.ref = "tomcat" }
 tomcat-embed-jasper = { module = "org.apache.tomcat.embed:tomcat-embed-jasper", version.ref = "tomcat" }
 tomcat-embed-websocket = { module = "org.apache.tomcat.embed:tomcat-embed-websocket", version.ref = "tomcat" }
+
+jjwt-api = { module = "io.jsonwebtoken:jjwt-api", version.ref = "jjwt" }
+jjwt-impl = { module = "io.jsonwebtoken:jjwt-impl", version.ref = "jjwt" }
+jjwt-jackson = { module = "io.jsonwebtoken:jjwt-jackson", version.ref = "jjwt" }
 
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
@@ -107,7 +112,7 @@ testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "
 testcontainers-jdbc = { module = "org.testcontainers:jdbc", version.ref = "testcontainers" }
 testcontainers-mysql = { module = "org.testcontainers:mysql", version.ref = "testcontainers" }
 testcontainers-jupiter = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers" }
-mysql-driver = { module = "com.mysql:mysql-connector-j", version.ref = "mysqlDriver"}
+mysql-driver = { module = "com.mysql:mysql-connector-j", version.ref = "mysqlDriver" }
 
 [bundles]
 spring-boot-app = [
@@ -118,6 +123,7 @@ spring-test = ["spring-boot-starter-test", "spring-test", "snake-yaml"]
 logback = ["logback-classic", "logback-core"]
 cucumber = ["cucumber-java", "cucumber-testng", "cucumber-picocontainer"]
 jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-dataformat-xml", "jackson-datatype-jsr310"]
+jjwt = ["jjwt-api", "jjwt-impl", "jjwt-jackson"]
 tomcat = [
     "tomcat-annotations-api", "tomcat-jsp-api", "tomcat-embed-core", "tomcat-embed-el", "tomcat-embed-jasper", "tomcat-embed-websocket"
 ]

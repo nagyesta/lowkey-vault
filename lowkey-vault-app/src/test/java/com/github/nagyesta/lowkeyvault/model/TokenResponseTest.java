@@ -13,7 +13,9 @@ import java.util.stream.Stream;
 class TokenResponseTest {
 
     private static final int EXPECTED_EXPIRY = 48 * 3600;
-    private static final long MIN_EXPIRES_ON = Instant.now().plusSeconds(EXPECTED_EXPIRY).getEpochSecond();
+    private static final Instant NOW = Instant.now();
+    private static final Instant EXPIRES_ON = NOW.plusSeconds(EXPECTED_EXPIRY);
+    private static final long MIN_EXPIRES_ON = EXPIRES_ON.getEpochSecond();
     private static final String TOKEN_TYPE = "Bearer";
     private static final String DUMMY_TOKEN = "dummy";
     private static final URI RESOURCE = URI.create("https://localhost:8443/path");
@@ -32,23 +34,31 @@ class TokenResponseTest {
         );
     }
 
-    @Test
-    void testConstructorShouldThrowExceptionWhenCalledWithNull() {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new TokenResponse(null));
-
-        //then + expected
+    public static Stream<Arguments> nullAndEmptyProvider() {
+        final var resource = RESOURCE;
+        final var token = DUMMY_TOKEN;
+        final var now = NOW;
+        final var expiresOn = EXPIRES_ON;
+        return Stream.<Arguments>builder()
+                .add(Arguments.of(null, token, now, expiresOn))
+                .add(Arguments.of(URI.create(""), token, now, expiresOn))
+                .add(Arguments.of(resource, null, now, expiresOn))
+                .add(Arguments.of(resource, token, null, expiresOn))
+                .add(Arguments.of(resource, token, now, null))
+                .build();
     }
 
-    @Test
-    void testConstructorShouldThrowExceptionWhenCalledWithEmptyResource() {
+    @ParameterizedTest
+    @MethodSource("nullAndEmptyProvider")
+    void testConstructorShouldThrowExceptionWhenCalledWithNullOrEmpty(
+            final URI resource,
+            final String token,
+            final Instant issuedAt,
+            final Instant expiresOn) {
         //given
-        final var resource = URI.create("");
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new TokenResponse(resource));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new TokenResponse(resource, token, issuedAt, expiresOn));
 
         //then + expected
     }
@@ -72,7 +82,7 @@ class TokenResponseTest {
         //given
 
         //when
-        final var actual = new TokenResponse(RESOURCE);
+        final var actual = new TokenResponse(RESOURCE, DUMMY_TOKEN, NOW, EXPIRES_ON);
 
         //then
         Assertions.assertEquals(RESOURCE, actual.resource());

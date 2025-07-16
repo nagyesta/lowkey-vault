@@ -27,6 +27,7 @@ dependencies {
     implementation(libs.bundles.spring.boot.app)
     implementation(libs.bundles.logback)
     implementation(libs.bundles.tomcat)
+    implementation(libs.bundles.jjwt)
     implementation(libs.bouncycastle.bcpkix)
     implementation(libs.hibernate.validator)
     implementation(libs.handlebars)

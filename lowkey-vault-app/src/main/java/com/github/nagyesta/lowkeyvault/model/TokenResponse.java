@@ -16,12 +16,21 @@ public record TokenResponse(
         @JsonProperty("expires_on") long expiresOn,
         @JsonProperty("token_type") String tokenType) {
 
-    private static final long EXPIRES_IN = 48 * 3600L;
-    private static final String TOKEN = "dummy";
     private static final String BEARER = "Bearer";
 
-    public TokenResponse(@NotNull final URI resource) {
-        this(resource, TOKEN, TOKEN, EXPIRES_IN, Instant.now().plusSeconds(EXPIRES_IN).getEpochSecond(), BEARER);
+    public TokenResponse(
+            @NotNull final URI resource,
+            @NotNull final String jwt,
+            @NotNull final Instant issuedAt,
+            @NotNull final Instant expiresOn) {
+        this(resource, jwt, jwt, calculateExpiresIn(issuedAt, expiresOn), expiresOn.getEpochSecond(), BEARER);
         Assert.hasText(resource.toString(), "Resource must not be empty");
+        Assert.hasText(jwt, "Access token must not be empty");
+    }
+
+    private static long calculateExpiresIn(
+            @NonNull final Instant issuedAt,
+            @NonNull final Instant expiresOn) {
+        return expiresOn.getEpochSecond() - issuedAt.getEpochSecond();
     }
 }

@@ -1,0 +1,20 @@
+name: "Gradle-Wrapper-Validation"
+
+on:
+  schedule:
+    # * is a special character in YAML, so we have to quote this string
+    - cron: "0 7 * * 2,4,6"
+
+permissions: read-all
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@f9c9c575b8b21b6485636a91ffecd10e558c62f6 # v3.5.0
+

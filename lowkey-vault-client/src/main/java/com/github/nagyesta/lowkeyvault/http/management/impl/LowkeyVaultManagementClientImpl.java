@@ -147,11 +147,11 @@ public final class LowkeyVaultManagementClientImpl
     @Override
     public void timeShift(@NonNull final TimeShiftContext context) {
         final Map<String, String> parameters = new TreeMap<>();
-        parameters.put(SECONDS_QUERY_PARAM, Integer.toString(context.getSeconds()));
-        if (context.isRegenerateCertificates()) {
+        parameters.put(SECONDS_QUERY_PARAM, Integer.toString(context.seconds()));
+        if (context.regenerateCertificates()) {
             parameters.put(REGENERATE_CERTS_QUERY_PARAM, Boolean.TRUE.toString());
         }
-        final var optionalURI = Optional.ofNullable(context.getVaultBaseUri());
+        final var optionalURI = Optional.ofNullable(context.vaultBaseUri());
         optionalURI.ifPresent(uri -> parameters.put(BASE_URI_QUERY_PARAM, uri.toString()));
         final var path = optionalURI.map(u -> MANAGEMENT_VAULT_TIME_PATH).orElse(MANAGEMENT_VAULT_TIME_ALL_PATH);
         final var uri = UriUtil.uriBuilderForPath(vaultUrl, path, parameters);

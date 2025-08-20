@@ -8,6 +8,7 @@ import com.github.nagyesta.lowkeyvault.http.management.LowkeyVaultException;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
 import reactor.core.publisher.Mono;
@@ -22,31 +23,24 @@ import java.util.function.UnaryOperator;
 /**
  * Modified class based on <a href="https://github.com/Azure/azure-sdk-for-java/wiki/Custom-HTTP-Clients">
  * https://github.com/Azure/azure-sdk-for-java/wiki/Custom-HTTP-Clients</a>.
+ *
+ * @param httpClient                the http client we will use.
+ * @param authorityOverrideFunction The function mapping between the logical host name used by vault URLs
+ *                                  and the host name used by the host machine for accessing Lowkey Vault.
+ *                                  e.g., Maps from *.localhost:8443 to localhost:30443.
  */
-public final class ApacheHttpClient
-        implements HttpClient {
-
-    private final org.apache.http.client.HttpClient httpClient;
-    private final UnaryOperator<URI> authorityOverrideFunction;
+public record ApacheHttpClient(
+        org.apache.http.client.HttpClient httpClient,
+        UnaryOperator<URI> authorityOverrideFunction) implements HttpClient {
 
     public ApacheHttpClient(
             final UnaryOperator<URI> authorityOverrideFunction,
             final TrustStrategy trustStrategy,
             final HostnameVerifier hostnameVerifier) {
-        try {
-            this.authorityOverrideFunction = Objects.requireNonNull(authorityOverrideFunction);
-            final var builder = new SSLContextBuilder();
-            builder.loadTrustMaterial(null, trustStrategy);
-            final var socketFactory = new SSLConnectionSocketFactory(builder.build(), hostnameVerifier);
-            this.httpClient = HttpClients.custom()
-                    .addInterceptorFirst(new ContentLengthHeaderRemover())
-                    .setSSLSocketFactory(socketFactory).build();
-        } catch (final Exception e) {
-            throw new LowkeyVaultException("Failed to create HTTP client.", e);
-        }
+        this(createHttpClient(trustStrategy, hostnameVerifier), Objects.requireNonNull(authorityOverrideFunction));
     }
 
-    ApacheHttpClient(
+    public ApacheHttpClient(
             final org.apache.http.client.HttpClient httpClient,
             final UnaryOperator<URI> authorityOverrideFunction) {
         this.httpClient = Objects.requireNonNull(httpClient);
@@ -77,6 +71,21 @@ public final class ApacheHttpClient
             });
         } catch (final URISyntaxException e) {
             return Mono.error(e);
+        }
+    }
+
+    private static CloseableHttpClient createHttpClient(
+            final TrustStrategy trustStrategy,
+            final HostnameVerifier hostnameVerifier) {
+        try {
+            final var builder = new SSLContextBuilder();
+            builder.loadTrustMaterial(null, trustStrategy);
+            final var socketFactory = new SSLConnectionSocketFactory(builder.build(), hostnameVerifier);
+            return HttpClients.custom()
+                    .addInterceptorFirst(new ContentLengthHeaderRemover())
+                    .setSSLSocketFactory(socketFactory).build();
+        } catch (final Exception e) {
+            throw new LowkeyVaultException("Failed to create HTTP client.", e);
         }
     }
 

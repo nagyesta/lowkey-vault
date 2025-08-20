@@ -90,7 +90,7 @@ public abstract class BaseBackupRestoreController<K extends EntityId, V extends 
                 .distinct()
                 .toList();
         Assert.isTrue(entityNames.size() == 1, "All backup entities must belong to the same entity.");
-        return entityNames.get(0);
+        return entityNames.getFirst();
     }
 
     protected URI getSingleBaseUri(final B backupModel) {
@@ -99,7 +99,7 @@ public abstract class BaseBackupRestoreController<K extends EntityId, V extends 
                 .distinct()
                 .toList();
         Assert.isTrue(uris.size() == 1, "All backup entities must be from the same vault.");
-        return uris.get(0);
+        return uris.getFirst();
     }
 
     private B wrapBackup(final List<BLI> list) {

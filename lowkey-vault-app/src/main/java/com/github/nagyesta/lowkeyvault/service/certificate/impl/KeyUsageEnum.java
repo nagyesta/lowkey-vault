@@ -24,7 +24,7 @@ public enum KeyUsageEnum {
      */
     DIGITAL_SIGNATURE("digitalSignature", KeyUsage.digitalSignature, 0, KeyOps.SIGN_VERIFY),
     /**
-     * Non repudiation key usage.
+     * Non-repudiation key usage.
      */
     NON_REPUDIATION("nonRepudiation", KeyUsage.nonRepudiation, 1, KeyOps.SIGN_VERIFY),
     /**

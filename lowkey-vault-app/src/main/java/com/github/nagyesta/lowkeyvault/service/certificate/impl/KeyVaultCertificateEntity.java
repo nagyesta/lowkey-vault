@@ -119,7 +119,7 @@ public class KeyVaultCertificateEntity
     /**
      * Constructor for certificate renewal.
      *
-     * @param input The input parameters defining how the certificate should look like.
+     * @param input The input parameters defining what the certificate should look like.
      * @param kid   The ID of the key entity version we need to use.
      * @param id    The ID of the new certificate entity.
      * @param vault The vault we are using.
@@ -279,7 +279,7 @@ public class KeyVaultCertificateEntity
     @Override
     public void timeShift(final int offsetSeconds) {
         super.timeShift(offsetSeconds);
-        //reset expiry as it is measured in months while timeShift is using seconds
+        //reset expiry as it is using months while timeShift is using seconds
         //it is better to stay consistent with the behavior of the certificates
         this.setExpiry(this.getNotBefore().orElse(this.getCreated()).plusMonths(this.originalCertificatePolicy.getValidityMonths()));
     }
@@ -318,7 +318,7 @@ public class KeyVaultCertificateEntity
         this.setNotBefore(certPolicy.getValidityStart());
         this.setExpiry(certPolicy.getValidityStart().plusMonths(certPolicy.getValidityMonths()));
         this.setEnabled(true);
-        //update timestamps of certificate as the constructor can run for more than a second
+        //update timestamps of the certificate as the constructor can run for more than a second
         this.setCreatedOn(createOrUpdate);
         this.setUpdatedOn(createOrUpdate);
     }

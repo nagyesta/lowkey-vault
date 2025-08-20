@@ -169,7 +169,7 @@ public class KeysStepDefs extends CommonAssertions {
     @When("the first key version of {name} is fetched with providing a version")
     public void fetchFirstKeyVersion(final String name) {
         final var versionsCreated = context.getCreatedEntities().get(name);
-        final var version = versionsCreated.get(0).getProperties().getVersion();
+        final var version = versionsCreated.getFirst().getProperties().getVersion();
         final var vaultKey = context.getClient(context.getKeyServiceVersion()).getKey(name, version);
         context.addFetchedKey(name, vaultKey);
         assertEquals(version, vaultKey.getProperties().getVersion());
@@ -179,7 +179,7 @@ public class KeysStepDefs extends CommonAssertions {
     public void fetchLatestKeyVersion(final String name) {
         final var vaultKey = context.getClient(context.getKeyServiceVersion()).getKey(name);
         final var versionsCreated = context.getCreatedEntities().get(name);
-        final var expectedLastVersionId = versionsCreated.get(versionsCreated.size() - 1).getId();
+        final var expectedLastVersionId = versionsCreated.getLast().getId();
         context.addFetchedKey(name, vaultKey);
         assertEquals(expectedLastVersionId, vaultKey.getId());
     }

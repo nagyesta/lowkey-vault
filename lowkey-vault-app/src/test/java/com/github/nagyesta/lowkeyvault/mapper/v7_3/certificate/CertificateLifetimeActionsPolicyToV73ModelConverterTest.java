@@ -33,8 +33,8 @@ class CertificateLifetimeActionsPolicyToV73ModelConverterTest {
         //then
         Assertions.assertNotNull(actual);
         Assertions.assertEquals(1, actual.size());
-        Assertions.assertEquals(AUTO_RENEW, actual.get(0).getAction());
-        Assertions.assertEquals(TRIGGER_AT_80_PERCENT, actual.get(0).getTrigger().asTriggerEntity());
+        Assertions.assertEquals(AUTO_RENEW, actual.getFirst().getAction());
+        Assertions.assertEquals(TRIGGER_AT_80_PERCENT, actual.getFirst().getTrigger().asTriggerEntity());
     }
 
 }

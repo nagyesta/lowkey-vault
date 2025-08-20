@@ -27,7 +27,6 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContainer.DEFAULT_IMAGE_NAME;
@@ -38,7 +37,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
 
     private static final String VAULT_NAME = "default";
-    private static final int ALT_HOST_PORT = 18443;
     private static final int ALT_HOST_TOKEN_PORT = 18080;
     private static final int DEFAULT_PORT = 8443;
     private static final String LOCALHOST = "localhost";
@@ -78,25 +76,6 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
                 .parse(getCurrentLowkeyVaultImageName())
                 .asCompatibleSubstituteFor(DEFAULT_IMAGE_NAME);
         final var underTest = lowkeyVault(imageName).build()
-                .withImagePullPolicy(PullPolicy.defaultPolicy());
-
-        //when
-        try (underTest) {
-            underTest.start();
-
-            //then
-            verifyConnectionIsWorking(underTest);
-        }
-    }
-
-    @SuppressWarnings({"deprecation", "removal"})
-    @Test
-    void testContainerShouldStartUpWhenCalledWithFixedHostPort() {
-        //given
-        final var imageName = DockerImageName
-                .parse(getCurrentLowkeyVaultImageName())
-                .asCompatibleSubstituteFor(DEFAULT_IMAGE_NAME);
-        final var underTest = lowkeyVault(imageName).hostPort(ALT_HOST_PORT).build()
                 .withImagePullPolicy(PullPolicy.defaultPolicy());
 
         //when
@@ -226,19 +205,19 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
                     .listPropertiesOfSecrets()
                     .stream()
                     .map(SecretProperties::getName)
-                    .collect(Collectors.toList());
+                    .toList();
             final var actualKeyNames = clientFactory.getKeyClientBuilderForDefaultVault()
                     .buildClient()
                     .listPropertiesOfKeys()
                     .stream()
                     .map(KeyProperties::getName)
-                    .collect(Collectors.toList());
+                    .toList();
             final var actualCertificateNames = clientFactory.getCertificateClientBuilderForDefaultVault()
                     .buildClient()
                     .listPropertiesOfCertificates()
                     .stream()
                     .map(CertificateProperties::getName)
-                    .collect(Collectors.toList());
+                    .toList();
 
             Assertions.assertIterableEquals(List.of(CERT_EXAMPLE_COM, NAME), actualSecretNames);
             Assertions.assertIterableEquals(List.of(CERT_EXAMPLE_COM, NAME), actualKeyNames);
@@ -303,21 +282,6 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, builder::build);
-
-        //then + exceptions
-    }
-
-    @SuppressWarnings({"deprecation", "removal"})
-    @Test
-    void testBuilderShouldThrowExceptionWhenCalledWithInvalidHostPortNumber() {
-        //given
-        final var imageName = DockerImageName
-                .parse(getCurrentLowkeyVaultImageName())
-                .asCompatibleSubstituteFor(DEFAULT_IMAGE_NAME);
-        final var builder = lowkeyVault(imageName);
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.hostPort(0));
 
         //then + exceptions
     }
@@ -516,6 +480,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         //then + exceptions
     }
 
+    @SuppressWarnings("ConstantValue")
     @Test
     void testBuilderShouldThrowExceptionWhenCalledWithNullImage() {
         //given

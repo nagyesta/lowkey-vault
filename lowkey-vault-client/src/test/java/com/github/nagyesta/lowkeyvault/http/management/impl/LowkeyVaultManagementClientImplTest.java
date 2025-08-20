@@ -680,7 +680,7 @@ class LowkeyVaultManagementClientImplTest {
         @Test
         void testCompressBackupShouldProduceGzipBytesWhenCalledWithValidInput() throws IOException {
             //given
-            final var out = new BigInteger("239366333208093937709170404274988390036218345476049221665072896269330010352532848640")
+            final var out = new BigInteger("239366333208093937709580173476274432556481545809596218128716058032744622525534699520")
                     .toByteArray();
 
             //when

@@ -50,8 +50,8 @@ public class KeysStepDefsAssertions extends CommonAssertions {
 
     @Then("the key URL contains the vault url and {name}")
     public void theKeyURLContainsVaultUrlAndKeyName(final String keyName) {
-        assertTrue(context.getLastResult().getId() + " did not start with " + context.getProvider().getVaultUrl(),
-                context.getLastResult().getId().startsWith(context.getProvider().getVaultUrl()));
+        assertTrue(context.getLastResult().getId() + " did not start with " + context.getProvider().vaultUrl(),
+                context.getLastResult().getId().startsWith(context.getProvider().vaultUrl()));
         assertTrue(context.getLastResult().getId() + " did not contain " + keyName,
                 context.getLastResult().getId().contains(keyName));
     }
@@ -127,8 +127,8 @@ public class KeysStepDefsAssertions extends CommonAssertions {
     @Then("the deleted key recovery id contains the vault url and {name}")
     public void theDeletedKeyRecoveryIdContainsTheVaultUrlAndKeyName(final String keyName) {
         final var recoveryId = context.getLastDeleted().getRecoveryId();
-        assertTrue(recoveryId + " did not start with " + context.getProvider().getVaultUrl(),
-                recoveryId.startsWith(context.getProvider().getVaultUrl()));
+        assertTrue(recoveryId + " did not start with " + context.getProvider().vaultUrl(),
+                recoveryId.startsWith(context.getProvider().vaultUrl()));
         assertTrue(recoveryId + " did not contain " + keyName,
                 recoveryId.contains(keyName));
     }
@@ -212,7 +212,7 @@ public class KeysStepDefsAssertions extends CommonAssertions {
         final var keyRotationPolicy = context.getClient(context.getKeyServiceVersion()).getKeyRotationPolicy(keyName);
         assertEquals("P" + expiry + "D", keyRotationPolicy.getExpiresIn());
         assertEquals(1, keyRotationPolicy.getLifetimeActions().size());
-        final var action = keyRotationPolicy.getLifetimeActions().get(0);
+        final var action = keyRotationPolicy.getLifetimeActions().getFirst();
         assertEquals("P" + rotate + "D", action.getTimeAfterCreate());
         assertEquals(KeyRotationPolicyAction.ROTATE, action.getAction());
     }

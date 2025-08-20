@@ -1,7 +1,7 @@
 ![LowkeyVault](../.github/assets/LowkeyVault-logo-full.png)
 
 [![GitHub license](https://img.shields.io/github/license/nagyesta/lowkey-vault?color=informational)](https://raw.githubusercontent.com/nagyesta/lowkey-vault/main/LICENSE)
-[![Java version](https://img.shields.io/badge/Java%20version-11-yellow?logo=java)](https://img.shields.io/badge/Java%20version-11-yellow?logo=java)
+[![Java version](https://img.shields.io/badge/Java%20version-17-yellow?logo=java)](https://img.shields.io/badge/Java%20version-17-yellow?logo=java)
 [![latest-release](https://img.shields.io/github/v/tag/nagyesta/lowkey-vault?color=blue&logo=git&label=releases&sort=semver)](https://github.com/nagyesta/lowkey-vault/releases)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.nagyesta.lowkey-vault/lowkey-vault-app?logo=apache-maven)](https://search.maven.org/search?q=com.github.nagyesta.lowkey-vault)
 
@@ -23,12 +23,12 @@ Visit the [Readme](../README.md) in the repo root for more information about the
 2. Create a [ApacheHttpClientProvider](src/main/java/com/github/nagyesta/lowkeyvault/http/ApacheHttpClientProvider.java) instance using the
    constructor supporting host overrides: `ApacheHttpClientProvider(final String vaultUrl, final Function<URI, URI> authorityOverrideFunction)`.
    [Example](../lowkey-vault-docker/src/test/java/com/github/nagyesta/lowkeyvault/steps/SecretsStepDefs.java#L32-35)
-3. Use your `ApacheHttpClientProvider` to obtain your key/secret/crypto clients.
+3. Use your `ApacheHttpClientProvider` to get your key/secret/crypto clients.
 4. Done.
 
 ## Note
 
-In case you don't wish to use this provider, it is perfectly fine. Simply make sure to use the same steps to mimic what it does:
+In case you don't wish to use this provider, it is perfectly fine. Make sure to use the same steps to mimic what it does:
 
 1. Set any basic credentials (Lowkey Vault will check whether they are there but ignore the value.)
 2. Route your requests to the port used by your Lowkey Vault instance

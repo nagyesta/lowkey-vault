@@ -18,15 +18,15 @@ public class CertificateCreationInput
      */
     public static final int DEFAULT_VALIDITY_MONTHS = 12;
     /**
-     * Default key usages in case it is not populated during create certificate in case of EC keys.
+     * Default key usages in case it is not populated during certificate creation in case of EC keys.
      */
     public static final Set<KeyUsageEnum> DEFAULT_EC_KEY_USAGES = Set.of(KeyUsageEnum.DIGITAL_SIGNATURE);
     /**
-     * Default key usages in case it is not populated during create certificate in case of RSA keys.
+     * Default key usages in case it is not populated during certificate creation in case of RSA keys.
      */
     public static final Set<KeyUsageEnum> DEFAULT_RSA_KEY_USAGES = Set.of(KeyUsageEnum.DIGITAL_SIGNATURE, KeyUsageEnum.KEY_ENCIPHERMENT);
     /**
-     * Default extended key usages in case it is not populated during create certificate.
+     * Default extended key usages in case it is not populated during certificate creation.
      */
     public static final Set<String> DEFAULT_EXT_KEY_USAGES = Set.of("1.3.6.1.5.5.7.3.1", "1.3.6.1.5.5.7.3.2");
     private final String name;

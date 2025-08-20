@@ -151,7 +151,7 @@ class CertificateBackupRestoreControllerIntegrationTest {
                 .map(vaultFake.keyVaultFake().getEntities()::getReadOnlyEntity)
                 .toList();
         Assertions.assertEquals(1, keys.size());
-        return keys.get(0);
+        return keys.getFirst();
     }
 
     private List<KeyVaultCertificateModel> getAllCertificateModelVersions(

@@ -49,9 +49,9 @@ public class CommonAssertions {
     }
 
     protected <E extends Comparable<E>> void assertContainsEqualEntriesSorted(final Collection<E> expected, final Collection<E> actual) {
-        final var expectedSorted = new ArrayList<E>(expected);
+        final var expectedSorted = new ArrayList<>(expected);
         Collections.sort(expectedSorted);
-        final var actualSorted = new ArrayList<E>(actual);
+        final var actualSorted = new ArrayList<>(actual);
         Collections.sort(actualSorted);
         assertEquals(expectedSorted, actualSorted);
         assertEquals(expectedSorted.size(), actualSorted.size());

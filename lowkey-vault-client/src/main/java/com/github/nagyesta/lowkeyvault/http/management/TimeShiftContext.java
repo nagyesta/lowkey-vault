@@ -1,29 +1,13 @@
 package com.github.nagyesta.lowkeyvault.http.management;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NonNull;
 
 import java.net.URI;
 
-@Getter
-@EqualsAndHashCode
-public final class TimeShiftContext {
-
-    private final int seconds;
-
-    private final boolean regenerateCertificates;
-
-    private final URI vaultBaseUri;
-
-    private TimeShiftContext(
-            final int seconds,
-            final URI vaultBaseUri,
-            final boolean regenerateCertificates) {
-        this.seconds = seconds;
-        this.vaultBaseUri = vaultBaseUri;
-        this.regenerateCertificates = regenerateCertificates;
-    }
+public record TimeShiftContext(
+        int seconds,
+        URI vaultBaseUri,
+        boolean regenerateCertificates) {
 
     public static TimeShiftContextBuilder builder() {
         return new TimeShiftContextBuilder();

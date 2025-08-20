@@ -202,23 +202,6 @@ public final class LowkeyVaultContainerBuilder {
     }
 
     /**
-     * Sets a fixed host port for the port mapping.
-     *
-     * @param hostPort The host port we want to map the Lowkey Vault HTTPS port.
-     * @return this
-     * @deprecated No longer recommended, containers start with relaxed port configuration by default,
-     * therefore the random port assigned by Testcontainers can be used in Vault URLs without issues.
-     */
-    @Deprecated(forRemoval = true)
-    public LowkeyVaultContainerBuilder hostPort(final int hostPort) {
-        if (hostPort < 1) {
-            throw new IllegalArgumentException("Host port cannot be zero or negative.");
-        }
-        this.hostPort = hostPort;
-        return this;
-    }
-
-    /**
      * Sets a fixed host port for the token endpoint port mapping.
      *
      * @param hostTokenPort The host port we want to map the Lowkey Vault HTTP port.

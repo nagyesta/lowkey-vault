@@ -252,7 +252,7 @@ class SecretControllerTest {
         final var actualBody = actual.getBody();
         Assertions.assertNotNull(actualBody);
         Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
-        Assertions.assertEquals(expected.toString(), actualBody.getValue().get(0).getId());
+        Assertions.assertEquals(expected.toString(), actualBody.getValue().getFirst().getId());
         Assertions.assertNotNull(actualBody.getNextLink());
         Assertions.assertEquals(expectedNextUri, actualBody.getNextLink());
     }
@@ -597,7 +597,7 @@ class SecretControllerTest {
         Assertions.assertNotNull(actual.getBody());
         Assertions.assertNotNull(actual.getBody().getValue());
         Assertions.assertEquals(1, actual.getBody().getValue().size());
-        Assertions.assertSame(secretItemModel, actual.getBody().getValue().get(0));
+        Assertions.assertSame(secretItemModel, actual.getBody().getValue().getFirst());
         verify(vaultService).findByUri(HTTPS_LOCALHOST_8443);
         verify(vaultFake).secretVaultFake();
         verify(vaultFake).getRecoveryLevel();
@@ -640,7 +640,7 @@ class SecretControllerTest {
         Assertions.assertNotNull(actual.getBody());
         Assertions.assertNotNull(actual.getBody().getValue());
         Assertions.assertEquals(1, actual.getBody().getValue().size());
-        Assertions.assertSame(secretItemModel, actual.getBody().getValue().get(0));
+        Assertions.assertSame(secretItemModel, actual.getBody().getValue().getFirst());
         final var expectedNextLink = HTTPS_LOCALHOST_8443 + "/secrets?api-version=7.6&$skiptoken=1&maxresults=1";
         Assertions.assertEquals(expectedNextLink, actual.getBody().getNextLink());
         verify(vaultService).findByUri(HTTPS_LOCALHOST_8443);
@@ -688,7 +688,7 @@ class SecretControllerTest {
         Assertions.assertNotNull(actual.getBody());
         Assertions.assertNotNull(actual.getBody().getValue());
         Assertions.assertEquals(1, actual.getBody().getValue().size());
-        Assertions.assertSame(secretItemModel, actual.getBody().getValue().get(0));
+        Assertions.assertSame(secretItemModel, actual.getBody().getValue().getFirst());
         verify(vaultService).findByUri(HTTPS_LOCALHOST_8443);
         verify(vaultFake).secretVaultFake();
         verify(vaultFake).getRecoveryLevel();
@@ -733,7 +733,7 @@ class SecretControllerTest {
         Assertions.assertNotNull(actual.getBody());
         Assertions.assertNotNull(actual.getBody().getValue());
         Assertions.assertEquals(1, actual.getBody().getValue().size());
-        Assertions.assertSame(secretItemModel, actual.getBody().getValue().get(0));
+        Assertions.assertSame(secretItemModel, actual.getBody().getValue().getFirst());
         final var expectedNextLink = HTTPS_LOCALHOST_8443 + "/deletedsecrets?api-version=7.6&$skiptoken=1&maxresults=1";
         Assertions.assertEquals(expectedNextLink, actual.getBody().getNextLink());
         verify(vaultService).findByUri(HTTPS_LOCALHOST_8443);

@@ -22,7 +22,7 @@ cucumber = "7.27.2"
 mockitoCore = "5.19.0"
 jupiter = "5.13.4"
 abortMission = "6.0.94"
-checkstyle = "10.26.1"
+checkstyle = "11.0.0"
 jacoco = "0.8.13"
 jackson = { strictly = "2.19.2" }
 openApiUi = "2.8.9"

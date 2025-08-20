@@ -48,7 +48,7 @@ public abstract class CommonKeyBackupRestoreController
             final URI baseUri,
             @Valid final KeyBackupModel keyBackupModel) {
         log.info("Received request to {} restore key: {} using API version: {}",
-                baseUri.toString(), keyBackupModel.getValue().getVersions().get(0).getId(), apiVersion());
+                baseUri.toString(), keyBackupModel.getValue().getVersions().getFirst().getId(), apiVersion());
         return ResponseEntity.ok(restoreEntity(keyBackupModel));
     }
 

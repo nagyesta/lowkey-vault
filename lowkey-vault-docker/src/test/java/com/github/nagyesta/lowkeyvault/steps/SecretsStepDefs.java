@@ -65,7 +65,7 @@ public class SecretsStepDefs extends CommonAssertions {
     @When("the first secret version of {name} is fetched with providing a version")
     public void fetchFirstSecretVersion(final String name) {
         final var versionsCreated = context.getCreatedEntities().get(name);
-        final var version = versionsCreated.get(0).getProperties().getVersion();
+        final var version = versionsCreated.getFirst().getProperties().getVersion();
         final var secret = context.getClient(context.getSecretServiceVersion()).getSecret(name, version);
         context.addFetchedSecret(name, secret);
         assertEquals(version, secret.getProperties().getVersion());
@@ -75,7 +75,7 @@ public class SecretsStepDefs extends CommonAssertions {
     public void fetchLatestSecretVersion(final String name) {
         final var secret = context.getClient(context.getSecretServiceVersion()).getSecret(name);
         final var versionsCreated = context.getCreatedEntities().get(name);
-        final var expectedLastVersionId = versionsCreated.get(versionsCreated.size() - 1).getId();
+        final var expectedLastVersionId = versionsCreated.getLast().getId();
         context.addFetchedSecret(name, secret);
         assertEquals(expectedLastVersionId, secret.getId());
     }

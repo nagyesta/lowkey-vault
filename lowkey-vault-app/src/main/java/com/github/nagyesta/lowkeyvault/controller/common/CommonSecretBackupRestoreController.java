@@ -46,7 +46,7 @@ public abstract class CommonSecretBackupRestoreController
             final URI baseUri,
             @Valid final SecretBackupModel secretBackupModel) {
         log.info("Received request to {} restore secret: {} using API version: {}",
-                baseUri.toString(), secretBackupModel.getValue().getVersions().get(0).getId(), apiVersion());
+                baseUri.toString(), secretBackupModel.getValue().getVersions().getFirst().getId(), apiVersion());
         return ResponseEntity.ok(restoreEntity(secretBackupModel));
     }
 

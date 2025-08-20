@@ -119,7 +119,7 @@ class MetadataControllerTest {
         final var actualKeys = actual.getBody().keys();
         Assertions.assertNotNull(actualKeys);
         Assertions.assertEquals(1, actualKeys.size());
-        final var keyModel = actualKeys.get(0);
+        final var keyModel = actualKeys.getFirst();
         Assertions.assertNotNull(keyModel);
         Assertions.assertNotNull(keyModel.getN());
         Assertions.assertNotNull(keyModel.getE());

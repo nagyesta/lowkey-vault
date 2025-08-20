@@ -323,7 +323,7 @@ class KeyControllerTest {
         final var actualBody = actual.getBody();
         Assertions.assertNotNull(actualBody);
         Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
-        Assertions.assertEquals(expected.toString(), actualBody.getValue().get(0).getKeyId());
+        Assertions.assertEquals(expected.toString(), actualBody.getValue().getFirst().getKeyId());
         Assertions.assertNotNull(actualBody.getNextLink());
         Assertions.assertEquals(expectedNextUri, actualBody.getNextLink());
     }
@@ -580,7 +580,7 @@ class KeyControllerTest {
         Assertions.assertNotNull(actual.getBody());
         Assertions.assertNotNull(actual.getBody().getValue());
         Assertions.assertEquals(1, actual.getBody().getValue().size());
-        Assertions.assertSame(keyItemModel, actual.getBody().getValue().get(0));
+        Assertions.assertSame(keyItemModel, actual.getBody().getValue().getFirst());
         verify(vaultService).findByUri(HTTPS_LOCALHOST_8443);
         verify(vaultFake).keyVaultFake();
         verify(vaultFake).getRecoveryLevel();
@@ -623,7 +623,7 @@ class KeyControllerTest {
         Assertions.assertNotNull(actual.getBody());
         Assertions.assertNotNull(actual.getBody().getValue());
         Assertions.assertEquals(1, actual.getBody().getValue().size());
-        Assertions.assertSame(keyItemModel, actual.getBody().getValue().get(0));
+        Assertions.assertSame(keyItemModel, actual.getBody().getValue().getFirst());
         final var expectedNextLink = HTTPS_LOCALHOST_8443 + "/keys?api-version=7.2&$skiptoken=1&maxresults=1";
         Assertions.assertEquals(expectedNextLink, actual.getBody().getNextLink());
         verify(vaultService).findByUri(HTTPS_LOCALHOST_8443);
@@ -670,7 +670,7 @@ class KeyControllerTest {
         Assertions.assertNotNull(actual.getBody());
         Assertions.assertNotNull(actual.getBody().getValue());
         Assertions.assertEquals(1, actual.getBody().getValue().size());
-        Assertions.assertSame(keyItemModel, actual.getBody().getValue().get(0));
+        Assertions.assertSame(keyItemModel, actual.getBody().getValue().getFirst());
         verify(vaultService).findByUri(HTTPS_LOCALHOST_8443);
         verify(vaultFake).keyVaultFake();
         verify(vaultFake).getRecoveryLevel();
@@ -758,7 +758,7 @@ class KeyControllerTest {
         Assertions.assertNotNull(actual.getBody());
         Assertions.assertNotNull(actual.getBody().getValue());
         Assertions.assertEquals(1, actual.getBody().getValue().size());
-        Assertions.assertSame(keyItemModel, actual.getBody().getValue().get(0));
+        Assertions.assertSame(keyItemModel, actual.getBody().getValue().getFirst());
         final var expectedNextLink = HTTPS_LOCALHOST_8443 + "/deletedkeys?api-version=7.2&$skiptoken=1&maxresults=1";
         Assertions.assertEquals(expectedNextLink, actual.getBody().getNextLink());
         verify(vaultService).findByUri(HTTPS_LOCALHOST_8443);

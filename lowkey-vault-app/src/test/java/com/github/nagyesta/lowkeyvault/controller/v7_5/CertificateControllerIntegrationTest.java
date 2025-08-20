@@ -319,7 +319,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
         final var lifetimeActions = body.getPolicy().getLifetimeActions();
         Assertions.assertNotNull(lifetimeActions);
         Assertions.assertEquals(1, lifetimeActions.size());
-        final var lifetimeActionModel = lifetimeActions.get(0);
+        final var lifetimeActionModel = lifetimeActions.getFirst();
         Assertions.assertEquals(EMAIL_CONTACTS, lifetimeActionModel.getAction());
         Assertions.assertEquals(ONE_HUNDRED, lifetimeActionModel.getTrigger().getDaysBeforeExpiry());
     }
@@ -442,7 +442,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
         Assertions.assertNull(actual.getBody().getNextLink());
         final var list = actual.getBody().getValue();
         Assertions.assertEquals(1, list.size());
-        final var item = list.get(0);
+        final var item = list.getFirst();
         Assertions.assertEquals(imported.getId(), item.getCertificateId());
         Assertions.assertArrayEquals(imported.getThumbprint(), item.getThumbprint());
         Assertions.assertEquals(imported.getAttributes(), item.getAttributes());
@@ -608,7 +608,7 @@ class CertificateControllerIntegrationTest extends BaseCertificateControllerInte
         Assertions.assertNotNull(body);
         Assertions.assertNull(body.getNextLink());
         Assertions.assertEquals(1, body.getValue().size());
-        final var itemModel = body.getValue().get(0);
+        final var itemModel = body.getValue().getFirst();
         Assertions.assertEquals(entityId.asUriNoVersion(VAULT_URI_2).toString(), itemModel.getCertificateId());
         assertIsDeletedModel(itemModel, entityId);
     }

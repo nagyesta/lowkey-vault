@@ -65,7 +65,7 @@ class EpochSecondsSerializerTest {
             verify(generator, never()).writeNull();
             final var actual = output.getAllValues();
             Assertions.assertEquals(1, actual.size());
-            Assertions.assertEquals(expected, actual.get(0));
+            Assertions.assertEquals(expected, actual.getFirst());
         }
     }
 }

@@ -23,7 +23,6 @@ import com.azure.security.keyvault.secrets.SecretServiceVersion;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nagyesta.lowkeyvault.http.management.LowkeyVaultManagementClient;
 import com.github.nagyesta.lowkeyvault.http.management.impl.LowkeyVaultManagementClientImpl;
-import lombok.Getter;
 import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.conn.ssl.TrustStrategy;
@@ -37,18 +36,23 @@ import java.util.function.UnaryOperator;
 
 /**
  * Modified class based on <a href="https://github.com/Azure/azure-sdk-for-java/wiki/Custom-HTTP-Clients">Azure SDK wiki</a>.
+ *
+ * @param vaultUrl             The vault URL.
+ * @param hostOverrideFunction The function mapping between the logical host name used by vault URLs
+ *                             and the host name used by the host machine for accessing Lowkey Vault.
+ *                             e.g., Maps from *.localhost:8443 to localhost:30443.
+ * @param trustStrategy        The trust strategy we will use for SSL cert verification.
+ *                             Defaults to {@link TrustSelfSignedStrategy} when null.
+ * @param hostnameVerifier     The host name verifier we are using when the SSL certs are verified.
+ *                             Defaults to {@link DefaultHostnameVerifier} when null.
  */
-public final class ApacheHttpClientProvider {
+public record ApacheHttpClientProvider(
+        String vaultUrl,
+        UnaryOperator<URI> hostOverrideFunction,
+        TrustStrategy trustStrategy,
+        HostnameVerifier hostnameVerifier) {
 
     private static final String DUMMY = "dummy";
-
-    @Getter
-    private final String vaultUrl;
-    private final UnaryOperator<URI> hostOverrideFunction;
-
-    private final TrustStrategy trustStrategy;
-
-    private final HostnameVerifier hostnameVerifier;
 
     public ApacheHttpClientProvider(final String vaultUrl) {
         this(vaultUrl, null);
@@ -77,7 +81,7 @@ public final class ApacheHttpClientProvider {
      * @param vaultUrl             The vault URL.
      * @param hostOverrideFunction The function mapping between the logical host name used by vault URLs
      *                             and the host name used by the host machine for accessing Lowkey Vault.
-     *                             e.g. Maps from *.localhost:8443 to localhost:30443.
+     *                             e.g., Maps from *.localhost:8443 to localhost:30443.
      * @param trustStrategy        The trust strategy we will use for SSL cert verification.
      *                             Defaults to {@link TrustSelfSignedStrategy} when null.
      * @param hostnameVerifier     The host name verifier we are using when the SSL certs are verified.
@@ -92,7 +96,7 @@ public final class ApacheHttpClientProvider {
             final HostnameVerifier hostnameVerifier) {
         this.vaultUrl = vaultUrl;
         this.hostOverrideFunction = Optional.ofNullable(hostOverrideFunction)
-                .orElse(uri -> uri);
+                .orElse(override -> override);
         this.trustStrategy = Optional.ofNullable(trustStrategy).orElse(new TrustSelfSignedStrategy());
         this.hostnameVerifier = Optional.ofNullable(hostnameVerifier).orElse(new DefaultHostnameVerifier());
     }
@@ -175,7 +179,7 @@ public final class ApacheHttpClientProvider {
 
     private KeyClientBuilder getKeyBuilder() {
         return new KeyClientBuilder()
-                .vaultUrl(getVaultUrl())
+                .vaultUrl(vaultUrl())
                 .credential(getCredential())
                 .httpClient(createInstance())
                 .disableChallengeResourceVerification()
@@ -184,7 +188,7 @@ public final class ApacheHttpClientProvider {
 
     private CertificateClientBuilder getCertificateBuilder() {
         return new CertificateClientBuilder()
-                .vaultUrl(getVaultUrl())
+                .vaultUrl(vaultUrl())
                 .credential(getCredential())
                 .httpClient(createInstance())
                 .disableChallengeResourceVerification()
@@ -193,7 +197,7 @@ public final class ApacheHttpClientProvider {
 
     private SecretClientBuilder getSecretBuilder() {
         return new SecretClientBuilder()
-                .vaultUrl(getVaultUrl())
+                .vaultUrl(vaultUrl())
                 .credential(getCredential())
                 .httpClient(createInstance())
                 .disableChallengeResourceVerification()

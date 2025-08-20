@@ -165,7 +165,7 @@ class CertContentTypeTest {
 
         //then
         Assertions.assertEquals(1, actual.size());
-        final var certificate = actual.get(0);
+        final var certificate = actual.getFirst();
         Assertions.assertEquals("X.509", certificate.getType());
         Assertions.assertEquals(EC_CERT, toBase64(certificate));
     }
@@ -181,7 +181,7 @@ class CertContentTypeTest {
 
         //then
         Assertions.assertEquals(1, actual.size());
-        final var certificate = actual.get(0);
+        final var certificate = actual.getFirst();
         Assertions.assertEquals("X.509", certificate.getType());
         Assertions.assertEquals(EC_CERT, toBase64(certificate));
     }
@@ -261,7 +261,7 @@ class CertContentTypeTest {
 
         //then
         Assertions.assertEquals(1, actual.size());
-        final var certificate = actual.get(0);
+        final var certificate = actual.getFirst();
         Assertions.assertEquals("X.509", certificate.getType());
         Assertions.assertEquals(RSA_CERT, toBase64(certificate));
     }
@@ -277,7 +277,7 @@ class CertContentTypeTest {
 
         //then
         Assertions.assertEquals(1, actual.size());
-        final var certificate = actual.get(0);
+        final var certificate = actual.getFirst();
         Assertions.assertEquals("X.509", certificate.getType());
         Assertions.assertEquals(RSA_CERT, toBase64(certificate));
     }
@@ -385,7 +385,7 @@ class CertContentTypeTest {
         //given
         final var store = ResourceUtils.loadResourceAsString("/cert/rsa.pem");
         final var chain = CertContentType.PEM.getCertificateChain(Objects.requireNonNull(store), "");
-        final var certificate = chain.get(0);
+        final var certificate = chain.getFirst();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asBase64CertificatePackage(certificate, null));
@@ -433,7 +433,7 @@ class CertContentTypeTest {
     void testCertificatePackageForBackupShouldThrowExceptionWhenCalledWithNullKeyAndValidCertificateUsingPkcs12Store() {
         //given
         final var store = ResourceUtils.loadResourceAsBase64String("/cert/rsa.p12");
-        final var certificate = PKCS12.getCertificateChain(store, "").get(0);
+        final var certificate = PKCS12.getCertificateChain(store, "").getFirst();
         final var underTest = PKCS12;
 
         //when

@@ -134,22 +134,6 @@ class LowkeyVaultArgLineBuilderTest {
     }
 
     @Test
-    @SuppressWarnings({"deprecation", "removal"})
-    void testImportFileShouldSetArgumentWhenCalledWithFile() {
-        //given
-        final var underTest = new LowkeyVaultArgLineBuilder();
-        final var expected = List.of(
-                "--LOWKEY_VAULT_RELAXED_PORTS=true",
-                "--LOWKEY_IMPORT_LOCATION=/import/vaults.json");
-
-        //when
-        final var actual = underTest.importFile(new File(".")).build();
-
-        //then
-        Assertions.assertIterableEquals(expected, actual);
-    }
-
-    @Test
     void testImportFileShouldSetArgumentWhenCalledWithString() {
         //given
         final var underTest = new LowkeyVaultArgLineBuilder();

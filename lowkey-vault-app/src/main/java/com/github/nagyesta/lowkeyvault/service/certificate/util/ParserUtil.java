@@ -96,7 +96,7 @@ public final class ParserUtil {
         try {
             return Optional.ofNullable(certificate.getSubjectAlternativeNames()).orElse(Set.of())
                     .stream()
-                    .filter(l -> Objects.equals(type, l.get(0)))
+                    .filter(l -> Objects.equals(type, l.getFirst()))
                     .map(l -> (String) l.get(1))
                     .collect(Collectors.toSet());
         } catch (final CertificateParsingException e) {

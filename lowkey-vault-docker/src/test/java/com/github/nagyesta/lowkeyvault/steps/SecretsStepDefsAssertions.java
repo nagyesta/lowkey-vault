@@ -33,8 +33,8 @@ public class SecretsStepDefsAssertions extends CommonAssertions {
 
     @Then("the secret URL contains the vault url and {name}")
     public void theSecretURLContainsVaultUrlAndSecretName(final String secretName) {
-        assertTrue(context.getLastResult().getId() + " did not start with " + context.getProvider().getVaultUrl(),
-                context.getLastResult().getId().startsWith(context.getProvider().getVaultUrl()));
+        assertTrue(context.getLastResult().getId() + " did not start with " + context.getProvider().vaultUrl(),
+                context.getLastResult().getId().startsWith(context.getProvider().vaultUrl()));
         assertTrue(context.getLastResult().getId() + " did not contain " + secretName,
                 context.getLastResult().getId().contains(secretName));
     }
@@ -86,8 +86,8 @@ public class SecretsStepDefsAssertions extends CommonAssertions {
     @Then("the deleted secret recovery id contains the vault url and {name}")
     public void theDeletedSecretRecoveryIdContainsTheVaultUrlAndSecretName(final String secretName) {
         final var recoveryId = context.getLastDeleted().getRecoveryId();
-        assertTrue(recoveryId + " did not start with " + context.getProvider().getVaultUrl(),
-                recoveryId.startsWith(context.getProvider().getVaultUrl()));
+        assertTrue(recoveryId + " did not start with " + context.getProvider().vaultUrl(),
+                recoveryId.startsWith(context.getProvider().vaultUrl()));
         assertTrue(recoveryId + " did not contain " + secretName,
                 recoveryId.contains(secretName));
     }

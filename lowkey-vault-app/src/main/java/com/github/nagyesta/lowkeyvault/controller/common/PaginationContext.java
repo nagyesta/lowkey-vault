@@ -20,7 +20,7 @@ public class PaginationContext {
      */
     public static final String DEFAULT_MAX = "25";
     /**
-     * Default offset used  when returning available versions of an entity.
+     * Default offset used when returning available versions of an entity.
      */
     public static final String SKIP_ZERO = "0";
     /**

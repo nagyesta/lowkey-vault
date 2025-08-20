@@ -2,6 +2,7 @@ package com.github.nagyesta.lowkeyvault.context.util;
 
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.net.URI;
 
@@ -39,7 +40,7 @@ public final class VaultUriUtil {
         if (!vaultAuthority.matches(AUTHORITY_REGEX)) {
             throw new IllegalArgumentException("Alias authority must match: " + AUTHORITY_REGEX);
         }
-        var authority = StringUtils.replace(vaultAuthority, PORT_PLACEHOLDER, Integer.toString(serverPort));
+        var authority = Strings.CS.replace(vaultAuthority, PORT_PLACEHOLDER, Integer.toString(serverPort));
         if (!authority.contains(COLON)) {
             authority = authority + COLON + DEFAULT_HTTPS_PORT;
         }

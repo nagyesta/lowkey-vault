@@ -165,7 +165,7 @@ public class CertificateStepDefAssertion extends CommonAssertions {
         final var actions = policy.getLifetimeActions();
         assertNotNull(actions);
         assertEquals(1, actions.size());
-        final var actual = actions.get(0);
+        final var actual = actions.getFirst();
         assertEquals(action, actual.getAction());
         if (isPercentage) {
             assertEquals(triggerValue, actual.getLifetimePercentage());

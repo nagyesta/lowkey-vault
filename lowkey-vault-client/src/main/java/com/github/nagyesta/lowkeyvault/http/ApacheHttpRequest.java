@@ -27,7 +27,7 @@ final class ApacheHttpRequest
      * @param url                       The logical URL used by Lowkey-Vault to identify the resource.
      * @param headers                   The headers of the request.
      * @param authorityOverrideFunction The function which may override the authority part of the URL.
-     *                                  e.g. If the original URL uses vault.localhost:8443 as authority,
+     *                                  e.g., If the original URL uses vault.localhost:8443 as authority,
      *                                  but this hostname is not known by the host machine (or the port is mapped
      *                                  to a non-default port), it can map it to localhost:30443 or 127.0.0.1:30443
      *                                  and send the request there just like a proxy would.

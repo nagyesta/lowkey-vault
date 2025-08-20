@@ -57,7 +57,7 @@ class KeyRotationPolicyToV73ModelConverterTest {
         Assertions.assertEquals(TIME_IN_10_MINUTES, actual.getAttributes().getUpdated());
         Assertions.assertEquals(expiryTime, actual.getAttributes().getExpiryTime());
         Assertions.assertEquals(1, actual.getLifetimeActions().size());
-        final var actionModel = actual.getLifetimeActions().get(0);
+        final var actionModel = actual.getLifetimeActions().getFirst();
         Assertions.assertEquals(triggerPeriod, actionModel.getTrigger().getTriggerPeriod());
         Assertions.assertEquals(LifetimeActionTriggerType.TIME_BEFORE_EXPIRY, actionModel.getTrigger().getTriggerType());
         Assertions.assertEquals(LifetimeActionType.NOTIFY, actionModel.getAction().getType());

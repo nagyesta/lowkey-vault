@@ -41,7 +41,7 @@ public class CertificateImportInput {
             @NonNull final CertContentType contentType,
             @NonNull final CertificatePolicyModel policyModel) {
         this.name = name;
-        this.certificate = (X509Certificate) contentType.getCertificateChain(certificateContent, password).get(0);
+        this.certificate = (X509Certificate) contentType.getCertificateChain(certificateContent, password).getFirst();
         this.keyData = contentType.getKey(certificateContent, password);
         this.policyModel = policyModel;
         this.parsedCertificateData = parsedInputBuilder(name, contentType, certificate, keyData, policyModel).build();

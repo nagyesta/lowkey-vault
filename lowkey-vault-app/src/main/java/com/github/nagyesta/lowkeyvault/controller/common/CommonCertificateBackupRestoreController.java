@@ -52,7 +52,7 @@ public abstract class CommonCertificateBackupRestoreController
             final URI baseUri, @Valid final CertificateBackupModel certificateBackupModel) {
         final var list = certificateBackupModel.getValue();
         log.info("Received request to {} restore certificate: {} using API version: {}",
-                baseUri.toString(), list.getVersions().get(0).getId(), apiVersion());
+                baseUri.toString(), list.getVersions().getFirst().getId(), apiVersion());
         final var model = restoreEntity(certificateBackupModel);
         final var vault = getVaultByUri(baseUri);
         final var entityId = entityId(baseUri, getSingleEntityName(certificateBackupModel));
@@ -104,7 +104,7 @@ public abstract class CommonCertificateBackupRestoreController
         final var certAuthorityType = vault.getEntities().getReadOnlyEntity(latestVersion)
                 .getIssuancePolicy().getCertAuthorityType();
         final var lifetimeActionPolicy = Optional.ofNullable(list.getVersions())
-                .map(v -> v.get(v.size() - 1))
+                .map(List::getLast)
                 .map(CertificateBackupListItem::getPolicy)
                 .map(CertificatePolicyModel::getLifetimeActions)
                 .map(actions -> new CertificateLifetimeActionPolicy(entityId, convertActivityMap(actions)))

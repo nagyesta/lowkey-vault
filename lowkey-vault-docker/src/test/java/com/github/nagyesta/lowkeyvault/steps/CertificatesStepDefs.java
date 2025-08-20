@@ -104,7 +104,7 @@ public class CertificatesStepDefs extends CommonAssertions {
     @When("the first certificate version of {name} is fetched with providing a version")
     public void fetchFirstCertificateVersion(final String name) {
         final var versionsCreated = context.getCreatedEntities().get(name);
-        final var version = versionsCreated.get(0).getProperties().getVersion();
+        final var version = versionsCreated.getFirst().getProperties().getVersion();
         final var certificate = context.getClient(context.getCertificateServiceVersion())
                 .getCertificateVersion(name, version);
         context.addFetchedCertificate(name, certificate);

@@ -126,13 +126,13 @@ class VaultBackupManagementControllerIntegrationTest {
         Assertions.assertNotNull(actualBody);
         final var vaults = actualBody.getVaults();
         Assertions.assertEquals(1, vaults.size());
-        final var vaultBackupModel = vaults.get(0);
+        final var vaultBackupModel = vaults.getFirst();
         //- keys
         Assertions.assertEquals(1, vaultBackupModel.getKeys().size());
         final var keyVersions = vaultBackupModel.getKeys().get(TEST_KEY).getVersions();
         Assertions.assertEquals(2, keyVersions.size());
         //- older key
-        final var olderKey = keyVersions.get(0);
+        final var olderKey = keyVersions.getFirst();
         Assertions.assertEquals(VERSIONED_KEY_ENTITY_ID_OLDER.id(), olderKey.getId());
         Assertions.assertEquals(VERSIONED_KEY_ENTITY_ID_OLDER.version(), olderKey.getVersion());
         Assertions.assertEquals(keyCurveName, olderKey.getKeyMaterial().getCurveName());
@@ -145,7 +145,7 @@ class VaultBackupManagementControllerIntegrationTest {
         Assertions.assertEquals(1, vaultBackupModel.getSecrets().size());
         final var secretVersions = vaultBackupModel.getSecrets().get(TEST_SECRET).getVersions();
         Assertions.assertEquals(1, secretVersions.size());
-        final var secret = secretVersions.get(0);
+        final var secret = secretVersions.getFirst();
         Assertions.assertEquals(VERSIONED_SECRET_ENTITY_ID.id(), secret.getId());
         Assertions.assertEquals(VERSIONED_SECRET_ENTITY_ID.version(), secret.getVersion());
         Assertions.assertEquals(SECRET_VALUE, secret.getValue());
@@ -153,7 +153,7 @@ class VaultBackupManagementControllerIntegrationTest {
         Assertions.assertEquals(1, vaultBackupModel.getCertificates().size());
         final var certificateVersions = vaultBackupModel.getCertificates().get(TEST_CERTIFICATE).getVersions();
         Assertions.assertEquals(1, certificateVersions.size());
-        final var certificate = certificateVersions.get(0);
+        final var certificate = certificateVersions.getFirst();
         Assertions.assertEquals(VERSIONED_CERTIFICATE_ENTITY_ID.id(), certificate.getId());
         Assertions.assertEquals(VERSIONED_CERTIFICATE_ENTITY_ID.version(), certificate.getVersion());
         final var x509Properties = certificate.getPolicy().getX509Properties();

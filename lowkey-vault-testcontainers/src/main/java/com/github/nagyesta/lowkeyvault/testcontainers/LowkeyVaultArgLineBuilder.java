@@ -5,8 +5,6 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.github.nagyesta.lowkeyvault.testcontainers.LowkeyVaultContainer.IMPORT_FILE_CONTAINER_PATH;
-
 public class LowkeyVaultArgLineBuilder {
     private static final String NO_AUTO_REGISTRATION_VALUE = "-";
     private static final Set<String> NO_AUTO_REGISTRATION = Set.of(NO_AUTO_REGISTRATION_VALUE);
@@ -54,20 +52,6 @@ public class LowkeyVaultArgLineBuilder {
     public LowkeyVaultArgLineBuilder usePersistence(final String containerPath) {
         importFile(containerPath);
         exportFile(containerPath);
-        return this;
-    }
-
-    /**
-     * Defines the import file from the host file system.
-     * @param file the import file on the host
-     * @return builder
-     * @deprecated Marked for removal, please use {@link #importFile(String)}.
-     */
-    @Deprecated(forRemoval = true)
-    public LowkeyVaultArgLineBuilder importFile(final File file) {
-        if (file != null) {
-            return importFile(IMPORT_FILE_CONTAINER_PATH);
-        }
         return this;
     }
 
@@ -121,7 +105,7 @@ public class LowkeyVaultArgLineBuilder {
         }
         final Collection<String> invalid = vaultNames.stream()
                 .filter(s -> !NAME_PATTERN.matcher(Objects.requireNonNullElse(s, EMPTY)).matches())
-                .collect(Collectors.toList());
+                .toList();
         if (!invalid.isEmpty()) {
             throw new IllegalArgumentException("VaultNames contains invalid values: " + invalid);
         }

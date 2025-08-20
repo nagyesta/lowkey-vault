@@ -1,7 +1,7 @@
 ![LowkeyVault](../.github/assets/LowkeyVault-logo-full.png)
 
 [![GitHub license](https://img.shields.io/github/license/nagyesta/lowkey-vault?color=informational)](https://raw.githubusercontent.com/nagyesta/lowkey-vault/main/LICENSE)
-[![Java version](https://img.shields.io/badge/Java%20version-17-yellow?logo=java)](https://img.shields.io/badge/Java%20version-17-yellow?logo=java)
+[![Java version](https://img.shields.io/badge/Java%20version-21-yellow?logo=java)](https://img.shields.io/badge/Java%20version-21-yellow?logo=java)
 [![latest-release](https://img.shields.io/github/v/tag/nagyesta/lowkey-vault?color=blue&logo=git&label=releases&sort=semver)](https://github.com/nagyesta/lowkey-vault/releases)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.nagyesta.lowkey-vault/lowkey-vault-app?logo=apache-maven)](https://search.maven.org/search?q=com.github.nagyesta.lowkey-vault)
 
@@ -142,7 +142,7 @@ java -jar lowkey-vault-app-<version>.jar --LOWKEY_ENABLE_AUTH=false
 > This property is only intended to be used as a last resort.
 
 > [!NOTE]
-> Please keep in mind, that the real Azure Key Vault will require authentication and you are not testing this mechanism when this flag is used.
+> Please keep in mind that the real Azure Key Vault will require authentication, and you are not testing this mechanism when this flag is used.
 
 ### Using the Token endpoint with a custom realm
 

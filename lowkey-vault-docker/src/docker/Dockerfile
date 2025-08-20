@@ -1,4 +1,4 @@
-FROM --platform=${BUILDPLATFORM} eclipse-temurin:17.0.16_8-jre-alpine@sha256:fc47f4a190b599de0835d98830976f5938588b4c17b07f19dba903d5b29f666e
+FROM --platform=${BUILDPLATFORM} eclipse-temurin:21.0.8_9-jre-alpine-3.22@sha256:3408c45e1faee20e4e68808939a75f87efa469b927d20e12309689ead053daba
 LABEL maintainer="nagyesta@gmail.com"
 EXPOSE 8080 8443
 COPY lowkey-vault.jar /lowkey-vault.jar

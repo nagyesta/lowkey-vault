@@ -5,8 +5,9 @@ import java.util.Optional;
 import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
-public final class AuthorityOverrideFunction
-        implements UnaryOperator<URI> {
+public record AuthorityOverrideFunction(
+        String vaultAuthority,
+        String containerAuthority) implements UnaryOperator<URI> {
 
     private static final String OPTIONAL_PORT_REGEX = "(:\\d+)?";
     private static final String IP_OCTET_REGEX = "(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])";
@@ -17,16 +18,9 @@ public final class AuthorityOverrideFunction
     private static final String HOST_REGEX = "(" + HOST_SEGMENT_REGEX + "\\.){0,20}" + HOST_SEGMENT_REGEX;
     private static final Pattern HOSTNAME_REGEX = Pattern.compile("^" + HOST_REGEX + OPTIONAL_PORT_REGEX + "$");
 
-    private final String vaultAuthority;
-    private final String containerAuthority;
-
-    public AuthorityOverrideFunction(
-            final String vaultAuthority,
-            final String containerAuthority) {
+    public AuthorityOverrideFunction {
         validate(vaultAuthority, "vaultAuthority");
         validate(containerAuthority, "containerAuthority");
-        this.vaultAuthority = vaultAuthority;
-        this.containerAuthority = containerAuthority;
     }
 
     private static void validate(

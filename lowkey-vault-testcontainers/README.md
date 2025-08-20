@@ -1,7 +1,7 @@
 ![LowkeyVault](../.github/assets/LowkeyVault-logo-full.png)
 
 [![GitHub license](https://img.shields.io/github/license/nagyesta/lowkey-vault?color=informational)](https://raw.githubusercontent.com/nagyesta/lowkey-vault/main/LICENSE)
-[![Java version](https://img.shields.io/badge/Java%20version-11-yellow?logo=java)](https://img.shields.io/badge/Java%20version-11-yellow?logo=java)
+[![Java version](https://img.shields.io/badge/Java%20version-17-yellow?logo=java)](https://img.shields.io/badge/Java%20version-17-yellow?logo=java)
 [![latest-release](https://img.shields.io/github/v/tag/nagyesta/lowkey-vault?color=blue&logo=git&label=releases&sort=semver)](https://github.com/nagyesta/lowkey-vault/releases)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.nagyesta.lowkey-vault/lowkey-vault-app?logo=apache-maven)](https://search.maven.org/search?q=com.github.nagyesta.lowkey-vault)
 [![Docker Hub](https://img.shields.io/docker/v/nagyesta/lowkey-vault?sort=semver&arch=amd64&logo=docker&label=amd64)](https://hub.docker.com/r/nagyesta/lowkey-vault)
@@ -145,7 +145,7 @@ and write mode to be able to persist the exported content on the host machine.
 > When first starting your Lowkey Vault container with the persistence feature turned on, you will need either an initial import file or you need to make sure to create your vaults using the management API.
 
 > [!CAUTION]
-> Despite the fact that the persistence can help you use the same vault contents every time when you run Lowkey Vault, please keep in mind, that you should never use Lowkey Vault to store real secrets/keys/certificates because it does absolutely nothing to keep them safe.
+> Although the persistence can help you use the same vault contents every time when you run Lowkey Vault, please keep in mind that you should never use Lowkey Vault to store real secrets/keys/certificates because it does absolutely nothing to keep them safe.
 
 Example:
 

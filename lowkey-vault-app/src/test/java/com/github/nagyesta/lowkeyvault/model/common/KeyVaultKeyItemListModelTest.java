@@ -42,7 +42,7 @@ class KeyVaultKeyItemListModelTest {
                 keyVaultKeyItemModel(VERSIONED_KEY_ENTITY_ID_1_VERSION_1.asUri(HTTPS_LOCALHOST_8443)));
 
         //when
-        final var actual = new KeyVaultItemListModel<KeyVaultKeyItemModel>(list, null);
+        final var actual = new KeyVaultItemListModel<>(list, null);
 
         //then
         Assertions.assertNotNull(actual);

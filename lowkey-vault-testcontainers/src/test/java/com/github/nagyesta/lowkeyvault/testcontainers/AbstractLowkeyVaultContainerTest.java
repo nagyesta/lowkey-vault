@@ -18,6 +18,7 @@ import com.azure.security.keyvault.keys.models.KeyOperation;
 import com.azure.security.keyvault.keys.models.KeyVaultKey;
 import com.azure.security.keyvault.secrets.SecretClientBuilder;
 import com.github.nagyesta.lowkeyvault.http.ApacheHttpClient;
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Assertions;
 
 import java.io.IOException;
@@ -167,10 +168,11 @@ public class AbstractLowkeyVaultContainerTest {
     }
 
     protected void verifyTokenEndpointIsWorking(final String endpointUrl, final HttpClient httpClient) {
-        httpClient.send(new HttpRequest(HttpMethod.GET, endpointUrl + "?resource=https://localhost"))
+        final var httpResponse = httpClient.send(new HttpRequest(HttpMethod.GET, endpointUrl + "?resource=https://localhost"))
                 .doOnError(Assertions::fail)
                 .doOnSuccess(response -> Assertions.assertEquals(SUCCESS, response.getStatusCode()))
                 .single()
                 .block();
+        IOUtils.closeQuietly(httpResponse);
     }
 }

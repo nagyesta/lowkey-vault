@@ -127,7 +127,7 @@ public class VaultServiceImpl
         Assert.isTrue(!Objects.equals(add, remove), "The URL we want to add and remove, must be different.");
         final var fake = findByUriIncludeDeleted(baseUri);
 
-        final var aliases = new TreeSet<URI>(fake.aliases());
+        final var aliases = new TreeSet<>(fake.aliases());
         Optional.ofNullable(add).ifPresent(alias -> {
             if (findByUriAndDeleteStatus(add, v -> true).isPresent()) {
                 throw new AlreadyExistsException("Vault alias already exists: " + add);

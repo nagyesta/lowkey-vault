@@ -116,7 +116,7 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
         mergeTrustStores = containerBuilder.isMergeTrustStores();
         dependsOnContainers = containerBuilder.getDependsOnContainers();
         dependsOnContainers.stream()
-                .map(ContainerDependency::getContainer)
+                .map(ContainerDependency::container)
                 .forEach(this::dependsOn);
         lowkeyVaultSystemPropertySupplier = Objects.requireNonNullElse(
                 containerBuilder.getLowkeyVaultSystemPropertySupplier(),

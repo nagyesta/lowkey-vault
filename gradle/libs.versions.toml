@@ -25,7 +25,7 @@ abortMission = "6.0.94"
 checkstyle = "11.0.0"
 jacoco = "0.8.13"
 jackson = { strictly = "2.19.2" }
-openApiUi = "2.8.10"
+openApiUi = "2.8.11"
 
 abortMissionPlugin = "5.1.25"
 indexScanPlugin = "3.1.2"

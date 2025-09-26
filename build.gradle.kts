@@ -241,7 +241,6 @@ subprojects {
             setIncludeConfigs(listOf("runtimeClasspath"))
             setSkipConfigs(listOf("compileClasspath", "testCompileClasspath"))
             setSkipProjects(listOf())
-            setSchemaVersion("1.5")
             setDestination(file("build/reports"))
             setOutputName("bom")
             setOutputFormat("json")

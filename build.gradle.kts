@@ -1,3 +1,4 @@
+import org.cyclonedx.Version
 import org.sonarqube.gradle.SonarTask
 import org.sonatype.gradle.plugins.scan.ossindex.OutputFormat
 import java.util.*
@@ -234,16 +235,15 @@ subprojects {
 
         tasks.cyclonedxBom {
             if (project.name.endsWith("app")) {
-                setProjectType("application")
+                projectType.set(org.cyclonedx.model.Component.Type.APPLICATION)
             } else {
-                setProjectType("library")
+                projectType.set(org.cyclonedx.model.Component.Type.LIBRARY)
             }
-            setIncludeConfigs(listOf("runtimeClasspath"))
-            setSkipConfigs(listOf("compileClasspath", "testCompileClasspath"))
-            setSkipProjects(listOf())
-            setDestination(file("build/reports"))
-            setOutputName("bom")
-            setOutputFormat("json")
+            schemaVersion.set(Version.VERSION_16)
+            includeConfigs.set(listOf("runtimeClasspath"))
+            skipConfigs.set(listOf("compileClasspath", "testCompileClasspath"))
+            skipProjects.set(listOf())
+            jsonOutput = project.layout.buildDirectory.file("reports/bom.json").get().asFile
             //noinspection UnnecessaryQualifiedReference
             val attachmentText = org.cyclonedx.model.AttachmentText()
             attachmentText.text = Base64.getEncoder().encodeToString(
@@ -256,8 +256,8 @@ subprojects {
             license.name = "MIT License"
             license.setLicenseText(attachmentText)
             license.url = "https://raw.githubusercontent.com/nagyesta/lowkey-vault/main/LICENSE"
-            setLicenseChoice {
-                it.addLicense(license)
+            licenseChoice = org.cyclonedx.model.LicenseChoice().apply {
+                addLicense(license)
             }
         }
     }

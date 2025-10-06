@@ -67,7 +67,7 @@ val copyLegalDocs = tasks.register<Copy>("copyLegalDocs") {
     rename("bom.json", "SBOM.json")
 }.get()
 copyLegalDocs.dependsOn(tasks.licensee)
-copyLegalDocs.dependsOn(tasks.cyclonedxBom)
+copyLegalDocs.dependsOn(tasks.cyclonedxDirectBom)
 tasks.javadoc.get().dependsOn(copyLegalDocs)
 tasks.compileJava.get().dependsOn(copyLegalDocs)
 tasks.processResources.get().finalizedBy(copyLegalDocs)

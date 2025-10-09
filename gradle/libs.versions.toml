@@ -35,7 +35,7 @@ springBootPlugin = "3.5.6"
 gitVersionerPlugin = "1.6.7"
 owaspPlugin = "12.1.6"
 cycloneDxBomPlugin = "3.0.0"
-licenseePlugin = "1.14.0"
+licenseePlugin = "1.14.1"
 nexusPublishPlugin = "2.0.0"
 sonarPlugin = "6.3.1.5724"
 

@@ -56,9 +56,9 @@ licensee {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_25
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
     withJavadocJar()
     withSourcesJar()
@@ -87,6 +87,7 @@ tasks.test {
         systemProperty("junit.jupiter.execution.parallel.enabled", true)
         systemProperty("junit.jupiter.execution.parallel.mode.default", "same_thread")
         systemProperty("junit.jupiter.execution.parallel.mode.classes.default", "concurrent")
+        systemProperty("net.bytebuddy.experimental", true)
     }
     finalizedBy(tasks.getByName("jacocoTestReport"))
 }

@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.testcontainers;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -7,7 +8,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.Logger;
 import org.testcontainers.containers.BindMode;
-import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 import org.testcontainers.utility.DockerImageName;
 
 import java.io.File;
@@ -23,6 +23,7 @@ class LowkeyVaultContainerTest extends AbstractLowkeyVaultContainerTest {
                 .add(Arguments.of("nagyesta/" + imageName, "amd64", false))
                 .add(Arguments.of("nagyesta/" + imageName, "arm64", true))
                 .add(Arguments.of("nagyesta/" + imageName + "-ubi9-minimal", "amd64", false))
+                .add(Arguments.of("nagyesta/" + imageName + "-ubi10-minimal", "amd64", false))
                 .add(Arguments.of(imageName, "amd64", false))
                 .add(Arguments.of(imageName, "arm64", false))
                 .build();
@@ -50,7 +51,7 @@ class LowkeyVaultContainerTest extends AbstractLowkeyVaultContainerTest {
             verify(loggerMock).warn(
                     "An amd64 image is detected with non-amd64 ({}) host.", hostArch);
             verify(loggerMock).warn(
-                    "Please consider using a multi-arch image, like: {}-ubi9-minimal",
+                    "Please consider using a multi-arch image, like: {}-ubi10-minimal",
                     StringUtils.substringAfterLast(imageName, ":"));
             verify(loggerMock).warn(
                     "See more information: https://github.com/nagyesta/lowkey-vault/tree/main/lowkey-vault-docker#arm-builds");

@@ -276,10 +276,10 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
         final var hostArchIsNotAmd64 = !"amd64".equals(hostArch);
         final var defaultImageUsed = DEFAULT_IMAGE_NAME.getUnversionedPart().equals(dockerImageName.getUnversionedPart());
         final var versionPart = dockerImageName.getVersionPart();
-        final var imageIsNotMultiArch = !versionPart.contains("-ubi9-minimal");
+        final var imageIsNotMultiArch = !versionPart.matches(".*-ubi(9|10)-minimal");
         if (defaultImageUsed && hostArchIsNotAmd64 && imageIsNotMultiArch) {
             logger.warn("An amd64 image is detected with non-amd64 ({}) host.", hostArch);
-            logger.warn("Please consider using a multi-arch image, like: {}-ubi9-minimal", versionPart);
+            logger.warn("Please consider using a multi-arch image, like: {}-ubi10-minimal", versionPart);
             logger.warn("See more information: https://github.com/nagyesta/lowkey-vault/tree/main/lowkey-vault-docker#arm-builds");
         }
     }

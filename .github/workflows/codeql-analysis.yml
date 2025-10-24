@@ -60,7 +60,7 @@ jobs:
           distribution: temurin
           java-version: 21
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@16140ae1a102900babc80a33c44059580f687047 # v4.30.9
+        uses: github/codeql-action/init@4e94bd11f71e507f7f87df81788dff88d1dacbfb # v4.31.0
         with:
           languages: "java"
       - name: Setup Gradle
@@ -70,7 +70,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build -x test -x dockerBuild -x dockerRun -x dockerStop
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@16140ae1a102900babc80a33c44059580f687047 # v4.30.9
+        uses: github/codeql-action/analyze@4e94bd11f71e507f7f87df81788dff88d1dacbfb # v4.31.0
       - name: Check dependencies with Gradle
         if: ${{ github.repository_owner == 'nagyesta' }}
         run: ./gradlew ossIndexAudit -PossIndexUsername=${{ secrets.OSS_INDEX_USER }} -PossIndexPassword=${{ secrets.OSS_INDEX_PASSWORD }} --info

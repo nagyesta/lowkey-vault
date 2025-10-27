@@ -37,8 +37,7 @@
         {
             "groupName": "Abort Mission dependencies",
             "matchPackageNames": [
-                "com.github.nagyesta.abort-mission:{/,}**",
-                "com.github.nagyesta.abort-mission.boosters:{/,}**"
+                "com.github.nagyesta.abort{/,}**"
             ]
         },
         {

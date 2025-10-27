@@ -37,7 +37,8 @@ permissions: read-all
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: write
     steps:
       # Set up build environment
       - name: Checkout
@@ -84,3 +85,18 @@ jobs:
         if: always()
         run: |
           rm -rf ${{ runner.temp }}/.gnupg/
+      - name: Read tag name
+        id: read-tag-name
+        run: |
+          echo "RELEASE_TAG_NAME=$(cat ./build/version)" >> "$GITHUB_OUTPUT"
+      - name: Generate release
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: "${{ steps.read-tag-name.outputs.RELEASE_TAG_NAME }}",
+              generate_release_notes: true,
+              draft: false
+            });

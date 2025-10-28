@@ -17,8 +17,8 @@ import org.junit.jupiter.api.parallel.Isolated;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.images.PullPolicy;
+import org.testcontainers.mysql.MySQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.io.File;
@@ -519,7 +519,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testContainerShouldStartWhenItDependsOnJdbcContainer() {
         //given
-        final var mysql = new MySQLContainer<>(MYSQL_IMAGE_NAME);
+        final var mysql = new MySQLContainer(DockerImageName.parse(MYSQL_IMAGE_NAME));
 
         final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
@@ -546,7 +546,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testContainerShouldSetSecretsAfterStartUpWhenItDependsOnJdbcContainer() {
         //given
-        final var mysql = new MySQLContainer<>(MYSQL_IMAGE_NAME);
+        final var mysql = new MySQLContainer(DockerImageName.parse(MYSQL_IMAGE_NAME));
 
         final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())
@@ -578,7 +578,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
     @Test
     void testContainerShouldSetSecretsAfterStartUpWhenItDependsOnJdbcContainerAndTrustStoresAreMerged() {
         //given
-        final var mysql = new MySQLContainer<>(MYSQL_IMAGE_NAME);
+        final var mysql = new MySQLContainer(DockerImageName.parse(MYSQL_IMAGE_NAME));
 
         final var imageName = DockerImageName
                 .parse(getCurrentLowkeyVaultImageName())

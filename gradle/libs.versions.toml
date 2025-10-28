@@ -16,7 +16,7 @@ commonsCompress = "1.28.0"
 azureKeyVaultKeyClient = "4.10.4"
 azureKeyVaultSecretsClient = "4.10.4"
 azureKeyVaultCertClient = "4.8.4"
-testcontainers = "1.21.3"
+testcontainers = "2.0.1"
 mysqlDriver = "9.5.0"
 cucumber = "7.31.0"
 mockitoCore = "5.20.0"
@@ -110,9 +110,9 @@ jackson-dataformat-xml = { module = "com.fasterxml.jackson.dataformat:jackson-da
 jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
 
 testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
-testcontainers-jdbc = { module = "org.testcontainers:jdbc", version.ref = "testcontainers" }
-testcontainers-mysql = { module = "org.testcontainers:mysql", version.ref = "testcontainers" }
-testcontainers-jupiter = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers" }
+testcontainers-jdbc = { module = "org.testcontainers:testcontainers-jdbc", version.ref = "testcontainers" }
+testcontainers-mysql = { module = "org.testcontainers:testcontainers-mysql", version.ref = "testcontainers" }
+testcontainers-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter", version.ref = "testcontainers" }
 mysql-driver = { module = "com.mysql:mysql-connector-j", version.ref = "mysqlDriver" }
 
 [bundles]

@@ -43,7 +43,6 @@ licensee {
     allow("Apache-2.0")
     allow("MIT")
     allow("MIT-0")
-    allow("EPL-1.0")
     allow("BSD-2-Clause")
 }
 

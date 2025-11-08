@@ -30,7 +30,7 @@ openApiUi = "2.8.14"
 
 abortMissionPlugin = "5.2.4"
 indexScanPlugin = "3.1.4"
-lombokPlugin = "9.0.0"
+lombokPlugin = "9.1.0"
 springBootPlugin = "3.5.7"
 gitVersionerPlugin = "1.6.7"
 owaspPlugin = "12.1.8"

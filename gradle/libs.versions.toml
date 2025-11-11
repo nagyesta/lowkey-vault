@@ -22,7 +22,7 @@ cucumber = "7.31.0"
 mockitoCore = "5.20.0"
 jupiter = "6.0.1"
 abortMission = "6.1.8"
-checkstyle = "12.1.1"
+checkstyle = "12.1.2"
 jacoco = "0.8.14"
 jackson = { strictly = "2.20.1" }
 jacksonAnnotations = { strictly = "2.20" }

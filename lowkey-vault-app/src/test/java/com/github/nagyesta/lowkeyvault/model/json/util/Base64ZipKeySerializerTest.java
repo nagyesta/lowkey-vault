@@ -1,13 +1,11 @@
 package com.github.nagyesta.lowkeyvault.model.json.util;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupList;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationContext;
 
 import static org.mockito.Mockito.*;
 
@@ -20,7 +18,7 @@ class Base64ZipKeySerializerTest {
         final var objectMapper = new ObjectMapper();
         final var underTest = new Base64ZipKeySerializer(base64Serializer, objectMapper);
         final var gen = mock(JsonGenerator.class);
-        final var serializers = mock(SerializerProvider.class);
+        final var serializers = mock(SerializationContext.class);
         when(base64Serializer.base64Encode(any())).thenThrow(new IllegalStateException("Fail"));
         final var backupList = new KeyBackupList();
 
@@ -33,11 +31,11 @@ class Base64ZipKeySerializerTest {
     }
 
     @Test
-    void testSerializeShouldWriteNullWhenCalledWithNullInput() throws IOException {
+    void testSerializeShouldWriteNullWhenCalledWithNullInput() {
         //given
         final var underTest = new Base64ZipKeySerializer();
         final var gen = mock(JsonGenerator.class);
-        final var serializers = mock(SerializerProvider.class);
+        final var serializers = mock(SerializationContext.class);
 
         //when
         underTest.serialize(null, gen, serializers);

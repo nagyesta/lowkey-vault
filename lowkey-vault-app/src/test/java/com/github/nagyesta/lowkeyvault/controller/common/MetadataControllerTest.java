@@ -84,8 +84,7 @@ class MetadataControllerTest {
             final String scheme,
             final String host,
             final int port,
-            final URI expectedUri
-    ) throws IOException {
+            final URI expectedUri) throws IOException {
         //given
         final var underTest = new MetadataController(REALM_NAME, GENERATOR, KEY_STORE_RESOURCE, KEY_STORE_PASSWORD);
         final var request = new MockHttpServletRequest();

@@ -1,7 +1,5 @@
 package com.github.nagyesta.lowkeyvault.model.json.util;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,8 +8,9 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
 
-import java.io.IOException;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -29,6 +28,7 @@ class Base64CertDeserializerTest {
     private DeserializationContext context;
     private AutoCloseable openMocks;
 
+    @SuppressWarnings("OptionalOfNullableMisuse")
     public static Stream<Arguments> base64Provider() {
         final var encoder = Base64.getMimeEncoder();
         return Stream.of(null, EMPTY, BLANK, LOCALHOST)
@@ -48,7 +48,7 @@ class Base64CertDeserializerTest {
 
     @ParameterizedTest
     @MethodSource("base64Provider")
-    void testDeserializeShouldDecodeBase64WhenCalled(final String input, final byte[] expected) throws IOException {
+    void testDeserializeShouldDecodeBase64WhenCalled(final String input, final byte[] expected) {
         //given
         when(parser.readValueAs(String.class)).thenReturn(input);
 

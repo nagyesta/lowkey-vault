@@ -1,18 +1,15 @@
 {
   "versions": [
     {
-      "vaultBaseUri": "https://keys-backup-jsonBackupEc-384-72.localhost:8443",
+      "attributes": {
+        "created": 1649503879,
+        "enabled": true,
+        "recoverableDays": 90,
+        "recoveryLevel": "Recoverable+Purgeable",
+        "updated": 1649503879
+      },
       "entityId": "jsonBackupEc-384-72",
       "entityVersion": "7f4c0a2ef5454e07a533e597434984a8",
-      "attributes": {
-        "enabled": true,
-        "created": 1649503879,
-        "updated": 1649503879,
-        "recoveryLevel": "Recoverable+Purgeable",
-        "recoverableDays": 90
-      },
-      "tags": {},
-      "managed": false,
       "keyMaterial": {
         "crv": "P-384",
         "d": "bd2taaXwxvA_DRUZ1wMT28l8TnaMDz1mn2Z2x_pJT_nkZ11BNS1FFxJvjYHIvoU4",
@@ -23,7 +20,10 @@
         "kty": "EC",
         "x": "KzD2vTm-aSjXN_RFlY7P78R6hpfdJcSHTC9WM7QXmf0VJro3cXdFOZk6vrx5WDjE",
         "y": "pjLyFfCNzQ7yZUFc6iVS8eSWoRXY84sg3pzcSlkgn5LPYf9Vx7QSgAXfbRtmHGt_"
-      }
+      },
+      "managed": false,
+      "tags": {},
+      "vaultBaseUri": "https://keys-backup-jsonBackupEc-384-72.localhost:8443"
     }
   ]
 }

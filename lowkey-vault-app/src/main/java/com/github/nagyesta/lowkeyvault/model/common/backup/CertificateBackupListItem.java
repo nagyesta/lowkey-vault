@@ -2,8 +2,6 @@ package com.github.nagyesta.lowkeyvault.model.common.backup;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.nagyesta.lowkeyvault.controller.common.util.CertificateRequestMapperUtil;
 import com.github.nagyesta.lowkeyvault.model.json.util.Base64CertDeserializer;
 import com.github.nagyesta.lowkeyvault.model.json.util.Base64CertSerializer;
@@ -14,6 +12,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

@@ -1,7 +1,5 @@
 package com.github.nagyesta.lowkeyvault.model.json.util;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,8 +10,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
 
-import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -27,7 +26,7 @@ class EpochSecondsSerializerTest {
     @Mock
     private JsonGenerator generator;
     @Mock
-    private SerializerProvider provider;
+    private SerializationContext provider;
     @Captor
     private ArgumentCaptor<Long> output;
     private AutoCloseable openMocks;
@@ -49,9 +48,9 @@ class EpochSecondsSerializerTest {
 
     @ParameterizedTest
     @MethodSource("valueProvider")
-    void testSerializeShouldConvertOffsetDateTimeWhenCalled(final OffsetDateTime input, final Long expected) throws IOException {
+    void testSerializeShouldConvertOffsetDateTimeWhenCalled(final OffsetDateTime input, final Long expected) {
         //given
-        doNothing().when(generator).writeNumber(output.capture());
+        doReturn(generator).when(generator).writeNumber(output.capture());
 
         //when
         underTest.serialize(input, generator, provider);

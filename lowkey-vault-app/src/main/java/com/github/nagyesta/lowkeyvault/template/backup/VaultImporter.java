@@ -1,6 +1,5 @@
 package com.github.nagyesta.lowkeyvault.template.backup;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.jknack.handlebars.internal.Files;
 import com.github.nagyesta.lowkeyvault.model.common.backup.CertificateBackupModel;
 import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupModel;
@@ -15,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.IOException;

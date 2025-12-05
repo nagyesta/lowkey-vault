@@ -1,6 +1,5 @@
 package com.github.nagyesta.lowkeyvault.controller.v7_2;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nagyesta.abortmission.booster.jupiter.annotation.LaunchAbortArmed;
 import com.github.nagyesta.lowkeyvault.ResourceUtils;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.EncryptionAlgorithm;
@@ -22,8 +21,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import tools.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -75,7 +74,7 @@ class KeyControllerIntegrationTest {
     }
 
     @Test
-    void testImportRsaShouldUseImportKeyWhenCalledWithValidPayload() throws IOException {
+    void testImportRsaShouldUseImportKeyWhenCalledWithValidPayload() {
         //given
         final var resource = "/key/import/rsa-import-valid.json";
         final var input = loadResourceAsObject(resource);
@@ -101,7 +100,7 @@ class KeyControllerIntegrationTest {
     }
 
     @Test
-    void testImportAesShouldUseImportKeyWhenCalledWithValidPayload() throws IOException {
+    void testImportAesShouldUseImportKeyWhenCalledWithValidPayload() {
         //given
         final var resource = "/key/import/aes-import-valid.json";
         final var input = loadResourceAsObject(resource);
@@ -127,7 +126,7 @@ class KeyControllerIntegrationTest {
     }
 
     @Test
-    void testImportEcShouldUseImportKeyWhenCalledWithValidPayload() throws IOException {
+    void testImportEcShouldUseImportKeyWhenCalledWithValidPayload() {
         //given
         final var resource = "/key/import/ec-import-valid.json";
         final var input = loadResourceAsObject(resource);
@@ -153,9 +152,9 @@ class KeyControllerIntegrationTest {
         Assertions.assertTrue(valid);
     }
 
-    private ImportKeyRequest loadResourceAsObject(final String resource) throws IOException {
+    private ImportKeyRequest loadResourceAsObject(final String resource) {
         final var json = ResourceUtils.loadResourceAsString(resource);
-        return objectMapper.reader().readValue(json, ImportKeyRequest.class);
+        return objectMapper.readerFor(ImportKeyRequest.class).readValue(json);
     }
 
     private byte[] hash(final byte[] text) {

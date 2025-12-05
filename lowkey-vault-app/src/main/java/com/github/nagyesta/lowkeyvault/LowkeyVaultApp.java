@@ -5,8 +5,8 @@ import org.apache.coyote.http11.Http11NioProtocol;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
-import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
+import org.springframework.boot.tomcat.servlet.TomcatServletWebServerFactory;
+import org.springframework.boot.web.server.servlet.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
@@ -21,14 +21,14 @@ public class LowkeyVaultApp {
     @Value("${app.token.port}")
     private int tokenPort;
 
-    public static void main(final String[] args) {
+    static void main(final String[] args) {
         SpringApplication.run(LowkeyVaultApp.class, args);
     }
 
     @Bean
     public ServletWebServerFactory servletContainer() {
         final var tomcat = new TomcatServletWebServerFactory();
-        tomcat.addAdditionalTomcatConnectors(createTokenConnector());
+        tomcat.addAdditionalConnectors(createTokenConnector());
         return tomcat;
     }
 

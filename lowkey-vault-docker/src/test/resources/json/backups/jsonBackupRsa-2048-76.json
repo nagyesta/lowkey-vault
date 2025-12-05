@@ -1,19 +1,42 @@
 {
+  "rotationPolicy": {
+    "attributes": {
+      "created": 1649504966,
+      "expiryTime": "P120D",
+      "updated": 1649504966
+    },
+    "id": "https://keys-backup-jsonBackupRsa-2048-76.localhost:8443/keys/jsonBackupRsa-2048-76/rotationpolicy",
+    "lifetimeActions": [
+      {
+        "action": {
+          "type": "notify"
+        },
+        "trigger": {
+          "timeBeforeExpiry": "P30D"
+        }
+      },
+      {
+        "action": {
+          "type": "rotate"
+        },
+        "trigger": {
+          "timeAfterCreate": "P100D"
+        }
+      }
+    ]
+  },
   "versions": [
     {
-      "vaultBaseUri": "https://keys-backup-jsonBackupRsa-2048-76.localhost:8443",
+      "attributes": {
+        "created": 1649504957,
+        "enabled": true,
+        "exp": 1659871879,
+        "recoverableDays": 90,
+        "recoveryLevel": "Recoverable+Purgeable",
+        "updated": 1649504957
+      },
       "entityId": "jsonBackupRsa-2048-76",
       "entityVersion": "2d93f37afada4679b00b528f7238ad5c",
-      "attributes": {
-        "enabled": true,
-        "created": 1649504957,
-        "updated": 1649504957,
-        "recoveryLevel": "Recoverable+Purgeable",
-        "exp": 1659871879,
-        "recoverableDays": 90
-      },
-      "tags": {},
-      "managed": false,
       "keyMaterial": {
         "d": "BOSCOBcA_oaZAMPp3APYWbQvyPuw0uFwblDxFSN8YGsSaMqNZMc4b01hC7oMRJzTC7k5dFkCcvikKJU3xWiqNY-FP9HEPJkHezEOQ9rk4nKuJuex157gf1SUxqzDttjQxty027P0ZVL-EmB6OdET2CKVpEyTo7RVZ9UBvQnb1S7-ZBU7UTBotWA7MRsfItvTX_EHX9atPJegpSWmJaJ05-_-dXkRnffrk43bLJ5cJEF4G6X7c4rUFjxSTJ3OwTjmpZPAJT1q85H3-NXrhXiabkFicR3cIj4OpA4egUpRwVze0VAbNOlIsZYIUocLuBelKYLLmr5hTnP_UKSKwznayQ",
         "dp": "AN9pfqyKw-uT9FWr8GqsyhqJYR9KLgTtX6uqxJk_Y-4NZEMooCeq2olaVpFic0tfaOMJnDufYsUBL_i1TxoD9w3s0YjVwBiURFKs-0Ghs2RGxk22WGbKrnS4Zh8k2RKkNvFPnRciXva1nfMjeWEahb6O8ReA7AZNECKAqJtE5UTB",
@@ -30,33 +53,10 @@
         "p": "AOqsdAb_YNN9OdgFRuVNUmMlG2DpgQfCs8kHUi0_s4IGLjgu4yX1LUhVNnBMLCxTEGO7U-N9e3jHRDexQLHbXzt2IkrN-pwh3MZVEry6yxQILxbMp4aPqZpWTs9ufSiX0iI68lb7uZhsiaMcpEYQX_N67Vlj1Z6-rCGM1K_-86op",
         "q": "ANoA3nnRaVah2bdmqdjK1Hh20wj4gTEQrKnt_XZDlxMo_HZ77saX_hMjJpYX008w-ZPV-LFNc_clcHK7ZedJZB6pcmuumPvLuvqSqifD4wEwcQAR3a8aTs2gBeqmjyxXXtQk8KK8LNpIzclm98n0vmk1kc0fHobmr_KVFyFBYAs7",
         "qi": "AOfgFCIEztUVLY7nA5-vMDPRYsf8oKSVeeXDqueXogic75BzYL4mfWevgfkyatP0aa8y8E38annoMN-E1J-cu2gBneLQCd9rf0cIqRIooTwZ-RMLPEKtpBNcT3sBirfeviITpDqOirbke92XbMNGkAEPoC5JPiCYU1FASGDaJFaF"
-      }
-    }
-  ],
-  "rotationPolicy": {
-    "id": "https://keys-backup-jsonBackupRsa-2048-76.localhost:8443/keys/jsonBackupRsa-2048-76/rotationpolicy",
-    "lifetimeActions": [
-      {
-        "trigger": {
-          "timeBeforeExpiry": "P30D"
-        },
-        "action": {
-          "type": "notify"
-        }
       },
-      {
-        "trigger": {
-          "timeAfterCreate": "P100D"
-        },
-        "action": {
-          "type": "rotate"
-        }
-      }
-    ],
-    "attributes": {
-      "expiryTime": "P120D",
-      "created": 1649504966,
-      "updated": 1649504966
+      "managed": false,
+      "tags": {},
+      "vaultBaseUri": "https://keys-backup-jsonBackupRsa-2048-76.localhost:8443"
     }
-  }
+  ]
 }

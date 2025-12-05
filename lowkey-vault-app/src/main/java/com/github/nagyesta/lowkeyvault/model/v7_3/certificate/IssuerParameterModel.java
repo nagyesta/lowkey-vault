@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.model.v7_3.certificate;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertAuthorityType;
 import lombok.Data;
@@ -16,6 +17,7 @@ public class IssuerParameterModel {
     @JsonProperty("name")
     private String issuer;
 
+    @JsonCreator
     public IssuerParameterModel() {
     }
 

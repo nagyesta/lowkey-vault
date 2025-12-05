@@ -1,13 +1,13 @@
 package com.github.nagyesta.lowkeyvault.model.json.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupList;
+import tools.jackson.databind.ObjectMapper;
 
 public class Base64ZipKeyDeserializer
         extends AbstractBase64ZipDeserializer<KeyBackupList> {
 
     public Base64ZipKeyDeserializer() {
-        this(new Base64Deserializer(), new ObjectMapper().findAndRegisterModules());
+        this(new Base64Deserializer(), new ObjectMapper());
     }
 
     protected Base64ZipKeyDeserializer(

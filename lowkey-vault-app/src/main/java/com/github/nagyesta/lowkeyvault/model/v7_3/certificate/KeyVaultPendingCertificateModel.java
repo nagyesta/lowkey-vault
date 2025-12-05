@@ -1,11 +1,11 @@
 package com.github.nagyesta.lowkeyvault.model.v7_3.certificate;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.nagyesta.lowkeyvault.model.json.util.Base64CertDeserializer;
 import com.github.nagyesta.lowkeyvault.model.json.util.Base64CertSerializer;
 import lombok.Data;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 @Data
 public class KeyVaultPendingCertificateModel {

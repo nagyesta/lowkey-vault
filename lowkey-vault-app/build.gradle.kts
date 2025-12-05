@@ -23,6 +23,7 @@ extra.apply {
     set("artifactDescription", "Assembled application of Lowkey Vault.")
 }
 
+val mockitoAgent = configurations.create("mockitoAgent")
 dependencies {
     implementation(libs.bundles.spring.boot.app)
     implementation(libs.bundles.logback)
@@ -38,6 +39,7 @@ dependencies {
     testImplementation(libs.bundles.spring.test)
     testImplementation(libs.jupiter)
     testImplementation(libs.abort.mission.jupiter)
+    mockitoAgent(libs.mockito.core) { isTransitive = false }
 }
 
 licensee {
@@ -47,7 +49,6 @@ licensee {
     allowUrl("https://repository.jboss.org/licenses/apache-2.0.txt")
     allowUrl("https://www.bouncycastle.org/licence.html")
     allowUrl("https://github.com/openjdk/nashorn/blob/main/LICENSE")
-    allowUrl("http://www.eclipse.org/legal/epl-2.0")
     allowUrl("http://www.eclipse.org/org/documents/edl-v10.php")
     allowUrl("https://asm.ow2.io/license.html")
     allowUrl("https://opensource.org/license/mit")
@@ -89,6 +90,7 @@ tasks.test {
         systemProperty("junit.jupiter.execution.parallel.mode.classes.default", "concurrent")
         systemProperty("net.bytebuddy.experimental", true)
     }
+    jvmArgs.add("-javaagent:${mockitoAgent.asPath}")
     finalizedBy(tasks.getByName("jacocoTestReport"))
 }
 

@@ -1,20 +1,18 @@
 package com.github.nagyesta.lowkeyvault.model.json.util;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupList;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ObjectMapper;
 
 import static org.mockito.Mockito.*;
 
 class Base64ZipKeyDeserializerTest {
 
     @Test
-    void testDeserializeShouldThrowExceptionWhenDecodingFails() throws IOException {
+    void testDeserializeShouldThrowExceptionWhenDecodingFails() {
         //given
         final var base64Deserializer = mock(Base64Deserializer.class);
         final var objectMapper = mock(ObjectMapper.class);
@@ -32,7 +30,7 @@ class Base64ZipKeyDeserializerTest {
     }
 
     @Test
-    void testDeserializeShouldWriteNullWhenCalledWithNullInput() throws IOException {
+    void testDeserializeShouldWriteNullWhenCalledWithNullInput() {
         //given
         final var underTest = new Base64ZipKeyDeserializer();
         final var jsonParser = mock(JsonParser.class);

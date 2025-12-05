@@ -1,6 +1,5 @@
 package com.github.nagyesta.lowkeyvault.model.json.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nagyesta.abortmission.booster.jupiter.annotation.LaunchAbortArmed;
 import com.github.nagyesta.lowkeyvault.TestConstantsCertificates;
 import com.github.nagyesta.lowkeyvault.model.common.backup.CertificateBackupList;
@@ -13,8 +12,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import tools.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -28,32 +27,32 @@ class Base64ZipCertificateSerializerDeserializerIntegrationTest {
     private ObjectMapper objectMapper;
 
     @Test
-    void testSerializeShouldReturnNullWhenCalledWithNull() throws IOException {
+    void testSerializeShouldReturnNullWhenCalledWithNull() {
         //given
 
         //when
         final var json = objectMapper.writerFor(CertificateBackupModel.class).writeValueAsString(null);
-        final var actual = objectMapper.reader().readValue(json, CertificateBackupModel.class);
+        final var actual = objectMapper.readerFor(CertificateBackupModel.class).readValue(json);
 
         //then
         Assertions.assertNull(actual);
     }
 
     @Test
-    void testSerializeShouldReturnNullWhenCalledWithNullList() throws IOException {
+    void testSerializeShouldReturnNullWhenCalledWithNullList() {
         //given
         final var valueWithNullList = new CertificateBackupModel();
 
         //when
         final var json = objectMapper.writer().writeValueAsString(valueWithNullList);
-        final var actual = objectMapper.reader().readValue(json, CertificateBackupModel.class);
+        final var actual = objectMapper.readerFor(CertificateBackupModel.class).readValue(json);
 
         //then
         Assertions.assertEquals(valueWithNullList, actual);
     }
 
     @Test
-    void testSerializeShouldConvertContentWhenCalledWithValidValue() throws IOException {
+    void testSerializeShouldConvertContentWhenCalledWithValidValue() {
         //given
         final var item = getCertificateBackupListItem(TestConstantsCertificates.VERSIONED_CERT_ENTITY_ID_1_VERSION_2,
                 LOWKEY_VAULT, getCertificatePropertiesModel());
@@ -61,7 +60,7 @@ class Base64ZipCertificateSerializerDeserializerIntegrationTest {
 
         //when
         final var json = objectMapper.writer().writeValueAsString(input);
-        final var actual = objectMapper.reader().readValue(json, CertificateBackupModel.class);
+        final var actual = objectMapper.readerFor(CertificateBackupModel.class).readValue(json);
 
         //then
         Assertions.assertEquals(input, actual);
@@ -76,9 +75,10 @@ class Base64ZipCertificateSerializerDeserializerIntegrationTest {
     }
 
     @SuppressWarnings("SameParameterValue")
-    private CertificateBackupListItem getCertificateBackupListItem(final CertificateEntityId id,
-                                                                   final String value,
-                                                                   final CertificatePropertiesModel propertiesModel) {
+    private CertificateBackupListItem getCertificateBackupListItem(
+            final CertificateEntityId id,
+            final String value,
+            final CertificatePropertiesModel propertiesModel) {
         final var item = new CertificateBackupListItem();
         item.setId(id.id());
         item.setVaultBaseUri(id.vault());

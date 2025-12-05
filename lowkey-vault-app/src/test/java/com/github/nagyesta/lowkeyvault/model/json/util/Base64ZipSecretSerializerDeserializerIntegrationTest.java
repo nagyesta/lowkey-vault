@@ -1,6 +1,5 @@
 package com.github.nagyesta.lowkeyvault.model.json.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nagyesta.abortmission.booster.jupiter.annotation.LaunchAbortArmed;
 import com.github.nagyesta.lowkeyvault.TestConstantsSecrets;
 import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupList;
@@ -14,8 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.util.MimeTypeUtils;
+import tools.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -29,32 +28,32 @@ class Base64ZipSecretSerializerDeserializerIntegrationTest {
     private ObjectMapper objectMapper;
 
     @Test
-    void testSerializeShouldReturnNullWhenCalledWithNull() throws IOException {
+    void testSerializeShouldReturnNullWhenCalledWithNull() {
         //given
 
         //when
         final var json = objectMapper.writerFor(SecretBackupModel.class).writeValueAsString(null);
-        final var actual = objectMapper.reader().readValue(json, SecretBackupModel.class);
+        final var actual = objectMapper.readerFor(SecretBackupModel.class).readValue(json);
 
         //then
         Assertions.assertNull(actual);
     }
 
     @Test
-    void testSerializeShouldReturnNullWhenCalledWithNullList() throws IOException {
+    void testSerializeShouldReturnNullWhenCalledWithNullList() {
         //given
         final var valueWithNullList = new SecretBackupModel();
 
         //when
         final var json = objectMapper.writer().writeValueAsString(valueWithNullList);
-        final var actual = objectMapper.reader().readValue(json, SecretBackupModel.class);
+        final var actual = objectMapper.readerFor(SecretBackupModel.class).readValue(json);
 
         //then
         Assertions.assertEquals(valueWithNullList, actual);
     }
 
     @Test
-    void testSerializeShouldConvertContentWhenCalledWithValidValue() throws IOException {
+    void testSerializeShouldConvertContentWhenCalledWithValidValue() {
         //given
         final var item = getSecretBackupListItem(TestConstantsSecrets.VERSIONED_SECRET_ENTITY_ID_1_VERSION_1,
                 LOWKEY_VAULT, MimeTypeUtils.TEXT_PLAIN_VALUE,
@@ -63,7 +62,7 @@ class Base64ZipSecretSerializerDeserializerIntegrationTest {
 
         //when
         final var json = objectMapper.writer().writeValueAsString(input);
-        final var actual = objectMapper.reader().readValue(json, SecretBackupModel.class);
+        final var actual = objectMapper.readerFor(SecretBackupModel.class).readValue(json);
 
         //then
         Assertions.assertEquals(input, actual);
@@ -78,10 +77,11 @@ class Base64ZipSecretSerializerDeserializerIntegrationTest {
     }
 
     @SuppressWarnings("SameParameterValue")
-    private SecretBackupListItem getSecretBackupListItem(final SecretEntityId id,
-                                                         final String value,
-                                                         final String contentType,
-                                                         final SecretPropertiesModel propertiesModel) {
+    private SecretBackupListItem getSecretBackupListItem(
+            final SecretEntityId id,
+            final String value,
+            final String contentType,
+            final SecretPropertiesModel propertiesModel) {
         final var item = new SecretBackupListItem();
         item.setId(id.id());
         item.setVaultBaseUri(id.vault());

@@ -1,7 +1,5 @@
 package com.github.nagyesta.lowkeyvault.model.json.util;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,8 +10,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
 
-import java.io.IOException;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -27,7 +26,7 @@ class Base64CertSerializerTest {
     @Mock
     private JsonGenerator generator;
     @Mock
-    private SerializerProvider provider;
+    private SerializationContext provider;
     @Captor
     private ArgumentCaptor<String> output;
     private AutoCloseable openMocks;
@@ -51,9 +50,9 @@ class Base64CertSerializerTest {
 
     @ParameterizedTest
     @MethodSource("base64Provider")
-    void testSerializeShouldEncodeBase64WhenCalled(final byte[] input, final String expected) throws IOException {
+    void testSerializeShouldEncodeBase64WhenCalled(final byte[] input, final String expected) {
         //given
-        doNothing().when(generator).writeString(output.capture());
+        doReturn(generator).when(generator).writeString(output.capture());
 
         //when
         underTest.serialize(input, generator, provider);

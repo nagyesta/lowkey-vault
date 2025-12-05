@@ -42,8 +42,11 @@ class BackupTemplateProcessorIntegrationTest {
     @ParameterizedTest
     @MethodSource("validProvider")
     void testProcessTemplateShouldFillPlaceholdersWhenCalledWithValidData(
-            final String templateResource, final String host, final int port, final int timeEpochSeconds, final String expectedResource)
-            throws IOException {
+            final String templateResource,
+            final String host,
+            final int port,
+            final int timeEpochSeconds,
+            final String expectedResource) throws IOException {
         //given
         final var time = OffsetDateTime.ofInstant(Instant.ofEpochSecond(timeEpochSeconds), ZoneOffset.UTC);
         final var context = new BackupContext(host, port);

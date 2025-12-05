@@ -12,7 +12,7 @@ import lombok.Data;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({"trigger", "action"})
+@JsonPropertyOrder({"action", "trigger"})
 public class KeyLifetimeActionModel {
 
     @NotNull(groups = {Restore.class, Update.class})

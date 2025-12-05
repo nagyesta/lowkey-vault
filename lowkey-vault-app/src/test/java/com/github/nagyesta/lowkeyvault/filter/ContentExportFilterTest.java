@@ -1,8 +1,5 @@
 package com.github.nagyesta.lowkeyvault.filter;
 
-import com.fasterxml.jackson.core.PrettyPrinter;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.github.nagyesta.lowkeyvault.management.VaultImportExportExecutor;
 import com.github.nagyesta.lowkeyvault.model.common.ErrorMessage;
 import com.github.nagyesta.lowkeyvault.model.management.VaultBackupListModel;
@@ -19,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectWriter;
 
 import java.io.File;
 import java.io.IOException;
@@ -158,8 +157,8 @@ class ContentExportFilterTest {
         when(executor.backupVaultList(vaultService)).thenReturn(list);
         final var objectMapper = mock(ObjectMapper.class);
         final var objectWriter = mock(ObjectWriter.class);
-        when(objectMapper.writer(any(PrettyPrinter.class))).thenReturn(objectWriter);
-        doThrow(new IOException(AN_EXPECTED_MESSAGE)).when(objectWriter).writeValue(eq(EXPORT_FILE), any());
+        when(objectMapper.writerWithDefaultPrettyPrinter()).thenReturn(objectWriter);
+        doThrow(new RuntimeException(AN_EXPECTED_MESSAGE)).when(objectWriter).writeValue(eq(EXPORT_FILE), any());
         final var expectedBackup = new VaultBackupListModel();
         expectedBackup.setVaults(list);
         final var underTest = new ContentExportFilter(executor, vaultService, objectMapper, EXPORT_FILE);
@@ -173,7 +172,7 @@ class ContentExportFilterTest {
 
         //then
         verify(executor).backupVaultList(same(vaultService));
-        verify(objectMapper).writer(any(PrettyPrinter.class));
+        verify(objectMapper).writerWithDefaultPrettyPrinter();
         verify(objectWriter).writeValue(EXPORT_FILE, expectedBackup);
         verify(objectMapper).writeValue(any(PrintWriter.class), any(ErrorMessage.class));
         verifyNoMoreInteractions(executor, vaultService, objectMapper);
@@ -192,7 +191,7 @@ class ContentExportFilterTest {
         when(executor.backupVaultList(vaultService)).thenReturn(list);
         final var objectMapper = mock(ObjectMapper.class);
         final var objectWriter = mock(ObjectWriter.class);
-        when(objectMapper.writer(any(PrettyPrinter.class))).thenReturn(objectWriter);
+        when(objectMapper.writerWithDefaultPrettyPrinter()).thenReturn(objectWriter);
         final var expectedBackup = new VaultBackupListModel();
         expectedBackup.setVaults(list);
         final var underTest = new ContentExportFilter(executor, vaultService, objectMapper, EXPORT_FILE);
@@ -206,7 +205,7 @@ class ContentExportFilterTest {
 
         //then
         verify(executor).backupVaultList(same(vaultService));
-        verify(objectMapper).writer(any(PrettyPrinter.class));
+        verify(objectMapper).writerWithDefaultPrettyPrinter();
         verify(objectWriter).writeValue(EXPORT_FILE, expectedBackup);
         verifyNoMoreInteractions(executor, vaultService, objectMapper);
     }

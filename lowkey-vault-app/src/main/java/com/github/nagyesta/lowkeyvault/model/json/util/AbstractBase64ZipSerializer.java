@@ -1,24 +1,23 @@
 package com.github.nagyesta.lowkeyvault.model.json.util;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.zip.GZIPOutputStream;
 
 /**
- * Serializer zipping json snippets and encoding with base64.
+ * Serializer zipping JSON snippets and encoding with base64.
  *
  * @param <E> The type of the entity.
  */
 @Slf4j
-public abstract class AbstractBase64ZipSerializer<E> extends JsonSerializer<E> {
+public abstract class AbstractBase64ZipSerializer<E> extends ValueSerializer<E> {
 
     private final Base64Serializer base64Serializer;
     private final ObjectMapper objectMapper;
@@ -34,7 +33,7 @@ public abstract class AbstractBase64ZipSerializer<E> extends JsonSerializer<E> {
     public void serialize(
             final E value,
             final JsonGenerator gen,
-            final SerializerProvider serializers) throws IOException {
+            final SerializationContext serializers) {
         final var base64 = Optional.ofNullable(value)
                 .map(this::compressObject)
                 .orElse(null);

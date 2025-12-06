@@ -1,6 +1,5 @@
 package com.github.nagyesta.lowkeyvault.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nagyesta.lowkeyvault.context.CertificateConverterConfiguration;
 import com.github.nagyesta.lowkeyvault.context.KeyConverterConfiguration;
 import com.github.nagyesta.lowkeyvault.context.SecretConverterConfiguration;
@@ -24,6 +23,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.util.Objects;
@@ -101,7 +101,7 @@ public class VaultBackupConfiguration {
 
     @Bean
     public ObjectMapper objectMapper() {
-        return new ObjectMapper().findAndRegisterModules();
+        return new ObjectMapper();
     }
 
     @Bean

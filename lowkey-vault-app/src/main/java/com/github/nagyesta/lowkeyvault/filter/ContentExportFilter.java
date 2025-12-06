@@ -1,7 +1,5 @@
 package com.github.nagyesta.lowkeyvault.filter;
 
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nagyesta.lowkeyvault.management.VaultImportExportExecutor;
 import com.github.nagyesta.lowkeyvault.model.common.ErrorMessage;
 import com.github.nagyesta.lowkeyvault.model.management.VaultBackupListModel;
@@ -18,6 +16,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingResponseWrapper;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.IOException;
@@ -104,7 +103,7 @@ public class ContentExportFilter
             final var backupModels = vaultImportExportExecutor.backupVaultList(vaultService);
             final var vaultBackupListModel = new VaultBackupListModel();
             vaultBackupListModel.setVaults(backupModels);
-            objectMapper.writer(new DefaultPrettyPrinter())
+            objectMapper.writerWithDefaultPrettyPrinter()
                     .writeValue(exportFile, vaultBackupListModel);
         } finally {
             lock.unlock();

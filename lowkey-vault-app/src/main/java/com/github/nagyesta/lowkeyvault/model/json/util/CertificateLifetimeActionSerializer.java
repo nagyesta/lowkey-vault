@@ -1,22 +1,20 @@
 package com.github.nagyesta.lowkeyvault.model.json.util;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionActivity;
-
-import java.io.IOException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
 
 public class CertificateLifetimeActionSerializer
-        extends JsonSerializer<CertificateLifetimeActionActivity> {
+        extends ValueSerializer<CertificateLifetimeActionActivity> {
 
     @Override
     public void serialize(
             final CertificateLifetimeActionActivity value,
             final JsonGenerator generator,
-            final SerializerProvider provider) throws IOException {
+            final SerializationContext provider) {
         generator.writeStartObject();
-        generator.writeStringField("action_type", value.getValue());
+        generator.writeStringProperty("action_type", value.getValue());
         generator.writeEndObject();
     }
 }

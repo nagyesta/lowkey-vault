@@ -1,7 +1,5 @@
 package com.github.nagyesta.lowkeyvault.model.v7_3.key;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nagyesta.abortmission.booster.jupiter.annotation.LaunchAbortArmed;
 import com.github.nagyesta.lowkeyvault.ResourceUtils;
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.constants.LifetimeActionType;
@@ -17,8 +15,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
 import java.net.URI;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -70,7 +69,7 @@ class KeyRotationPolicyModelIntegrationTest {
     }
 
     @Test
-    void testJsonSerializationShouldContainAllValuableFieldsWhenCalledOnFullyPopulatedObject() throws JsonProcessingException {
+    void testJsonSerializationShouldContainAllValuableFieldsWhenCalledOnFullyPopulatedObject() throws JacksonException {
         //given
         final var model = new KeyRotationPolicyModel();
         model.setId(URI.create(POLICY_URI_STRING));
@@ -86,7 +85,7 @@ class KeyRotationPolicyModelIntegrationTest {
     }
 
     @Test
-    void testJsonSerializationShouldContainAllValuableFieldsWhenCalledOnMinimalObject() throws JsonProcessingException {
+    void testJsonSerializationShouldContainAllValuableFieldsWhenCalledOnMinimalObject() throws JacksonException {
         //given
         final var model = new KeyRotationPolicyModel();
         model.setId(URI.create(POLICY_URI_STRING));
@@ -102,7 +101,7 @@ class KeyRotationPolicyModelIntegrationTest {
     }
 
     @Test
-    void testJsonDeserializationShouldRestoreAllValuableFieldsWhenCalledWithFullyPopulatedJson() throws IOException {
+    void testJsonDeserializationShouldRestoreAllValuableFieldsWhenCalledWithFullyPopulatedJson() {
         //given
 
         //when
@@ -118,7 +117,7 @@ class KeyRotationPolicyModelIntegrationTest {
 
 
     @Test
-    void testJsonDeserializationShouldRestoreAllValuableFieldsWhenCalledWithMinimalJson() throws IOException {
+    void testJsonDeserializationShouldRestoreAllValuableFieldsWhenCalledWithMinimalJson() {
         //given
 
         //when
@@ -135,7 +134,7 @@ class KeyRotationPolicyModelIntegrationTest {
     @ParameterizedTest
     @MethodSource("invalidProvider")
     void testValidateShouldReportViolationsWhenCalledWithInvalidData(
-            final String resource, final String expectedPath) throws IOException {
+            final String resource, final String expectedPath) {
         //given
         final var underTest = loadResourceAsObject(resource);
 
@@ -156,9 +155,9 @@ class KeyRotationPolicyModelIntegrationTest {
         return attributes;
     }
 
-    private KeyRotationPolicyModel loadResourceAsObject(final String resource) throws IOException {
+    private KeyRotationPolicyModel loadResourceAsObject(final String resource) {
         final var json = ResourceUtils.loadResourceAsString(resource);
-        return objectMapper.reader().readValue(json, KeyRotationPolicyModel.class);
+        return objectMapper.readerFor(KeyRotationPolicyModel.class).readValue(json);
     }
 
     private String readResourceAsStringRemoveWhitespace(final String resource) {

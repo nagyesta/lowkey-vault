@@ -3,8 +3,6 @@ package com.github.nagyesta.lowkeyvault.model.v7_3.key;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.nagyesta.lowkeyvault.model.json.util.EpochSecondsDeserializer;
 import com.github.nagyesta.lowkeyvault.model.json.util.EpochSecondsSerializer;
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.validator.ExpiryPeriod;
@@ -13,13 +11,15 @@ import com.github.nagyesta.lowkeyvault.model.v7_3.key.validator.Update;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import lombok.Data;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 import java.time.OffsetDateTime;
 import java.time.Period;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({"expiryTime", "created", "updated"})
+@JsonPropertyOrder({"created", "expiryTime", "updated"})
 public class KeyRotationPolicyAttributes {
 
     @Null(groups = {Update.class})

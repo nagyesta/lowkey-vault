@@ -1,6 +1,5 @@
 package com.github.nagyesta.lowkeyvault.model.v7_2.key.validator;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nagyesta.abortmission.booster.jupiter.annotation.LaunchAbortArmed;
 import com.github.nagyesta.lowkeyvault.ResourceUtils;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.ImportKeyRequest;
@@ -15,8 +14,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
+import tools.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -57,7 +56,7 @@ class ImportKeyValidatorIntegrationTest {
             "/key/import/aes-import-valid.json",
             "/key/import/rsa-import-valid.json"
     })
-    void testValidateShouldUseRightGroupWhenCalledWithValidPayload(final String resource) throws IOException {
+    void testValidateShouldUseRightGroupWhenCalledWithValidPayload(final String resource) {
         //given
         final var input = loadResourceAsObject(resource);
 
@@ -72,7 +71,7 @@ class ImportKeyValidatorIntegrationTest {
     @ParameterizedTest
     @MethodSource("invalidProvider")
     void testValidateShouldUseRightGroupAndMarkInvalidPropertiesWhenCalledWithInvalidPayload(
-            final String resource, final String property) throws IOException {
+            final String resource, final String property) {
         //given
         final var input = loadResourceAsObject(resource);
 
@@ -89,8 +88,8 @@ class ImportKeyValidatorIntegrationTest {
         Assertions.assertEquals(Set.of("key", "key." + property), properties);
     }
 
-    private ImportKeyRequest loadResourceAsObject(final String resource) throws IOException {
+    private ImportKeyRequest loadResourceAsObject(final String resource) {
         final var json = ResourceUtils.loadResourceAsString(resource);
-        return objectMapper.reader().readValue(json, ImportKeyRequest.class);
+        return objectMapper.readerFor(ImportKeyRequest.class).readValue(json);
     }
 }

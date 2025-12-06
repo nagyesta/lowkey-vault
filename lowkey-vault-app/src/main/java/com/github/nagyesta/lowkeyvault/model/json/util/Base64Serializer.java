@@ -1,14 +1,13 @@
 package com.github.nagyesta.lowkeyvault.model.json.util;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
 
-import java.io.IOException;
 import java.util.Base64;
 import java.util.Optional;
 
-public class Base64Serializer extends JsonSerializer<byte[]> {
+public class Base64Serializer extends ValueSerializer<byte[]> {
 
     private static final Base64.Encoder DEFAULT_ENCODER = Base64.getUrlEncoder().withoutPadding();
     private final Base64.Encoder encoder;
@@ -25,7 +24,7 @@ public class Base64Serializer extends JsonSerializer<byte[]> {
     public void serialize(
             final byte[] value,
             final JsonGenerator generator,
-            final SerializerProvider provider) throws IOException {
+            final SerializationContext provider) {
         final var text = base64Encode(value);
         if (text != null) {
             generator.writeString(text);

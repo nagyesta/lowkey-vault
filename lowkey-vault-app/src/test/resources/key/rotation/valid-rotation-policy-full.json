@@ -1,26 +1,26 @@
 {
+  "attributes": {
+    "created": 1482188947,
+    "expiryTime": "P4M",
+    "updated": 1482188948
+  },
   "id": "https:/localhost:8443/keys/key-name/rotationpolicy",
   "lifetimeActions": [
     {
-      "trigger": {
-        "timeAfterCreate": "P90D"
-      },
       "action": {
         "type": "rotate"
+      },
+      "trigger": {
+        "timeAfterCreate": "P90D"
       }
     },
     {
-      "trigger": {
-        "timeBeforeExpiry": "P30D"
-      },
       "action": {
         "type": "notify"
+      },
+      "trigger": {
+        "timeBeforeExpiry": "P30D"
       }
     }
-  ],
-  "attributes": {
-    "expiryTime": "P4M",
-    "created": 1482188947,
-    "updated": 1482188948
-  }
+  ]
 }

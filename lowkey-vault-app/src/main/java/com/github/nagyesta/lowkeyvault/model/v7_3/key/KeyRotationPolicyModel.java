@@ -15,7 +15,7 @@ import java.net.URI;
 import java.util.List;
 
 @Data
-@JsonPropertyOrder({"id", "lifetimeActions", "attributes"})
+@JsonPropertyOrder({"attributes", "id", "lifetimeActions"})
 public class KeyRotationPolicyModel {
 
     @NotNull(groups = {Restore.class})

@@ -1,19 +1,43 @@
+
 {
+  "rotationPolicy": {
+    "attributes": {
+      "created": 1649503879,
+      "expiryTime": "P120D",
+      "updated": 1649503879
+    },
+    "id": "https://keys-backup-jsonBackupEc-521-73.localhost:8443/keys/jsonBackupEc-521-73/rotationpolicy",
+    "lifetimeActions": [
+      {
+        "action": {
+          "type": "notify"
+        },
+        "trigger": {
+          "timeBeforeExpiry": "P30D"
+        }
+      },
+      {
+        "action": {
+          "type": "rotate"
+        },
+        "trigger": {
+          "timeAfterCreate": "P100D"
+        }
+      }
+    ]
+  },
   "versions": [
     {
-      "vaultBaseUri": "https://keys-backup-jsonBackupEc-521-73.localhost:8443",
+      "attributes": {
+        "created": 1649503879,
+        "enabled": true,
+        "exp": 1659871879,
+        "recoverableDays": 90,
+        "recoveryLevel": "Recoverable+Purgeable",
+        "updated": 1649503879
+      },
       "entityId": "jsonBackupEc-521-73",
       "entityVersion": "9301e31d18a540e08c68ad5230e60e21",
-      "attributes": {
-        "enabled": true,
-        "created": 1649503879,
-        "updated": 1649503879,
-        "recoveryLevel": "Recoverable+Purgeable",
-        "exp": 1659871879,
-        "recoverableDays": 90
-      },
-      "tags": {},
-      "managed": false,
       "keyMaterial": {
         "crv": "P-521",
         "d": "AWNmGqYqot0Zq_6uqnqv2lkA40ke1uTJhehp692dS_r2C7oPmJ0qcPgc31jOOFzc-v69chbMawkR-wyKXFf2O4mh",
@@ -24,33 +48,10 @@
         "kty": "EC",
         "x": "AbDYVOxj0e-tUTgqybst45IXon0axFo_sXlHyJQgYvFDxMNrxa5d4rV7X5H487zh3p_aR_dnVEnbWz9od42mlldE",
         "y": "ANk3zxFnwHSgsJr2AZvCHe06Zv7LOQdifHIVaZqx72NOf87DQQoEEMXNp3lTMYANkAqlerz80kjGpoBAe1ZyEtsH"
-      }
-    }
-  ],
-  "rotationPolicy": {
-    "id": "https://keys-backup-jsonBackupEc-521-73.localhost:8443/keys/jsonBackupEc-521-73/rotationpolicy",
-    "lifetimeActions": [
-      {
-        "trigger": {
-          "timeBeforeExpiry": "P30D"
-        },
-        "action": {
-          "type": "notify"
-        }
       },
-      {
-        "trigger": {
-          "timeAfterCreate": "P100D"
-        },
-        "action": {
-          "type": "rotate"
-        }
-      }
-    ],
-    "attributes": {
-      "expiryTime": "P120D",
-      "created": 1649503879,
-      "updated": 1649503879
+      "managed": false,
+      "tags": {},
+      "vaultBaseUri": "https://keys-backup-jsonBackupEc-521-73.localhost:8443"
     }
-  }
+  ]
 }

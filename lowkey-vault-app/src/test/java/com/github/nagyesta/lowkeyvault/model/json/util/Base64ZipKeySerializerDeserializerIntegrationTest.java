@@ -1,6 +1,5 @@
 package com.github.nagyesta.lowkeyvault.model.json.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nagyesta.abortmission.booster.jupiter.annotation.LaunchAbortArmed;
 import com.github.nagyesta.lowkeyvault.TestConstantsKeys;
 import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupList;
@@ -19,8 +18,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import tools.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
 import java.security.KeyPair;
 import java.util.List;
 import java.util.Map;
@@ -35,32 +34,32 @@ class Base64ZipKeySerializerDeserializerIntegrationTest {
     private ObjectMapper objectMapper;
 
     @Test
-    void testSerializeShouldReturnNullWhenCalledWithNull() throws IOException {
+    void testSerializeShouldReturnNullWhenCalledWithNull() {
         //given
 
         //when
         final var json = objectMapper.writerFor(KeyBackupModel.class).writeValueAsString(null);
-        final var actual = objectMapper.reader().readValue(json, KeyBackupModel.class);
+        final var actual = objectMapper.readerFor(KeyBackupModel.class).readValue(json);
 
         //then
         Assertions.assertNull(actual);
     }
 
     @Test
-    void testSerializeShouldReturnNullWhenCalledWithNullList() throws IOException {
+    void testSerializeShouldReturnNullWhenCalledWithNullList() {
         //given
         final var valueWithNullList = new KeyBackupModel();
 
         //when
         final var json = objectMapper.writer().writeValueAsString(valueWithNullList);
-        final var actual = objectMapper.reader().readValue(json, KeyBackupModel.class);
+        final var actual = objectMapper.readerFor(KeyBackupModel.class).readValue(json);
 
         //then
         Assertions.assertEquals(valueWithNullList, actual);
     }
 
     @Test
-    void testSerializeShouldConvertContentWhenCalledWithValidValue() throws IOException {
+    void testSerializeShouldConvertContentWhenCalledWithValidValue() {
         //given
         final var item = getKeyBackupListItem(TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1,
                 getKeyMaterial(TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1, KeyGenUtil.generateEc(KeyCurveName.P_256)),
@@ -69,7 +68,7 @@ class Base64ZipKeySerializerDeserializerIntegrationTest {
 
         //when
         final var json = objectMapper.writer().writeValueAsString(input);
-        final var actual = objectMapper.reader().readValue(json, KeyBackupModel.class);
+        final var actual = objectMapper.readerFor(KeyBackupModel.class).readValue(json);
 
         //then
         Assertions.assertEquals(input, actual);
@@ -84,9 +83,10 @@ class Base64ZipKeySerializerDeserializerIntegrationTest {
     }
 
     @SuppressWarnings("SameParameterValue")
-    private KeyBackupListItem getKeyBackupListItem(final KeyEntityId id,
-                                                   final JsonWebKeyImportRequest keyMaterial,
-                                                   final KeyPropertiesModel propertiesModel) {
+    private KeyBackupListItem getKeyBackupListItem(
+            final KeyEntityId id,
+            final JsonWebKeyImportRequest keyMaterial,
+            final KeyPropertiesModel propertiesModel) {
         final var item = new KeyBackupListItem();
         item.setId(id.id());
         item.setVaultBaseUri(id.vault());

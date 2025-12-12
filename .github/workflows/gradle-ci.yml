@@ -52,7 +52,7 @@ jobs:
         run: ./gradlew printVersion build sonar
       - name: Upload Test reports - App
         if: always()
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: test-report-lowkey-vault-app
           path: |
@@ -61,7 +61,7 @@ jobs:
           retention-days: 5
       - name: Upload Test reports - Docker
         if: always()
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: test-report-lowkey-vault-docker
           path: |
@@ -70,7 +70,7 @@ jobs:
           retention-days: 5
       - name: Upload Test reports - Testcontainers
         if: always()
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: test-report-lowkey-vault-testcontainers
           path: lowkey-vault-testcontainers/build/reports/tests/test

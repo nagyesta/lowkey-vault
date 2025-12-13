@@ -1,6 +1,6 @@
 [versions]
 springBoot = "4.0.0"
-spring = "7.0.1"
+spring = "7.0.2"
 snakeYaml = "2.5"
 tomcat = "11.0.15"
 jjwt = "0.13.0"

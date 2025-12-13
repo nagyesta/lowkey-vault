@@ -37,7 +37,7 @@ owaspPlugin = "12.1.9"
 cycloneDxBomPlugin = "3.1.0"
 licenseePlugin = "1.14.1"
 nexusPublishPlugin = "2.0.0"
-sonarPlugin = "7.2.0.6526"
+sonarPlugin = "7.2.1.6560"
 
 [libraries]
 spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter", version.ref = "springBoot" }

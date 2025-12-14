@@ -1,6 +1,5 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate;
 
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.CertificateConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertContentType;
@@ -12,6 +11,7 @@ import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultFakeImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.security.cert.CertificateEncodingException;
 import java.util.Map;
@@ -35,10 +35,14 @@ class CertificateEntityToV73ModelConverterIntegrationTest {
     @Test
     void testConvertShouldConvertValuableFieldsWhenCalledWithValidCertificate() throws CertificateEncodingException {
         //given
-        final var registry = new CertificateConverterRegistry();
-        new CertificateEntityToV73PropertiesModelConverter(registry).afterPropertiesSet();
-        new CertificateEntityToV73PolicyModelConverter(registry).afterPropertiesSet();
-        final var underTest = new CertificateEntityToV73ModelConverter(registry);
+        final var basePolicyConverter = new BaseCertificateEntityToV73PolicyModelConverterImpl();
+        final var propertiesConverter = new CertificateEntityToV73PropertiesModelConverterImpl();
+        final var policyConverter = new CertificateEntityToV73PolicyModelConverterImpl();
+        ReflectionTestUtils.setField(policyConverter, "baseCertificateEntityToV73PolicyModelConverter", basePolicyConverter);
+        ReflectionTestUtils.setField(policyConverter, "certificateEntityToV73PropertiesModelConverter", propertiesConverter);
+        final var underTest = new CertificateEntityToV73ModelConverterImpl();
+        ReflectionTestUtils.setField(underTest, "certificateEntityToV73PolicyModelConverter", policyConverter);
+        ReflectionTestUtils.setField(underTest, "certificateEntityToV73PropertiesModelConverter", propertiesConverter);
         final var input = CertificateCreationInput.builder()
                 .validityStart(NOW)
                 .subject("CN=" + LOCALHOST)
@@ -64,7 +68,7 @@ class CertificateEntityToV73ModelConverterIntegrationTest {
         final var tags = Map.of(KEY_1, VALUE_1, KEY_2, VALUE_2, KEY_3, VALUE_3);
         source.setTags(tags);
 
-        ///when
+        //when
         final var actual = underTest.convert(source, HTTPS_LOCALHOST_8443);
 
         //then
@@ -73,12 +77,12 @@ class CertificateEntityToV73ModelConverterIntegrationTest {
         Assertions.assertEquals(source.getSid().asUri(HTTPS_LOCALHOST_8443).toString(), actual.getSid());
 
         final var attributes = actual.getAttributes();
-        Assertions.assertTrue(NOW.isBefore(attributes.getCreatedOn()),
+        Assertions.assertTrue(NOW.isBefore(attributes.getCreated()),
                 "CreatedOn should be later than the beginning of the test.");
-        Assertions.assertTrue(NOW.isBefore(attributes.getUpdatedOn()),
+        Assertions.assertTrue(NOW.isBefore(attributes.getUpdated()),
                 "UpdatedOn should be later than the beginning of the test.");
         Assertions.assertEquals(NOW, attributes.getNotBefore());
-        Assertions.assertEquals(NOW.plusMonths(VALIDITY_MONTHS), attributes.getExpiresOn());
+        Assertions.assertEquals(NOW.plusMonths(VALIDITY_MONTHS), attributes.getExpiry());
         Assertions.assertEquals(vault.getRecoveryLevel(), attributes.getRecoveryLevel());
         Assertions.assertEquals(vault.getRecoverableDays(), attributes.getRecoverableDays());
 
@@ -113,7 +117,7 @@ class CertificateEntityToV73ModelConverterIntegrationTest {
 
         doThrow(new IllegalArgumentException("fail")).when(underTest).getEncodedCertificate();
 
-        ///when
+        //when
         Assertions.assertThrows(CryptoException.class, underTest::getThumbprint);
 
         //then + exception

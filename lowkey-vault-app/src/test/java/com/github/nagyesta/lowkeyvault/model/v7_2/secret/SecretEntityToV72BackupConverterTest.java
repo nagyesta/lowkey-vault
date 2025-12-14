@@ -1,7 +1,6 @@
 package com.github.nagyesta.lowkeyvault.model.v7_2.secret;
 
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.SecretConverterRegistry;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72BackupConverter;
+import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72BackupConverterImpl;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72PropertiesModelConverter;
 import com.github.nagyesta.lowkeyvault.service.secret.ReadOnlyKeyVaultSecretEntity;
 import com.github.nagyesta.lowkeyvault.service.secret.impl.KeyVaultSecretEntity;
@@ -15,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.util.MimeTypeUtils;
 
-import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
 
@@ -30,34 +28,20 @@ class SecretEntityToV72BackupConverterTest {
     private VaultFake vaultFake;
     @Mock
     private SecretEntityToV72PropertiesModelConverter propertiesModelConverter;
-    @Mock
-    private SecretConverterRegistry registry;
     @InjectMocks
-    private SecretEntityToV72BackupConverter underTest;
+    private SecretEntityToV72BackupConverterImpl underTest;
     private AutoCloseable openMocks;
 
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
-        when(registry.propertiesConverter(anyString())).thenReturn(propertiesModelConverter);
-        when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultSecretEntity.class), any(URI.class)))
+        when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultSecretEntity.class)))
                 .thenReturn(SECRET_PROPERTIES_MODEL);
     }
 
     @AfterEach
     void tearDown() throws Exception {
         openMocks.close();
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testConstructorShouldThrowExceptionWhenCalledWithNull() {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new SecretEntityToV72BackupConverter(null));
-
-        //then + exception
     }
 
     @Test
@@ -80,7 +64,7 @@ class SecretEntityToV72BackupConverterTest {
         Assertions.assertEquals(input.getId().vault(), actual.getVaultBaseUri());
         Assertions.assertEquals(input.getId().id(), actual.getId());
         Assertions.assertEquals(input.getId().version(), actual.getVersion());
-        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultSecretEntity.class), any(URI.class));
+        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultSecretEntity.class));
         verifyNoMoreInteractions(propertiesModelConverter);
     }
 
@@ -108,7 +92,7 @@ class SecretEntityToV72BackupConverterTest {
         Assertions.assertEquals(input.getId().vault(), actual.getVaultBaseUri());
         Assertions.assertEquals(input.getId().id(), actual.getId());
         Assertions.assertEquals(input.getId().version(), actual.getVersion());
-        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultSecretEntity.class), any(URI.class));
+        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultSecretEntity.class));
         verifyNoMoreInteractions(propertiesModelConverter);
     }
 }

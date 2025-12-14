@@ -163,7 +163,7 @@ class LowkeyVaultManagementClientImplTest {
 
             //then
             verify(httpClient, atMostOnce()).send(ArgumentMatchers.argThat(argument -> argument.getUrl().getPath().equals("/ping")));
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
         }
 
@@ -195,7 +195,7 @@ class LowkeyVaultManagementClientImplTest {
             Assertions.assertEquals(APPLICATION_JSON, request.getHeaders().getValue(HttpHeaderName.CONTENT_TYPE));
             final var actualBody = new String(Objects.requireNonNull(request.getBody().single().block()).array());
             Assertions.assertEquals(JSON, actualBody);
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
             verify(objectReader).forType(VaultModel.class);
             verify(objectReader).readValue(anyString());
@@ -223,7 +223,7 @@ class LowkeyVaultManagementClientImplTest {
             Assertions.assertEquals("/management/vault", request.getUrl().getPath());
             Assertions.assertEquals(HttpMethod.GET, request.getHttpMethod());
             Assertions.assertNull(request.getHeaders().get(HttpHeaderName.CONTENT_TYPE));
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
             verify(objectReader).forType(VAULT_MODEL_LIST_TYPE_REF);
             verify(objectReader).readValue(anyString());
@@ -250,7 +250,7 @@ class LowkeyVaultManagementClientImplTest {
             Assertions.assertEquals("/management/vault/deleted", request.getUrl().getPath());
             Assertions.assertEquals(HttpMethod.GET, request.getHttpMethod());
             Assertions.assertNull(request.getHeaders().get(HttpHeaderName.CONTENT_TYPE));
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
             verify(objectReader).forType(VAULT_MODEL_LIST_TYPE_REF);
             verify(objectReader).readValue(anyString());
@@ -276,7 +276,7 @@ class LowkeyVaultManagementClientImplTest {
             Assertions.assertEquals("/management/vault", request.getUrl().getPath());
             Assertions.assertEquals(HttpMethod.DELETE, request.getHttpMethod());
             Assertions.assertNull(request.getHeaders().get(HttpHeaderName.CONTENT_TYPE));
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
             verify(objectReader).forType(Boolean.class);
             verify(objectReader).readValue(anyString());
@@ -316,7 +316,7 @@ class LowkeyVaultManagementClientImplTest {
             Assertions.assertEquals("/management/vault/recover", request.getUrl().getPath());
             Assertions.assertEquals(HttpMethod.PUT, request.getHttpMethod());
             Assertions.assertEquals(APPLICATION_JSON, request.getHeaders().getValue(HttpHeaderName.CONTENT_TYPE));
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
             verify(objectReader).forType(VaultModel.class);
             verify(objectReader).readValue(anyString());
@@ -359,7 +359,7 @@ class LowkeyVaultManagementClientImplTest {
             Assertions.assertEquals(queryString, request.getUrl().getQuery());
             Assertions.assertEquals(HttpMethod.PATCH, request.getHttpMethod());
             Assertions.assertEquals(APPLICATION_JSON, request.getHeaders().getValue(HttpHeaderName.CONTENT_TYPE));
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
             verify(objectReader).forType(VaultModel.class);
             verify(objectReader).readValue(anyString());
@@ -417,7 +417,7 @@ class LowkeyVaultManagementClientImplTest {
             Assertions.assertEquals(queryString, request.getUrl().getQuery());
             Assertions.assertEquals(HttpMethod.PATCH, request.getHttpMethod());
             Assertions.assertEquals(APPLICATION_JSON, request.getHeaders().getValue(HttpHeaderName.CONTENT_TYPE));
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
             verify(objectReader).forType(VaultModel.class);
             verify(objectReader).readValue(anyString());
@@ -471,7 +471,7 @@ class LowkeyVaultManagementClientImplTest {
             Assertions.assertEquals("/management/vault/purge", request.getUrl().getPath());
             Assertions.assertEquals(HttpMethod.DELETE, request.getHttpMethod());
             Assertions.assertNull(request.getHeaders().get(HttpHeaderName.CONTENT_TYPE));
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
             verify(objectReader).forType(Boolean.class);
             verify(objectReader).readValue(anyString());
@@ -534,7 +534,7 @@ class LowkeyVaultManagementClientImplTest {
             Assertions.assertEquals("seconds=86400", request.getUrl().getQuery());
             Assertions.assertEquals(HttpMethod.PUT, request.getHttpMethod());
             Assertions.assertEquals(APPLICATION_JSON, request.getHeaders().getValue(HttpHeaderName.CONTENT_TYPE));
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
         }
 
@@ -560,7 +560,7 @@ class LowkeyVaultManagementClientImplTest {
             Assertions.assertEquals("baseUri=http%3A%2F%2Flocalhost&seconds=1", request.getUrl().getQuery());
             Assertions.assertEquals(HttpMethod.PUT, request.getHttpMethod());
             Assertions.assertEquals(APPLICATION_JSON, request.getHeaders().getValue(HttpHeaderName.CONTENT_TYPE));
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
         }
 
@@ -586,7 +586,7 @@ class LowkeyVaultManagementClientImplTest {
             Assertions.assertEquals("regenerateCertificates=true&seconds=1", request.getUrl().getQuery());
             Assertions.assertEquals(HttpMethod.PUT, request.getHttpMethod());
             Assertions.assertEquals(APPLICATION_JSON, request.getHeaders().getValue(HttpHeaderName.CONTENT_TYPE));
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
         }
 
@@ -609,7 +609,7 @@ class LowkeyVaultManagementClientImplTest {
             Assertions.assertEquals("/management/vault/export", request.getUrl().getPath());
             Assertions.assertEquals(HttpMethod.GET, request.getHttpMethod());
             Assertions.assertNull(request.getHeaders().get(HttpHeaderName.CONTENT_TYPE));
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
         }
 
@@ -631,7 +631,7 @@ class LowkeyVaultManagementClientImplTest {
 
             //then + exception
             verify(httpClient, atMostOnce()).send(any());
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
             verify(objectReader, never()).forType(VaultModel.class);
             verify(objectReader, never()).readValue(anyString());

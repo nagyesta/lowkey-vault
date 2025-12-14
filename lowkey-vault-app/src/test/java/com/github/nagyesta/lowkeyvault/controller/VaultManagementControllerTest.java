@@ -94,8 +94,8 @@ class VaultManagementControllerTest {
             when(vaultService.delete(vaultFakeActive.baseUri())).thenReturn(true);
             when(converter.convert(same(vaultFakeActive))).thenReturn(VAULT_MODEL);
             when(converter.convert(same(vaultFakeDeleted))).thenReturn(VAULT_MODEL_DELETED);
-            when(converter.convertNonNull(same(vaultFakeActive))).thenReturn(VAULT_MODEL);
-            when(converter.convertNonNull(same(vaultFakeDeleted))).thenReturn(VAULT_MODEL_DELETED);
+            when(converter.convert(same(vaultFakeActive))).thenReturn(VAULT_MODEL);
+            when(converter.convert(same(vaultFakeDeleted))).thenReturn(VAULT_MODEL_DELETED);
         }
 
         @AfterEach
@@ -135,7 +135,7 @@ class VaultManagementControllerTest {
             Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
             final var inOrder = inOrder(vaultService, converter);
             inOrder.verify(vaultService).list();
-            inOrder.verify(converter).convertNonNull(vaultFakeActive);
+            inOrder.verify(converter).convert(vaultFakeActive);
             verifyNoMoreInteractions(vaultService, converter);
         }
 
@@ -151,7 +151,7 @@ class VaultManagementControllerTest {
             Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
             final var inOrder = inOrder(vaultService, converter);
             inOrder.verify(vaultService).listDeleted();
-            inOrder.verify(converter).convertNonNull(vaultFakeDeleted);
+            inOrder.verify(converter).convert(vaultFakeDeleted);
             verifyNoMoreInteractions(vaultService, converter);
         }
 

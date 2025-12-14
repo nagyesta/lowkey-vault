@@ -62,6 +62,4 @@ public abstract class BaseEntityReadController<K extends EntityId,
 
     protected abstract K entityId(URI baseUri, String name);
 
-    protected abstract String apiVersion();
-
 }

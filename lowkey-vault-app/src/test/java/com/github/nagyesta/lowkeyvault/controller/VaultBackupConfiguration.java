@@ -1,16 +1,22 @@
 package com.github.nagyesta.lowkeyvault.controller;
 
-import com.github.nagyesta.lowkeyvault.context.CertificateConverterConfiguration;
-import com.github.nagyesta.lowkeyvault.context.KeyConverterConfiguration;
-import com.github.nagyesta.lowkeyvault.context.SecretConverterConfiguration;
+import com.github.nagyesta.lowkeyvault.controller.v7_2.SecretBackupRestoreController;
 import com.github.nagyesta.lowkeyvault.controller.v7_3.CertificateBackupRestoreController;
 import com.github.nagyesta.lowkeyvault.controller.v7_3.KeyBackupRestoreController;
-import com.github.nagyesta.lowkeyvault.controller.v7_3.SecretBackupRestoreController;
 import com.github.nagyesta.lowkeyvault.management.VaultImportExportExecutor;
 import com.github.nagyesta.lowkeyvault.mapper.common.VaultFakeToVaultModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.CertificateConverterRegistry;
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.SecretConverterRegistry;
+import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72BackupConverter;
+import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyItemModelConverter;
+import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ModelConverter;
+import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72BackupConverter;
+import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72ModelConverter;
+import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72SecretItemModelConverter;
+import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntityToV73BackupConverter;
+import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntityToV73CertificateItemModelConverter;
+import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntityToV73ModelConverter;
+import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateLifetimeActionsPolicyToV73ModelConverter;
+import com.github.nagyesta.lowkeyvault.mapper.v7_3.key.KeyRotationPolicyToV73ModelConverter;
+import com.github.nagyesta.lowkeyvault.mapper.v7_3.key.KeyRotationPolicyV73ModelToEntityConverter;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.validator.ImportKeyValidator;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import com.github.nagyesta.lowkeyvault.template.backup.BackupTemplateProcessor;
@@ -32,42 +38,45 @@ import static org.mockito.Mockito.mock;
 
 @Profile("vault")
 @Configuration
-@Import({BaseVaultConfiguration.class, CertificateConverterConfiguration.class,
-        KeyConverterConfiguration.class, SecretConverterConfiguration.class})
+@Import({BaseVaultConfiguration.class})
 public class VaultBackupConfiguration {
 
     @Autowired
     private VaultService vaultService;
-    @Autowired
-    private CertificateConverterRegistry certificateConverterRegistry;
-    @Autowired
-    private SecretConverterRegistry secretConverterRegistry;
-    @Autowired
-    private KeyConverterRegistry keyConverterRegistry;
 
     @Bean
-    public SecretBackupRestoreController secretBackupRestoreController() {
-        return new SecretBackupRestoreController(secretConverterRegistry, vaultService);
+    public SecretBackupRestoreController secretBackupRestoreController(
+            final SecretEntityToV72ModelConverter modelConverter,
+            final SecretEntityToV72SecretItemModelConverter itemConverter,
+            final SecretEntityToV72BackupConverter backupConverter) {
+        return new SecretBackupRestoreController(vaultService, modelConverter, itemConverter, backupConverter);
     }
 
     @Bean
-    public KeyBackupRestoreController keyBackupRestoreController() {
-        return new KeyBackupRestoreController(keyConverterRegistry, vaultService);
+    public KeyBackupRestoreController keyBackupRestoreController(
+            final KeyEntityToV72ModelConverter modelConverter,
+            final KeyEntityToV72KeyItemModelConverter itemConverter,
+            final KeyEntityToV72BackupConverter backupConverter,
+            final KeyRotationPolicyToV73ModelConverter rotationPolicyModelConverter,
+            final KeyRotationPolicyV73ModelToEntityConverter rotationPolicyEntityConverter) {
+        return new KeyBackupRestoreController(
+                vaultService, modelConverter, itemConverter, backupConverter, rotationPolicyModelConverter, rotationPolicyEntityConverter);
     }
 
     @Bean
-    public CertificateBackupRestoreController certificateBackupRestoreController() {
-        return new CertificateBackupRestoreController(certificateConverterRegistry, vaultService);
+    public CertificateBackupRestoreController certificateBackupRestoreController(
+            final CertificateEntityToV73ModelConverter modelConverter,
+            final CertificateEntityToV73CertificateItemModelConverter itemConverter,
+            final CertificateLifetimeActionsPolicyToV73ModelConverter lifetimeActionConverter,
+            final CertificateEntityToV73BackupConverter backupConverter) {
+        return new CertificateBackupRestoreController(
+                vaultService, modelConverter, itemConverter, lifetimeActionConverter, backupConverter);
     }
 
     @Bean
-    public VaultManagementController vaultManagementController() {
-        return new VaultManagementController(vaultService, vaultFakeToVaultModelConverter());
-    }
-
-    @Bean
-    public VaultFakeToVaultModelConverter vaultFakeToVaultModelConverter() {
-        return new VaultFakeToVaultModelConverter();
+    public VaultManagementController vaultManagementController(
+            final VaultFakeToVaultModelConverter vaultFakeToVaultModelConverter) {
+        return new VaultManagementController(vaultService, vaultFakeToVaultModelConverter);
     }
 
 
@@ -84,9 +93,13 @@ public class VaultBackupConfiguration {
     }
 
     @Bean
-    public VaultImportExportExecutor vaultImportExportExecutor() {
-        return new VaultImportExportExecutor(vaultManagementController(), keyBackupRestoreController(),
-                secretBackupRestoreController(), certificateBackupRestoreController());
+    public VaultImportExportExecutor vaultImportExportExecutor(
+            final VaultManagementController vaultManagementController,
+            final KeyBackupRestoreController keyBackupRestoreController,
+            final SecretBackupRestoreController secretBackupRestoreController,
+            final CertificateBackupRestoreController certificateBackupRestoreController) {
+        return new VaultImportExportExecutor(vaultManagementController, keyBackupRestoreController,
+                secretBackupRestoreController, certificateBackupRestoreController);
     }
 
     @Bean

@@ -1,9 +1,6 @@
 package com.github.nagyesta.lowkeyvault.mapper.common;
 
-import com.github.nagyesta.lowkeyvault.context.ApiVersionAware;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
 
@@ -14,9 +11,8 @@ import java.net.URI;
  * @param <S> the source type
  * @param <T> the target type
  */
-public interface AliasAwareConverter<S, T>
-        extends ApiVersionAware, InitializingBean {
+public interface AliasAwareConverter<S, T> {
 
     @Nullable
-    T convert(S source, @NonNull URI vaultUri);
+    T convert(@Nullable S source, URI vaultUri);
 }

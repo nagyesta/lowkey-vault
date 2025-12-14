@@ -3,7 +3,6 @@ package com.github.nagyesta.lowkeyvault.controller.v7_2;
 import com.github.nagyesta.abortmission.booster.jupiter.annotation.LaunchAbortArmed;
 import com.github.nagyesta.lowkeyvault.TestConstantsUri;
 import com.github.nagyesta.lowkeyvault.controller.BaseKeyBackupRestoreControllerIntegrationTest;
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupList;
 import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
@@ -17,9 +16,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,11 +24,10 @@ import org.springframework.http.HttpStatus;
 import java.net.URI;
 import java.security.interfaces.ECPublicKey;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.*;
-import static org.mockito.Mockito.mock;
+import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.V_7_2;
 
 @LaunchAbortArmed
 @SpringBootTest
@@ -43,13 +38,6 @@ class KeyBackupRestoreControllerIntegrationTest extends BaseKeyBackupRestoreCont
     private KeyBackupRestoreController underTest;
     @Autowired
     private VaultService vaultService;
-
-    public static Stream<Arguments> nullProvider() {
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(mock(KeyConverterRegistry.class), null))
-                .add(Arguments.of(null, mock(VaultService.class)))
-                .build();
-    }
 
     @BeforeEach
     void setUp() {
@@ -64,20 +52,6 @@ class KeyBackupRestoreControllerIntegrationTest extends BaseKeyBackupRestoreCont
         vaultService.purge(uri);
     }
 
-    @ParameterizedTest
-    @MethodSource("nullProvider")
-    void testConstructorShouldThrowExceptionWhenCalledWithNulls(
-            final KeyConverterRegistry registry,
-            final VaultService vaultService) {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new KeyBackupRestoreController(registry, vaultService));
-
-        //then + exception
-    }
-
     @Test
     void testRestoreEntityShouldRestoreASingleKeyWhenCalledWithValidInput() {
         //given
@@ -86,7 +60,7 @@ class KeyBackupRestoreControllerIntegrationTest extends BaseKeyBackupRestoreCont
         final var expectedKey = addVersionToList(uri, KEY_NAME_1, KEY_VERSION_1, backupModel, TAGS_THREE_KEYS);
 
         //when
-        final var actual = underTest.restore(uri, backupModel);
+        final var actual = underTest.restore(uri, V_7_2, backupModel);
 
         //then
         Assertions.assertNotNull(actual);
@@ -106,7 +80,7 @@ class KeyBackupRestoreControllerIntegrationTest extends BaseKeyBackupRestoreCont
         final var expectedKey = addVersionToList(uri, KEY_NAME_1, KEY_VERSION_3, backupModel, TAGS_EMPTY);
 
         //when
-        final var actual = underTest.restore(uri, backupModel);
+        final var actual = underTest.restore(uri, V_7_2, backupModel);
 
         //then
         Assertions.assertNotNull(actual);
@@ -125,7 +99,7 @@ class KeyBackupRestoreControllerIntegrationTest extends BaseKeyBackupRestoreCont
         addVersionToList(TestConstantsUri.HTTPS_DEFAULT_LOWKEY_VAULT, KEY_NAME_1, KEY_VERSION_2, backupModel, TAGS_THREE_KEYS);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.restore(uri, backupModel));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.restore(uri, V_7_2, backupModel));
 
         //then + exception
     }
@@ -139,7 +113,7 @@ class KeyBackupRestoreControllerIntegrationTest extends BaseKeyBackupRestoreCont
         addVersionToList(uri, KEY_NAME_2, KEY_VERSION_2, backupModel, TAGS_THREE_KEYS);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.restore(uri, backupModel));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.restore(uri, V_7_2, backupModel));
 
         //then + exception
     }
@@ -152,7 +126,7 @@ class KeyBackupRestoreControllerIntegrationTest extends BaseKeyBackupRestoreCont
         addVersionToList(URI.create("https://uknknown.uri"), KEY_NAME_1, KEY_VERSION_1, backupModel, null);
 
         //when
-        Assertions.assertThrows(NotFoundException.class, () -> underTest.restore(uri, backupModel));
+        Assertions.assertThrows(NotFoundException.class, () -> underTest.restore(uri, V_7_2, backupModel));
 
         //then + exception
     }
@@ -170,7 +144,7 @@ class KeyBackupRestoreControllerIntegrationTest extends BaseKeyBackupRestoreCont
                         .build());
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.restore(uri, backupModel));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.restore(uri, V_7_2, backupModel));
 
         //then + exception
     }
@@ -190,7 +164,7 @@ class KeyBackupRestoreControllerIntegrationTest extends BaseKeyBackupRestoreCont
         vaultFake.delete(keyVersion);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.restore(uri, backupModel));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.restore(uri, V_7_2, backupModel));
 
         //then + exception
     }
@@ -202,10 +176,10 @@ class KeyBackupRestoreControllerIntegrationTest extends BaseKeyBackupRestoreCont
         backupModel.setValue(new KeyBackupList());
         addVersionToList(uri, KEY_NAME_1, KEY_VERSION_1, backupModel, TAGS_EMPTY);
         addVersionToList(uri, KEY_NAME_1, KEY_VERSION_2, backupModel, TAGS_ONE_KEY);
-        underTest.restore(uri, backupModel);
+        underTest.restore(uri, V_7_2, backupModel);
 
         //when
-        final var actual = underTest.backup(KEY_NAME_1, uri);
+        final var actual = underTest.backup(KEY_NAME_1, uri, V_7_2);
 
         //then
         Assertions.assertNotNull(actual);

@@ -752,8 +752,8 @@ class KeyVaultFakeImplTest {
         underTest.setRotationPolicy(new KeyRotationPolicy(keyEntityId, expiryTime,
                 Map.of(LifetimeActionType.ROTATE, new KeyLifetimeAction(LifetimeActionType.ROTATE, trigger))));
         final var beforePolicy = underTest.rotationPolicy(keyEntityId);
-        final var createdPolicyOriginal = beforePolicy.getCreatedOn();
-        final var updatedPolicyOriginal = beforePolicy.getUpdatedOn();
+        final var createdPolicyOriginal = beforePolicy.getCreated();
+        final var updatedPolicyOriginal = beforePolicy.getUpdated();
 
         //when
         underTest.timeShift(NUMBER_OF_SECONDS_IN_10_MINUTES);
@@ -765,8 +765,8 @@ class KeyVaultFakeImplTest {
         Assertions.assertEquals(TIME_10_MINUTES_AGO, after.getNotBefore().orElse(null));
         Assertions.assertEquals(NOW, after.getExpiry().orElse(null));
         final var afterPolicy = underTest.rotationPolicy(keyEntityId);
-        Assertions.assertEquals(createdPolicyOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), afterPolicy.getCreatedOn());
-        Assertions.assertEquals(updatedPolicyOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), afterPolicy.getUpdatedOn());
+        Assertions.assertEquals(createdPolicyOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), afterPolicy.getCreated());
+        Assertions.assertEquals(updatedPolicyOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), afterPolicy.getUpdated());
     }
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
@@ -815,8 +815,8 @@ class KeyVaultFakeImplTest {
                 Map.of(LifetimeActionType.ROTATE, new KeyLifetimeAction(LifetimeActionType.ROTATE, rotateSecond)));
         underTest.setRotationPolicy(rotationPolicyOriginal);
         final var beforePolicy = underTest.rotationPolicy(keyEntityId);
-        final var createdPolicyOriginal = beforePolicy.getCreatedOn();
-        final var updatedPolicyOriginal = beforePolicy.getUpdatedOn();
+        final var createdPolicyOriginal = beforePolicy.getCreated();
+        final var updatedPolicyOriginal = beforePolicy.getUpdated();
         waitABit();
 
         //when
@@ -824,8 +824,8 @@ class KeyVaultFakeImplTest {
 
         //then
         final var afterPolicy = underTest.rotationPolicy(keyEntityId);
-        Assertions.assertEquals(createdPolicyOriginal, afterPolicy.getCreatedOn());
-        Assertions.assertTrue(updatedPolicyOriginal.isBefore(afterPolicy.getUpdatedOn()));
+        Assertions.assertEquals(createdPolicyOriginal, afterPolicy.getCreated());
+        Assertions.assertTrue(updatedPolicyOriginal.isBefore(afterPolicy.getUpdated()));
     }
 
     @Test
@@ -844,8 +844,8 @@ class KeyVaultFakeImplTest {
         underTest.setRotationPolicy(new KeyRotationPolicy(keyEntityId, expiryTime,
                 Map.of(LifetimeActionType.ROTATE, new KeyLifetimeAction(LifetimeActionType.ROTATE, trigger))));
         final var beforePolicy = underTest.rotationPolicy(keyEntityId);
-        final var createdPolicyOriginal = beforePolicy.getCreatedOn();
-        final var updatedPolicyOriginal = beforePolicy.getUpdatedOn();
+        final var createdPolicyOriginal = beforePolicy.getCreated();
+        final var updatedPolicyOriginal = beforePolicy.getUpdated();
 
         final var sizeBefore = underTest.getEntities().getVersions(keyEntityId).size();
 
@@ -862,8 +862,8 @@ class KeyVaultFakeImplTest {
         Assertions.assertNotEquals(sizeAfter, sizeBefore);
         Assertions.assertEquals(ROTATIONS_UNDER_120_DAYS, sizeAfter - sizeBefore);
         final var afterPolicy = underTest.rotationPolicy(keyEntityId);
-        Assertions.assertEquals(createdPolicyOriginal.minusSeconds(OFFSET_SECONDS_120_DAYS), afterPolicy.getCreatedOn());
-        Assertions.assertEquals(updatedPolicyOriginal.minusSeconds(OFFSET_SECONDS_120_DAYS), afterPolicy.getUpdatedOn());
+        Assertions.assertEquals(createdPolicyOriginal.minusSeconds(OFFSET_SECONDS_120_DAYS), afterPolicy.getCreated());
+        Assertions.assertEquals(updatedPolicyOriginal.minusSeconds(OFFSET_SECONDS_120_DAYS), afterPolicy.getUpdated());
     }
 
     @Test

@@ -1,55 +1,53 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_2.secret;
 
-import com.github.nagyesta.lowkeyvault.context.ApiVersionAware;
-import com.github.nagyesta.lowkeyvault.mapper.common.BaseRecoveryAwareConverter;
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.SecretConverterRegistry;
+import com.github.nagyesta.lowkeyvault.mapper.common.RecoveryAwareConverter;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.DeletedKeyVaultSecretModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.KeyVaultSecretModel;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.secret.ReadOnlyKeyVaultSecretEntity;
-import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId;
-import lombok.NonNull;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.jspecify.annotations.Nullable;
+import org.mapstruct.*;
 
 import java.net.URI;
-import java.util.SortedSet;
 
-public class SecretEntityToV72ModelConverter
-        extends BaseRecoveryAwareConverter<VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity, KeyVaultSecretModel,
-        DeletedKeyVaultSecretModel> {
-    private final SecretConverterRegistry registry;
+@Mapper(
+        componentModel = MappingConstants.ComponentModel.SPRING,
+        uses = {SecretEntityToV72PropertiesModelConverter.class}
+)
+public interface SecretEntityToV72ModelConverter
+        extends RecoveryAwareConverter<ReadOnlyKeyVaultSecretEntity, KeyVaultSecretModel, DeletedKeyVaultSecretModel> {
 
-    @Autowired
-    public SecretEntityToV72ModelConverter(@NonNull final SecretConverterRegistry registry) {
-        super(KeyVaultSecretModel::new, DeletedKeyVaultSecretModel::new);
-        this.registry = registry;
-    }
-
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "kid", ignore = true)
+    @Mapping(target = "attributes", source = "source")
     @Override
-    public void afterPropertiesSet() {
-        registry.registerModelConverter(this);
-    }
+    @Nullable KeyVaultSecretModel convert(@Nullable ReadOnlyKeyVaultSecretEntity source, URI vaultUri);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "kid", ignore = true)
+    @Mapping(target = "recoveryId", ignore = true)
+    @Mapping(target = "attributes", source = "source")
+    @Mapping(target = "deletedDate", ignore = true)
+    @Mapping(target = "scheduledPurgeDate", ignore = true)
     @Override
-    protected <M extends KeyVaultSecretModel> M mapActiveFields(
-            final ReadOnlyKeyVaultSecretEntity source,
-            final M model,
-            final URI vaultUri) {
-        model.setId(source.getId().asUri(vaultUri).toString());
-        model.setContentType(source.getContentType());
-        model.setValue(source.getValue());
-        model.setAttributes(registry.propertiesConverter(supportedVersions().last()).convert(source, vaultUri));
-        model.setTags(source.getTags());
-        model.setManaged(source.isManaged());
-        if (source.isManaged()) {
-            final var id = source.getId();
-            model.setKid(new VersionedKeyEntityId(id.vault(), id.id(), id.version()).asUri(vaultUri).toString());
+    @Nullable DeletedKeyVaultSecretModel convertDeleted(@Nullable ReadOnlyKeyVaultSecretEntity source, URI vaultUri);
+
+    @AfterMapping
+    default void postProcess(
+            @Nullable final ReadOnlyKeyVaultSecretEntity source,
+            final URI vaultUri,
+            @Nullable @MappingTarget final KeyVaultSecretModel model) {
+        if (source != null && model != null) {
+            final var sourceId = source.getId();
+            model.setId(source.getId().asUri(vaultUri).toString());
+            if (source.isManaged()) {
+                model.setKid(new VersionedKeyEntityId(vaultUri, sourceId.id(), sourceId.version()).asUri(vaultUri).toString());
+            }
+            if (model instanceof final DeletedKeyVaultSecretModel deletedModel) {
+                deletedModel.setRecoveryId(source.getId().asRecoveryUri(vaultUri).toString());
+                deletedModel.setDeletedDate(source.getDeletedDate().orElseThrow());
+                deletedModel.setScheduledPurgeDate(source.getScheduledPurgeDate().orElseThrow());
+            }
         }
-        return model;
-    }
-
-    @Override
-    public SortedSet<String> supportedVersions() {
-        return ApiVersionAware.ALL_VERSIONS;
     }
 }

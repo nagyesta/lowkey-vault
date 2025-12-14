@@ -30,6 +30,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.*;
+import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.V_7_2;
 
 @LaunchAbortArmed
 @SpringBootTest
@@ -68,7 +69,7 @@ class KeyControllerIntegrationTest {
         final var name = "invalid-ec-name";
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.importKey(name, baseUri, input));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.importKey(name, baseUri, V_7_2, input));
 
         //then + exception
     }
@@ -86,7 +87,7 @@ class KeyControllerIntegrationTest {
                 .getEntities();
 
         //when
-        final var response = underTest.importKey(name, baseUri, input);
+        final var response = underTest.importKey(name, baseUri, V_7_2, input);
         final var id = entities.getLatestVersionOfEntity(new KeyEntityId(baseUri, name));
         final var actual = entities.getEntity(id, RsaKeyVaultKeyEntity.class);
 
@@ -112,7 +113,7 @@ class KeyControllerIntegrationTest {
                 .getEntities();
 
         //when
-        final var response = underTest.importKey(name, baseUri, input);
+        final var response = underTest.importKey(name, baseUri, V_7_2, input);
         final var id = entities.getLatestVersionOfEntity(new KeyEntityId(baseUri, name));
         final var actual = entities.getEntity(id, AesKeyVaultKeyEntity.class);
 
@@ -139,7 +140,7 @@ class KeyControllerIntegrationTest {
         final var digest = hash(name.getBytes(StandardCharsets.UTF_8));
 
         //when
-        final var response = underTest.importKey(name, baseUri, input);
+        final var response = underTest.importKey(name, baseUri, V_7_2, input);
         final var id = entities.getLatestVersionOfEntity(new KeyEntityId(baseUri, name));
         final var actual = entities.getEntity(id, EcKeyVaultKeyEntity.class);
 

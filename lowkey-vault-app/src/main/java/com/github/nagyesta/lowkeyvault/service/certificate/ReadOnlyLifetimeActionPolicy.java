@@ -11,9 +11,9 @@ public interface ReadOnlyLifetimeActionPolicy {
 
     CertificateEntityId getId();
 
-    OffsetDateTime getCreatedOn();
+    OffsetDateTime getCreated();
 
-    OffsetDateTime getUpdatedOn();
+    OffsetDateTime getUpdated();
 
     Map<CertificateLifetimeActionActivity, CertificateLifetimeActionTrigger> getLifetimeActions();
 

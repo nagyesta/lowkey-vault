@@ -1,7 +1,6 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_3.key;
 
 import com.github.nagyesta.lowkeyvault.TestConstantsKeys;
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.constants.LifetimeActionType;
 import com.github.nagyesta.lowkeyvault.service.key.KeyLifetimeAction;
 import com.github.nagyesta.lowkeyvault.service.key.constants.LifetimeActionTriggerType;
@@ -16,20 +15,8 @@ import java.util.Map;
 import static com.github.nagyesta.lowkeyvault.TestConstants.TIME_10_MINUTES_AGO;
 import static com.github.nagyesta.lowkeyvault.TestConstants.TIME_IN_10_MINUTES;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
-import static org.mockito.Mockito.mock;
 
 class KeyRotationPolicyToV73ModelConverterTest {
-
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testConstructorShouldThrowExceptionWhenCalledWithNull() {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new KeyRotationPolicyToV73ModelConverter(null));
-
-        //then + exception
-    }
 
     @Test
     void testConvertShouldConvertValuableFieldsWhenCalledWithValidData() {
@@ -41,11 +28,10 @@ class KeyRotationPolicyToV73ModelConverterTest {
         final var trigger = new KeyLifetimeActionTrigger(triggerPeriod, LifetimeActionTriggerType.TIME_BEFORE_EXPIRY);
         final var source = new KeyRotationPolicy(keyEntityId, expiryTime,
                 Map.of(LifetimeActionType.NOTIFY, new KeyLifetimeAction(LifetimeActionType.NOTIFY, trigger)));
-        source.setCreatedOn(TIME_10_MINUTES_AGO);
-        source.setUpdatedOn(TIME_IN_10_MINUTES);
-        final var registry = mock(KeyConverterRegistry.class);
+        source.setCreated(TIME_10_MINUTES_AGO);
+        source.setUpdated(TIME_IN_10_MINUTES);
 
-        final var underTest = new KeyRotationPolicyToV73ModelConverter(registry);
+        final var underTest = new KeyRotationPolicyToV73ModelConverterImpl();
 
         //when
         final var actual = underTest.convert(source, HTTPS_LOCALHOST_8443);

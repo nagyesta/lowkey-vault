@@ -9,9 +9,9 @@ import java.util.Map;
 public interface LifetimeActionPolicy
         extends ReadOnlyLifetimeActionPolicy, TimeAware {
 
-    void setCreatedOn(@NonNull OffsetDateTime createdOn);
+    void setCreated(@NonNull OffsetDateTime created);
 
-    void setUpdatedOn(@NonNull OffsetDateTime updatedOn);
+    void setUpdated(@NonNull OffsetDateTime updated);
 
     void setLifetimeActions(Map<CertificateLifetimeActionActivity, CertificateLifetimeActionTrigger> lifetimeActions);
 }

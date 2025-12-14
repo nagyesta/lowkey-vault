@@ -1,7 +1,6 @@
 package com.github.nagyesta.lowkeyvault.model.v7_2.key;
 
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72BackupConverter;
+import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72BackupConverterImpl;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72PropertiesModelConverter;
 import com.github.nagyesta.lowkeyvault.model.common.backup.KeyBackupListItem;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
@@ -18,10 +17,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
 
@@ -33,37 +32,23 @@ import static org.mockito.Mockito.*;
 class KeyEntityToV72BackupConverterTest {
 
     private static final KeyPropertiesModel KEY_PROPERTIES_MODEL = new KeyPropertiesModel();
-    private KeyEntityToV72BackupConverter underTest;
     @Mock
     private VaultFake vaultFake;
     @Mock
     private KeyEntityToV72PropertiesModelConverter propertiesModelConverter;
-    @Mock
-    private KeyConverterRegistry registry;
+    @InjectMocks
+    private KeyEntityToV72BackupConverterImpl underTest;
     private AutoCloseable openMocks;
 
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
-        underTest = new KeyEntityToV72BackupConverter(registry);
-        when(registry.propertiesConverter(anyString())).thenReturn(propertiesModelConverter);
-        when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultKeyEntity.class), any(URI.class))).thenReturn(KEY_PROPERTIES_MODEL);
+        when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultKeyEntity.class))).thenReturn(KEY_PROPERTIES_MODEL);
     }
 
     @AfterEach
     void tearDown() throws Exception {
         openMocks.close();
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testConstructorShouldThrowExceptionWhenCalledWithNull() {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new KeyEntityToV72BackupConverter(null));
-
-        //then + exception
     }
 
     @Test
@@ -84,7 +69,7 @@ class KeyEntityToV72BackupConverterTest {
         assertRsaPropertiesAreEqual(input, keyMaterial);
         assertMinimalPropertiesPopulated(actual);
         assertIdsEqual(input.getId(), actual);
-        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class), any(URI.class));
+        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class));
         verifyNoMoreInteractions(propertiesModelConverter);
     }
 
@@ -106,7 +91,7 @@ class KeyEntityToV72BackupConverterTest {
         assertOctPropertiesAreEqual(input, keyMaterial);
         assertMinimalPropertiesPopulated(actual);
         assertIdsEqual(input.getId(), actual);
-        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class), any(URI.class));
+        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class));
         verifyNoMoreInteractions(propertiesModelConverter);
     }
 
@@ -127,7 +112,7 @@ class KeyEntityToV72BackupConverterTest {
         assertEcPropertiesAreEqual(input, keyMaterial);
         assertMinimalPropertiesPopulated(actual);
         assertIdsEqual(input.getId(), actual);
-        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class), any(URI.class));
+        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class));
         verifyNoMoreInteractions(propertiesModelConverter);
     }
 
@@ -153,7 +138,7 @@ class KeyEntityToV72BackupConverterTest {
         Assertions.assertEquals(tagMap, actual.getTags());
         Assertions.assertTrue(actual.isManaged());
         assertIdsEqual(input.getId(), actual);
-        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class), any(URI.class));
+        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class));
         verifyNoMoreInteractions(propertiesModelConverter);
     }
 

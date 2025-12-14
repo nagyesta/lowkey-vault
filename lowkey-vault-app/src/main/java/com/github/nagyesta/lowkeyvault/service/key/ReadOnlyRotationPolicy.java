@@ -12,9 +12,9 @@ public interface ReadOnlyRotationPolicy {
 
     KeyEntityId getId();
 
-    OffsetDateTime getCreatedOn();
+    OffsetDateTime getCreated();
 
-    OffsetDateTime getUpdatedOn();
+    OffsetDateTime getUpdated();
 
     Period getExpiryTime();
 

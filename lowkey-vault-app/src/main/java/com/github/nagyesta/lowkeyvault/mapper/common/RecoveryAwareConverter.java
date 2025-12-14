@@ -1,9 +1,6 @@
 package com.github.nagyesta.lowkeyvault.mapper.common;
 
-import com.github.nagyesta.lowkeyvault.context.ApiVersionAware;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
 
@@ -15,12 +12,11 @@ import java.net.URI;
  * @param <DT> The deleted target type.
  */
 @SuppressWarnings("java:S119") //It is easier to ensure that the types are consistent this way
-public interface RecoveryAwareConverter<S, T, DT extends T>
-        extends ApiVersionAware, InitializingBean {
+public interface RecoveryAwareConverter<S, T, DT extends T> {
 
     @Nullable
-    T convert(S source, @NonNull URI vaultUri);
+    T convert(@Nullable S source, URI vaultUri);
 
-    @NonNull
-    DT convertDeleted(@NonNull S source, @NonNull URI vaultUri);
+    @Nullable
+    DT convertDeleted(@Nullable S source, URI vaultUri);
 }

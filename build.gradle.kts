@@ -187,12 +187,13 @@ subprojects {
                     excludes = mutableListOf(
                             "com.github.nagyesta.lowkeyvault.LowkeyVaultApp",
                             "com.github.nagyesta.lowkeyvault.AppConfiguration",
-                            "com.github.nagyesta.lowkeyvault.service.exception.AlreadyExistsException",
-                            "com.github.nagyesta.lowkeyvault.service.exception.NotFoundException",
-                            "com.github.nagyesta.lowkeyvault.service.exception.CryptoException",
+                            "com.github.nagyesta.lowkeyvault.service.exception.*",
                             "com.github.nagyesta.lowkeyvault.exception.VaultNotFoundException",
                             "com.github.nagyesta.lowkeyvault.testcontainers.ContainerDependency",
-                            "com.github.nagyesta.lowkeyvault.testcontainers.KeyStoreMerger"
+                            "com.github.nagyesta.lowkeyvault.testcontainers.KeyStoreMerger",
+                            "com.github.nagyesta.lowkeyvault.mapper.*.certificate.*ConverterImpl",
+                            "com.github.nagyesta.lowkeyvault.mapper.*.key.*ConverterImpl",
+                            "com.github.nagyesta.lowkeyvault.mapper.*.secret.*ConverterImpl"
                     )
                 }
             }

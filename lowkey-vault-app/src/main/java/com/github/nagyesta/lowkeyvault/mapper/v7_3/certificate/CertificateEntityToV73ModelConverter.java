@@ -1,53 +1,69 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate;
 
-import com.github.nagyesta.lowkeyvault.context.ApiVersionAware;
-import com.github.nagyesta.lowkeyvault.mapper.common.BaseRecoveryAwareConverter;
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.CertificateConverterRegistry;
+import com.github.nagyesta.lowkeyvault.mapper.common.RecoveryAwareConverter;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.DeletedKeyVaultCertificateModel;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.KeyVaultCertificateModel;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
-import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
-import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
+import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.URI;
-import java.util.SortedSet;
 
-public class CertificateEntityToV73ModelConverter
-        extends BaseRecoveryAwareConverter<VersionedCertificateEntityId, ReadOnlyKeyVaultCertificateEntity,
-        KeyVaultCertificateModel, DeletedKeyVaultCertificateModel> {
-
-    private final CertificateConverterRegistry registry;
+@Mapper(
+        componentModel = MappingConstants.ComponentModel.SPRING,
+        uses = {
+                CertificateEntityToV73PolicyModelConverter.class,
+                CertificateEntityToV73PropertiesModelConverter.class,
+        }
+)
+public abstract class CertificateEntityToV73ModelConverter
+        implements RecoveryAwareConverter<ReadOnlyKeyVaultCertificateEntity, KeyVaultCertificateModel, DeletedKeyVaultCertificateModel> {
 
     @Autowired
-    public CertificateEntityToV73ModelConverter(@NonNull final CertificateConverterRegistry registry) {
-        super(KeyVaultCertificateModel::new, DeletedKeyVaultCertificateModel::new);
-        this.registry = registry;
+    private CertificateEntityToV73PolicyModelConverter certificateEntityToV73PolicyModelConverter;
+    @Autowired
+    private CertificateEntityToV73PropertiesModelConverter certificateEntityToV73PropertiesModelConverter;
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "kid", ignore = true)
+    @Mapping(target = "sid", ignore = true)
+    @Mapping(target = "certificate", source = "source.encodedCertificate")
+    @Mapping(target = "attributes", ignore = true)
+    @Mapping(target = "policy", ignore = true)
+    @Override
+    public abstract @Nullable KeyVaultCertificateModel convert(@Nullable ReadOnlyKeyVaultCertificateEntity source, URI vaultUri);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "kid", ignore = true)
+    @Mapping(target = "sid", ignore = true)
+    @Mapping(target = "recoveryId", ignore = true)
+    @Mapping(target = "certificate", source = "source.encodedCertificate")
+    @Mapping(target = "attributes", ignore = true)
+    @Mapping(target = "deletedDate", ignore = true)
+    @Mapping(target = "scheduledPurgeDate", ignore = true)
+    @Mapping(target = "policy", ignore = true)
+    @Override
+    public abstract @Nullable DeletedKeyVaultCertificateModel convertDeleted(
+            @Nullable ReadOnlyKeyVaultCertificateEntity source, URI vaultUri);
+
+    @AfterMapping
+    void postProcess(
+            @Nullable final ReadOnlyKeyVaultCertificateEntity source,
+            final URI vaultUri,
+            @Nullable @MappingTarget final KeyVaultCertificateModel model) {
+        if (source != null && model != null) {
+            model.setId(source.getId().asUri(vaultUri).toString());
+            model.setKid(source.getKid().asUri(vaultUri).toString());
+            model.setSid(source.getSid().asUri(vaultUri).toString());
+            model.setAttributes(certificateEntityToV73PropertiesModelConverter.convert(source));
+            model.setPolicy(certificateEntityToV73PolicyModelConverter.convert(source, vaultUri));
+            if (model instanceof final DeletedKeyVaultCertificateModel deletedModel) {
+                deletedModel.setRecoveryId(source.getId().asRecoveryUri(vaultUri).toString());
+                deletedModel.setDeletedDate(source.getDeletedDate().orElseThrow());
+                deletedModel.setScheduledPurgeDate(source.getScheduledPurgeDate().orElseThrow());
+            }
+        }
     }
 
-    @Override
-    public void afterPropertiesSet() {
-        registry.registerModelConverter(this);
-    }
-
-    @Override
-    protected <M extends KeyVaultCertificateModel> M mapActiveFields(
-            final ReadOnlyKeyVaultCertificateEntity source,
-            final M model,
-            final URI vaultUri) {
-        model.setId(source.getId().asUri(vaultUri).toString());
-        model.setKid(source.getKid().asUri(vaultUri).toString());
-        model.setSid(source.getSid().asUri(vaultUri).toString());
-        model.setPolicy(registry.policyConverters(supportedVersions().last()).convert(source, vaultUri));
-        model.setCertificate(source.getEncodedCertificate());
-        model.setThumbprint(source.getThumbprint());
-        model.setAttributes(registry.propertiesConverter(supportedVersions().last()).convert(source, vaultUri));
-        model.setTags(source.getTags());
-        return model;
-    }
-
-    @Override
-    public SortedSet<String> supportedVersions() {
-        return ApiVersionAware.V7_3_AND_LATER;
-    }
 }

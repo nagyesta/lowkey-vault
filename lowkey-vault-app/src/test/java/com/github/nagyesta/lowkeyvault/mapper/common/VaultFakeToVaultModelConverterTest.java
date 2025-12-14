@@ -17,7 +17,7 @@ class VaultFakeToVaultModelConverterTest {
 
     @BeforeEach
     void setUp() {
-        underTest = new VaultFakeToVaultModelConverter();
+        underTest = new VaultFakeToVaultModelConverterImpl();
     }
 
     @Test

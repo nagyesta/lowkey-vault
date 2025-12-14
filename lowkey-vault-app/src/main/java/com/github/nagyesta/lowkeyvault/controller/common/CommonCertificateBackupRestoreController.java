@@ -1,6 +1,9 @@
 package com.github.nagyesta.lowkeyvault.controller.common;
 
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.CertificateConverterRegistry;
+import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntityToV73BackupConverter;
+import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntityToV73CertificateItemModelConverter;
+import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateEntityToV73ModelConverter;
+import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.CertificateLifetimeActionsPolicyToV73ModelConverter;
 import com.github.nagyesta.lowkeyvault.model.common.backup.CertificateBackupList;
 import com.github.nagyesta.lowkeyvault.model.common.backup.CertificateBackupListItem;
 import com.github.nagyesta.lowkeyvault.model.common.backup.CertificateBackupModel;
@@ -31,28 +34,36 @@ import static com.github.nagyesta.lowkeyvault.controller.common.util.Certificate
 public abstract class CommonCertificateBackupRestoreController
         extends BaseBackupRestoreController<CertificateEntityId, VersionedCertificateEntityId, ReadOnlyKeyVaultCertificateEntity,
         KeyVaultCertificateModel, DeletedKeyVaultCertificateModel, KeyVaultCertificateItemModel, DeletedKeyVaultCertificateItemModel,
-        CertificateVaultFake, CertificatePropertiesModel, CertificateBackupListItem, CertificateBackupList, CertificateBackupModel,
-        CertificateConverterRegistry> {
+        CertificateVaultFake, CertificatePropertiesModel, CertificateBackupListItem, CertificateBackupList, CertificateBackupModel> {
+
+    private final CertificateLifetimeActionsPolicyToV73ModelConverter lifetimeActionConverter;
 
     protected CommonCertificateBackupRestoreController(
-            @NonNull final CertificateConverterRegistry registry,
-            @NonNull final VaultService vaultService) {
-        super(registry, vaultService, VaultFake::certificateVaultFake);
+            @NonNull final VaultService vaultService,
+            @NonNull final CertificateEntityToV73ModelConverter modelConverter,
+            @NonNull final CertificateEntityToV73CertificateItemModelConverter itemConverter,
+            @NonNull final CertificateEntityToV73BackupConverter backupConverter,
+            @NonNull final CertificateLifetimeActionsPolicyToV73ModelConverter lifetimeActionConverter) {
+        super(vaultService, modelConverter, itemConverter, VaultFake::certificateVaultFake, backupConverter::convert);
+        this.lifetimeActionConverter = lifetimeActionConverter;
     }
 
     public ResponseEntity<CertificateBackupModel> backup(
             @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
-            final URI baseUri) {
+            final URI baseUri,
+            final String apiVersion) {
         log.info("Received request to {} backup certificate: {} using API version: {}",
-                baseUri.toString(), certificateName, apiVersion());
+                baseUri.toString(), certificateName, apiVersion);
         return ResponseEntity.ok(backupEntity(entityId(baseUri, certificateName)));
     }
 
     public ResponseEntity<KeyVaultCertificateModel> restore(
-            final URI baseUri, @Valid final CertificateBackupModel certificateBackupModel) {
+            final URI baseUri,
+            final String apiVersion,
+            @Valid final CertificateBackupModel certificateBackupModel) {
         final var list = certificateBackupModel.getValue();
         log.info("Received request to {} restore certificate: {} using API version: {}",
-                baseUri.toString(), list.getVersions().getFirst().getId(), apiVersion());
+                baseUri.toString(), list.getVersions().getFirst().getId(), apiVersion);
         final var model = restoreEntity(certificateBackupModel);
         final var vault = getVaultByUri(baseUri);
         final var entityId = entityId(baseUri, getSingleEntityName(certificateBackupModel));
@@ -78,10 +89,10 @@ public abstract class CommonCertificateBackupRestoreController
                 .policy(entityVersion.getPolicy())
                 .issuancePolicy(issuancePolicy)
                 .tags(entityVersion.getTags())
-                .created(attributes.getCreatedOn())
-                .updated(attributes.getUpdatedOn())
+                .created(attributes.getCreated())
+                .updated(attributes.getUpdated())
                 .notBefore(attributes.getNotBefore())
-                .expires(attributes.getExpiresOn())
+                .expires(attributes.getExpiry())
                 .enabled(attributes.isEnabled())
                 .build());
     }
@@ -110,7 +121,16 @@ public abstract class CommonCertificateBackupRestoreController
                 .map(actions -> new CertificateLifetimeActionPolicy(entityId, convertActivityMap(actions)))
                 .orElse(new DefaultCertificateLifetimeActionPolicy(entityId, certAuthorityType));
         vault.setLifetimeActionPolicy(lifetimeActionPolicy);
-        return registry().lifetimeActionConverters(apiVersion()).convert(vault.lifetimeActionPolicy(entityId));
+        return lifetimeActionConverter.convert(vault.lifetimeActionPolicy(entityId));
     }
 
+    @Override
+    protected CertificateEntityId entityId(final URI baseUri, final String name) {
+        return new CertificateEntityId(baseUri, name);
+    }
+
+    @Override
+    protected VersionedCertificateEntityId versionedEntityId(final URI baseUri, final String name, final String version) {
+        return new VersionedCertificateEntityId(baseUri, name, version);
+    }
 }

@@ -1,6 +1,8 @@
 package com.github.nagyesta.lowkeyvault.controller.common;
 
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.SecretConverterRegistry;
+import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72BackupConverter;
+import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72ModelConverter;
+import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72SecretItemModelConverter;
 import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupList;
 import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupListItem;
 import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupModel;
@@ -25,28 +27,31 @@ import java.util.Objects;
 public abstract class CommonSecretBackupRestoreController
         extends BaseBackupRestoreController<SecretEntityId, VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity,
         KeyVaultSecretModel, DeletedKeyVaultSecretModel, KeyVaultSecretItemModel, DeletedKeyVaultSecretItemModel,
-        SecretVaultFake, SecretPropertiesModel, SecretBackupListItem, SecretBackupList, SecretBackupModel,
-        SecretConverterRegistry> {
+        SecretVaultFake, SecretPropertiesModel, SecretBackupListItem, SecretBackupList, SecretBackupModel> {
 
     protected CommonSecretBackupRestoreController(
-            @NonNull final SecretConverterRegistry registry,
-            @NonNull final VaultService vaultService) {
-        super(registry, vaultService, VaultFake::secretVaultFake);
+            @NonNull final VaultService vaultService,
+            @NonNull final SecretEntityToV72ModelConverter modelConverter,
+            @NonNull final SecretEntityToV72SecretItemModelConverter itemConverter,
+            @NonNull final SecretEntityToV72BackupConverter backupConverter) {
+        super(vaultService, modelConverter, itemConverter, VaultFake::secretVaultFake, backupConverter::convert);
     }
 
     public ResponseEntity<SecretBackupModel> backup(
             @Valid @Pattern(regexp = NAME_PATTERN) final String secretName,
-            final URI baseUri) {
+            final URI baseUri,
+            final String apiVersion) {
         log.info("Received request to {} backup secret: {} using API version: {}",
-                baseUri.toString(), secretName, apiVersion());
+                baseUri.toString(), secretName, apiVersion);
         return ResponseEntity.ok(backupEntity(entityId(baseUri, secretName)));
     }
 
     public ResponseEntity<KeyVaultSecretModel> restore(
             final URI baseUri,
+            final String apiVersion,
             @Valid final SecretBackupModel secretBackupModel) {
         log.info("Received request to {} restore secret: {} using API version: {}",
-                baseUri.toString(), secretBackupModel.getValue().getVersions().getFirst().getId(), apiVersion());
+                baseUri.toString(), secretBackupModel.getValue().getVersions().getFirst().getId(), apiVersion);
         return ResponseEntity.ok(restoreEntity(secretBackupModel));
     }
 
@@ -60,10 +65,10 @@ public abstract class CommonSecretBackupRestoreController
                 .value(entityVersion.getValue())
                 .contentType(entityVersion.getContentType())
                 .tags(entityVersion.getTags())
-                .createdOn(attributes.getCreatedOn())
-                .updatedOn(attributes.getUpdatedOn())
+                .createdOn(attributes.getCreated())
+                .updatedOn(attributes.getUpdated())
                 .notBefore(attributes.getNotBefore())
-                .expiresOn(attributes.getExpiresOn())
+                .expiresOn(attributes.getExpiry())
                 .managed(false)
                 .enabled(attributes.isEnabled())
                 .build());
@@ -79,4 +84,13 @@ public abstract class CommonSecretBackupRestoreController
         return new SecretBackupModel();
     }
 
+    @Override
+    protected VersionedSecretEntityId versionedEntityId(final URI baseUri, final String name, final String version) {
+        return new VersionedSecretEntityId(baseUri, name, version);
+    }
+
+    @Override
+    protected SecretEntityId entityId(final URI baseUri, final String name) {
+        return new SecretEntityId(baseUri, name);
+    }
 }

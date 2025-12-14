@@ -12,9 +12,9 @@ public interface RotationPolicy
 
     void setLifetimeActions(Map<LifetimeActionType, LifetimeAction> lifetimeActions);
 
-    void setCreatedOn(OffsetDateTime createdOn);
+    void setCreated(OffsetDateTime created);
 
-    void setUpdatedOn(OffsetDateTime updatedOn);
+    void setUpdated(OffsetDateTime updated);
 
     void setExpiryTime(Period expiryTime);
 

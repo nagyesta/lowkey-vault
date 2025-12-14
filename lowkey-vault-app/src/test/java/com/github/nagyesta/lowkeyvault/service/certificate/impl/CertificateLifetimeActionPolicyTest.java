@@ -141,7 +141,7 @@ class CertificateLifetimeActionPolicyTest {
         final var renewTrigger = new CertificateLifetimeActionTrigger(DAYS_BEFORE_EXPIRY, DAYS_60);
         final var actions = Map.of(EMAIL_CONTACTS, emailTrigger, AUTO_RENEW, renewTrigger);
         final var underTest = new CertificateLifetimeActionPolicy(UNVERSIONED_CERT_ENTITY_ID_1, actions);
-        underTest.setCreatedOn(DATE_100_MONTHS_AGO);
+        underTest.setCreated(DATE_100_MONTHS_AGO);
 
         //when
         final var actual = underTest.missedRenewalDays(DATE_100_MONTHS_AGO, s -> s.plusMonths(DEFAULT_VALIDITY_MONTHS));

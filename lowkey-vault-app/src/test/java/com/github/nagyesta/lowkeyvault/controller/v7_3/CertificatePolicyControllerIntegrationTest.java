@@ -8,6 +8,7 @@ import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertifica
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertAuthorityType;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertContentType;
 import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
+import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,11 +32,13 @@ class CertificatePolicyControllerIntegrationTest extends BaseCertificateControll
 
     private static final URI VAULT_URI_1 = getRandomVaultUri();
     @Autowired
-    @Qualifier("certificatePolicyControllerV73")
-    private CertificatePolicyController underTest;
+    @Qualifier("certificateControllerV73")
+    private CertificateController underTest;
     @Autowired
     @Qualifier("certificateControllerV73")
     private CertificateController certificateController;
+    @Autowired
+    private VaultService vaultService;
 
     @BeforeEach
     void setUp() {
@@ -46,11 +49,11 @@ class CertificatePolicyControllerIntegrationTest extends BaseCertificateControll
     void testPendingCreateShouldReturnPendingCertificateWhenExists() {
         //given
         final var request = getCreateCertificateRequest();
-        certificateController.create("pending-" + CERT_NAME_2, VAULT_URI_1, request);
+        certificateController.create("pending-" + CERT_NAME_2, VAULT_URI_1, V_7_3, request);
 
         //when
         final var actual = underTest
-                .pendingCreate("pending-" + CERT_NAME_2, VAULT_URI_1);
+                .pendingCreate("pending-" + CERT_NAME_2, VAULT_URI_1, V_7_3);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
@@ -64,7 +67,7 @@ class CertificatePolicyControllerIntegrationTest extends BaseCertificateControll
 
         //when
         Assertions.assertThrows(NotFoundException.class, () -> underTest
-                .pendingCreate("pending-" + CERT_NAME_3, VAULT_URI_1));
+                .pendingCreate("pending-" + CERT_NAME_3, VAULT_URI_1, V_7_3));
 
         //then + exception
     }
@@ -74,12 +77,12 @@ class CertificatePolicyControllerIntegrationTest extends BaseCertificateControll
         //given
         final var request = getCreateCertificateRequest();
         final var certificateName = "pending-del-" + CERT_NAME_2;
-        certificateController.create(certificateName, VAULT_URI_1, request);
-        certificateController.delete(certificateName, VAULT_URI_1);
+        certificateController.create(certificateName, VAULT_URI_1, V_7_3, request);
+        certificateController.delete(certificateName, VAULT_URI_1, V_7_3);
 
         //when
         final var actual = underTest
-                .pendingDelete(certificateName, VAULT_URI_1);
+                .pendingDelete(certificateName, VAULT_URI_1, V_7_3);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
@@ -93,20 +96,9 @@ class CertificatePolicyControllerIntegrationTest extends BaseCertificateControll
 
         //when
         Assertions.assertThrows(NotFoundException.class, () -> underTest
-                .pendingDelete("pending-del-" + CERT_NAME_3, VAULT_URI_1));
+                .pendingDelete("pending-del-" + CERT_NAME_3, VAULT_URI_1, V_7_3));
 
         //then + exception
-    }
-
-    @Test
-    void testApiVersionShouldReturnV73WhenCalled() {
-        //given
-
-        //when
-        final var actual = underTest.apiVersion();
-
-        //then
-        Assertions.assertEquals(V_7_3, actual);
     }
 
     @Test
@@ -114,14 +106,15 @@ class CertificatePolicyControllerIntegrationTest extends BaseCertificateControll
         //given
         final var request = getCreateCertificateRequest();
         final var certificateName = CERT_NAME_2 + "policy";
-        certificateController.create(certificateName, VAULT_URI_1, request);
+        final var vaultFake = vaultService.findByUri(VAULT_URI_1);
+        certificateController.create(certificateName, VAULT_URI_1, V_7_3, request);
         final var versions = findByUri(VAULT_URI_1)
                 .certificateVaultFake()
                 .getEntities()
                 .getVersions(new CertificateEntityId(VAULT_URI_1, certificateName));
 
         //when
-        final var actual = underTest.getPolicy(certificateName, VAULT_URI_1);
+        final var actual = underTest.getPolicy(certificateName, VAULT_URI_1, V_7_3);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
@@ -136,7 +129,8 @@ class CertificatePolicyControllerIntegrationTest extends BaseCertificateControll
         x509Properties.setKeyUsage(DEFAULT_EC_KEY_USAGES);
         Assertions.assertEquals(x509Properties, body.getX509Properties());
         Assertions.assertTrue(body.getAttributes().isEnabled());
-        Assertions.assertNull(body.getAttributes().getRecoveryLevel());
+        Assertions.assertEquals(vaultFake.getRecoveryLevel(), body.getAttributes().getRecoveryLevel());
+        Assertions.assertEquals(vaultFake.getRecoverableDays(), body.getAttributes().getRecoverableDays());
         Assertions.assertEquals(id.toString(), body.getId());
     }
 
@@ -144,8 +138,9 @@ class CertificatePolicyControllerIntegrationTest extends BaseCertificateControll
     void testUpdatePolicyShouldReturnModelWhenCalledWithValidData() {
         //given
         final var request = getCreateCertificateRequest();
+        final var vaultFake = vaultService.findByUri(VAULT_URI_1);
         final var certificateName = CERT_NAME_2 + "-update-policy";
-        certificateController.create(certificateName, VAULT_URI_1, request);
+        certificateController.create(certificateName, VAULT_URI_1, V_7_3, request);
         final var versions = findByUri(VAULT_URI_1)
                 .certificateVaultFake()
                 .getEntities()
@@ -153,7 +148,7 @@ class CertificatePolicyControllerIntegrationTest extends BaseCertificateControll
         final var update = getUpdatePolicyRequest();
 
         //when
-        final var actual = underTest.updatePolicy(certificateName, VAULT_URI_1, update);
+        final var actual = underTest.updatePolicy(certificateName, VAULT_URI_1, V_7_3, update);
 
         //then
         Assertions.assertEquals(OK, actual.getStatusCode());
@@ -168,7 +163,8 @@ class CertificatePolicyControllerIntegrationTest extends BaseCertificateControll
         x509Properties.setKeyUsage(DEFAULT_RSA_KEY_USAGES);
         Assertions.assertEquals(x509Properties, body.getX509Properties());
         Assertions.assertTrue(body.getAttributes().isEnabled());
-        Assertions.assertNull(body.getAttributes().getRecoveryLevel());
+        Assertions.assertEquals(vaultFake.getRecoveryLevel(), body.getAttributes().getRecoveryLevel());
+        Assertions.assertEquals(vaultFake.getRecoverableDays(), body.getAttributes().getRecoverableDays());
         Assertions.assertEquals(id.toString(), body.getId());
     }
 

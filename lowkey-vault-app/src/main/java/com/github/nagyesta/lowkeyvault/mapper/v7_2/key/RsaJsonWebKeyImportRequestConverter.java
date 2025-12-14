@@ -3,7 +3,6 @@ package com.github.nagyesta.lowkeyvault.mapper.v7_2.key;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRequest;
 import com.github.nagyesta.lowkeyvault.service.exception.CryptoException;
-import org.springframework.lang.NonNull;
 
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -19,9 +18,8 @@ public class RsaJsonWebKeyImportRequestConverter
 
     private static final int RSA_MODULUS_BYTES_TO_KEY_SIZE_BITS_MULTIPLIER = 8;
 
-    @NonNull
     @Override
-    public KeyPair convert(@NonNull final JsonWebKeyImportRequest source) {
+    public KeyPair convert(final JsonWebKeyImportRequest source) {
         try {
             final var factory = KeyFactory.getInstance(source.getKeyType().getAlgorithmName());
             final var privateKey = factory.generatePrivate(rsaPrivateKeySpec(source));
@@ -33,7 +31,7 @@ public class RsaJsonWebKeyImportRequestConverter
     }
 
     @Override
-    public Integer getKeyParameter(@NonNull final JsonWebKeyImportRequest source) {
+    public Integer getKeyParameter(final JsonWebKeyImportRequest source) {
         final var calculatedWithPotentialLeadingZero = source.getN().length * RSA_MODULUS_BYTES_TO_KEY_SIZE_BITS_MULTIPLIER;
         final var validValuesBelowLimit = KeyType.RSA.getValidKeyParameters(Integer.class)
                 .headSet(calculatedWithPotentialLeadingZero + 1);

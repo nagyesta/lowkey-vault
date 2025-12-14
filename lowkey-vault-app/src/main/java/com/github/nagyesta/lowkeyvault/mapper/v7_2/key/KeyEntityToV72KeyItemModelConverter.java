@@ -1,62 +1,62 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_2.key;
 
-import com.github.nagyesta.lowkeyvault.context.ApiVersionAware;
-import com.github.nagyesta.lowkeyvault.mapper.common.BaseRecoveryAwareConverter;
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
+import com.github.nagyesta.lowkeyvault.mapper.common.RecoveryAwareItemConverter;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.DeletedKeyVaultKeyItemModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyItemModel;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
-import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
-import lombok.NonNull;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.jspecify.annotations.Nullable;
+import org.mapstruct.*;
 
 import java.net.URI;
-import java.util.SortedSet;
 
-public class KeyEntityToV72KeyItemModelConverter
-        extends BaseRecoveryAwareConverter<VersionedKeyEntityId,
-        ReadOnlyKeyVaultKeyEntity, KeyVaultKeyItemModel, DeletedKeyVaultKeyItemModel> {
+@Mapper(
+        componentModel = MappingConstants.ComponentModel.SPRING,
+        uses = {KeyEntityToV72PropertiesModelConverter.class}
+)
+public interface KeyEntityToV72KeyItemModelConverter
+        extends RecoveryAwareItemConverter<ReadOnlyKeyVaultKeyEntity, KeyVaultKeyItemModel, DeletedKeyVaultKeyItemModel> {
 
-    private final KeyConverterRegistry registry;
-
-    @Autowired
-    public KeyEntityToV72KeyItemModelConverter(
-            @NonNull final KeyConverterRegistry registry) {
-        super(KeyVaultKeyItemModel::new, DeletedKeyVaultKeyItemModel::new);
-        this.registry = registry;
-    }
+    @Mapping(target = "keyId", ignore = true)
+    @Mapping(target = "attributes", source = "source")
+    @Mapping(target = "managed", source = "source.managed", conditionExpression = "java(source.isManaged())")
+    @Override
+    @Nullable KeyVaultKeyItemModel convert(@Nullable ReadOnlyKeyVaultKeyEntity source, URI vaultUri);
 
     @Override
-    public void afterPropertiesSet() {
-        register(registry);
-    }
-
-    protected void register(final KeyConverterRegistry registry) {
-        registry.registerItemConverter(this);
-    }
-
-    @Override
-    protected <M extends KeyVaultKeyItemModel> M mapActiveFields(
-            final ReadOnlyKeyVaultKeyEntity source,
-            final M model,
+    default @Nullable KeyVaultKeyItemModel convertWithoutVersion(
+            @Nullable final ReadOnlyKeyVaultKeyEntity source,
             final URI vaultUri) {
-        model.setKeyId(convertKeyId(source, vaultUri));
-        model.setAttributes(registry.propertiesConverter(supportedVersions().last()).convert(source, vaultUri));
-        model.setTags(source.getTags());
-        if (source.isManaged()) {
-            model.setManaged(true);
+        final var model = convert(source, vaultUri);
+        if (source != null && model != null) {
+            model.setKeyId(source.getId().asUriNoVersion(vaultUri).toString());
         }
         return model;
     }
 
-    protected String convertKeyId(
-            final ReadOnlyKeyVaultKeyEntity source,
-            final URI vaultUri) {
-        return source.getId().asUriNoVersion(vaultUri).toString();
+    @Mapping(target = "keyId", ignore = true)
+    @Mapping(target = "recoveryId", ignore = true)
+    @Mapping(target = "attributes", source = "source")
+    @Mapping(target = "deletedDate", ignore = true)
+    @Mapping(target = "scheduledPurgeDate", ignore = true)
+    @Mapping(target = "managed", source = "source.managed", conditionExpression = "java(source.isManaged())")
+    @Override
+    @Nullable DeletedKeyVaultKeyItemModel convertDeleted(@Nullable ReadOnlyKeyVaultKeyEntity source, URI vaultUri);
+
+    @AfterMapping
+    default void postProcess(
+            @Nullable final ReadOnlyKeyVaultKeyEntity source,
+            final URI vaultUri,
+            @Nullable @MappingTarget final KeyVaultKeyItemModel model) {
+        if (source != null && model != null) {
+            if (model instanceof final DeletedKeyVaultKeyItemModel deletedModel) {
+                deletedModel.setKeyId(source.getId().asUriNoVersion(vaultUri).toString());
+                deletedModel.setRecoveryId(source.getId().asRecoveryUri(vaultUri).toString());
+                deletedModel.setDeletedDate(source.getDeletedDate().orElseThrow());
+                deletedModel.setScheduledPurgeDate(source.getScheduledPurgeDate().orElseThrow());
+            } else {
+                model.setKeyId(source.getId().asUri(vaultUri).toString());
+            }
+        }
     }
 
-    @Override
-    public SortedSet<String> supportedVersions() {
-        return ApiVersionAware.ALL_VERSIONS;
-    }
 }

@@ -1,6 +1,5 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_2.secret;
 
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.SecretConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.KeyVaultSecretItemModel;
 import com.github.nagyesta.lowkeyvault.service.secret.ReadOnlyKeyVaultSecretEntity;
 import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultFake;
@@ -10,10 +9,10 @@ import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -26,21 +25,19 @@ import static com.github.nagyesta.lowkeyvault.TestConstantsSecrets.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOWKEY_VAULT;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class SecretEntityToV72SecretVersionItemModelConverterTest {
 
-    private SecretEntityToV72SecretVersionItemModelConverter underTest;
     @Mock
     private SecretEntityToV72PropertiesModelConverter propertiesModelConverter;
     @Mock
     private VaultFake vault;
     @Mock
     private SecretVaultFake secretVault;
-    @Mock
-    private SecretConverterRegistry registry;
+    @InjectMocks
+    private SecretEntityToV72SecretItemModelConverterImpl underTest;
 
     private AutoCloseable openMocks;
 
@@ -70,10 +67,8 @@ class SecretEntityToV72SecretVersionItemModelConverterTest {
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
-        underTest = new SecretEntityToV72SecretVersionItemModelConverter(registry);
-        when(registry.propertiesConverter(anyString())).thenReturn(propertiesModelConverter);
         when(vault.secretVaultFake()).thenReturn(secretVault);
-        when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultSecretEntity.class), any(URI.class)))
+        when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultSecretEntity.class)))
                 .thenReturn(SECRET_PROPERTIES_MODEL);
     }
 
@@ -100,18 +95,7 @@ class SecretEntityToV72SecretVersionItemModelConverterTest {
 
         //then
         Assertions.assertEquals(expected, actual);
-        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultSecretEntity.class), any(URI.class));
+        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultSecretEntity.class));
     }
 
-    @Test
-    void testConstructorShouldThrowExceptionsWhenCalledWithNull() {
-        //given
-
-        //when
-        //noinspection ConstantConditions
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new SecretEntityToV72SecretVersionItemModelConverter(null));
-
-        //then exception
-    }
 }

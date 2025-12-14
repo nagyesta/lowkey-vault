@@ -1,9 +1,10 @@
 package com.github.nagyesta.lowkeyvault.management;
 
 import com.github.nagyesta.lowkeyvault.controller.VaultManagementController;
+import com.github.nagyesta.lowkeyvault.controller.v7_2.SecretBackupRestoreController;
 import com.github.nagyesta.lowkeyvault.controller.v7_3.CertificateBackupRestoreController;
 import com.github.nagyesta.lowkeyvault.controller.v7_3.KeyBackupRestoreController;
-import com.github.nagyesta.lowkeyvault.controller.v7_3.SecretBackupRestoreController;
+import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
 import com.github.nagyesta.lowkeyvault.model.common.backup.*;
 import com.github.nagyesta.lowkeyvault.model.management.VaultBackupModel;
 import com.github.nagyesta.lowkeyvault.model.management.VaultModel;
@@ -56,11 +57,11 @@ public class VaultImportExportExecutor {
             @NonNull final VaultModel vault) {
         vaultManagementController.createVault(vault);
         vaultImporter.getKeys().getOrDefault(baseUri, Collections.emptyList())
-                .forEach(key -> keyBackupRestoreController.restore(baseUri, key));
+                .forEach(key -> keyBackupRestoreController.restore(baseUri, ApiConstants.LATEST, key));
         vaultImporter.getSecrets().getOrDefault(baseUri, Collections.emptyList())
-                .forEach(secret -> secretBackupRestoreController.restore(baseUri, secret));
+                .forEach(secret -> secretBackupRestoreController.restore(baseUri, ApiConstants.LATEST, secret));
         vaultImporter.getCertificates().getOrDefault(baseUri, Collections.emptyList())
-                .forEach(certificate -> certificateBackupRestoreController.restore(baseUri, certificate));
+                .forEach(certificate -> certificateBackupRestoreController.restore(baseUri, ApiConstants.LATEST, certificate));
     }
 
     public List<VaultBackupModel> backupVaultList(@NonNull final VaultService vaultService) {
@@ -74,7 +75,7 @@ public class VaultImportExportExecutor {
     private KeyBackupList backupKey(
             final URI baseUri,
             final String name) {
-        return Optional.ofNullable(keyBackupRestoreController.backup(name, baseUri))
+        return Optional.ofNullable(keyBackupRestoreController.backup(name, baseUri, ApiConstants.LATEST))
                 .map(ResponseEntity::getBody)
                 .map(KeyBackupModel::getValue)
                 .orElseThrow(() -> new NotFoundException("Key not found: " + name));
@@ -83,7 +84,7 @@ public class VaultImportExportExecutor {
     private SecretBackupList backupSecret(
             final URI baseUri,
             final String name) {
-        return Optional.ofNullable(secretBackupRestoreController.backup(name, baseUri))
+        return Optional.ofNullable(secretBackupRestoreController.backup(name, baseUri, ApiConstants.LATEST))
                 .map(ResponseEntity::getBody)
                 .map(SecretBackupModel::getValue)
                 .orElseThrow(() -> new NotFoundException("Secret not found: " + name));
@@ -92,7 +93,7 @@ public class VaultImportExportExecutor {
     private CertificateBackupList backupCertificate(
             final URI baseUri,
             final String name) {
-        return Optional.ofNullable(certificateBackupRestoreController.backup(name, baseUri))
+        return Optional.ofNullable(certificateBackupRestoreController.backup(name, baseUri, ApiConstants.LATEST))
                 .map(ResponseEntity::getBody)
                 .map(CertificateBackupModel::getValue)
                 .orElseThrow(() -> new NotFoundException("Certificate not found: " + name));

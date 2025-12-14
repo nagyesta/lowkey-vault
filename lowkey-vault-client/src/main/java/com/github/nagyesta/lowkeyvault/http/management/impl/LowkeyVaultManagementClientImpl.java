@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.github.nagyesta.lowkeyvault.http.management.*;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpStatus;
 import reactor.util.annotation.Nullable;
 
 import java.io.ByteArrayInputStream;
@@ -238,6 +239,9 @@ public final class LowkeyVaultManagementClientImpl
 
     private ResponseEntity doSendNotNull(final HttpRequest request) {
         try (var response = instance.send(request).block()) {
+            if (response != null && response.getStatusCode() == HttpStatus.SC_BAD_REQUEST) {
+                throw new LowkeyVaultException("Bad request: " + response.getBodyAsString(StandardCharsets.UTF_8).block());
+            }
             return new ResponseEntity(Objects.requireNonNull(response), objectReader);
         } catch (final Exception e) {
             log.info("Call to container failed: {}", e.getMessage());

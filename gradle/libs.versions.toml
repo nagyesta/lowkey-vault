@@ -1,10 +1,11 @@
 [versions]
-springBoot = "4.0.0"
+springBoot = "4.0.1"
 spring = "7.0.2"
 snakeYaml = "2.5"
+mapstruct = "1.6.3"
 tomcat = "11.0.15"
 jjwt = "0.13.0"
-logback = "1.5.22"
+logback = "1.5.23"
 bouncycastle = "1.83"
 hibernateValidator = "9.1.0.Final"
 findbugs = "3.0.2"
@@ -31,13 +32,13 @@ openApiUi = "3.0.0"
 abortMissionPlugin = "5.2.15"
 indexScanPlugin = "3.1.4"
 lombokPlugin = "9.1.0"
-springBootPlugin = "4.0.0"
+springBootPlugin = "4.0.1"
 gitVersionerPlugin = "1.6.7"
 owaspPlugin = "12.1.9"
 cycloneDxBomPlugin = "3.1.0"
 licenseePlugin = "1.14.1"
 nexusPublishPlugin = "2.0.0"
-sonarPlugin = "7.2.1.6560"
+sonarPlugin = "7.2.2.6593"
 
 [libraries]
 spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter", version.ref = "springBoot" }
@@ -55,6 +56,9 @@ spring-test = { module = "org.springframework:spring-test", version.ref = "sprin
 springdoc-openapi-ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "openApiUi" }
 
 snake-yaml = { module = "org.yaml:snakeyaml", version.ref = "snakeYaml" }
+
+mapstruct-core = { module = "org.mapstruct:mapstruct", version.ref = "mapstruct" }
+mapstruct-processor = { module = "org.mapstruct:mapstruct-processor", version.ref = "mapstruct" }
 
 tomcat-annotations-api = { module = "org.apache.tomcat:tomcat-annotations-api", version.ref = "tomcat" }
 tomcat-jsp-api = { module = "org.apache.tomcat:tomcat-jsp-api", version.ref = "tomcat" }

@@ -21,17 +21,17 @@ public class BasePropertiesModel {
     @JsonProperty("created")
     @JsonSerialize(using = EpochSecondsSerializer.class)
     @JsonDeserialize(using = EpochSecondsDeserializer.class)
-    private OffsetDateTime createdOn;
+    private OffsetDateTime created;
     @JsonProperty("updated")
     @JsonSerialize(using = EpochSecondsSerializer.class)
     @JsonDeserialize(using = EpochSecondsDeserializer.class)
-    private OffsetDateTime updatedOn;
+    private OffsetDateTime updated;
     @JsonProperty("recoveryLevel")
     private RecoveryLevel recoveryLevel;
     @JsonProperty("exp")
     @JsonSerialize(using = EpochSecondsSerializer.class)
     @JsonDeserialize(using = EpochSecondsDeserializer.class)
-    private OffsetDateTime expiresOn;
+    private OffsetDateTime expiry;
     @JsonProperty("nbf")
     @JsonSerialize(using = EpochSecondsSerializer.class)
     @JsonDeserialize(using = EpochSecondsDeserializer.class)
@@ -43,7 +43,7 @@ public class BasePropertiesModel {
         enabled = true;
         recoveryLevel = RecoveryLevel.PURGEABLE;
         final var now = OffsetDateTime.now(ZoneOffset.UTC);
-        createdOn = now;
-        updatedOn = now;
+        created = now;
+        updated = now;
     }
 }

@@ -1,10 +1,7 @@
 package com.github.nagyesta.lowkeyvault.controller.v7_2;
 
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyItemModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72KeyVersionItemModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.key.KeyEntityToV72ModelConverter;
-import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
 import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesUpdateModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.*;
@@ -33,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
@@ -48,6 +46,7 @@ import java.util.stream.Stream;
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
+import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.V_7_2;
 import static org.mockito.Mockito.*;
 
 class KeyControllerTest {
@@ -55,23 +54,20 @@ class KeyControllerTest {
     private static final KeyVaultKeyModel RESPONSE = createResponse();
     private static final DeletedKeyVaultKeyModel DELETED_RESPONSE = createDeletedResponse();
     @Mock
+    private VaultService vaultService;
+    @Mock
     private KeyEntityToV72ModelConverter keyEntityToV72ModelConverter;
     @Mock
     private KeyEntityToV72KeyItemModelConverter keyEntityToV72KeyItemModelConverter;
-    @Mock
-    private KeyEntityToV72KeyVersionItemModelConverter keyEntityToV72KeyVersionItemModelConverter;
-    @Mock
-    private VaultService vaultService;
     @Mock
     private VaultFake vaultFake;
     @Mock
     private KeyVaultFake keyVaultFake;
     @Mock
-    private KeyConverterRegistry registry;
-    @Mock
     private ReadOnlyVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> entities;
     @Mock
     private ReadOnlyVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> deletedEntities;
+    @InjectMocks
     private KeyController underTest;
     private AutoCloseable openMocks;
 
@@ -120,14 +116,6 @@ class KeyControllerTest {
                 .build();
     }
 
-    public static Stream<Arguments> nullProvider() {
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null))
-                .add(Arguments.of(mock(KeyConverterRegistry.class), null))
-                .add(Arguments.of(null, mock(VaultService.class)))
-                .build();
-    }
-
     public static Stream<Arguments> updateAttributeProvider() {
         return Stream.<Arguments>builder()
                 .add(Arguments.of(null, null, null, null, null))
@@ -159,12 +147,6 @@ class KeyControllerTest {
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
-        when(registry.modelConverter(ApiConstants.V_7_2)).thenReturn(keyEntityToV72ModelConverter);
-        when(registry.itemConverter(ApiConstants.V_7_2)).thenReturn(keyEntityToV72KeyItemModelConverter);
-        when(registry.versionedItemConverter(ApiConstants.V_7_2)).thenReturn(keyEntityToV72KeyVersionItemModelConverter);
-        when(registry.versionedEntityId(any(URI.class), anyString(), anyString())).thenCallRealMethod();
-        when(registry.entityId(any(URI.class), anyString())).thenCallRealMethod();
-        underTest = new KeyController(registry, vaultService);
         when(vaultService.findByUri(HTTPS_LOCALHOST_8443)).thenReturn(vaultFake);
         when(vaultFake.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
         when(vaultFake.keyVaultFake()).thenReturn(keyVaultFake);
@@ -177,8 +159,9 @@ class KeyControllerTest {
 
     @ParameterizedTest
     @MethodSource("exceptionProvider")
-    void testErrorHandlerConvertsExceptionWhenCaught(final Exception exception, final HttpStatus status,
-                                                     final String message, final String innerMessage) {
+    void testErrorHandlerConvertsExceptionWhenCaught(
+            final Exception exception, final HttpStatus status,
+            final String message, final String innerMessage) {
         //given
 
         //when
@@ -223,20 +206,6 @@ class KeyControllerTest {
     }
 
     @ParameterizedTest
-    @MethodSource("nullProvider")
-    void testConstructorShouldThrowExceptionWhenCalledWithNull(
-            final KeyConverterRegistry registry,
-            final VaultService vaultService) {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new KeyController(registry, vaultService));
-
-        //then + exception
-    }
-
-    @ParameterizedTest
     @MethodSource("keyAttributeProvider")
     void testCreateShouldUseInputParametersWhenCalled(
             final List<KeyOperation> operations, final RecoveryLevel recoveryLevel, final Integer recoverableDays,
@@ -260,7 +229,7 @@ class KeyControllerTest {
                 .thenReturn(RESPONSE);
 
         //when
-        final var actual = underTest.create(KEY_NAME_1, HTTPS_LOCALHOST_8443, request);
+        final var actual = underTest.create(KEY_NAME_1, HTTPS_LOCALHOST_8443, V_7_2, request);
 
         //then
         Assertions.assertNotNull(actual);
@@ -284,7 +253,7 @@ class KeyControllerTest {
 
         //when
         Assertions.assertThrows(NotFoundException.class,
-                () -> underTest.versions(KEY_NAME_1, HTTPS_LOCALHOST_8443, 0, 0));
+                () -> underTest.versions(KEY_NAME_1, HTTPS_LOCALHOST_8443, V_7_2, 0, 0));
 
         //then + exception
     }
@@ -308,7 +277,7 @@ class KeyControllerTest {
             final var keyEntityId = invocation.getArgument(0, VersionedKeyEntityId.class);
             return createEntity(keyEntityId, createRequest(null, null, null));
         });
-        when(keyEntityToV72KeyVersionItemModelConverter.convert(any(), any())).thenAnswer(invocation -> {
+        when(keyEntityToV72KeyItemModelConverter.convert(any(), any())).thenAnswer(invocation -> {
             final KeyVaultKeyEntity<?, ?> entity = invocation.getArgument(0, KeyVaultKeyEntity.class);
             return keyVaultKeyItemModel(entity.getId().asUri(HTTPS_LOCALHOST_8443), Map.of());
         });
@@ -316,7 +285,7 @@ class KeyControllerTest {
 
         //when
         final var actual =
-                underTest.versions(KEY_NAME_1, HTTPS_LOCALHOST_8443, 1, index);
+                underTest.versions(KEY_NAME_1, HTTPS_LOCALHOST_8443, V_7_2, 1, index);
 
         //then
         Assertions.assertNotNull(actual);
@@ -344,7 +313,7 @@ class KeyControllerTest {
             final var keyEntityId = invocation.getArgument(0, VersionedKeyEntityId.class);
             return createEntity(keyEntityId, createRequest(null, null, null));
         });
-        when(keyEntityToV72KeyVersionItemModelConverter.convert(any(), any())).thenAnswer(invocation -> {
+        when(keyEntityToV72KeyItemModelConverter.convert(any(), any())).thenAnswer(invocation -> {
             final KeyVaultKeyEntity<?, ?> entity = invocation.getArgument(0, KeyVaultKeyEntity.class);
             return keyVaultKeyItemModel(entity.getId().asUri(HTTPS_LOCALHOST_8443), Map.of());
         });
@@ -354,7 +323,7 @@ class KeyControllerTest {
 
         //when
         final var actual =
-                underTest.versions(KEY_NAME_1, HTTPS_LOCALHOST_8443, 25, 0);
+                underTest.versions(KEY_NAME_1, HTTPS_LOCALHOST_8443, V_7_2, 25, 0);
 
         //then
         Assertions.assertNotNull(actual);
@@ -398,7 +367,7 @@ class KeyControllerTest {
                 .thenReturn(DELETED_RESPONSE);
 
         //when
-        final var actual = underTest.delete(KEY_NAME_1, HTTPS_LOCALHOST_8443);
+        final var actual = underTest.delete(KEY_NAME_1, HTTPS_LOCALHOST_8443, V_7_2);
 
         //then
         Assertions.assertNotNull(actual);
@@ -446,7 +415,7 @@ class KeyControllerTest {
                 .thenReturn(RESPONSE);
 
         //when
-        final var actual = underTest.recoverDeletedKey(KEY_NAME_1, HTTPS_LOCALHOST_8443);
+        final var actual = underTest.recoverDeletedKey(KEY_NAME_1, HTTPS_LOCALHOST_8443, V_7_2);
 
         //then
         Assertions.assertNotNull(actual);
@@ -491,7 +460,7 @@ class KeyControllerTest {
                 .thenReturn(DELETED_RESPONSE);
 
         //when
-        final var actual = underTest.getDeletedKey(KEY_NAME_1, HTTPS_LOCALHOST_8443);
+        final var actual = underTest.getDeletedKey(KEY_NAME_1, HTTPS_LOCALHOST_8443, V_7_2);
 
         //then
         Assertions.assertNotNull(actual);
@@ -532,7 +501,7 @@ class KeyControllerTest {
                 .thenReturn(RESPONSE);
 
         //when
-        final var actual = underTest.get(KEY_NAME_1, HTTPS_LOCALHOST_8443);
+        final var actual = underTest.get(KEY_NAME_1, HTTPS_LOCALHOST_8443, V_7_2);
 
         //then
         Assertions.assertNotNull(actual);
@@ -567,12 +536,12 @@ class KeyControllerTest {
         when(entities.listLatestEntities())
                 .thenReturn(List.of(entity));
         final var keyItemModel = keyVaultKeyItemModel(baseUri.asUri(HTTPS_LOCALHOST_8443), Map.of());
-        when(keyEntityToV72KeyItemModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
+        when(keyEntityToV72KeyItemModelConverter.convertWithoutVersion(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(keyItemModel);
 
         //when
         final var actual =
-                underTest.listKeys(HTTPS_LOCALHOST_8443, 1, 0);
+                underTest.listKeys(HTTPS_LOCALHOST_8443, V_7_2, 1, 0);
 
         //then
         Assertions.assertNotNull(actual);
@@ -588,7 +557,7 @@ class KeyControllerTest {
         verify(keyVaultFake, atLeastOnce()).getEntities();
         verify(keyVaultFake, never()).getDeletedEntities();
         verify(entities).listLatestEntities();
-        verify(keyEntityToV72KeyItemModelConverter).convert(same(entity), eq(HTTPS_LOCALHOST_8443));
+        verify(keyEntityToV72KeyItemModelConverter).convertWithoutVersion(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")
@@ -610,12 +579,12 @@ class KeyControllerTest {
         when(entities.listLatestEntities())
                 .thenReturn(List.of(entity, entity, entity));
         final var keyItemModel = keyVaultKeyItemModel(baseUri.asUri(HTTPS_LOCALHOST_8443), Map.of());
-        when(keyEntityToV72KeyItemModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
+        when(keyEntityToV72KeyItemModelConverter.convertWithoutVersion(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(keyItemModel);
 
         //when
         final var actual =
-                underTest.listKeys(HTTPS_LOCALHOST_8443, 1, 0);
+                underTest.listKeys(HTTPS_LOCALHOST_8443, V_7_2, 1, 0);
 
         //then
         Assertions.assertNotNull(actual);
@@ -633,7 +602,7 @@ class KeyControllerTest {
         verify(keyVaultFake, atLeastOnce()).getEntities();
         verify(keyVaultFake, never()).getDeletedEntities();
         verify(entities).listLatestEntities();
-        verify(keyEntityToV72KeyItemModelConverter).convert(same(entity), eq(HTTPS_LOCALHOST_8443));
+        verify(keyEntityToV72KeyItemModelConverter).convertWithoutVersion(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")
@@ -662,7 +631,7 @@ class KeyControllerTest {
 
         //when
         final var actual =
-                underTest.listDeletedKeys(HTTPS_LOCALHOST_8443, 1, 0);
+                underTest.listDeletedKeys(HTTPS_LOCALHOST_8443, V_7_2, 1, 0);
 
         //then
         Assertions.assertNotNull(actual);
@@ -705,11 +674,11 @@ class KeyControllerTest {
 
         //when
         if (nonNullRecoveryLevel.isPurgeable()) {
-            final var response = underTest.purgeDeleted(KEY_NAME_1, HTTPS_LOCALHOST_8443);
+            final var response = underTest.purgeDeleted(KEY_NAME_1, HTTPS_LOCALHOST_8443, V_7_2);
             Assertions.assertNotNull(response);
             Assertions.assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         } else {
-            Assertions.assertThrows(IllegalStateException.class, () -> underTest.purgeDeleted(KEY_NAME_1, HTTPS_LOCALHOST_8443));
+            Assertions.assertThrows(IllegalStateException.class, () -> underTest.purgeDeleted(KEY_NAME_1, HTTPS_LOCALHOST_8443, V_7_2));
         }
 
         //then
@@ -750,7 +719,7 @@ class KeyControllerTest {
 
         //when
         final var actual =
-                underTest.listDeletedKeys(HTTPS_LOCALHOST_8443, 1, 0);
+                underTest.listDeletedKeys(HTTPS_LOCALHOST_8443, V_7_2, 1, 0);
 
         //then
         Assertions.assertNotNull(actual);
@@ -793,7 +762,7 @@ class KeyControllerTest {
                 .thenReturn(RESPONSE);
 
         //when
-        final var actual = underTest.getWithVersion(KEY_NAME_1, KEY_VERSION_3, HTTPS_LOCALHOST_8443);
+        final var actual = underTest.getWithVersion(KEY_NAME_1, KEY_VERSION_3, HTTPS_LOCALHOST_8443, V_7_2);
 
         //then
         Assertions.assertNotNull(actual);
@@ -844,7 +813,7 @@ class KeyControllerTest {
 
         //when
         final var actual = underTest
-                .updateVersion(KEY_NAME_1, KEY_VERSION_3, HTTPS_LOCALHOST_8443, updateKeyRequest);
+                .updateVersion(KEY_NAME_1, KEY_VERSION_3, HTTPS_LOCALHOST_8443, V_7_2, updateKeyRequest);
 
         //then
         Assertions.assertNotNull(actual);
@@ -901,7 +870,7 @@ class KeyControllerTest {
         keyRequest.setKeyType(KeyType.RSA);
         keyRequest.setKeyOperations(operations);
         final var properties = new KeyPropertiesModel();
-        properties.setExpiresOn(expiry);
+        properties.setExpiry(expiry);
         properties.setNotBefore(notBefore);
         properties.setEnabled(true);
         keyRequest.setProperties(properties);

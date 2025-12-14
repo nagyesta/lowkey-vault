@@ -1,22 +1,41 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate;
 
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.CertificateConverterRegistry;
+import com.github.nagyesta.lowkeyvault.mapper.common.AliasAwareConverter;
+import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificatePolicyModel;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
-import lombok.NonNull;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.jspecify.annotations.Nullable;
+import org.mapstruct.*;
 
-public class CertificateEntityToV73PolicyModelConverter extends BaseCertificateEntityToV73PolicyModelConverter {
+import java.net.URI;
 
-    private final CertificateConverterRegistry registry;
+@Mapper(
+        componentModel = MappingConstants.ComponentModel.SPRING,
+        uses = {
+                CertificateEntityToV73PropertiesModelConverter.class,
+                BaseCertificateEntityToV73PolicyModelConverter.class
+        }
+)
+public interface CertificateEntityToV73PolicyModelConverter
+        extends AliasAwareConverter<ReadOnlyKeyVaultCertificateEntity, CertificatePolicyModel> {
 
-    @Autowired
-    public CertificateEntityToV73PolicyModelConverter(@NonNull final CertificateConverterRegistry registry) {
-        super(ReadOnlyKeyVaultCertificateEntity::getOriginalCertificatePolicy);
-        this.registry = registry;
-    }
-
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "attributes", source = "source")
+    @Mapping(target = "issuer", source = "source.originalCertificatePolicy")
+    @Mapping(target = "keyProperties", source = "source.originalCertificatePolicy")
+    @Mapping(target = "secretProperties", source = "source.originalCertificatePolicy")
+    @Mapping(target = "x509Properties", source = "source.originalCertificatePolicy")
+    @Mapping(target = "lifetimeActions", ignore = true)
     @Override
-    public void afterPropertiesSet() {
-        registry.registerPolicyConverter(this);
+    @Nullable CertificatePolicyModel convert(@Nullable ReadOnlyKeyVaultCertificateEntity source, URI vaultUri);
+
+    @AfterMapping
+    default void postProcess(
+            @Nullable final ReadOnlyKeyVaultCertificateEntity source,
+            final URI vaultUri,
+            @Nullable @MappingTarget final CertificatePolicyModel model) {
+        if (source != null && model != null) {
+            model.setId(source.getId().asPolicyUri(vaultUri).toString());
+        }
     }
+
 }

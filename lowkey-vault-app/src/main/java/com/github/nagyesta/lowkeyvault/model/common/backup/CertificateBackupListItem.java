@@ -18,8 +18,7 @@ import tools.jackson.databind.annotation.JsonSerialize;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class CertificateBackupListItem
-        extends BaseBackupListItem<CertificatePropertiesModel> {
+public class CertificateBackupListItem extends BaseBackupListItem<CertificatePropertiesModel> {
 
     @JsonProperty("pwd")
     private String password;

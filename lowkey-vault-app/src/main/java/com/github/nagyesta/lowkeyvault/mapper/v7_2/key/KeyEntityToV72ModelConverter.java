@@ -1,8 +1,6 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_2.key;
 
-import com.github.nagyesta.lowkeyvault.context.ApiVersionAware;
-import com.github.nagyesta.lowkeyvault.mapper.common.BaseRecoveryAwareConverter;
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
+import com.github.nagyesta.lowkeyvault.mapper.common.RecoveryAwareConverter;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.DeletedKeyVaultKeyModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.JsonWebKeyModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyModel;
@@ -10,95 +8,106 @@ import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyAesKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyEcKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyRsaKeyVaultKeyEntity;
-import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
-import lombok.NonNull;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.Assert;
+import org.jspecify.annotations.Nullable;
+import org.mapstruct.*;
 
 import java.net.URI;
-import java.util.SortedSet;
 
-public class KeyEntityToV72ModelConverter
-        extends BaseRecoveryAwareConverter<VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity, KeyVaultKeyModel, DeletedKeyVaultKeyModel> {
+@Mapper(
+        componentModel = MappingConstants.ComponentModel.SPRING,
+        uses = {KeyEntityToV72PropertiesModelConverter.class}
+)
+public interface KeyEntityToV72ModelConverter
+        extends RecoveryAwareConverter<ReadOnlyKeyVaultKeyEntity, KeyVaultKeyModel, DeletedKeyVaultKeyModel> {
 
-    private final KeyConverterRegistry registry;
 
-    @Autowired
-    public KeyEntityToV72ModelConverter(@NonNull final KeyConverterRegistry registry) {
-        super(KeyVaultKeyModel::new, DeletedKeyVaultKeyModel::new);
-        this.registry = registry;
-    }
-
+    @Mapping(target = "key", ignore = true)
+    @Mapping(target = "attributes", source = "source")
+    @Mapping(target = "managed", source = "source.managed", conditionExpression = "java(source.isManaged())")
     @Override
-    public void afterPropertiesSet() {
-        registry.registerModelConverter(this);
-    }
+    @Nullable KeyVaultKeyModel convert(ReadOnlyKeyVaultKeyEntity source, URI vaultUri);
 
+    @Mapping(target = "key", ignore = true)
+    @Mapping(target = "recoveryId", ignore = true)
+    @Mapping(target = "attributes", source = "source")
+    @Mapping(target = "deletedDate", ignore = true)
+    @Mapping(target = "scheduledPurgeDate", ignore = true)
+    @Mapping(target = "managed", source = "source.managed", conditionExpression = "java(source.isManaged())")
     @Override
-    protected <M extends KeyVaultKeyModel> M mapActiveFields(
-            final ReadOnlyKeyVaultKeyEntity source,
-            final M model,
-            final URI vaultUri) {
-        model.setKey(mapJsonWebKey(source, vaultUri));
-        model.setAttributes(registry.propertiesConverter(supportedVersions().last()).convert(source, vaultUri));
-        model.setTags(source.getTags());
-        model.setManaged(source.isManaged());
-        return model;
-    }
+    @Nullable DeletedKeyVaultKeyModel convertDeleted(@Nullable  ReadOnlyKeyVaultKeyEntity source, URI vaultUri);
 
-    private JsonWebKeyModel mapJsonWebKey(
-            final ReadOnlyKeyVaultKeyEntity source,
-            final URI vaultUri) {
-        final JsonWebKeyModel jsonWebKeyModel;
-        if (source.getKeyType().isRsa()) {
-            jsonWebKeyModel = mapRsaFields((ReadOnlyRsaKeyVaultKeyEntity) source, vaultUri);
-        } else if (source.getKeyType().isEc()) {
-            jsonWebKeyModel = mapEcFields((ReadOnlyEcKeyVaultKeyEntity) source, vaultUri);
-        } else {
-            Assert.isTrue(source.getKeyType().isOct(), "Unknown key type found: " + source.getKeyType());
-            jsonWebKeyModel = mapOctFields((ReadOnlyAesKeyVaultKeyEntity) source, vaultUri);
+    @AfterMapping
+    default void postProcess(
+            @Nullable final ReadOnlyKeyVaultKeyEntity source,
+            final URI vaultUri,
+            @Nullable @MappingTarget final KeyVaultKeyModel model) {
+        if (source != null && model != null) {
+            if (model instanceof final DeletedKeyVaultKeyModel deletedModel) {
+                deletedModel.setKey(convertJsonWebKey(source, vaultUri));
+                deletedModel.setRecoveryId(source.getId().asRecoveryUri(vaultUri).toString());
+                deletedModel.setDeletedDate(source.getDeletedDate().orElseThrow());
+                deletedModel.setScheduledPurgeDate(source.getScheduledPurgeDate().orElseThrow());
+            } else {
+                model.setKey(convertJsonWebKey(source, vaultUri));
+            }
         }
-        return jsonWebKeyModel;
     }
 
-    private JsonWebKeyModel mapRsaFields(
-            final ReadOnlyRsaKeyVaultKeyEntity entity,
+    default JsonWebKeyModel convertJsonWebKey(
+            final ReadOnlyKeyVaultKeyEntity source,
             final URI vaultUri) {
-        final var jsonWebKeyModel = mapCommonKeyProperties(entity, vaultUri);
-        jsonWebKeyModel.setN(entity.getN());
-        jsonWebKeyModel.setE(entity.getE());
-        return jsonWebKeyModel;
+        return switch (source.getKeyType()) {
+            case RSA, RSA_HSM -> convertJsonWebKey((ReadOnlyRsaKeyVaultKeyEntity) source, vaultUri);
+            case EC, EC_HSM -> convertJsonWebKey((ReadOnlyEcKeyVaultKeyEntity) source, vaultUri);
+            case OCT, OCT_HSM -> convertJsonWebKey((ReadOnlyAesKeyVaultKeyEntity) source, vaultUri);
+        };
     }
 
-    private JsonWebKeyModel mapEcFields(
-            final ReadOnlyEcKeyVaultKeyEntity entity,
-            final URI vaultUri) {
-        final var jsonWebKeyModel = mapCommonKeyProperties(entity, vaultUri);
-        jsonWebKeyModel.setCurveName(entity.getKeyCurveName());
-        jsonWebKeyModel.setX(entity.getX());
-        jsonWebKeyModel.setY(entity.getY());
-        return jsonWebKeyModel;
-    }
+    @Mapping(target = "id", expression = "java(source.getId().asUri(vaultUri).toString())")
+    @Mapping(target = "keyOps", source = "source.operations")
+    @Mapping(target = "curveName", ignore = true)
+    @Mapping(target = "k", ignore = true)
+    @Mapping(target = "keyHsm", ignore = true)
+    @Mapping(target = "x", ignore = true)
+    @Mapping(target = "y", ignore = true)
+    @Mapping(target = "d", ignore = true) //Do not return the private key.
+    @Mapping(target = "dp", ignore = true) //Do not return the private key.
+    @Mapping(target = "dq", ignore = true) //Do not return the private key.
+    @Mapping(target = "p", ignore = true) //Do not return the private key.
+    @Mapping(target = "q", ignore = true) //Do not return the private key.
+    @Mapping(target = "qi", ignore = true) //Do not return the private key.
+    JsonWebKeyModel convertJsonWebKey(ReadOnlyRsaKeyVaultKeyEntity source, URI vaultUri);
 
-    private JsonWebKeyModel mapOctFields(
-            final ReadOnlyAesKeyVaultKeyEntity entity,
-            final URI vaultUri) {
-        //Do not map K to avoid exposing key material
-        return mapCommonKeyProperties(entity, vaultUri);
-    }
+    @Mapping(target = "id", expression = "java(source.getId().asUri(vaultUri).toString())")
+    @Mapping(target = "keyOps", source = "source.operations")
+    @Mapping(target = "curveName", source = "source.keyCurveName")
+    @Mapping(target = "d", ignore = true) //Do not return the private key.
+    @Mapping(target = "dp", ignore = true)
+    @Mapping(target = "dq", ignore = true)
+    @Mapping(target = "e", ignore = true)
+    @Mapping(target = "k", ignore = true)
+    @Mapping(target = "keyHsm", ignore = true)
+    @Mapping(target = "n", ignore = true)
+    @Mapping(target = "p", ignore = true)
+    @Mapping(target = "q", ignore = true)
+    @Mapping(target = "qi", ignore = true)
+    JsonWebKeyModel convertJsonWebKey(ReadOnlyEcKeyVaultKeyEntity source, URI vaultUri);
 
-    private JsonWebKeyModel mapCommonKeyProperties(
-            final ReadOnlyKeyVaultKeyEntity entity,
-            final URI vaultUri) {
-        final var jsonWebKeyModel = new JsonWebKeyModel();
-        jsonWebKeyModel.setId(entity.getId().asUri(vaultUri).toString());
-        jsonWebKeyModel.setKeyType(entity.getKeyType());
-        jsonWebKeyModel.setKeyOps(entity.getOperations());
-        return jsonWebKeyModel;
-    }
+    @Mapping(target = "id", expression = "java(source.getId().asUri(vaultUri).toString())")
+    @Mapping(target = "keyOps", source = "source.operations")
+    @Mapping(target = "curveName", ignore = true)
+    @Mapping(target = "k", ignore = true) //Do not return the private key.
+    @Mapping(target = "d", ignore = true)
+    @Mapping(target = "dp", ignore = true)
+    @Mapping(target = "dq", ignore = true)
+    @Mapping(target = "e", ignore = true)
+    @Mapping(target = "keyHsm", ignore = true)
+    @Mapping(target = "n", ignore = true)
+    @Mapping(target = "p", ignore = true)
+    @Mapping(target = "q", ignore = true)
+    @Mapping(target = "qi", ignore = true)
+    @Mapping(target = "x", ignore = true)
+    @Mapping(target = "y", ignore = true)
+    JsonWebKeyModel convertJsonWebKey(ReadOnlyAesKeyVaultKeyEntity source, URI vaultUri);
 
-    @Override
-    public SortedSet<String> supportedVersions() {
-        return ApiVersionAware.ALL_VERSIONS;
-    }
 }

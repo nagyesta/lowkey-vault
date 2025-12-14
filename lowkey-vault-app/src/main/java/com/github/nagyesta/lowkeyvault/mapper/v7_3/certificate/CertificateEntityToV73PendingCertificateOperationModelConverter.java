@@ -1,36 +1,25 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate;
 
-import com.github.nagyesta.lowkeyvault.context.ApiVersionAware;
 import com.github.nagyesta.lowkeyvault.mapper.common.AliasAwareConverter;
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.CertificateConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.IssuerParameterModel;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.KeyVaultPendingCertificateModel;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertAuthorityType;
-import lombok.NonNull;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.jspecify.annotations.Nullable;
+import org.springframework.stereotype.Component;
 
 import java.net.URI;
-import java.util.SortedSet;
 
+@Component
 public class CertificateEntityToV73PendingCertificateOperationModelConverter
         implements AliasAwareConverter<ReadOnlyKeyVaultCertificateEntity, KeyVaultPendingCertificateModel> {
 
-    private final CertificateConverterRegistry registry;
-
-    @Autowired
-    public CertificateEntityToV73PendingCertificateOperationModelConverter(@NonNull final CertificateConverterRegistry registry) {
-        this.registry = registry;
-    }
-
-    @Override
-    public void afterPropertiesSet() {
-        registry.registerPendingOperationConverter(this);
-    }
-
-    public @org.springframework.lang.NonNull KeyVaultPendingCertificateModel convert(
-            final @NonNull ReadOnlyKeyVaultCertificateEntity source,
-            final @NonNull URI baseUri) {
+    public @Nullable KeyVaultPendingCertificateModel convert(
+            @Nullable final ReadOnlyKeyVaultCertificateEntity source,
+            final URI baseUri) {
+        if (source == null) {
+            return null;
+        }
         final var model = new KeyVaultPendingCertificateModel();
         model.setId(source.getId().asPendingOperationUri(baseUri).toString());
         model.setIssuer(new IssuerParameterModel(CertAuthorityType.SELF_SIGNED));
@@ -43,8 +32,4 @@ public class CertificateEntityToV73PendingCertificateOperationModelConverter
         return model;
     }
 
-    @Override
-    public SortedSet<String> supportedVersions() {
-        return ApiVersionAware.V7_3_AND_LATER;
-    }
 }

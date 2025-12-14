@@ -74,7 +74,7 @@ public class VaultManagementController
     public ResponseEntity<List<VaultModel>> listVaults() {
         log.info("Received request to list vaults.");
         final var vaultFake = vaultService.list().stream()
-                .map(vaultFakeToVaultModelConverter::convertNonNull)
+                .map(vaultFakeToVaultModelConverter::convert)
                 .toList();
         log.info("Returning {} vaults.", vaultFake.size());
         return ResponseEntity.ok(vaultFake);
@@ -92,7 +92,7 @@ public class VaultManagementController
     public ResponseEntity<List<VaultModel>> listDeletedVaults() {
         log.info("Received request to list deleted vaults.");
         final var vaultFake = vaultService.listDeleted().stream()
-                .map(vaultFakeToVaultModelConverter::convertNonNull)
+                .map(vaultFakeToVaultModelConverter::convert)
                 .toList();
         log.info("Returning {} deleted vaults.", vaultFake.size());
         return ResponseEntity.ok(vaultFake);

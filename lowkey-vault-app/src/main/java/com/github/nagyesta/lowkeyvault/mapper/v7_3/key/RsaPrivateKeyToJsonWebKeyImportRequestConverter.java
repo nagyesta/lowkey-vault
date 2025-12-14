@@ -1,17 +1,20 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_3.key;
 
+import com.github.nagyesta.lowkeyvault.mapper.common.BaseConverter;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRequest;
-import lombok.NonNull;
-import org.springframework.core.convert.converter.Converter;
+import org.jspecify.annotations.Nullable;
 
 import java.security.interfaces.RSAPrivateCrtKey;
 
 public class RsaPrivateKeyToJsonWebKeyImportRequestConverter
-        implements Converter<RSAPrivateCrtKey, JsonWebKeyImportRequest> {
+        implements BaseConverter<RSAPrivateCrtKey, JsonWebKeyImportRequest> {
 
     @Override
-    public JsonWebKeyImportRequest convert(final @NonNull RSAPrivateCrtKey source) {
+    public @Nullable JsonWebKeyImportRequest convert(@Nullable final RSAPrivateCrtKey source) {
+        if (source == null) {
+            return null;
+        }
         final var importRequest = new JsonWebKeyImportRequest();
         importRequest.setKeyType(KeyType.RSA);
         importRequest.setN(source.getModulus().toByteArray());

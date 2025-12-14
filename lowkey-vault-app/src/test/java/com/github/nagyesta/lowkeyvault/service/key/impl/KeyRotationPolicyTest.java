@@ -140,14 +140,14 @@ class KeyRotationPolicyTest {
     }
 
     @Test
-    void testSetCreatedOnShouldUpdateValueWhenCalledWithValidInput() {
+    void testSetCreatedShouldUpdateValueWhenCalledWithValidInput() {
         //given
         final var underTest = new KeyRotationPolicy(UNVERSIONED_KEY_ENTITY_ID_1, Period.ZERO, Map.of());
-        final var original = underTest.getCreatedOn();
+        final var original = underTest.getCreated();
 
         //when
-        underTest.setCreatedOn(TIME_10_MINUTES_AGO);
-        final var actual = underTest.getCreatedOn();
+        underTest.setCreated(TIME_10_MINUTES_AGO);
+        final var actual = underTest.getCreated();
 
         //then
         Assertions.assertNotEquals(original, actual);
@@ -156,25 +156,25 @@ class KeyRotationPolicyTest {
 
     @SuppressWarnings("ConstantConditions")
     @Test
-    void testSetCreatedOnShouldThrowExceptionWhenCalledWithNull() {
+    void testSetCreatedShouldThrowExceptionWhenCalledWithNull() {
         //given
         final var underTest = new KeyRotationPolicy(UNVERSIONED_KEY_ENTITY_ID_1, Period.ZERO, Map.of());
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setCreatedOn(null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setCreated(null));
 
         //then + exception
     }
 
     @Test
-    void testSetUpdatedOnShouldUpdateValueWhenCalledWithValidInput() {
+    void testSetUpdatedShouldUpdateValueWhenCalledWithValidInput() {
         //given
         final var underTest = new KeyRotationPolicy(UNVERSIONED_KEY_ENTITY_ID_1, Period.ZERO, Map.of());
-        final var original = underTest.getUpdatedOn();
+        final var original = underTest.getUpdated();
 
         //when
-        underTest.setUpdatedOn(TIME_10_MINUTES_AGO);
-        final var actual = underTest.getUpdatedOn();
+        underTest.setUpdated(TIME_10_MINUTES_AGO);
+        final var actual = underTest.getUpdated();
 
         //then
         Assertions.assertNotEquals(original, actual);
@@ -183,12 +183,12 @@ class KeyRotationPolicyTest {
 
     @SuppressWarnings("ConstantConditions")
     @Test
-    void testSetUpdatedOnShouldThrowExceptionWhenCalledWithNull() {
+    void testSetUpdatedShouldThrowExceptionWhenCalledWithNull() {
         //given
         final var underTest = new KeyRotationPolicy(UNVERSIONED_KEY_ENTITY_ID_1, Period.ZERO, Map.of());
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setUpdatedOn(null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setUpdated(null));
 
         //then + exception
     }
@@ -224,11 +224,11 @@ class KeyRotationPolicyTest {
     void testSetExpiryTimeShouldUpdateUpdatedOnWhenCalledWithValidInput() {
         //given
         final var underTest = new KeyRotationPolicy(UNVERSIONED_KEY_ENTITY_ID_1, Period.ZERO, Map.of());
-        underTest.setUpdatedOn(TIME_10_MINUTES_AGO);
+        underTest.setUpdated(TIME_10_MINUTES_AGO);
 
         //when
         underTest.setExpiryTime(Period.parse(DAYS_42));
-        final var actual = underTest.getUpdatedOn();
+        final var actual = underTest.getUpdated();
 
         //then
         Assertions.assertTrue(actual.isAfter(TIME_10_MINUTES_AGO));
@@ -298,11 +298,11 @@ class KeyRotationPolicyTest {
     void testSetLifetimeActionsShouldUpdateUpdatedOnWhenCalledWithValidInput() {
         //given
         final var underTest = new KeyRotationPolicy(UNVERSIONED_KEY_ENTITY_ID_1, Period.ZERO, Map.of());
-        underTest.setUpdatedOn(TIME_10_MINUTES_AGO);
+        underTest.setUpdated(TIME_10_MINUTES_AGO);
 
         //when
         underTest.setLifetimeActions(Map.of());
-        final var actual = underTest.getUpdatedOn();
+        final var actual = underTest.getUpdated();
 
         //then
         Assertions.assertTrue(actual.isAfter(TIME_10_MINUTES_AGO));
@@ -312,15 +312,15 @@ class KeyRotationPolicyTest {
     void testTimeShiftShouldAdjustCreatedOnAndUpdatedOnWhenCalledWithValidData() {
         //given
         final var underTest = new KeyRotationPolicy(UNVERSIONED_KEY_ENTITY_ID_1, Period.ZERO, Map.of());
-        underTest.setCreatedOn(NOW);
-        underTest.setUpdatedOn(TIME_IN_10_MINUTES);
+        underTest.setCreated(NOW);
+        underTest.setUpdated(TIME_IN_10_MINUTES);
 
         //when
         underTest.timeShift(OFFSET_SECONDS_10_MINUTES);
 
         //then
-        Assertions.assertEquals(TIME_10_MINUTES_AGO, underTest.getCreatedOn());
-        Assertions.assertEquals(NOW, underTest.getUpdatedOn());
+        Assertions.assertEquals(TIME_10_MINUTES_AGO, underTest.getCreated());
+        Assertions.assertEquals(NOW, underTest.getUpdated());
     }
 
     @ParameterizedTest
@@ -409,8 +409,8 @@ class KeyRotationPolicyTest {
         final var trigger = new KeyLifetimeActionTrigger(Period.ofDays(policyRotatePeriod), triggerType);
         final var underTest = new KeyRotationPolicy(UNVERSIONED_KEY_ENTITY_ID_1, Period.ofDays(policyExpiryDays),
                 Map.of(LifetimeActionType.ROTATE, new KeyLifetimeAction(LifetimeActionType.ROTATE, trigger)));
-        underTest.setCreatedOn(NOW.minusDays(policyCreatedDaysAgo));
-        underTest.setUpdatedOn(NOW.minusDays(policyCreatedDaysAgo));
+        underTest.setCreated(NOW.minusDays(policyCreatedDaysAgo));
+        underTest.setUpdated(NOW.minusDays(policyCreatedDaysAgo));
 
         final var keyCreatedOn = NOW.minusDays(keyCreatedDaysAgo);
 

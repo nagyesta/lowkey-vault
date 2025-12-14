@@ -3,16 +3,19 @@ package com.github.nagyesta.lowkeyvault.mapper.v7_3.key;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRequest;
-import lombok.NonNull;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.convert.converter.Converter;
 
 public class EcPrivateKeyToJsonWebKeyImportRequestConverter
         implements Converter<BCECPrivateKey, JsonWebKeyImportRequest> {
 
     @Override
-    public JsonWebKeyImportRequest convert(final @NonNull BCECPrivateKey source) {
+    public @Nullable JsonWebKeyImportRequest convert(@Nullable final BCECPrivateKey source) {
+        if (source == null) {
+            return null;
+        }
         final var importRequest = new JsonWebKeyImportRequest();
         importRequest.setKeyType(KeyType.EC);
         final var sourceAlgorithm = ((ECNamedCurveParameterSpec) source.getParameters()).getName();

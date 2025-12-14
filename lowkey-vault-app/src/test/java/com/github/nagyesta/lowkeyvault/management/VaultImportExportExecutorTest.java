@@ -1,9 +1,9 @@
 package com.github.nagyesta.lowkeyvault.management;
 
 import com.github.nagyesta.lowkeyvault.controller.VaultManagementController;
+import com.github.nagyesta.lowkeyvault.controller.v7_2.SecretBackupRestoreController;
 import com.github.nagyesta.lowkeyvault.controller.v7_3.CertificateBackupRestoreController;
 import com.github.nagyesta.lowkeyvault.controller.v7_3.KeyBackupRestoreController;
-import com.github.nagyesta.lowkeyvault.controller.v7_3.SecretBackupRestoreController;
 import com.github.nagyesta.lowkeyvault.model.management.VaultModel;
 import com.github.nagyesta.lowkeyvault.template.backup.VaultImporter;
 import org.junit.jupiter.api.Assertions;

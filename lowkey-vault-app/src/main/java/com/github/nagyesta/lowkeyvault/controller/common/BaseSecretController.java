@@ -1,7 +1,7 @@
 package com.github.nagyesta.lowkeyvault.controller.common;
 
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.SecretConverterRegistry;
-import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupListItem;
+import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72ModelConverter;
+import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72SecretItemModelConverter;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.*;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.request.CreateSecretRequest;
 import com.github.nagyesta.lowkeyvault.service.secret.ReadOnlyKeyVaultSecretEntity;
@@ -19,13 +19,13 @@ import java.util.Objects;
 @Slf4j
 public abstract class BaseSecretController
         extends GenericEntityController<SecretEntityId, VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity, KeyVaultSecretModel,
-        DeletedKeyVaultSecretModel, KeyVaultSecretItemModel, DeletedKeyVaultSecretItemModel, SecretVaultFake, SecretPropertiesModel,
-        SecretBackupListItem, SecretConverterRegistry> {
+        DeletedKeyVaultSecretModel, KeyVaultSecretItemModel, DeletedKeyVaultSecretItemModel, SecretVaultFake> {
 
     protected BaseSecretController(
-            @NonNull final SecretConverterRegistry registry,
-            @NonNull final VaultService vaultService) {
-        super(registry, vaultService, VaultFake::secretVaultFake);
+            @NonNull final VaultService vaultService,
+            @NonNull final SecretEntityToV72ModelConverter modelConverter,
+            @NonNull final SecretEntityToV72SecretItemModelConverter itemConverter) {
+        super(vaultService, modelConverter, itemConverter, VaultFake::secretVaultFake);
     }
 
     protected VersionedSecretEntityId createSecretWithAttributes(
@@ -37,7 +37,7 @@ public abstract class BaseSecretController
                 .value(request.getValue())
                 .contentType(request.getContentType())
                 .tags(request.getTags())
-                .expiresOn(properties.getExpiresOn())
+                .expiresOn(properties.getExpiry())
                 .notBefore(properties.getNotBefore())
                 .enabled(properties.isEnabled())
                 .managed(false)

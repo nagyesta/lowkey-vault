@@ -1,6 +1,6 @@
 package com.github.nagyesta.lowkeyvault.controller.common;
 
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.CertificateConverterRegistry;
+import com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate.*;
 import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.*;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
@@ -19,34 +19,42 @@ import static com.github.nagyesta.lowkeyvault.controller.common.util.Certificate
 import static com.github.nagyesta.lowkeyvault.controller.common.util.CertificateRequestMapperUtil.importCertificateWithAttributes;
 
 @Slf4j
-public abstract class CommonCertificateController
-        extends BaseCertificateController {
+public abstract class CommonCertificateController extends BaseCertificateController {
+
+    @NonNull
+    private final CertificateEntityToV73PendingCertificateOperationModelConverter pendingOperationConverter;
 
     protected CommonCertificateController(
-            @NonNull final CertificateConverterRegistry registry,
-            @NonNull final VaultService vaultService) {
-        super(registry, vaultService);
+            @NonNull final VaultService vaultService,
+            @NonNull final CertificateEntityToV73ModelConverter modelConverter,
+            @NonNull final CertificateEntityToV73CertificateItemModelConverter itemConverter,
+            @NonNull final CertificateEntityToV73PendingCertificateOperationModelConverter pendingOperationConverter,
+            @NonNull final CertificateEntityToV73IssuancePolicyModelConverter issuancePolicyConverter,
+            @NonNull final CertificateLifetimeActionsPolicyToV73ModelConverter lifetimeActionConverter) {
+        super(vaultService, modelConverter, itemConverter, pendingOperationConverter, issuancePolicyConverter, lifetimeActionConverter);
+        this.pendingOperationConverter = pendingOperationConverter;
     }
 
     public ResponseEntity<KeyVaultPendingCertificateModel> create(
             @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
             final URI baseUri,
+            final String apiVersion,
             @Valid final CreateCertificateRequest request) {
         log.info("Received request to {} create certificate: {} using API version: {}",
-                baseUri.toString(), certificateName, apiVersion());
+                baseUri.toString(), certificateName, apiVersion);
 
         final var vaultFake = getVaultByUri(baseUri);
         final var entityId = createCertificateWithAttributes(vaultFake, certificateName, request);
         final var readOnlyEntity = vaultFake.getEntities().getReadOnlyEntity(entityId);
-        return ResponseEntity.accepted().body(registry().pendingOperationConverters(apiVersion()).convert(readOnlyEntity, baseUri));
+        return ResponseEntity.accepted().body(pendingOperationConverter.convert(readOnlyEntity, baseUri));
     }
-
 
     public ResponseEntity<KeyVaultCertificateModel> get(
             @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
-            final URI baseUri) {
+            final URI baseUri,
+            final String apiVersion) {
         log.info("Received request to {} get certificate: {} with version: -LATEST- using API version: {}",
-                baseUri.toString(), certificateName, apiVersion());
+                baseUri.toString(), certificateName, apiVersion);
 
         return ResponseEntity.ok(getLatestEntityModel(baseUri, certificateName));
     }
@@ -54,9 +62,10 @@ public abstract class CommonCertificateController
     public ResponseEntity<KeyVaultCertificateModel> getWithVersion(
             @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
             @Valid @Pattern(regexp = VERSION_NAME_PATTERN) final String certificateVersion,
-            final URI baseUri) {
+            final URI baseUri,
+            final String apiVersion) {
         log.info("Received request to {} get certificate: {} with version: {} using API version: {}",
-                baseUri.toString(), certificateName, certificateVersion, apiVersion());
+                baseUri.toString(), certificateName, certificateVersion, apiVersion);
 
         return ResponseEntity.ok(getSpecificEntityModel(baseUri, certificateName, certificateVersion));
     }
@@ -64,9 +73,10 @@ public abstract class CommonCertificateController
     public ResponseEntity<KeyVaultCertificateModel> importCertificate(
             @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
             final URI baseUri,
+            final String apiVersion,
             @Valid @RequestBody final CertificateImportRequest request) {
         log.info("Received request to {} import certificate: {} using API version: {}",
-                baseUri.toString(), certificateName, apiVersion());
+                baseUri.toString(), certificateName, apiVersion);
 
         final var vaultFake = getVaultByUri(baseUri);
         final var entityId = importCertificateWithAttributes(vaultFake, certificateName, request);
@@ -75,9 +85,10 @@ public abstract class CommonCertificateController
 
     public ResponseEntity<DeletedKeyVaultCertificateModel> delete(
             @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
-            final URI baseUri) {
+            final URI baseUri,
+            final String apiVersion) {
         log.info("Received request to {} delete certificate: {} using API version: {}",
-                baseUri.toString(), certificateName, apiVersion());
+                baseUri.toString(), certificateName, apiVersion);
 
         final var vaultFake = getVaultByUri(baseUri);
         final var entityId = entityId(baseUri, certificateName);
@@ -88,9 +99,10 @@ public abstract class CommonCertificateController
 
     public ResponseEntity<DeletedKeyVaultCertificateModel> getDeletedCertificate(
             @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
-            final URI baseUri) {
+            final URI baseUri,
+            final String apiVersion) {
         log.info("Received request to {} get deleted certificate: {} using API version: {}",
-                baseUri.toString(), certificateName, apiVersion());
+                baseUri.toString(), certificateName, apiVersion);
 
         final var vaultFake = getVaultByUri(baseUri);
         final var entityId = entityId(baseUri, certificateName);
@@ -100,9 +112,10 @@ public abstract class CommonCertificateController
 
     public ResponseEntity<KeyVaultCertificateModel> recoverDeletedCertificate(
             @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
-            final URI baseUri) {
+            final URI baseUri,
+            final String apiVersion) {
         log.info("Received request to {} recover deleted certificate: {} using API version: {}",
-                baseUri.toString(), certificateName, apiVersion());
+                baseUri.toString(), certificateName, apiVersion);
 
         final var vaultFake = getVaultByUri(baseUri);
         final var entityId = entityId(baseUri, certificateName);
@@ -113,9 +126,10 @@ public abstract class CommonCertificateController
 
     public ResponseEntity<Void> purgeDeleted(
             @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
-            final URI baseUri) {
+            final URI baseUri,
+            final String apiVersion) {
         log.info("Received request to {} purge deleted certificate: {} using API version: {}",
-                baseUri.toString(), certificateName, apiVersion());
+                baseUri.toString(), certificateName, apiVersion);
 
         final var vaultFake = getVaultByUri(baseUri);
         final var entityId = entityId(baseUri, certificateName);
@@ -126,14 +140,15 @@ public abstract class CommonCertificateController
     public ResponseEntity<KeyVaultItemListModel<KeyVaultCertificateItemModel>> versions(
             @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
             final URI baseUri,
+            final String apiVersion,
             final int maxResults,
             final int skipToken) {
         log.info("Received request to {} list certificate versions: {} , (max results: {}, skip: {}) using API version: {}",
-                baseUri.toString(), certificateName, maxResults, skipToken, apiVersion());
+                baseUri.toString(), certificateName, maxResults, skipToken, apiVersion);
 
         return ResponseEntity.ok(getPageOfItemVersions(baseUri, certificateName, PaginationContext
                 .builder()
-                .apiVersion(apiVersion())
+                .apiVersion(apiVersion)
                 .limit(maxResults)
                 .offset(skipToken)
                 .base(URI.create(baseUri + "/certificates/" + certificateName + "/versions"))
@@ -142,15 +157,16 @@ public abstract class CommonCertificateController
 
     public ResponseEntity<KeyVaultItemListModel<KeyVaultCertificateItemModel>> listCertificates(
             final URI baseUri,
+            final String apiVersion,
             final int maxResults,
             final int skipToken,
             final boolean includePending) {
         log.info("Received request to {} list certificates, (max results: {}, skip: {}, includePending: {}) using API version: {}",
-                baseUri.toString(), maxResults, skipToken, includePending, apiVersion());
+                baseUri.toString(), maxResults, skipToken, includePending, apiVersion);
 
         return ResponseEntity.ok(getPageOfItems(baseUri, PaginationContext
                 .builder()
-                .apiVersion(apiVersion())
+                .apiVersion(apiVersion)
                 .limit(maxResults)
                 .offset(skipToken)
                 .base(URI.create(baseUri + "/certificates"))
@@ -160,15 +176,16 @@ public abstract class CommonCertificateController
 
     public ResponseEntity<KeyVaultItemListModel<DeletedKeyVaultCertificateItemModel>> listDeletedCertificates(
             final URI baseUri,
+            final String apiVersion,
             final int maxResults,
             final int skipToken,
             final boolean includePending) {
         log.info("Received request to {} list deleted certificates, (max results: {}, skip: {}, includePending: {}) using API version: {}",
-                baseUri.toString(), maxResults, skipToken, includePending, apiVersion());
+                baseUri.toString(), maxResults, skipToken, includePending, apiVersion);
 
         return ResponseEntity.ok(getPageOfDeletedItems(baseUri, PaginationContext
                 .builder()
-                .apiVersion(apiVersion())
+                .apiVersion(apiVersion)
                 .limit(maxResults)
                 .offset(skipToken)
                 .base(URI.create(baseUri + "/deletedcertificates"))
@@ -180,9 +197,10 @@ public abstract class CommonCertificateController
             @Valid @Pattern(regexp = NAME_PATTERN) final String certificateName,
             @Valid @Pattern(regexp = VERSION_NAME_PATTERN) final String certificateVersion,
             final URI baseUri,
+            final String apiVersion,
             @Valid @RequestBody final UpdateCertificateRequest request) {
         log.info("Received request to {} update certificate: {} with version: {} using API version: {}",
-                baseUri.toString(), certificateName, certificateVersion, apiVersion());
+                baseUri.toString(), certificateName, certificateVersion, apiVersion);
 
         final var vaultFake = getVaultByUri(baseUri);
         final var entityId = versionedEntityId(baseUri, certificateName, certificateVersion);

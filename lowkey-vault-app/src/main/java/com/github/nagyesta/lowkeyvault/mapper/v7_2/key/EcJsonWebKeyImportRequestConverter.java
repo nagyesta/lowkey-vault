@@ -4,7 +4,6 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRequest;
 import com.github.nagyesta.lowkeyvault.service.exception.CryptoException;
 import com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil;
-import org.springframework.lang.NonNull;
 
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -20,9 +19,8 @@ import java.security.spec.ECPublicKeySpec;
 public class EcJsonWebKeyImportRequestConverter
         extends BaseJsonWebKeyImportRequestConverter<KeyPair, KeyCurveName> {
 
-    @NonNull
     @Override
-    public KeyPair convert(@NonNull final JsonWebKeyImportRequest source) {
+    public KeyPair convert(final JsonWebKeyImportRequest source) {
         try {
             final var spec = parameterSpec(source);
             final var factory = KeyFactory.getInstance(source.getKeyType().getAlgorithmName(),
@@ -36,7 +34,7 @@ public class EcJsonWebKeyImportRequestConverter
     }
 
     @Override
-    public KeyCurveName getKeyParameter(@NonNull final JsonWebKeyImportRequest source) {
+    public KeyCurveName getKeyParameter(final JsonWebKeyImportRequest source) {
         return source.getCurveName();
     }
 

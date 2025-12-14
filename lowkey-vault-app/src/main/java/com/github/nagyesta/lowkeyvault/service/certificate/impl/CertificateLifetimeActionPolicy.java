@@ -6,7 +6,6 @@ import com.github.nagyesta.lowkeyvault.service.certificate.LifetimeActionPolicy;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.CertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.common.impl.BaseLifetimePolicy;
 import lombok.EqualsAndHashCode;
-import lombok.NonNull;
 import org.springframework.util.Assert;
 
 import java.time.OffsetDateTime;
@@ -22,8 +21,8 @@ public class CertificateLifetimeActionPolicy
     private Map<CertificateLifetimeActionActivity, CertificateLifetimeActionTrigger> lifetimeActions;
 
     public CertificateLifetimeActionPolicy(
-            @org.springframework.lang.NonNull final CertificateEntityId certificateEntityId,
-            @NonNull final Map<CertificateLifetimeActionActivity, CertificateLifetimeActionTrigger> lifetimeActions) {
+            final CertificateEntityId certificateEntityId,
+            final Map<CertificateLifetimeActionActivity, CertificateLifetimeActionTrigger> lifetimeActions) {
         super(certificateEntityId);
         this.lifetimeActions = Map.copyOf(lifetimeActions);
     }

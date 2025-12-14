@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.model.json.util;
 
+import org.jspecify.annotations.Nullable;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
@@ -22,7 +23,7 @@ public class Base64Serializer extends ValueSerializer<byte[]> {
 
     @Override
     public void serialize(
-            final byte[] value,
+            final byte @Nullable [] value,
             final JsonGenerator generator,
             final SerializationContext provider) {
         final var text = base64Encode(value);
@@ -33,7 +34,7 @@ public class Base64Serializer extends ValueSerializer<byte[]> {
         }
     }
 
-    protected String base64Encode(final byte[] value) {
+    protected @Nullable String base64Encode(final byte @Nullable [] value) {
         final var optional = Optional.ofNullable(value);
         return optional.filter(v -> v.length > 0)
                 .map(encoder::encodeToString)

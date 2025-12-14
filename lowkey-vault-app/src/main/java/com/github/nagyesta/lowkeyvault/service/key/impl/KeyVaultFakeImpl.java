@@ -16,7 +16,7 @@ import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.util.PeriodUtil;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
-import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.Assert;
 
 import java.time.OffsetDateTime;
@@ -38,9 +38,9 @@ public class KeyVaultFakeImpl
     private final ConcurrentMap<String, RotationPolicy> rotationPolicies = new ConcurrentHashMap<>();
 
     public KeyVaultFakeImpl(
-            @org.springframework.lang.NonNull final VaultFake vaultFake,
-            @org.springframework.lang.NonNull final RecoveryLevel recoveryLevel,
-            final Integer recoverableDays) {
+            final VaultFake vaultFake,
+            final RecoveryLevel recoveryLevel,
+            @Nullable final Integer recoverableDays) {
         super(vaultFake, recoveryLevel, recoverableDays);
     }
 
@@ -53,8 +53,8 @@ public class KeyVaultFakeImpl
 
     @Override
     public VersionedKeyEntityId createKeyVersion(
-            @NonNull final String keyName,
-            @NonNull final KeyCreateDetailedInput input) {
+            final String keyName,
+            final KeyCreateDetailedInput input) {
         Assert.isTrue(!input.isManaged() || (input.getExpiresOn() != null && input.getNotBefore() != null),
                 "Managed key (name=" + keyName + ") must have notBefore and expiresOn parameters set!");
         final var keyEntityId = input.getKey().getKeyType().createKey(this, keyName, input.getKey());
@@ -63,7 +63,7 @@ public class KeyVaultFakeImpl
         if (getEntities().getReadOnlyEntity(keyEntityId).getExpiry().isEmpty()) {
             setExpiry(keyEntityId, input.getNotBefore(), input.getExpiresOn());
         }
-        setEnabled(keyEntityId, Objects.requireNonNullElse(input.getEnabled(), true));
+        setEnabled(keyEntityId, Optional.ofNullable(input.getEnabled()).orElse(true));
         setManaged(keyEntityId, input.isManaged());
         addTags(keyEntityId, input.getTags());
         return keyEntityId;
@@ -88,7 +88,7 @@ public class KeyVaultFakeImpl
         setKeyOperations(keyEntityId, input.getKey().getKeyOps());
         addTags(keyEntityId, input.getTags());
         setExpiry(keyEntityId, input.getNotBefore(), input.getExpiresOn());
-        setEnabled(keyEntityId, Objects.requireNonNullElse(input.getEnabled(), true));
+        setEnabled(keyEntityId, Optional.ofNullable(input.getEnabled()).orElse(true));
         setManaged(keyEntityId, input.isManaged());
         setCreatedAndUpdatedOn(keyEntityId, input.getCreatedOn(), input.getUpdatedOn());
         return keyEntityId;
@@ -133,8 +133,8 @@ public class KeyVaultFakeImpl
 
     @Override
     public VersionedKeyEntityId createRsaKeyVersion(
-            @NonNull final String keyName,
-            @NonNull final RsaKeyCreationInput input) {
+            final String keyName,
+            final RsaKeyCreationInput input) {
         final var keyEntityId = new VersionedKeyEntityId(vaultFake().baseUri(), keyName);
         final var keyEntity = new RsaKeyVaultKeyEntity(keyEntityId, vaultFake(),
                 input.getKeyParameter(), input.getPublicExponent(), input.getKeyType().isHsm());
@@ -144,20 +144,20 @@ public class KeyVaultFakeImpl
 
     @Override
     public VersionedKeyEntityId createEcKeyVersion(
-            @NonNull final String keyName,
-            @NonNull final EcKeyCreationInput input) {
+            final String keyName,
+            final EcKeyCreationInput input) {
         final var keyEntityId = new VersionedKeyEntityId(vaultFake().baseUri(), keyName);
         input.getKeyType().validate(input.getKeyParameter(), KeyCurveName.class);
-        final var keyEntity = new EcKeyVaultKeyEntity(keyEntityId, vaultFake(),
-                input.getKeyParameter(), input.getKeyType().isHsm());
+        final var keyEntity = new EcKeyVaultKeyEntity(
+                keyEntityId, vaultFake(), input.getKeyParameter(), input.getKeyType().isHsm());
         setExpiryBasedOnRotationPolicy(keyEntityId, keyEntity);
         return addVersion(keyEntityId, keyEntity);
     }
 
     @Override
     public VersionedKeyEntityId createOctKeyVersion(
-            @NonNull final String keyName,
-            @NonNull final OctKeyCreationInput input) {
+            final String keyName,
+            final OctKeyCreationInput input) {
         final var keyEntityId = new VersionedKeyEntityId(vaultFake().baseUri(), keyName);
         Assert.isTrue(input.getKeyType().isHsm(), "OCT keys are only supported using HSM.");
         final var keyEntity = new AesKeyVaultKeyEntity(keyEntityId, vaultFake(),
@@ -168,9 +168,10 @@ public class KeyVaultFakeImpl
 
     @Override
     public void setKeyOperations(
-            @NonNull final VersionedKeyEntityId keyEntityId,
-            final List<KeyOperation> keyOperations) {
-        getEntitiesInternal().getEntity(keyEntityId).setOperations(Objects.requireNonNullElse(keyOperations, Collections.emptyList()));
+            final VersionedKeyEntityId keyEntityId,
+            @Nullable final List<KeyOperation> keyOperations) {
+        final var operations = Optional.ofNullable(keyOperations).orElse(Collections.emptyList());
+        getEntitiesInternal().getEntity(keyEntityId).setOperations(operations);
     }
 
     @Override
@@ -187,13 +188,13 @@ public class KeyVaultFakeImpl
     }
 
     @Override
-    public RotationPolicy rotationPolicy(@NonNull final KeyEntityId keyEntityId) {
+    public @Nullable RotationPolicy rotationPolicy(final KeyEntityId keyEntityId) {
         purgeDeletedPolicies();
         return rotationPolicies.get(keyEntityId.id());
     }
 
     @Override
-    public void setRotationPolicy(@NonNull final RotationPolicy rotationPolicy) {
+    public void setRotationPolicy(final RotationPolicy rotationPolicy) {
         final var readOnlyEntity = latestReadOnlyKeyVersion(rotationPolicy.getId());
         Assert.state(!readOnlyEntity.isManaged(), "Cannot set rotation policy to managed entity: " + rotationPolicy.getId());
         rotationPolicy.validate(readOnlyEntity.getExpiry().orElse(null));
@@ -207,7 +208,7 @@ public class KeyVaultFakeImpl
     }
 
     @Override
-    public VersionedKeyEntityId rotateKey(@NonNull final KeyEntityId keyEntityId) {
+    public VersionedKeyEntityId rotateKey(final KeyEntityId keyEntityId) {
         final var readOnlyEntity = latestReadOnlyKeyVersion(keyEntityId);
         return createKeyVersion(keyEntityId.id(), KeyCreateDetailedInput.builder()
                 .key(readOnlyEntity.keyCreationInput())
@@ -216,14 +217,14 @@ public class KeyVaultFakeImpl
                 //never rotate managed entities
                 .managed(false)
                 .tags(readOnlyEntity.getTags())
-                //expiry will be automatically set based on rotation policy when created
+                //expiry will be automatically set based on the rotation policy when created
                 .build());
     }
 
     private void setExpiryBasedOnRotationPolicy(
             final VersionedKeyEntityId keyEntityId,
             final KeyVaultKeyEntity<?, ?> keyEntity) {
-        final var expiryDays = Optional.ofNullable(rotationPolicies)
+        final var expiryDays = Optional.of(rotationPolicies)
                 .map(policies -> policies.get(keyEntityId.id()))
                 .map(ReadOnlyRotationPolicy::getExpiryTime)
                 .map(PeriodUtil::asDays);

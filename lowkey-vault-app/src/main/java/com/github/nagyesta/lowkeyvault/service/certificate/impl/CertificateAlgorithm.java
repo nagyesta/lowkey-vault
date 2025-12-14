@@ -2,7 +2,6 @@ package com.github.nagyesta.lowkeyvault.service.certificate.impl;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import lombok.Getter;
-import lombok.NonNull;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -29,7 +28,7 @@ public enum CertificateAlgorithm {
         this.keyTypes = keyTypes;
     }
 
-    public static CertificateAlgorithm forKeyType(@NonNull final KeyType keyType) {
+    public static CertificateAlgorithm forKeyType(final KeyType keyType) {
         final var value = Arrays.stream(CertificateAlgorithm.values())
                 .filter(v -> v.keyTypes.contains(keyType))
                 .findFirst();

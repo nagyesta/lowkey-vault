@@ -26,7 +26,10 @@ public class AuthTokenGenerator {
         this.keyPair = KeyGenUtil.generateRsa(KeyType.RSA.getValidKeyParameters(Integer.class).first(), null);
     }
 
-    public String generateToken(final URI audience, final Instant issuedAt, final Instant expires) {
+    public String generateToken(
+            final URI audience,
+            final Instant issuedAt,
+            final Instant expires) {
         return Jwts.builder()
                 .header()
                 .type("JWT")

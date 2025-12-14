@@ -10,6 +10,7 @@ import com.github.nagyesta.lowkeyvault.http.AuthorityOverrideFunction;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Optional;
@@ -42,7 +43,8 @@ public class SecretsStepDefs extends CommonAssertions {
 
     @Given("a secret named {name} and valued {secretValue} is prepared")
     public void aSecretNamedSecretNameIsPreparedWithValueSet(
-            final String secretName, final String secretValue) {
+            final String secretName,
+            final String secretValue) {
         context.setCreateSecretOptions(new KeyVaultSecret(secretName, secretValue));
     }
 
@@ -81,12 +83,12 @@ public class SecretsStepDefs extends CommonAssertions {
     }
 
     @Given("the secret is set to expire {optionalInt} seconds after creation")
-    public void theSecretIsSetToExpireExpiresSecondsAfterCreation(final Integer expire) {
+    public void theSecretIsSetToExpireExpiresSecondsAfterCreation(@Nullable final Integer expire) {
         Optional.ofNullable(expire).ifPresent(e -> context.getCreateSecretOptions().getProperties().setExpiresOn(NOW.plusSeconds(e)));
     }
 
     @Given("the secret is set to be not usable until {optionalInt} seconds after creation")
-    public void theSecretIsSetToBeNotUsableUntilNotBeforeSecondsAfterCreation(final Integer notBefore) {
+    public void theSecretIsSetToBeNotUsableUntilNotBeforeSecondsAfterCreation(@Nullable final Integer notBefore) {
         Optional.ofNullable(notBefore).ifPresent(n -> context.getCreateSecretOptions().getProperties().setNotBefore(NOW.plusSeconds(n)));
     }
 
@@ -114,7 +116,9 @@ public class SecretsStepDefs extends CommonAssertions {
 
     @Given("{int} secrets with {name} prefix are created valued {secretValue}")
     public void secretsWithSecretNamePrefixAreCreatedWithValueSet(
-            final int count, final String prefix, final String value) {
+            final int count,
+            final String prefix,
+            final String value) {
         IntStream.range(0, count).forEach(i -> {
             aSecretNamedSecretNameIsPreparedWithValueSet(prefix + (i + 1), value);
             secretCreationRequestIsSent();
@@ -139,7 +143,8 @@ public class SecretsStepDefs extends CommonAssertions {
 
     @Given("{int} secrets with {name} prefix are deleted")
     public void countSecretsWithKeyNamePrefixAreDeleted(
-            final int count, final String prefix) {
+            final int count,
+            final String prefix) {
         final var deleted = IntStream.range(0, count).mapToObj(i -> {
             final var actual = context.getClient(context.getSecretServiceVersion())
                     .beginDeleteSecret(prefix + (i + 1)).waitForCompletion().getValue();
@@ -181,12 +186,12 @@ public class SecretsStepDefs extends CommonAssertions {
     }
 
     @When("the secret is updated to expire {optionalInt} seconds after creation")
-    public void theSecretIsUpdatedToExpireExpiresSecondsAfterCreation(final Integer expire) {
+    public void theSecretIsUpdatedToExpireExpiresSecondsAfterCreation(@Nullable final Integer expire) {
         Optional.ofNullable(expire).ifPresent(e -> context.getUpdateProperties().setExpiresOn(NOW.plusSeconds(e)));
     }
 
     @When("the secret is updated to be not usable until {optionalInt} seconds after creation")
-    public void theSecretIsUpdatedToBeNotUsableUntilNotBeforeSecondsAfterCreation(final Integer notBefore) {
+    public void theSecretIsUpdatedToBeNotUsableUntilNotBeforeSecondsAfterCreation(@Nullable final Integer notBefore) {
         Optional.ofNullable(notBefore).ifPresent(n -> context.getUpdateProperties().setNotBefore(NOW.plusSeconds(n)));
     }
 

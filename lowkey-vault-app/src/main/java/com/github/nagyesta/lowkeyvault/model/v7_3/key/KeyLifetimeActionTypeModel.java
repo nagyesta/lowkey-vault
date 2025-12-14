@@ -8,7 +8,6 @@ import com.github.nagyesta.lowkeyvault.model.v7_3.key.validator.Restore;
 import com.github.nagyesta.lowkeyvault.model.v7_3.key.validator.Update;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import lombok.NonNull;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -22,7 +21,7 @@ public class KeyLifetimeActionTypeModel {
     public KeyLifetimeActionTypeModel() {
     }
 
-    public KeyLifetimeActionTypeModel(@NonNull final LifetimeActionType type) {
+    public KeyLifetimeActionTypeModel(final LifetimeActionType type) {
         this();
         this.type = type;
     }

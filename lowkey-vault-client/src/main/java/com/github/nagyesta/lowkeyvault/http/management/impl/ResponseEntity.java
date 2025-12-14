@@ -7,8 +7,8 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.github.nagyesta.lowkeyvault.http.management.LowkeyVaultException;
 import com.github.nagyesta.lowkeyvault.http.management.VaultModel;
 import lombok.Getter;
-import lombok.NonNull;
 import org.apache.http.HttpStatus;
+import org.jspecify.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -21,12 +21,13 @@ final class ResponseEntity {
     public static final ListTypeReference VAULT_MODEL_LIST_TYPE_REF = new ListTypeReference();
     @Getter
     private final int responseCode;
+    @Nullable
     private final String responseBody;
     private final ObjectReader reader;
 
     ResponseEntity(
-            @NonNull final HttpResponse response,
-            @NonNull final ObjectReader reader) {
+            final HttpResponse response,
+            final ObjectReader reader) {
         this.responseBody = response.getBodyAsString(StandardCharsets.UTF_8).block();
         this.responseCode = response.getStatusCode();
         this.reader = reader;
@@ -52,7 +53,7 @@ final class ResponseEntity {
         }
     }
 
-    public String getResponseBodyAsString() {
+    public @Nullable String getResponseBodyAsString() {
         return responseBody;
     }
 

@@ -1,47 +1,40 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate;
 
-import com.github.nagyesta.lowkeyvault.context.ApiVersionAware;
-import com.github.nagyesta.lowkeyvault.mapper.common.AliasAwareConverter;
-import com.github.nagyesta.lowkeyvault.mapper.common.BackupConverter;
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.CertificateConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.common.backup.CertificateBackupListItem;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificateLifetimeActionModel;
-import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificatePropertiesModel;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
-import com.github.nagyesta.lowkeyvault.service.certificate.id.CertificateEntityId;
-import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertContentType;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyAsymmetricKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.SortedSet;
+import java.util.Objects;
 
-public class CertificateEntityToV73BackupConverter
-        extends BackupConverter<CertificateEntityId, VersionedCertificateEntityId, ReadOnlyKeyVaultCertificateEntity,
-        CertificatePropertiesModel, CertificateBackupListItem> {
+@Component
+public class CertificateEntityToV73BackupConverter {
 
-    private final CertificateConverterRegistry registry;
     private final VaultService vaultService;
+    private final CertificateEntityToV73PolicyModelConverter policyModelConverter;
+    private final CertificateEntityToV73IssuancePolicyModelConverter issuancePolicyModelConverter;
+    private final CertificateEntityToV73PropertiesModelConverter propertiesModelConverter;
+    private final CertificateLifetimeActionsPolicyToV73ModelConverter lifetimeActionsConverter;
 
-    @Autowired
     public CertificateEntityToV73BackupConverter(
-            @lombok.NonNull final CertificateConverterRegistry registry,
-            @lombok.NonNull final VaultService vaultService) {
-        this.registry = registry;
+            final VaultService vaultService,
+            final CertificateEntityToV73PolicyModelConverter policyModelConverter,
+            final CertificateEntityToV73IssuancePolicyModelConverter issuancePolicyModelConverter,
+            final CertificateEntityToV73PropertiesModelConverter propertiesModelConverter,
+            final CertificateLifetimeActionsPolicyToV73ModelConverter lifetimeActionsConverter) {
         this.vaultService = vaultService;
+        this.policyModelConverter = policyModelConverter;
+        this.issuancePolicyModelConverter = issuancePolicyModelConverter;
+        this.propertiesModelConverter = propertiesModelConverter;
+        this.lifetimeActionsConverter = lifetimeActionsConverter;
     }
 
-    @Override
-    public void afterPropertiesSet() {
-        registry.registerBackupConverter(this);
-    }
-
-    @Override
-    protected CertificateBackupListItem convertUniqueFields(@NonNull final ReadOnlyKeyVaultCertificateEntity source) {
+    public CertificateBackupListItem convert(final ReadOnlyKeyVaultCertificateEntity source) {
         final var listItem = new CertificateBackupListItem();
         final var vaultUri = source.getId().vault();
         final var vaultFake = vaultService.findByUri(vaultUri);
@@ -51,18 +44,21 @@ public class CertificateEntityToV73BackupConverter
                 .getEntity(source.getKid(), ReadOnlyAsymmetricKeyVaultKeyEntity.class);
         listItem.setVaultBaseUri(vaultUri);
         listItem.setId(source.getId().id());
-        listItem.setVersion(source.getId().version());
+        listItem.setVersion(Objects.requireNonNull(source.getId().version()));
         listItem.setKeyVersion(source.getKid().version());
         listItem.setPassword(CertContentType.BACKUP_PASSWORD);
         final var certificateBytes = source.getOriginalCertificatePolicy().getContentType()
                 .certificatePackageForBackup(source.getCertificate(), key.getKey());
         listItem.setCertificate(certificateBytes);
-        listItem.setPolicy(registry.policyConverters(supportedVersions().last()).convert(source, vaultUri));
-        listItem.setIssuancePolicy(registry.issuancePolicyConverters(supportedVersions().last()).convert(source, vaultUri));
+        listItem.setPolicy(Objects.requireNonNull(policyModelConverter.convert(source, vaultUri)));
+        final var issuancePolicy = issuancePolicyModelConverter.convert(source, vaultUri);
         final var lifetimeActionModels = fetchLifetimeActionModels(source, vaultFake);
         listItem.getPolicy().setLifetimeActions(lifetimeActionModels);
-        listItem.getIssuancePolicy().setLifetimeActions(lifetimeActionModels);
-        listItem.setAttributes(registry.propertiesConverter(supportedVersions().last()).convert(source, vaultUri));
+        if (issuancePolicy != null) {
+            issuancePolicy.setLifetimeActions(lifetimeActionModels);
+        }
+        listItem.setIssuancePolicy(issuancePolicy);
+        listItem.setAttributes(Objects.requireNonNull(propertiesModelConverter.convert(source)));
         listItem.setTags(source.getTags());
         listItem.setManaged(false);
         return listItem;
@@ -72,16 +68,6 @@ public class CertificateEntityToV73BackupConverter
             final ReadOnlyKeyVaultCertificateEntity source,
             final VaultFake vaultFake) {
         final var lifetimeActionPolicy = vaultFake.certificateVaultFake().lifetimeActionPolicy(source.getId());
-        return registry.lifetimeActionConverters(supportedVersions().last()).convert(lifetimeActionPolicy);
-    }
-
-    @Override
-    protected AliasAwareConverter<ReadOnlyKeyVaultCertificateEntity, CertificatePropertiesModel> propertiesConverter() {
-        return registry.propertiesConverter(supportedVersions().last());
-    }
-
-    @Override
-    public SortedSet<String> supportedVersions() {
-        return ApiVersionAware.V7_3_AND_LATER;
+        return Objects.requireNonNull(lifetimeActionsConverter.convert(lifetimeActionPolicy));
     }
 }

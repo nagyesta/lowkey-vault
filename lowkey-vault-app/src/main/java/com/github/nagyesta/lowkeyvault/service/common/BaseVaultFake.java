@@ -1,6 +1,7 @@
 package com.github.nagyesta.lowkeyvault.service.common;
 
 import com.github.nagyesta.lowkeyvault.service.EntityId;
+import org.jspecify.annotations.Nullable;
 
 import java.time.OffsetDateTime;
 import java.util.Map;
@@ -21,11 +22,11 @@ public interface BaseVaultFake<K extends EntityId, V extends K, E extends BaseVa
 
     void clearTags(V entityId);
 
-    void addTags(V entityId, Map<String, String> tags);
+    void addTags(V entityId, @Nullable Map<String, String> tags);
 
     void setEnabled(V entityId, boolean enabled);
 
-    void setExpiry(V entityId, OffsetDateTime notBefore, OffsetDateTime expiry);
+    void setExpiry(V entityId, @Nullable OffsetDateTime notBefore, @Nullable OffsetDateTime expiry);
 
     void delete(K entityId);
 

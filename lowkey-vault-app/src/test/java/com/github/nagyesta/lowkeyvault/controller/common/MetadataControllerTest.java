@@ -27,20 +27,6 @@ class MetadataControllerTest {
     private static final String TOKEN_ISSUER = "https://token-issuer.example.com/";
     private static final AuthTokenGenerator GENERATOR = new AuthTokenGenerator(TOKEN_ISSUER);
 
-    public static Stream<Arguments> nullProvider() {
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null, null))
-                .add(Arguments.of(REALM_NAME, null, null, null))
-                .add(Arguments.of(null, GENERATOR, null, null))
-                .add(Arguments.of(null, null, KEY_STORE_RESOURCE, null))
-                .add(Arguments.of(null, null, null, KEY_STORE_PASSWORD))
-                .add(Arguments.of(null, GENERATOR, KEY_STORE_RESOURCE, KEY_STORE_PASSWORD))
-                .add(Arguments.of(REALM_NAME, GENERATOR, null, KEY_STORE_PASSWORD))
-                .add(Arguments.of(REALM_NAME, null, KEY_STORE_RESOURCE, KEY_STORE_PASSWORD))
-                .add(Arguments.of(REALM_NAME, GENERATOR, KEY_STORE_RESOURCE, null))
-                .build();
-    }
-
     @SuppressWarnings("checkstyle:MagicNumber")
     public static Stream<Arguments> openIdConfigProvider() {
         return Stream.<Arguments>builder()
@@ -161,21 +147,6 @@ class MetadataControllerTest {
 
         //then
         Assertions.assertEquals(KEY_STORE_PASSWORD, actual);
-    }
-
-    @ParameterizedTest
-    @MethodSource("nullProvider")
-    void testConstructorShouldThrowExceptionWhenCalledWithNull(
-            final String realm,
-            final AuthTokenGenerator generator,
-            final String resource,
-            final String password) {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new MetadataController(realm, generator, resource, password));
-
-        //then + exception
     }
 
     private byte[] getResourceContent() throws IOException {

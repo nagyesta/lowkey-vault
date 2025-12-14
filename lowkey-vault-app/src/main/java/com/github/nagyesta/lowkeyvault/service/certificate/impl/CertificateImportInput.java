@@ -8,8 +8,7 @@ import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.IssuerParameterMod
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateCreationInput.CertificateCreationInputBuilder;
 import com.github.nagyesta.lowkeyvault.service.certificate.util.ParserUtil;
 import lombok.Data;
-import lombok.NonNull;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.Assert;
 
 import java.security.cert.X509Certificate;
@@ -25,21 +24,23 @@ import static com.github.nagyesta.lowkeyvault.service.certificate.CertificateLif
 public class CertificateImportInput {
 
     private final String name;
+    @Nullable
     private final CertificatePolicy certificateData;
+    @Nullable
     private final CertificateCreationInput parsedCertificateData;
-
+    @Nullable
     private final JsonWebKeyImportRequest keyData;
-
+    @Nullable
     private final X509Certificate certificate;
 
     private final CertificatePolicyModel policyModel;
 
     public CertificateImportInput(
-            @NonNull final String name,
-            @NonNull final String certificateContent,
+            final String name,
+            final String certificateContent,
             @Nullable final String password,
-            @NonNull final CertContentType contentType,
-            @NonNull final CertificatePolicyModel policyModel) {
+            final CertContentType contentType,
+            final CertificatePolicyModel policyModel) {
         this.name = name;
         this.certificate = (X509Certificate) contentType.getCertificateChain(certificateContent, password).getFirst();
         this.keyData = contentType.getKey(certificateContent, password);

@@ -3,6 +3,7 @@ package com.github.nagyesta.lowkeyvault.http.management;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -14,10 +15,10 @@ public class EpochSecondsDeserializer
         extends JsonDeserializer<OffsetDateTime> {
 
     @Override
-    public OffsetDateTime deserialize(
+    public @Nullable OffsetDateTime deserialize(
             final JsonParser parser,
             final DeserializationContext context) throws IOException {
-        return Optional.ofNullable(parser.readValueAs(Long.class))
+        return Optional.of(parser.readValueAs(Long.class))
                 .map(Instant::ofEpochSecond)
                 .map((Instant instant) -> OffsetDateTime.ofInstant(instant, ZoneOffset.UTC))
                 .orElse(null);

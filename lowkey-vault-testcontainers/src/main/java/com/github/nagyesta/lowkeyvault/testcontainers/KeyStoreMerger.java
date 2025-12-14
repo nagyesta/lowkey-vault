@@ -130,7 +130,8 @@ public final class KeyStoreMerger implements AutoCloseable {
     }
 
     Path storeToTempFile(
-            final KeyStore originalTrustStore, final char[] storePassword) {
+            final KeyStore originalTrustStore,
+            final char[] storePassword) {
         try {
             final var tempFile = createTempKeyStoreFile();
             originalTrustStore.store(Files.newOutputStream(tempFile), storePassword);
@@ -159,7 +160,10 @@ public final class KeyStoreMerger implements AutoCloseable {
         return tempFilePath;
     }
 
-    private KeyStore loadOriginal(final Path storeLocation, final String storeType, final char[] storePassword) {
+    private KeyStore loadOriginal(
+            final Path storeLocation,
+            final String storeType,
+            final char[] storePassword) {
         try {
             final var trustStore = KeyStore.getInstance(storeType);
             trustStore.load(Files.newInputStream(storeLocation), storePassword);
@@ -176,7 +180,9 @@ public final class KeyStoreMerger implements AutoCloseable {
         restoreFromBackup(BACKUP_TRUST_STORE_PASSWORD_PROPERTY, CUSTOM_TRUST_STORE_PASSWORD_PROPERTY);
     }
 
-    private void restoreFromBackup(final String backup, final String original) {
+    private void restoreFromBackup(
+            final String backup,
+            final String original) {
         final var backupLocation = System.getProperty(backup);
         if (backupLocation != null) {
             System.setProperty(original, backupLocation);

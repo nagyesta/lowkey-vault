@@ -39,28 +39,11 @@ class ResponseEntityTest {
         return Stream.of(negative, positive).flatMap(Function.identity());
     }
 
-    public static Stream<Arguments> nullProvider() {
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null))
-                .add(Arguments.of(mock(HttpResponse.class), null))
-                .add(Arguments.of(null, mock(ObjectReader.class)))
-                .build();
-    }
-
-    @ParameterizedTest
-    @MethodSource("nullProvider")
-    void testConstructorShouldThrowExceptionWhenCalledWithNulls(final HttpResponse response, final ObjectReader reader) {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new ResponseEntity(response, reader));
-
-        //then + exception
-    }
-
     @ParameterizedTest
     @MethodSource("responseCodeProvider")
-    void testIsSuccessfulShouldReturnTrueWhenResponseCodeIs2xx(final int code, final boolean expected) {
+    void testIsSuccessfulShouldReturnTrueWhenResponseCodeIs2xx(
+            final int code,
+            final boolean expected) {
         //given
         final var response = mock(HttpResponse.class);
         when(response.getStatusCode()).thenReturn(code);

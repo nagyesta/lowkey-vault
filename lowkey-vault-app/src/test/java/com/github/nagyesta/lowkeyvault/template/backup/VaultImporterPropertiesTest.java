@@ -44,7 +44,10 @@ class VaultImporterPropertiesTest {
     @ParameterizedTest
     @MethodSource("fileProvider")
     void testImportFileExistsShouldReturnFalseWhenTheFileDoesNotExistsCannotBeReadOrIsNotAFile(
-            final boolean nullValue, final boolean exists, final boolean canRead, final boolean file,
+            final boolean nullValue,
+            final boolean exists,
+            final boolean canRead,
+            final boolean file,
             final boolean expected) {
         //given
         File input = null;

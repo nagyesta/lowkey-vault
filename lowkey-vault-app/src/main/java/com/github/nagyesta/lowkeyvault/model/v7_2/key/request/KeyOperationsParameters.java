@@ -1,54 +1,37 @@
 package com.github.nagyesta.lowkeyvault.model.v7_2.key.request;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.nagyesta.lowkeyvault.model.json.util.Base64Deserializer;
 import com.github.nagyesta.lowkeyvault.model.json.util.Base64Serializer;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.EncryptionAlgorithm;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
-
-import java.util.Base64;
-import java.util.Optional;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class KeyOperationsParameters {
 
-    private static final Base64.Decoder DECODER = Base64.getUrlDecoder();
-
     @JsonProperty("aad")
     @JsonSerialize(using = Base64Serializer.class)
     @JsonDeserialize(using = Base64Deserializer.class)
-    private byte[] additionalAuthData;
-
+    private byte @Nullable [] additionalAuthData;
     @NotNull
     @JsonProperty("alg")
     private EncryptionAlgorithm algorithm;
-
     @JsonProperty("iv")
     @JsonSerialize(using = Base64Serializer.class)
     @JsonDeserialize(using = Base64Deserializer.class)
-    private byte[] initializationVector;
-
+    private byte @Nullable [] initializationVector;
     @JsonProperty("tag")
     @JsonSerialize(using = Base64Serializer.class)
     @JsonDeserialize(using = Base64Deserializer.class)
-    private byte[] authenticationTag;
-
-    @NotNull
-    @NotBlank
+    private byte @Nullable [] authenticationTag;
     @JsonProperty("value")
-    private String value;
-
-    @JsonIgnore
-    public byte[] getValueAsBase64DecodedBytes() {
-        return Optional.ofNullable(value)
-                .map(DECODER::decode)
-                .orElse(null);
-    }
+    @JsonSerialize(using = Base64Serializer.class)
+    @JsonDeserialize(using = Base64Deserializer.class)
+    private byte @NotNull [] value;
 }

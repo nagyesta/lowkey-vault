@@ -24,6 +24,7 @@ dependencies {
     implementation(libs.azure.security.keyvault.secrets)
     implementation(libs.azure.security.keyvault.keys)
     implementation(libs.azure.security.keyvault.certificates)
+    implementation(libs.jspecify)
 
     compileOnly(libs.testcontainers.jdbc)
 

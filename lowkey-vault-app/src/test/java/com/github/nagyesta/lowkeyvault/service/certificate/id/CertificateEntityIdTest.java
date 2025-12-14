@@ -56,7 +56,9 @@ class CertificateEntityIdTest {
 
     @ParameterizedTest
     @MethodSource("vaultProvider")
-    void testVaultShouldReturnTheVaultUriWhenCalled(final CertificateEntityId underTest, final URI expected) {
+    void testVaultShouldReturnTheVaultUriWhenCalled(
+            final CertificateEntityId underTest,
+            final URI expected) {
         //given
 
         //when
@@ -68,7 +70,9 @@ class CertificateEntityIdTest {
 
     @ParameterizedTest
     @MethodSource("idProvider")
-    void testIdShouldReturnTheCertNameWhenCalled(final CertificateEntityId underTest, final String expected) {
+    void testIdShouldReturnTheCertNameWhenCalled(
+            final CertificateEntityId underTest,
+            final String expected) {
         //given
 
         //when
@@ -80,7 +84,9 @@ class CertificateEntityIdTest {
 
     @ParameterizedTest
     @MethodSource("versionProvider")
-    void testVersionShouldReturnTheCertNameWhenCalled(final CertificateEntityId underTest, final String expected) {
+    void testVersionShouldReturnTheCertNameWhenCalled(
+            final CertificateEntityId underTest,
+            final String expected) {
         //given
 
         //when

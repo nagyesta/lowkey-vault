@@ -60,7 +60,9 @@ class SignatureAlgorithmTest {
 
     @ParameterizedTest
     @MethodSource("valueProvider")
-    void testForValueShouldReturnExpectedAlgorithmWhenCalled(final String inout, final SignatureAlgorithm expected) {
+    void testForValueShouldReturnExpectedAlgorithmWhenCalled(
+            final String inout,
+            final SignatureAlgorithm expected) {
         //given
 
         //when

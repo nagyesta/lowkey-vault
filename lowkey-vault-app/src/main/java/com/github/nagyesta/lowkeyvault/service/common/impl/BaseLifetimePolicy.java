@@ -3,7 +3,6 @@ package com.github.nagyesta.lowkeyvault.service.common.impl;
 import com.github.nagyesta.lowkeyvault.service.EntityId;
 import com.github.nagyesta.lowkeyvault.service.common.TimeAware;
 import lombok.Data;
-import lombok.NonNull;
 import org.springframework.util.Assert;
 
 import java.time.OffsetDateTime;
@@ -13,30 +12,27 @@ import java.util.List;
 import java.util.function.ToLongFunction;
 
 @Data
-public class BaseLifetimePolicy<E extends EntityId>
-        implements TimeAware {
+public class BaseLifetimePolicy<E extends EntityId> implements TimeAware {
 
     private final E id;
-    @NonNull
-    private OffsetDateTime createdOn;
-    @NonNull
-    private OffsetDateTime updatedOn;
+    private OffsetDateTime created;
+    private OffsetDateTime updated;
 
-    protected BaseLifetimePolicy(@NonNull final E id) {
+    protected BaseLifetimePolicy(final E id) {
         this.id = id;
-        this.createdOn = OffsetDateTime.now();
-        this.updatedOn = OffsetDateTime.now();
+        this.created = OffsetDateTime.now();
+        this.updated = OffsetDateTime.now();
     }
 
     @Override
     public void timeShift(final int offsetSeconds) {
         Assert.isTrue(offsetSeconds > 0, "Offset must be positive.");
-        createdOn = createdOn.minusSeconds(offsetSeconds);
-        updatedOn = updatedOn.minusSeconds(offsetSeconds);
+        created = created.minusSeconds(offsetSeconds);
+        updated = updated.minusSeconds(offsetSeconds);
     }
 
     protected void markUpdate() {
-        updatedOn = OffsetDateTime.now();
+        updated = OffsetDateTime.now();
     }
 
     protected List<OffsetDateTime> collectMissedTriggerDays(
@@ -55,8 +51,8 @@ public class BaseLifetimePolicy<E extends EntityId>
     protected OffsetDateTime findTriggerTimeOffset(
             final OffsetDateTime entityCreation,
             final ToLongFunction<OffsetDateTime> triggerAfterDaysFunction) {
-        final var daysUntilTrigger = triggerAfterDaysFunction.applyAsLong(createdOn);
-        final var relativeToLifetimeActionPolicy = createdOn.minusDays(daysUntilTrigger);
+        final var daysUntilTrigger = triggerAfterDaysFunction.applyAsLong(created);
+        final var relativeToLifetimeActionPolicy = created.minusDays(daysUntilTrigger);
         var startPoint = entityCreation;
         if (entityCreation.isBefore(relativeToLifetimeActionPolicy)) {
             startPoint = relativeToLifetimeActionPolicy;

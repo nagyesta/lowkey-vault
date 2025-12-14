@@ -10,6 +10,7 @@ import com.github.nagyesta.lowkeyvault.http.AuthorityOverrideFunction;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.Map;
@@ -51,7 +52,8 @@ public class CertificatesStepDefs extends CommonAssertions {
 
     @Given("a {certContentType} certificate is prepared with subject {subject}")
     public void aCertificateIsPreparedWithNameSubjectSet(
-            final CertificateContentType type, final String subject) {
+            final CertificateContentType type,
+            final String subject) {
         final var policy = new CertificatePolicy("Self", subject);
         policy.setContentType(type);
         context.setPolicy(policy);
@@ -59,15 +61,19 @@ public class CertificatesStepDefs extends CommonAssertions {
 
     @Given("a {certContentType} certificate is prepared with subject {subject} and SANS {sans}")
     public void aCertificateIsPreparedWithNameSubjectAndSanSet(
-            final CertificateContentType type, final String subject, final SubjectAlternativeNames sans) {
+            final CertificateContentType type,
+            final String subject,
+            final SubjectAlternativeNames sans) {
         final var policy = new CertificatePolicy("Self", subject, sans);
         policy.setContentType(type);
         context.setPolicy(policy);
     }
 
     @Given("the certificate is set to use an EC key with {ecCertCurveName} and {hsm} HSM")
-    public void theCertificateIsSetToUseAnEcKeyWithKeyCurveAndHsmSet(final CertificateKeyCurveName curveName, final boolean hsm) {
-        final var policy = context.getPolicy();
+    public void theCertificateIsSetToUseAnEcKeyWithKeyCurveAndHsmSet(
+            final CertificateKeyCurveName curveName,
+            final boolean hsm) {
+        final var policy = Objects.requireNonNull(context.getPolicy());
         policy.setKeyCurveName(curveName);
         if (hsm) {
             policy.setKeyType(CertificateKeyType.EC_HSM);
@@ -80,8 +86,10 @@ public class CertificatesStepDefs extends CommonAssertions {
     }
 
     @Given("the certificate is set to use an RSA key with {rsaKeySize} and {hsm} HSM")
-    public void theCertificateIsSetToUseAnRsaKeyWithKeySizeAndHsmSet(final int keySize, final boolean hsm) {
-        final var policy = context.getPolicy();
+    public void theCertificateIsSetToUseAnRsaKeyWithKeySizeAndHsmSet(
+            final int keySize,
+            final boolean hsm) {
+        final var policy = Objects.requireNonNull(context.getPolicy());
         policy.setKeySize(keySize);
         if (hsm) {
             policy.setKeyType(CertificateKeyType.RSA_HSM);
@@ -92,6 +100,7 @@ public class CertificatesStepDefs extends CommonAssertions {
         context.setPolicy(policy);
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @And("the certificate is created with name {name}")
     public void certificateCreationRequestIsSentWithName(final String name) {
         final var client = context.getClient(context.getCertificateServiceVersion());
@@ -120,17 +129,19 @@ public class CertificatesStepDefs extends CommonAssertions {
 
     @Given("the certificate is set to be {enabled}")
     public void theCertificateIsSetToBeEnabledStatus(final boolean enabledStatus) {
-        context.getPolicy().setEnabled(enabledStatus);
+        Objects.requireNonNull(context.getPolicy()).setEnabled(enabledStatus);
     }
 
     @Given("the certificate is set to expire in {int} months")
     public void theCertificateIsSetToBeEnabledStatus(final int expiryMonths) {
-        context.getPolicy().setValidityInMonths(expiryMonths);
+        Objects.requireNonNull(context.getPolicy()).setValidityInMonths(expiryMonths);
     }
 
     @When("a certificate named {name} is imported from the resource named {fileName} using {password} as password")
     public void aCertificateIsImportedWithNameFromTheResourceUsingPassword(
-            final String name, final String resource, final String password) throws IOException {
+            final String name,
+            final String resource,
+            @Nullable final String password) throws IOException {
         final var content = Objects.requireNonNull(getClass().getResourceAsStream("/certs/" + resource)).readAllBytes();
         final var options = new ImportCertificateOptions(name, content);
         Optional.ofNullable(password).ifPresent(options::setPassword);
@@ -142,7 +153,10 @@ public class CertificatesStepDefs extends CommonAssertions {
 
     @When("a certificate named {name} is imported from the resource named {fileName} covering {subject} {isUsing} a lifetime action")
     public void aCertificateIsImportedWithNameFromTheResourceWithLifetimeAction(
-            final String name, final String resource, final String subject, final boolean using) throws IOException {
+            final String name,
+            final String resource,
+            final String subject,
+            final boolean using) throws IOException {
         final var content = Objects.requireNonNull(getClass().getResourceAsStream("/certs/" + resource)).readAllBytes();
         final var options = new ImportCertificateOptions(name, content);
         final var policy = new CertificatePolicy(name, subject);
@@ -168,7 +182,9 @@ public class CertificatesStepDefs extends CommonAssertions {
 
     @And("{int} certificates are imported from the resource named {fileName} using {password} as password")
     public void countCertificatesAreImportedFromTheGivenResourceUsingPassword(
-            final int count, final String resource, final String password) throws IOException {
+            final int count,
+            final String resource,
+            @Nullable final String password) throws IOException {
         final var content = Objects.requireNonNull(getClass().getResourceAsStream("/certs/" + resource)).readAllBytes();
         final var client = context.getClient(context.getCertificateServiceVersion());
         IntStream.range(1, count + 1).forEach(i -> {
@@ -201,7 +217,9 @@ public class CertificatesStepDefs extends CommonAssertions {
     }
 
     @And("{int} certificates with {name} prefix are deleted")
-    public void certificatesWithMultiImportPrefixAreDeleted(final int count, final String prefix) {
+    public void certificatesWithMultiImportPrefixAreDeleted(
+            final int count,
+            final String prefix) {
         final var client = context.getClient(context.getCertificateServiceVersion());
         IntStream.range(1, count + 1).forEach(i -> {
             final var deletedCertificate = client.beginDeleteCertificate(prefix + i)
@@ -211,14 +229,18 @@ public class CertificatesStepDefs extends CommonAssertions {
     }
 
     @And("{int} certificates with {name} prefix are purged")
-    public void certificatesWithMultiImportPrefixArePurged(final int count, final String prefix) {
+    public void certificatesWithMultiImportPrefixArePurged(
+            final int count,
+            final String prefix) {
         final var client = context.getClient(context.getCertificateServiceVersion());
         IntStream.range(1, count + 1).forEach(i -> client
                 .purgeDeletedCertificate(prefix + i));
     }
 
     @And("{int} certificates with {name} prefix are recovered")
-    public void certificatesWithMultiImportPrefixAreRecovered(final int count, final String prefix) {
+    public void certificatesWithMultiImportPrefixAreRecovered(
+            final int count,
+            final String prefix) {
         final var client = context.getClient(context.getCertificateServiceVersion());
         IntStream.range(1, count + 1).forEach(i -> client
                 .beginRecoverDeletedCertificate(prefix + i).waitForCompletion());
@@ -236,8 +258,10 @@ public class CertificatesStepDefs extends CommonAssertions {
 
     @And("the lifetime action trigger is set to {certAction} when {int} {certLifetimePercentageTrigger} reached")
     public void theLifetimeActionTriggerIsSetToActionWhenTriggerValueTriggerTypeReached(
-            final CertificatePolicyAction action, final int triggerValue, final boolean isPercentage) {
-        final var policy = context.getPolicy();
+            final CertificatePolicyAction action,
+            final int triggerValue,
+            final boolean isPercentage) {
+        final var policy = Objects.requireNonNull(context.getPolicy());
         final var lifetimeAction = new LifetimeAction(action);
         if (isPercentage) {
             lifetimeAction.setLifetimePercentage(triggerValue);
@@ -250,7 +274,9 @@ public class CertificatesStepDefs extends CommonAssertions {
 
     @When("the certificate named {name} is updated to have {subject} as subject and {certContentType} as type")
     public void theCertificateNamedCertNameIsUpdatedToHaveUpdatedSubjectAsSubjectAndUpdatedTypeAsType(
-            final String name, final String subject, final CertificateContentType contentType) {
+            final String name,
+            final String subject,
+            final CertificateContentType contentType) {
         final var client = context.getClient(context.getCertificateServiceVersion());
         final var policy = client.getCertificatePolicy(name).setContentType(contentType).setSubject(subject);
         final var updated = client.updateCertificatePolicy(name, policy);
@@ -259,7 +285,9 @@ public class CertificatesStepDefs extends CommonAssertions {
 
     @And("the certificate named {name} is updated to contain the tag named {} with {} as value")
     public void theCertificateNamedCertNameIsUpdatedToContainTheTagWithValue(
-            final String name, final String tagName, final String tagValue) {
+            final String name,
+            final String tagName,
+            final String tagValue) {
         final var client = context.getClient(context.getCertificateServiceVersion());
         final var properties = client.getCertificate(name).getProperties();
         properties.setTags(Map.of(tagName, tagValue));

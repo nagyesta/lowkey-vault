@@ -7,6 +7,7 @@ import com.github.nagyesta.lowkeyvault.service.exception.CryptoException;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.impl.*;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -33,7 +34,7 @@ public interface KeyVaultFake
 
     VersionedKeyEntityId importOctKeyVersion(VersionedKeyEntityId keyEntityId, JsonWebKeyImportRequest key) throws CryptoException;
 
-    ReadOnlyRotationPolicy rotationPolicy(KeyEntityId keyEntityId);
+    @Nullable ReadOnlyRotationPolicy rotationPolicy(KeyEntityId keyEntityId);
 
     void setRotationPolicy(RotationPolicy rotationPolicy);
 

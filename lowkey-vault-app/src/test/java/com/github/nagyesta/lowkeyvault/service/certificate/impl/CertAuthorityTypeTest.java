@@ -26,7 +26,9 @@ class CertAuthorityTypeTest {
 
     @ParameterizedTest
     @MethodSource("getValueProvider")
-    void testGetValueShouldReturnPredefinedValueWhenCalled(final CertAuthorityType underTest, final String expected) {
+    void testGetValueShouldReturnPredefinedValueWhenCalled(
+            final CertAuthorityType underTest,
+            final String expected) {
         //given
 
         //when
@@ -38,7 +40,9 @@ class CertAuthorityTypeTest {
 
     @ParameterizedTest
     @MethodSource("byValueProvider")
-    void testByValueShouldReturnMatchingValueWhenCalled(final String input, final CertAuthorityType expected) {
+    void testByValueShouldReturnMatchingValueWhenCalled(
+            final String input,
+            final CertAuthorityType expected) {
         //given
 
         //when

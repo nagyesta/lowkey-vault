@@ -8,6 +8,7 @@ import com.github.nagyesta.lowkeyvault.context.KeyTestContext;
 import com.github.nagyesta.lowkeyvault.context.TestContextConfig;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.time.temporal.ChronoUnit;
@@ -27,7 +28,9 @@ public class KeysStepDefsAssertions extends CommonAssertions {
     }
 
     @Then("the created key is using EC algorithm with {ecCurveName} curve name and {int} bytes length")
-    public void theCreatedKeyIsUsingEcAlgorithmWithNBytesBytesLength(final KeyCurveName curveName, final int nBytes) {
+    public void theCreatedKeyIsUsingEcAlgorithmWithNBytesBytesLength(
+            final KeyCurveName curveName,
+            final int nBytes) {
         assertEquals(curveName, context.getLastResult().getKey().getCurveName());
         //X and Y are not returned by the server to avoid miscalculation issues with wrong public key
     }
@@ -62,7 +65,7 @@ public class KeysStepDefsAssertions extends CommonAssertions {
     }
 
     @Then("the key expires {optionalInt} seconds after creation")
-    public void theKeyExpiresExpiresSecondsAfterCreation(final Integer expires) {
+    public void theKeyExpiresExpiresSecondsAfterCreation(@Nullable final Integer expires) {
         if (expires == null) {
             assertNull(context.getLastResult().getProperties().getExpiresOn());
         } else {
@@ -73,7 +76,7 @@ public class KeysStepDefsAssertions extends CommonAssertions {
     }
 
     @Then("the key is not usable before {optionalInt} seconds after creation")
-    public void theKeyIsNotUsableBeforeNotBeforeSecondsAfterCreation(final Integer notBefore) {
+    public void theKeyIsNotUsableBeforeNotBeforeSecondsAfterCreation(@Nullable final Integer notBefore) {
         if (notBefore == null) {
             assertNull(context.getLastResult().getProperties().getNotBefore());
         } else {
@@ -208,7 +211,10 @@ public class KeysStepDefsAssertions extends CommonAssertions {
     }
 
     @And("the rotation policy of {name} is rotating after {int} days with expiry of {int} days")
-    public void theRotationPolicyOfKeyIsRotatingAfterDaysWithExpiryOfDays(final String keyName, final int rotate, final int expiry) {
+    public void theRotationPolicyOfKeyIsRotatingAfterDaysWithExpiryOfDays(
+            final String keyName,
+            final int rotate,
+            final int expiry) {
         final var keyRotationPolicy = context.getClient(context.getKeyServiceVersion()).getKeyRotationPolicy(keyName);
         assertEquals("P" + expiry + "D", keyRotationPolicy.getExpiresIn());
         assertEquals(1, keyRotationPolicy.getLifetimeActions().size());

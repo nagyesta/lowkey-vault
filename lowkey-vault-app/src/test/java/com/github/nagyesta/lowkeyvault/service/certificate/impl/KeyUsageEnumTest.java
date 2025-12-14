@@ -71,7 +71,9 @@ class KeyUsageEnumTest {
 
     @ParameterizedTest
     @MethodSource("bitStringProvider")
-    void testParseBitStringShouldFindSelectedEnumsWhenCalledWithValidData(final boolean[] input, final Set<KeyUsageEnum> expected) {
+    void testParseBitStringShouldFindSelectedEnumsWhenCalledWithValidData(
+            final boolean[] input,
+            final Set<KeyUsageEnum> expected) {
         //given
 
         //when
@@ -83,7 +85,9 @@ class KeyUsageEnumTest {
 
     @ParameterizedTest
     @MethodSource("byValueProvider")
-    void testByValueShouldFindSelectedEnumWhenCalledWithValidData(final String input, final KeyUsageEnum expected) {
+    void testByValueShouldFindSelectedEnumWhenCalledWithValidData(
+            final String input,
+            final KeyUsageEnum expected) {
         //given
 
         //when

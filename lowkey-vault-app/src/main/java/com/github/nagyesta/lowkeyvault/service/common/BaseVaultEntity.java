@@ -3,6 +3,7 @@ package com.github.nagyesta.lowkeyvault.service.common;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.service.EntityId;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyDeletedEntity;
+import org.jspecify.annotations.Nullable;
 
 import java.time.OffsetDateTime;
 import java.util.Map;
@@ -13,20 +14,19 @@ import java.util.Optional;
  *
  * @param <V> The type of the versioned ID identifying this entity.
  */
-public interface BaseVaultEntity<V extends EntityId>
-        extends ReadOnlyDeletedEntity<V>, TimeAware {
+public interface BaseVaultEntity<V extends EntityId> extends ReadOnlyDeletedEntity<V>, TimeAware {
 
     boolean isEnabled();
 
     void setEnabled(boolean enabled);
 
-    Optional<OffsetDateTime> getNotBefore();
+    Optional<@Nullable OffsetDateTime> getNotBefore();
 
-    void setNotBefore(OffsetDateTime notBefore);
+    void setNotBefore(@Nullable OffsetDateTime notBefore);
 
-    Optional<OffsetDateTime> getExpiry();
+    Optional<@Nullable OffsetDateTime> getExpiry();
 
-    void setExpiry(OffsetDateTime expiry);
+    void setExpiry(@Nullable OffsetDateTime expiry);
 
     OffsetDateTime getCreated();
 
@@ -34,15 +34,15 @@ public interface BaseVaultEntity<V extends EntityId>
 
     RecoveryLevel getRecoveryLevel();
 
-    Integer getRecoverableDays();
+    @Nullable Integer getRecoverableDays();
 
     Map<String, String> getTags();
 
     void setTags(Map<String, String> tags);
 
-    void setDeletedDate(OffsetDateTime deletedDate);
+    void setDeletedDate(@Nullable OffsetDateTime deletedDate);
 
-    void setScheduledPurgeDate(OffsetDateTime scheduledPurgeDate);
+    void setScheduledPurgeDate(@Nullable OffsetDateTime scheduledPurgeDate);
 
     boolean isPurgeExpired();
 

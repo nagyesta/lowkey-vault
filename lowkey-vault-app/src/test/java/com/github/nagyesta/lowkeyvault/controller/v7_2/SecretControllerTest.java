@@ -1,10 +1,7 @@
 package com.github.nagyesta.lowkeyvault.controller.v7_2;
 
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.SecretConverterRegistry;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72ModelConverter;
 import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72SecretItemModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.v7_2.secret.SecretEntityToV72SecretVersionItemModelConverter;
-import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
 import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesUpdateModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.*;
@@ -20,6 +17,7 @@ import com.github.nagyesta.lowkeyvault.service.secret.impl.KeyVaultSecretEntity;
 import com.github.nagyesta.lowkeyvault.service.secret.impl.SecretCreateInput;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,10 +25,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
-import org.springframework.lang.NonNull;
 
 import java.net.URI;
 import java.time.OffsetDateTime;
@@ -42,6 +40,7 @@ import java.util.stream.Stream;
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsSecrets.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
+import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.V_7_2;
 import static org.mockito.Mockito.*;
 
 class SecretControllerTest {
@@ -49,23 +48,20 @@ class SecretControllerTest {
     private static final KeyVaultSecretModel RESPONSE = createResponse();
     private static final DeletedKeyVaultSecretModel DELETED_RESPONSE = createDeletedResponse();
     @Mock
+    private VaultService vaultService;
+    @Mock
     private SecretEntityToV72ModelConverter secretEntityToV72ModelConverter;
     @Mock
     private SecretEntityToV72SecretItemModelConverter secretEntityToV72SecretItemModelConverter;
-    @Mock
-    private SecretEntityToV72SecretVersionItemModelConverter secretEntityToV72SecretVersionItemModelConverter;
-    @Mock
-    private VaultService vaultService;
     @Mock
     private VaultFake vaultFake;
     @Mock
     private SecretVaultFake secretVaultFake;
     @Mock
-    private SecretConverterRegistry registry;
-    @Mock
     private ReadOnlyVersionedEntityMultiMap<SecretEntityId, VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity> entities;
     @Mock
     private ReadOnlyVersionedEntityMultiMap<SecretEntityId, VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity> deletedEntities;
+    @InjectMocks
     private SecretController underTest;
     private AutoCloseable openMocks;
 
@@ -104,14 +100,6 @@ class SecretControllerTest {
                 .build();
     }
 
-    public static Stream<Arguments> nullProvider() {
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null))
-                .add(Arguments.of(mock(SecretConverterRegistry.class), null))
-                .add(Arguments.of(null, mock(VaultService.class)))
-                .build();
-    }
-
     public static Stream<Arguments> updateAttributeProvider() {
         return Stream.<Arguments>builder()
                 .add(Arguments.of(null, null, null, null))
@@ -127,12 +115,6 @@ class SecretControllerTest {
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
-        when(registry.modelConverter(ApiConstants.V_7_2)).thenReturn(secretEntityToV72ModelConverter);
-        when(registry.itemConverter(ApiConstants.V_7_2)).thenReturn(secretEntityToV72SecretItemModelConverter);
-        when(registry.versionedItemConverter(ApiConstants.V_7_2)).thenReturn(secretEntityToV72SecretVersionItemModelConverter);
-        when(registry.versionedEntityId(any(URI.class), anyString(), anyString())).thenCallRealMethod();
-        when(registry.entityId(any(URI.class), anyString())).thenCallRealMethod();
-        underTest = new SecretController(registry, vaultService);
         when(vaultService.findByUri(HTTPS_LOCALHOST_8443)).thenReturn(vaultFake);
         when(vaultFake.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
         when(vaultFake.secretVaultFake()).thenReturn(secretVaultFake);
@@ -144,35 +126,27 @@ class SecretControllerTest {
     }
 
     @ParameterizedTest
-    @MethodSource("nullProvider")
-    void testConstructorShouldThrowExceptionWhenCalledWithNull(
-            final SecretConverterRegistry registry,
-            final VaultService vaultService) {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new SecretController(registry, vaultService));
-
-        //then + exception
-    }
-
-    @ParameterizedTest
     @MethodSource("secretAttributeProvider")
     void testCreateShouldUseInputParametersWhenCalled(
-            final RecoveryLevel recoveryLevel, final Integer recoverableDays,
-            final OffsetDateTime expiry, final OffsetDateTime notBefore) {
+            @Nullable final RecoveryLevel recoveryLevel,
+            final Integer recoverableDays,
+            final OffsetDateTime expiry,
+            final OffsetDateTime notBefore) {
         //given
-        when(vaultFake.getRecoveryLevel()).thenReturn(RecoveryLevel.PURGEABLE);
-        when(vaultFake.getRecoverableDays()).thenReturn(null);
+        when(vaultFake.getRecoveryLevel())
+                .thenReturn(RecoveryLevel.PURGEABLE);
+        when(vaultFake.getRecoverableDays())
+                .thenReturn(null);
         final var request = createRequest(expiry, notBefore);
         final ReadOnlyKeyVaultSecretEntity entity = createEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, request);
         when(secretVaultFake.createSecretVersion(eq(SECRET_NAME_1), any(SecretCreateInput.class)))
                 .thenReturn(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1);
         when(secretVaultFake.getEntities())
                 .thenReturn(entities);
-        when(vaultFake.getRecoveryLevel())
-                .thenReturn(recoveryLevel);
+        if (recoveryLevel != null) {
+            when(vaultFake.getRecoveryLevel())
+                    .thenReturn(recoveryLevel);
+        }
         when(vaultFake.getRecoverableDays())
                 .thenReturn(recoverableDays);
         when(entities.getReadOnlyEntity(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1))
@@ -181,7 +155,7 @@ class SecretControllerTest {
                 .thenReturn(RESPONSE);
 
         //when
-        final var actual = underTest.create(SECRET_NAME_1, HTTPS_LOCALHOST_8443, request);
+        final var actual = underTest.create(SECRET_NAME_1, HTTPS_LOCALHOST_8443, V_7_2, request);
 
         //then
         Assertions.assertNotNull(actual);
@@ -205,7 +179,7 @@ class SecretControllerTest {
 
         //when
         Assertions.assertThrows(NotFoundException.class,
-                () -> underTest.versions(SECRET_NAME_1, HTTPS_LOCALHOST_8443, 0, 0));
+                () -> underTest.versions(SECRET_NAME_1, HTTPS_LOCALHOST_8443, V_7_2, 0, 0));
 
         //then + exception
     }
@@ -216,7 +190,7 @@ class SecretControllerTest {
         //given
         final var index = 30;
         final var fullList = IntStream.range(0, 42)
-                .mapToObj(i -> UUID.randomUUID().toString().replaceAll("-", ""))
+                .mapToObj(_ -> UUID.randomUUID().toString().replaceAll("-", ""))
                 .sorted()
                 .collect(Collectors.toCollection(LinkedList::new));
         final var baseUri = new SecretEntityId(HTTPS_LOCALHOST_8443, SECRET_NAME_1, null);
@@ -229,7 +203,7 @@ class SecretControllerTest {
             final var secretEntityId = invocation.getArgument(0, VersionedSecretEntityId.class);
             return createEntity(secretEntityId, createRequest(null, null));
         });
-        when(secretEntityToV72SecretVersionItemModelConverter.convert(any(), any())).thenAnswer(invocation -> {
+        when(secretEntityToV72SecretItemModelConverter.convert(any(), any())).thenAnswer(invocation -> {
             final var entity = invocation.getArgument(0, KeyVaultSecretEntity.class);
             return keyVaultSecretItemModel(entity.getId().asUri(HTTPS_LOCALHOST_8443), Map.of());
         });
@@ -238,7 +212,7 @@ class SecretControllerTest {
 
         //when
         final var actual =
-                underTest.versions(SECRET_NAME_1, HTTPS_LOCALHOST_8443, 1, index);
+                underTest.versions(SECRET_NAME_1, HTTPS_LOCALHOST_8443, V_7_2, 1, index);
 
         //then
         Assertions.assertNotNull(actual);
@@ -255,7 +229,7 @@ class SecretControllerTest {
     void testVersionsShouldNotContainNextUriWhenLastPageIsReturnedFully() {
         //given
         final var fullList = IntStream.range(0, 25)
-                .mapToObj(i -> UUID.randomUUID().toString().replaceAll("-", ""))
+                .mapToObj(_ -> UUID.randomUUID().toString().replaceAll("-", ""))
                 .sorted()
                 .collect(Collectors.toCollection(LinkedList::new));
         final var baseUri = new SecretEntityId(HTTPS_LOCALHOST_8443, SECRET_NAME_1, null);
@@ -266,7 +240,7 @@ class SecretControllerTest {
             final var secretEntityId = invocation.getArgument(0, VersionedSecretEntityId.class);
             return createEntity(secretEntityId, createRequest(null, null));
         });
-        when(secretEntityToV72SecretVersionItemModelConverter.convert(any(), any())).thenAnswer(invocation -> {
+        when(secretEntityToV72SecretItemModelConverter.convert(any(), any())).thenAnswer(invocation -> {
             final var entity = invocation.getArgument(0, KeyVaultSecretEntity.class);
             return keyVaultSecretItemModel(entity.getId().asUri(HTTPS_LOCALHOST_8443), Map.of());
         });
@@ -276,7 +250,7 @@ class SecretControllerTest {
 
         //when
         final var actual =
-                underTest.versions(SECRET_NAME_1, HTTPS_LOCALHOST_8443, 25, 0);
+                underTest.versions(SECRET_NAME_1, HTTPS_LOCALHOST_8443, V_7_2, 25, 0);
 
         //then
         Assertions.assertNotNull(actual);
@@ -295,8 +269,10 @@ class SecretControllerTest {
     @ParameterizedTest
     @MethodSource("secretAttributeProvider")
     void testDeleteSecretShouldReturnEntryWhenSecretIsFound(
-            final RecoveryLevel recoveryLevel, final Integer recoverableDays,
-            final OffsetDateTime expiry, final OffsetDateTime notBefore) {
+            @Nullable final RecoveryLevel recoveryLevel,
+            final Integer recoverableDays,
+            final OffsetDateTime expiry,
+            final OffsetDateTime notBefore) {
         //given
         final var baseUri = new SecretEntityId(HTTPS_LOCALHOST_8443, SECRET_NAME_1, null);
         when(secretVaultFake.getEntities())
@@ -304,8 +280,10 @@ class SecretControllerTest {
         when(secretVaultFake.getDeletedEntities())
                 .thenReturn(deletedEntities);
         doNothing().when(secretVaultFake).delete(baseUri);
-        when(vaultFake.getRecoveryLevel())
-                .thenReturn(recoveryLevel);
+        if (recoveryLevel != null) {
+            when(vaultFake.getRecoveryLevel())
+                    .thenReturn(recoveryLevel);
+        }
         when(vaultFake.getRecoverableDays())
                 .thenReturn(recoverableDays);
         when(deletedEntities.getLatestVersionOfEntity(baseUri))
@@ -320,7 +298,7 @@ class SecretControllerTest {
                 .thenReturn(DELETED_RESPONSE);
 
         //when
-        final var actual = underTest.delete(SECRET_NAME_1, HTTPS_LOCALHOST_8443);
+        final var actual = underTest.delete(SECRET_NAME_1, HTTPS_LOCALHOST_8443, V_7_2);
 
         //then
         Assertions.assertNotNull(actual);
@@ -343,8 +321,10 @@ class SecretControllerTest {
     @ParameterizedTest
     @MethodSource("secretAttributeProvider")
     void testRecoverDeletedSecretShouldReturnEntryWhenSecretIsFound(
-            final RecoveryLevel recoveryLevel, final Integer recoverableDays,
-            final OffsetDateTime expiry, final OffsetDateTime notBefore) {
+            @Nullable final RecoveryLevel recoveryLevel,
+            final Integer recoverableDays,
+            final OffsetDateTime expiry,
+            final OffsetDateTime notBefore) {
         //given
         final var baseUri = new SecretEntityId(HTTPS_LOCALHOST_8443, SECRET_NAME_1, null);
         when(secretVaultFake.getEntities())
@@ -352,8 +332,10 @@ class SecretControllerTest {
         when(secretVaultFake.getDeletedEntities())
                 .thenReturn(deletedEntities);
         doNothing().when(secretVaultFake).delete(baseUri);
-        when(vaultFake.getRecoveryLevel())
-                .thenReturn(recoveryLevel);
+        if (recoveryLevel != null) {
+            when(vaultFake.getRecoveryLevel())
+                    .thenReturn(recoveryLevel);
+        }
         when(vaultFake.getRecoverableDays())
                 .thenReturn(recoverableDays);
         when(entities.getLatestVersionOfEntity(baseUri))
@@ -368,7 +350,7 @@ class SecretControllerTest {
                 .thenReturn(RESPONSE);
 
         //when
-        final var actual = underTest.recoverDeletedSecret(SECRET_NAME_1, HTTPS_LOCALHOST_8443);
+        final var actual = underTest.recoverDeletedSecret(SECRET_NAME_1, HTTPS_LOCALHOST_8443, V_7_2);
 
         //then
         Assertions.assertNotNull(actual);
@@ -391,14 +373,18 @@ class SecretControllerTest {
     @ParameterizedTest
     @MethodSource("secretAttributeProvider")
     void testGetDeletedSecretShouldReturnEntryWhenSecretIsFound(
-            final RecoveryLevel recoveryLevel, final Integer recoverableDays,
-            final OffsetDateTime expiry, final OffsetDateTime notBefore) {
+            @Nullable final RecoveryLevel recoveryLevel,
+            final Integer recoverableDays,
+            final OffsetDateTime expiry,
+            final OffsetDateTime notBefore) {
         //given
         final var baseUri = new SecretEntityId(HTTPS_LOCALHOST_8443, SECRET_NAME_1, null);
         when(secretVaultFake.getDeletedEntities())
                 .thenReturn(entities);
-        when(vaultFake.getRecoveryLevel())
-                .thenReturn(recoveryLevel);
+        if (recoveryLevel != null) {
+            when(vaultFake.getRecoveryLevel())
+                    .thenReturn(recoveryLevel);
+        }
         when(vaultFake.getRecoverableDays())
                 .thenReturn(recoverableDays);
         when(entities.getLatestVersionOfEntity(baseUri))
@@ -413,7 +399,7 @@ class SecretControllerTest {
                 .thenReturn(DELETED_RESPONSE);
 
         //when
-        final var actual = underTest.getDeletedSecret(SECRET_NAME_1, HTTPS_LOCALHOST_8443);
+        final var actual = underTest.getDeletedSecret(SECRET_NAME_1, HTTPS_LOCALHOST_8443, V_7_2);
 
         //then
         Assertions.assertNotNull(actual);
@@ -434,14 +420,18 @@ class SecretControllerTest {
     @ParameterizedTest
     @MethodSource("secretAttributeProvider")
     void testPurgeDeletedShouldSucceedWhenDeletedSecretIsPurgeable(
-            final RecoveryLevel recoveryLevel, final Integer recoverableDays,
-            final OffsetDateTime expiry, final OffsetDateTime notBefore) {
+            @Nullable final RecoveryLevel recoveryLevel,
+            final Integer recoverableDays,
+            final OffsetDateTime expiry,
+            final OffsetDateTime notBefore) {
         //given
         final var baseUri = new SecretEntityId(HTTPS_LOCALHOST_8443, SECRET_NAME_1, null);
         when(secretVaultFake.getDeletedEntities())
                 .thenReturn(entities);
-        when(vaultFake.getRecoveryLevel())
-                .thenReturn(recoveryLevel);
+        if (recoveryLevel != null) {
+            when(vaultFake.getRecoveryLevel())
+                    .thenReturn(recoveryLevel);
+        }
         when(vaultFake.getRecoverableDays())
                 .thenReturn(recoverableDays);
         final var request = createRequest(expiry, notBefore);
@@ -457,11 +447,11 @@ class SecretControllerTest {
 
         //when
         if (nonNullRecoveryLevel.isPurgeable()) {
-            final var response = underTest.purgeDeleted(SECRET_NAME_1, HTTPS_LOCALHOST_8443);
+            final var response = underTest.purgeDeleted(SECRET_NAME_1, HTTPS_LOCALHOST_8443, V_7_2);
             Assertions.assertNotNull(response);
             Assertions.assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         } else {
-            Assertions.assertThrows(IllegalStateException.class, () -> underTest.purgeDeleted(SECRET_NAME_1, HTTPS_LOCALHOST_8443));
+            Assertions.assertThrows(IllegalStateException.class, () -> underTest.purgeDeleted(SECRET_NAME_1, HTTPS_LOCALHOST_8443, V_7_2));
         }
 
         //then
@@ -481,14 +471,18 @@ class SecretControllerTest {
     @ParameterizedTest
     @MethodSource("secretAttributeProvider")
     void testGetShouldReturnEntryWhenSecretIsFound(
-            final RecoveryLevel recoveryLevel, final Integer recoverableDays,
-            final OffsetDateTime expiry, final OffsetDateTime notBefore) {
+            @Nullable final RecoveryLevel recoveryLevel,
+            final Integer recoverableDays,
+            final OffsetDateTime expiry,
+            final OffsetDateTime notBefore) {
         //given
         final var baseUri = new SecretEntityId(HTTPS_LOCALHOST_8443, SECRET_NAME_1, null);
         when(secretVaultFake.getEntities())
                 .thenReturn(entities);
-        when(vaultFake.getRecoveryLevel())
-                .thenReturn(recoveryLevel);
+        if (recoveryLevel != null) {
+            when(vaultFake.getRecoveryLevel())
+                    .thenReturn(recoveryLevel);
+        }
         when(vaultFake.getRecoverableDays())
                 .thenReturn(recoverableDays);
         when(entities.getLatestVersionOfEntity(baseUri))
@@ -501,7 +495,7 @@ class SecretControllerTest {
                 .thenReturn(RESPONSE);
 
         //when
-        final var actual = underTest.get(SECRET_NAME_1, HTTPS_LOCALHOST_8443);
+        final var actual = underTest.get(SECRET_NAME_1, HTTPS_LOCALHOST_8443, V_7_2);
 
         //then
         Assertions.assertNotNull(actual);
@@ -521,8 +515,10 @@ class SecretControllerTest {
     @ParameterizedTest
     @MethodSource("secretAttributeProvider")
     void testGetSecretsShouldReturnEntryWhenSecretIsFound(
-            final RecoveryLevel recoveryLevel, final Integer recoverableDays,
-            final OffsetDateTime expiry, final OffsetDateTime notBefore) {
+            final RecoveryLevel recoveryLevel,
+            final Integer recoverableDays,
+            final OffsetDateTime expiry,
+            final OffsetDateTime notBefore) {
         //given
         final var baseUri = new SecretEntityId(HTTPS_LOCALHOST_8443, SECRET_NAME_1, null);
         when(secretVaultFake.getEntities())
@@ -536,12 +532,12 @@ class SecretControllerTest {
         when(entities.listLatestEntities())
                 .thenReturn(List.of(entity));
         final var secretItemModel = keyVaultSecretItemModel(baseUri.asUri(HTTPS_LOCALHOST_8443), Map.of());
-        when(secretEntityToV72SecretItemModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
+        when(secretEntityToV72SecretItemModelConverter.convertWithoutVersion(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(secretItemModel);
 
         //when
         final var actual =
-                underTest.listSecrets(HTTPS_LOCALHOST_8443, 1, 0);
+                underTest.listSecrets(HTTPS_LOCALHOST_8443, V_7_2, 1, 0);
 
         //then
         Assertions.assertNotNull(actual);
@@ -557,15 +553,17 @@ class SecretControllerTest {
         verify(secretVaultFake, atLeastOnce()).getEntities();
         verify(secretVaultFake, never()).getDeletedEntities();
         verify(entities).listLatestEntities();
-        verify(secretEntityToV72SecretItemModelConverter).convert(same(entity), eq(HTTPS_LOCALHOST_8443));
+        verify(secretEntityToV72SecretItemModelConverter).convertWithoutVersion(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")
     @ParameterizedTest
     @MethodSource("secretAttributeProvider")
     void testGetSecretsShouldReturnNextLinkWhenNotOnLastPage(
-            final RecoveryLevel recoveryLevel, final Integer recoverableDays,
-            final OffsetDateTime expiry, final OffsetDateTime notBefore) {
+            final RecoveryLevel recoveryLevel,
+            final Integer recoverableDays,
+            final OffsetDateTime expiry,
+            final OffsetDateTime notBefore) {
         //given
         final var baseUri = new SecretEntityId(HTTPS_LOCALHOST_8443, SECRET_NAME_1, null);
         when(secretVaultFake.getEntities())
@@ -579,12 +577,12 @@ class SecretControllerTest {
         when(entities.listLatestEntities())
                 .thenReturn(List.of(entity, entity, entity));
         final var secretItemModel = keyVaultSecretItemModel(baseUri.asUri(HTTPS_LOCALHOST_8443), Map.of());
-        when(secretEntityToV72SecretItemModelConverter.convert(same(entity), eq(HTTPS_LOCALHOST_8443)))
+        when(secretEntityToV72SecretItemModelConverter.convertWithoutVersion(same(entity), eq(HTTPS_LOCALHOST_8443)))
                 .thenReturn(secretItemModel);
 
         //when
         final var actual =
-                underTest.listSecrets(HTTPS_LOCALHOST_8443, 1, 0);
+                underTest.listSecrets(HTTPS_LOCALHOST_8443, V_7_2, 1, 0);
 
         //then
         Assertions.assertNotNull(actual);
@@ -602,7 +600,7 @@ class SecretControllerTest {
         verify(secretVaultFake, atLeastOnce()).getEntities();
         verify(secretVaultFake, never()).getDeletedEntities();
         verify(entities).listLatestEntities();
-        verify(secretEntityToV72SecretItemModelConverter).convert(same(entity), eq(HTTPS_LOCALHOST_8443));
+        verify(secretEntityToV72SecretItemModelConverter).convertWithoutVersion(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
 
@@ -610,8 +608,10 @@ class SecretControllerTest {
     @ParameterizedTest
     @MethodSource("secretAttributeProvider")
     void testGetDeletedSecretsShouldReturnEntryWhenSecretIsFound(
-            final RecoveryLevel recoveryLevel, final Integer recoverableDays,
-            final OffsetDateTime expiry, final OffsetDateTime notBefore) {
+            final RecoveryLevel recoveryLevel,
+            final Integer recoverableDays,
+            final OffsetDateTime expiry,
+            final OffsetDateTime notBefore) {
         //given
         final var baseUri = new SecretEntityId(HTTPS_LOCALHOST_8443, SECRET_NAME_1, null);
         when(secretVaultFake.getDeletedEntities())
@@ -632,7 +632,7 @@ class SecretControllerTest {
 
         //when
         final var actual =
-                underTest.listDeletedSecrets(HTTPS_LOCALHOST_8443, 1, 0);
+                underTest.listDeletedSecrets(HTTPS_LOCALHOST_8443, V_7_2, 1, 0);
 
         //then
         Assertions.assertNotNull(actual);
@@ -655,8 +655,10 @@ class SecretControllerTest {
     @ParameterizedTest
     @MethodSource("secretAttributeProvider")
     void testGetDeletedSecretsShouldReturnNextLinkWhenNotOnLastPage(
-            final RecoveryLevel recoveryLevel, final Integer recoverableDays,
-            final OffsetDateTime expiry, final OffsetDateTime notBefore) {
+            final RecoveryLevel recoveryLevel,
+            final Integer recoverableDays,
+            final OffsetDateTime expiry,
+            final OffsetDateTime notBefore) {
         //given
         final var baseUri = new SecretEntityId(HTTPS_LOCALHOST_8443, SECRET_NAME_1, null);
         when(secretVaultFake.getDeletedEntities())
@@ -677,7 +679,7 @@ class SecretControllerTest {
 
         //when
         final var actual =
-                underTest.listDeletedSecrets(HTTPS_LOCALHOST_8443, 1, 0);
+                underTest.listDeletedSecrets(HTTPS_LOCALHOST_8443, V_7_2, 1, 0);
 
         //then
         Assertions.assertNotNull(actual);
@@ -702,8 +704,10 @@ class SecretControllerTest {
     @ParameterizedTest
     @MethodSource("secretAttributeProvider")
     void testGetWithVersionShouldReturnEntryWhenSecretAndVersionIsFound(
-            final RecoveryLevel recoveryLevel, final Integer recoverableDays,
-            final OffsetDateTime expiry, final OffsetDateTime notBefore) {
+            final RecoveryLevel recoveryLevel,
+            final Integer recoverableDays,
+            final OffsetDateTime expiry,
+            final OffsetDateTime notBefore) {
         //given
         final var baseUri = new SecretEntityId(HTTPS_LOCALHOST_8443, SECRET_NAME_1, null);
         final var request = createRequest(expiry, notBefore);
@@ -720,7 +724,7 @@ class SecretControllerTest {
                 .thenReturn(RESPONSE);
 
         //when
-        final var actual = underTest.getWithVersion(SECRET_NAME_1, SECRET_VERSION_3, HTTPS_LOCALHOST_8443);
+        final var actual = underTest.getWithVersion(SECRET_NAME_1, SECRET_VERSION_3, HTTPS_LOCALHOST_8443, V_7_2);
 
         //then
         Assertions.assertNotNull(actual);
@@ -740,8 +744,10 @@ class SecretControllerTest {
     @ParameterizedTest
     @MethodSource("updateAttributeProvider")
     void testUpdateVersionShouldReturnEntryWhenSecretAndVersionIsFound(
-            final OffsetDateTime expiry, final OffsetDateTime notBefore,
-            final Boolean enabled, final Map<String, String> tags) {
+            final OffsetDateTime expiry,
+            final OffsetDateTime notBefore,
+            final Boolean enabled,
+            final Map<String, String> tags) {
         //given
         final var baseUri = new SecretEntityId(HTTPS_LOCALHOST_8443, SECRET_NAME_1, null);
         final var createSecretRequest = createRequest(null, null);
@@ -768,7 +774,7 @@ class SecretControllerTest {
 
         //when
         final var actual = underTest
-                .updateVersion(SECRET_NAME_1, SECRET_VERSION_3, HTTPS_LOCALHOST_8443, updateSecretRequest);
+                .updateVersion(SECRET_NAME_1, SECRET_VERSION_3, HTTPS_LOCALHOST_8443, V_7_2, updateSecretRequest);
 
         //then
         Assertions.assertNotNull(actual);
@@ -810,13 +816,13 @@ class SecretControllerTest {
         verify(secretEntityToV72ModelConverter).convert(same(entity), eq(HTTPS_LOCALHOST_8443));
     }
 
-    @NonNull
     private CreateSecretRequest createRequest(
-            final OffsetDateTime expiry, final OffsetDateTime notBefore) {
+            final OffsetDateTime expiry,
+            final OffsetDateTime notBefore) {
         final var secretRequest = new CreateSecretRequest();
         secretRequest.setValue(LOWKEY_VAULT);
         final var properties = new SecretPropertiesModel();
-        properties.setExpiresOn(expiry);
+        properties.setExpiry(expiry);
         properties.setNotBefore(notBefore);
         properties.setEnabled(true);
         secretRequest.setProperties(properties);
@@ -824,12 +830,15 @@ class SecretControllerTest {
         return secretRequest;
     }
 
-    @NonNull
-    private KeyVaultSecretEntity createEntity(final VersionedSecretEntityId secretEntityId, final CreateSecretRequest createSecretRequest) {
+    private KeyVaultSecretEntity createEntity(
+            final VersionedSecretEntityId secretEntityId,
+            final CreateSecretRequest createSecretRequest) {
         return new KeyVaultSecretEntity(secretEntityId, vaultFake, createSecretRequest.getValue(), createSecretRequest.getContentType());
     }
 
-    private KeyVaultSecretItemModel keyVaultSecretItemModel(final URI asUriNoVersion, final Map<String, String> tags) {
+    private KeyVaultSecretItemModel keyVaultSecretItemModel(
+            final URI asUriNoVersion,
+            final Map<String, String> tags) {
         final var model = new KeyVaultSecretItemModel();
         model.setAttributes(new SecretPropertiesModel());
         model.setId(asUriNoVersion.toString());
@@ -837,7 +846,9 @@ class SecretControllerTest {
         return model;
     }
 
-    private DeletedKeyVaultSecretItemModel deletedKeyVaultSecretItemModel(final SecretEntityId id, final Map<String, String> tags) {
+    private DeletedKeyVaultSecretItemModel deletedKeyVaultSecretItemModel(
+            final SecretEntityId id,
+            final Map<String, String> tags) {
         final var model = new DeletedKeyVaultSecretItemModel();
         model.setAttributes(new SecretPropertiesModel());
         model.setId(id.asUriNoVersion(id.vault()).toString());

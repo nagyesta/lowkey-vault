@@ -1,12 +1,12 @@
 package com.github.nagyesta.lowkeyvault.http.management;
 
-import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
 
 public record TimeShiftContext(
         int seconds,
-        URI vaultBaseUri,
+        @Nullable URI vaultBaseUri,
         boolean regenerateCertificates) {
 
     public static TimeShiftContextBuilder builder() {
@@ -18,6 +18,7 @@ public record TimeShiftContext(
         private static final int MINUTES_PER_HOUR = 60;
         private static final int HOURS_PER_DAY = 24;
         private int seconds;
+        @Nullable
         private URI vaultBaseUri;
 
         private boolean regenerateCertificates;
@@ -50,7 +51,7 @@ public record TimeShiftContext(
             return this;
         }
 
-        public TimeShiftContextBuilder vaultBaseUri(@NonNull final URI vaultBaseUri) {
+        public TimeShiftContextBuilder vaultBaseUri(final URI vaultBaseUri) {
             this.vaultBaseUri = vaultBaseUri;
             return this;
         }

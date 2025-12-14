@@ -52,7 +52,9 @@ class PeriodUtilTest {
 
     @ParameterizedTest
     @MethodSource("validProvider")
-    void testAsDaysShouldReturnNumberOfDaysWhenCalledWithValidPeriods(final String period, final int expected) {
+    void testAsDaysShouldReturnNumberOfDaysWhenCalledWithValidPeriods(
+            final String period,
+            final int expected) {
         //given
         final var time = OffsetDateTime.of(2022, 5, 10, 0, 0, 0, 0, ZoneOffset.UTC);
         final var parsed = Period.parse(period);

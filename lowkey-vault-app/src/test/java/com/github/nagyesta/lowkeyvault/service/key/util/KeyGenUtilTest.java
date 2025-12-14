@@ -58,7 +58,9 @@ class KeyGenUtilTest {
 
     @ParameterizedTest
     @MethodSource("symmetricProvider")
-    void testKeyGeneratorShouldCatchAndWrapExceptionsWhenTheyAreThrown(final String alg, final int size) {
+    void testKeyGeneratorShouldCatchAndWrapExceptionsWhenTheyAreThrown(
+            final String alg,
+            final int size) {
         //given
 
         //when
@@ -69,7 +71,9 @@ class KeyGenUtilTest {
 
     @ParameterizedTest
     @MethodSource("asymmetricProvider")
-    void testKeyPairGeneratorShouldCatchAndWrapExceptionsWhenTheyAreThrown(final String alg, final Integer size) {
+    void testKeyPairGeneratorShouldCatchAndWrapExceptionsWhenTheyAreThrown(
+            final String alg,
+            final Integer size) {
         //given
         final var rsaKeyGenParameterSpec = new RSAKeyGenParameterSpec(size, BigInteger.ONE);
 

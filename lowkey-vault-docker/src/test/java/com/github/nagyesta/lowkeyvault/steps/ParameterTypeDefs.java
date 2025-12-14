@@ -6,6 +6,7 @@ import com.azure.security.keyvault.keys.cryptography.models.SignatureAlgorithm;
 import com.azure.security.keyvault.keys.models.KeyCurveName;
 import com.azure.security.keyvault.keys.models.KeyOperation;
 import io.cucumber.java.ParameterType;
+import org.jspecify.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
@@ -22,7 +23,7 @@ public class ParameterTypeDefs {
 
     @ParameterType("(null|(.+:.+)(,.+:.+)*)")
     public Map<String, String> tagMap(final String map) {
-        return Optional.ofNullable(map)
+        return Optional.of(map)
                 .filter(notTheStringNull())
                 .map(s -> s.split(","))
                 .map(a -> Arrays.stream(a)
@@ -32,7 +33,7 @@ public class ParameterTypeDefs {
 
     @ParameterType("(null|(encrypt|decrypt|wrapKey|unwrapKey|sign|verify|import)(,(encrypt|decrypt|wrapKey|unwrapKey|sign|verify|import))*)")
     public List<KeyOperation> keyOperations(final String operations) {
-        return Optional.ofNullable(operations)
+        return Optional.of(operations)
                 .filter(notTheStringNull())
                 .map(s -> s.split(","))
                 .map(a -> Arrays.stream(a)
@@ -88,7 +89,7 @@ public class ParameterTypeDefs {
     }
 
     @ParameterType("(-|.+)")
-    public String password(final String password) {
+    public @Nullable String password(final String password) {
         if (password.equals("-")) {
             return null;
         }
@@ -169,8 +170,8 @@ public class ParameterTypeDefs {
     }
 
     @ParameterType("(null|-?[0-9]+)")
-    public Integer optionalInt(final String integer) {
-        return Optional.ofNullable(integer)
+    public @Nullable Integer optionalInt(final String integer) {
+        return Optional.of(integer)
                 .filter(notTheStringNull())
                 .map(Integer::parseInt)
                 .orElse(null);

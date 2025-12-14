@@ -4,9 +4,8 @@ import com.github.nagyesta.lowkeyvault.service.common.impl.KeyVaultBaseEntity;
 import com.github.nagyesta.lowkeyvault.service.secret.ReadOnlyKeyVaultSecretEntity;
 import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
-import lombok.NonNull;
 import lombok.Setter;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.Assert;
 
 public class KeyVaultSecretEntity
@@ -15,13 +14,14 @@ public class KeyVaultSecretEntity
 
     @Setter
     private String value;
+    @Nullable
     private final String contentType;
     private final VersionedSecretEntityId id;
 
     public KeyVaultSecretEntity(
-            @NonNull final VersionedSecretEntityId id,
-            @org.springframework.lang.NonNull final VaultFake vault,
-            @org.springframework.lang.NonNull final String value,
+            final VersionedSecretEntityId id,
+            final VaultFake vault,
+            final String value,
             @Nullable final String contentType) {
         super(vault);
         Assert.hasText(value, "Value must not be null or blank.");
@@ -36,7 +36,7 @@ public class KeyVaultSecretEntity
     }
 
     @Override
-    public String getContentType() {
+    public @Nullable String getContentType() {
         return contentType;
     }
 

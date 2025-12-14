@@ -1,13 +1,8 @@
 package com.github.nagyesta.lowkeyvault.service.certificate.impl;
 
-import com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionActivity;
 import com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionTrigger;
-import com.github.nagyesta.lowkeyvault.service.certificate.id.CertificateEntityId;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.OffsetDateTime;
 import java.util.Map;
@@ -27,27 +22,6 @@ class CertificateLifetimeActionPolicyTest {
     private static final int MONTHS_100 = 100;
     private static final OffsetDateTime DATE_100_MONTHS_AGO = NOW.minusMonths(MONTHS_100);
     private static final int VALIDITY_MONTHS = 12;
-
-    public static Stream<Arguments> nullProvider() {
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null))
-                .add(Arguments.of(UNVERSIONED_CERT_ENTITY_ID_1, null))
-                .add(Arguments.of(null, Map.of()))
-                .build();
-    }
-
-    @ParameterizedTest
-    @MethodSource("nullProvider")
-    void testConstructorShouldThrowExceptionWhenCalledWithNull(
-            final CertificateEntityId id,
-            final Map<CertificateLifetimeActionActivity, CertificateLifetimeActionTrigger> map) {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new CertificateLifetimeActionPolicy(id, map));
-
-        //then + exception
-    }
 
     @Test
     void testGetLifetimeActionsShouldReturnTheMapSetPreviouslyWhenCalled() {
@@ -141,7 +115,7 @@ class CertificateLifetimeActionPolicyTest {
         final var renewTrigger = new CertificateLifetimeActionTrigger(DAYS_BEFORE_EXPIRY, DAYS_60);
         final var actions = Map.of(EMAIL_CONTACTS, emailTrigger, AUTO_RENEW, renewTrigger);
         final var underTest = new CertificateLifetimeActionPolicy(UNVERSIONED_CERT_ENTITY_ID_1, actions);
-        underTest.setCreatedOn(DATE_100_MONTHS_AGO);
+        underTest.setCreated(DATE_100_MONTHS_AGO);
 
         //when
         final var actual = underTest.missedRenewalDays(DATE_100_MONTHS_AGO, s -> s.plusMonths(DEFAULT_VALIDITY_MONTHS));

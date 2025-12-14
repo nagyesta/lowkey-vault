@@ -21,7 +21,7 @@ public class LowkeyVaultApp {
     @Value("${app.token.port}")
     private int tokenPort;
 
-    static void main(final String[] args) {
+    public static void main(final String[] args) {
         SpringApplication.run(LowkeyVaultApp.class, args);
     }
 

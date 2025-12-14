@@ -2,7 +2,6 @@ package com.github.nagyesta.lowkeyvault.controller.v7_2;
 
 import com.github.nagyesta.abortmission.booster.jupiter.annotation.LaunchAbortArmed;
 import com.github.nagyesta.lowkeyvault.TestConstantsUri;
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.SecretConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupList;
 import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupListItem;
 import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupModel;
@@ -17,9 +16,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,11 +27,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsSecrets.*;
-import static org.mockito.Mockito.mock;
+import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.V_7_2;
 
 @LaunchAbortArmed
 @SpringBootTest
@@ -47,13 +42,6 @@ class SecretBackupRestoreControllerIntegrationTest {
     @Autowired
     private VaultService vaultService;
     private URI uri;
-
-    public static Stream<Arguments> nullProvider() {
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(mock(SecretConverterRegistry.class), null))
-                .add(Arguments.of(null, mock(VaultService.class)))
-                .build();
-    }
 
     @BeforeEach
     void setUp() {
@@ -68,20 +56,6 @@ class SecretBackupRestoreControllerIntegrationTest {
         vaultService.purge(uri);
     }
 
-    @ParameterizedTest
-    @MethodSource("nullProvider")
-    void testConstructorShouldThrowExceptionWhenCalledWithNulls(
-            final SecretConverterRegistry registry,
-            final VaultService vaultService) {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new SecretBackupRestoreController(registry, vaultService));
-
-        //then + exception
-    }
-
     @Test
     void testRestoreEntityShouldRestoreASingleSecretWhenCalledWithValidInput() {
         //given
@@ -90,7 +64,7 @@ class SecretBackupRestoreControllerIntegrationTest {
         addVersionToList(uri, SECRET_NAME_1, SECRET_VERSION_1, backupModel, TAGS_THREE_KEYS);
 
         //when
-        final var actual = underTest.restore(uri, backupModel);
+        final var actual = underTest.restore(uri, V_7_2, backupModel);
 
         //then
         Assertions.assertNotNull(actual);
@@ -110,7 +84,7 @@ class SecretBackupRestoreControllerIntegrationTest {
         addVersionToList(uri, SECRET_NAME_1, SECRET_VERSION_3, backupModel, TAGS_EMPTY);
 
         //when
-        final var actual = underTest.restore(uri, backupModel);
+        final var actual = underTest.restore(uri, V_7_2, backupModel);
 
         //then
         Assertions.assertNotNull(actual);
@@ -129,7 +103,7 @@ class SecretBackupRestoreControllerIntegrationTest {
         addVersionToList(TestConstantsUri.HTTPS_DEFAULT_LOWKEY_VAULT, SECRET_NAME_1, SECRET_VERSION_2, backupModel, TAGS_THREE_KEYS);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.restore(uri, backupModel));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.restore(uri, V_7_2, backupModel));
 
         //then + exception
     }
@@ -143,7 +117,7 @@ class SecretBackupRestoreControllerIntegrationTest {
         addVersionToList(uri, SECRET_NAME_2, SECRET_VERSION_2, backupModel, TAGS_THREE_KEYS);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.restore(uri, backupModel));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.restore(uri, V_7_2, backupModel));
 
         //then + exception
     }
@@ -156,7 +130,7 @@ class SecretBackupRestoreControllerIntegrationTest {
         addVersionToList(URI.create("https://uknknown.uri"), SECRET_NAME_1, SECRET_VERSION_1, backupModel, null);
 
         //when
-        Assertions.assertThrows(NotFoundException.class, () -> underTest.restore(uri, backupModel));
+        Assertions.assertThrows(NotFoundException.class, () -> underTest.restore(uri, V_7_2, backupModel));
 
         //then + exception
     }
@@ -173,7 +147,7 @@ class SecretBackupRestoreControllerIntegrationTest {
                 .build());
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.restore(uri, backupModel));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.restore(uri, V_7_2, backupModel));
 
         //then + exception
     }
@@ -192,7 +166,7 @@ class SecretBackupRestoreControllerIntegrationTest {
         vaultFake.delete(secretVersion);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.restore(uri, backupModel));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.restore(uri, V_7_2, backupModel));
 
         //then + exception
     }
@@ -204,10 +178,10 @@ class SecretBackupRestoreControllerIntegrationTest {
         backupModel.setValue(new SecretBackupList());
         addVersionToList(uri, SECRET_NAME_1, SECRET_VERSION_1, backupModel, TAGS_EMPTY);
         addVersionToList(uri, SECRET_NAME_1, SECRET_VERSION_2, backupModel, TAGS_ONE_KEY);
-        underTest.restore(uri, backupModel);
+        underTest.restore(uri, V_7_2, backupModel);
 
         //when
-        final var actual = underTest.backup(SECRET_NAME_1, uri);
+        final var actual = underTest.backup(SECRET_NAME_1, uri, V_7_2);
 
         //then
         Assertions.assertNotNull(actual);
@@ -218,22 +192,28 @@ class SecretBackupRestoreControllerIntegrationTest {
     }
 
     private void assertRestoredSecretMatchesExpectations(
-            final KeyVaultSecretModel actualBody, final String version, final Map<String, String> expectedTags) {
+            final KeyVaultSecretModel actualBody,
+            final String version,
+            final Map<String, String> expectedTags) {
         Assertions.assertEquals(LOWKEY_VAULT, actualBody.getValue());
         Assertions.assertEquals(MimeTypeUtils.TEXT_PLAIN_VALUE, actualBody.getContentType());
         Assertions.assertEquals(new VersionedSecretEntityId(uri, SECRET_NAME_1, version).asUri(uri).toString(), actualBody.getId());
-        Assertions.assertEquals(TIME_10_MINUTES_AGO, actualBody.getAttributes().getCreatedOn());
-        Assertions.assertEquals(NOW, actualBody.getAttributes().getUpdatedOn());
+        Assertions.assertEquals(TIME_10_MINUTES_AGO, actualBody.getAttributes().getCreated());
+        Assertions.assertEquals(NOW, actualBody.getAttributes().getUpdated());
         Assertions.assertEquals(TIME_IN_10_MINUTES, actualBody.getAttributes().getNotBefore());
-        Assertions.assertEquals(TIME_IN_10_MINUTES.plusDays(1), actualBody.getAttributes().getExpiresOn());
+        Assertions.assertEquals(TIME_IN_10_MINUTES.plusDays(1), actualBody.getAttributes().getExpiry());
         Assertions.assertEquals(RecoveryLevel.RECOVERABLE_AND_PURGEABLE, actualBody.getAttributes().getRecoveryLevel());
         Assertions.assertEquals(RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE, actualBody.getAttributes().getRecoverableDays());
         Assertions.assertTrue(actualBody.getAttributes().isEnabled());
         Assertions.assertEquals(expectedTags, actualBody.getTags());
     }
 
-    private void addVersionToList(final URI baseUri, final String name, final String version,
-                                  final SecretBackupModel backupModel, final Map<String, String> tags) {
+    private void addVersionToList(
+            final URI baseUri,
+            final String name,
+            final String version,
+            final SecretBackupModel backupModel,
+            final Map<String, String> tags) {
         final var listItem = new SecretBackupListItem();
         listItem.setValue(LOWKEY_VAULT);
         listItem.setContentType(MimeTypeUtils.TEXT_PLAIN_VALUE);
@@ -241,10 +221,10 @@ class SecretBackupRestoreControllerIntegrationTest {
         listItem.setId(name);
         listItem.setVersion(version);
         final var propertiesModel = new SecretPropertiesModel();
-        propertiesModel.setCreatedOn(TIME_10_MINUTES_AGO);
-        propertiesModel.setUpdatedOn(NOW);
+        propertiesModel.setCreated(TIME_10_MINUTES_AGO);
+        propertiesModel.setUpdated(NOW);
         propertiesModel.setNotBefore(TIME_IN_10_MINUTES);
-        propertiesModel.setExpiresOn(TIME_IN_10_MINUTES.plusDays(1));
+        propertiesModel.setExpiry(TIME_IN_10_MINUTES.plusDays(1));
         propertiesModel.setRecoveryLevel(RecoveryLevel.RECOVERABLE_AND_PURGEABLE);
         propertiesModel.setRecoverableDays(RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
         listItem.setAttributes(propertiesModel);

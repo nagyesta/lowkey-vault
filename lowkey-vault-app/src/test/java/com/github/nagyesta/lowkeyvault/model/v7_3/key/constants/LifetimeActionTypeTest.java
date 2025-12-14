@@ -25,7 +25,9 @@ class LifetimeActionTypeTest {
 
     @ParameterizedTest
     @MethodSource("valueProvider")
-    void testForValueShouldReturnEnumWhenValueStringMatches(final String input, final LifetimeActionType expected) {
+    void testForValueShouldReturnEnumWhenValueStringMatches(
+            final String input,
+            final LifetimeActionType expected) {
         //given
 
         //when

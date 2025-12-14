@@ -257,6 +257,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         }
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Test
     void testConstructorShouldThrowExceptionWhenCalledWithNulVaultNames() {
         //given
@@ -266,7 +267,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         final var builder = lowkeyVault(imageName);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.vaultNames(null));
+        Assertions.assertThrows(NullPointerException.class, () -> builder.vaultNames(null));
 
         //then + exceptions
     }
@@ -300,6 +301,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         //then + exceptions
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Test
     void testBuilderShouldThrowExceptionWhenCalledWithInvalidLogicalHost() {
         //given
@@ -309,11 +311,12 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         final var builder = lowkeyVault(imageName);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.logicalHost(null));
+        Assertions.assertThrows(NullPointerException.class, () -> builder.logicalHost(null));
 
         //then + exceptions
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Test
     void testBuilderShouldThrowExceptionWhenCalledWithInvalidImportFile() {
         //given
@@ -323,11 +326,12 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         final var builder = lowkeyVault(imageName);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.importFile(null));
+        Assertions.assertThrows(NullPointerException.class, () -> builder.importFile(null));
 
         //then + exceptions
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Test
     void testBuilderShouldThrowExceptionWhenCalledWithInvalidCertFile() {
         //given
@@ -337,7 +341,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         final var builder = lowkeyVault(imageName);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class,
+        Assertions.assertThrows(NullPointerException.class,
                 () -> builder.customSslCertificate(null, null, null));
 
         //then + exceptions
@@ -375,6 +379,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         //then + exceptions
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Test
     void testBuilderShouldThrowExceptionWhenCalledWithNullAliases() {
         //given
@@ -384,11 +389,12 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         final var builder = lowkeyVault(imageName);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.vaultAliases(null));
+        Assertions.assertThrows(NullPointerException.class, () -> builder.vaultAliases(null));
 
         //then + exceptions
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Test
     void testBuilderShouldThrowExceptionWhenCalledWithNullAdditionalArguments() {
         //given
@@ -398,21 +404,12 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         final var builder = lowkeyVault(imageName);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.additionalArgs(null));
+        Assertions.assertThrows(NullPointerException.class, () -> builder.additionalArgs(null));
 
         //then + exceptions
     }
 
-    @Test
-    void testBuilderShouldThrowExceptionWhenCalledWithInvalidImageName() {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> lowkeyVault((DockerImageName) null));
-
-        //then + exceptions
-    }
-
+    @SuppressWarnings("DataFlowIssue")
     @Test
     void testBuilderShouldThrowExceptionWhenCalledWithNullExternalConfigurationFile() {
         //given
@@ -422,7 +419,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
         final var builder = lowkeyVault(imageName);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.externalConfigFile(null));
+        Assertions.assertThrows(NullPointerException.class, () -> builder.externalConfigFile(null));
 
         //then + exceptions
     }

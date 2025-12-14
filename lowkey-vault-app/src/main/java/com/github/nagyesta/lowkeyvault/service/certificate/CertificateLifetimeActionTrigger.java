@@ -1,11 +1,9 @@
 package com.github.nagyesta.lowkeyvault.service.certificate;
 
-import lombok.NonNull;
-
 import java.time.OffsetDateTime;
 
 public record CertificateLifetimeActionTrigger(
-        @NonNull CertificateLifetimeActionTriggerType triggerType,
+        CertificateLifetimeActionTriggerType triggerType,
         int value) {
 
     public void validate(final int validityMonths) {

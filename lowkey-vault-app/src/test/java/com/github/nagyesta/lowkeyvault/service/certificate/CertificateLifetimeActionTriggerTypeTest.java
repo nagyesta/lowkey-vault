@@ -51,20 +51,12 @@ class CertificateLifetimeActionTriggerTypeTest {
                 .build();
     }
 
-    @SuppressWarnings("checkstyle:MagicNumber")
-    public static Stream<Arguments> invalidTriggerProvider() {
-        return Stream.of(LIFETIME_PERCENTAGE, DAYS_BEFORE_EXPIRY)
-                .flatMap(e -> Stream.<Arguments>builder()
-                        .add(Arguments.of(e, null, null, 75))
-                        .add(Arguments.of(e, NOW, null, 50))
-                        .add(Arguments.of(e, null, NOW.plusDays(360), 50))
-                        .build());
-    }
-
     @ParameterizedTest
     @MethodSource("invalidValidationProvider")
     void testValidateShouldThrowExceptionsWhenCalledInInvalidState(
-            final CertificateLifetimeActionTriggerType underTest, final int validityMonths, final int value) {
+            final CertificateLifetimeActionTriggerType underTest,
+            final int validityMonths,
+            final int value) {
         //given
 
         //when
@@ -76,7 +68,9 @@ class CertificateLifetimeActionTriggerTypeTest {
     @ParameterizedTest
     @MethodSource("validValidationProvider")
     void testValidateShouldNotThrowExceptionsWhenCalledInValidState(
-            final CertificateLifetimeActionTriggerType underTest, final int validityMonths, final int value) {
+            final CertificateLifetimeActionTriggerType underTest,
+            final int validityMonths,
+            final int value) {
         //given
 
         //when
@@ -100,20 +94,5 @@ class CertificateLifetimeActionTriggerTypeTest {
 
         //then
         Assertions.assertEquals(expectedValue, actual);
-    }
-
-    @ParameterizedTest
-    @MethodSource("invalidTriggerProvider")
-    void testTriggersAfterDaysShouldThrowExceptionWhenCalledWithNulls(
-            final CertificateLifetimeActionTriggerType underTest,
-            final OffsetDateTime validityStart,
-            final OffsetDateTime expiry,
-            final int value) {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.triggersAfterDays(validityStart, expiry, value));
-
-        //then + exception
     }
 }

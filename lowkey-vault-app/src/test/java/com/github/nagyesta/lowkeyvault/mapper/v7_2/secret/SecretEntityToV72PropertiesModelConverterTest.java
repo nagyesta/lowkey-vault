@@ -1,6 +1,5 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_2.secret;
 
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.SecretConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultFake;
 import com.github.nagyesta.lowkeyvault.service.secret.impl.KeyVaultSecretEntity;
@@ -13,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -22,18 +22,16 @@ import java.util.stream.Stream;
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsSecrets.VERSIONED_SECRET_ENTITY_ID_1_VERSION_1;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST;
-import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
 import static org.mockito.Mockito.when;
 
 class SecretEntityToV72PropertiesModelConverterTest {
 
-    private SecretEntityToV72PropertiesModelConverter underTest;
     @Mock
     private VaultFake vault;
     @Mock
     private SecretVaultFake secretVault;
-    @Mock
-    private SecretConverterRegistry registry;
+    @InjectMocks
+    private SecretEntityToV72PropertiesModelConverterImpl underTest;
 
     private AutoCloseable openMocks;
 
@@ -53,7 +51,6 @@ class SecretEntityToV72PropertiesModelConverterTest {
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
-        underTest = new SecretEntityToV72PropertiesModelConverter(registry);
         when(vault.secretVaultFake()).thenReturn(secretVault);
         when(vault.baseUri()).thenReturn(HTTPS_LOCALHOST);
         when(vault.matches(HTTPS_LOCALHOST, uri -> uri)).thenReturn(true);
@@ -64,22 +61,24 @@ class SecretEntityToV72PropertiesModelConverterTest {
         openMocks.close();
     }
 
-    @SuppressWarnings("DataFlowIssue")
     @Test
-    void testConstructorShouldThrowExceptionWhenCalledWithNull() {
+    void testConvertShouldReturnNullWhenCalledWithNull() {
         //given
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new SecretEntityToV72PropertiesModelConverter(null));
+        final var actual = underTest.convert(null);
 
-        //then + exception
+        //then
+        Assertions.assertNull(actual);
     }
 
     @ParameterizedTest
     @MethodSource("validInputProvider")
     void testConvertShouldConvertAllFieldsWhenTheyAreSet(
-            final Integer recoverableDays, final RecoveryLevel recoveryLevel,
-            final OffsetDateTime notBefore, final OffsetDateTime expiry,
+            final Integer recoverableDays,
+            final RecoveryLevel recoveryLevel,
+            final OffsetDateTime notBefore,
+            final OffsetDateTime expiry,
             final Boolean enabled) {
 
         //given
@@ -91,19 +90,19 @@ class SecretEntityToV72PropertiesModelConverterTest {
         input.setRecoveryLevel(recoveryLevel);
 
         //when
-        final var actual = underTest.convert(input, HTTPS_LOCALHOST_8443);
+        final var actual = underTest.convert(input);
 
         //then
         Assertions.assertNotNull(actual);
-        Assertions.assertNotNull(actual.getCreatedOn());
-        Assertions.assertNotNull(actual.getUpdatedOn());
+        Assertions.assertNotNull(actual.getCreated());
+        Assertions.assertNotNull(actual.getUpdated());
         Assertions.assertEquals(enabled, actual.isEnabled());
-        Assertions.assertEquals(input.getCreated(), actual.getCreatedOn());
-        Assertions.assertEquals(expiry, actual.getExpiresOn());
+        Assertions.assertEquals(input.getCreated(), actual.getCreated());
+        Assertions.assertEquals(expiry, actual.getExpiry());
         Assertions.assertEquals(notBefore, actual.getNotBefore());
         Assertions.assertEquals(recoverableDays, actual.getRecoverableDays());
         Assertions.assertEquals(recoveryLevel, actual.getRecoveryLevel());
-        Assertions.assertEquals(input.getUpdated(), actual.getUpdatedOn());
+        Assertions.assertEquals(input.getUpdated(), actual.getUpdated());
     }
 
     @Setter

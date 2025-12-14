@@ -8,9 +8,6 @@ import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultFakeImpl;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -18,7 +15,6 @@ import org.springframework.http.HttpStatus;
 
 import java.net.URI;
 import java.util.Collections;
-import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.NUMBER_OF_SECONDS_IN_10_MINUTES;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.*;
@@ -29,15 +25,9 @@ class VaultManagementControllerTest {
     private static final VaultModel VAULT_MODEL = createVaultModel(HTTPS_DEFAULT_LOWKEY_VAULT, false);
     private static final VaultModel VAULT_MODEL_DELETED = createVaultModel(HTTPS_DEFAULT_LOWKEY_VAULT_8443, true);
 
-    public static Stream<Arguments> invalidProvider() {
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null))
-                .add(Arguments.of(mock(VaultService.class), null))
-                .add(Arguments.of(null, mock(VaultFakeToVaultModelConverter.class)))
-                .build();
-    }
-
-    private static VaultModel createVaultModel(final URI uri, final boolean deleted) {
+    private static VaultModel createVaultModel(
+            final URI uri,
+            final boolean deleted) {
         final var model = new VaultModel();
         model.setBaseUri(uri);
         model.setRecoveryLevel(RecoveryLevel.CUSTOMIZED_RECOVERABLE);
@@ -47,21 +37,6 @@ class VaultManagementControllerTest {
             model.setDeletedOn(TestConstants.NOW);
         }
         return model;
-    }
-
-    @ParameterizedTest
-    @MethodSource("invalidProvider")
-    void testConstructorThrowsExceptionWhenCalledWithNull(
-            final VaultService vaultService,
-            final VaultFakeToVaultModelConverter vaultFakeToVaultModelConverter) {
-
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new VaultManagementController(vaultService, vaultFakeToVaultModelConverter));
-
-        //then + exception
     }
 
     @Nested
@@ -94,8 +69,8 @@ class VaultManagementControllerTest {
             when(vaultService.delete(vaultFakeActive.baseUri())).thenReturn(true);
             when(converter.convert(same(vaultFakeActive))).thenReturn(VAULT_MODEL);
             when(converter.convert(same(vaultFakeDeleted))).thenReturn(VAULT_MODEL_DELETED);
-            when(converter.convertNonNull(same(vaultFakeActive))).thenReturn(VAULT_MODEL);
-            when(converter.convertNonNull(same(vaultFakeDeleted))).thenReturn(VAULT_MODEL_DELETED);
+            when(converter.convert(same(vaultFakeActive))).thenReturn(VAULT_MODEL);
+            when(converter.convert(same(vaultFakeDeleted))).thenReturn(VAULT_MODEL_DELETED);
         }
 
         @AfterEach
@@ -135,7 +110,7 @@ class VaultManagementControllerTest {
             Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
             final var inOrder = inOrder(vaultService, converter);
             inOrder.verify(vaultService).list();
-            inOrder.verify(converter).convertNonNull(vaultFakeActive);
+            inOrder.verify(converter).convert(vaultFakeActive);
             verifyNoMoreInteractions(vaultService, converter);
         }
 
@@ -151,7 +126,7 @@ class VaultManagementControllerTest {
             Assertions.assertEquals(HttpStatus.OK, actual.getStatusCode());
             final var inOrder = inOrder(vaultService, converter);
             inOrder.verify(vaultService).listDeleted();
-            inOrder.verify(converter).convertNonNull(vaultFakeDeleted);
+            inOrder.verify(converter).convert(vaultFakeDeleted);
             verifyNoMoreInteractions(vaultService, converter);
         }
 

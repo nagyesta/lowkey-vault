@@ -62,7 +62,9 @@ class KeyTypeTest {
 
     @ParameterizedTest
     @MethodSource("valueProvider")
-    void testForValueShouldReturnEnumWhenValueStringMatches(final String input, final KeyType expected) {
+    void testForValueShouldReturnEnumWhenValueStringMatches(
+            final String input,
+            final KeyType expected) {
         //given
 
         //when
@@ -75,7 +77,9 @@ class KeyTypeTest {
 
     @ParameterizedTest
     @MethodSource("entityProvider")
-    void testEntityClassShouldReturnClassWhenCalled(final KeyType underTest, final Class<?> expected) {
+    void testEntityClassShouldReturnClassWhenCalled(
+            final KeyType underTest,
+            final Class<?> expected) {
         //given
 
         //when
@@ -87,7 +91,9 @@ class KeyTypeTest {
 
     @ParameterizedTest
     @MethodSource("validationProvider")
-    void testValidateShouldThrowExceptionWhenCalledWithInvalidValue(final KeyType underTest, final Integer value) {
+    void testValidateShouldThrowExceptionWhenCalledWithInvalidValue(
+            final KeyType underTest,
+            final Integer value) {
         //given
 
         //when
@@ -99,7 +105,10 @@ class KeyTypeTest {
     @ParameterizedTest
     @MethodSource("typeCheckProvider")
     void testIsOctEcRsaShouldReturnTrueOnlyWhenCalledOnTheRightInstance(
-            final KeyType underTest, final boolean oct, final boolean ec, final boolean rsa) {
+            final KeyType underTest,
+            final boolean oct,
+            final boolean ec,
+            final boolean rsa) {
         //given
 
         //when

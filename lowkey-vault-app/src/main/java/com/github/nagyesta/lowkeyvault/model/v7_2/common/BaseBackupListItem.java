@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
 import java.util.Map;
@@ -35,6 +36,7 @@ public class BaseBackupListItem<P extends BasePropertiesModel> {
     @NotNull
     @JsonProperty("attributes")
     private P attributes;
+    @Nullable
     @JsonProperty("tags")
     private Map<String, String> tags;
     @JsonProperty("managed")

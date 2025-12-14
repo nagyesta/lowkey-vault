@@ -6,14 +6,17 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
 @Data
 public class CertificatePolicyModel {
 
+    @Nullable
     @JsonProperty("id")
     private String id;
+    @Nullable
     @Valid
     @NotNull
     @JsonProperty("key_props")
@@ -26,13 +29,16 @@ public class CertificatePolicyModel {
     @NotNull
     @JsonProperty("x509_props")
     private X509CertificateModel x509Properties;
+    @Nullable
     @Valid
     @NotNull
     @JsonProperty("issuer")
     private IssuerParameterModel issuer;
+    @Nullable
     @Valid
     @JsonProperty("attributes")
     private CertificatePropertiesModel attributes;
+    @Nullable
     @Valid
     @Size(max = 1) //only one can be set on the UI
     @JsonProperty("lifetime_actions")

@@ -23,7 +23,9 @@ class KeyCurveNameTest {
 
     @ParameterizedTest
     @MethodSource("valueProvider")
-    void testForValueShouldReturnEnumWhenValueStringMatches(final String input, final KeyCurveName expected) {
+    void testForValueShouldReturnEnumWhenValueStringMatches(
+            final String input,
+            final KeyCurveName expected) {
         //given
 
         //when

@@ -1,7 +1,6 @@
 package com.github.nagyesta.lowkeyvault.http.management;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -23,17 +22,4 @@ class TimeShiftContextTest {
         //then + exception
     }
 
-
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testBuilderShouldThrowExceptionWhenCalledWithNullUri() {
-        //given
-        //noinspection WriteOnlyObject
-        final var underTest = TimeShiftContext.builder();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.vaultBaseUri(null));
-
-        //then + exception
-    }
 }

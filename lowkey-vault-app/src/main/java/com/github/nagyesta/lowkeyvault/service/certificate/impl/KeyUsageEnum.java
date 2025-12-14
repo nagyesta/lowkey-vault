@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyOperation;
 import org.bouncycastle.asn1.x509.KeyUsage;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -88,7 +89,7 @@ public enum KeyUsageEnum {
     }
 
     @JsonIgnore
-    public static Set<KeyUsageEnum> parseBitString(final boolean[] usage) {
+    public static Set<KeyUsageEnum> parseBitString(final boolean @Nullable [] usage) {
         final var bitString = Optional.ofNullable(usage).orElse(new boolean[0]);
         return Arrays.stream(values())
                 .filter(e -> bitString.length > e.position && bitString[e.position])

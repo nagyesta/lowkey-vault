@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.NullSource;
 
 import java.util.stream.Stream;
 
@@ -29,7 +28,6 @@ class CertificateAlgorithmTest {
 
     @ParameterizedTest
     @MethodSource("invalidKeyTypeProvider")
-    @NullSource
     void testForKeyTypeShouldThrowExceptionWhenCalledWithNullOrUnknownKeyType(final KeyType keyType) {
         //given
 
@@ -42,7 +40,9 @@ class CertificateAlgorithmTest {
     @ParameterizedTest
     @MethodSource("validKeyTypeProvider")
     void testForKeyTypeShouldReturnExpectedAlgorithmWhenCalledWithKnownKeyType(
-            final KeyType keyType, final CertificateAlgorithm expectedInstance, final String expectedAlgorithm) {
+            final KeyType keyType,
+            final CertificateAlgorithm expectedInstance,
+            final String expectedAlgorithm) {
         //given
 
         //when

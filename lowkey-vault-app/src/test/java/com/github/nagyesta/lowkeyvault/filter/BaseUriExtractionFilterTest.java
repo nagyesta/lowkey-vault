@@ -73,7 +73,10 @@ class BaseUriExtractionFilterTest {
     @ParameterizedTest
     @MethodSource("hostAndPortProvider")
     void testDoFilterInternalShouldSetRequestBaseUriRequestAttributeWhenCalled(
-            final String hostName, final int port, final String path, final URI expected) throws ServletException, IOException {
+            final String hostName,
+            final int port,
+            final String path,
+            final URI expected) throws ServletException, IOException {
         //given
         final var underTest = new BaseUriExtractionFilter();
         when(request.getServerName()).thenReturn(hostName);

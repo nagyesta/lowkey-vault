@@ -21,7 +21,6 @@ public class CertificateBackupModel
     public CertificateBackupList getValue() {
         return super.getValue();
     }
-
     @JsonDeserialize(using = Base64ZipCertificateDeserializer.class)
     @Override
     public void setValue(final CertificateBackupList value) {

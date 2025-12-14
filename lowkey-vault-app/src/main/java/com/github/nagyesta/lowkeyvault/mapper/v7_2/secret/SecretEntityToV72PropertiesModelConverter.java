@@ -1,44 +1,25 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_2.secret;
 
-import com.github.nagyesta.lowkeyvault.context.ApiVersionAware;
-import com.github.nagyesta.lowkeyvault.mapper.common.AliasAwareConverter;
-import com.github.nagyesta.lowkeyvault.mapper.common.BasePropertiesModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.SecretConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.SecretPropertiesModel;
 import com.github.nagyesta.lowkeyvault.service.secret.ReadOnlyKeyVaultSecretEntity;
-import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.Nullable;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
+import org.mapstruct.Named;
 
-import java.net.URI;
-import java.util.SortedSet;
+import java.time.OffsetDateTime;
+import java.util.Optional;
 
-public class SecretEntityToV72PropertiesModelConverter
-        extends BasePropertiesModelConverter<VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity, SecretPropertiesModel>
-        implements AliasAwareConverter<ReadOnlyKeyVaultSecretEntity, SecretPropertiesModel> {
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+public interface SecretEntityToV72PropertiesModelConverter {
 
-    private final SecretConverterRegistry registry;
+    @Mapping(target = "expiry", qualifiedByName = "optionalOffsetDateTimeConverter")
+    @Mapping(target = "notBefore", qualifiedByName = "optionalOffsetDateTimeConverter")
+    @Nullable SecretPropertiesModel convert(@Nullable ReadOnlyKeyVaultSecretEntity source);
 
-    @Autowired
-    public SecretEntityToV72PropertiesModelConverter(@lombok.NonNull final SecretConverterRegistry registry) {
-        this.registry = registry;
-    }
-
-    @Override
-    public void afterPropertiesSet() {
-        registry.registerPropertiesConverter(this);
-    }
-
-    @Override
-    @NonNull
-    public SecretPropertiesModel convert(
-            @NonNull final ReadOnlyKeyVaultSecretEntity source,
-            @NonNull final URI vaultUri) {
-        return mapCommonFields(source, new SecretPropertiesModel());
-    }
-
-    @Override
-    public SortedSet<String> supportedVersions() {
-        return ApiVersionAware.ALL_VERSIONS;
+    @Named("optionalOffsetDateTimeConverter")
+    default @Nullable OffsetDateTime optionalOffsetDateTimeConverter(final Optional<OffsetDateTime> input) {
+        return input.orElse(null);
     }
 }

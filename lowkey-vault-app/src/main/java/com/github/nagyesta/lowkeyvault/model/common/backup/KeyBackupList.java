@@ -11,6 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -25,7 +26,7 @@ public class KeyBackupList
     @Size(min = 1)
     @JsonProperty("versions")
     private List<KeyBackupListItem> versions = List.of();
-
+    @Nullable
     @Setter
     @Valid
     @JsonProperty("rotationPolicy")

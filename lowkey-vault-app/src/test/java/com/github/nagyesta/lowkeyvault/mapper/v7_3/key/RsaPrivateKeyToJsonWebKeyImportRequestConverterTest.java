@@ -31,16 +31,4 @@ class RsaPrivateKeyToJsonWebKeyImportRequestConverterTest {
         Assertions.assertNotNull(actual.getDq());
         Assertions.assertNotNull(actual.getQi());
     }
-
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testConvertShouldThrowExceptionWhenCalledWithNull() {
-        //given
-        final var underTest = new RsaPrivateKeyToJsonWebKeyImportRequestConverter();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.convert(null));
-
-        //then + exceptions
-    }
 }

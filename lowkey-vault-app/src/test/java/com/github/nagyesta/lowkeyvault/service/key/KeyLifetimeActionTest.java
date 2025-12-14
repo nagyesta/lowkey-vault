@@ -5,33 +5,10 @@ import com.github.nagyesta.lowkeyvault.service.key.constants.LifetimeActionTrigg
 import com.github.nagyesta.lowkeyvault.service.key.impl.KeyLifetimeActionTrigger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.Period;
-import java.util.stream.Stream;
 
 class KeyLifetimeActionTest {
-
-    public static Stream<Arguments> invalidProvider() {
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null))
-                .add(Arguments.of(null, new KeyLifetimeActionTrigger(Period.ZERO, LifetimeActionTriggerType.TIME_BEFORE_EXPIRY)))
-                .add(Arguments.of(LifetimeActionType.NOTIFY, null))
-                .build();
-    }
-
-    @ParameterizedTest
-    @MethodSource("invalidProvider")
-    void testConstructorShouldThrowExceptionWhenCalledWithNulls(final LifetimeActionType type, final LifetimeActionTrigger trigger) {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new KeyLifetimeAction(type, trigger));
-
-        //then + exception
-    }
 
     @Test
     void testConstructorShouldSetValuesWhenCalledWithValidInput() {

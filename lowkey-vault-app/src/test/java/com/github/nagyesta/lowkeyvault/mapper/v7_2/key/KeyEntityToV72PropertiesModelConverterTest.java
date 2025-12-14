@@ -1,6 +1,5 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_2.key;
 
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.EncryptionAlgorithm;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
@@ -8,8 +7,11 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.SignatureAlgorit
 import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
 import com.github.nagyesta.lowkeyvault.service.key.impl.KeyCreationInput;
 import com.github.nagyesta.lowkeyvault.service.key.impl.KeyVaultKeyEntity;
+import com.github.nagyesta.lowkeyvault.service.key.impl.RsaKeyCreationInput;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.Setter;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -26,18 +29,16 @@ import java.util.stream.Stream;
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST;
-import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOWKEY_VAULT;
 import static org.mockito.Mockito.when;
 
 class KeyEntityToV72PropertiesModelConverterTest {
 
-    private KeyEntityToV72PropertiesModelConverter underTest;
     @Mock
     private VaultFake vault;
     @Mock
     private KeyVaultFake keyVault;
-    @Mock
-    private KeyConverterRegistry registry;
+    @InjectMocks
+    private KeyEntityToV72PropertiesModelConverterImpl underTest;
     private AutoCloseable openMocks;
 
     public static Stream<Arguments> validInputProvider() {
@@ -56,7 +57,7 @@ class KeyEntityToV72PropertiesModelConverterTest {
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
-        underTest = new KeyEntityToV72PropertiesModelConverter(registry);
+        underTest = new KeyEntityToV72PropertiesModelConverterImpl();
         when(vault.keyVaultFake()).thenReturn(keyVault);
         when(vault.baseUri()).thenReturn(HTTPS_LOCALHOST);
         when(vault.matches(HTTPS_LOCALHOST, uri -> uri)).thenReturn(true);
@@ -67,22 +68,24 @@ class KeyEntityToV72PropertiesModelConverterTest {
         openMocks.close();
     }
 
-    @SuppressWarnings("DataFlowIssue")
     @Test
-    void testConstructorShouldThrowExceptionWhenCalledWithNull() {
+    void testConvertShouldReturnNullWhenCalledWithNull() {
         //given
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new KeyEntityToV72PropertiesModelConverter(null));
+        final var actual = underTest.convert(null);
 
-        //then + exception
+        //then
+        Assertions.assertNull(actual);
     }
 
     @ParameterizedTest
     @MethodSource("validInputProvider")
     void testConvertShouldConvertAllFieldsWhenTheyAreSet(
-            final Integer recoverableDays, final RecoveryLevel recoveryLevel,
-            final OffsetDateTime notBefore, final OffsetDateTime expiry,
+            final Integer recoverableDays,
+            final RecoveryLevel recoveryLevel,
+            final OffsetDateTime notBefore,
+            final OffsetDateTime expiry,
             final Boolean enabled) {
 
         //given
@@ -94,21 +97,22 @@ class KeyEntityToV72PropertiesModelConverterTest {
         input.setRecoveryLevel(recoveryLevel);
 
         //when
-        final var actual = underTest.convert(input, HTTPS_LOWKEY_VAULT);
+        final var actual = underTest.convert(input);
 
         //then
         Assertions.assertNotNull(actual);
-        Assertions.assertNotNull(actual.getCreatedOn());
-        Assertions.assertNotNull(actual.getUpdatedOn());
+        Assertions.assertNotNull(actual.getCreated());
+        Assertions.assertNotNull(actual.getUpdated());
         Assertions.assertEquals(enabled, actual.isEnabled());
-        Assertions.assertEquals(input.getCreated(), actual.getCreatedOn());
-        Assertions.assertEquals(expiry, actual.getExpiresOn());
+        Assertions.assertEquals(input.getCreated(), actual.getCreated());
+        Assertions.assertEquals(expiry, actual.getExpiry());
         Assertions.assertEquals(notBefore, actual.getNotBefore());
         Assertions.assertEquals(recoverableDays, actual.getRecoverableDays());
         Assertions.assertEquals(recoveryLevel, actual.getRecoveryLevel());
-        Assertions.assertEquals(input.getUpdated(), actual.getUpdatedOn());
+        Assertions.assertEquals(input.getUpdated(), actual.getUpdated());
     }
 
+    @NullMarked
     @Setter
     private final class DummyKeyVaultKeyEntity extends KeyVaultKeyEntity<Integer, Integer> {
         private Integer recoverableDays;
@@ -120,23 +124,27 @@ class KeyEntityToV72PropertiesModelConverterTest {
 
         @Override
         public KeyType getKeyType() {
-            return null;
+            return KeyType.RSA;
         }
 
         @Override
         public KeyCreationInput<?> keyCreationInput() {
-            return null;
+            return new RsaKeyCreationInput(KeyType.RSA, null, null);
         }
 
         @Override
-        public byte[] encryptBytes(final byte[] clear, final EncryptionAlgorithm encryptionAlgorithm,
-                                   final byte[] iv) {
+        public byte[] encryptBytes(
+                final byte[] clear,
+                final EncryptionAlgorithm encryptionAlgorithm,
+                final byte @Nullable [] iv) {
             return new byte[0];
         }
 
         @Override
-        public byte[] decryptToBytes(final byte[] encrypted, final EncryptionAlgorithm encryptionAlgorithm,
-                                     final byte[] iv) {
+        public byte[] decryptToBytes(
+                final byte[] encrypted,
+                final EncryptionAlgorithm encryptionAlgorithm,
+                final byte @Nullable [] iv) {
             return new byte[0];
         }
 
@@ -151,14 +159,17 @@ class KeyEntityToV72PropertiesModelConverterTest {
         }
 
         @Override
-        public byte[] signBytes(final byte[] clear, final SignatureAlgorithm encryptionAlgorithm) {
+        public byte[] signBytes(
+                final byte[] clear,
+                final SignatureAlgorithm encryptionAlgorithm) {
             return new byte[0];
         }
 
         @Override
-        public boolean verifySignedBytes(final byte[] signed,
-                                         final SignatureAlgorithm encryptionAlgorithm,
-                                         final byte[] digest) {
+        public boolean verifySignedBytes(
+                final byte[] signed,
+                final SignatureAlgorithm encryptionAlgorithm,
+                final byte[] digest) {
             return false;
         }
     }

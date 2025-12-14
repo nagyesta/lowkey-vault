@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.http.ResponseEntity;
@@ -30,9 +29,9 @@ public class VaultBackupManagementController
     private final VaultImportExportExecutor vaultImportExportExecutor;
 
     public VaultBackupManagementController(
-            @NonNull final VaultImporter vaultImporter,
-            @NonNull final VaultService vaultService,
-            @NonNull final VaultImportExportExecutor vaultImportExportExecutor) {
+            final VaultImporter vaultImporter,
+            final VaultService vaultService,
+            final VaultImportExportExecutor vaultImportExportExecutor) {
         this.vaultImporter = vaultImporter;
         this.vaultService = vaultService;
         this.vaultImportExportExecutor = vaultImportExportExecutor;

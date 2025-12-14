@@ -10,7 +10,9 @@ public final class HashUtil {
     private HashUtil() {
     }
 
-    public static byte[] hash(final byte[] data, final HashAlgorithm algorithm) {
+    public static byte[] hash(
+            final byte[] data,
+            final HashAlgorithm algorithm) {
         try {
             return hash(data, algorithm.getAlgorithmName());
         } catch (final NoSuchAlgorithmException e) {
@@ -18,7 +20,9 @@ public final class HashUtil {
         }
     }
 
-    private static byte[] hash(final byte[] data, final String algorithm) throws NoSuchAlgorithmException {
+    private static byte[] hash(
+            final byte[] data,
+            final String algorithm) throws NoSuchAlgorithmException {
         final var md = MessageDigest.getInstance(algorithm);
         md.update(data);
         return md.digest();

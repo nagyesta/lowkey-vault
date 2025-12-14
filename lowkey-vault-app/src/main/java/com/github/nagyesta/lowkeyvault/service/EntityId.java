@@ -1,5 +1,7 @@
 package com.github.nagyesta.lowkeyvault.service;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.URI;
 import java.util.Optional;
 
@@ -11,6 +13,7 @@ public interface EntityId {
 
     String id();
 
+    @Nullable
     String version();
 
     default String asString() {

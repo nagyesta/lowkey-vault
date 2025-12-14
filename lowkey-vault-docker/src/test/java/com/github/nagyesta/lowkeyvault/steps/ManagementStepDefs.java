@@ -118,7 +118,9 @@ public class ManagementStepDefs extends CommonAssertions {
     }
 
     @When("the time of the vault named {name} is shifted by {int} days")
-    public void theTimeOfTheVaultNamedVaultNameIsShiftedByDays(final String vaultName, final int timeShiftDays) {
+    public void theTimeOfTheVaultNamedVaultNameIsShiftedByDays(
+            final String vaultName,
+            final int timeShiftDays) {
         final var vaultUrl = vaultNameToUrl(vaultName);
         context.getClient().timeShift(TimeShiftContext.builder()
                 .vaultBaseUri(URI.create(vaultUrl))
@@ -145,7 +147,10 @@ public class ManagementStepDefs extends CommonAssertions {
     }
 
     @Then("the time stamps of {name} and {name} differ by {int} days")
-    public void theTimeStampsOfOriginalAndUpdatedDifferByDays(final String original, final String updated, final int expectedDays) {
+    public void theTimeStampsOfOriginalAndUpdatedDifferByDays(
+            final String original,
+            final String updated,
+            final int expectedDays) {
         final var originalList = context.getVaultLists().getOrDefault(original, Collections.emptyList());
         final var updatedList = context.getVaultLists().getOrDefault(updated, Collections.emptyList());
         final Map<URI, OffsetDateTime> createdMap = new HashMap<>();

@@ -6,7 +6,6 @@ import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyAsymmetricKeyVaultKey
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
-import lombok.NonNull;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.DERSequence;
@@ -27,6 +26,7 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.pkcs.PKCS10CertificationRequestBuilder;
 import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -45,14 +45,14 @@ public class CertificateGenerator {
     private final SecureRandom secureRandom = new SecureRandom();
 
     public CertificateGenerator(
-            @NonNull final VaultFake vault,
-            @NonNull final VersionedKeyEntityId kid) {
+            final VaultFake vault,
+            final VersionedKeyEntityId kid) {
         this.vault = vault;
         this.kid = kid;
     }
 
     public X509Certificate generateCertificate(
-            @NonNull final ReadOnlyCertificatePolicy input) throws CryptoException {
+            final ReadOnlyCertificatePolicy input) throws CryptoException {
         try {
             final var readOnlyKeyVaultKey = vault.keyVaultFake().getEntities()
                     .getEntity(kid, ReadOnlyAsymmetricKeyVaultKeyEntity.class);
@@ -63,8 +63,8 @@ public class CertificateGenerator {
     }
 
     public PKCS10CertificationRequest generateCertificateSigningRequest(
-            @NonNull final String name,
-            @NonNull final X509Certificate certificate) throws CryptoException {
+            final String name,
+            final X509Certificate certificate) throws CryptoException {
         try {
             final var readOnlyKeyVaultKey = vault.keyVaultFake().getEntities()
                     .getEntity(kid, ReadOnlyAsymmetricKeyVaultKeyEntity.class);
@@ -83,7 +83,8 @@ public class CertificateGenerator {
                     .add(Extension.subjectKeyIdentifier)
                     .add(Extension.authorityKeyIdentifier)
                     .add(Extension.basicConstraints)
-                    .build().forEach(e -> addAttributeBasedOnCertificate(builder, certificate, e));
+                    .build()
+                    .forEach(e -> addAttributeBasedOnCertificate(builder, certificate, e));
 
             return builder.build(signer);
         } catch (final Exception e) {
@@ -108,13 +109,12 @@ public class CertificateGenerator {
         return converter.getCertificate(holder);
     }
 
-    @org.springframework.lang.NonNull
     private KeyUsage generateKeyUsage(final ReadOnlyCertificatePolicy input) {
         return Objects.requireNonNullElse(input.getKeyUsage(), Collections.<KeyUsageEnum>emptyList())
                 .stream().collect(KeyUsageEnum.toKeyUsage());
     }
 
-    private ExtendedKeyUsage convertUsageExtensions(final ReadOnlyCertificatePolicy input) {
+    private @Nullable ExtendedKeyUsage convertUsageExtensions(final ReadOnlyCertificatePolicy input) {
         ExtendedKeyUsage result = null;
         if (input.getExtendedKeyUsage() != null && !input.getExtendedKeyUsage().isEmpty()) {
             result = new ExtendedKeyUsage(input.getExtendedKeyUsage()
@@ -159,7 +159,7 @@ public class CertificateGenerator {
         return x500NameBuilder.build();
     }
 
-    private GeneralNames generateSubjectAlternativeNames(final ReadOnlyCertificatePolicy input) {
+    private @Nullable GeneralNames generateSubjectAlternativeNames(final ReadOnlyCertificatePolicy input) {
         final var names = generateSubjectAlternativeNamesArray(input);
         GeneralNames result = null;
         if (names.length > 0) {
@@ -188,7 +188,7 @@ public class CertificateGenerator {
             final X509v3CertificateBuilder builder,
             final ASN1ObjectIdentifier name,
             final boolean isCritical,
-            final ASN1Encodable value) throws IOException {
+            @Nullable final ASN1Encodable value) throws IOException {
         if (value == null) {
             return;
         }
@@ -222,7 +222,7 @@ public class CertificateGenerator {
             final PKCS10CertificationRequestBuilder builder,
             final ASN1ObjectIdentifier name,
             final boolean isCritical,
-            final byte[] value) {
+            final byte @Nullable [] value) {
         try {
             if (value == null) {
                 return;

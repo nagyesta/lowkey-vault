@@ -15,7 +15,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
-import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -308,17 +307,6 @@ class CertContentTypeTest {
         Assertions.assertEquals(KeyType.RSA, actual.getKeyType());
     }
 
-    @ParameterizedTest
-    @MethodSource("instanceProvider")
-    void testGetKeyShouldThrowExceptionWhenCalledWithNullCertificate(final CertContentType underTest) {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.getKey(null, "changeit"));
-
-        //then + exception
-    }
-
     @Test
     void testGetKeyShouldThrowExceptionWhenCalledWithNullPasswordAndPkcs12() {
         //given
@@ -339,18 +327,6 @@ class CertContentTypeTest {
 
         //when
         Assertions.assertDoesNotThrow(() -> underTest.getKey(store, null));
-
-        //then + exception
-    }
-
-    @ParameterizedTest
-    @MethodSource("instanceProvider")
-    void testGetCertificateChainShouldThrowExceptionWhenCalledWithNullCertificate(final CertContentType underTest) {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.getCertificateChain(null, "changeit"));
 
         //then + exception
     }
@@ -381,33 +357,6 @@ class CertContentTypeTest {
 
     @ParameterizedTest
     @MethodSource("instanceProvider")
-    void testAsBase64CertificatePackageShouldThrowExceptionWhenCalledWithNullKeyPair(final CertContentType underTest) {
-        //given
-        final var store = ResourceUtils.loadResourceAsString("/cert/rsa.pem");
-        final var chain = CertContentType.PEM.getCertificateChain(Objects.requireNonNull(store), "");
-        final var certificate = chain.getFirst();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.asBase64CertificatePackage(certificate, null));
-
-        //then + exception
-    }
-
-    @ParameterizedTest
-    @MethodSource("instanceProvider")
-    void testAsBase64CertificatePackageShouldThrowExceptionWhenCalledWithNullCertificate(final CertContentType underTest) {
-        //given
-        final var keyPair = KeyGenUtil.generateEc(KeyCurveName.P_521);
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.asBase64CertificatePackage(null, keyPair));
-
-        //then + exception
-    }
-
-    @ParameterizedTest
-    @MethodSource("instanceProvider")
     void testByMimeTypeShouldFindInstanceWhenCalledWithValidInput(final CertContentType expected) {
         //given
 
@@ -430,31 +379,6 @@ class CertContentTypeTest {
     }
 
     @Test
-    void testCertificatePackageForBackupShouldThrowExceptionWhenCalledWithNullKeyAndValidCertificateUsingPkcs12Store() {
-        //given
-        final var store = ResourceUtils.loadResourceAsBase64String("/cert/rsa.p12");
-        final var certificate = PKCS12.getCertificateChain(store, "").getFirst();
-        final var underTest = PKCS12;
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.certificatePackageForBackup(certificate, null));
-
-        //then + exception
-    }
-
-    @Test
-    void testCertificatePackageForBackupShouldThrowExceptionWhenCalledWithValidKeyAndNullCertificateUsingPkcs12Store() {
-        //given
-        final var keyPair = KeyGenUtil.generateRsa(MIN_RSA_KEY_SIZE, null);
-        final var underTest = PKCS12;
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.certificatePackageForBackup(null, keyPair));
-
-        //then + exception
-    }
-
-    @Test
     void testCertificatePackageForBackupShouldThrowExceptionWhenCalledWithValidKeyAndInvalidCertificateUsingPkcs12Store() {
         //given
         final var certificate = mock(Certificate.class);
@@ -469,7 +393,9 @@ class CertContentTypeTest {
 
     @ParameterizedTest
     @MethodSource("base64Provider")
-    void testEncodeAsBase64StringShouldProduceTheExpectedBase64String(final byte[] input, final String expected) {
+    void testEncodeAsBase64StringShouldProduceTheExpectedBase64String(
+            final byte[] input,
+            final String expected) {
         //given
 
         //when
@@ -482,7 +408,9 @@ class CertContentTypeTest {
 
     @ParameterizedTest
     @MethodSource("base64Provider")
-    void testDecodeBase64StringShouldProduceTheExpectedByteArray(final byte[] expected, final String input) {
+    void testDecodeBase64StringShouldProduceTheExpectedByteArray(
+            final byte[] expected,
+            final String input) {
         //given
 
         //when

@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.model.json.util;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.StringUtils;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
@@ -25,15 +26,13 @@ public class Base64Deserializer extends ValueDeserializer<byte[]> {
     public byte[] deserialize(
             final JsonParser parser,
             final DeserializationContext context) {
-        return deserializeBase64(parser);
+        final var value = parser.readValueAs(String.class);
+        return deserializeBase64(value);
     }
 
     @SuppressWarnings("java:S1168") //we need to return null to potentially ignore the field in the JSON
-    protected byte[] deserializeBase64(final JsonParser parser) {
-        final var optional = Optional.ofNullable(parser.readValueAs(String.class));
-        if (optional.isEmpty()) {
-            return null;
-        }
+    protected byte[] deserializeBase64(@Nullable final String value) {
+        final var optional = Optional.ofNullable(value);
         return optional
                 .filter(StringUtils::hasText)
                 .map(decoder::decode)

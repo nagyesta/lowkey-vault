@@ -5,6 +5,7 @@ import com.github.nagyesta.lowkeyvault.context.SecretTestContext;
 import com.github.nagyesta.lowkeyvault.context.TestContextConfig;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
+import org.jspecify.annotations.Nullable;
 
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -45,7 +46,7 @@ public class SecretsStepDefsAssertions extends CommonAssertions {
     }
 
     @Then("the secret expires {optionalInt} seconds after creation")
-    public void theSecretExpiresExpiresSecondsAfterCreation(final Integer expires) {
+    public void theSecretExpiresExpiresSecondsAfterCreation(@Nullable final Integer expires) {
         if (expires == null) {
             assertNull(context.getLastResult().getProperties().getExpiresOn());
         } else {
@@ -56,7 +57,7 @@ public class SecretsStepDefsAssertions extends CommonAssertions {
     }
 
     @Then("the secret is not usable before {optionalInt} seconds after creation")
-    public void theSecretIsNotUsableBeforeNotBeforeSecondsAfterCreation(final Integer notBefore) {
+    public void theSecretIsNotUsableBeforeNotBeforeSecondsAfterCreation(@Nullable final Integer notBefore) {
         if (notBefore == null) {
             assertNull(context.getLastResult().getProperties().getNotBefore());
         } else {

@@ -3,6 +3,7 @@ package com.github.nagyesta.lowkeyvault.model.v7_2.key.constants;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
+import org.jspecify.annotations.Nullable;
 
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.ECGenParameterSpec;
@@ -50,14 +51,14 @@ public enum KeyCurveName {
     }
 
     @JsonCreator
-    public static KeyCurveName forValue(final String name) {
+    public static @Nullable KeyCurveName forValue(@Nullable final String name) {
         return Arrays.stream(values())
                 .filter(keyType -> keyType.getValue().equals(name))
                 .findFirst()
                 .orElse(null);
     }
 
-    public static KeyCurveName forAlg(final String name) {
+    public static @Nullable KeyCurveName forAlg(@Nullable final String name) {
         return Arrays.stream(values())
                 .filter(keyType -> keyType.equivalentAlgs.contains(name))
                 .findFirst()

@@ -11,6 +11,7 @@ import com.github.nagyesta.lowkeyvault.model.v7_3.key.validator.Update;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import lombok.Data;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
@@ -22,12 +23,14 @@ import java.time.Period;
 @JsonPropertyOrder({"created", "expiryTime", "updated"})
 public class KeyRotationPolicyAttributes {
 
+    @Nullable
     @Null(groups = {Update.class})
     @NotNull(groups = {Restore.class})
     @JsonProperty("created")
     @JsonSerialize(using = EpochSecondsSerializer.class)
     @JsonDeserialize(using = EpochSecondsDeserializer.class)
     private OffsetDateTime created;
+    @Nullable
     @Null(groups = {Update.class})
     @NotNull(groups = {Restore.class})
     @JsonProperty("updated")

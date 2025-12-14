@@ -8,18 +8,21 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.jspecify.annotations.Nullable;
 
 @Data
 public class CertificateKeyModel {
 
     @JsonProperty("exportable")
     private boolean exportable;
+    @Nullable
     @JsonProperty("crv")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private KeyCurveName keyCurveName;
     @NotNull
     @JsonProperty("kty")
     private KeyType keyType;
+    @Nullable
     @Min(1024)
     @Max(4096)
     @JsonInclude(JsonInclude.Include.NON_NULL)

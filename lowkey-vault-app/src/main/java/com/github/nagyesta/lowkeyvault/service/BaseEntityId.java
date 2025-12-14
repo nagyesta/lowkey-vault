@@ -1,7 +1,8 @@
 package com.github.nagyesta.lowkeyvault.service;
 
+import io.jsonwebtoken.lang.Assert;
 import lombok.EqualsAndHashCode;
-import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
 import java.util.Optional;
@@ -18,6 +19,7 @@ public class BaseEntityId
     private static final String DASH_REGEX = Pattern.quote("-");
     private final URI vault;
     private final String id;
+    @Nullable
     private final String version;
     private final String entityType;
     private final String entityPathSegment;
@@ -25,10 +27,10 @@ public class BaseEntityId
 
 
     public BaseEntityId(
-            @NonNull final URI vault,
-            @NonNull final String id,
-            final String version,
-            @NonNull final String entityType) {
+            final URI vault,
+            final String id,
+            @Nullable final String version,
+            final String entityType) {
         this.vault = vault;
         this.id = id;
         this.version = version;
@@ -65,7 +67,7 @@ public class BaseEntityId
     }
 
     @Override
-    public String version() {
+    public @Nullable String version() {
         return version;
     }
 
@@ -75,31 +77,40 @@ public class BaseEntityId
     }
 
     @Override
-    public URI asUriNoVersion(@NonNull final URI vaultUri) {
+    public URI asUriNoVersion(final URI vaultUri) {
+        assertVaultUriIsNotNull(vaultUri);
         return URI.create(URI_NO_VERSION_FORMAT
                 .formatted(vaultUri, entityPathSegment(), id()));
     }
 
     @Override
-    public URI asUri(@NonNull final URI vaultUri) {
+    public URI asUri(final URI vaultUri) {
+        assertVaultUriIsNotNull(vaultUri);
         return URI.create(URI_VERSION_FORMAT
                 .formatted(vaultUri, entityPathSegment(), id(), versionOrEmpty()));
     }
 
-    private String versionOrEmpty() {
-        return Optional.ofNullable(version()).orElse(EMPTY);
-    }
-
     @Override
-    public URI asRecoveryUri(@NonNull final URI vaultUri) {
+    public URI asRecoveryUri(final URI vaultUri) {
+        assertVaultUriIsNotNull(vaultUri);
         return URI.create(URI_NO_VERSION_FORMAT
                 .formatted(vaultUri, deletedEntityPathSegment(), id()));
     }
 
     @Override
     public URI asUri(
-            @NonNull final URI vaultUri,
-            @NonNull final String query) {
-        return URI.create(asUri(vaultUri).toString() + query);
+            final URI vaultUri,
+            final String query) {
+        Assert.hasText(query, "Query cannot be empty.");
+        assertVaultUriIsNotNull(vaultUri);
+        return URI.create(asUri(vaultUri) + query);
+    }
+
+    private String versionOrEmpty() {
+        return Optional.ofNullable(version()).orElse(EMPTY);
+    }
+
+    private void assertVaultUriIsNotNull(final URI vaultUri) {
+        Assert.notNull(vaultUri, "Vault URI cannot be null.");
     }
 }

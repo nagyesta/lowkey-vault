@@ -7,7 +7,7 @@ import com.github.nagyesta.lowkeyvault.service.key.RotationPolicy;
 import com.github.nagyesta.lowkeyvault.service.key.constants.LifetimeActionTriggerType;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
 import lombok.EqualsAndHashCode;
-import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.Assert;
 
 import java.time.OffsetDateTime;
@@ -16,15 +16,15 @@ import java.util.List;
 import java.util.Map;
 
 @EqualsAndHashCode(callSuper = true)
-public class KeyRotationPolicy
-        extends BaseLifetimePolicy<KeyEntityId> implements RotationPolicy {
+public class KeyRotationPolicy extends BaseLifetimePolicy<KeyEntityId> implements RotationPolicy {
+
     private Period expiryTime;
     private Map<LifetimeActionType, LifetimeAction> lifetimeActions;
 
     public KeyRotationPolicy(
-            @org.springframework.lang.NonNull final KeyEntityId keyEntityId,
-                             @NonNull final Period expiryTime,
-                             @NonNull final Map<LifetimeActionType, LifetimeAction> lifetimeActions) {
+            final KeyEntityId keyEntityId,
+            final Period expiryTime,
+            final Map<LifetimeActionType, LifetimeAction> lifetimeActions) {
         super(keyEntityId);
         this.expiryTime = expiryTime;
         this.lifetimeActions = Map.copyOf(lifetimeActions);
@@ -41,7 +41,7 @@ public class KeyRotationPolicy
     }
 
     @Override
-    public List<OffsetDateTime> missedRotations(@NonNull final OffsetDateTime keyCreation) {
+    public List<OffsetDateTime> missedRotations(final OffsetDateTime keyCreation) {
         Assert.isTrue(isAutoRotate(), "Cannot have missed rotations without a \"rotate\" lifetime action.");
         final var trigger = lifetimeActions.get(LifetimeActionType.ROTATE).trigger();
         final var startPoint = findTriggerTimeOffset(keyCreation, s -> trigger.rotateAfterDays(expiryTime));
@@ -54,7 +54,7 @@ public class KeyRotationPolicy
     }
 
     @Override
-    public void validate(final OffsetDateTime latestKeyVersionExpiry) {
+    public void validate(@Nullable final OffsetDateTime latestKeyVersionExpiry) {
         lifetimeActions.values().forEach(action -> {
             final var triggerPeriod = action.trigger().timePeriod();
             final var triggerType = action.trigger().triggerType();
@@ -66,14 +66,14 @@ public class KeyRotationPolicy
     }
 
     @Override
-    public void setExpiryTime(@NonNull final Period expiryTime) {
+    public void setExpiryTime(final Period expiryTime) {
         this.expiryTime = expiryTime;
         this.markUpdate();
     }
 
     @Override
     public void setLifetimeActions(
-            @NonNull final Map<LifetimeActionType, LifetimeAction> lifetimeActions) {
+            final Map<LifetimeActionType, LifetimeAction> lifetimeActions) {
         Assert.isTrue(notifyIsNotRemoved(lifetimeActions), "Notify action cannot be removed.");
         this.lifetimeActions = Map.copyOf(lifetimeActions);
         this.markUpdate();

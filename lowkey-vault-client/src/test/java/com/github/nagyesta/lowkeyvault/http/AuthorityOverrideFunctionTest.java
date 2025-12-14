@@ -73,7 +73,10 @@ class AuthorityOverrideFunctionTest {
     @ParameterizedTest
     @MethodSource("validInputProvider")
     void testVaultHostIsReplacedWithContainerHostWhenMatchesThePredefinedHost(
-            final String fromHost, final String toHost, final URI vaultUri, final URI expectedUri) {
+            final String fromHost,
+            final String toHost,
+            final URI vaultUri,
+            final URI expectedUri) {
         //given
         final var underTest = new AuthorityOverrideFunction(fromHost, toHost);
 
@@ -86,7 +89,9 @@ class AuthorityOverrideFunctionTest {
 
     @ParameterizedTest
     @MethodSource("invalidParameterProvider")
-    void testConstructorShouldValidateInputWhenCalled(final String fromHost, final String toHost) {
+    void testConstructorShouldValidateInputWhenCalled(
+            final String fromHost,
+            final String toHost) {
         //given
 
         //when

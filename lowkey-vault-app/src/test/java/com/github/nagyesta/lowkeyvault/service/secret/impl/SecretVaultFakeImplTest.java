@@ -26,8 +26,6 @@ class SecretVaultFakeImplTest {
     public static Stream<Arguments> certificateCreationNullProvider() {
         final var entityId = VERSIONED_SECRET_ENTITY_ID_1_VERSION_1;
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, LOWKEY_VAULT, CertContentType.PEM, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES))
-                .add(Arguments.of(entityId, null, CertContentType.PEM, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES))
                 .add(Arguments.of(entityId, LOWKEY_VAULT, null, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES))
                 .add(Arguments.of(entityId, LOWKEY_VAULT, CertContentType.PEM, null, TIME_IN_10_MINUTES))
                 .add(Arguments.of(entityId, LOWKEY_VAULT, CertContentType.PEM, TIME_10_MINUTES_AGO, null))
@@ -39,81 +37,6 @@ class SecretVaultFakeImplTest {
                 .add(Arguments.of(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, LOWKEY_VAULT, CertContentType.PEM, TIME_10_MINUTES_AGO, NOW))
                 .add(Arguments.of(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, LOOP_BACK_IP, CertContentType.PKCS12, NOW, TIME_IN_10_MINUTES))
                 .build();
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testConstructorShouldThrowExceptionWhenCalledWithNull() {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new SecretVaultFakeImpl(null, null, null));
-
-        //then + exception
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testCreateSecretVersionShouldThrowExceptionWhenCalledWithNullName() {
-        //given
-        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
-        final var underTest =
-                new SecretVaultFakeImpl(vaultFake, vaultFake.getRecoveryLevel(), vaultFake.getRecoverableDays());
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.createSecretVersion((String) null, null));
-
-        //then + exception
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testCreateSecretVersionShouldThrowExceptionWhenCalledWithNullValue() {
-        //given
-        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
-        final var underTest =
-                new SecretVaultFakeImpl(vaultFake, vaultFake.getRecoveryLevel(), vaultFake.getRecoverableDays());
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.createSecretVersion(SECRET_NAME_1, null));
-
-        //then + exception
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testCreateSecretVersionUsingVersionedIdShouldThrowExceptionWhenCalledWithNullValue() {
-        //given
-        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
-        final var underTest =
-                new SecretVaultFakeImpl(vaultFake, vaultFake.getRecoveryLevel(), vaultFake.getRecoverableDays());
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.createSecretVersion(VERSIONED_SECRET_ENTITY_ID_1_VERSION_1, null));
-
-        //then + exception
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testCreateSecretVersionUsingVersionedIdShouldThrowExceptionWhenCalledWithNullEntityId() {
-        //given
-        final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
-        final var underTest =
-                new SecretVaultFakeImpl(vaultFake, vaultFake.getRecoveryLevel(), vaultFake.getRecoverableDays());
-        final var secretCreateInput = SecretCreateInput.builder()
-                .value(LOWKEY_VAULT)
-                .build();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.createSecretVersion((VersionedSecretEntityId) null, secretCreateInput));
-
-        //then + exception
     }
 
     @Test

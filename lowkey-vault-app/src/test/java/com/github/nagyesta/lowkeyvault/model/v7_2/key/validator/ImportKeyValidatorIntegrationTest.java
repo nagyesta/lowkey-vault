@@ -71,7 +71,8 @@ class ImportKeyValidatorIntegrationTest {
     @ParameterizedTest
     @MethodSource("invalidProvider")
     void testValidateShouldUseRightGroupAndMarkInvalidPropertiesWhenCalledWithInvalidPayload(
-            final String resource, final String property) {
+            final String resource,
+            final String property) {
         //given
         final var input = loadResourceAsObject(resource);
 

@@ -31,14 +31,6 @@ class BackupTemplateProcessorIntegrationTest {
                 .build();
     }
 
-    public static Stream<Arguments> nullProvider() {
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null))
-                .add(Arguments.of(null, new BackupContext("localhost", 0)))
-                .add(Arguments.of("template", null))
-                .build();
-    }
-
     @ParameterizedTest
     @MethodSource("validProvider")
     void testProcessTemplateShouldFillPlaceholdersWhenCalledWithValidData(
@@ -60,17 +52,5 @@ class BackupTemplateProcessorIntegrationTest {
 
         //then
         Assertions.assertEquals(expectedAsString, actual);
-    }
-
-    @ParameterizedTest
-    @MethodSource("nullProvider")
-    void testProcessTemplateShouldThrowExceptionWhenCalledWithNull(final String template, final BackupContext context) {
-        //given
-        final var underTest = new BackupTemplateProcessor(new TimeHelperSource());
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.processTemplate(template, context));
-
-        //then + exception
     }
 }

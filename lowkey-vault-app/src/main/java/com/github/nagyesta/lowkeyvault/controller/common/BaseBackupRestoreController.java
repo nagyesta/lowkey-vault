@@ -1,6 +1,7 @@
 package com.github.nagyesta.lowkeyvault.controller.common;
 
-import com.github.nagyesta.lowkeyvault.mapper.common.BaseEntityConverterRegistry;
+import com.github.nagyesta.lowkeyvault.mapper.common.RecoveryAwareConverter;
+import com.github.nagyesta.lowkeyvault.mapper.common.RecoveryAwareItemConverter;
 import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.BaseBackupListItem;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.BaseBackupModel;
@@ -10,11 +11,12 @@ import com.github.nagyesta.lowkeyvault.service.common.BaseVaultEntity;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.Assert;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -33,7 +35,6 @@ import java.util.function.Function;
  * @param <BLI> The list item type of the backup lists.
  * @param <BL>  The type of the backup list.
  * @param <B>   The type of the backup model.
- * @param <R>   The ConverterRegistry used for conversions.
  */
 @SuppressWarnings("java:S119") //It is easier to ensure that the types are consistent this way
 public abstract class BaseBackupRestoreController<K extends EntityId, V extends K, E extends BaseVaultEntity<V>,
@@ -42,15 +43,21 @@ public abstract class BaseBackupRestoreController<K extends EntityId, V extends 
         PM extends BasePropertiesModel,
         BLI extends BaseBackupListItem<PM>,
         BL extends BackupListContainer<BLI>,
-        B extends BaseBackupModel<PM, BLI, BL>,
-        R extends BaseEntityConverterRegistry<K, V, E, M, DM, PM, I, DI, BLI>>
-        extends GenericEntityController<K, V, E, M, DM, I, DI, S, PM, BLI, R> {
+        B extends BaseBackupModel<PM, BLI, BL>>
+        extends GenericEntityController<K, V, E, M, DM, I, DI, S> {
+
+    private final RecoveryAwareConverter<E, M, DM> modelConverter;
+    private final Function<E, BLI> convertBackup;
 
     protected BaseBackupRestoreController(
-            @NonNull final R registry,
-            @NonNull final VaultService vaultService,
-            @NonNull final Function<VaultFake, S> toEntityVault) {
-        super(registry, vaultService, toEntityVault);
+            final VaultService vaultService,
+            final RecoveryAwareConverter<E, M, DM> modelConverter,
+            final RecoveryAwareItemConverter<E, I, DI> itemConverter,
+            final Function<VaultFake, S> toEntityVault,
+            final Function<E, BLI> convertBackup) {
+        super(vaultService, modelConverter, itemConverter, toEntityVault);
+        this.modelConverter = modelConverter;
+        this.convertBackup = convertBackup;
     }
 
     protected M restoreEntity(final B backupModel) {
@@ -65,7 +72,7 @@ public abstract class BaseBackupRestoreController<K extends EntityId, V extends 
         });
         final var latestVersionOfEntity = vault.getEntities().getLatestVersionOfEntity(entityId);
         final var readOnlyEntity = vault.getEntities().getReadOnlyEntity(latestVersionOfEntity);
-        return registry().modelConverter(apiVersion()).convert(readOnlyEntity, baseUri);
+        return Objects.requireNonNull(modelConverter.convert(readOnlyEntity, baseUri));
     }
 
     protected abstract void restoreVersion(S vault, V versionedEntityId, BLI entityVersion);
@@ -75,7 +82,7 @@ public abstract class BaseBackupRestoreController<K extends EntityId, V extends 
                 .getEntities();
         final var list = entities.getVersions(entityId).stream()
                 .map(version -> getEntityByNameAndVersion(entityId.vault(), entityId.id(), version))
-                .map(registry().backupConverter(apiVersion())::convert)
+                .map(convertBackup)
                 .toList();
         return wrapBackup(list);
     }
@@ -102,14 +109,14 @@ public abstract class BaseBackupRestoreController<K extends EntityId, V extends 
         return uris.getFirst();
     }
 
-    private B wrapBackup(final List<BLI> list) {
+    private B wrapBackup(@Nullable final List<BLI> list) {
         final var listModel = Optional.ofNullable(list)
                 .map(l -> {
                     final var backupList = getBackupList();
                     backupList.setVersions(l);
                     return backupList;
                 })
-                .orElse(null);
+                .orElse(getBackupList());
         final var backupModel = getBackupModel();
         backupModel.setValue(listModel);
         return backupModel;
@@ -123,5 +130,4 @@ public abstract class BaseBackupRestoreController<K extends EntityId, V extends 
         Assert.isTrue(!vault.getDeletedEntities().containsName(entityId.id()),
                 "Vault already contains deleted entity with name: " + entityId.id());
     }
-
 }

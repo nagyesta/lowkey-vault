@@ -128,7 +128,9 @@ class RecoveryLevelTest {
 
     @ParameterizedTest
     @MethodSource("valueProvider")
-    void testForValueShouldReturnEnumWhenValueStringMatches(final String input, final RecoveryLevel expected) {
+    void testForValueShouldReturnEnumWhenValueStringMatches(
+            final String input,
+            final RecoveryLevel expected) {
         //given
 
         //when
@@ -140,7 +142,9 @@ class RecoveryLevelTest {
 
     @ParameterizedTest
     @MethodSource("isRecoverableProvider")
-    void testIsRecoverableShouldReturnValidValueWhenCalled(final RecoveryLevel underTest, final boolean expected) {
+    void testIsRecoverableShouldReturnValidValueWhenCalled(
+            final RecoveryLevel underTest,
+            final boolean expected) {
         //given
 
         //when
@@ -152,7 +156,9 @@ class RecoveryLevelTest {
 
     @ParameterizedTest
     @MethodSource("isPurgeableProvider")
-    void testIsPurgeableShouldReturnValidValueWhenCalled(final RecoveryLevel underTest, final boolean expected) {
+    void testIsPurgeableShouldReturnValidValueWhenCalled(
+            final RecoveryLevel underTest,
+            final boolean expected) {
         //given
 
         //when
@@ -164,7 +170,9 @@ class RecoveryLevelTest {
 
     @ParameterizedTest
     @MethodSource("isSubscriptionProtectedProvider")
-    void testIsSubscriptionProtectedShouldReturnValidValueWhenCalled(final RecoveryLevel underTest, final boolean expected) {
+    void testIsSubscriptionProtectedShouldReturnValidValueWhenCalled(
+            final RecoveryLevel underTest,
+            final boolean expected) {
         //given
 
         //when
@@ -176,7 +184,9 @@ class RecoveryLevelTest {
 
     @ParameterizedTest
     @MethodSource("isCustomizedProvider")
-    void testIsCustomizedShouldReturnValidValueWhenCalled(final RecoveryLevel underTest, final boolean expected) {
+    void testIsCustomizedShouldReturnValidValueWhenCalled(
+            final RecoveryLevel underTest,
+            final boolean expected) {
         //given
 
         //when
@@ -189,7 +199,9 @@ class RecoveryLevelTest {
     @ParameterizedTest
     @MethodSource("checkValidityDaysProvider")
     void testCheckValidRecoverableDaysShouldReturnValidValueWhenCalled(
-            final RecoveryLevel underTest, final Integer input, final boolean expectedToBeValid) {
+            final RecoveryLevel underTest,
+            final Integer input,
+            final boolean expectedToBeValid) {
         //given
 
         //when

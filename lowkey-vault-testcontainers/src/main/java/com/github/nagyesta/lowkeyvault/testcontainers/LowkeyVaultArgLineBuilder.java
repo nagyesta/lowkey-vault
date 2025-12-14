@@ -1,5 +1,7 @@
 package com.github.nagyesta.lowkeyvault.testcontainers;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -8,7 +10,6 @@ import java.util.stream.Collectors;
 public class LowkeyVaultArgLineBuilder {
     private static final String NO_AUTO_REGISTRATION_VALUE = "-";
     private static final Set<String> NO_AUTO_REGISTRATION = Set.of(NO_AUTO_REGISTRATION_VALUE);
-    private static final String EMPTY = "";
     private static final Pattern NAME_PATTERN = Pattern.compile("^[0-9a-zA-Z-]+$");
 
     private final List<String> args;
@@ -28,14 +29,14 @@ public class LowkeyVaultArgLineBuilder {
         return this;
     }
 
-    public LowkeyVaultArgLineBuilder logicalHost(final String logicalHost) {
+    public LowkeyVaultArgLineBuilder logicalHost(@Nullable final String logicalHost) {
         if (logicalHost != null) {
             args.add("--LOWKEY_IMPORT_TEMPLATE_HOST=" + logicalHost);
         }
         return this;
     }
 
-    public LowkeyVaultArgLineBuilder logicalPort(final Integer logicalPort) {
+    public LowkeyVaultArgLineBuilder logicalPort(@Nullable final Integer logicalPort) {
         if (logicalPort != null) {
             args.add("--LOWKEY_IMPORT_TEMPLATE_PORT=" + logicalPort);
         }
@@ -55,14 +56,17 @@ public class LowkeyVaultArgLineBuilder {
         return this;
     }
 
-    public LowkeyVaultArgLineBuilder importFile(final String containerPath) {
+    public LowkeyVaultArgLineBuilder importFile(@Nullable final String containerPath) {
         if (containerPath != null) {
             args.add("--LOWKEY_IMPORT_LOCATION=" + containerPath);
         }
         return this;
     }
 
-    public LowkeyVaultArgLineBuilder customSSLCertificate(final File file, final String password, final StoreType type) {
+    public LowkeyVaultArgLineBuilder customSSLCertificate(
+            @Nullable final File file,
+            @Nullable final String password,
+            @Nullable final StoreType type) {
         if (file != null) {
             args.add("--server.ssl.key-store=/config/cert.store");
             args.add("--server.ssl.key-store-type=" + Optional.ofNullable(type).orElse(StoreType.PKCS12).name());
@@ -71,7 +75,7 @@ public class LowkeyVaultArgLineBuilder {
         return this;
     }
 
-    public LowkeyVaultArgLineBuilder aliases(final Map<String, Set<String>> aliases) {
+    public LowkeyVaultArgLineBuilder aliases(@Nullable final Map<String, Set<String>> aliases) {
         if (aliases != null && !aliases.isEmpty()) {
             final var aliasMappings = new TreeMap<>(aliases).entrySet()
                     .stream()
@@ -82,7 +86,7 @@ public class LowkeyVaultArgLineBuilder {
         return this;
     }
 
-    public LowkeyVaultArgLineBuilder additionalArgs(final List<String> additionalArgs) {
+    public LowkeyVaultArgLineBuilder additionalArgs(@Nullable final List<String> additionalArgs) {
         if (additionalArgs != null && !additionalArgs.isEmpty()) {
             args.addAll(additionalArgs);
         }
@@ -93,18 +97,18 @@ public class LowkeyVaultArgLineBuilder {
         return Collections.unmodifiableList(args);
     }
 
-    private void exportFile(final String containerPath) {
+    private void exportFile(@Nullable final String containerPath) {
         if (containerPath != null) {
             args.add("--LOWKEY_EXPORT_LOCATION=" + containerPath);
         }
     }
 
-    private void assertVaultNamesAreValid(final Set<String> vaultNames) {
+    private void assertVaultNamesAreValid(@Nullable final Set<String> vaultNames) {
         if (vaultNames == null) {
             throw new IllegalArgumentException("VaultNames must not be null.");
         }
         final Collection<String> invalid = vaultNames.stream()
-                .filter(s -> !NAME_PATTERN.matcher(Objects.requireNonNullElse(s, EMPTY)).matches())
+                .filter(s -> !NAME_PATTERN.matcher(s).matches())
                 .toList();
         if (!invalid.isEmpty()) {
             throw new IllegalArgumentException("VaultNames contains invalid values: " + invalid);

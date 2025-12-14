@@ -6,20 +6,20 @@ import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertifica
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateCreationInput;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateImportInput;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultFake;
-import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public interface CertificateVaultFake
         extends BaseVaultFake<CertificateEntityId, VersionedCertificateEntityId, ReadOnlyKeyVaultCertificateEntity> {
 
-    VersionedCertificateEntityId createCertificateVersion(@NonNull String name, @NonNull CertificateCreationInput input);
+    VersionedCertificateEntityId createCertificateVersion(String name, CertificateCreationInput input);
 
-    VersionedCertificateEntityId importCertificateVersion(@NonNull String name, @NonNull CertificateImportInput input);
+    VersionedCertificateEntityId importCertificateVersion(String name, CertificateImportInput input);
 
-    void restoreCertificateVersion(@NonNull VersionedCertificateEntityId versionedEntityId, @NonNull CertificateRestoreInput input);
+    void restoreCertificateVersion(VersionedCertificateEntityId versionedEntityId, CertificateRestoreInput input);
 
-    LifetimeActionPolicy lifetimeActionPolicy(@NonNull CertificateEntityId certificateEntityId);
+    @Nullable LifetimeActionPolicy lifetimeActionPolicy(CertificateEntityId certificateEntityId);
 
-    void setLifetimeActionPolicy(@NonNull LifetimeActionPolicy lifetimeActionPolicy);
+    void setLifetimeActionPolicy(LifetimeActionPolicy lifetimeActionPolicy);
 
     void regenerateCertificates();
 }

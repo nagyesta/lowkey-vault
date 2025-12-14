@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.testcontainers;
 
+import org.jspecify.annotations.Nullable;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.lifecycle.Startable;
@@ -14,18 +15,28 @@ public final class LowkeyVaultContainerBuilder {
     private final DockerImageName dockerImageName;
     private Set<String> vaultNames = Set.of();
     private Map<String, Set<String>> aliasMap = Map.of();
+    @Nullable
     private File importFile;
     private boolean persistent = false;
+    @Nullable
     private BindMode importFileBindMode;
+    @Nullable
     private File customSslCertStore;
+    @Nullable
     private String customSslCertPassword;
+    @Nullable
     private StoreType customSslCertType;
+    @Nullable
     private Integer hostPort;
+    @Nullable
     private Integer hostTokenPort;
+    @Nullable
     private Integer logicalPort;
+    @Nullable
     private String logicalHost;
     private List<String> additionalArgs = List.of();
     private boolean debug;
+    @Nullable
     private File externalConfigFile;
     private boolean mergeTrustStores = false;
     private final List<ContainerDependency<?>> dependsOnContainers = new ArrayList<>();
@@ -37,7 +48,7 @@ public final class LowkeyVaultContainerBuilder {
      * @param dockerImageName The name of the container image to use.
      * @return this
      */
-    public static LowkeyVaultContainerBuilder lowkeyVault(final String dockerImageName) {
+    public static LowkeyVaultContainerBuilder lowkeyVault(@Nullable final String dockerImageName) {
         if (dockerImageName == null) {
             throw new IllegalArgumentException("Image name cannot be null.");
         }
@@ -55,9 +66,6 @@ public final class LowkeyVaultContainerBuilder {
     }
 
     private LowkeyVaultContainerBuilder(final DockerImageName dockerImageName) {
-        if (dockerImageName == null) {
-            throw new IllegalArgumentException("Image name cannot be null.");
-        }
         this.dockerImageName = dockerImageName;
     }
 
@@ -82,9 +90,7 @@ public final class LowkeyVaultContainerBuilder {
      * @return this
      */
     public LowkeyVaultContainerBuilder vaultNames(final Set<String> vaultNames) {
-        if (vaultNames == null) {
-            throw new IllegalArgumentException("Vault names collection cannot be null.");
-        }
+        Objects.requireNonNull(vaultNames, "Vault names cannot be null.");
         this.vaultNames = Set.copyOf(vaultNames);
         return this;
     }
@@ -96,9 +102,7 @@ public final class LowkeyVaultContainerBuilder {
      * @return this
      */
     public LowkeyVaultContainerBuilder vaultAliases(final Map<String, Set<String>> aliasMap) {
-        if (aliasMap == null) {
-            throw new IllegalArgumentException("Alias map cannot be null.");
-        }
+        Objects.requireNonNull(aliasMap, "Alias map cannot be null.");
         aliasMap.keySet().forEach(host -> {
             if (!host.matches("^[0-9a-z\\-_.]+$")) {
                 throw new IllegalArgumentException("Vault host names must match '^[0-9a-z\\-_.]+$'. Found: " + host);
@@ -157,10 +161,10 @@ public final class LowkeyVaultContainerBuilder {
      * @param bindMode   Defines whether the file should be read only or read write.
      * @return this
      */
-    public LowkeyVaultContainerBuilder importFile(final File importFile, final BindMode bindMode) {
-        if (importFile == null) {
-            throw new IllegalArgumentException("Import file cannot be null.");
-        }
+    public LowkeyVaultContainerBuilder importFile(
+            final File importFile,
+            final BindMode bindMode) {
+        Objects.requireNonNull(importFile, "Import file cannot be null.");
         this.importFile = importFile;
         this.importFileBindMode = bindMode;
         return this;
@@ -173,9 +177,7 @@ public final class LowkeyVaultContainerBuilder {
      * @return this
      */
     public LowkeyVaultContainerBuilder externalConfigFile(final File externalConfigFile) {
-        if (externalConfigFile == null) {
-            throw new IllegalArgumentException("External configuration file cannot be null.");
-        }
+        Objects.requireNonNull(externalConfigFile, "External configuration file cannot be null.");
         if (!externalConfigFile.getName().endsWith(".properties")) {
             throw new IllegalArgumentException("External configuration file must be a *.properties file.");
         }
@@ -191,10 +193,11 @@ public final class LowkeyVaultContainerBuilder {
      * @param type          The type of the key store.
      * @return this
      */
-    public LowkeyVaultContainerBuilder customSslCertificate(final File customSslCert, final String password, final StoreType type) {
-        if (customSslCert == null) {
-            throw new IllegalArgumentException("SSL certificate file cannot be null.");
-        }
+    public LowkeyVaultContainerBuilder customSslCertificate(
+            final File customSslCert,
+            final String password,
+            final StoreType type) {
+        Objects.requireNonNull(customSslCert, "Custom SSL certificate cannot be null.");
         this.customSslCertStore = customSslCert;
         this.customSslCertPassword = password;
         this.customSslCertType = type;
@@ -239,9 +242,7 @@ public final class LowkeyVaultContainerBuilder {
      * @return this
      */
     public LowkeyVaultContainerBuilder logicalHost(final String logicalHost) {
-        if (logicalHost == null) {
-            throw new IllegalArgumentException("Logical host cannot be null.");
-        }
+        Objects.requireNonNull(logicalHost, "Logical host cannot be null.");
         this.logicalHost = logicalHost;
         return this;
     }
@@ -253,9 +254,7 @@ public final class LowkeyVaultContainerBuilder {
      * @return this
      */
     public LowkeyVaultContainerBuilder additionalArgs(final List<String> additionalArgs) {
-        if (additionalArgs == null) {
-            throw new IllegalArgumentException("Additional argument collection cannot be null.");
-        }
+        Objects.requireNonNull(additionalArgs, "Additional argument collection cannot be null.");
         this.additionalArgs = List.copyOf(additionalArgs);
         return this;
     }
@@ -403,42 +402,52 @@ public final class LowkeyVaultContainerBuilder {
         return persistent;
     }
 
+    @Nullable
     public File getImportFile() {
         return importFile;
     }
 
+    @Nullable
     public BindMode getImportFileBindMode() {
         return importFileBindMode;
     }
 
+    @Nullable
     public File getCustomSslCertStore() {
         return customSslCertStore;
     }
 
+    @Nullable
     public File getExternalConfigFile() {
         return externalConfigFile;
     }
 
+    @Nullable
     public String getCustomSslCertPassword() {
         return customSslCertPassword;
     }
 
+    @Nullable
     public StoreType getCustomSslCertType() {
         return customSslCertType;
     }
 
+    @Nullable
     public Integer getHostPort() {
         return hostPort;
     }
 
+    @Nullable
     public Integer getHostTokenPort() {
         return hostTokenPort;
     }
 
+    @Nullable
     public Integer getLogicalPort() {
         return logicalPort;
     }
 
+    @Nullable
     public String getLogicalHost() {
         return logicalHost;
     }

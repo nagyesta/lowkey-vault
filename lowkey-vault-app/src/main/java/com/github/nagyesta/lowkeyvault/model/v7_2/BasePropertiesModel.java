@@ -6,6 +6,7 @@ import com.github.nagyesta.lowkeyvault.model.json.util.EpochSecondsDeserializer;
 import com.github.nagyesta.lowkeyvault.model.json.util.EpochSecondsSerializer;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import lombok.Data;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
@@ -18,24 +19,30 @@ public class BasePropertiesModel {
 
     @JsonProperty("enabled")
     private boolean enabled;
+    @Nullable
     @JsonProperty("created")
     @JsonSerialize(using = EpochSecondsSerializer.class)
     @JsonDeserialize(using = EpochSecondsDeserializer.class)
-    private OffsetDateTime createdOn;
+    private OffsetDateTime created;
+    @Nullable
     @JsonProperty("updated")
     @JsonSerialize(using = EpochSecondsSerializer.class)
     @JsonDeserialize(using = EpochSecondsDeserializer.class)
-    private OffsetDateTime updatedOn;
+    private OffsetDateTime updated;
+    @Nullable
     @JsonProperty("recoveryLevel")
     private RecoveryLevel recoveryLevel;
+    @Nullable
     @JsonProperty("exp")
     @JsonSerialize(using = EpochSecondsSerializer.class)
     @JsonDeserialize(using = EpochSecondsDeserializer.class)
-    private OffsetDateTime expiresOn;
+    private OffsetDateTime expiry;
+    @Nullable
     @JsonProperty("nbf")
     @JsonSerialize(using = EpochSecondsSerializer.class)
     @JsonDeserialize(using = EpochSecondsDeserializer.class)
     private OffsetDateTime notBefore;
+    @Nullable
     @JsonProperty("recoverableDays")
     private Integer recoverableDays;
 
@@ -43,7 +50,7 @@ public class BasePropertiesModel {
         enabled = true;
         recoveryLevel = RecoveryLevel.PURGEABLE;
         final var now = OffsetDateTime.now(ZoneOffset.UTC);
-        createdOn = now;
-        updatedOn = now;
+        created = now;
+        updated = now;
     }
 }

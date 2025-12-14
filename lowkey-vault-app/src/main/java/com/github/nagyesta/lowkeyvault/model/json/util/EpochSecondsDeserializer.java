@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.model.json.util;
 
+import org.jspecify.annotations.Nullable;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.ValueDeserializer;
@@ -13,7 +14,7 @@ public class EpochSecondsDeserializer
         extends ValueDeserializer<OffsetDateTime> {
 
     @Override
-    public OffsetDateTime deserialize(
+    public @Nullable OffsetDateTime deserialize(
             final JsonParser parser,
             final DeserializationContext context) {
         return Optional.ofNullable(parser.readValueAs(Long.class))

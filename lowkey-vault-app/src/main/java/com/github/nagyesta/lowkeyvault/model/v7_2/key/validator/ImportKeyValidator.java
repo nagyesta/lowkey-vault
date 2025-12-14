@@ -5,6 +5,7 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRe
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import jakarta.validation.Validator;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -36,7 +37,7 @@ public class ImportKeyValidator
         return violations.isEmpty();
     }
 
-    private Class<? extends BaseKey> findGroup(final KeyType value) {
+    private Class<? extends BaseKey> findGroup(@Nullable final KeyType value) {
         Class<? extends BaseKey> group = BaseKey.class;
         if (value != null) {
             if (value.isEc()) {

@@ -10,21 +10,28 @@ import com.azure.security.keyvault.keys.models.KeyOperation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nagyesta.lowkeyvault.http.ApacheHttpClientProvider;
 import com.github.nagyesta.lowkeyvault.http.management.LowkeyVaultManagementClient;
+import org.jspecify.annotations.Nullable;
 
 import java.security.KeyPair;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 
 public class CertificateTestContext extends
         CommonTestContext<KeyVaultCertificate, DeletedCertificate, CertificateProperties, CertificateClient, CertificateServiceVersion> {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+    @Nullable
     private LowkeyVaultManagementClient lowkeyVaultManagementClient;
-    private KeyOperation[] updateKeyOperations;
+    private KeyOperation @Nullable [] updateKeyOperations;
+    @Nullable
     private KeyPair keyPair;
     private CertificateServiceVersion certificateServiceVersion = CertificateServiceVersion.getLatest();
+    @Nullable
     private Map<String, String> tags;
+    @Nullable
     private CertificatePolicy policy;
+    @Nullable
     private CertificatePolicy downloadedPolicy;
 
     public CertificateTestContext(final ApacheHttpClientProvider provider) {
@@ -41,7 +48,9 @@ public class CertificateTestContext extends
     }
 
     @Override
-    protected CertificateClient providerToClient(final ApacheHttpClientProvider provider, final CertificateServiceVersion version) {
+    protected CertificateClient providerToClient(
+            final ApacheHttpClientProvider provider,
+            final CertificateServiceVersion version) {
         return provider.getCertificateClient(version);
     }
 
@@ -52,7 +61,9 @@ public class CertificateTestContext extends
         return lowkeyVaultManagementClient;
     }
 
-    public void addFetchedCertificate(final String name, final KeyVaultCertificate certificate) {
+    public void addFetchedCertificate(
+            final String name,
+            final KeyVaultCertificate certificate) {
         addFetchedEntity(name, certificate, keyVaultCertificate -> keyVaultCertificate.getProperties().getVersion());
     }
 
@@ -65,13 +76,14 @@ public class CertificateTestContext extends
     }
 
     public KeyPair getKeyPair() {
-        return keyPair;
+        return Objects.requireNonNull(keyPair, "Key pair cannot be null.");
     }
 
     public void setKeyPair(final KeyPair keyPair) {
         this.keyPair = keyPair;
     }
 
+    @Nullable
     public CertificatePolicy getPolicy() {
         return policy;
     }
@@ -81,13 +93,14 @@ public class CertificateTestContext extends
     }
 
     public CertificatePolicy getDownloadedPolicy() {
-        return downloadedPolicy;
+        return Objects.requireNonNull(downloadedPolicy, "Downloaded policy cannot be null.");
     }
 
     public void setDownloadedPolicy(final CertificatePolicy downloadedPolicy) {
         this.downloadedPolicy = downloadedPolicy;
     }
 
+    @Nullable
     public Map<String, String> getTags() {
         return tags;
     }

@@ -1,44 +1,25 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_2.key;
 
-import com.github.nagyesta.lowkeyvault.context.ApiVersionAware;
-import com.github.nagyesta.lowkeyvault.mapper.common.AliasAwareConverter;
-import com.github.nagyesta.lowkeyvault.mapper.common.BasePropertiesModelConverter;
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyPropertiesModel;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
-import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.Nullable;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
+import org.mapstruct.Named;
 
-import java.net.URI;
-import java.util.SortedSet;
+import java.time.OffsetDateTime;
+import java.util.Optional;
 
-public class KeyEntityToV72PropertiesModelConverter
-        extends BasePropertiesModelConverter<VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity, KeyPropertiesModel>
-        implements AliasAwareConverter<ReadOnlyKeyVaultKeyEntity, KeyPropertiesModel> {
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+public interface KeyEntityToV72PropertiesModelConverter {
 
-    private final KeyConverterRegistry registry;
+    @Mapping(target = "expiry", qualifiedByName = "optionalOffsetDateTimeConverter")
+    @Mapping(target = "notBefore", qualifiedByName = "optionalOffsetDateTimeConverter")
+    @Nullable KeyPropertiesModel convert(@Nullable ReadOnlyKeyVaultKeyEntity source);
 
-    @Autowired
-    public KeyEntityToV72PropertiesModelConverter(@lombok.NonNull final KeyConverterRegistry registry) {
-        this.registry = registry;
-    }
-
-    @Override
-    public void afterPropertiesSet() {
-        registry.registerPropertiesConverter(this);
-    }
-
-    @Override
-    @NonNull
-    public KeyPropertiesModel convert(
-            @org.springframework.lang.NonNull final ReadOnlyKeyVaultKeyEntity source,
-            @org.springframework.lang.NonNull final URI vaultUri) {
-        return mapCommonFields(source, new KeyPropertiesModel());
-    }
-
-    @Override
-    public SortedSet<String> supportedVersions() {
-        return ApiVersionAware.ALL_VERSIONS;
+    @Named("optionalOffsetDateTimeConverter")
+    default @Nullable OffsetDateTime optionalOffsetDateTimeConverter(final Optional<OffsetDateTime> input) {
+        return input.orElse(null);
     }
 }

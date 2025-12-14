@@ -30,6 +30,7 @@ import java.util.stream.Stream;
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.MIN_RSA_KEY_SIZE;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.getRandomVaultUri;
+import static com.github.nagyesta.lowkeyvault.model.common.ApiConstants.V_7_3;
 
 @SpringBootTest
 class CertificateBackupRestoreControllerIntegrationTest {
@@ -52,13 +53,14 @@ class CertificateBackupRestoreControllerIntegrationTest {
     @ParameterizedTest
     @MethodSource("certTypeProvider")
     void testRestoreShouldRestoreOriginalCertificateAndSecretValuesWhenCalledWithValidBackupOutput(
-            final CertContentType contentType, final URI baseUri) {
+            final CertContentType contentType,
+            final URI baseUri) {
         //given
         vaultService.create(baseUri,
                 RecoveryLevel.RECOVERABLE_AND_PURGEABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE, Set.of());
         final var creteRequest = prepareCertificateCreateRequest(contentType);
 
-        certificateController.create(CERTIFICATE_BACKUP_TEST, baseUri, creteRequest);
+        certificateController.create(CERTIFICATE_BACKUP_TEST, baseUri, V_7_3, creteRequest);
         final var vaultFake = vaultService.findByUri(baseUri);
         vaultFake.timeShift(SECONDS_IN_FIVE_DAYS, true);
 
@@ -69,13 +71,13 @@ class CertificateBackupRestoreControllerIntegrationTest {
         final var expectedKey = getOnlyKeyForVersions(entityId, vaultFake, versions);
 
         //when
-        final var backupModel = underTest.backup(CERTIFICATE_BACKUP_TEST, baseUri).getBody();
+        final var backupModel = underTest.backup(CERTIFICATE_BACKUP_TEST, baseUri, V_7_3).getBody();
         Assertions.assertNotNull(backupModel);
         vaultService.delete(baseUri);
         vaultService.purge(baseUri);
         vaultService.create(baseUri,
                 RecoveryLevel.RECOVERABLE_AND_PURGEABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE, Set.of());
-        final var restored = underTest.restore(baseUri, backupModel);
+        final var restored = underTest.restore(baseUri, V_7_3, backupModel);
 
         //then
         Assertions.assertNotNull(restored);
@@ -133,7 +135,9 @@ class CertificateBackupRestoreControllerIntegrationTest {
     }
 
     private static List<String> getAllSecretValuesForVersions(
-            final CertificateEntityId entityId, final VaultFake vaultFake, final Deque<String> versions) {
+            final CertificateEntityId entityId,
+            final VaultFake vaultFake,
+            final Deque<String> versions) {
         final var secrets = versions.stream()
                 .map(v -> new VersionedSecretEntityId(entityId.vault(), entityId.id(), v))
                 .map(vaultFake.secretVaultFake().getEntities()::getReadOnlyEntity)
@@ -144,7 +148,9 @@ class CertificateBackupRestoreControllerIntegrationTest {
     }
 
     private static ReadOnlyKeyVaultKeyEntity getOnlyKeyForVersions(
-            final CertificateEntityId entityId, final VaultFake vaultFake, final Deque<String> versions) {
+            final CertificateEntityId entityId,
+            final VaultFake vaultFake,
+            final Deque<String> versions) {
         final var keys = versions.stream()
                 .map(v -> new VersionedKeyEntityId(entityId.vault(), entityId.id(), v))
                 .filter(vaultFake.keyVaultFake().getEntities()::containsEntity)
@@ -155,9 +161,10 @@ class CertificateBackupRestoreControllerIntegrationTest {
     }
 
     private List<KeyVaultCertificateModel> getAllCertificateModelVersions(
-            final URI baseUri, final Deque<String> versions) {
+            final URI baseUri,
+            final Deque<String> versions) {
         final var certs = versions.stream()
-                .map(v -> certificateController.getWithVersion(CERTIFICATE_BACKUP_TEST, v, baseUri).getBody())
+                .map(v -> certificateController.getWithVersion(CERTIFICATE_BACKUP_TEST, v, baseUri, V_7_3).getBody())
                 .toList();
         Assertions.assertEquals(2, certs.size());
         return certs;

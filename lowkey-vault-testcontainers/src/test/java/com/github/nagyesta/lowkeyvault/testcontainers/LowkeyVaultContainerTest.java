@@ -32,8 +32,9 @@ class LowkeyVaultContainerTest extends AbstractLowkeyVaultContainerTest {
     @ParameterizedTest
     @MethodSource("imageRecommendationInputProvider")
     void testRecommendMultiArchImageIfApplicableShouldPrintRecommendationWhenHostIsNotMatchingImageArch(
-            final String imageName, final String hostArch, final boolean logExpected
-    ) {
+            final String imageName,
+            final String hostArch,
+            final boolean logExpected) {
         //given
         final var dockerImageName = DockerImageName.parse(imageName)
                 .asCompatibleSubstituteFor(LowkeyVaultContainer.DEFAULT_IMAGE_NAME);

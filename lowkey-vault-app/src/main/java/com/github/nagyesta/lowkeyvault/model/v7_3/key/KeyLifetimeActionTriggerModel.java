@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.github.nagyesta.lowkeyvault.service.key.LifetimeActionTrigger;
 import com.github.nagyesta.lowkeyvault.service.key.constants.LifetimeActionTriggerType;
 import lombok.Data;
-import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.Assert;
 
 import java.time.Period;
@@ -14,15 +14,17 @@ import java.time.Period;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class KeyLifetimeActionTriggerModel {
 
+    @Nullable
     @JsonIgnore
     private LifetimeActionTriggerType triggerType;
+    @Nullable
     @JsonIgnore
     private Period triggerPeriod;
 
     @JsonCreator
     public KeyLifetimeActionTriggerModel(
-            @JsonProperty("timeBeforeExpiry") final Period timeBeforeExpiry,
-            @JsonProperty("timeAfterCreate") final Period timeAfterCreate) {
+            @Nullable @JsonProperty("timeBeforeExpiry") final Period timeBeforeExpiry,
+            @Nullable @JsonProperty("timeAfterCreate") final Period timeAfterCreate) {
         Assert.isTrue(timeBeforeExpiry == null || timeAfterCreate == null,
                 "TimeBeforeExpiry and TimeAfterCreate cannot be populated at the same time.");
         Assert.isTrue(timeBeforeExpiry != null || timeAfterCreate != null,
@@ -36,13 +38,14 @@ public class KeyLifetimeActionTriggerModel {
         }
     }
 
-    public KeyLifetimeActionTriggerModel(@NonNull final LifetimeActionTrigger trigger) {
+    public KeyLifetimeActionTriggerModel(final LifetimeActionTrigger trigger) {
+        Assert.notNull(trigger, "Trigger cannot be null.");
         this.triggerType = trigger.triggerType();
         this.triggerPeriod = trigger.timePeriod();
     }
 
     @JsonGetter
-    public Period getTimeBeforeExpiry() {
+    public @Nullable Period getTimeBeforeExpiry() {
         Period period = null;
         if (triggerType == LifetimeActionTriggerType.TIME_BEFORE_EXPIRY) {
             period = triggerPeriod;
@@ -51,7 +54,7 @@ public class KeyLifetimeActionTriggerModel {
     }
 
     @JsonGetter
-    public Period getTimeAfterCreate() {
+    public @Nullable Period getTimeAfterCreate() {
         Period period = null;
         if (triggerType == LifetimeActionTriggerType.TIME_AFTER_CREATE) {
             period = triggerPeriod;

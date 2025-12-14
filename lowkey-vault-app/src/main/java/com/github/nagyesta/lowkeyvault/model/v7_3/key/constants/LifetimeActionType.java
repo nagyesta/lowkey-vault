@@ -2,6 +2,7 @@ package com.github.nagyesta.lowkeyvault.model.v7_3.key.constants;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 
@@ -22,7 +23,7 @@ public enum LifetimeActionType {
     }
 
     @JsonCreator
-    public static LifetimeActionType forValue(final String name) {
+    public static @Nullable LifetimeActionType forValue(@Nullable final String name) {
         return Arrays.stream(values())
                 .filter(actionType -> actionType.getValue().equals(name))
                 .findFirst()

@@ -7,6 +7,7 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.SignatureAlgorit
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.impl.KeyCreationInput;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.Assert;
 
 import java.nio.charset.StandardCharsets;
@@ -24,7 +25,7 @@ public interface ReadOnlyKeyVaultKeyEntity
     default byte[] encrypt(
             final String clear,
             final EncryptionAlgorithm encryptionAlgorithm,
-            final byte[] iv) {
+            final byte @Nullable [] iv) {
         Assert.hasText(clear, "Clear text must not be blank.");
         return encryptBytes(clear.getBytes(StandardCharsets.UTF_8), encryptionAlgorithm, iv);
     }
@@ -32,13 +33,13 @@ public interface ReadOnlyKeyVaultKeyEntity
     default String decrypt(
             final byte[] encrypted,
             final EncryptionAlgorithm encryptionAlgorithm,
-            final byte[] iv) {
+            final byte @Nullable [] iv) {
         return new String(decryptToBytes(encrypted, encryptionAlgorithm, iv));
     }
 
-    byte[] encryptBytes(byte[] clear, EncryptionAlgorithm encryptionAlgorithm, byte[] iv);
+    byte[] encryptBytes(byte[] clear, EncryptionAlgorithm encryptionAlgorithm, byte @Nullable [] iv);
 
-    byte[] decryptToBytes(byte[] encrypted, EncryptionAlgorithm encryptionAlgorithm, byte[] iv);
+    byte[] decryptToBytes(byte[] encrypted, EncryptionAlgorithm encryptionAlgorithm, byte @Nullable [] iv);
 
     byte[] signBytes(byte[] digest, SignatureAlgorithm encryptionAlgorithm);
 

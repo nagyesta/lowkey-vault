@@ -1,6 +1,5 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_2.key;
 
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyItemModel;
 import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
@@ -14,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -26,21 +26,19 @@ import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOWKEY_VAULT;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class KeyEntityToV72KeyVersionItemModelConverterTest {
 
-    private KeyEntityToV72KeyVersionItemModelConverter underTest;
     @Mock
     private KeyEntityToV72PropertiesModelConverter propertiesModelConverter;
     @Mock
     private VaultFake vault;
     @Mock
     private KeyVaultFake keyVault;
-    @Mock
-    private KeyConverterRegistry registry;
+    @InjectMocks
+    private KeyEntityToV72KeyItemModelConverterImpl underTest;
 
     private AutoCloseable openMocks;
 
@@ -62,10 +60,8 @@ class KeyEntityToV72KeyVersionItemModelConverterTest {
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
-        underTest = new KeyEntityToV72KeyVersionItemModelConverter(registry);
-        when(registry.propertiesConverter(anyString())).thenReturn(propertiesModelConverter);
         when(vault.keyVaultFake()).thenReturn(keyVault);
-        when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultKeyEntity.class), any(URI.class))).thenReturn(PROPERTIES_MODEL);
+        when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultKeyEntity.class))).thenReturn(PROPERTIES_MODEL);
     }
 
     @AfterEach
@@ -73,10 +69,23 @@ class KeyEntityToV72KeyVersionItemModelConverterTest {
         openMocks.close();
     }
 
+    @Test
+    void testConvertShouldReturnNullWhenCalledWithNull() {
+        //given
+
+        //when
+        final var actual = underTest.convert(null, HTTPS_LOWKEY_VAULT);
+
+        //then
+        Assertions.assertNull(actual);
+    }
+
     @ParameterizedTest
     @MethodSource("validInputProvider")
     void testConvertShouldConvertAllFieldsWhenTheyAreSet(
-            final VersionedKeyEntityId keyEntityId, final int keyParam, final Map<String, String> tags,
+            final VersionedKeyEntityId keyEntityId,
+            final int keyParam,
+            final Map<String, String> tags,
             final KeyVaultKeyItemModel expected) {
 
         //given
@@ -90,22 +99,12 @@ class KeyEntityToV72KeyVersionItemModelConverterTest {
 
         //then
         Assertions.assertEquals(expected, actual);
-        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class), any(URI.class));
+        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class));
     }
 
-    @Test
-    void testConstructorShouldThrowExceptionsWhenCalledWithNull() {
-        //given
-
-        //when
-        //noinspection ConstantConditions
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new KeyEntityToV72KeyVersionItemModelConverter(null));
-
-        //then exception
-    }
-
-    private static KeyVaultKeyItemModel keyVaultKeyItemModel(final URI asUriNoVersion, final Map<String, String> tags) {
+    private static KeyVaultKeyItemModel keyVaultKeyItemModel(
+            final URI asUriNoVersion,
+            final Map<String, String> tags) {
         final var model = new KeyVaultKeyItemModel();
         model.setAttributes(PROPERTIES_MODEL);
         model.setKeyId(asUriNoVersion.toString());

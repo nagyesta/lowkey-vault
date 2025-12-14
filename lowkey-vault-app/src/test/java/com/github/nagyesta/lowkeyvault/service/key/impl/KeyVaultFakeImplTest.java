@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.Duration;
@@ -54,8 +53,6 @@ class KeyVaultFakeImplTest {
 
     public static Stream<Arguments> genericKeyCreateInputProvider() {
         return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null))
-                .add(Arguments.of(KEY_NAME_1, null))
                 .add(Arguments.of(KEY_NAME_1, KeyCreateDetailedInput.builder()
                         .key(new KeyCreationInput<Integer>(KeyType.RSA_HSM, null))
                         .build()))
@@ -74,13 +71,6 @@ class KeyVaultFakeImplTest {
                 .build();
     }
 
-    public static Stream<Arguments> invalidKeyOperationsProvider() {
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null))
-                .add(Arguments.of(null, List.of()))
-                .build();
-    }
-
     public static Stream<Arguments> keyOperationsProvider() {
         return Stream.<Arguments>builder()
                 .add(Arguments.of(List.of()))
@@ -89,36 +79,24 @@ class KeyVaultFakeImplTest {
                 .build();
     }
 
-    public static Stream<Arguments> nullProvider() {
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null))
-                .add(Arguments.of(mock(VaultFake.class), null, null))
-                .add(Arguments.of(null, RecoveryLevel.PURGEABLE, null))
-                .add(Arguments.of(null, null, 0))
-                .add(Arguments.of(mock(VaultFake.class), RecoveryLevel.RECOVERABLE, null))
-                .build();
-    }
-
     public static Stream<Arguments> certificateNullProvider() {
         final var input = new RsaKeyCreationInput(KeyType.RSA, null, null);
         return Stream.<Arguments>builder()
-                .add(Arguments.of(KEY_NAME_1, null, null, null))
-                .add(Arguments.of(null, input, null, null))
-                .add(Arguments.of(null, input, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES))
-                .add(Arguments.of(KEY_NAME_1, null, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES))
+                .add(Arguments.of(KEY_NAME_1, input, null, null))
                 .add(Arguments.of(KEY_NAME_1, input, null, TIME_IN_10_MINUTES))
                 .add(Arguments.of(KEY_NAME_1, input, TIME_10_MINUTES_AGO, null))
                 .build();
     }
 
-    @ParameterizedTest
-    @MethodSource("nullProvider")
-    void testConstructorShouldThrowExceptionWhenCalledWithNull(
-            final VaultFake vaultFake, final RecoveryLevel recoveryLevel, final Integer recoverableDays) {
+    @Test
+    void testConstructorShouldThrowExceptionWhenCalledWithNull() {
         //given
+        final var vaultFake = mock(VaultFake.class);
+
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new KeyVaultFakeImpl(vaultFake, recoveryLevel, recoverableDays));
+        Assertions.assertThrows(IllegalArgumentException.class, () ->
+                new KeyVaultFakeImpl(vaultFake, RecoveryLevel.RECOVERABLE, null));
 
         //then + exception
     }
@@ -143,19 +121,6 @@ class KeyVaultFakeImplTest {
     }
 
     @Test
-    void testGetKeyVersionsShouldThrowExceptionWhenKeyIdIsNull() {
-        //given
-        final var underTest = createUnderTest();
-        insertMultipleVersionsOfSameKey(underTest, KEY_NAME_1);
-        final var entities = underTest.getEntities();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> entities.getVersions(null));
-
-        //then + exception
-    }
-
-    @Test
     void testGetKeyVersionsShouldThrowExceptionWhenNotFound() {
         //given
         final var underTest = createUnderTest();
@@ -166,18 +131,6 @@ class KeyVaultFakeImplTest {
 
         //when
         Assertions.assertThrows(NotFoundException.class, () -> entities.getVersions(keyEntityId));
-
-        //then + exception
-    }
-
-    @Test
-    void testGetLatestVersionOfEntityShouldThrowExceptionWhenKeyIdIsNull() {
-        //given
-        final var underTest = createUnderTest();
-        final var entities = underTest.getEntities();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> entities.getLatestVersionOfEntity(null));
 
         //then + exception
     }
@@ -204,57 +157,14 @@ class KeyVaultFakeImplTest {
 
     @ParameterizedTest
     @MethodSource("genericKeyCreateInputProvider")
-    void testCreateKeyVersionShouldThrowExceptionWhenCalledWithNull(final String name, final KeyCreateDetailedInput input) {
+    void testCreateKeyVersionShouldThrowExceptionWhenCalledWithNull(
+            final String name,
+            final KeyCreateDetailedInput input) {
         //given
         final var underTest = createUnderTest();
 
         //when
         Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.createKeyVersion(name, input));
-
-        //then + exception
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @ParameterizedTest
-    @NullSource
-    @ValueSource(strings = KEY_NAME_1)
-    void testCreateKeyVersionShouldThrowExceptionWhenCalledWithNullRsa(final String keyName) {
-        //given
-        final var underTest = createUnderTest();
-        final RsaKeyCreationInput input = null;
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.createRsaKeyVersion(keyName, input));
-
-        //then + exception
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @ParameterizedTest
-    @NullSource
-    @ValueSource(strings = KEY_NAME_1)
-    void testCreateKeyVersionShouldThrowExceptionWhenCalledWithNullEc(final String keyName) {
-        //given
-        final var underTest = createUnderTest();
-        final EcKeyCreationInput input = null;
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.createEcKeyVersion(keyName, input));
-
-        //then + exception
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @ParameterizedTest
-    @NullSource
-    @ValueSource(strings = KEY_NAME_1)
-    void testCreateKeyVersionShouldThrowExceptionWhenCalledWithNullOct(final String keyName) {
-        //given
-        final var underTest = createUnderTest();
-        final OctKeyCreationInput input = null;
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.createOctKeyVersion(keyName, input));
 
         //then + exception
     }
@@ -331,19 +241,6 @@ class KeyVaultFakeImplTest {
         Assertions.assertIterableEquals(list, actual.getOperations());
     }
 
-    @ParameterizedTest
-    @MethodSource("invalidKeyOperationsProvider")
-    void testSetKeyOperationsShouldThrowExceptionWhenCalledWithInvalidValues(
-            final VersionedKeyEntityId keyEntityId, final List<KeyOperation> list) {
-        //given
-        final var underTest = createUnderTest();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setKeyOperations(keyEntityId, list));
-
-        //then + exception
-    }
-
     @Test
     void testClearTagsShouldClearPreviouslySetTagsWhenCalledOnValidKey() {
         //given
@@ -367,28 +264,6 @@ class KeyVaultFakeImplTest {
     }
 
     @Test
-    void testClearTagsShouldThrowExceptionWhenCalledWithNullKey() {
-        //given
-        final var underTest = createUnderTest();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.clearTags(null));
-
-        //then + exception
-    }
-
-    @Test
-    void testAddTagsShouldThrowExceptionWhenCalledWithNullKey() {
-        //given
-        final var underTest = createUnderTest();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.addTags(null, TAGS_EMPTY));
-
-        //then + exception
-    }
-
-    @Test
     void testSetEnabledShouldReplacePreviouslySetValueWhenCalledOnValidKey() {
         //given
         final var underTest = createUnderTest();
@@ -405,17 +280,6 @@ class KeyVaultFakeImplTest {
 
         //then
         Assertions.assertFalse(actual.isEnabled());
-    }
-
-    @Test
-    void testSetEnabledShouldThrowExceptionWhenCalledWithNullKey() {
-        //given
-        final var underTest = createUnderTest();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setEnabled(null, true));
-
-        //then + exception
     }
 
     @Test
@@ -486,18 +350,6 @@ class KeyVaultFakeImplTest {
     }
 
     @Test
-    void testSetExpiryShouldThrowExceptionWhenCalledWithNullKey() {
-        //given
-        final var underTest = createUnderTest();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.setExpiry(null, TIME_10_MINUTES_AGO, TIME_IN_10_MINUTES));
-
-        //then + exception
-    }
-
-    @Test
     void testSetExpiryShouldThrowExceptionWhenCalledWithNegativeTimeDuration() {
         //given
         final var underTest = createUnderTest();
@@ -523,19 +375,6 @@ class KeyVaultFakeImplTest {
         //then + exception
     }
 
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testConstructorWithRecoveryShouldThrowExceptionWhenCalledWithNullRecoveryLevel() {
-        //given
-        final var vaultFake = new VaultFakeImpl(HTTPS_LOCALHOST);
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new KeyVaultFakeImpl(vaultFake, null, DAYS));
-
-        //then + exception
-    }
-
     @Test
     void testGetEntityShouldReturnValueWhenCalledWithExistingKey() {
         //given
@@ -551,18 +390,6 @@ class KeyVaultFakeImplTest {
         //then
         Assertions.assertNotNull(actual);
         Assertions.assertEquals(keyEntityId.asUri(HTTPS_LOCALHOST_8443), actual.getId().asUri(HTTPS_LOCALHOST_8443));
-    }
-
-    @Test
-    void testRawGetEntityShouldThrowExceptionWhenCalledWithNullKey() {
-        //given
-        final var underTest = createUnderTest();
-        final var entities = underTest.getEntities();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> entities.getReadOnlyEntity(null));
-
-        //then + exception
     }
 
     @Test
@@ -608,17 +435,6 @@ class KeyVaultFakeImplTest {
     }
 
     @Test
-    void testDeleteShouldThrowExceptionWhenCalledWithNullKey() {
-        //given
-        final var underTest = createUnderTest();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.delete(null));
-
-        //then + exception
-    }
-
-    @Test
     void testRecoverShouldThrowExceptionWhenCalledWithMissingDeletedKey() {
         //given
         final var underTest = createUnderTest();
@@ -647,17 +463,6 @@ class KeyVaultFakeImplTest {
         //then
         Assertions.assertFalse(underTest.getDeletedEntities().containsName(KEY_NAME_1));
         Assertions.assertEquals(COUNT, underTest.getEntities().getVersions(UNVERSIONED_KEY_ENTITY_ID_1).size());
-    }
-
-    @Test
-    void testRecoverShouldThrowExceptionWhenCalledWithNullKey() {
-        //given
-        final var underTest = createUnderTest();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.recover(null));
-
-        //then + exception
     }
 
 
@@ -713,17 +518,6 @@ class KeyVaultFakeImplTest {
         Assertions.assertNull(actual);
     }
 
-    @Test
-    void testPurgeShouldThrowExceptionWhenCalledWithNullKey() {
-        //given
-        final var underTest = createUnderTest();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.purge(null));
-
-        //then + exception
-    }
-
     @ParameterizedTest
     @ValueSource(ints = {-42, -10, -5, -3, -2, -1, 0})
     void testTimeShiftShouldThrowExceptionWhenCalledWithNegativeOrZero(final int value) {
@@ -752,8 +546,8 @@ class KeyVaultFakeImplTest {
         underTest.setRotationPolicy(new KeyRotationPolicy(keyEntityId, expiryTime,
                 Map.of(LifetimeActionType.ROTATE, new KeyLifetimeAction(LifetimeActionType.ROTATE, trigger))));
         final var beforePolicy = underTest.rotationPolicy(keyEntityId);
-        final var createdPolicyOriginal = beforePolicy.getCreatedOn();
-        final var updatedPolicyOriginal = beforePolicy.getUpdatedOn();
+        final var createdPolicyOriginal = beforePolicy.getCreated();
+        final var updatedPolicyOriginal = beforePolicy.getUpdated();
 
         //when
         underTest.timeShift(NUMBER_OF_SECONDS_IN_10_MINUTES);
@@ -765,8 +559,8 @@ class KeyVaultFakeImplTest {
         Assertions.assertEquals(TIME_10_MINUTES_AGO, after.getNotBefore().orElse(null));
         Assertions.assertEquals(NOW, after.getExpiry().orElse(null));
         final var afterPolicy = underTest.rotationPolicy(keyEntityId);
-        Assertions.assertEquals(createdPolicyOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), afterPolicy.getCreatedOn());
-        Assertions.assertEquals(updatedPolicyOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), afterPolicy.getUpdatedOn());
+        Assertions.assertEquals(createdPolicyOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), afterPolicy.getCreated());
+        Assertions.assertEquals(updatedPolicyOriginal.minusSeconds(NUMBER_OF_SECONDS_IN_10_MINUTES), afterPolicy.getUpdated());
     }
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
@@ -815,8 +609,8 @@ class KeyVaultFakeImplTest {
                 Map.of(LifetimeActionType.ROTATE, new KeyLifetimeAction(LifetimeActionType.ROTATE, rotateSecond)));
         underTest.setRotationPolicy(rotationPolicyOriginal);
         final var beforePolicy = underTest.rotationPolicy(keyEntityId);
-        final var createdPolicyOriginal = beforePolicy.getCreatedOn();
-        final var updatedPolicyOriginal = beforePolicy.getUpdatedOn();
+        final var createdPolicyOriginal = beforePolicy.getCreated();
+        final var updatedPolicyOriginal = beforePolicy.getUpdated();
         waitABit();
 
         //when
@@ -824,8 +618,8 @@ class KeyVaultFakeImplTest {
 
         //then
         final var afterPolicy = underTest.rotationPolicy(keyEntityId);
-        Assertions.assertEquals(createdPolicyOriginal, afterPolicy.getCreatedOn());
-        Assertions.assertTrue(updatedPolicyOriginal.isBefore(afterPolicy.getUpdatedOn()));
+        Assertions.assertEquals(createdPolicyOriginal, afterPolicy.getCreated());
+        Assertions.assertTrue(updatedPolicyOriginal.isBefore(afterPolicy.getUpdated()));
     }
 
     @Test
@@ -844,8 +638,8 @@ class KeyVaultFakeImplTest {
         underTest.setRotationPolicy(new KeyRotationPolicy(keyEntityId, expiryTime,
                 Map.of(LifetimeActionType.ROTATE, new KeyLifetimeAction(LifetimeActionType.ROTATE, trigger))));
         final var beforePolicy = underTest.rotationPolicy(keyEntityId);
-        final var createdPolicyOriginal = beforePolicy.getCreatedOn();
-        final var updatedPolicyOriginal = beforePolicy.getUpdatedOn();
+        final var createdPolicyOriginal = beforePolicy.getCreated();
+        final var updatedPolicyOriginal = beforePolicy.getUpdated();
 
         final var sizeBefore = underTest.getEntities().getVersions(keyEntityId).size();
 
@@ -862,30 +656,8 @@ class KeyVaultFakeImplTest {
         Assertions.assertNotEquals(sizeAfter, sizeBefore);
         Assertions.assertEquals(ROTATIONS_UNDER_120_DAYS, sizeAfter - sizeBefore);
         final var afterPolicy = underTest.rotationPolicy(keyEntityId);
-        Assertions.assertEquals(createdPolicyOriginal.minusSeconds(OFFSET_SECONDS_120_DAYS), afterPolicy.getCreatedOn());
-        Assertions.assertEquals(updatedPolicyOriginal.minusSeconds(OFFSET_SECONDS_120_DAYS), afterPolicy.getUpdatedOn());
-    }
-
-    @Test
-    void testRotationPolicyShouldThrowExceptionWhenCalledWithNull() {
-        //given
-        final var underTest = createUnderTest();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.rotationPolicy(null));
-
-        //then + exception
-    }
-
-    @Test
-    void testSetRotationPolicyShouldThrowExceptionWhenCalledWithNull() {
-        //given
-        final var underTest = createUnderTest();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setRotationPolicy(null));
-
-        //then + exception
+        Assertions.assertEquals(createdPolicyOriginal.minusSeconds(OFFSET_SECONDS_120_DAYS), afterPolicy.getCreated());
+        Assertions.assertEquals(updatedPolicyOriginal.minusSeconds(OFFSET_SECONDS_120_DAYS), afterPolicy.getUpdated());
     }
 
     @Test
@@ -938,17 +710,6 @@ class KeyVaultFakeImplTest {
     }
 
     @Test
-    void testRotateKeyShouldThrowExceptionWhenCalledWithNull() {
-        //given
-        final var underTest = createUnderTest();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.rotateKey(null));
-
-        //then + exception
-    }
-
-    @Test
     void testCreateKeyVersionForCertificateShouldSetFieldsAndManagedFlagWhenCalledWithValidRsaParameter() {
         //given
         final var underTest = createUnderTest();
@@ -982,8 +743,10 @@ class KeyVaultFakeImplTest {
     @ParameterizedTest
     @MethodSource("certificateNullProvider")
     void testCreateKeyVersionForCertificateShouldThrowExceptionWhenCalledWithNulls(
-            final String name, final KeyCreationInput<?> input,
-            final OffsetDateTime notBefore, final OffsetDateTime expiry) {
+            final String name,
+            final KeyCreationInput<?> input,
+            final OffsetDateTime notBefore,
+            final OffsetDateTime expiry) {
         //given
         final var underTest = createUnderTest();
         final var detailedInput = Optional.ofNullable(input)
@@ -1011,7 +774,9 @@ class KeyVaultFakeImplTest {
         return underTest;
     }
 
-    private List<VersionedKeyEntityId> insertMultipleVersionsOfSameKey(final KeyVaultFake underTest, final String keyName) {
+    private List<VersionedKeyEntityId> insertMultipleVersionsOfSameKey(
+            final KeyVaultFake underTest,
+            final String keyName) {
         return IntStream.range(0, COUNT)
                 .mapToObj(i -> underTest.createEcKeyVersion(keyName, EC_KEY_CREATION_INPUT))
                 .toList();

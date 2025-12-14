@@ -3,14 +3,13 @@ package com.github.nagyesta.lowkeyvault.service.certificate.impl;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import lombok.Data;
-import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.time.OffsetDateTime;
 import java.util.Set;
 
 @Data
-public class CertificatePolicy
-        implements ReadOnlyCertificatePolicy {
+public class CertificatePolicy implements ReadOnlyCertificatePolicy {
 
     private String name;
     private CertAuthorityType certAuthorityType;
@@ -24,14 +23,17 @@ public class CertificatePolicy
     private boolean reuseKeyOnRenewal;
     private boolean exportablePrivateKey;
     private KeyType keyType;
+    @Nullable
     private KeyCurveName keyCurveName;
+    @Nullable
     private Integer keySize;
     private boolean enableTransparency;
+    @Nullable
     private String certificateType;
     private Set<KeyUsageEnum> keyUsage;
     private Set<String> extendedKeyUsage;
 
-    public CertificatePolicy(@NonNull final ReadOnlyCertificatePolicy source) {
+    public CertificatePolicy(final ReadOnlyCertificatePolicy source) {
         this.name = source.getName();
         this.certAuthorityType = source.getCertAuthorityType();
         this.subject = source.getSubject();
@@ -52,23 +54,23 @@ public class CertificatePolicy
         this.extendedKeyUsage = Set.copyOf(source.getExtendedKeyUsage());
     }
 
-    public void setDnsNames(@NonNull final Set<String> dnsNames) {
+    public void setDnsNames(final Set<String> dnsNames) {
         this.dnsNames = Set.copyOf(dnsNames);
     }
 
-    public void setEmails(@NonNull final Set<String> emails) {
+    public void setEmails(final Set<String> emails) {
         this.emails = Set.copyOf(emails);
     }
 
-    public void setUpns(@NonNull final Set<String> upns) {
+    public void setUpns(final Set<String> upns) {
         this.upns = Set.copyOf(upns);
     }
 
-    public void setKeyUsage(@NonNull final Set<KeyUsageEnum> keyUsage) {
+    public void setKeyUsage(final Set<KeyUsageEnum> keyUsage) {
         this.keyUsage = Set.copyOf(keyUsage);
     }
 
-    public void setExtendedKeyUsage(@NonNull final Set<String> extendedKeyUsage) {
+    public void setExtendedKeyUsage(final Set<String> extendedKeyUsage) {
         this.extendedKeyUsage = Set.copyOf(extendedKeyUsage);
     }
 }

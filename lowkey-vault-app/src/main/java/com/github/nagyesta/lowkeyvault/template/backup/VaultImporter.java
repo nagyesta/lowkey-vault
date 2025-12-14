@@ -9,7 +9,6 @@ import com.github.nagyesta.lowkeyvault.model.management.VaultBackupModel;
 import com.github.nagyesta.lowkeyvault.model.management.VaultModel;
 import jakarta.validation.Validator;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,10 +42,10 @@ public class VaultImporter
 
     @Autowired
     public VaultImporter(
-            @NonNull final VaultImporterProperties vaultImporterProperties,
-            @NonNull final BackupTemplateProcessor backupTemplateProcessor,
-            @NonNull final ObjectMapper objectMapper,
-            @NonNull final Validator validator) {
+            final VaultImporterProperties vaultImporterProperties,
+            final BackupTemplateProcessor backupTemplateProcessor,
+            final ObjectMapper objectMapper,
+            final Validator validator) {
         this.vaultImporterProperties = vaultImporterProperties;
         this.backupTemplateProcessor = backupTemplateProcessor;
         this.objectMapper = objectMapper;
@@ -60,7 +59,7 @@ public class VaultImporter
     public void importTemplates() {
         if (importFileExists()) {
             final var context = vaultImporterProperties.context();
-            final var model = readFile(vaultImporterProperties.getImportFile(), context);
+            final var model = readFile(vaultImporterProperties.getExistingImportFile(), context);
             assertValid(model);
             preprocessVaults(model);
         }
@@ -85,7 +84,9 @@ public class VaultImporter
         }
     }
 
-    public VaultBackupListModel readFile(final File input, final BackupContext context) {
+    public VaultBackupListModel readFile(
+            final File input,
+            final BackupContext context) {
         try {
             final var jsonTemplate = Files.read(input, StandardCharsets.UTF_8);
             final var json = backupTemplateProcessor.processTemplate(jsonTemplate, context);

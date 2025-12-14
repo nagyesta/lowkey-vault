@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -97,8 +98,11 @@ public enum SignatureAlgorithm {
     }
 
     @JsonCreator
-    public static SignatureAlgorithm forValue(final String name) {
-        return Arrays.stream(values()).filter(algorithm -> algorithm.getValue().equals(name)).findFirst().orElse(null);
+    public static @Nullable SignatureAlgorithm forValue(@Nullable final String name) {
+        return Arrays.stream(values())
+                .filter(algorithm -> algorithm.getValue().equals(name))
+                .findFirst()
+                .orElse(null);
     }
 
     @JsonValue

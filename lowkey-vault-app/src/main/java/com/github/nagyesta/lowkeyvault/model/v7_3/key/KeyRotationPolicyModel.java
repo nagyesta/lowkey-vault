@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
 import java.util.List;
@@ -30,6 +31,7 @@ public class KeyRotationPolicyModel {
     @Size(min = 1, max = 2, groups = {Restore.class, Update.class})
     @JsonProperty("lifetimeActions")
     private List<KeyLifetimeActionModel> lifetimeActions;
+    @Nullable
     @JsonIgnore
     private KeyEntityId keyEntityId;
 

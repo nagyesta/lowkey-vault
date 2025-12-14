@@ -23,7 +23,9 @@ class KeyOperationTest {
 
     @ParameterizedTest
     @MethodSource("valueProvider")
-    void testForValueShouldReturnEnumWhenValueStringMatches(final String input, final KeyOperation expected) {
+    void testForValueShouldReturnEnumWhenValueStringMatches(
+            final String input,
+            final KeyOperation expected) {
         //given
 
         //when

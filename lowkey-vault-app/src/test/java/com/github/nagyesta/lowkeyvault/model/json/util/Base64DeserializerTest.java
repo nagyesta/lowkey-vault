@@ -12,7 +12,6 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
 
 import java.util.Base64;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
@@ -30,9 +29,9 @@ class Base64DeserializerTest {
 
     public static Stream<Arguments> base64Provider() {
         final var encoder = Base64.getUrlEncoder().withoutPadding();
-        return Stream.of(null, EMPTY, BLANK, LOCALHOST)
-                .map(s -> Optional.ofNullable(s).map(String::getBytes).orElse(null))
-                .map(b -> Arguments.of(Optional.ofNullable(b).map(encoder::encodeToString).orElse(null), b));
+        return Stream.of(EMPTY, BLANK, LOCALHOST)
+                .map(String::getBytes)
+                .map(b -> Arguments.of(encoder.encodeToString(b), b));
     }
 
     @BeforeEach
@@ -47,7 +46,9 @@ class Base64DeserializerTest {
 
     @ParameterizedTest
     @MethodSource("base64Provider")
-    void testDeserializeShouldDecodeBase64WhenCalled(final String input, final byte[] expected) {
+    void testDeserializeShouldDecodeBase64WhenCalled(
+            final String input,
+            final byte[] expected) {
         //given
         when(parser.readValueAs(String.class)).thenReturn(input);
 

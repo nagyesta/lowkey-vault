@@ -1,6 +1,7 @@
 package com.github.nagyesta.lowkeyvault.model.json.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.ObjectMapper;
@@ -30,10 +31,11 @@ public abstract class AbstractBase64ZipDeserializer<E>
     }
 
     @Override
-    public E deserialize(
+    public @Nullable E deserialize(
             final JsonParser jsonParser,
             final DeserializationContext context) {
-        final var bytes = Optional.ofNullable(base64Deserializer.deserializeBase64(jsonParser));
+        final var value = jsonParser.readValueAs(String.class);
+        final var bytes = Optional.of(base64Deserializer.deserializeBase64(value));
         return bytes.filter(v -> v.length > 0)
                 .map(this::decompressWrappedObject)
                 .orElse(null);

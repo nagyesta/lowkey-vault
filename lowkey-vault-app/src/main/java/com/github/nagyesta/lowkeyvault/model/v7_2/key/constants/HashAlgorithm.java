@@ -6,6 +6,7 @@ import org.bouncycastle.asn1.DERNull;
 import org.bouncycastle.asn1.nist.NISTObjectIdentifiers;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.DigestInfo;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.Assert;
 
 import java.io.IOException;
@@ -49,7 +50,7 @@ public enum HashAlgorithm {
         );
     }
 
-    public void verifyDigestLength(final byte[] digest) {
+    public void verifyDigestLength(final byte @Nullable [] digest) {
         final int length = Optional.ofNullable(digest)
                 .map(Array::getLength)
                 .orElseThrow(() -> new IllegalArgumentException("Digest is null."));

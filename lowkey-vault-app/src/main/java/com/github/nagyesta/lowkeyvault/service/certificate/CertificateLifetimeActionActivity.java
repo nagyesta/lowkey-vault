@@ -1,7 +1,6 @@
 package com.github.nagyesta.lowkeyvault.service.certificate;
 
 import lombok.Getter;
-import lombok.NonNull;
 
 import java.util.Arrays;
 
@@ -22,7 +21,7 @@ public enum CertificateLifetimeActionActivity {
         this.value = value;
     }
 
-    public static CertificateLifetimeActionActivity byValue(@NonNull final String value) {
+    public static CertificateLifetimeActionActivity byValue(final String value) {
         return Arrays.stream(CertificateLifetimeActionActivity.values())
                 .filter(v -> v.value.equals(value))
                 .findFirst()

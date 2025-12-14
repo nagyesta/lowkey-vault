@@ -2,9 +2,8 @@ package com.github.nagyesta.lowkeyvault;
 
 import com.azure.security.keyvault.keys.models.KeyCurveName;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.math.BigInteger;
@@ -23,27 +22,27 @@ public final class KeyGenUtil {
         throw new IllegalCallerException("Utility cannot be instantiated.");
     }
 
-    @Nonnull
     public static SecretKey generateAes(@Nullable final Integer keySize) {
         final int size = Objects.requireNonNullElse(keySize, 256);
         return keyGenerator("AES", size).generateKey();
     }
 
-    @Nonnull
-    public static KeyPair generateEc(@Nonnull final KeyCurveName keyCurveName) {
+    public static KeyPair generateEc(final KeyCurveName keyCurveName) {
         return keyPairGenerator("EC", getAlgSpec(keyCurveName)).generateKeyPair();
     }
 
-    @Nonnull
-    public static KeyPair generateRsa(@Nullable final Integer keySize, @Nullable final BigInteger publicExponent) {
+    public static KeyPair generateRsa(
+            @Nullable final Integer keySize,
+            @Nullable final BigInteger publicExponent) {
         final int nonNullKeySize = Objects.requireNonNullElse(keySize, 2048);
         final var notNullPublicExponent = Objects.requireNonNullElse(publicExponent, BigInteger.valueOf(65537));
         final var rsaKeyGenParameterSpec = new RSAKeyGenParameterSpec(nonNullKeySize, notNullPublicExponent);
         return keyPairGenerator("RSA", rsaKeyGenParameterSpec).generateKeyPair();
     }
 
-    static KeyPairGenerator keyPairGenerator(final String algorithmName,
-                                             final AlgorithmParameterSpec algSpec) {
+    static KeyPairGenerator keyPairGenerator(
+            final String algorithmName,
+            final AlgorithmParameterSpec algSpec) {
         try {
             final var keyGen = KeyPairGenerator.getInstance(algorithmName, BOUNCY_CASTLE_PROVIDER);
             keyGen.initialize(algSpec);
@@ -54,7 +53,9 @@ public final class KeyGenUtil {
     }
 
     @SuppressWarnings("SameParameterValue")
-    static KeyGenerator keyGenerator(final String algorithmName, final int keySize) {
+    static KeyGenerator keyGenerator(
+            final String algorithmName,
+            final int keySize) {
         try {
             final var keyGenerator = KeyGenerator.getInstance(algorithmName);
             keyGenerator.init(keySize);

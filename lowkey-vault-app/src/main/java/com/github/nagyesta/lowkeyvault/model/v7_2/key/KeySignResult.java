@@ -21,9 +21,9 @@ public class KeySignResult {
     private String value;
 
     public static KeySignResult forBytes(
-            @org.springframework.lang.NonNull final VersionedKeyEntityId keyEntityId,
-            @org.springframework.lang.NonNull final byte[] value,
-            @org.springframework.lang.NonNull final URI vaultUri) {
+            final VersionedKeyEntityId keyEntityId,
+            final byte[] value,
+            final URI vaultUri) {
         Assert.notNull(value, "Value must not be null.");
         return forString(keyEntityId, ENCODER.encodeToString(value), vaultUri);
     }

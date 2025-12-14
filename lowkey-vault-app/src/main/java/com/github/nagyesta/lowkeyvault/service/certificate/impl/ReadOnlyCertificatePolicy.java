@@ -4,6 +4,7 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.CreateKeyRequest;
 import com.github.nagyesta.lowkeyvault.service.key.impl.KeyCreationInput;
+import org.jspecify.annotations.Nullable;
 
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
@@ -54,12 +55,15 @@ public interface ReadOnlyCertificatePolicy {
 
     KeyType getKeyType();
 
+    @Nullable
     KeyCurveName getKeyCurveName();
 
+    @Nullable
     Integer getKeySize();
 
     boolean isEnableTransparency();
 
+    @Nullable
     String getCertificateType();
 
     Set<KeyUsageEnum> getKeyUsage();

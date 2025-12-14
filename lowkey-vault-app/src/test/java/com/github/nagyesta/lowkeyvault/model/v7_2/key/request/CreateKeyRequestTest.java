@@ -53,7 +53,9 @@ class CreateKeyRequestTest {
 
     @ParameterizedTest
     @MethodSource("octInputProvider")
-    void testToKeyCreationInputShouldReturnKeySizeWhenTypeIsOct(final KeyType keyType, final Integer parameter) {
+    void testToKeyCreationInputShouldReturnKeySizeWhenTypeIsOct(
+            final KeyType keyType,
+            final Integer parameter) {
         //given
         final var underTest = new CreateKeyRequest();
         underTest.setKeyType(keyType);
@@ -70,7 +72,9 @@ class CreateKeyRequestTest {
     @ParameterizedTest
     @MethodSource("rsaInputProvider")
     void testToKeyCreationInputShouldReturnKeySizeWhenTypeIsRsa(
-            final KeyType keyType, final Integer parameter, final BigInteger publicExponent) {
+            final KeyType keyType,
+            final Integer parameter,
+            final BigInteger publicExponent) {
         //given
         final var underTest = new CreateKeyRequest();
         underTest.setKeyType(keyType);
@@ -87,7 +91,9 @@ class CreateKeyRequestTest {
 
     @ParameterizedTest
     @MethodSource("ecInputProvider")
-    void testToKeyCreationInputShouldReturnCurveNameWhenTypeIsEc(final KeyType keyType, final KeyCurveName parameter) {
+    void testToKeyCreationInputShouldReturnCurveNameWhenTypeIsEc(
+            final KeyType keyType,
+            final KeyCurveName parameter) {
         //given
         final var underTest = new CreateKeyRequest();
         underTest.setKeyType(keyType);

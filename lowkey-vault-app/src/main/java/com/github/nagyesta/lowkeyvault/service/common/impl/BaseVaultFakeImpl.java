@@ -9,7 +9,7 @@ import com.github.nagyesta.lowkeyvault.service.common.VersionedEntityMultiMap;
 import com.github.nagyesta.lowkeyvault.service.exception.AlreadyExistsException;
 import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
-import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.Assert;
 
 import java.time.OffsetDateTime;
@@ -35,9 +35,9 @@ public abstract class BaseVaultFakeImpl<K extends EntityId, V extends K, RE exte
     private final VersionedEntityMultiMap<K, V, RE, ME> deletedEntities;
 
     protected BaseVaultFakeImpl(
-            @NonNull final VaultFake vaultFake,
-            @NonNull final RecoveryLevel recoveryLevel,
-            final Integer recoverableDays) {
+            final VaultFake vaultFake,
+            final RecoveryLevel recoveryLevel,
+            @Nullable final Integer recoverableDays) {
         recoveryLevel.checkValidRecoverableDays(recoverableDays);
         this.vaultFake = vaultFake;
         entities = new ConcurrentVersionedEntityMultiMap<>(
@@ -57,14 +57,14 @@ public abstract class BaseVaultFakeImpl<K extends EntityId, V extends K, RE exte
     }
 
     @Override
-    public void clearTags(@NonNull final V entityId) {
+    public void clearTags(final V entityId) {
         entities.getEntity(entityId).setTags(new TreeMap<>());
     }
 
     @Override
     public void addTags(
-            @NonNull final V entityId,
-            final Map<String, String> tags) {
+            final V entityId,
+            @Nullable final Map<String, String> tags) {
         final var newTags = new TreeMap<>(entities.getEntity(entityId).getTags());
         newTags.putAll(Objects.requireNonNullElse(tags, Collections.emptyMap()));
         entities.getEntity(entityId).setTags(newTags);
@@ -72,16 +72,16 @@ public abstract class BaseVaultFakeImpl<K extends EntityId, V extends K, RE exte
 
     @Override
     public void setEnabled(
-            @NonNull final V entityId,
+            final V entityId,
             final boolean enabled) {
         entities.getEntity(entityId).setEnabled(enabled);
     }
 
     @Override
     public void setExpiry(
-            @NonNull final V entityId,
-            final OffsetDateTime notBefore,
-            final OffsetDateTime expiry) {
+            final V entityId,
+            @Nullable final OffsetDateTime notBefore,
+            @Nullable final OffsetDateTime expiry) {
         if (expiry != null && notBefore != null && notBefore.isAfter(expiry)) {
             throw new IllegalArgumentException("Expiry cannot be before notBefore.");
         }
@@ -92,8 +92,8 @@ public abstract class BaseVaultFakeImpl<K extends EntityId, V extends K, RE exte
 
     protected void setCreatedAndUpdatedOn(
             final V entityId,
-            final OffsetDateTime created,
-            final OffsetDateTime updated) {
+            @Nullable final OffsetDateTime created,
+            @Nullable final OffsetDateTime updated) {
         if (created == null && updated == null) {
             return;
         }
@@ -108,7 +108,7 @@ public abstract class BaseVaultFakeImpl<K extends EntityId, V extends K, RE exte
     }
 
     @Override
-    public void delete(@NonNull final K entityId) {
+    public void delete(final K entityId) {
         if (!entities.containsName(entityId.id())) {
             throw new NotFoundException("Entity not found: " + entityId);
         }
@@ -116,7 +116,7 @@ public abstract class BaseVaultFakeImpl<K extends EntityId, V extends K, RE exte
     }
 
     @Override
-    public void recover(@NonNull final K entityId) {
+    public void recover(final K entityId) {
         deletedEntities.purgeExpired();
         if (!deletedEntities.containsName(entityId.id())) {
             throw new NotFoundException("Entity not found: " + entityId);
@@ -125,7 +125,7 @@ public abstract class BaseVaultFakeImpl<K extends EntityId, V extends K, RE exte
     }
 
     @Override
-    public void purge(@NonNull final K entityId) {
+    public void purge(final K entityId) {
         deletedEntities.purgeExpired();
         if (!deletedEntities.containsName(entityId.id())) {
             throw new NotFoundException("Entity not found: " + entityId);
@@ -169,8 +169,8 @@ public abstract class BaseVaultFakeImpl<K extends EntityId, V extends K, RE exte
     }
 
     protected V addVersion(
-            @org.springframework.lang.NonNull final V entityId,
-            @org.springframework.lang.NonNull final ME entity) {
+            final V entityId,
+            final ME entity) {
         assertNoConflict(entityId);
         entities.put(entityId, entity);
         return entityId;

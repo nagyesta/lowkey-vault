@@ -22,7 +22,9 @@ class RecoveryLevelTest {
 
     @ParameterizedTest
     @MethodSource("validProvider")
-    void testForValueShouldReturnExpectedValueWhenCalled(final String input, final RecoveryLevel expected) {
+    void testForValueShouldReturnExpectedValueWhenCalled(
+            final String input,
+            final RecoveryLevel expected) {
         //given
 
         //when

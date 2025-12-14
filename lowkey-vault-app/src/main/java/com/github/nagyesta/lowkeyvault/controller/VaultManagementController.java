@@ -12,13 +12,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Objects;
 
 import static com.github.nagyesta.lowkeyvault.openapi.Examples.*;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
@@ -34,8 +34,8 @@ public class VaultManagementController
     private final VaultFakeToVaultModelConverter vaultFakeToVaultModelConverter;
 
     public VaultManagementController(
-            @NonNull final VaultService vaultService,
-            @NonNull final VaultFakeToVaultModelConverter vaultFakeToVaultModelConverter) {
+            final VaultService vaultService,
+            final VaultFakeToVaultModelConverter vaultFakeToVaultModelConverter) {
         this.vaultService = vaultService;
         this.vaultFakeToVaultModelConverter = vaultFakeToVaultModelConverter;
     }
@@ -74,7 +74,8 @@ public class VaultManagementController
     public ResponseEntity<List<VaultModel>> listVaults() {
         log.info("Received request to list vaults.");
         final var vaultFake = vaultService.list().stream()
-                .map(vaultFakeToVaultModelConverter::convertNonNull)
+                .map(vaultFakeToVaultModelConverter::convert)
+                .filter(Objects::nonNull)
                 .toList();
         log.info("Returning {} vaults.", vaultFake.size());
         return ResponseEntity.ok(vaultFake);
@@ -92,7 +93,8 @@ public class VaultManagementController
     public ResponseEntity<List<VaultModel>> listDeletedVaults() {
         log.info("Received request to list deleted vaults.");
         final var vaultFake = vaultService.listDeleted().stream()
-                .map(vaultFakeToVaultModelConverter::convertNonNull)
+                .map(vaultFakeToVaultModelConverter::convert)
+                .filter(Objects::nonNull)
                 .toList();
         log.info("Returning {} deleted vaults.", vaultFake.size());
         return ResponseEntity.ok(vaultFake);
@@ -238,7 +240,8 @@ public class VaultManagementController
     @PutMapping(value = "/time", params = {"baseUri", "seconds"},
             consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> timeShiftSingle(
-            @RequestParam final URI baseUri, @RequestParam final int seconds,
+            @RequestParam final URI baseUri,
+            @RequestParam final int seconds,
             @RequestParam(required = false, defaultValue = "false") final boolean regenerateCertificates) {
         log.info("Received request to shift time of vault with uri: {}, by {} seconds, regenerate certificates: {}.",
                 baseUri, seconds, regenerateCertificates);

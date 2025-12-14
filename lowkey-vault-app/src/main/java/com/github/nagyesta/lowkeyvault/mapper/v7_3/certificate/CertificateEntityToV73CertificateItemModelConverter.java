@@ -1,60 +1,82 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate;
 
-import com.github.nagyesta.lowkeyvault.context.ApiVersionAware;
-import com.github.nagyesta.lowkeyvault.mapper.common.BaseRecoveryAwareConverter;
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.CertificateConverterRegistry;
+import com.github.nagyesta.lowkeyvault.mapper.common.RecoveryAwareItemConverter;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.DeletedKeyVaultCertificateItemModel;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.KeyVaultCertificateItemModel;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
-import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
-import lombok.NonNull;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.jspecify.annotations.Nullable;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
+import org.mapstruct.Named;
 
 import java.net.URI;
-import java.util.SortedSet;
+import java.util.Arrays;
 
-public class CertificateEntityToV73CertificateItemModelConverter
-        extends BaseRecoveryAwareConverter<VersionedCertificateEntityId,
-        ReadOnlyKeyVaultCertificateEntity, KeyVaultCertificateItemModel, DeletedKeyVaultCertificateItemModel> {
-
-    private final CertificateConverterRegistry registry;
-
-    @Autowired
-    public CertificateEntityToV73CertificateItemModelConverter(
-            @NonNull final CertificateConverterRegistry registry) {
-        super(KeyVaultCertificateItemModel::new, DeletedKeyVaultCertificateItemModel::new);
-        this.registry = registry;
-    }
+@Mapper(
+        componentModel = MappingConstants.ComponentModel.SPRING,
+        uses = {CertificateEntityToV73PropertiesModelConverter.class}
+)
+public interface CertificateEntityToV73CertificateItemModelConverter
+        extends RecoveryAwareItemConverter<ReadOnlyKeyVaultCertificateEntity,
+        KeyVaultCertificateItemModel, DeletedKeyVaultCertificateItemModel> {
 
     @Override
-    public void afterPropertiesSet() {
-        register(registry);
-    }
-
-    protected void register(final CertificateConverterRegistry registry) {
-        registry.registerItemConverter(this);
-    }
-
-    @Override
-    protected <M extends KeyVaultCertificateItemModel> M mapActiveFields(
-            final ReadOnlyKeyVaultCertificateEntity source,
-            final M model,
+    default @Nullable KeyVaultCertificateItemModel convert(
+            final @Nullable ReadOnlyKeyVaultCertificateEntity source,
             final URI vaultUri) {
-        model.setCertificateId(convertCertificateId(source, vaultUri));
-        model.setThumbprint(source.getThumbprint());
-        model.setAttributes(registry.propertiesConverter(supportedVersions().last()).convert(source, vaultUri));
-        model.setTags(source.getTags());
-        return model;
+        if (source == null) {
+            return null;
+        }
+        return doConvert(source, vaultUri);
     }
 
-    protected String convertCertificateId(
-            final ReadOnlyKeyVaultCertificateEntity source,
-            final URI vaultUri) {
-        return source.getId().asUriNoVersion(vaultUri).toString();
-    }
+    @Named("ignore")
+    @Mapping(target = "certificateId", expression = "java(source.getId().asUri(vaultUri).toString())")
+    @Mapping(target = "thumbprint", expression = "java(copyOf(source.getThumbprint()))")
+    @Mapping(target = "attributes", source = "source")
+    @Mapping(target = "tags", expression = "java(java.util.Map.copyOf(source.getTags()))")
+    KeyVaultCertificateItemModel doConvert(ReadOnlyKeyVaultCertificateEntity source, URI vaultUri);
 
     @Override
-    public SortedSet<String> supportedVersions() {
-        return ApiVersionAware.V7_3_AND_LATER;
+    default @Nullable KeyVaultCertificateItemModel convertWithoutVersion(
+            final @Nullable ReadOnlyKeyVaultCertificateEntity source,
+            final URI vaultUri) {
+        if (source == null) {
+            return null;
+        }
+        return doConvertWithoutVersion(source, vaultUri);
+    }
+
+    @Named("ignore")
+    @Mapping(target = "certificateId", expression = "java(source.getId().asUriNoVersion(vaultUri).toString())")
+    @Mapping(target = "thumbprint", expression = "java(copyOf(source.getThumbprint()))")
+    @Mapping(target = "attributes", source = "source")
+    @Mapping(target = "tags", expression = "java(java.util.Map.copyOf(source.getTags()))")
+    KeyVaultCertificateItemModel doConvertWithoutVersion(ReadOnlyKeyVaultCertificateEntity source, URI vaultUri);
+
+    @Override
+    default @Nullable DeletedKeyVaultCertificateItemModel convertDeleted(
+            final @Nullable ReadOnlyKeyVaultCertificateEntity source,
+            final URI vaultUri) {
+        if (source == null) {
+            return null;
+        }
+        return doConvertDeleted(source, vaultUri);
+    }
+
+    @Named("ignore")
+    @Mapping(target = "certificateId", expression = "java(source.getId().asUriNoVersion(vaultUri).toString())")
+    @Mapping(target = "recoveryId", expression = "java(source.getId().asRecoveryUri(vaultUri).toString())")
+    @Mapping(target = "thumbprint", expression = "java(copyOf(source.getThumbprint()))")
+    @Mapping(target = "attributes", source = "source")
+    @Mapping(target = "deletedDate", expression = "java(source.getDeletedDate().orElseThrow())")
+    @Mapping(target = "scheduledPurgeDate", expression = "java(source.getScheduledPurgeDate().orElseThrow())")
+    @Mapping(target = "tags", expression = "java(java.util.Map.copyOf(source.getTags()))")
+    DeletedKeyVaultCertificateItemModel doConvertDeleted(ReadOnlyKeyVaultCertificateEntity source, URI vaultUri);
+
+    @Named("ignore")
+    default byte[] copyOf(final byte[] source) {
+        return Arrays.copyOf(source, source.length);
     }
 }

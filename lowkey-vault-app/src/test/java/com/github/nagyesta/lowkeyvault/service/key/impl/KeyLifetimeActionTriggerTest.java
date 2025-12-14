@@ -23,14 +23,6 @@ class KeyLifetimeActionTriggerTest {
     private static final Period PERIOD_A_WEEK = Period.ofDays(MINIMUM_THRESHOLD_BEFORE_EXPIRY);
     private static final Period PERIOD_28_DAYS = Period.ofDays(MINIMUM_EXPIRY_PERIOD_IN_DAYS);
 
-    public static Stream<Arguments> invalidProvider() {
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null))
-                .add(Arguments.of(null, LifetimeActionTriggerType.TIME_BEFORE_EXPIRY))
-                .add(Arguments.of(Period.ZERO, null))
-                .build();
-    }
-
 
     public static Stream<Arguments> validProvider() {
         return Stream.<Arguments>builder()
@@ -45,20 +37,12 @@ class KeyLifetimeActionTriggerTest {
     }
 
     @ParameterizedTest
-    @MethodSource("invalidProvider")
-    void testConstructorShouldThrowExceptionWhenCalledWithNulls(final Period period, final LifetimeActionTriggerType type) {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new KeyLifetimeActionTrigger(period, type));
-
-        //then + exception
-    }
-
-    @ParameterizedTest
     @MethodSource("validProvider")
-    void shouldTrigger(final Period period, final LifetimeActionTriggerType type,
-                       final OffsetDateTime created, final OffsetDateTime expiry,
+    void shouldTrigger(
+            final Period period,
+            final LifetimeActionTriggerType type,
+                       final OffsetDateTime created,
+            final OffsetDateTime expiry,
                        final boolean expected) {
         //given
         final var underTest = new KeyLifetimeActionTrigger(period, type);

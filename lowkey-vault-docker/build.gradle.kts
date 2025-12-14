@@ -27,7 +27,7 @@ dependencies {
     }
     testImplementation(libs.bundles.cucumber)
     testImplementation(libs.abort.mission.cucumber)
-    testImplementation(libs.findbugs.jsr305)
+    testImplementation(libs.jspecify)
 }
 
 java {

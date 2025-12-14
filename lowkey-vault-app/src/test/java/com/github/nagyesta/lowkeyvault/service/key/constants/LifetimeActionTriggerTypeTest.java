@@ -83,8 +83,11 @@ class LifetimeActionTriggerTypeTest {
     @ParameterizedTest
     @MethodSource("validationDataProvider")
     void testValidateShouldThrowExceptionWhenInputIsInvalid(
-            final LifetimeActionTriggerType underTest, final OffsetDateTime expires,
-            final Integer expiryDays, final Integer triggerDays, final boolean valid) {
+            final LifetimeActionTriggerType underTest,
+            final OffsetDateTime expires,
+            final Integer expiryDays,
+            final Integer triggerDays,
+            final boolean valid) {
         //given
         final var expiryPeriod = Optional.ofNullable(expiryDays).map(Period::ofDays).orElse(null);
         final var triggerPeriod = Optional.ofNullable(triggerDays).map(Period::ofDays).orElse(null);
@@ -102,8 +105,11 @@ class LifetimeActionTriggerTypeTest {
     @ParameterizedTest
     @MethodSource("shouldTriggerValidDataProvider")
     void testShouldTriggerShouldReturnTrueWhenCalledInsideTheTriggerPeriod(
-            final LifetimeActionTriggerType underTest, final int expiryAfterCreateDays,
-            final int createOffsetDays, final int triggerDays, final boolean expected) {
+            final LifetimeActionTriggerType underTest,
+            final int expiryAfterCreateDays,
+            final int createOffsetDays,
+            final int triggerDays,
+            final boolean expected) {
         //given
         final var createTime = TestConstants.NOW.minusDays(createOffsetDays);
         final var expiryTime = createTime.plusDays(expiryAfterCreateDays);
@@ -119,8 +125,10 @@ class LifetimeActionTriggerTypeTest {
     @ParameterizedTest
     @MethodSource("shouldTriggerInvalidDataProvider")
     void testShouldTriggerShouldThrowExceptionWhenCalledWithInvalidData(
-            final LifetimeActionTriggerType underTest, final OffsetDateTime createTime,
-            final OffsetDateTime expiryTime, final Integer triggerDays) {
+            final LifetimeActionTriggerType underTest,
+            final OffsetDateTime createTime,
+            final OffsetDateTime expiryTime,
+            final Integer triggerDays) {
         //given
         final var triggerPeriod = Optional.ofNullable(triggerDays).map(Period::ofDays).orElse(null);
 

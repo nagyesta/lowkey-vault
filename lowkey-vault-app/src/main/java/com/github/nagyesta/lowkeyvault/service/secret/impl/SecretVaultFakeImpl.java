@@ -7,7 +7,7 @@ import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultFake;
 import com.github.nagyesta.lowkeyvault.service.secret.id.SecretEntityId;
 import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
-import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.Assert;
 
 public class SecretVaultFakeImpl
@@ -15,9 +15,9 @@ public class SecretVaultFakeImpl
         implements SecretVaultFake {
 
     public SecretVaultFakeImpl(
-            @org.springframework.lang.NonNull final VaultFake vaultFake,
-            @org.springframework.lang.NonNull final RecoveryLevel recoveryLevel,
-            final Integer recoverableDays) {
+            final VaultFake vaultFake,
+            final RecoveryLevel recoveryLevel,
+            @Nullable final Integer recoverableDays) {
         super(vaultFake, recoveryLevel, recoverableDays);
     }
 
@@ -30,7 +30,7 @@ public class SecretVaultFakeImpl
 
     @Override
     public VersionedSecretEntityId createSecretVersion(
-            @NonNull final String secretName,
+            final String secretName,
             final SecretCreateInput input) {
         final var entityId = new VersionedSecretEntityId(vaultFake().baseUri(), secretName);
         return createSecretVersion(entityId, input);
@@ -38,8 +38,8 @@ public class SecretVaultFakeImpl
 
     @Override
     public VersionedSecretEntityId createSecretVersion(
-            @NonNull final VersionedSecretEntityId entityId,
-            @NonNull final SecretCreateInput input) {
+            final VersionedSecretEntityId entityId,
+            final SecretCreateInput input) {
         Assert.isTrue(!input.isManaged() || (input.getExpiresOn() != null && input.getNotBefore() != null),
                 "Managed secret (name=" + entityId.id() + ") must have notBefore and expiresOn parameters set!");
         Assert.isTrue(!input.isManaged() || input.getContentType() != null,

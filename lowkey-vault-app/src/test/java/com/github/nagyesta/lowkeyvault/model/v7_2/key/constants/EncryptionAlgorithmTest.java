@@ -21,7 +21,9 @@ class EncryptionAlgorithmTest {
 
     @ParameterizedTest
     @MethodSource("valueProvider")
-    void forValue(final String inout, final EncryptionAlgorithm expected) {
+    void forValue(
+            final String inout,
+            final EncryptionAlgorithm expected) {
         //given
 
         //when

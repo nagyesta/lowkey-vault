@@ -7,6 +7,7 @@ import com.github.nagyesta.lowkeyvault.model.json.util.Base64CertSerializer;
 import com.github.nagyesta.lowkeyvault.model.json.util.Base64Deserializer;
 import com.github.nagyesta.lowkeyvault.model.json.util.Base64Serializer;
 import lombok.Data;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
@@ -29,11 +30,14 @@ public class KeyVaultCertificateModel {
     @JsonDeserialize(using = Base64CertDeserializer.class)
     @JsonProperty("cer")
     private byte[] certificate;
+    @Nullable
     @JsonProperty("attributes")
     private CertificatePropertiesModel attributes;
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Nullable
     @JsonProperty("policy")
     private CertificatePolicyModel policy;
+    @Nullable
     @JsonProperty("tags")
     private Map<String, String> tags;
 

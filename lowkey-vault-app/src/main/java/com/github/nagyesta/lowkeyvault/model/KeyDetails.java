@@ -9,6 +9,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.List;
 
 public record KeyDetails(@JsonProperty("keys") List<JsonWebKeyModel> keys) {
+
     public KeyDetails(final KeyPair keyPair) {
         this(List.of(convertKey(keyPair)));
     }

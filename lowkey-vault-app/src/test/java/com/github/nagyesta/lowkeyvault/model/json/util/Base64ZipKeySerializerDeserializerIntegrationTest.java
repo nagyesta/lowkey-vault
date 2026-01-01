@@ -100,10 +100,10 @@ class Base64ZipKeySerializerDeserializerIntegrationTest {
 
     private KeyPropertiesModel getKeyPropertiesModel() {
         final var propertiesModel = new KeyPropertiesModel();
-        propertiesModel.setCreatedOn(TIME_10_MINUTES_AGO);
-        propertiesModel.setUpdatedOn(NOW.minusSeconds(1));
+        propertiesModel.setCreated(TIME_10_MINUTES_AGO);
+        propertiesModel.setUpdated(NOW.minusSeconds(1));
         propertiesModel.setNotBefore(NOW);
-        propertiesModel.setExpiresOn(TIME_IN_10_MINUTES);
+        propertiesModel.setExpiry(TIME_IN_10_MINUTES);
         propertiesModel.setEnabled(true);
         propertiesModel.setRecoveryLevel(RecoveryLevel.PURGEABLE);
         propertiesModel.setRecoverableDays(null);
@@ -111,7 +111,9 @@ class Base64ZipKeySerializerDeserializerIntegrationTest {
     }
 
     @SuppressWarnings("SameParameterValue")
-    private JsonWebKeyImportRequest getKeyMaterial(final KeyEntityId id, final KeyPair expected) {
+    private JsonWebKeyImportRequest getKeyMaterial(
+            final KeyEntityId id,
+            final KeyPair expected) {
         final var keyMaterial = new JsonWebKeyImportRequest();
         keyMaterial.setKeyType(KeyType.EC);
         keyMaterial.setX(((BCECPublicKey) expected.getPublic()).getQ().getAffineXCoord().getEncoded());

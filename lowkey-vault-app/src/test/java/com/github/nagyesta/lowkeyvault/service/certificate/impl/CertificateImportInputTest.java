@@ -6,13 +6,9 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificateKeys.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.ALL_KEY_OPERATIONS;
@@ -28,17 +24,6 @@ class CertificateImportInputTest {
     private static final String CN_EC_LOCALHOST = "CN=ec.localhost";
     private static final String CN_ALT_EC_LOCALHOST = "CN=alt.ec.localhost";
     private static final String EKU_1 = "1.3.6.1.5.5.7.3.1";
-
-    public static Stream<Arguments> nullProvider() {
-        final var certificatePolicyModel = new CertificatePolicyModel();
-        final var content = "cert";
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(null, content, PASSWORD, CertContentType.PEM, certificatePolicyModel))
-                .add(Arguments.of(CERT_NAME_1, null, PASSWORD, CertContentType.PEM, certificatePolicyModel))
-                .add(Arguments.of(CERT_NAME_1, content, PASSWORD, null, certificatePolicyModel))
-                .add(Arguments.of(CERT_NAME_1, content, PASSWORD, CertContentType.PEM, null))
-                .build();
-    }
 
 
     @Test
@@ -205,19 +190,5 @@ class CertificateImportInputTest {
         Assertions.assertArrayEquals(RSA_KEY_QI, actual.getKeyData().getQi());
         Assertions.assertNull(actual.getKeyData().getK());
         Assertions.assertNull(actual.getKeyData().getCurveName());
-    }
-
-    @ParameterizedTest
-    @MethodSource("nullProvider")
-    void testConstructorShouldThrowExceptionWhenCalledWithNull(
-            final String name, final String certContent, final String password,
-            final CertContentType contentType, final CertificatePolicyModel policy) {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new CertificateImportInput(
-                name, certContent, password, contentType, policy));
-
-        //then + exception
     }
 }

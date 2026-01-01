@@ -6,6 +6,7 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesUpdateModel;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 
@@ -17,14 +18,15 @@ public class ImportKeyRequest {
     @Valid
     @JsonProperty("key")
     private JsonWebKeyImportRequest key;
-
+    @Nullable
+    @Valid
     @JsonProperty("attributes")
     private BasePropertiesUpdateModel properties;
-
+    @Nullable
     @JsonProperty("Hsm")
     private Boolean hsm;
-
+    @Nullable
     @JsonProperty("tags")
-    private Map<String, String> tags;
+    private Map<String, String> tags = Map.of();
 
 }

@@ -35,7 +35,7 @@ class EpochSecondsDeserializerTest {
     private AutoCloseable openMocks;
 
     public static Stream<Arguments> valueProvider() {
-        return Stream.of(null, TIME_10_MINUTES_AGO, NOW, TIME_IN_10_MINUTES)
+        return Stream.of(TIME_10_MINUTES_AGO, NOW, TIME_IN_10_MINUTES)
                 .map(v -> Arguments.of(Optional.ofNullable(v).map(OffsetDateTime::toEpochSecond).orElse(null), v));
     }
 
@@ -51,7 +51,9 @@ class EpochSecondsDeserializerTest {
 
     @ParameterizedTest
     @MethodSource("valueProvider")
-    void testDeserializeShouldCreateOffsetDateTimeWhenCalled(final Long input, final OffsetDateTime expected) throws IOException {
+    void testDeserializeShouldCreateOffsetDateTimeWhenCalled(
+            final Long input,
+            final OffsetDateTime expected) throws IOException {
         //given
         when(parser.readValueAs(Long.class)).thenReturn(input);
 

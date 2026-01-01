@@ -69,7 +69,8 @@ public class CertificateStepDefAssertion extends CommonAssertions {
 
     @And("the downloaded {certContentType} certificate store has a certificate with {subject} as subject")
     public void theDownloadedTypeCertificateStoreHasACertificateWithSubjectAsSubject(
-            final CertificateContentType contentType, final String subject) throws Exception {
+            final CertificateContentType contentType,
+            final String subject) throws Exception {
         final var value = secretContext.getLastResult().getValue();
         final var certificate = getX509Certificate(contentType, value);
         assertEquals(subject, certificate.getSubjectX500Principal().toString());
@@ -77,7 +78,8 @@ public class CertificateStepDefAssertion extends CommonAssertions {
 
     @And("the downloaded {certContentType} certificate store expires on {expiry}")
     public void theDownloadedTypeCertificateStoreExpiresOnExpiry(
-            final CertificateContentType contentType, final OffsetDateTime expiry) throws Exception {
+            final CertificateContentType contentType,
+            final OffsetDateTime expiry) throws Exception {
         final var value = secretContext.getLastResult().getValue();
         final var certificate = getX509Certificate(contentType, value);
         assertEquals(expiry.toInstant().truncatedTo(ChronoUnit.DAYS),
@@ -86,8 +88,10 @@ public class CertificateStepDefAssertion extends CommonAssertions {
 
     @And("the downloaded {certContentType} certificate store was shifted {int} days, using renewals {int} days before {int} months expiry")
     public void theDownloadedTypeCertificateStoreWasShiftedDaysUsingMonthsOfExpiry(
-            final CertificateContentType contentType, final int daysShifted,
-            final int renewalThreshold, final int expiryMonths) throws Exception {
+            final CertificateContentType contentType,
+            final int daysShifted,
+            final int renewalThreshold,
+            final int expiryMonths) throws Exception {
         final var value = secretContext.getLastResult().getValue();
         final var certificate = getX509Certificate(contentType, value);
         final var expiry = calculateExpiry(expiryMonths, daysShifted, renewalThreshold);
@@ -97,7 +101,9 @@ public class CertificateStepDefAssertion extends CommonAssertions {
 
     @And("the downloaded {certContentType} certificate store content matches store from {fileName} using {password} as password")
     public void theDownloadedTypeCertificateStoreContentMatchesStoreFromFileNameUsingPassword(
-            final CertificateContentType contentType, final String resource, final String password) throws Exception {
+            final CertificateContentType contentType,
+            final String resource,
+            final String password) throws Exception {
         final var content = Objects.requireNonNull(getClass().getResourceAsStream("/certs/" + resource)).readAllBytes();
         final var value = secretContext.getLastResult().getValue();
         final var certificate = getX509Certificate(contentType, value);
@@ -159,7 +165,9 @@ public class CertificateStepDefAssertion extends CommonAssertions {
 
     @And("the lifetime action triggers {certAction} when {int} {certLifetimePercentageTrigger} reached")
     public void theLifetimeActionTriggersActionWhenTriggerValueTriggerTypeReached(
-            final CertificatePolicyAction action, final int triggerValue, final boolean isPercentage) {
+            final CertificatePolicyAction action,
+            final int triggerValue,
+            final boolean isPercentage) {
         final var policy = context.getClient(context.getCertificateServiceVersion())
                 .getCertificatePolicy(context.getLastResult().getName());
         final var actions = policy.getLifetimeActions();
@@ -178,7 +186,8 @@ public class CertificateStepDefAssertion extends CommonAssertions {
 
     @And("the downloaded certificate policy has {keyUsage} and {keyUsage} as key usages")
     public void theDownloadedCertificatePolicyHasKeyUsagesAsKeyUsages(
-            final CertificateKeyUsage keyUsage1, final CertificateKeyUsage keyUsage2) {
+            final CertificateKeyUsage keyUsage1,
+            final CertificateKeyUsage keyUsage2) {
         final var expected = List.of(keyUsage1, keyUsage2);
         final var actual = context.getDownloadedPolicy().getKeyUsage();
         assertEquals(expected.size(), actual.size());
@@ -188,7 +197,8 @@ public class CertificateStepDefAssertion extends CommonAssertions {
 
     @And("the downloaded certificate policy has {enhancedKeyUsage} and {enhancedKeyUsage} as enhanced key usages")
     public void theDownloadedCertificatePolicyHasExtendedKeyUsagesAsKeyUsages(
-            final String enhancedKeyUsage1, final String enhancedKeyUsage2) {
+            final String enhancedKeyUsage1,
+            final String enhancedKeyUsage2) {
         final var expected = List.of(enhancedKeyUsage1, enhancedKeyUsage2);
         final var actual = context.getDownloadedPolicy().getEnhancedKeyUsage();
         assertEquals(expected.size(), actual.size());
@@ -203,7 +213,9 @@ public class CertificateStepDefAssertion extends CommonAssertions {
     }
 
     @Then("the certificate has a tag named {} with {} as value")
-    public void theCertificateHasATagNamedWithValue(final String name, final String value) {
+    public void theCertificateHasATagNamedWithValue(
+            final String name,
+            final String value) {
         final var tags = context.getLastResult().getProperties().getTags();
         assertEquals(value, tags.get(name));
         assertTrue("The certificate should have only 1 tag, but has: " + tags, tags.size() == 1);
@@ -215,7 +227,10 @@ public class CertificateStepDefAssertion extends CommonAssertions {
         assertEquals(contentType, certificatePolicy.getContentType());
     }
 
-    private static OffsetDateTime calculateExpiry(final int expiryMonths, final int shiftedDays, final int renewalDaysBeforeExpiry) {
+    private static OffsetDateTime calculateExpiry(
+            final int expiryMonths,
+            final int shiftedDays,
+            final int renewalDaysBeforeExpiry) {
         final var now = OffsetDateTime.now();
         var currentRenewalDate = now.minusDays(shiftedDays);
         while (currentRenewalDate.isBefore(now)) {
@@ -224,7 +239,9 @@ public class CertificateStepDefAssertion extends CommonAssertions {
         return currentRenewalDate.plusDays(renewalDaysBeforeExpiry);
     }
 
-    private PrivateKey getKeyFromPem(final byte[] content, final X509Certificate certificate) throws CryptoException {
+    private PrivateKey getKeyFromPem(
+            final byte[] content,
+            final X509Certificate certificate) throws CryptoException {
         try {
             final var kf = KeyFactory.getInstance(certificate.getPublicKey().getAlgorithm(), KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
             final var privateSpec = new PKCS8EncodedKeySpec(content);
@@ -234,31 +251,40 @@ public class CertificateStepDefAssertion extends CommonAssertions {
         }
     }
 
-    private void assertPrivateKeyMatchesPublic(final X509Certificate certificate, final PrivateKey actualKey) throws CryptoException {
+    private void assertPrivateKeyMatchesPublic(
+            final X509Certificate certificate,
+            final PrivateKey actualKey) throws CryptoException {
         final var thumbprint = getThumbprint(certificate);
         final var testSignature = sign(thumbprint, actualKey, certificate.getSigAlgName());
         final var verify = verify(thumbprint, testSignature, certificate.getPublicKey(), certificate.getSigAlgName());
         assertTrue("The digest signed with the private key should have been verified using the public key.", verify);
     }
 
-    private byte[] sign(final byte[] digest, final PrivateKey key, final String sigAlgName) throws CryptoException {
+    private byte[] sign(
+            final byte[] digest,
+            final PrivateKey key,
+            final String sigAlgName) throws CryptoException {
         try {
             final var signature = Signature.getInstance(sigAlgName);
             signature.initSign(key);
             signature.update(digest);
             return signature.sign();
-        } catch (final Exception e) {
+        } catch (final Exception _) {
             throw new CryptoException("Unable to sign digest using algorithm: " + sigAlgName);
         }
     }
 
-    private boolean verify(final byte[] digest, final byte[] signature, final PublicKey key, final String sigAlgName) throws CryptoException {
+    private boolean verify(
+            final byte[] digest,
+            final byte[] signature,
+            final PublicKey key,
+            final String sigAlgName) throws CryptoException {
         try {
             final var verify = Signature.getInstance(sigAlgName);
             verify.initVerify(key);
             verify.update(digest);
             return verify.verify(signature);
-        } catch (final Exception e) {
+        } catch (final Exception _) {
             throw new CryptoException("Unable to sign digest using algorithm: " + sigAlgName);
         }
     }
@@ -274,7 +300,9 @@ public class CertificateStepDefAssertion extends CommonAssertions {
         }
     }
 
-    private void assertKeyEquals(final Key expectedKey, final Key actualKey) {
+    private void assertKeyEquals(
+            final Key expectedKey,
+            final Key actualKey) {
         if (actualKey instanceof ECPrivateKey) {
             assertEcKeyEquals((ECPrivateKey) expectedKey, (ECPrivateKey) actualKey);
         } else if (actualKey instanceof RSAPrivateKey) {
@@ -284,11 +312,15 @@ public class CertificateStepDefAssertion extends CommonAssertions {
         }
     }
 
-    private void assertRsaKeyEquals(final RSAPrivateKey expectedKey, final RSAPrivateKey actualKey) {
+    private void assertRsaKeyEquals(
+            final RSAPrivateKey expectedKey,
+            final RSAPrivateKey actualKey) {
         assertArrayEquals(actualKey.getEncoded(), expectedKey.getEncoded());
     }
 
-    private void assertEcKeyEquals(final ECPrivateKey expectedKey, final ECPrivateKey actualKey) {
+    private void assertEcKeyEquals(
+            final ECPrivateKey expectedKey,
+            final ECPrivateKey actualKey) {
         assertEquals(expectedKey.getAlgorithm(), actualKey.getAlgorithm());
         assertEquals(expectedKey.getFormat(), actualKey.getFormat());
         assertEquals(expectedKey.getS(), actualKey.getS());
@@ -296,7 +328,9 @@ public class CertificateStepDefAssertion extends CommonAssertions {
         assertEquals(expectedKey.getFormat(), actualKey.getFormat());
     }
 
-    private X509Certificate getX509Certificate(final CertificateContentType contentType, final String value) throws Exception {
+    private X509Certificate getX509Certificate(
+            final CertificateContentType contentType,
+            final String value) throws Exception {
         final X509Certificate certificate;
         if (contentType == CertificateContentType.PEM) {
             final var encodedCertificate = extractCertificateByteArray(value);
@@ -317,7 +351,9 @@ public class CertificateStepDefAssertion extends CommonAssertions {
         return aliases.nextElement();
     }
 
-    private static KeyStore getKeyStore(final byte[] content, final String password)
+    private static KeyStore getKeyStore(
+            final byte[] content,
+            final String password)
             throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
         final var keyStore = KeyStore.getInstance("pkcs12");
         keyStore.load(new ByteArrayInputStream(content), password.toCharArray());

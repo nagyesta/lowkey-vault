@@ -1,23 +1,19 @@
 package com.github.nagyesta.lowkeyvault.controller.common;
 
-import com.github.nagyesta.lowkeyvault.mapper.common.BaseEntityConverterRegistry;
+import com.github.nagyesta.lowkeyvault.mapper.common.RecoveryAwareConverter;
+import com.github.nagyesta.lowkeyvault.mapper.common.RecoveryAwareItemConverter;
 import com.github.nagyesta.lowkeyvault.model.common.KeyVaultItemListModel;
-import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.BasePropertiesUpdateModel;
-import com.github.nagyesta.lowkeyvault.model.v7_2.common.BaseBackupListItem;
 import com.github.nagyesta.lowkeyvault.service.EntityId;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultEntity;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultFake;
 import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
-import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -31,47 +27,24 @@ import java.util.function.Function;
  * @param <I>   The item model type.
  * @param <DI>  The deleted item model type.
  * @param <S>   The fake type holding the entities.
- * @param <PM>  The type of the PropertiesModel.
- * @param <BLI> The list item type of the backup lists.
- * @param <R>   The ConverterRegistry used for conversions.
  */
 @SuppressWarnings("java:S119") //It is easier to ensure that the types are consistent this way
 public abstract class GenericEntityController<
         K extends EntityId, V extends K, E extends BaseVaultEntity<V>,
-        M, DM extends M, I, DI extends I,
-        S extends BaseVaultFake<K, V, E>,
-        PM extends BasePropertiesModel,
-        BLI extends BaseBackupListItem<PM>,
-        R extends BaseEntityConverterRegistry<K, V, E, M, DM, PM, I, DI, BLI>>
+        M, DM extends M, I, DI extends I, S extends BaseVaultFake<K, V, E>>
         extends BaseEntityReadController<K, V, E, S> {
 
-    private final R registry;
-
-    protected R registry() {
-        return registry;
-    }
+    private final RecoveryAwareConverter<E, M, DM> modelConverter;
+    private final RecoveryAwareItemConverter<E, I, DI> itemConverter;
 
     protected GenericEntityController(
-            @NonNull final R registry,
-            @org.springframework.lang.NonNull final VaultService vaultService,
-            @org.springframework.lang.NonNull final Function<VaultFake, S> toEntityVault) {
+            final VaultService vaultService,
+            final RecoveryAwareConverter<E, M, DM> modelConverter,
+            final RecoveryAwareItemConverter<E, I, DI> itemConverter,
+            final Function<VaultFake, S> toEntityVault) {
         super(vaultService, toEntityVault);
-        this.registry = registry;
-    }
-
-    @Override
-    protected final V versionedEntityId(
-            final URI baseUri,
-            final String name,
-            final String version) {
-        return registry.versionedEntityId(baseUri, name, version);
-    }
-
-    @Override
-    protected final K entityId(
-            final URI baseUri,
-            final String name) {
-        return registry.entityId(baseUri, name);
+        this.modelConverter = modelConverter;
+        this.itemConverter = itemConverter;
     }
 
     protected M getModelById(
@@ -83,7 +56,7 @@ public abstract class GenericEntityController<
         if (!includeDisabled && !entity.isEnabled()) {
             throw new NotFoundException("Operation get is not allowed on a disabled entity.");
         }
-        return registry.modelConverter(apiVersion()).convert(entity, baseUri);
+        return Objects.requireNonNull(modelConverter.convert(entity, baseUri));
     }
 
     protected DM getDeletedModelById(
@@ -95,13 +68,13 @@ public abstract class GenericEntityController<
         if (!includeDisabled && !entity.isEnabled()) {
             throw new NotFoundException("Operation get is not allowed on a disabled entity.");
         }
-        return registry.modelConverter(apiVersion()).convertDeleted(entity, baseUri);
+        return Objects.requireNonNull(modelConverter.convertDeleted(entity, baseUri));
     }
 
     protected M convertDetails(
             final E entity,
             final URI vaultUri) {
-        return registry.modelConverter(apiVersion()).convert(entity, vaultUri);
+        return Objects.requireNonNull(modelConverter.convert(entity, vaultUri));
     }
 
     protected KeyVaultItemListModel<I> getPageOfItemVersions(
@@ -116,7 +89,7 @@ public abstract class GenericEntityController<
                 .toList();
         final var items = filterList(pagination.getLimit(), pagination.getOffset(), allItems, v -> {
             final var entity = getEntityByNameAndVersion(baseUri, name, v);
-            return registry.versionedItemConverter(apiVersion()).convert(entity, baseUri);
+            return Objects.requireNonNull(itemConverter.convert(entity, baseUri));
         });
         final var nextUri = PaginationContext.builder()
                 .base(pagination.getBase())
@@ -138,7 +111,7 @@ public abstract class GenericEntityController<
         final var entityVaultFake = getVaultByUri(baseUri);
         final var allItems = entityVaultFake.getEntities().listLatestEntities();
         final var items = filterList(pagination.getLimit(), pagination.getOffset(), allItems,
-                source -> registry.itemConverter(apiVersion()).convert(source, baseUri));
+                source -> Objects.requireNonNull(itemConverter.convertWithoutVersion(source, baseUri)));
         final var nextUri = PaginationContext.builder()
                 .base(pagination.getBase())
                 .apiVersion(pagination.getApiVersion())
@@ -159,10 +132,10 @@ public abstract class GenericEntityController<
         final var entityVaultFake = getVaultByUri(baseUri);
         final var allItems = entityVaultFake.getDeletedEntities().listLatestEntities();
         final var items = filterList(pagination.getLimit(), pagination.getOffset(), allItems,
-                source -> registry.itemConverter(apiVersion()).convertDeleted(source, baseUri));
+                source -> Objects.requireNonNull(itemConverter.convertDeleted(source, baseUri)));
         final var nextUri = PaginationContext.builder()
                 .base(pagination.getBase())
-                .apiVersion(apiVersion())
+                .apiVersion(pagination.getApiVersion())
                 .currentItems(items.size())
                 .totalItems(allItems.size())
                 .limit(pagination.getLimit())
@@ -193,7 +166,7 @@ public abstract class GenericEntityController<
     protected void updateAttributes(
             final BaseVaultFake<K, V, ?> vaultFake,
             final V entityId,
-            final BasePropertiesUpdateModel properties) {
+            @Nullable final BasePropertiesUpdateModel properties) {
         Optional.ofNullable(properties)
                 .ifPresent(attributes -> {
                     Optional.ofNullable(attributes.getEnabled())
@@ -207,7 +180,7 @@ public abstract class GenericEntityController<
     protected void updateTags(
             final BaseVaultFake<K, V, ?> vaultFake,
             final V entityId,
-            final Map<String, String> requestTags) {
+            @Nullable final Map<String, String> requestTags) {
         Optional.ofNullable(requestTags)
                 .ifPresent(tags -> {
                     vaultFake.clearTags(entityId);
@@ -217,7 +190,7 @@ public abstract class GenericEntityController<
 
     protected <LI> KeyVaultItemListModel<LI> listModel(
             final List<LI> items,
-            final URI nextUri) {
+            @Nullable final URI nextUri) {
         return new KeyVaultItemListModel<>(items, nextUri);
     }
 

@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jspecify.annotations.Nullable;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -16,6 +17,7 @@ public class SecretBackupListItem
     @NotNull
     @JsonProperty("value")
     private String value;
+    @Nullable
     @JsonProperty("contentType")
     private String contentType;
 

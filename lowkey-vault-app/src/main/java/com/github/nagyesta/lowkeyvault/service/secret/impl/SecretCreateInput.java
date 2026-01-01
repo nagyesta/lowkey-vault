@@ -2,24 +2,29 @@ package com.github.nagyesta.lowkeyvault.service.secret.impl;
 
 
 import lombok.Data;
-import lombok.NonNull;
 import lombok.ToString;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.Assert;
 
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 
 @SuppressWarnings("checkstyle:MagicNumber")
 @Data
 public class SecretCreateInput {
 
     private final String value;
+    @Nullable
     private final String contentType;
+    @Nullable
     private final OffsetDateTime createdOn;
+    @Nullable
     private final OffsetDateTime updatedOn;
+    @Nullable
     private final OffsetDateTime expiresOn;
+    @Nullable
     private final OffsetDateTime notBefore;
     private final boolean enabled;
     private final boolean managed;
@@ -35,7 +40,7 @@ public class SecretCreateInput {
         this.notBefore = builder.notBefore;
         this.enabled = builder.enabled;
         this.managed = builder.managed;
-        this.tags = Map.copyOf(Objects.requireNonNullElse(builder.tags, Collections.emptyMap()));
+        this.tags = Map.copyOf(builder.tags);
     }
 
     public static SecretCreateInputBuilder builder() {
@@ -44,45 +49,51 @@ public class SecretCreateInput {
 
     @ToString
     public static class SecretCreateInputBuilder {
+        @Nullable
         private String value;
+        @Nullable
         private String contentType;
+        @Nullable
         private OffsetDateTime createdOn;
+        @Nullable
         private OffsetDateTime updatedOn;
+        @Nullable
         private OffsetDateTime expiresOn;
+        @Nullable
         private OffsetDateTime notBefore;
         private boolean enabled;
         private boolean managed;
-        private Map<String, String> tags;
+        private Map<String, String> tags = Map.of();
 
         SecretCreateInputBuilder() {
         }
 
-        public SecretCreateInputBuilder value(@NonNull final String value) {
+        public SecretCreateInputBuilder value(final String value) {
             this.value = value;
             return this;
         }
 
-        public SecretCreateInputBuilder contentType(final String contentType) {
+        public SecretCreateInputBuilder contentType(@Nullable final String contentType) {
             this.contentType = contentType;
             return this;
         }
 
-        public SecretCreateInputBuilder createdOn(final OffsetDateTime createdOn) {
+        public SecretCreateInputBuilder createdOn(@Nullable final OffsetDateTime createdOn) {
             this.createdOn = createdOn;
             return this;
         }
 
-        public SecretCreateInputBuilder updatedOn(final OffsetDateTime updatedOn) {
+        public SecretCreateInputBuilder updatedOn(@Nullable final OffsetDateTime updatedOn) {
             this.updatedOn = updatedOn;
             return this;
         }
 
-        public SecretCreateInputBuilder expiresOn(final OffsetDateTime expiresOn) {
+        public SecretCreateInputBuilder expiresOn(@Nullable final OffsetDateTime expiresOn) {
             this.expiresOn = expiresOn;
             return this;
         }
 
-        public SecretCreateInputBuilder notBefore(final OffsetDateTime notBefore) {
+        public SecretCreateInputBuilder notBefore(@Nullable final OffsetDateTime notBefore) {
             this.notBefore = notBefore;
             return this;
         }
@@ -97,8 +108,8 @@ public class SecretCreateInput {
             return this;
         }
 
-        public SecretCreateInputBuilder tags(final Map<String, String> tags) {
-            this.tags = Map.copyOf(Objects.requireNonNullElse(tags, Collections.emptyMap()));
+        public SecretCreateInputBuilder tags(@Nullable final Map<String, String> tags) {
+            this.tags = Map.copyOf(Optional.ofNullable(tags).orElse(Collections.emptyMap()));
             return this;
         }
 

@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.HttpStatus.*;
@@ -52,32 +51,6 @@ class ContentExportFilterTest {
             }
         }
         return builder.build();
-    }
-
-    public static Stream<Arguments> nullProvider() {
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null))
-                .add(Arguments.of(mock(VaultImportExportExecutor.class), null, null))
-                .add(Arguments.of(null, mock(VaultService.class), null))
-                .add(Arguments.of(null, null, mock(ObjectMapper.class)))
-                .add(Arguments.of(null, mock(VaultService.class), mock(ObjectMapper.class)))
-                .add(Arguments.of(mock(VaultImportExportExecutor.class), null, mock(ObjectMapper.class)))
-                .add(Arguments.of(mock(VaultImportExportExecutor.class), mock(VaultService.class), null))
-                .build();
-    }
-
-    @ParameterizedTest
-    @MethodSource("nullProvider")
-    void testConstructorShouldThrowExceptionWhenCalledWithNullDependencies(
-            final VaultImportExportExecutor executor,
-            final VaultService vaultService,
-            final ObjectMapper objectMapper) {
-        //given
-
-        //when
-        assertThrows(IllegalArgumentException.class, () -> new ContentExportFilter(executor, vaultService, objectMapper, EXPORT_FILE));
-
-        //then + exception
     }
 
     @ParameterizedTest

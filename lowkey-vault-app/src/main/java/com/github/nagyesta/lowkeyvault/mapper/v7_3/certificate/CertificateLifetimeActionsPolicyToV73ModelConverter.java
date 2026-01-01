@@ -1,37 +1,26 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate;
 
-import com.github.nagyesta.lowkeyvault.context.ApiVersionAware;
-import com.github.nagyesta.lowkeyvault.mapper.common.ApiVersionAwareConverter;
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.CertificateConverterRegistry;
+import com.github.nagyesta.lowkeyvault.mapper.common.BaseConverter;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificateLifetimeActionModel;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificateLifetimeActionTriggerModel;
 import com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionActivity;
 import com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionTrigger;
 import com.github.nagyesta.lowkeyvault.service.certificate.LifetimeActionPolicy;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.Nullable;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
 
+@Component
 public class CertificateLifetimeActionsPolicyToV73ModelConverter
-        implements ApiVersionAwareConverter<LifetimeActionPolicy, List<CertificateLifetimeActionModel>> {
-
-    private final CertificateConverterRegistry registry;
-
-    @Autowired
-    public CertificateLifetimeActionsPolicyToV73ModelConverter(@NonNull final CertificateConverterRegistry registry) {
-        this.registry = registry;
-    }
+        implements BaseConverter<LifetimeActionPolicy, List<CertificateLifetimeActionModel>> {
 
     @Override
-    public void afterPropertiesSet() {
-        registry.registerLifetimeActionConverter(this);
-    }
-
-    @Override
-    public List<CertificateLifetimeActionModel> convert(@NonNull final LifetimeActionPolicy source) {
+    public List<CertificateLifetimeActionModel> convert(@Nullable final LifetimeActionPolicy source) {
+        if (source == null) {
+            return List.of();
+        }
         return source.getLifetimeActions().entrySet().stream()
                 .map(this::convertLifetimeAction)
                 .toList();
@@ -45,8 +34,4 @@ public class CertificateLifetimeActionsPolicyToV73ModelConverter
         return actionModel;
     }
 
-    @Override
-    public SortedSet<String> supportedVersions() {
-        return ApiVersionAware.V7_3_AND_LATER;
-    }
 }

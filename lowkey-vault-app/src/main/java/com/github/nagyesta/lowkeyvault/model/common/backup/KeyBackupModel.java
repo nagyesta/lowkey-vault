@@ -21,7 +21,6 @@ public class KeyBackupModel
     public KeyBackupList getValue() {
         return super.getValue();
     }
-
     @JsonDeserialize(using = Base64ZipKeyDeserializer.class)
     @Override
     public void setValue(final KeyBackupList value) {

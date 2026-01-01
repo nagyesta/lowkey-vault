@@ -4,6 +4,7 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel
 import com.github.nagyesta.lowkeyvault.service.certificate.CertificateVaultFake;
 import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
 import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultFake;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
 import java.time.OffsetDateTime;
@@ -19,6 +20,7 @@ public interface VaultFake {
     Set<URI> aliases();
 
     void setAliases(Set<URI> aliases);
+
     KeyVaultFake keyVaultFake();
 
     SecretVaultFake secretVaultFake();
@@ -27,11 +29,11 @@ public interface VaultFake {
 
     RecoveryLevel getRecoveryLevel();
 
-    Integer getRecoverableDays();
+    @Nullable Integer getRecoverableDays();
 
-    OffsetDateTime getCreatedOn();
+    @Nullable OffsetDateTime getCreatedOn();
 
-    OffsetDateTime getDeletedOn();
+    @Nullable OffsetDateTime getDeletedOn();
 
     boolean isDeleted();
 

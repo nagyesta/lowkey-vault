@@ -53,7 +53,9 @@ class KeyVaultKeyEntityTest {
     @ParameterizedTest
     @MethodSource("purgeExpirySource")
     void testIsPurgeExpiredShouldReturnTrueOnlyWhenCalledAfterTheDeadline(
-            final OffsetDateTime deleted, final OffsetDateTime purgeable, final boolean expected) {
+            final OffsetDateTime deleted,
+            final OffsetDateTime purgeable,
+            final boolean expected) {
         //given
         final var underTest = new RsaKeyVaultKeyEntity(TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1,
                 new VaultFakeImpl(TestConstantsUri.HTTPS_LOCALHOST_8443),

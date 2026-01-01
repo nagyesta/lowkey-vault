@@ -9,8 +9,8 @@ import com.github.nagyesta.lowkeyvault.service.secret.SecretVaultFake;
 import com.github.nagyesta.lowkeyvault.service.secret.impl.SecretVaultFakeImpl;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.EqualsAndHashCode;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.Assert;
 
 import java.net.URI;
@@ -32,15 +32,20 @@ public class VaultFakeImpl implements VaultFake {
     private final SecretVaultFake secrets;
     private final CertificateVaultFake certificates;
     private final RecoveryLevel recoveryLevel;
+    @Nullable
     private final Integer recoverableDays;
     private OffsetDateTime createdOn;
+    @Nullable
     private OffsetDateTime deletedOn;
 
-    public VaultFakeImpl(@org.springframework.lang.NonNull final URI vaultUri) {
+    public VaultFakeImpl(final URI vaultUri) {
         this(vaultUri, RecoveryLevel.RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
     }
 
-    public VaultFakeImpl(@NonNull final URI vaultUri, @NonNull final RecoveryLevel recoveryLevel, final Integer recoverableDays) {
+    public VaultFakeImpl(
+            final URI vaultUri,
+            final RecoveryLevel recoveryLevel,
+            @Nullable final Integer recoverableDays) {
         recoveryLevel.checkValidRecoverableDays(recoverableDays);
         this.vaultUri = vaultUri;
         this.keys = new KeyVaultFakeImpl(this, recoveryLevel, recoverableDays);
@@ -53,7 +58,9 @@ public class VaultFakeImpl implements VaultFake {
     }
 
     @Override
-    public boolean matches(@NonNull final URI vaultUri, @NonNull final UnaryOperator<URI> uriMapper) {
+    public boolean matches(
+            final URI vaultUri,
+            final UnaryOperator<URI> uriMapper) {
         final var lookupUri = uriMapper.apply(vaultUri);
         return uriMapper.apply(this.vaultUri).equals(lookupUri) || this.aliases.stream()
                 .map(uriMapper)
@@ -71,7 +78,7 @@ public class VaultFakeImpl implements VaultFake {
     }
 
     @Override
-    public void setAliases(@NonNull final Set<URI> aliases) {
+    public void setAliases(final Set<URI> aliases) {
         Assert.isTrue(!aliases.contains(baseUri()), "The base URI cannot be an alias as well.");
         this.aliases = Set.copyOf(aliases);
     }
@@ -97,7 +104,7 @@ public class VaultFakeImpl implements VaultFake {
     }
 
     @Override
-    public Integer getRecoverableDays() {
+    public @Nullable Integer getRecoverableDays() {
         return recoverableDays;
     }
 
@@ -107,7 +114,7 @@ public class VaultFakeImpl implements VaultFake {
     }
 
     @Override
-    public OffsetDateTime getDeletedOn() {
+    public @Nullable OffsetDateTime getDeletedOn() {
         return deletedOn;
     }
 
@@ -126,7 +133,8 @@ public class VaultFakeImpl implements VaultFake {
         var result = false;
         if (isDeleted()) {
             final int recoverableDaysOffset = Objects.requireNonNullElse(recoverableDays, 0);
-            final var purgeDeadline = deletedOn.plusDays(recoverableDaysOffset);
+            //null-check done by isDeleted() call
+            final var purgeDeadline = Objects.requireNonNull(deletedOn).plusDays(recoverableDaysOffset);
             result = purgeDeadline.isBefore(OffsetDateTime.now());
         }
         return result;
@@ -146,7 +154,9 @@ public class VaultFakeImpl implements VaultFake {
     }
 
     @Override
-    public void timeShift(final int offsetSeconds, final boolean regenerateCertificates) {
+    public void timeShift(
+            final int offsetSeconds,
+            final boolean regenerateCertificates) {
         Assert.isTrue(offsetSeconds > 0, "Offset must be positive.");
         createdOn = createdOn.minusSeconds(offsetSeconds);
         deletedOn = Optional.ofNullable(deletedOn)

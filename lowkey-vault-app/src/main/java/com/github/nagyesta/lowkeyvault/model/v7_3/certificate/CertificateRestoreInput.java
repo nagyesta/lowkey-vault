@@ -5,6 +5,7 @@ import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateImpor
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.Assert;
 
 import java.time.OffsetDateTime;
@@ -28,7 +29,13 @@ public class CertificateRestoreInput
     private final boolean enabled;
 
     private CertificateRestoreInput(final CertificateRestoreInputBuilder builder) {
-        super(builder.name, builder.certificateContent, builder.password, builder.contentType, builder.policy);
+        super(
+                Objects.requireNonNull(builder.name, "name cannot be null"),
+                Objects.requireNonNull(builder.certificateContent, "certificateContent cannot be null"),
+                builder.password,
+                Objects.requireNonNull(builder.contentType, "contentType cannot be null"),
+                Objects.requireNonNull(builder.policy, "policy cannot be null")
+        );
         Assert.notNull(builder.keyVersion, "keyVersion is required");
         Assert.notNull(builder.tags, "tags is required");
         Assert.notNull(builder.created, "created is required");
@@ -51,21 +58,33 @@ public class CertificateRestoreInput
     }
 
     public static final class CertificateRestoreInputBuilder {
+        @Nullable
         private String keyVersion;
+        @Nullable
         private String name;
+        @Nullable
         private String certificateContent;
+        @Nullable
         private String password;
+        @Nullable
         private CertContentType contentType;
+        @Nullable
         private CertificatePolicyModel policy;
+        @Nullable
         private CertificatePolicyModel issuancePolicy;
+        @Nullable
         private Map<String, String> tags = Map.of();
+        @Nullable
         private OffsetDateTime created;
+        @Nullable
         private OffsetDateTime updated;
+        @Nullable
         private OffsetDateTime notBefore;
+        @Nullable
         private OffsetDateTime expires;
         private boolean enabled;
 
-        public CertificateRestoreInputBuilder keyVersion(final String keyVersion) {
+        public CertificateRestoreInputBuilder keyVersion(@Nullable final String keyVersion) {
             this.keyVersion = keyVersion;
             return this;
         }
@@ -80,7 +99,7 @@ public class CertificateRestoreInput
             return this;
         }
 
-        public CertificateRestoreInputBuilder password(final String password) {
+        public CertificateRestoreInputBuilder password(@Nullable final String password) {
             this.password = password;
             return this;
         }
@@ -100,27 +119,27 @@ public class CertificateRestoreInput
             return this;
         }
 
-        public CertificateRestoreInputBuilder tags(final Map<String, String> tags) {
+        public CertificateRestoreInputBuilder tags(@Nullable final Map<String, String> tags) {
             this.tags = Objects.requireNonNullElse(tags, Map.of());
             return this;
         }
 
-        public CertificateRestoreInputBuilder created(final OffsetDateTime created) {
+        public CertificateRestoreInputBuilder created(@Nullable final OffsetDateTime created) {
             this.created = created;
             return this;
         }
 
-        public CertificateRestoreInputBuilder updated(final OffsetDateTime updated) {
+        public CertificateRestoreInputBuilder updated(@Nullable final OffsetDateTime updated) {
             this.updated = updated;
             return this;
         }
 
-        public CertificateRestoreInputBuilder notBefore(final OffsetDateTime notBefore) {
+        public CertificateRestoreInputBuilder notBefore(@Nullable final OffsetDateTime notBefore) {
             this.notBefore = notBefore;
             return this;
         }
 
-        public CertificateRestoreInputBuilder expires(final OffsetDateTime expires) {
+        public CertificateRestoreInputBuilder expires(@Nullable final OffsetDateTime expires) {
             this.expires = expires;
             return this;
         }

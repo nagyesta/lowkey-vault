@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
@@ -68,7 +68,10 @@ class VaultUriUtilTest {
 
     @ParameterizedTest
     @MethodSource("validSource")
-    void testVaultUriShouldOmitPortNumberWhenCalledWithDefault(final String host, final int port, final URI expectedUri) {
+    void testVaultUriShouldOmitPortNumberWhenCalledWithDefault(
+            final String host,
+            final int port,
+            final URI expectedUri) {
         //given
 
         //when
@@ -78,21 +81,12 @@ class VaultUriUtilTest {
         Assertions.assertEquals(expectedUri, actual);
     }
 
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testVaultUriShouldThrowExceptionWhenCalledWithNull() {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> VaultUriUtil.vaultUri(null, 1));
-
-        //then + exception
-    }
-
 
     @ParameterizedTest
     @MethodSource("invalidUriPartsProvider")
-    void testVaultUriShouldThrowExceptionWhenCalledWithInvalidUriParts(final String hostname, final int port) {
+    void testVaultUriShouldThrowExceptionWhenCalledWithInvalidUriParts(
+            final String hostname,
+            final int port) {
         //given
 
         //when
@@ -104,7 +98,9 @@ class VaultUriUtilTest {
     @ParameterizedTest
     @MethodSource("aliasSource")
     void testAliasUriShouldReplacePortNumberWhenInputContainsPlaceholder(
-            final String authority, final int serverPort, final URI expectedUri) {
+            final String authority,
+            final int serverPort,
+            final URI expectedUri) {
         //given
 
         //when
@@ -115,7 +111,7 @@ class VaultUriUtilTest {
     }
 
     @ParameterizedTest
-    @NullAndEmptySource
+    @EmptySource
     @MethodSource("authorityProvider")
     void testAliasUriShouldThrowExceptionWhenCalledWithInvalidAuthority(final String authority) {
         //given

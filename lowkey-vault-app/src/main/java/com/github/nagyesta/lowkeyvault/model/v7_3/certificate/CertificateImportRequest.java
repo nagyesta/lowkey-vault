@@ -6,6 +6,7 @@ import com.github.nagyesta.lowkeyvault.model.json.util.Base64CertSerializer;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
@@ -14,6 +15,7 @@ import java.util.Map;
 @Data
 public class CertificateImportRequest {
 
+    @Nullable
     @JsonProperty("pwd")
     private String password;
     @NotNull
@@ -21,11 +23,14 @@ public class CertificateImportRequest {
     @JsonDeserialize(using = Base64CertDeserializer.class)
     @JsonProperty("value")
     private byte[] certificate;
+    @Nullable
     @Valid
     @JsonProperty("attributes")
     private CertificatePropertiesModel attributes;
+    @Nullable
     @JsonProperty("policy")
     private CertificatePolicyModel policy;
+    @Nullable
     @JsonProperty("tags")
     private Map<String, String> tags;
 

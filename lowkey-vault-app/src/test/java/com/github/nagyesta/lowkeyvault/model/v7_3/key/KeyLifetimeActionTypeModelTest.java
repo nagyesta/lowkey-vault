@@ -6,17 +6,6 @@ import org.junit.jupiter.api.Test;
 
 class KeyLifetimeActionTypeModelTest {
 
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testConstructorShouldThrowExceptionWhenCalledWithNull() {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new KeyLifetimeActionTypeModel(null));
-
-        //then + exception
-    }
-
     @Test
     void testConstructorShouldSetActionTypeWhenCalledWithValidValue() {
         //given

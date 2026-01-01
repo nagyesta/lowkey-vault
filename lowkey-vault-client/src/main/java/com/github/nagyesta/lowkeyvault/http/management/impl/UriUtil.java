@@ -1,8 +1,8 @@
 package com.github.nagyesta.lowkeyvault.http.management.impl;
 
 import com.github.nagyesta.lowkeyvault.http.management.LowkeyVaultException;
-import lombok.NonNull;
 import org.apache.http.client.utils.URIBuilder;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -23,10 +23,12 @@ public final class UriUtil {
     }
 
     public static URI uriBuilderForPath(
-            @NonNull final String baseUrl,
-            @NonNull final String path,
-            final Map<String, String> parameters) {
+            final String baseUrl,
+            final String path,
+            @Nullable final Map<String, String> parameters) {
         try {
+            Objects.requireNonNull(baseUrl, "BaseUrl cannot be null.");
+            Objects.requireNonNull(path, "Path cannot be null.");
             final var builder = new URIBuilder(baseUrl).setPath(path);
             Objects.requireNonNullElse(parameters, Collections.<String, String>emptyMap()).forEach(builder::addParameter);
             return builder.build();

@@ -1,9 +1,7 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate;
 
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.CertificateConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
-import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertContentType;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateCreationInput;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.KeyVaultCertificateEntity;
@@ -11,57 +9,16 @@ import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultFakeImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-
-import java.net.URI;
-import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.LOCALHOST;
 import static com.github.nagyesta.lowkeyvault.TestConstants.NOW;
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.CERT_NAME_1;
-import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOWKEY_VAULT;
 import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertAuthorityType.SELF_SIGNED;
-import static org.mockito.Mockito.mock;
 
 class CertificateEntityToV73PendingCertificateOperationModelConverterIntegrationTest {
 
     private static final int VALIDITY_MONTHS = 12;
-
-    public static Stream<Arguments> nullProvider() {
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(mock(ReadOnlyKeyVaultCertificateEntity.class), null))
-                .add(Arguments.of(null, HTTPS_LOCALHOST_8443))
-                .build();
-    }
-
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testConstructorShouldThrowExceptionWhenCalledWithNull() {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new CertificateEntityToV73PendingCertificateOperationModelConverter(null));
-
-        //then + exception
-    }
-
-    @ParameterizedTest
-    @MethodSource("nullProvider")
-    void testConvertShouldThrowExceptionWhenCalledWithNulls(final ReadOnlyKeyVaultCertificateEntity source, final URI vaultUri) {
-        //given
-        final var registry = mock(CertificateConverterRegistry.class);
-        final var underTest =
-                new CertificateEntityToV73PendingCertificateOperationModelConverter(registry);
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.convert(source, vaultUri));
-
-        //then + exception
-    }
 
     @Test
     void testConvertShouldConvertValuableFieldsWhenCalledWithValidInput() {
@@ -79,9 +36,7 @@ class CertificateEntityToV73PendingCertificateOperationModelConverterIntegration
                 .build();
         final VaultFake vault = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
         final var source = new KeyVaultCertificateEntity(CERT_NAME_1, input, vault);
-        final var registry = mock(CertificateConverterRegistry.class);
-        final var underTest =
-                new CertificateEntityToV73PendingCertificateOperationModelConverter(registry);
+        final var underTest = new CertificateEntityToV73PendingCertificateOperationModelConverter();
 
         //when
         final var actual = underTest.convert(source, vault.baseUri());

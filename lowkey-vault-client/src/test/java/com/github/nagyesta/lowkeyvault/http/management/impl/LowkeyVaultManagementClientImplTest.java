@@ -12,9 +12,6 @@ import com.github.nagyesta.lowkeyvault.http.management.TimeShiftContext;
 import com.github.nagyesta.lowkeyvault.http.management.VaultModel;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.*;
 import reactor.core.publisher.Mono;
 
@@ -25,8 +22,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Objects;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 import static com.azure.core.http.ContentType.APPLICATION_JSON;
 import static com.github.nagyesta.lowkeyvault.http.management.impl.ResponseEntity.VAULT_MODEL_LIST_TYPE_REF;
@@ -40,51 +35,6 @@ class LowkeyVaultManagementClientImplTest {
     private static final String HTTPS_ALIAS_LOCALHOST = "https://alias.localhost";
     private static final String JSON = "{}";
     private static final int RECOVERABLE_DAYS = 90;
-
-    public static Stream<Arguments> nullCreateProvider() {
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(URI.create(HTTPS_LOCALHOST), null, null))
-                .add(Arguments.of(null, RecoveryLevel.PURGEABLE, null))
-                .build();
-    }
-
-    public static Stream<Arguments> nullProvider() {
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(null, mock(HttpClient.class), mock(ObjectMapper.class)))
-                .add(Arguments.of(HTTPS_LOCALHOST, null, mock(ObjectMapper.class)))
-                .add(Arguments.of(HTTPS_LOCALHOST, mock(HttpClient.class), null))
-                .build();
-    }
-
-    @ParameterizedTest
-    @MethodSource("nullProvider")
-    void testConstructorShouldThrowExceptionWhenCalledWithNulls(
-            final String baseUri, final HttpClient httpClient, final ObjectMapper objectMapper) {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new LowkeyVaultManagementClientImpl(baseUri, httpClient, objectMapper));
-
-        //then + exception
-    }
-
-    @ParameterizedTest
-    @MethodSource("nullCreateProvider")
-    void testCreateVaultShouldThrowExceptionWhenCalledWithNull(
-            final URI baseUri, final RecoveryLevel recoveryLevel, final Integer recoverableDays) {
-        //given
-        final var httpClient = mock(HttpClient.class);
-        final var objectMapper = mock(ObjectMapper.class);
-        final var underTest =
-                new LowkeyVaultManagementClientImpl(HTTPS_LOCALHOST, httpClient, objectMapper);
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> underTest.createVault(baseUri, recoveryLevel, recoverableDays));
-
-        //then + exception
-    }
 
     @Nested
     class FunctionalTest {
@@ -117,22 +67,6 @@ class LowkeyVaultManagementClientImplTest {
             openMocks.close();
         }
 
-        @SuppressWarnings("ConstantConditions")
-        @Test
-        void testVerifyConnectivityShouldThrowExceptionWhenExceptionSupplierIsNull() {
-            //given
-            final var retries = 2;
-            final var waitMillis = 1;
-            final Supplier<RuntimeException> exceptionProvider = null;
-
-            //when
-            Assertions.assertThrows(IllegalArgumentException.class,
-                    () -> underTest.verifyConnectivity(retries, waitMillis, exceptionProvider));
-
-            //then
-            verifyNoInteractions(httpClient);
-        }
-
         @Test
         void testVerifyConnectivityShouldKeepRetryingUntilTheLimitIsReachedWhenContainerIsNotRunning() {
             //given
@@ -163,7 +97,7 @@ class LowkeyVaultManagementClientImplTest {
 
             //then
             verify(httpClient, atMostOnce()).send(ArgumentMatchers.argThat(argument -> argument.getUrl().getPath().equals("/ping")));
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
         }
 
@@ -195,7 +129,7 @@ class LowkeyVaultManagementClientImplTest {
             Assertions.assertEquals(APPLICATION_JSON, request.getHeaders().getValue(HttpHeaderName.CONTENT_TYPE));
             final var actualBody = new String(Objects.requireNonNull(request.getBody().single().block()).array());
             Assertions.assertEquals(JSON, actualBody);
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
             verify(objectReader).forType(VaultModel.class);
             verify(objectReader).readValue(anyString());
@@ -223,7 +157,7 @@ class LowkeyVaultManagementClientImplTest {
             Assertions.assertEquals("/management/vault", request.getUrl().getPath());
             Assertions.assertEquals(HttpMethod.GET, request.getHttpMethod());
             Assertions.assertNull(request.getHeaders().get(HttpHeaderName.CONTENT_TYPE));
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
             verify(objectReader).forType(VAULT_MODEL_LIST_TYPE_REF);
             verify(objectReader).readValue(anyString());
@@ -250,7 +184,7 @@ class LowkeyVaultManagementClientImplTest {
             Assertions.assertEquals("/management/vault/deleted", request.getUrl().getPath());
             Assertions.assertEquals(HttpMethod.GET, request.getHttpMethod());
             Assertions.assertNull(request.getHeaders().get(HttpHeaderName.CONTENT_TYPE));
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
             verify(objectReader).forType(VAULT_MODEL_LIST_TYPE_REF);
             verify(objectReader).readValue(anyString());
@@ -276,23 +210,10 @@ class LowkeyVaultManagementClientImplTest {
             Assertions.assertEquals("/management/vault", request.getUrl().getPath());
             Assertions.assertEquals(HttpMethod.DELETE, request.getHttpMethod());
             Assertions.assertNull(request.getHeaders().get(HttpHeaderName.CONTENT_TYPE));
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
             verify(objectReader).forType(Boolean.class);
             verify(objectReader).readValue(anyString());
-        }
-
-        @SuppressWarnings("ConstantConditions")
-        @Test
-        void testDeleteShouldThrowExceptionWhenUriIsNull() {
-            //given
-            final URI uri = null;
-
-            //when
-            Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.delete(uri));
-
-            //then
-            verifyNoInteractions(httpClient);
         }
 
         @Test
@@ -316,23 +237,10 @@ class LowkeyVaultManagementClientImplTest {
             Assertions.assertEquals("/management/vault/recover", request.getUrl().getPath());
             Assertions.assertEquals(HttpMethod.PUT, request.getHttpMethod());
             Assertions.assertEquals(APPLICATION_JSON, request.getHeaders().getValue(HttpHeaderName.CONTENT_TYPE));
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
             verify(objectReader).forType(VaultModel.class);
             verify(objectReader).readValue(anyString());
-        }
-
-        @SuppressWarnings("ConstantConditions")
-        @Test
-        void testRecoverShouldThrowExceptionWhenUriIsNull() {
-            //given
-            final URI uri = null;
-
-            //when
-            Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.recover(uri));
-
-            //then
-            verifyNoInteractions(httpClient);
         }
 
         @Test
@@ -359,38 +267,10 @@ class LowkeyVaultManagementClientImplTest {
             Assertions.assertEquals(queryString, request.getUrl().getQuery());
             Assertions.assertEquals(HttpMethod.PATCH, request.getHttpMethod());
             Assertions.assertEquals(APPLICATION_JSON, request.getHeaders().getValue(HttpHeaderName.CONTENT_TYPE));
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
             verify(objectReader).forType(VaultModel.class);
             verify(objectReader).readValue(anyString());
-        }
-
-        @SuppressWarnings("ConstantConditions")
-        @Test
-        void testAddAliasShouldThrowExceptionWhenBaseUriIsNull() {
-            //given
-            final URI uri = null;
-            final var alias = URI.create(HTTPS_ALIAS_LOCALHOST);
-
-            //when
-            Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.addAlias(uri, alias));
-
-            //then
-            verifyNoInteractions(httpClient);
-        }
-
-        @SuppressWarnings("ConstantConditions")
-        @Test
-        void testAddAliasShouldThrowExceptionWhenAliasIsNull() {
-            //given
-            final var uri = URI.create(HTTPS_LOCALHOST);
-            final URI alias = null;
-
-            //when
-            Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.addAlias(uri, alias));
-
-            //then
-            verifyNoInteractions(httpClient);
         }
 
         @Test
@@ -417,38 +297,10 @@ class LowkeyVaultManagementClientImplTest {
             Assertions.assertEquals(queryString, request.getUrl().getQuery());
             Assertions.assertEquals(HttpMethod.PATCH, request.getHttpMethod());
             Assertions.assertEquals(APPLICATION_JSON, request.getHeaders().getValue(HttpHeaderName.CONTENT_TYPE));
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
             verify(objectReader).forType(VaultModel.class);
             verify(objectReader).readValue(anyString());
-        }
-
-        @SuppressWarnings("ConstantConditions")
-        @Test
-        void testRemoveAliasShouldThrowExceptionWhenBaseUriIsNull() {
-            //given
-            final URI uri = null;
-            final var alias = URI.create(HTTPS_ALIAS_LOCALHOST);
-
-            //when
-            Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.removeAlias(uri, alias));
-
-            //then
-            verifyNoInteractions(httpClient);
-        }
-
-        @SuppressWarnings("ConstantConditions")
-        @Test
-        void testAddRemoveShouldThrowExceptionWhenAliasIsNull() {
-            //given
-            final var uri = URI.create(HTTPS_LOCALHOST);
-            final URI alias = null;
-
-            //when
-            Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.removeAlias(uri, alias));
-
-            //then
-            verifyNoInteractions(httpClient);
         }
 
         @Test
@@ -471,25 +323,13 @@ class LowkeyVaultManagementClientImplTest {
             Assertions.assertEquals("/management/vault/purge", request.getUrl().getPath());
             Assertions.assertEquals(HttpMethod.DELETE, request.getHttpMethod());
             Assertions.assertNull(request.getHeaders().get(HttpHeaderName.CONTENT_TYPE));
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
             verify(objectReader).forType(Boolean.class);
             verify(objectReader).readValue(anyString());
         }
 
-        @SuppressWarnings("ConstantConditions")
-        @Test
-        void testPurgeShouldThrowExceptionWhenUriIsNull() {
-            //given
-            final URI uri = null;
-
-            //when
-            Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.purge(uri));
-
-            //then
-            verifyNoInteractions(httpClient);
-        }
-
+        @SuppressWarnings("DataFlowIssue")
         @Test
         void testVaultModelAsStringShouldThrowExceptionWhenSerializationFails() throws JsonProcessingException {
             //given
@@ -498,17 +338,6 @@ class LowkeyVaultManagementClientImplTest {
             //when
             Assertions.assertThrows(LowkeyVaultException.class,
                     () -> underTest.vaultModelAsString(null, null, null));
-
-            //then + exception
-        }
-
-        @SuppressWarnings("ConstantConditions")
-        @Test
-        void testTimeShiftShouldThrowExceptionWhenCalledWithNull() {
-            //given
-
-            //when
-            Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.timeShift(null));
 
             //then + exception
         }
@@ -534,7 +363,7 @@ class LowkeyVaultManagementClientImplTest {
             Assertions.assertEquals("seconds=86400", request.getUrl().getQuery());
             Assertions.assertEquals(HttpMethod.PUT, request.getHttpMethod());
             Assertions.assertEquals(APPLICATION_JSON, request.getHeaders().getValue(HttpHeaderName.CONTENT_TYPE));
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
         }
 
@@ -560,7 +389,7 @@ class LowkeyVaultManagementClientImplTest {
             Assertions.assertEquals("baseUri=http%3A%2F%2Flocalhost&seconds=1", request.getUrl().getQuery());
             Assertions.assertEquals(HttpMethod.PUT, request.getHttpMethod());
             Assertions.assertEquals(APPLICATION_JSON, request.getHeaders().getValue(HttpHeaderName.CONTENT_TYPE));
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
         }
 
@@ -586,7 +415,7 @@ class LowkeyVaultManagementClientImplTest {
             Assertions.assertEquals("regenerateCertificates=true&seconds=1", request.getUrl().getQuery());
             Assertions.assertEquals(HttpMethod.PUT, request.getHttpMethod());
             Assertions.assertEquals(APPLICATION_JSON, request.getHeaders().getValue(HttpHeaderName.CONTENT_TYPE));
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
         }
 
@@ -609,7 +438,7 @@ class LowkeyVaultManagementClientImplTest {
             Assertions.assertEquals("/management/vault/export", request.getUrl().getPath());
             Assertions.assertEquals(HttpMethod.GET, request.getHttpMethod());
             Assertions.assertNull(request.getHeaders().get(HttpHeaderName.CONTENT_TYPE));
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
         }
 
@@ -631,31 +460,10 @@ class LowkeyVaultManagementClientImplTest {
 
             //then + exception
             verify(httpClient, atMostOnce()).send(any());
-            verify(response).getStatusCode();
+            verify(response, atLeastOnce()).getStatusCode();
             verify(response).getBodyAsString(StandardCharsets.UTF_8);
             verify(objectReader, never()).forType(VaultModel.class);
             verify(objectReader, never()).readValue(anyString());
-        }
-
-        @Test
-        void testUnpackBackupShouldThrowExceptionWhenCalledWithNull() {
-            //given
-
-            //when
-            Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.unpackBackup(null));
-
-            //then + exception
-        }
-
-        @SuppressWarnings("ConstantConditions")
-        @Test
-        void testCompressBackupShouldThrowExceptionWhenCalledWithNull() {
-            //given
-
-            //when
-            Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.compressBackup(null));
-
-            //then + exception
         }
 
         @Test

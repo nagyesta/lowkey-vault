@@ -12,30 +12,28 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class CertificateBackupListItem
-        extends BaseBackupListItem<CertificatePropertiesModel> {
-
+public class CertificateBackupListItem extends BaseBackupListItem<CertificatePropertiesModel> {
+    @Nullable
     @JsonProperty("pwd")
     private String password;
-
+    @Nullable
     @JsonProperty("keyVersion")
     private String keyVersion;
-
     @NotNull
     @JsonSerialize(using = Base64CertSerializer.class)
     @JsonDeserialize(using = Base64CertDeserializer.class)
     @JsonProperty("value")
     private byte[] certificate;
-
     @JsonProperty("policy")
     private CertificatePolicyModel policy;
-
+    @Nullable
     @JsonProperty("issuancePolicy")
     private CertificatePolicyModel issuancePolicy;
 

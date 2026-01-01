@@ -35,7 +35,9 @@ class ExpiryPeriodValidatorTest {
 
     @ParameterizedTest
     @MethodSource("isValidProvider")
-    void testIsValidShouldReturnTrueOnlyWhenCalledWithValidData(final Period input, final boolean expected) throws NoSuchFieldException {
+    void testIsValidShouldReturnTrueOnlyWhenCalledWithValidData(
+            final Period input,
+            final boolean expected) throws NoSuchFieldException {
         //given
         final var underTest = new ExpiryPeriodValidator();
         final var annotation = this.getClass().getDeclaredField("dummy").getAnnotation(ExpiryPeriod.class);

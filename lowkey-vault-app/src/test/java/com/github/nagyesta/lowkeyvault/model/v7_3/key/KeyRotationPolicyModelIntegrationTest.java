@@ -134,7 +134,8 @@ class KeyRotationPolicyModelIntegrationTest {
     @ParameterizedTest
     @MethodSource("invalidProvider")
     void testValidateShouldReportViolationsWhenCalledWithInvalidData(
-            final String resource, final String expectedPath) {
+            final String resource,
+            final String expectedPath) {
         //given
         final var underTest = loadResourceAsObject(resource);
 
@@ -146,8 +147,7 @@ class KeyRotationPolicyModelIntegrationTest {
         Assertions.assertEquals(expectedPath, violations.iterator().next().getPropertyPath().toString());
     }
 
-    private KeyRotationPolicyAttributes policyAttributes(
-            final Period expiryTime) {
+    private KeyRotationPolicyAttributes policyAttributes(final Period expiryTime) {
         final var attributes = new KeyRotationPolicyAttributes();
         attributes.setExpiryTime(expiryTime);
         attributes.setCreated(CREATED_ON);

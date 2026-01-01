@@ -4,7 +4,6 @@ import com.github.nagyesta.lowkeyvault.model.KeyDetails;
 import com.github.nagyesta.lowkeyvault.model.OpenIdConfiguration;
 import com.github.nagyesta.lowkeyvault.model.TokenResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -33,10 +32,10 @@ public class MetadataController {
     private final AuthTokenGenerator authTokenGenerator;
 
     public MetadataController(
-            @NonNull @Value("${LOWKEY_TOKEN_REALM:assumed-identity}") final String tokenRealm,
-            @NonNull final AuthTokenGenerator authTokenGenerator,
-            @NonNull @Value("${default-keystore-resource}") final String keyStoreResource,
-            @NonNull @Value("${default-keystore-password}") final String keyStorePassword) throws IOException {
+            @Value("${LOWKEY_TOKEN_REALM:assumed-identity}") final String tokenRealm,
+            final AuthTokenGenerator authTokenGenerator,
+            @Value("${default-keystore-resource}") final String keyStoreResource,
+            @Value("${default-keystore-password}") final String keyStorePassword) throws IOException {
         this.tokenRealm = tokenRealm;
         this.keyStoreContent = new ClassPathResource(keyStoreResource).getContentAsByteArray();
         this.keyStorePassword = keyStorePassword;

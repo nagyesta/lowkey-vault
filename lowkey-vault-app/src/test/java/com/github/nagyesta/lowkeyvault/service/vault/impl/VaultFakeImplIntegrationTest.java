@@ -51,6 +51,7 @@ class VaultFakeImplIntegrationTest {
                         .validityMonths(DEFAULT_VALIDITY_MONTHS)
                         .keyCurveName(KeyCurveName.P_521)
                         .subject("CN=localhost")
+                        .certAuthorityType(CertAuthorityType.SELF_SIGNED)
                         .build());
         final var triggerThresholdDays = 1;
         certificateVaultFake.setLifetimeActionPolicy(new CertificateLifetimeActionPolicy(
@@ -95,6 +96,7 @@ class VaultFakeImplIntegrationTest {
                         .validityMonths(DEFAULT_VALIDITY_MONTHS)
                         .keyCurveName(KeyCurveName.P_521)
                         .subject("CN=localhost")
+                        .certAuthorityType(CertAuthorityType.SELF_SIGNED)
                         .build());
         final var triggerThresholdDays = 1;
         certificateVaultFake.setLifetimeActionPolicy(new CertificateLifetimeActionPolicy(
@@ -136,6 +138,7 @@ class VaultFakeImplIntegrationTest {
                         .keyCurveName(KeyCurveName.P_521)
                         .subject("CN=localhost")
                         .reuseKeyOnRenewal(true)
+                        .certAuthorityType(CertAuthorityType.SELF_SIGNED)
                         .build());
         final var triggerThresholdDays = 1;
         certificateVaultFake.setLifetimeActionPolicy(new CertificateLifetimeActionPolicy(
@@ -181,6 +184,7 @@ class VaultFakeImplIntegrationTest {
                         .validityMonths(DEFAULT_VALIDITY_MONTHS)
                         .keyCurveName(KeyCurveName.P_521)
                         .subject("CN=localhost")
+                        .certAuthorityType(CertAuthorityType.SELF_SIGNED)
                         .build());
         final var triggerThresholdDays = 1;
         certificateVaultFake.setLifetimeActionPolicy(new CertificateLifetimeActionPolicy(
@@ -213,6 +217,7 @@ class VaultFakeImplIntegrationTest {
                         .validityMonths(DEFAULT_VALIDITY_MONTHS)
                         .keyCurveName(KeyCurveName.P_521)
                         .subject("CN=localhost")
+                        .certAuthorityType(CertAuthorityType.SELF_SIGNED)
                         .build());
         final var triggerThresholdDays = 1;
         certificateVaultFake.setLifetimeActionPolicy(new CertificateLifetimeActionPolicy(
@@ -228,7 +233,9 @@ class VaultFakeImplIntegrationTest {
         Assertions.assertIterableEquals(Set.of(originalCertId.version()), versions);
     }
 
-    private static void assertRenewalUsedPem(final VaultFakeImpl underTest, final ReadOnlyKeyVaultCertificateEntity certificateEntity) {
+    private static void assertRenewalUsedPem(
+            final VaultFakeImpl underTest,
+            final ReadOnlyKeyVaultCertificateEntity certificateEntity) {
         Assertions.assertEquals(CertContentType.PEM, certificateEntity.getOriginalCertificatePolicy().getContentType());
         final var secretEntity = underTest.secretVaultFake().getEntities()
                 .getEntity(certificateEntity.getSid(), KeyVaultSecretEntity.class);
@@ -237,7 +244,9 @@ class VaultFakeImplIntegrationTest {
     }
 
     private static void assertTimestampsAreAdjustedAsExpected(
-            final OffsetDateTime approxNow, final ReadOnlyKeyVaultCertificateEntity recreatedOriginal, final long expectedCreationDaysAgo) {
+            final OffsetDateTime approxNow,
+            final ReadOnlyKeyVaultCertificateEntity recreatedOriginal,
+            final long expectedCreationDaysAgo) {
         Assertions.assertEquals(expectedCreationDaysAgo, DAYS.between(recreatedOriginal.getCreated(), approxNow));
         Assertions.assertEquals(expectedCreationDaysAgo, DAYS.between(recreatedOriginal.getUpdated(), approxNow));
         Assertions.assertEquals(expectedCreationDaysAgo, DAYS.between(recreatedOriginal.getNotBefore().orElseThrow(), approxNow));

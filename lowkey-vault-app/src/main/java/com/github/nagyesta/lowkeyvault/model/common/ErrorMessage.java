@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -24,6 +25,7 @@ public class ErrorMessage {
     @Schema(example = EXCEPTION, description = "The class of the exception caused.")
     @JsonProperty("code")
     private String code;
+    @Nullable
     @Hidden
     @JsonProperty("innererror")
     private ErrorMessage innerError;
@@ -31,7 +33,7 @@ public class ErrorMessage {
     @JsonProperty("message")
     private String message;
 
-    public static ErrorMessage fromException(final Throwable t) {
+    public static @Nullable ErrorMessage fromException(@Nullable final Throwable t) {
         return Optional.ofNullable(t)
                 .map(throwable -> new ErrorMessage(
                         throwable.getClass().getName(),

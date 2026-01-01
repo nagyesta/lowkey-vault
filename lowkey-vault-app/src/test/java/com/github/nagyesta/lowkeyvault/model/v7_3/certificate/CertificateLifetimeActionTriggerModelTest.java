@@ -58,7 +58,9 @@ class CertificateLifetimeActionTriggerModelTest {
 
     @ParameterizedTest
     @MethodSource("invalidDayProvider")
-    void testValidateShouldThrowExceptionWhenDaysBeforeExpiryIsTooBig(final int days, final int validityMonths) {
+    void testValidateShouldThrowExceptionWhenDaysBeforeExpiryIsTooBig(
+            final int days,
+            final int validityMonths) {
         //given
         final var underTest = new CertificateLifetimeActionTriggerModel();
         underTest.setDaysBeforeExpiry(days);
@@ -71,7 +73,9 @@ class CertificateLifetimeActionTriggerModelTest {
 
     @ParameterizedTest
     @MethodSource("validDayProvider")
-    void testValidateShouldNotThrowExceptionWhenDaysBeforeExpiryIsValid(final int days, final int validityMonths) {
+    void testValidateShouldNotThrowExceptionWhenDaysBeforeExpiryIsValid(
+            final int days,
+            final int validityMonths) {
         //given
         final var underTest = new CertificateLifetimeActionTriggerModel();
         underTest.setDaysBeforeExpiry(days);

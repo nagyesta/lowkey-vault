@@ -7,8 +7,8 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRe
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertAuthorityType;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertificateCreationInput;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.KeyUsageEnum;
-import lombok.NonNull;
 import org.bouncycastle.asn1.x509.GeneralName;
+import org.jspecify.annotations.Nullable;
 
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
@@ -42,7 +42,7 @@ public final class ParserUtil {
                 .extendedKeyUsage(Set.copyOf(extendedKeyUsage(certificate)));
     }
 
-    public static CertAuthorityType parseCertAuthorityType(@NonNull final X509Certificate certificate) {
+    public static CertAuthorityType parseCertAuthorityType(final X509Certificate certificate) {
         if (Objects.equals(certificate.getSubjectX500Principal().getName(), certificate.getIssuerX500Principal().getName())) {
             return CertAuthorityType.SELF_SIGNED;
         } else {
@@ -50,14 +50,14 @@ public final class ParserUtil {
         }
     }
 
-    public static KeyCurveName findKeyCurve(final JsonWebKeyImportRequest keyImportRequest) {
+    public static @Nullable KeyCurveName findKeyCurve(final JsonWebKeyImportRequest keyImportRequest) {
         if (!keyImportRequest.getKeyType().isEc()) {
             return null;
         }
         return new EcJsonWebKeyImportRequestConverter().getKeyParameter(keyImportRequest);
     }
 
-    public static Integer findKeySize(final JsonWebKeyImportRequest keyImportRequest) {
+    public static @Nullable Integer findKeySize(final JsonWebKeyImportRequest keyImportRequest) {
         if (!keyImportRequest.getKeyType().isRsa()) {
             return null;
         }

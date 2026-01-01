@@ -4,12 +4,12 @@ import com.github.nagyesta.lowkeyvault.service.key.constants.LifetimeActionTrigg
 import com.github.nagyesta.lowkeyvault.service.key.util.PeriodUtil;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import org.jspecify.annotations.Nullable;
 
 import java.time.Period;
 import java.util.Optional;
 
-public class ExpiryPeriodValidator
-        implements ConstraintValidator<ExpiryPeriod, Period> {
+public class ExpiryPeriodValidator implements ConstraintValidator<ExpiryPeriod, Period> {
 
     @Override
     public void initialize(final ExpiryPeriod constraintAnnotation) {
@@ -18,7 +18,7 @@ public class ExpiryPeriodValidator
 
     @Override
     public boolean isValid(
-            final Period value,
+            @Nullable final Period value,
             final ConstraintValidatorContext context) {
         return Optional.ofNullable(value)
                 .map(PeriodUtil::asDays)

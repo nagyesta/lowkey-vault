@@ -2,6 +2,7 @@ package com.github.nagyesta.lowkeyvault.model.v7_2.key.constants;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 
@@ -46,7 +47,7 @@ public enum KeyOperation {
     }
 
     @JsonCreator
-    public static KeyOperation forValue(final String name) {
+    public static @Nullable KeyOperation forValue(@Nullable final String name) {
         return Arrays.stream(values())
                 .filter(keyType -> keyType.getValue().equals(name))
                 .findFirst()

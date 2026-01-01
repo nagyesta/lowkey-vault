@@ -8,6 +8,7 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
@@ -37,6 +38,7 @@ public class VaultModel {
     private RecoveryLevel recoveryLevel;
     @Schema(example = FORTY_TWO, minimum = "7", maximum = "90", nullable = true,
             description = "Defines how long the vault will be recoverable after deletion. Acceptable values depend on recovery level.")
+    @Nullable
     @JsonProperty("recoverableDays")
     private Integer recoverableDays;
     @Schema(example = EPOCH_SECONDS_2022_01_02_AM_03H_04M_05S, nullable = true, implementation = Integer.class, minimum = ONE,
@@ -47,6 +49,7 @@ public class VaultModel {
     private OffsetDateTime createdOn;
     @Schema(example = EPOCH_SECONDS_2022_01_02_AM_03H_04M_05S, nullable = true, implementation = Integer.class, minimum = ONE,
             description = "UTC epoch seconds formatted date time when the vault was deleted. (Should be null when used for create).")
+    @Nullable
     @JsonProperty("deleted")
     @JsonSerialize(using = EpochSecondsSerializer.class)
     @JsonDeserialize(using = EpochSecondsDeserializer.class)

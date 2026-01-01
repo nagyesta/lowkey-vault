@@ -3,12 +3,8 @@ package com.github.nagyesta.lowkeyvault.service;
 import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 
 import java.net.URI;
-import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstantsSecrets.SECRET_NAME_1;
 import static com.github.nagyesta.lowkeyvault.TestConstantsSecrets.SECRET_VERSION_1;
@@ -16,22 +12,6 @@ import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
 
 class VersionedSecretEntityIdTest {
-
-    public static Stream<Arguments> invalidMinimalParameterProvider() {
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null))
-                .add(Arguments.of(HTTPS_LOCALHOST, null))
-                .add(Arguments.of(null, SECRET_NAME_1))
-                .build();
-    }
-
-    public static Stream<Arguments> invalidParameterProvider() {
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(null, SECRET_NAME_1, SECRET_VERSION_1))
-                .add(Arguments.of(HTTPS_LOCALHOST, null, SECRET_VERSION_1))
-                .add(Arguments.of(HTTPS_LOCALHOST, SECRET_NAME_1, null))
-                .build();
-    }
 
     @Test
     void testConstructorShouldGenerateAVersionWhenNotProvidedAsParameter() {
@@ -55,30 +35,6 @@ class VersionedSecretEntityIdTest {
 
         //then
         Assertions.assertEquals(SECRET_VERSION_1, actual);
-    }
-
-    @ParameterizedTest
-    @MethodSource("invalidParameterProvider")
-    void testConstructorShouldThrowExceptionWhenCalledWithNulls(
-            final URI vault, final String id, final String version) {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new VersionedSecretEntityId(vault, id, version));
-
-        //then + exception
-    }
-
-    @ParameterizedTest
-    @MethodSource("invalidMinimalParameterProvider")
-    void testConstructorShouldThrowExceptionWhenCalledWithNulls(
-            final URI vault, final String id) {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new VersionedSecretEntityId(vault, id));
-
-        //then + exception
     }
 
     @SuppressWarnings("ConstantConditions")

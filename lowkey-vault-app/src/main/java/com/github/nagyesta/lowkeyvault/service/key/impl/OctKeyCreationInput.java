@@ -4,18 +4,17 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.Assert;
 
 @Getter
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class OctKeyCreationInput
-        extends KeyCreationInput<Integer> {
+public class OctKeyCreationInput extends KeyCreationInput<Integer> {
 
     public OctKeyCreationInput(
-            @NonNull final KeyType keyType,
-            final Integer keyParameter) {
+            final KeyType keyType,
+            @Nullable final Integer keyParameter) {
         super(keyType, keyParameter);
         Assert.isTrue(keyType.isOct(), "KeyType must be OCT.");
     }

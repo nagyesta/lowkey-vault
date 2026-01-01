@@ -7,7 +7,6 @@ import com.github.nagyesta.lowkeyvault.service.common.BaseVaultFake;
 import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
-import lombok.NonNull;
 
 import java.net.URI;
 import java.util.Optional;
@@ -37,8 +36,8 @@ public abstract class BaseEntityReadController<K extends EntityId,
     private final Function<VaultFake, S> toEntityVault;
 
     protected BaseEntityReadController(
-            @NonNull final VaultService vaultService,
-            @org.springframework.lang.NonNull final Function<VaultFake, S> toEntityVault) {
+            final VaultService vaultService,
+            final Function<VaultFake, S> toEntityVault) {
         this.vaultService = vaultService;
         this.toEntityVault = toEntityVault;
     }
@@ -61,7 +60,5 @@ public abstract class BaseEntityReadController<K extends EntityId,
     protected abstract V versionedEntityId(URI baseUri, String name, String version);
 
     protected abstract K entityId(URI baseUri, String name);
-
-    protected abstract String apiVersion();
 
 }

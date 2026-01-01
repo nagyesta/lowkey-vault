@@ -1,6 +1,7 @@
 package com.github.nagyesta.lowkeyvault.model.json.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationContext;
@@ -31,7 +32,7 @@ public abstract class AbstractBase64ZipSerializer<E> extends ValueSerializer<E> 
 
     @Override
     public void serialize(
-            final E value,
+            @Nullable final E value,
             final JsonGenerator gen,
             final SerializationContext serializers) {
         final var base64 = Optional.ofNullable(value)

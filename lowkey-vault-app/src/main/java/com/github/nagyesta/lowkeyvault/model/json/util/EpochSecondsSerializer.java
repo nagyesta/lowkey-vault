@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault.model.json.util;
 
+import org.jspecify.annotations.Nullable;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
@@ -7,12 +8,11 @@ import tools.jackson.databind.ValueSerializer;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 
-public class EpochSecondsSerializer
-        extends ValueSerializer<OffsetDateTime> {
+public class EpochSecondsSerializer extends ValueSerializer<OffsetDateTime> {
 
     @Override
     public void serialize(
-            final OffsetDateTime value,
+            @Nullable final OffsetDateTime value,
             final JsonGenerator generator,
             final SerializationContext provider) {
         final var optional = Optional.ofNullable(value);

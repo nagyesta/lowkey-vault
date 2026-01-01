@@ -63,7 +63,9 @@ class ParserUtilTest {
     @ParameterizedTest
     @MethodSource("issuerAndSubjectProvider")
     void testParseCertAuthorityTypeShouldCompareIssuerAndSubjectWhenCalledWithValidCertificate(
-            final String issuer, final String subject, final CertAuthorityType expected) {
+            final String issuer,
+            final String subject,
+            final CertAuthorityType expected) {
         //given
         final var issuerX500Principal = new X500Principal(issuer);
         final var subjectX500Principal = new X500Principal(subject);
@@ -76,16 +78,5 @@ class ParserUtilTest {
 
         //then
         Assertions.assertEquals(expected, actual);
-    }
-
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testParseCertAuthorityTypeShouldThrowExceptionWhenCalledWithNull() {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> ParserUtil.parseCertAuthorityType(null));
-
-        //then + exception
     }
 }

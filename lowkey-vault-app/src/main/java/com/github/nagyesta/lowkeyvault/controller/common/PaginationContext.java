@@ -2,7 +2,7 @@ package com.github.nagyesta.lowkeyvault.controller.common;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
 import java.util.Map;
@@ -35,17 +35,16 @@ public class PaginationContext {
     private static final String EQUALS = "=";
     private static final String QUESTION_MARK = "?";
     private static final String EMPTY = "";
-    @NonNull
     private final URI base;
     private final int totalItems;
     private final int currentItems;
     private final int limit;
     private final int offset;
+    @Nullable
     private Map<String, String> additionalParameters;
-    @NonNull
     private final String apiVersion;
 
-    public URI asNextUri() {
+    public @Nullable URI asNextUri() {
         URI nextUri = null;
         if (hasMorePages()) {
             nextUri = URI.create(base

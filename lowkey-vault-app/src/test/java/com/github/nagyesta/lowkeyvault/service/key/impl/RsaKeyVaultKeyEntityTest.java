@@ -2,7 +2,6 @@ package com.github.nagyesta.lowkeyvault.service.key.impl;
 
 import com.github.nagyesta.lowkeyvault.HashUtil;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.*;
-import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultFakeImpl;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -21,22 +20,10 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
-import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.MIN_RSA_KEY_SIZE;
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOWKEY_VAULT;
-import static org.mockito.Mockito.mock;
 
 class RsaKeyVaultKeyEntityTest {
-
-    public static Stream<Arguments> invalidValueProvider() {
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, null, null, null))
-                .add(Arguments.of(null, mock(VaultFake.class), null, null))
-                .add(Arguments.of(null, null, MIN_RSA_KEY_SIZE, null))
-                .add(Arguments.of(null, mock(VaultFake.class), MIN_RSA_KEY_SIZE, null))
-                .add(Arguments.of(VERSIONED_KEY_ENTITY_ID_1_VERSION_1, null, MIN_RSA_KEY_SIZE, null))
-                .build();
-    }
 
     public static Stream<Arguments> stringSource() {
         return Arrays.stream(EncryptionAlgorithm.values())
@@ -79,20 +66,10 @@ class RsaKeyVaultKeyEntityTest {
     }
 
     @ParameterizedTest
-    @MethodSource("invalidValueProvider")
-    void testConstructorShouldThrowExceptionWhenCalledWithNull(
-            final VersionedKeyEntityId id, final VaultFake vault, final Integer keySize, final BigInteger exponent) {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new RsaKeyVaultKeyEntity(id, vault, keySize, exponent, false));
-
-        //then + exception
-    }
-
-    @ParameterizedTest
     @MethodSource("stringSource")
-    void testEncryptThenDecryptShouldReturnOriginalTextWhenCalled(final String clear, final EncryptionAlgorithm algorithm) {
+    void testEncryptThenDecryptShouldReturnOriginalTextWhenCalled(
+            final String clear,
+            final EncryptionAlgorithm algorithm) {
         //given
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
         final var underTest = new RsaKeyVaultKeyEntity(
@@ -179,7 +156,10 @@ class RsaKeyVaultKeyEntityTest {
     @ParameterizedTest
     @MethodSource("stringSignSource")
     void testSignThenVerifyShouldReturnTrueWhenVerificationAndSignAreUsingTheSameData(
-            final String clearSign, final String clearVerify, final SignatureAlgorithm algorithm, final int keySize) {
+            final String clearSign,
+            final String clearVerify,
+            final SignatureAlgorithm algorithm,
+            final int keySize) {
         //given
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
         final var underTest = new RsaKeyVaultKeyEntity(
@@ -200,8 +180,11 @@ class RsaKeyVaultKeyEntityTest {
     @ParameterizedTest
     @MethodSource("signDigestSource")
     void testSignShouldProduceTheExpectedSignatureWhenCalledWithValidData(
-            final byte[] original, final byte[] digest, final int keySize,
-            final SignatureAlgorithm algorithm, final String verifyAlgorithm) throws Exception {
+            final byte[] original,
+            final byte[] digest,
+            final int keySize,
+            final SignatureAlgorithm algorithm,
+            final String verifyAlgorithm) throws Exception {
         //given
         final VaultFake vaultFake = new VaultFakeImpl(HTTPS_LOWKEY_VAULT);
         final var underTest = new RsaKeyVaultKeyEntity(
@@ -312,8 +295,10 @@ class RsaKeyVaultKeyEntityTest {
     }
 
     private boolean checkSignature(
-            final PublicKey publicKey, final byte[] signatureToCheck,
-            final byte[] originalDigest, final String algName) throws Exception {
+            final PublicKey publicKey,
+            final byte[] signatureToCheck,
+            final byte[] originalDigest,
+            final String algName) throws Exception {
         final var sig = Signature.getInstance(algName, new BouncyCastleProvider());
         sig.initVerify(publicKey);
         sig.update(originalDigest);

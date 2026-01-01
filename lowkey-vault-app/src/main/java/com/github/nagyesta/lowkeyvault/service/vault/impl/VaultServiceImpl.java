@@ -5,8 +5,8 @@ import com.github.nagyesta.lowkeyvault.service.exception.AlreadyExistsException;
 import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.Assert;
 
 import java.net.URI;
@@ -23,7 +23,7 @@ public class VaultServiceImpl
     private final UnaryOperator<URI> uriMapper;
     private final Set<VaultFake> vaultFakes = new CopyOnWriteArraySet<>();
 
-    public VaultServiceImpl(@NonNull final UnaryOperator<URI> uriMapper) {
+    public VaultServiceImpl(final UnaryOperator<URI> uriMapper) {
         this.uriMapper = uriMapper;
     }
 
@@ -35,7 +35,7 @@ public class VaultServiceImpl
 
     @Override
     public VaultFake findByUriIncludeDeleted(final URI uri) {
-        return findByUriAndDeleteStatus(uri, v -> true)
+        return findByUriAndDeleteStatus(uri, _ -> true)
                 .orElseThrow(() -> new NotFoundException("Unable to find vault: " + uri));
     }
 
@@ -45,11 +45,15 @@ public class VaultServiceImpl
     }
 
     @Override
-    public VaultFake create(final URI uri, final RecoveryLevel recoveryLevel, final Integer recoverableDays, final Set<URI> aliases) {
+    public VaultFake create(
+            final URI uri,
+            final RecoveryLevel recoveryLevel,
+            @Nullable final Integer recoverableDays,
+            @Nullable final Set<URI> aliases) {
         final var optionalAliases = Optional.ofNullable(aliases);
         optionalAliases.stream().flatMap(Set::stream).forEach(alias -> {
             Assert.isTrue(!uri.equals(alias), "Base URI cannot match alias: " + alias);
-            if (findByUriAndDeleteStatus(alias, v -> true).isPresent()) {
+            if (findByUriAndDeleteStatus(alias, _ -> true).isPresent()) {
                 throw new AlreadyExistsException("Vault alias already exists: " + alias);
             }
         });
@@ -113,7 +117,9 @@ public class VaultServiceImpl
     }
 
     @Override
-    public void timeShift(final int offsetSeconds, final boolean regenerateCertificates) {
+    public void timeShift(
+            final int offsetSeconds,
+            final boolean regenerateCertificates) {
         Assert.isTrue(offsetSeconds > 0, "Offset must be positive.");
         log.info("Performing time shift with {} seconds for all vaults.", offsetSeconds);
         vaultFakes.forEach(vaultFake -> vaultFake.timeShift(offsetSeconds, regenerateCertificates));
@@ -121,7 +127,10 @@ public class VaultServiceImpl
     }
 
     @Override
-    public VaultFake updateAlias(final URI baseUri, final URI add, final URI remove) {
+    public VaultFake updateAlias(
+            final URI baseUri,
+            @Nullable final URI add,
+            @Nullable final URI remove) {
         log.info("Updating aliases of: {} , adding: {}, removing: {}", baseUri, add, remove);
         Assert.isTrue(add != null || remove != null, "At least one of the add/remove parameters needs to be populated.");
         Assert.isTrue(!Objects.equals(add, remove), "The URL we want to add and remove, must be different.");
@@ -129,7 +138,7 @@ public class VaultServiceImpl
 
         final var aliases = new TreeSet<>(fake.aliases());
         Optional.ofNullable(add).ifPresent(alias -> {
-            if (findByUriAndDeleteStatus(add, v -> true).isPresent()) {
+            if (findByUriAndDeleteStatus(add, _ -> true).isPresent()) {
                 throw new AlreadyExistsException("Vault alias already exists: " + add);
             }
             aliases.add(alias);
@@ -139,14 +148,18 @@ public class VaultServiceImpl
         return fake;
     }
 
-    private Optional<VaultFake> findByUriAndDeleteStatus(final URI uri, final Predicate<VaultFake> deletedPredicate) {
+    private Optional<VaultFake> findByUriAndDeleteStatus(
+            final URI uri,
+            final Predicate<VaultFake> deletedPredicate) {
         return vaultFakes.stream()
                 .filter(v -> v.matches(uri, uriMapper))
                 .filter(deletedPredicate)
                 .findFirst();
     }
 
-    private VaultFake create(final URI uri, final Supplier<VaultFake> vaultFakeSupplier) {
+    private VaultFake create(
+            final URI uri,
+            final Supplier<VaultFake> vaultFakeSupplier) {
         synchronized (vaultFakes) {
             if (exists(uri)) {
                 throw new AlreadyExistsException("Vault is already created with uri: " + uri);

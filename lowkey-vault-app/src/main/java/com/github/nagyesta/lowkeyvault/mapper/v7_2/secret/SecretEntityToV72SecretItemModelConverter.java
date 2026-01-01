@@ -1,61 +1,80 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_2.secret;
 
-import com.github.nagyesta.lowkeyvault.context.ApiVersionAware;
-import com.github.nagyesta.lowkeyvault.mapper.common.BaseRecoveryAwareConverter;
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.SecretConverterRegistry;
+import com.github.nagyesta.lowkeyvault.mapper.common.RecoveryAwareItemConverter;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.DeletedKeyVaultSecretItemModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.secret.KeyVaultSecretItemModel;
 import com.github.nagyesta.lowkeyvault.service.secret.ReadOnlyKeyVaultSecretEntity;
-import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId;
-import lombok.NonNull;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.jspecify.annotations.Nullable;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
+import org.mapstruct.Named;
 
 import java.net.URI;
-import java.util.SortedSet;
 
-public class SecretEntityToV72SecretItemModelConverter
-        extends BaseRecoveryAwareConverter<VersionedSecretEntityId,
-        ReadOnlyKeyVaultSecretEntity, KeyVaultSecretItemModel, DeletedKeyVaultSecretItemModel> {
-
-    private final SecretConverterRegistry registry;
-
-    @Autowired
-    public SecretEntityToV72SecretItemModelConverter(@NonNull final SecretConverterRegistry registry) {
-        super(KeyVaultSecretItemModel::new, DeletedKeyVaultSecretItemModel::new);
-        this.registry = registry;
-    }
+@Mapper(
+        componentModel = MappingConstants.ComponentModel.SPRING,
+        uses = {SecretEntityToV72PropertiesModelConverter.class}
+)
+public interface SecretEntityToV72SecretItemModelConverter
+        extends RecoveryAwareItemConverter<ReadOnlyKeyVaultSecretEntity, KeyVaultSecretItemModel, DeletedKeyVaultSecretItemModel> {
 
     @Override
-    public void afterPropertiesSet() {
-        register(registry);
-    }
-
-    protected void register(final SecretConverterRegistry registry) {
-        registry.registerItemConverter(this);
-    }
-
-    @Override
-    protected <M extends KeyVaultSecretItemModel> M mapActiveFields(
-            final ReadOnlyKeyVaultSecretEntity source,
-            final M model,
+    default @Nullable KeyVaultSecretItemModel convert(
+            @Nullable final ReadOnlyKeyVaultSecretEntity source,
             final URI vaultUri) {
-        model.setId(convertSecretId(source, vaultUri));
-        model.setAttributes(registry.propertiesConverter(supportedVersions().last()).convert(source, vaultUri));
-        model.setTags(source.getTags());
-        if (source.isManaged()) {
-            model.setManaged(true);
+        if (source == null) {
+            return null;
         }
-        return model;
+        return doConvert(source, vaultUri);
     }
 
-    protected String convertSecretId(
-            final ReadOnlyKeyVaultSecretEntity source,
-            final URI vaultUri) {
-        return source.getId().asUriNoVersion(vaultUri).toString();
-    }
+    @Named("ignore")
+    @Mapping(target = "id", expression = "java(source.getId().asUri(vaultUri).toString())")
+    @Mapping(target = "attributes", source = "source")
+    @Mapping(target = "contentType", expression = "java(source.getContentType())")
+    @Mapping(target = "managed", source = "source.managed", conditionExpression = "java(source.isManaged())")
+    @Mapping(target = "tags", expression = "java(java.util.Map.copyOf(source.getTags()))")
+    KeyVaultSecretItemModel doConvert(ReadOnlyKeyVaultSecretEntity source, URI vaultUri);
 
     @Override
-    public SortedSet<String> supportedVersions() {
-        return ApiVersionAware.ALL_VERSIONS;
+    default @Nullable KeyVaultSecretItemModel convertWithoutVersion(
+            @Nullable final ReadOnlyKeyVaultSecretEntity source,
+            final URI vaultUri) {
+        if (source == null) {
+            return null;
+        }
+        return doConvertWithoutVersion(source, vaultUri);
     }
+
+    @Named("ignore")
+    @Mapping(target = "id", expression = "java(source.getId().asUriNoVersion(vaultUri).toString())")
+    @Mapping(target = "attributes", source = "source")
+    @Mapping(target = "contentType", expression = "java(source.getContentType())")
+    @Mapping(target = "managed", source = "source.managed", conditionExpression = "java(source.isManaged())")
+    @Mapping(target = "tags", expression = "java(java.util.Map.copyOf(source.getTags()))")
+    KeyVaultSecretItemModel doConvertWithoutVersion(ReadOnlyKeyVaultSecretEntity source, URI vaultUri);
+
+
+    @Override
+    default @Nullable DeletedKeyVaultSecretItemModel convertDeleted(
+            @Nullable final ReadOnlyKeyVaultSecretEntity source,
+            final URI vaultUri) {
+        if (source == null) {
+            return null;
+        }
+        return doConvertDeleted(source, vaultUri);
+    }
+
+    @Named("ignore")
+    @Mapping(target = "id", expression = "java(source.getId().asUriNoVersion(vaultUri).toString())")
+    @Mapping(target = "recoveryId", expression = "java(source.getId().asRecoveryUri(vaultUri).toString())")
+    @Mapping(target = "attributes", source = "source")
+    @Mapping(target = "contentType", expression = "java(source.getContentType())")
+    @Mapping(target = "deletedDate", expression = "java(source.getDeletedDate().orElseThrow())")
+    @Mapping(target = "scheduledPurgeDate", expression = "java(source.getScheduledPurgeDate().orElseThrow())")
+    @Mapping(target = "managed", source = "source.managed", conditionExpression = "java(source.isManaged())")
+    @Mapping(target = "tags", expression = "java(java.util.Map.copyOf(source.getTags()))")
+    DeletedKeyVaultSecretItemModel doConvertDeleted(ReadOnlyKeyVaultSecretEntity source, URI vaultUri);
+
 }

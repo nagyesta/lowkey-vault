@@ -7,51 +7,40 @@ import com.github.nagyesta.lowkeyvault.model.json.util.Base64Serializer;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.KeyOperationsParameters;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import lombok.Data;
-import lombok.NonNull;
-import org.springframework.util.Assert;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
 import java.net.URI;
-import java.util.Base64;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class KeyOperationsResult {
-
-    private static final Base64.Encoder ENCODER = Base64.getUrlEncoder().withoutPadding();
 
     @JsonProperty("kid")
     private URI id;
     @JsonProperty("aad")
     @JsonSerialize(using = Base64Serializer.class)
     @JsonDeserialize(using = Base64Deserializer.class)
-    private byte[] additionalAuthData;
+    private byte @Nullable [] additionalAuthData;
     @JsonProperty("iv")
     @JsonSerialize(using = Base64Serializer.class)
     @JsonDeserialize(using = Base64Deserializer.class)
-    private byte[] initializationVector;
+    private byte @Nullable [] initializationVector;
     @JsonProperty("tag")
     @JsonSerialize(using = Base64Serializer.class)
     @JsonDeserialize(using = Base64Deserializer.class)
-    private byte[] authenticationTag;
+    private byte @Nullable [] authenticationTag;
     @JsonProperty("value")
-    private String value;
+    @JsonSerialize(using = Base64Serializer.class)
+    @JsonDeserialize(using = Base64Deserializer.class)
+    private byte[] value;
 
     public static KeyOperationsResult forBytes(
-            @org.springframework.lang.NonNull final VersionedKeyEntityId keyEntityId,
-            @org.springframework.lang.NonNull final byte[] value,
-            @org.springframework.lang.NonNull final KeyOperationsParameters input,
-            @org.springframework.lang.NonNull final URI vaultUri) {
-        Assert.notNull(value, "Value must not be null.");
-        return forString(keyEntityId, ENCODER.encodeToString(value), input, vaultUri);
-    }
-
-    public static KeyOperationsResult forString(
-            @NonNull final VersionedKeyEntityId keyEntityId,
-            @NonNull final String value,
-            @NonNull final KeyOperationsParameters input,
-            @NonNull final URI vaultUri) {
+            final VersionedKeyEntityId keyEntityId,
+            final byte[] value,
+            final KeyOperationsParameters input,
+            final URI vaultUri) {
         final var result = new KeyOperationsResult();
         result.setId(keyEntityId.asUri(vaultUri));
         result.setValue(value);

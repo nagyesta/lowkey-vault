@@ -1,7 +1,6 @@
 package com.github.nagyesta.lowkeyvault.service.certificate;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -38,21 +37,12 @@ class CertificateLifetimeActionTriggerIntegrationTest {
                 .build();
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testConstructorShouldThrowExceptionWhenCalledWithNull() {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new CertificateLifetimeActionTrigger(null, 1));
-
-        //then + exception
-    }
-
     @ParameterizedTest
     @MethodSource("validValidationProvider")
     void testValidateShouldNotThrowExceptionsWhenCalledInValidState(
-            final CertificateLifetimeActionTriggerType triggerType, final int validityMonths, final int value) {
+            final CertificateLifetimeActionTriggerType triggerType,
+            final int validityMonths,
+            final int value) {
         //given
         final var underTest = new CertificateLifetimeActionTrigger(triggerType, value);
 

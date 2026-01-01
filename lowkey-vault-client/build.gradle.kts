@@ -31,7 +31,7 @@ dependencies {
     implementation(libs.httpclient)
     implementation(libs.commons.codec)
 
-    compileOnly(libs.findbugs.jsr305)
+    compileOnly(libs.jspecify)
 
     annotationProcessor(libs.lombok)
 

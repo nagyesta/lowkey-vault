@@ -8,8 +8,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
@@ -39,14 +39,15 @@ public class ContentExportFilter
     private final VaultImportExportExecutor vaultImportExportExecutor;
     private final VaultService vaultService;
     private final ObjectMapper objectMapper;
+    @Nullable
     private final File exportFile;
     private final ReentrantLock lock;
 
     public ContentExportFilter(
-            @NonNull final VaultImportExportExecutor vaultImportExportExecutor,
-            @NonNull final VaultService vaultService,
-            @NonNull final ObjectMapper objectMapper,
-            @Value("${LOWKEY_EXPORT_LOCATION}") final File exportFile) {
+            final VaultImportExportExecutor vaultImportExportExecutor,
+            final VaultService vaultService,
+            final ObjectMapper objectMapper,
+            @Nullable @Value("${LOWKEY_EXPORT_LOCATION}") final File exportFile) {
         this.vaultImportExportExecutor = vaultImportExportExecutor;
         this.vaultService = vaultService;
         this.objectMapper = objectMapper;
@@ -54,7 +55,6 @@ public class ContentExportFilter
         lock = new ReentrantLock();
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
     protected void doFilterInternal(
             final HttpServletRequest request,
@@ -78,8 +78,6 @@ public class ContentExportFilter
         return responseToUse;
     }
 
-
-
     private void finalizeResponse(final HttpServletResponse response) throws IOException {
         if (response instanceof final ContentCachingResponseWrapper wrapper) {
             if (wasSuccessful(response)) {
@@ -96,9 +94,12 @@ public class ContentExportFilter
         }
     }
 
-    private void doExport() throws IOException {
+    private void doExport() {
         lock.lock();
         try {
+            if (exportFile == null) {
+                return;
+            }
             log.info("Exporting application state to file '{}'.", exportFile.getAbsolutePath());
             final var backupModels = vaultImportExportExecutor.backupVaultList(vaultService);
             final var vaultBackupListModel = new VaultBackupListModel();

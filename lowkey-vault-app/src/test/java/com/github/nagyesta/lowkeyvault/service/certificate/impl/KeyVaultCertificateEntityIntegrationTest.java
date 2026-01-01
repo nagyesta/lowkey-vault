@@ -135,35 +135,6 @@ class KeyVaultCertificateEntityIntegrationTest {
         //then + exception
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testImportConstructorShouldThrowExceptionWhenCalledWithNullName() {
-        //given
-        final var certContent = Objects.requireNonNull(ResourceUtils.loadResourceAsBase64String("/cert/rsa.p12"));
-        final var input = new CertificateImportInput(
-                CERT_NAME_1, certContent, EMPTY_PASSWORD, CertContentType.PKCS12, new CertificatePolicyModel());
-        final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new KeyVaultCertificateEntity(null, input, vault));
-
-        //then + exception
-    }
-
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testImportConstructorShouldThrowExceptionWhenCalledWithNullCertificateImportInput() {
-        //given
-        final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new KeyVaultCertificateEntity(CERT_NAME_1, (CertificateImportInput) null, vault));
-
-        //then + exception
-    }
-
     @Test
     void testImportConstructorShouldThrowExceptionWhenCalledWithNullCertificateData() {
         //given
@@ -377,6 +348,10 @@ class KeyVaultCertificateEntityIntegrationTest {
                 .name(name)
                 .validityMonths(DEFAULT_VALIDITY_MONTHS)
                 .certAuthorityType(UNKNOWN)
+                .subject("CN=" + LOCALHOST)
+                .contentType(CertContentType.PKCS12)
+                .keyCurveName(KeyCurveName.P_521)
+                .keyType(KeyType.EC)
                 .build());
 
         //when
@@ -413,6 +388,10 @@ class KeyVaultCertificateEntityIntegrationTest {
                 .name(CERT_NAME_2)
                 .validityMonths(DEFAULT_VALIDITY_MONTHS)
                 .certAuthorityType(UNKNOWN)
+                .subject("CN=" + LOCALHOST)
+                .contentType(CertContentType.PKCS12)
+                .keyCurveName(KeyCurveName.P_521)
+                .keyType(KeyType.EC)
                 .build());
 
         //when
@@ -442,7 +421,7 @@ class KeyVaultCertificateEntityIntegrationTest {
         final var underTest = new KeyVaultCertificateEntity(name, input, vault);
 
         //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.updateIssuancePolicy(null));
+        Assertions.assertThrows(NullPointerException.class, () -> underTest.updateIssuancePolicy(null));
 
         //then + exception
     }

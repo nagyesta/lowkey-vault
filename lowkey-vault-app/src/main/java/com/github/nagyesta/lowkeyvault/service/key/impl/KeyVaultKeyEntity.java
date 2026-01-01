@@ -8,7 +8,6 @@ import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.Getter;
-import lombok.NonNull;
 import org.slf4j.Logger;
 import org.springframework.util.Assert;
 
@@ -36,10 +35,10 @@ public abstract class KeyVaultKeyEntity<T, S>
     private List<KeyOperation> operations;
 
     protected KeyVaultKeyEntity(
-            @NonNull final VersionedKeyEntityId id,
-            @org.springframework.lang.NonNull final VaultFake vault,
-            @org.springframework.lang.NonNull final T key,
-            @org.springframework.lang.NonNull final S keyParam,
+            final VersionedKeyEntityId id,
+            final VaultFake vault,
+            final T key,
+            final S keyParam,
             final boolean hsm) {
         super(vault);
         this.id = id;

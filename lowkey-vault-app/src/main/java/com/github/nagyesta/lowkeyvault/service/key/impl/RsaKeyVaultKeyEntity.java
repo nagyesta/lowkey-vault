@@ -9,7 +9,7 @@ import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.Assert;
 
 import javax.crypto.Cipher;
@@ -25,20 +25,20 @@ public class RsaKeyVaultKeyEntity
         extends KeyVaultKeyEntity<KeyPair, Integer> implements ReadOnlyRsaKeyVaultKeyEntity {
 
     public RsaKeyVaultKeyEntity(
-            @NonNull final VersionedKeyEntityId id,
-            @NonNull final VaultFake vault,
-            final Integer keyParam,
-            final BigInteger publicExponent,
+            final VersionedKeyEntityId id,
+            final VaultFake vault,
+            @Nullable final Integer keyParam,
+            @Nullable final BigInteger publicExponent,
             final boolean hsm) {
         super(id, vault, generateRsa(keyParam, publicExponent), KeyType.RSA.validateOrDefault(keyParam, Integer.class), hsm);
     }
 
     public RsaKeyVaultKeyEntity(
-            @NonNull final VersionedKeyEntityId id,
-            @NonNull final VaultFake vault,
-            @NonNull final KeyPair keyPair,
-            final Integer keySize,
-            final Boolean hsm) {
+            final VersionedKeyEntityId id,
+            final VaultFake vault,
+            final KeyPair keyPair,
+            @Nullable final Integer keySize,
+            final boolean hsm) {
         super(id, vault, keyPair, KeyType.RSA.validateOrDefault(keySize, Integer.class), hsm);
     }
 
@@ -103,9 +103,9 @@ public class RsaKeyVaultKeyEntity
 
     @Override
     public byte[] encryptBytes(
-            @NonNull final byte[] clear,
-            @NonNull final EncryptionAlgorithm encryptionAlgorithm,
-            final byte[] iv) {
+            final byte[] clear,
+            final EncryptionAlgorithm encryptionAlgorithm,
+            final byte @Nullable [] iv) {
         Assert.state(getOperations().contains(KeyOperation.ENCRYPT),
                 getId() + " does not have ENCRYPT operation assigned.");
         Assert.state(getOperations().contains(KeyOperation.WRAP_KEY),
@@ -120,9 +120,9 @@ public class RsaKeyVaultKeyEntity
 
     @Override
     public byte[] decryptToBytes(
-            @NonNull final byte[] encrypted,
-            @NonNull final EncryptionAlgorithm encryptionAlgorithm,
-            final byte[] iv) {
+            final byte[] encrypted,
+            final EncryptionAlgorithm encryptionAlgorithm,
+            final byte @Nullable [] iv) {
         Assert.state(getOperations().contains(KeyOperation.DECRYPT),
                 getId() + " does not have DECRYPT operation assigned.");
         Assert.state(getOperations().contains(KeyOperation.UNWRAP_KEY),

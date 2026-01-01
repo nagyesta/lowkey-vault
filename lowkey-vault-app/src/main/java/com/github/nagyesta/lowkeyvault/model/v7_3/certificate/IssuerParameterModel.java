@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.CertAuthorityType;
 import lombok.Data;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -12,8 +13,10 @@ public class IssuerParameterModel {
 
     @JsonProperty("cert_transparency")
     private boolean certTransparency;
+    @Nullable
     @JsonProperty("cty")
     private String certType;
+    @Nullable
     @JsonProperty("name")
     private String issuer;
 

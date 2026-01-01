@@ -1,6 +1,6 @@
 package com.github.nagyesta.lowkeyvault.service.key.util;
 
-import lombok.NonNull;
+import org.springframework.util.Assert;
 
 import java.time.OffsetDateTime;
 import java.time.Period;
@@ -12,7 +12,8 @@ public final class PeriodUtil {
         throw new IllegalCallerException("Utility cannot be instantiated.");
     }
 
-    public static long asDays(@NonNull final Period period) {
+    public static long asDays(final Period period) {
+        Assert.notNull(period, "Period cannot be null.");
         return asDays(period, OffsetDateTime.now());
     }
 

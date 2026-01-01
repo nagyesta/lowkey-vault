@@ -94,7 +94,9 @@ class CommonAuthHeaderFilterTest {
 
     @ParameterizedTest
     @MethodSource("authResourceProvider")
-    void testDoFilterInternalShouldSetResourceOnResponseHeaderWhenCalled(final String authResource, final URI expected)
+    void testDoFilterInternalShouldSetResourceOnResponseHeaderWhenCalled(
+            final String authResource,
+            final URI expected)
             throws ServletException, IOException {
         //given
         final var underTest = new CommonAuthHeaderFilter(authResource);
@@ -119,16 +121,5 @@ class CommonAuthHeaderFilterTest {
         //then
         Assertions.assertTrue(actual);
         verify(request, atLeastOnce()).getRequestURI();
-    }
-
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testConstructorShouldThrowExceptionWhenCalledWithNull() {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new CommonAuthHeaderFilter(null));
-
-        //then + exception
     }
 }

@@ -2,7 +2,7 @@ package com.github.nagyesta.lowkeyvault.service.secret.id;
 
 import com.github.nagyesta.lowkeyvault.service.BaseEntityId;
 import com.github.nagyesta.lowkeyvault.service.EntityId;
-import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
 
@@ -16,9 +16,9 @@ public class SecretEntityId
     }
 
     public SecretEntityId(
-            @NonNull final URI vault,
-            @NonNull final String id,
-            final String version) {
+            final URI vault,
+            final String id,
+            @Nullable final String version) {
         super(vault, id, version, "secret");
     }
 }

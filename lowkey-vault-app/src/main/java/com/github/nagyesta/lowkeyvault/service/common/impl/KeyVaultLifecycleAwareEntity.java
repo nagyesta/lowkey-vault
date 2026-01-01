@@ -2,7 +2,7 @@ package com.github.nagyesta.lowkeyvault.service.common.impl;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.Assert;
 
 import java.time.OffsetDateTime;
@@ -27,11 +27,11 @@ public class KeyVaultLifecycleAwareEntity {
         this.expiry = Optional.empty();
     }
 
-    public void setNotBefore(final OffsetDateTime notBefore) {
+    public void setNotBefore(@Nullable final OffsetDateTime notBefore) {
         this.notBefore = Optional.ofNullable(notBefore);
     }
 
-    public void setExpiry(final OffsetDateTime expiry) {
+    public void setExpiry(@Nullable final OffsetDateTime expiry) {
         this.expiry = Optional.ofNullable(expiry);
     }
 
@@ -43,11 +43,11 @@ public class KeyVaultLifecycleAwareEntity {
         expiry = expiry.map(offsetDateTime -> offsetDateTime.minusSeconds(offsetSeconds));
     }
 
-    public void setCreatedOn(@NonNull final OffsetDateTime createdOn) {
+    public void setCreatedOn(final OffsetDateTime createdOn) {
         this.created = createdOn;
     }
 
-    public void setUpdatedOn(@NonNull final OffsetDateTime updatedOn) {
+    public void setUpdatedOn(final OffsetDateTime updatedOn) {
         this.updated = updatedOn;
     }
 

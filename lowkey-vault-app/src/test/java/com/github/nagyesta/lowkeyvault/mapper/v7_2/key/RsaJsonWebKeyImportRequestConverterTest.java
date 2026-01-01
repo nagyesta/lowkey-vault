@@ -77,7 +77,9 @@ class RsaJsonWebKeyImportRequestConverterTest {
 
     @ParameterizedTest
     @MethodSource("sizeProvider")
-    void testGetKeyParameterShouldReturnTheKeySizeWhenCalledWithValidInput(final int sizeInBytes, final int expected) {
+    void testGetKeyParameterShouldReturnTheKeySizeWhenCalledWithValidInput(
+            final int sizeInBytes,
+            final int expected) {
         //given
         final var request = mock(JsonWebKeyImportRequest.class);
         when(request.getN()).thenReturn(new byte[sizeInBytes]);

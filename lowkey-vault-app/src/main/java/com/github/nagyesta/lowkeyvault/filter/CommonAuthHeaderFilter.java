@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
@@ -36,7 +35,7 @@ public class CommonAuthHeaderFilter
     private final String authResource;
 
     public CommonAuthHeaderFilter(
-            @lombok.NonNull @Value("${LOWKEY_AUTH_RESOURCE:}") final String authResource) {
+            @Value("${LOWKEY_AUTH_RESOURCE:}") final String authResource) {
         log.info("Authentication is enforced.");
         this.authResource = authResource;
     }
@@ -45,7 +44,7 @@ public class CommonAuthHeaderFilter
     protected void doFilterInternal(
             final HttpServletRequest request,
             final HttpServletResponse response,
-            @NonNull final FilterChain filterChain) throws ServletException, IOException {
+            final FilterChain filterChain) throws ServletException, IOException {
         final var baseUri = (URI) request.getAttribute(ApiConstants.REQUEST_BASE_URI);
         log.debug("Adding fake authenticate header to response for request: {}", request.getRequestURI());
         final var authResourceUri = Optional.of(authResource)
@@ -63,7 +62,7 @@ public class CommonAuthHeaderFilter
     }
 
     @Override
-    protected boolean shouldNotFilter(@NonNull final HttpServletRequest request) {
+    protected boolean shouldNotFilter(final HttpServletRequest request) {
         return ApiConstants.NON_VAULT_URIS.stream()
                 .anyMatch(pattern -> antPathMatcher.matchStart(pattern, request.getRequestURI()));
     }

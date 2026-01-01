@@ -7,6 +7,7 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.SignatureAlgorit
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Base64;
 import java.util.Optional;
@@ -20,28 +21,24 @@ public class KeyVerifyParameters {
     @NotNull
     @JsonProperty("alg")
     private SignatureAlgorithm algorithm;
-
     @NotNull
     @NotBlank
     @JsonProperty("value")
     private String value;
-
     @NotNull
     @NotBlank
     @JsonProperty("digest")
     private String digest;
-
     @JsonIgnore
-    public byte[] getValueAsBase64DecodedBytes() {
+    public byte @Nullable [] getValueAsBase64DecodedBytes() {
         return decodeOptionalStringAsBase64Bytes(value);
     }
-
     @JsonIgnore
-    public byte[] getDigestAsBase64DecodedBytes() {
+    public byte @Nullable [] getDigestAsBase64DecodedBytes() {
         return decodeOptionalStringAsBase64Bytes(digest);
     }
 
-    private byte[] decodeOptionalStringAsBase64Bytes(final String digest) {
+    private byte @Nullable [] decodeOptionalStringAsBase64Bytes(@Nullable final String digest) {
         return Optional.ofNullable(digest)
                 .map(DECODER::decode)
                 .orElse(null);

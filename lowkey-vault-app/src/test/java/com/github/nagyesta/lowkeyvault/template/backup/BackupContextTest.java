@@ -1,7 +1,6 @@
 package com.github.nagyesta.lowkeyvault.template.backup;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -18,20 +17,11 @@ class BackupContextTest {
                 .build();
     }
 
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testConstructorShouldThrowExceptionWhenCalledWithNullHost() {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new BackupContext(null, 0));
-
-        //then + exception
-    }
-
     @ParameterizedTest
     @MethodSource("validProvider")
-    void testConstructorShouldSetValuesWhenCalledWithValidData(final String host, final int port) {
+    void testConstructorShouldSetValuesWhenCalledWithValidData(
+            final String host,
+            final int port) {
         //given
 
         //when

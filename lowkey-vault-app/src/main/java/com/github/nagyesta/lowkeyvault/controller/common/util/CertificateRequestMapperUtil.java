@@ -7,6 +7,7 @@ import com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeAc
 import com.github.nagyesta.lowkeyvault.service.certificate.CertificateVaultFake;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.certificate.impl.*;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.Assert;
 
 import java.nio.charset.StandardCharsets;
@@ -83,8 +84,8 @@ public final class CertificateRequestMapperUtil {
             final String certificateName,
             final CertificatePolicyModel policy) {
         final var x509Properties = policy.getX509Properties();
-        final var issuer = policy.getIssuer();
-        final var keyProperties = policy.getKeyProperties();
+        final var issuer = Objects.requireNonNull(policy.getIssuer());
+        final var keyProperties = Objects.requireNonNull(policy.getKeyProperties());
         final var sans = Optional.ofNullable(x509Properties.getSubjectAlternativeNames());
         return CertificateCreationInput.builder()
                 .name(certificateName)
@@ -129,7 +130,7 @@ public final class CertificateRequestMapperUtil {
         }
     }
 
-    private static CertificatePropertiesModel defaultIfNull(final CertificatePropertiesModel model) {
+    private static CertificatePropertiesModel defaultIfNull(@Nullable final CertificatePropertiesModel model) {
         return Objects.requireNonNullElse(model, new CertificatePropertiesModel());
     }
 

@@ -10,26 +10,38 @@ import com.azure.security.keyvault.keys.models.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nagyesta.lowkeyvault.http.ApacheHttpClientProvider;
 import com.github.nagyesta.lowkeyvault.http.management.LowkeyVaultManagementClient;
+import org.jspecify.annotations.Nullable;
 
 import javax.crypto.SecretKey;
 import java.security.KeyPair;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 
 public class KeyTestContext extends CommonTestContext<KeyVaultKey, DeletedKey, KeyProperties, KeyClient, KeyServiceVersion> {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+    @Nullable
     private LowkeyVaultManagementClient lowkeyVaultManagementClient;
+    @Nullable
     private CryptographyClient cryptographyClient;
+    @Nullable
     private CreateRsaKeyOptions createRsaKeyOptions;
+    @Nullable
     private CreateEcKeyOptions createEcKeyOptions;
+    @Nullable
     private CreateOctKeyOptions createOctKeyOptions;
-    private KeyOperation[] updateKeyOperations;
+    private KeyOperation @Nullable [] updateKeyOperations;
+    @Nullable
     private EncryptResult encryptResult;
+    @Nullable
     private DecryptResult decryptResult;
-    private byte[] signatureResult;
+    private byte @Nullable [] signatureResult;
+    @Nullable
     private Boolean verifyResult;
+    @Nullable
     private KeyPair keyPair;
+    @Nullable
     private SecretKey secretKey;
     private KeyServiceVersion keyServiceVersion = KeyServiceVersion.getLatest();
     private CryptographyServiceVersion cryptoServiceVersion = CryptographyServiceVersion.getLatest();
@@ -54,7 +66,9 @@ public class KeyTestContext extends CommonTestContext<KeyVaultKey, DeletedKey, K
     }
 
     @Override
-    protected KeyClient providerToClient(final ApacheHttpClientProvider provider, final KeyServiceVersion version) {
+    protected KeyClient providerToClient(
+            final ApacheHttpClientProvider provider,
+            final KeyServiceVersion version) {
         return provider.getKeyClient(version);
     }
 
@@ -66,18 +80,21 @@ public class KeyTestContext extends CommonTestContext<KeyVaultKey, DeletedKey, K
     }
 
     public CryptographyClient getCryptographyClient() {
-        return cryptographyClient;
+        return Objects.requireNonNull(cryptographyClient, "Cryptography client cannot be null.");
     }
 
     public void setCryptographyClient(final CryptographyClient cryptographyClient) {
         this.cryptographyClient = cryptographyClient;
     }
 
+    @Nullable
     public CreateKeyOptions getCreateKeyOptions() {
         return Optional.<CreateKeyOptions>ofNullable(createRsaKeyOptions)
-                .orElse(Optional.<CreateKeyOptions>ofNullable(createEcKeyOptions).orElse(createOctKeyOptions));
+                .orElse(Optional.<CreateKeyOptions>ofNullable(createEcKeyOptions)
+                        .orElse(createOctKeyOptions));
     }
 
+    @Nullable
     public CreateRsaKeyOptions getCreateRsaKeyOptions() {
         return createRsaKeyOptions;
     }
@@ -86,6 +103,7 @@ public class KeyTestContext extends CommonTestContext<KeyVaultKey, DeletedKey, K
         this.createRsaKeyOptions = createRsaKeyOptions;
     }
 
+    @Nullable
     public CreateEcKeyOptions getCreateEcKeyOptions() {
         return createEcKeyOptions;
     }
@@ -94,6 +112,7 @@ public class KeyTestContext extends CommonTestContext<KeyVaultKey, DeletedKey, K
         this.createEcKeyOptions = createEcKeyOptions;
     }
 
+    @Nullable
     public CreateOctKeyOptions getCreateOctKeyOptions() {
         return createOctKeyOptions;
     }
@@ -102,12 +121,14 @@ public class KeyTestContext extends CommonTestContext<KeyVaultKey, DeletedKey, K
         this.createOctKeyOptions = createoctKeyOptions;
     }
 
-    public void addFetchedKey(final String name, final KeyVaultKey key) {
+    public void addFetchedKey(
+            final String name,
+            final KeyVaultKey key) {
         addFetchedEntity(name, key, keyVaultKey -> keyVaultKey.getProperties().getVersion());
     }
 
     public KeyOperation[] getUpdateKeyOperations() {
-        return updateKeyOperations;
+        return Objects.requireNonNull(updateKeyOperations, "Update operations cannot be null.");
     }
 
     public void setUpdateKeyOperations(final KeyOperation[] updateKeyOperations) {
@@ -115,7 +136,7 @@ public class KeyTestContext extends CommonTestContext<KeyVaultKey, DeletedKey, K
     }
 
     public EncryptResult getEncryptResult() {
-        return encryptResult;
+        return Objects.requireNonNull(encryptResult, "Encrypt result cannot be null.");
     }
 
     public void setEncryptResult(final EncryptResult encryptResult) {
@@ -123,7 +144,7 @@ public class KeyTestContext extends CommonTestContext<KeyVaultKey, DeletedKey, K
     }
 
     public DecryptResult getDecryptResult() {
-        return decryptResult;
+        return Objects.requireNonNull(decryptResult, "Decrypt result cannot be null.");
     }
 
     public void setDecryptResult(final DecryptResult decryptResult) {
@@ -131,7 +152,7 @@ public class KeyTestContext extends CommonTestContext<KeyVaultKey, DeletedKey, K
     }
 
     public byte[] getSignatureResult() {
-        return signatureResult;
+        return Objects.requireNonNull(signatureResult, "Signature result cannot be null.");
     }
 
     public void setSignatureResult(final byte[] signatureResult) {
@@ -139,7 +160,7 @@ public class KeyTestContext extends CommonTestContext<KeyVaultKey, DeletedKey, K
     }
 
     public Boolean getVerifyResult() {
-        return verifyResult;
+        return Objects.requireNonNull(verifyResult, "Verify result cannot be null.");
     }
 
     public void setVerifyResult(final Boolean verifyResult) {
@@ -147,7 +168,7 @@ public class KeyTestContext extends CommonTestContext<KeyVaultKey, DeletedKey, K
     }
 
     public KeyPair getKeyPair() {
-        return keyPair;
+        return Objects.requireNonNull(keyPair, "Key pair cannot be null.");
     }
 
     public void setKeyPair(final KeyPair keyPair) {
@@ -155,7 +176,7 @@ public class KeyTestContext extends CommonTestContext<KeyVaultKey, DeletedKey, K
     }
 
     public SecretKey getSecretKey() {
-        return secretKey;
+        return Objects.requireNonNull(secretKey, "Secret key cannot be null.");
     }
 
     public void setSecretKey(final SecretKey secretKey) {

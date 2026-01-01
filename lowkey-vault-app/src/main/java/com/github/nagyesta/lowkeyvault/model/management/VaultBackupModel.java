@@ -8,6 +8,7 @@ import com.github.nagyesta.lowkeyvault.model.common.backup.SecretBackupList;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 
@@ -19,12 +20,15 @@ public class VaultBackupModel {
     @NotNull
     @JsonProperty("attributes")
     private VaultModel attributes;
+    @Nullable
     @Valid
     @JsonProperty("keys")
     private Map<String, KeyBackupList> keys;
+    @Nullable
     @Valid
     @JsonProperty("secrets")
     private Map<String, SecretBackupList> secrets;
+    @Nullable
     @Valid
     @JsonProperty("certificates")
     private Map<String, CertificateBackupList> certificates;

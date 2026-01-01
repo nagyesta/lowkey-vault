@@ -2,6 +2,7 @@ package com.github.nagyesta.lowkeyvault.service.common;
 
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.service.EntityId;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Deque;
 import java.util.List;
@@ -33,5 +34,5 @@ public interface ReadOnlyVersionedEntityMultiMap<K extends EntityId, V extends K
 
     RecoveryLevel getRecoveryLevel();
 
-    Optional<Integer> getRecoverableDays();
+    Optional<@Nullable Integer> getRecoverableDays();
 }

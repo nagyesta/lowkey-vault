@@ -3,6 +3,7 @@ package com.github.nagyesta.lowkeyvault.http.management;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
@@ -13,7 +14,7 @@ public class EpochSecondsSerializer
 
     @Override
     public void serialize(
-            final OffsetDateTime value,
+            @Nullable final OffsetDateTime value,
             final JsonGenerator generator,
             final SerializerProvider provider) throws IOException {
         final var optionalEpochSeconds = Optional.ofNullable(value)

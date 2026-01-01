@@ -14,8 +14,7 @@ import java.util.function.UnaryOperator;
 /**
  * Modified class based on <a href="https://github.com/Azure/azure-sdk-for-java/wiki/Custom-HTTP-Clients">Azure SDK wiki</a>.
  */
-final class ApacheHttpRequest
-        extends HttpEntityEnclosingRequestBase {
+final class ApacheHttpRequest extends HttpEntityEnclosingRequestBase {
 
     private final String method;
 

@@ -5,24 +5,18 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificatePolicyModel;
-import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificateRestoreInput;
 import com.github.nagyesta.lowkeyvault.service.certificate.CertificateLifetimeActionTrigger;
 import com.github.nagyesta.lowkeyvault.service.certificate.id.CertificateEntityId;
-import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.impl.KeyVaultFakeImpl;
 import com.github.nagyesta.lowkeyvault.service.secret.impl.SecretVaultFakeImpl;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultFakeImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificateKeys.EMPTY_PASSWORD;
@@ -36,40 +30,6 @@ import static com.github.nagyesta.lowkeyvault.service.certificate.impl.CertAutho
 import static org.mockito.Mockito.*;
 
 class CertificateVaultFakeImplTest {
-
-    public static Stream<Arguments> createNullProvider() {
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null))
-                .add(Arguments.of(CERT_NAME_1, null))
-                .add(Arguments.of(null, CertificateCreationInput.builder().build()))
-                .build();
-    }
-
-    public static Stream<Arguments> importNullProvider() {
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(CERT_NAME_1, null))
-                .add(Arguments.of(null, mock(CertificateImportInput.class)))
-                .build();
-    }
-
-    public static Stream<Arguments> restoreNullProvider() {
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(VERSIONED_CERT_ENTITY_ID_1_VERSION_1, null))
-                .add(Arguments.of(null, mock(CertificateRestoreInput.class)))
-                .build();
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testConstructorShouldThrowExceptionWhenCalledWithNull() {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new CertificateVaultFakeImpl(null, null, null));
-
-        //then + exception
-    }
 
     @Test
     void testCreateVersionedIdShouldReturnVersionedIdWhenCalledWithValidInput() {
@@ -120,19 +80,6 @@ class CertificateVaultFakeImplTest {
         Assertions.assertNotNull(actual.getCertificateSigningRequest());
     }
 
-    @ParameterizedTest
-    @MethodSource("createNullProvider")
-    void testCreateCertificateVersionShouldThrowExceptionWhenCalledWithNull(final String name, final CertificateCreationInput input) {
-        //given
-        final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
-        final var underTest = vault.certificateVaultFake();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.createCertificateVersion(name, input));
-
-        //then + exception
-    }
-
     @Test
     void testImportCertificateVersionShouldGenerateCertificateAndCsrWhenCalledWithValidPkcsInput() {
         //given
@@ -169,19 +116,6 @@ class CertificateVaultFakeImplTest {
         Assertions.assertEquals("CN=localhost", actual.getCertificateSigningRequest().getSubject().toString());
     }
 
-    @ParameterizedTest
-    @MethodSource("importNullProvider")
-    void testImportCertificateVersionShouldThrowExceptionWhenCalledWithNull(final String name, final CertificateImportInput input) {
-        //given
-        final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
-        final var underTest = vault.certificateVaultFake();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.importCertificateVersion(name, input));
-
-        //then + exception
-    }
-
     @Test
     void testDeleteShouldPropagateDeletionToTheManagedKeyAndSecretWithTheSameNameWhenCalledWithValidInput() {
         //given
@@ -203,20 +137,6 @@ class CertificateVaultFakeImplTest {
         Assertions.assertTrue(vault.keyVaultFake().getDeletedEntities().containsName(CERT_NAME_1));
         Assertions.assertTrue(vault.secretVaultFake().getEntities().listLatestEntities().isEmpty());
         Assertions.assertTrue(vault.secretVaultFake().getDeletedEntities().containsName(CERT_NAME_1));
-    }
-
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testDeleteShouldShouldThrowExceptionWhenCalledWithNull() {
-        //given
-        final var vault = mock(VaultFake.class);
-        when(vault.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
-        final var underTest = prepareWithCertificateCreated(vault);
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.delete(null));
-
-        //then + exception
     }
 
     @Test
@@ -243,22 +163,6 @@ class CertificateVaultFakeImplTest {
         Assertions.assertTrue(vault.secretVaultFake().getDeletedEntities().listLatestEntities().isEmpty());
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testPurgeShouldShouldThrowExceptionWhenCalledWithNull() {
-        //given
-        final var entityId = new CertificateEntityId(HTTPS_LOCALHOST_8443, CERT_NAME_1);
-        final var vault = mock(VaultFake.class);
-        when(vault.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
-        final var underTest = prepareWithCertificateCreated(vault);
-        underTest.delete(entityId);
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.purge(null));
-
-        //then + exception
-    }
-
     @Test
     void testRecoverShouldPropagateDeletionToTheManagedKeyAndSecretWithTheSameNameWhenCalledWithValidInput() {
         //given
@@ -281,22 +185,6 @@ class CertificateVaultFakeImplTest {
         Assertions.assertTrue(vault.keyVaultFake().getDeletedEntities().listLatestEntities().isEmpty());
         Assertions.assertTrue(vault.secretVaultFake().getEntities().containsName(CERT_NAME_1));
         Assertions.assertTrue(vault.secretVaultFake().getDeletedEntities().listLatestEntities().isEmpty());
-    }
-
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testRecoverShouldShouldThrowExceptionWhenCalledWithNull() {
-        //given
-        final var entityId = new CertificateEntityId(HTTPS_LOCALHOST_8443, CERT_NAME_1);
-        final var vault = mock(VaultFake.class);
-        when(vault.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
-        final var underTest = prepareWithCertificateCreated(vault);
-        underTest.delete(entityId);
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.recover(null));
-
-        //then + exception
     }
 
     @Test
@@ -340,34 +228,6 @@ class CertificateVaultFakeImplTest {
         Assertions.assertEquals(policy.getLifetimeActions(), actual.getLifetimeActions());
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testSetLifetimeActionPolicyShouldThrowExceptionWhenCalledWithNull() {
-        //given
-        final var vault = mock(VaultFake.class);
-        when(vault.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
-        final var underTest = prepareWithCertificateCreated(vault);
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setLifetimeActionPolicy(null));
-
-        //then + exception
-    }
-
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testLifetimeActionPolicyShouldThrowExceptionWhenCalledWithNull() {
-        //given
-        final var vault = mock(VaultFake.class);
-        when(vault.baseUri()).thenReturn(HTTPS_LOCALHOST_8443);
-        final var underTest = prepareWithCertificateCreated(vault);
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.lifetimeActionPolicy(null));
-
-        //then + exception
-    }
-
     @Test
     void testLifetimeActionPolicyShouldPurgePolicyWhenEntityIsPurgedAlready() {
         //given
@@ -390,20 +250,6 @@ class CertificateVaultFakeImplTest {
         Assertions.assertNull(actual);
     }
 
-    @ParameterizedTest
-    @MethodSource("restoreNullProvider")
-    void testRestoreCertificateVersionShouldThrowExceptionWhenCalledWithNull(
-            final VersionedCertificateEntityId id, final CertificateRestoreInput input) {
-        //given
-        final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
-        final var underTest = vault.certificateVaultFake();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.restoreCertificateVersion(id, input));
-
-        //then + exception
-    }
-
     private CertificateVaultFakeImpl prepareWithCertificateCreated(final VaultFake vault) {
         final var cert = CertificateCreationInput.builder()
                 .subject("CN=" + LOCALHOST)
@@ -413,6 +259,7 @@ class CertificateVaultFakeImplTest {
                 .validityStart(NOW)
                 .validityMonths(VALIDITY_MONTHS_ONE_YEAR)
                 .contentType(CertContentType.PEM)
+                .certAuthorityType(CertAuthorityType.SELF_SIGNED)
                 .build();
         when(vault.getRecoveryLevel()).thenReturn(RECOVERABLE_AND_PURGEABLE);
         when(vault.getRecoverableDays()).thenReturn(MAX_RECOVERABLE_DAYS_INCLUSIVE);

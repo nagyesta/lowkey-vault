@@ -1,6 +1,5 @@
 package com.github.nagyesta.lowkeyvault.context.util;
 
-import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 
@@ -21,7 +20,7 @@ public final class VaultUriUtil {
     }
 
     public static URI vaultUri(
-            @NonNull final String hostname,
+            final String hostname,
             final int optionalPort) {
         final var builder = new StringBuilder(HTTPS_SCHEME).append(hostname);
         if (optionalPort != DEFAULT_HTTPS_PORT) {
@@ -35,7 +34,7 @@ public final class VaultUriUtil {
     }
 
     public static URI aliasUri(
-            @NonNull final String vaultAuthority,
+            final String vaultAuthority,
             final int serverPort) {
         if (!vaultAuthority.matches(AUTHORITY_REGEX)) {
             throw new IllegalArgumentException("Alias authority must match: " + AUTHORITY_REGEX);

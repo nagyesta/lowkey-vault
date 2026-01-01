@@ -45,7 +45,9 @@ class EpochSecondsDeserializerTest {
 
     @ParameterizedTest
     @MethodSource("valueProvider")
-    void testDeserializeShouldCreateOffsetDateTimeWhenCalled(final Long input, final OffsetDateTime expected) {
+    void testDeserializeShouldCreateOffsetDateTimeWhenCalled(
+            final Long input,
+            final OffsetDateTime expected) {
         //given
         when(parser.readValueAs(Long.class)).thenReturn(input);
 

@@ -1,53 +1,83 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_3.certificate;
 
-import com.github.nagyesta.lowkeyvault.context.ApiVersionAware;
-import com.github.nagyesta.lowkeyvault.mapper.common.BaseRecoveryAwareConverter;
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.CertificateConverterRegistry;
+import com.github.nagyesta.lowkeyvault.mapper.common.RecoveryAwareConverter;
+import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificatePolicyModel;
+import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificatePropertiesModel;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.DeletedKeyVaultCertificateModel;
 import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.KeyVaultCertificateModel;
 import com.github.nagyesta.lowkeyvault.service.certificate.ReadOnlyKeyVaultCertificateEntity;
-import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
-import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
+import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.URI;
-import java.util.SortedSet;
 
-public class CertificateEntityToV73ModelConverter
-        extends BaseRecoveryAwareConverter<VersionedCertificateEntityId, ReadOnlyKeyVaultCertificateEntity,
-        KeyVaultCertificateModel, DeletedKeyVaultCertificateModel> {
-
-    private final CertificateConverterRegistry registry;
+@Mapper(
+        componentModel = MappingConstants.ComponentModel.SPRING,
+        uses = {
+                CertificateEntityToV73PolicyModelConverter.class,
+                CertificateEntityToV73PropertiesModelConverter.class,
+        }
+)
+public abstract class CertificateEntityToV73ModelConverter
+        implements RecoveryAwareConverter<ReadOnlyKeyVaultCertificateEntity, KeyVaultCertificateModel, DeletedKeyVaultCertificateModel> {
 
     @Autowired
-    public CertificateEntityToV73ModelConverter(@NonNull final CertificateConverterRegistry registry) {
-        super(KeyVaultCertificateModel::new, DeletedKeyVaultCertificateModel::new);
-        this.registry = registry;
-    }
+    private CertificateEntityToV73PolicyModelConverter certificateEntityToV73PolicyModelConverter;
+    @Autowired
+    private CertificateEntityToV73PropertiesModelConverter certificateEntityToV73PropertiesModelConverter;
 
     @Override
-    public void afterPropertiesSet() {
-        registry.registerModelConverter(this);
-    }
-
-    @Override
-    protected <M extends KeyVaultCertificateModel> M mapActiveFields(
-            final ReadOnlyKeyVaultCertificateEntity source,
-            final M model,
+    public @Nullable KeyVaultCertificateModel convert(
+            @Nullable final ReadOnlyKeyVaultCertificateEntity source,
             final URI vaultUri) {
-        model.setId(source.getId().asUri(vaultUri).toString());
-        model.setKid(source.getKid().asUri(vaultUri).toString());
-        model.setSid(source.getSid().asUri(vaultUri).toString());
-        model.setPolicy(registry.policyConverters(supportedVersions().last()).convert(source, vaultUri));
-        model.setCertificate(source.getEncodedCertificate());
-        model.setThumbprint(source.getThumbprint());
-        model.setAttributes(registry.propertiesConverter(supportedVersions().last()).convert(source, vaultUri));
-        model.setTags(source.getTags());
-        return model;
+        if (source == null) {
+            return null;
+        }
+        return doConvert(source, vaultUri);
     }
 
+    @Named("ignore")
+    @Mapping(target = "id", expression = "java(source.getId().asUri(vaultUri).toString())")
+    @Mapping(target = "kid", expression = "java(source.getKid().asUri(vaultUri).toString())")
+    @Mapping(target = "sid", expression = "java(source.getSid().asUri(vaultUri).toString())")
+    @Mapping(target = "certificate", source = "source.encodedCertificate")
+    @Mapping(target = "attributes", expression = "java(convertAttributes(source))")
+    @Mapping(target = "policy", expression = "java(convertPolicy(source, vaultUri))")
+    public abstract KeyVaultCertificateModel doConvert(ReadOnlyKeyVaultCertificateEntity source, URI vaultUri);
+
+
     @Override
-    public SortedSet<String> supportedVersions() {
-        return ApiVersionAware.V7_3_AND_LATER;
+    public @Nullable DeletedKeyVaultCertificateModel convertDeleted(
+            @Nullable final ReadOnlyKeyVaultCertificateEntity source,
+            final URI vaultUri) {
+        if (source == null) {
+            return null;
+        }
+        return doConvertDeleted(source, vaultUri);
+    }
+
+    @Named("ignore")
+    @Mapping(target = "id", expression = "java(source.getId().asUri(vaultUri).toString())")
+    @Mapping(target = "kid", expression = "java(source.getKid().asUri(vaultUri).toString())")
+    @Mapping(target = "sid", expression = "java(source.getSid().asUri(vaultUri).toString())")
+    @Mapping(target = "recoveryId", expression = "java(source.getId().asRecoveryUri(vaultUri).toString())")
+    @Mapping(target = "certificate", source = "source.encodedCertificate")
+    @Mapping(target = "attributes", expression = "java(convertAttributes(source))")
+    @Mapping(target = "policy", expression = "java(convertPolicy(source, vaultUri))")
+    @Mapping(target = "deletedDate", expression = "java(source.getDeletedDate().orElseThrow())")
+    @Mapping(target = "scheduledPurgeDate", expression = "java(source.getScheduledPurgeDate().orElseThrow())")
+    public abstract DeletedKeyVaultCertificateModel doConvertDeleted(ReadOnlyKeyVaultCertificateEntity source, URI vaultUri);
+
+    protected @Nullable CertificatePropertiesModel convertAttributes(final ReadOnlyKeyVaultCertificateEntity source) {
+        return certificateEntityToV73PropertiesModelConverter.convert(source);
+    }
+    protected @Nullable CertificatePolicyModel convertPolicy(
+            final ReadOnlyKeyVaultCertificateEntity source,
+            final URI vaultUri) {
+        return certificateEntityToV73PolicyModelConverter.convert(source, vaultUri);
     }
 }

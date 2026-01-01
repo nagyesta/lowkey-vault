@@ -2,6 +2,7 @@ package com.github.nagyesta.lowkeyvault.model.v7_2.common.constants;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 
@@ -23,7 +24,7 @@ public enum RecoveryLevel {
         }
 
         @Override
-        public void checkValidRecoverableDays(final Integer recoverableDays) {
+        public void checkValidRecoverableDays(@Nullable final Integer recoverableDays) {
             if (recoverableDays != null) {
                 throw new IllegalArgumentException("Recoverable days must be null for PURGEABLE.");
             }
@@ -111,7 +112,7 @@ public enum RecoveryLevel {
     }
 
     @JsonCreator
-    public static RecoveryLevel forValue(final String value) {
+    public static RecoveryLevel forValue(@Nullable final String value) {
         return Arrays.stream(RecoveryLevel.values())
                 .filter(r -> r.getValue().equals(value))
                 .findFirst()
@@ -139,7 +140,7 @@ public enum RecoveryLevel {
         return false;
     }
 
-    public void checkValidRecoverableDays(final Integer recoverableDays) {
+    public void checkValidRecoverableDays(@Nullable final Integer recoverableDays) {
         if (recoverableDays == null) {
             throw new IllegalArgumentException("Recoverable days must not be null.");
         } else if (isCustomized()) {

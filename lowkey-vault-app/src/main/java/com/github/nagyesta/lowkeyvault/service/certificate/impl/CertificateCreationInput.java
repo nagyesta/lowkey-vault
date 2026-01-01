@@ -3,10 +3,11 @@ package com.github.nagyesta.lowkeyvault.service.certificate.impl;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
 import lombok.Data;
-import lombok.NonNull;
 import lombok.ToString;
+import org.jspecify.annotations.Nullable;
 
 import java.time.OffsetDateTime;
+import java.util.Objects;
 import java.util.Set;
 
 @Data
@@ -41,26 +42,29 @@ public class CertificateCreationInput
     private final boolean reuseKeyOnRenewal;
     private final boolean exportablePrivateKey;
     private final KeyType keyType;
+    @Nullable
     private final KeyCurveName keyCurveName;
+    @Nullable
     private final Integer keySize;
     private final boolean enableTransparency;
+    @Nullable
     private final String certificateType;
     private final Set<KeyUsageEnum> keyUsage;
     private final Set<String> extendedKeyUsage;
 
     CertificateCreationInput(final CertificateCreationInputBuilder builder) {
-        this.name = builder.name;
-        this.certAuthorityType = builder.certAuthorityType;
-        this.subject = builder.subject;
+        this.name = Objects.requireNonNull(builder.name);
+        this.certAuthorityType = Objects.requireNonNull(builder.certAuthorityType);
+        this.subject = Objects.requireNonNull(builder.subject);
         this.dnsNames = Set.copyOf(builder.dnsNames);
         this.emails = Set.copyOf(builder.emails);
         this.upns = Set.copyOf(builder.upns);
         this.validityMonths = builder.validityMonths;
-        this.validityStart = builder.validityStart;
-        this.contentType = builder.contentType;
+        this.validityStart = Objects.requireNonNull(builder.validityStart);
+        this.contentType = Objects.requireNonNull(builder.contentType);
         this.reuseKeyOnRenewal = builder.reuseKeyOnRenewal;
         this.exportablePrivateKey = builder.exportablePrivateKey;
-        this.keyType = builder.keyType;
+        this.keyType = Objects.requireNonNull(builder.keyType);
         this.keyCurveName = builder.keyCurveName;
         this.keySize = builder.keySize;
         this.enableTransparency = builder.enableTransparency;
@@ -75,32 +79,33 @@ public class CertificateCreationInput
 
     @ToString
     public static class CertificateCreationInputBuilder {
+        @Nullable
         private String name;
+        @Nullable
         private CertAuthorityType certAuthorityType;
+        @Nullable
         private String subject;
-        private Set<String> dnsNames;
-        private Set<String> emails;
-        private Set<String> upns;
+        private Set<String> dnsNames = Set.of();
+        private Set<String> emails = Set.of();
+        private Set<String> upns = Set.of();
         private int validityMonths;
+        @Nullable
         private OffsetDateTime validityStart;
+        @Nullable
         private CertContentType contentType;
         private boolean reuseKeyOnRenewal;
         private boolean exportablePrivateKey;
+        @Nullable
         private KeyType keyType;
+        @Nullable
         private KeyCurveName keyCurveName;
+        @Nullable
         private Integer keySize;
         private boolean enableTransparency;
+        @Nullable
         private String certificateType;
-        private Set<KeyUsageEnum> keyUsage;
-        private Set<String> extendedKeyUsage;
-
-        CertificateCreationInputBuilder() {
-            dnsNames = Set.of();
-            emails = Set.of();
-            upns = Set.of();
-            keyUsage = Set.of();
-            extendedKeyUsage = Set.of();
-        }
+        private Set<KeyUsageEnum> keyUsage = Set.of();
+        private Set<String> extendedKeyUsage = Set.of();
 
         public CertificateCreationInputBuilder name(final String name) {
             this.name = name;
@@ -117,17 +122,17 @@ public class CertificateCreationInput
             return this;
         }
 
-        public CertificateCreationInputBuilder dnsNames(@NonNull final Set<String> dnsNames) {
+        public CertificateCreationInputBuilder dnsNames(final Set<String> dnsNames) {
             this.dnsNames = Set.copyOf(dnsNames);
             return this;
         }
 
-        public CertificateCreationInputBuilder emails(@NonNull final Set<String> emails) {
+        public CertificateCreationInputBuilder emails(final Set<String> emails) {
             this.emails = Set.copyOf(emails);
             return this;
         }
 
-        public CertificateCreationInputBuilder upns(@NonNull final Set<String> upns) {
+        public CertificateCreationInputBuilder upns(final Set<String> upns) {
             this.upns = Set.copyOf(upns);
             return this;
         }
@@ -157,17 +162,17 @@ public class CertificateCreationInput
             return this;
         }
 
-        public CertificateCreationInputBuilder keyType(final KeyType keyType) {
+        public CertificateCreationInputBuilder keyType(@Nullable final KeyType keyType) {
             this.keyType = keyType;
             return this;
         }
 
-        public CertificateCreationInputBuilder keyCurveName(final KeyCurveName keyCurveName) {
+        public CertificateCreationInputBuilder keyCurveName(@Nullable final KeyCurveName keyCurveName) {
             this.keyCurveName = keyCurveName;
             return this;
         }
 
-        public CertificateCreationInputBuilder keySize(final Integer keySize) {
+        public CertificateCreationInputBuilder keySize(@Nullable final Integer keySize) {
             this.keySize = keySize;
             return this;
         }
@@ -177,17 +182,17 @@ public class CertificateCreationInput
             return this;
         }
 
-        public CertificateCreationInputBuilder certificateType(final String certificateType) {
+        public CertificateCreationInputBuilder certificateType(@Nullable final String certificateType) {
             this.certificateType = certificateType;
             return this;
         }
 
-        public CertificateCreationInputBuilder keyUsage(@NonNull final Set<KeyUsageEnum> keyUsage) {
+        public CertificateCreationInputBuilder keyUsage(final Set<KeyUsageEnum> keyUsage) {
             this.keyUsage = Set.copyOf(keyUsage);
             return this;
         }
 
-        public CertificateCreationInputBuilder extendedKeyUsage(@NonNull final Set<String> extendedKeyUsage) {
+        public CertificateCreationInputBuilder extendedKeyUsage(final Set<String> extendedKeyUsage) {
             this.extendedKeyUsage = Set.copyOf(extendedKeyUsage);
             return this;
         }

@@ -5,6 +5,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 
@@ -37,6 +39,24 @@ class PortSeparationFilterTest {
         final var response = mock(HttpServletResponse.class);
         final var chain = mock(FilterChain.class);
         when(request.isSecure()).thenReturn(true);
+        when(request.getRequestURI()).thenReturn("/management/vault");
+
+        //when
+        underTest.doFilterInternal(request, response, chain);
+
+        //then
+        verify(chain).doFilter(same(request), same(response));
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void testDoFilterInternalShouldCallChainWhenPingRequest(final boolean secure) throws ServletException, IOException {
+        //given
+        final var underTest = new PortSeparationFilter();
+        final var request = mock(HttpServletRequest.class);
+        final var response = mock(HttpServletResponse.class);
+        final var chain = mock(FilterChain.class);
+        when(request.isSecure()).thenReturn(secure);
         when(request.getRequestURI()).thenReturn("/ping");
 
         //when
@@ -71,7 +91,7 @@ class PortSeparationFilterTest {
         final var response = mock(HttpServletResponse.class);
         final var chain = mock(FilterChain.class);
         when(request.isSecure()).thenReturn(false);
-        when(request.getRequestURI()).thenReturn("/ping");
+        when(request.getRequestURI()).thenReturn("/management/vault");
 
         //when
         underTest.doFilterInternal(request, response, chain);

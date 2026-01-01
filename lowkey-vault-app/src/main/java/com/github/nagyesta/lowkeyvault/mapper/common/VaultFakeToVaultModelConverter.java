@@ -2,33 +2,29 @@ package com.github.nagyesta.lowkeyvault.mapper.common;
 
 import com.github.nagyesta.lowkeyvault.model.management.VaultModel;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Component;
+import org.jspecify.annotations.Nullable;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
+import org.mapstruct.Named;
 
-import java.util.Optional;
+import java.net.URI;
+import java.util.Set;
 
-@Component
-public class VaultFakeToVaultModelConverter
-        implements Converter<VaultFake, VaultModel> {
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+public interface VaultFakeToVaultModelConverter {
 
-    @Override
-    public VaultModel convert(@Nullable final VaultFake source) {
-        return Optional.ofNullable(source)
-                .map(this::convertNonNull)
-                .orElse(null);
+    @Mapping(target = "baseUri", source = "source", qualifiedByName = "vaultBaseUriConverter")
+    @Mapping(target = "aliases", source = "source", qualifiedByName = "vaultAliasConverter")
+    @Nullable VaultModel convert(@Nullable VaultFake source);
+
+    @Named("vaultBaseUriConverter")
+    default URI baseUri(final VaultFake source) {
+        return source.baseUri();
     }
 
-    @NonNull
-    public VaultModel convertNonNull(@NonNull final VaultFake fake) {
-        final var model = new VaultModel();
-        model.setBaseUri(fake.baseUri());
-        model.setAliases(fake.aliases());
-        model.setRecoveryLevel(fake.getRecoveryLevel());
-        model.setRecoverableDays(fake.getRecoverableDays());
-        model.setCreatedOn(fake.getCreatedOn());
-        model.setDeletedOn(fake.getDeletedOn());
-        return model;
+    @Named("vaultAliasConverter")
+    default Set<URI> aliases(final VaultFake source) {
+        return source.aliases();
     }
 }

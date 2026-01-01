@@ -4,6 +4,7 @@ import com.azure.core.credential.BasicAuthenticationCredential;
 import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.SecretClientBuilder;
 import com.azure.security.keyvault.secrets.SecretServiceVersion;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.BindMode;
@@ -41,9 +42,12 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
     @SuppressWarnings("java:S1075") //this is not supposed to be configurable
     private static final String TOKEN_ENDPOINT_PATH = "/metadata/identity/oauth2/token";
     private final HttpClient httpClient = HttpClient.newHttpClient();
+    @Nullable
     private final Integer logicalPort;
     private final boolean mergeTrustStores;
+    @Nullable
     private final List<ContainerDependency<?>> dependsOnContainers;
+    @Nullable
     private final Function<LowkeyVaultContainer, Map<String, String>> lowkeyVaultSystemPropertySupplier;
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private Optional<KeyStoreMerger> keyStoreMerger = Optional.empty();
@@ -92,7 +96,7 @@ public class LowkeyVaultContainer extends GenericContainer<LowkeyVaultContainer>
         }
 
         final var argLineBuilder = new LowkeyVaultArgLineBuilder()
-                .vaultNames(Objects.requireNonNullElse(containerBuilder.getVaultNames(), Set.of()))
+                .vaultNames(containerBuilder.getVaultNames())
                 .aliases(containerBuilder.getAliasMap())
                 .logicalHost(containerBuilder.getLogicalHost())
                 .logicalPort(containerBuilder.getLogicalPort());

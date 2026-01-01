@@ -7,10 +7,10 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.request.JsonWebKeyImportRe
 import com.github.nagyesta.lowkeyvault.service.exception.CryptoException;
 import com.github.nagyesta.lowkeyvault.service.key.util.KeyGenUtil;
 import lombok.Getter;
-import lombok.NonNull;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.openssl.jcajce.JcaPKCS8Generator;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.Assert;
 
 import java.io.ByteArrayInputStream;
@@ -24,9 +24,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
+import java.util.*;
 
 import static com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType.EC;
 import static com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType.RSA;
@@ -42,8 +40,9 @@ public enum CertContentType {
 
         @Override
         public List<Certificate> getCertificateChain(
-                @NonNull final String certificateContent,
-                @NonNull final String password) {
+                final String certificateContent,
+                @Nullable final String password) {
+            Assert.notNull(password, "Password must not be null.");
             try {
                 final var pkcs12 = loadKeyStore(certificateContent, password);
                 final var alias = pkcs12.aliases().asIterator().next();
@@ -55,12 +54,13 @@ public enum CertContentType {
 
         @Override
         public JsonWebKeyImportRequest getKey(
-                @NonNull final String certificateContent,
-                                              @NonNull final String password) {
+                final String certificateContent,
+                @Nullable final String password) {
+            Assert.notNull(password, "Password must not be null.");
             try {
                 final var pkcs12 = loadKeyStore(certificateContent, password);
                 final var alias = pkcs12.aliases().asIterator().next();
-                final var parsedKey = pkcs12.getKey(alias, "".toCharArray());
+                final var parsedKey = Objects.requireNonNull(pkcs12.getKey(alias, "".toCharArray()));
                 if (parsedKey instanceof final RSAPrivateCrtKey rsaPrivateCrtKey) {
                     return RSA_KEY_CONVERTER.convert(rsaPrivateCrtKey);
                 } else {
@@ -73,16 +73,16 @@ public enum CertContentType {
 
         @Override
         public String asBase64CertificatePackage(
-                @NonNull final Certificate certificate,
-                                                 @NonNull final KeyPair keyPair) throws CryptoException {
+                final Certificate certificate,
+                final KeyPair keyPair) throws CryptoException {
             final var bytes = generateCertificatePackage(certificate, keyPair, DEFAULT_PASSWORD);
             return encodeAsBase64String(bytes);
         }
 
         @Override
         public byte[] certificatePackageForBackup(
-                @NonNull final Certificate certificate,
-                                                  @NonNull final KeyPair keyPair) throws CryptoException {
+                final Certificate certificate,
+                final KeyPair keyPair) throws CryptoException {
             return generateCertificatePackage(certificate, keyPair, BACKUP_PASSWORD);
         }
 
@@ -104,10 +104,11 @@ public enum CertContentType {
 
         private KeyStore loadKeyStore(
                 final String certificateContent,
-                final String password)
+                final @Nullable String password)
                 throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
             final var pkcs12 = KeyStore.getInstance(KEY_STORE_TYPE_PKCS12, KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
-            pkcs12.load(new ByteArrayInputStream(decodeBase64String(certificateContent)), password.toCharArray());
+            final var usePass = Optional.ofNullable(password).orElse("");
+            pkcs12.load(new ByteArrayInputStream(decodeBase64String(certificateContent)), usePass.toCharArray());
             return pkcs12;
         }
     },
@@ -117,8 +118,8 @@ public enum CertContentType {
     PEM("application/x-pem-file") {
         @Override
         public List<Certificate> getCertificateChain(
-                @NonNull final String certificateContent,
-                final String password) {
+                final String certificateContent,
+                @Nullable final String password) {
             try {
                 validatePem(certificateContent);
                 final var encodedCertificate = extractByteArray(certificateContent,
@@ -132,8 +133,8 @@ public enum CertContentType {
 
         @Override
         public JsonWebKeyImportRequest getKey(
-                @NonNull final String certificateContent,
-                                              final String password) {
+                final String certificateContent,
+                @Nullable final String password) {
             try {
                 validatePem(certificateContent);
                 final var encodedKey = extractByteArray(certificateContent,
@@ -142,9 +143,9 @@ public enum CertContentType {
                 final var kf = KeyFactory.getInstance(keyType.getAlgorithmName(), KeyGenUtil.BOUNCY_CASTLE_PROVIDER);
                 final var privateSpec = new PKCS8EncodedKeySpec(encodedKey);
                 if (RSA == keyType) {
-                    return RSA_KEY_CONVERTER.convert((RSAPrivateCrtKey) kf.generatePrivate(privateSpec));
+                    return Objects.requireNonNull(RSA_KEY_CONVERTER.convert((RSAPrivateCrtKey) kf.generatePrivate(privateSpec)));
                 } else {
-                    return EC_KEY_CONVERTER.convert((BCECPrivateKey) kf.generatePrivate(privateSpec));
+                    return Objects.requireNonNull(EC_KEY_CONVERTER.convert((BCECPrivateKey) kf.generatePrivate(privateSpec)));
                 }
             } catch (final Exception e) {
                 throw new CryptoException("Failed to extract key from PEM", e);
@@ -153,8 +154,8 @@ public enum CertContentType {
 
         @Override
         public String asBase64CertificatePackage(
-                @NonNull final Certificate certificate,
-                                                 @NonNull final KeyPair keyPair) throws CryptoException {
+                final Certificate certificate,
+                final KeyPair keyPair) throws CryptoException {
             final var key = toPemString(keyPair.getPrivate());
             final var cert = toPemString(certificate);
             return key + cert;
@@ -162,8 +163,8 @@ public enum CertContentType {
 
         @Override
         public byte[] certificatePackageForBackup(
-                @org.springframework.lang.NonNull final Certificate certificate,
-                @org.springframework.lang.NonNull final KeyPair keyPair) throws CryptoException {
+                final Certificate certificate,
+                final KeyPair keyPair) throws CryptoException {
             return asBase64CertificatePackage(certificate, keyPair).getBytes(StandardCharsets.UTF_8);
         }
 
@@ -241,9 +242,9 @@ public enum CertContentType {
                 .orElse(PEM);
     }
 
-    public abstract List<Certificate> getCertificateChain(String certificateContent, String password);
+    public abstract List<Certificate> getCertificateChain(String certificateContent, @Nullable String password);
 
-    public abstract JsonWebKeyImportRequest getKey(String certificateContent, String password) throws CryptoException;
+    public abstract JsonWebKeyImportRequest getKey(String certificateContent, @Nullable String password) throws CryptoException;
 
     public abstract String asBase64CertificatePackage(Certificate certificate, KeyPair keyPair) throws CryptoException;
 

@@ -27,16 +27,4 @@ class EcPrivateKeyToJsonWebKeyImportRequestConverterTest {
         Assertions.assertNotNull(actual.getX());
         Assertions.assertNotNull(actual.getY());
     }
-
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testConvertShouldThrowExceptionWhenCalledWithNull() {
-        //given
-        final var underTest = new EcPrivateKeyToJsonWebKeyImportRequestConverter();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.convert(null));
-
-        //then + exceptions
-    }
 }

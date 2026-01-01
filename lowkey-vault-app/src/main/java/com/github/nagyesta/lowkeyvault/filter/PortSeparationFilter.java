@@ -21,7 +21,6 @@ public class PortSeparationFilter
 
     static final int PRECEDENCE = 50;
 
-    @SuppressWarnings("NullableProblems")
     @Override
     protected void doFilterInternal(
             final HttpServletRequest request,
@@ -29,10 +28,11 @@ public class PortSeparationFilter
             final FilterChain filterChain)
             throws ServletException, IOException {
         final var secure = request.isSecure();
+        final var isPingRequest = request.getRequestURI().equals("/ping");
         final var isTokenRequest = request.getRequestURI().startsWith("/metadata/");
         final var unsecureTokenRequest = isTokenRequest && !secure;
         final var secureVaultRequest = !isTokenRequest && secure;
-        if (unsecureTokenRequest || secureVaultRequest) {
+        if (isPingRequest || unsecureTokenRequest || secureVaultRequest) {
             filterChain.doFilter(request, response);
         } else {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);

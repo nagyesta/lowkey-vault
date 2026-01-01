@@ -48,7 +48,9 @@ class EpochSecondsSerializerTest {
 
     @ParameterizedTest
     @MethodSource("valueProvider")
-    void testSerializeShouldConvertOffsetDateTimeWhenCalled(final OffsetDateTime input, final Long expected) {
+    void testSerializeShouldConvertOffsetDateTimeWhenCalled(
+            final OffsetDateTime input,
+            final Long expected) {
         //given
         doReturn(generator).when(generator).writeNumber(output.capture());
 

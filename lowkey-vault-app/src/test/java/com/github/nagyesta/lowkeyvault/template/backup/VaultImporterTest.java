@@ -2,49 +2,16 @@ package com.github.nagyesta.lowkeyvault.template.backup;
 
 import com.github.nagyesta.lowkeyvault.model.management.VaultBackupListModel;
 import jakarta.validation.Validation;
-import jakarta.validation.Validator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.File;
-import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.HTTP_PORT;
 import static com.github.nagyesta.lowkeyvault.TestConstants.LOCALHOST;
-import static org.mockito.Mockito.mock;
 
 class VaultImporterTest {
-
-    public static Stream<Arguments> nullProvider() {
-        final var properties = mock(VaultImporterProperties.class);
-        final var processor = mock(BackupTemplateProcessor.class);
-        final var mapper = mock(ObjectMapper.class);
-        final var validator = mock(Validator.class);
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(null, processor, mapper, validator))
-                .add(Arguments.of(properties, null, mapper, validator))
-                .add(Arguments.of(properties, processor, null, validator))
-                .add(Arguments.of(properties, processor, mapper, null))
-                .build();
-    }
-
-    @ParameterizedTest
-    @MethodSource("nullProvider")
-    void testConstructorShouldThrowExceptionWhenCalledWithNulls(
-            final VaultImporterProperties vaultImporterProperties, final BackupTemplateProcessor backupTemplateProcessor,
-            final ObjectMapper objectMapper, final Validator validator) {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                new VaultImporter(vaultImporterProperties, backupTemplateProcessor, objectMapper, validator));
-
-        //then + exception
-    }
 
     @Test
     void testAssertValidShouldThrowExceptionWhenValueIsInvalid() {

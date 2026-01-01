@@ -92,10 +92,10 @@ class Base64ZipCertificateSerializerDeserializerIntegrationTest {
 
     private CertificatePropertiesModel getCertificatePropertiesModel() {
         final var propertiesModel = new CertificatePropertiesModel();
-        propertiesModel.setCreatedOn(TIME_10_MINUTES_AGO);
-        propertiesModel.setUpdatedOn(NOW.minusSeconds(1));
+        propertiesModel.setCreated(TIME_10_MINUTES_AGO);
+        propertiesModel.setUpdated(NOW.minusSeconds(1));
         propertiesModel.setNotBefore(NOW);
-        propertiesModel.setExpiresOn(TIME_IN_10_MINUTES);
+        propertiesModel.setExpiry(TIME_IN_10_MINUTES);
         propertiesModel.setEnabled(true);
         propertiesModel.setRecoveryLevel(RecoveryLevel.PURGEABLE);
         propertiesModel.setRecoverableDays(null);

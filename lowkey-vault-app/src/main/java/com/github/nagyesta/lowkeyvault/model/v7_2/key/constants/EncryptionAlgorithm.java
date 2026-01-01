@@ -3,6 +3,7 @@ package com.github.nagyesta.lowkeyvault.model.v7_2.key.constants;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 
@@ -39,7 +40,7 @@ public enum EncryptionAlgorithm {
     }
 
     @JsonCreator
-    public static EncryptionAlgorithm forValue(final String name) {
+    public static @Nullable EncryptionAlgorithm forValue(@Nullable final String name) {
         return Arrays.stream(values())
                 .filter(algorithm -> algorithm.getValue().equals(name))
                 .findFirst()

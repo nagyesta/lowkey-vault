@@ -10,6 +10,7 @@ import com.github.nagyesta.lowkeyvault.service.key.impl.EcKeyCreationInput;
 import com.github.nagyesta.lowkeyvault.service.key.impl.KeyCreationInput;
 import com.github.nagyesta.lowkeyvault.service.key.impl.OctKeyCreationInput;
 import com.github.nagyesta.lowkeyvault.service.key.impl.RsaKeyCreationInput;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.Assert;
 
 import java.util.Arrays;
@@ -245,8 +246,11 @@ public enum KeyType {
     }
 
     @JsonCreator
-    public static KeyType forValue(final String name) {
-        return Arrays.stream(values()).filter(keyType -> keyType.getValue().equals(name)).findFirst().orElse(null);
+    public static @Nullable KeyType forValue(@Nullable final String name) {
+        return Arrays.stream(values())
+                .filter(keyType -> keyType.getValue().equals(name))
+                .findFirst()
+                .orElse(null);
     }
 
     @JsonValue
@@ -302,7 +306,7 @@ public enum KeyType {
     }
 
     public <E> void validate(
-            final E value,
+            @Nullable final E value,
             final Class<E> type) {
         final var validKeyParameters = getValidKeyParameters(type);
         Assert.isTrue(value == null || validKeyParameters.contains(value),
@@ -310,7 +314,7 @@ public enum KeyType {
     }
 
     public <E> E validateOrDefault(
-            final E value,
+            @Nullable final E value,
             final Class<E> type) {
         validate(value, type);
         return Objects.requireNonNullElse(value, getValidKeyParameters(type).first());

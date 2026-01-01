@@ -9,9 +9,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.github.nagyesta.lowkeyvault.http.management.*;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import reactor.util.annotation.Nullable;
+import org.apache.http.HttpStatus;
+import org.jspecify.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -51,9 +51,9 @@ public final class LowkeyVaultManagementClientImpl
     private final ObjectWriter objectWriter;
 
     public LowkeyVaultManagementClientImpl(
-            @NonNull final String vaultUrl,
-            @NonNull final HttpClient instance,
-            @NonNull final ObjectMapper objectMapper) {
+            final String vaultUrl,
+            final HttpClient instance,
+            final ObjectMapper objectMapper) {
         this.vaultUrl = vaultUrl;
         this.instance = instance;
         this.objectReader = objectMapper.reader();
@@ -64,7 +64,7 @@ public final class LowkeyVaultManagementClientImpl
     public <T extends Throwable> void verifyConnectivity(
             final int retries,
             final int waitMillis,
-            @NonNull final Supplier<T> exceptionProvider) throws T, InterruptedException {
+            final Supplier<T> exceptionProvider) throws T, InterruptedException {
         final var request = new HttpRequest(HttpMethod.GET, vaultUrl + PING_PATH);
         for (var i = 0; i < retries; i++) {
             Thread.sleep(waitMillis);
@@ -77,8 +77,8 @@ public final class LowkeyVaultManagementClientImpl
 
     @Override
     public VaultModel createVault(
-            @NonNull final URI baseUri,
-            @NonNull final RecoveryLevel recoveryLevel,
+            final URI baseUri,
+            final RecoveryLevel recoveryLevel,
             @Nullable final Integer recoverableDays) {
         final var body = vaultModelAsString(baseUri, recoveryLevel, recoverableDays);
         final var uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_PATH);
@@ -103,14 +103,14 @@ public final class LowkeyVaultManagementClientImpl
     }
 
     @Override
-    public boolean delete(@NonNull final URI baseUri) {
+    public boolean delete(final URI baseUri) {
         final var uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_PATH, Map.of(BASE_URI_QUERY_PARAM, baseUri.toString()));
         final var request = new HttpRequest(HttpMethod.DELETE, uri.toString());
         return sendAndProcess(request, r -> r.getResponseObject(Boolean.class));
     }
 
     @Override
-    public VaultModel recover(@NonNull final URI baseUri) {
+    public VaultModel recover(final URI baseUri) {
         final var parameters = Map.of(BASE_URI_QUERY_PARAM, baseUri.toString());
         final var uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_RECOVERY_PATH, parameters);
         final var request = new HttpRequest(HttpMethod.PUT, uri.toString())
@@ -120,8 +120,8 @@ public final class LowkeyVaultManagementClientImpl
 
     @Override
     public VaultModel addAlias(
-            @NonNull final URI baseUri,
-            @NonNull final URI alias) {
+            final URI baseUri,
+            final URI alias) {
         return performAliasUpdate(new TreeMap<>(
                 Map.of(BASE_URI_QUERY_PARAM, baseUri.toString(), ALIAS_URI_ADD_QUERY_PARAM, alias.toString())
         ));
@@ -129,15 +129,15 @@ public final class LowkeyVaultManagementClientImpl
 
     @Override
     public VaultModel removeAlias(
-            @NonNull final URI baseUri,
-            @NonNull final URI alias) {
+            final URI baseUri,
+            final URI alias) {
         return performAliasUpdate(new TreeMap<>(
                 Map.of(BASE_URI_QUERY_PARAM, baseUri.toString(), ALIAS_URI_REMOVE_QUERY_PARAM, alias.toString())
         ));
     }
 
     @Override
-    public boolean purge(@NonNull final URI baseUri) {
+    public boolean purge(final URI baseUri) {
         final var parameters = Map.of(BASE_URI_QUERY_PARAM, baseUri.toString());
         final var uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_PURGE_PATH, parameters);
         final var request = new HttpRequest(HttpMethod.DELETE, uri.toString());
@@ -145,7 +145,7 @@ public final class LowkeyVaultManagementClientImpl
     }
 
     @Override
-    public void timeShift(@NonNull final TimeShiftContext context) {
+    public void timeShift(final TimeShiftContext context) {
         final Map<String, String> parameters = new TreeMap<>();
         parameters.put(SECONDS_QUERY_PARAM, Integer.toString(context.seconds()));
         if (context.regenerateCertificates()) {
@@ -161,7 +161,7 @@ public final class LowkeyVaultManagementClientImpl
     }
 
     @Override
-    public String exportActive() {
+    public @Nullable String exportActive() {
         final var uri = UriUtil.uriBuilderForPath(vaultUrl, MANAGEMENT_VAULT_EXPORT_ACTIVE_PATH);
         final var request = new HttpRequest(HttpMethod.GET, uri.toString());
         return sendRaw(request).getResponseBodyAsString();
@@ -169,9 +169,7 @@ public final class LowkeyVaultManagementClientImpl
 
     @Override
     public String unpackBackup(final byte[] backup) throws IOException {
-        final var nonNullBackup = Optional.ofNullable(backup)
-                .orElseThrow(() -> new IllegalArgumentException("Backup cannot be null"));
-        try (var byteArrayInputStream = new ByteArrayInputStream(nonNullBackup);
+        try (var byteArrayInputStream = new ByteArrayInputStream(backup);
              var gzipInputStream = new GZIPInputStream(byteArrayInputStream)) {
             final var json = new String(gzipInputStream.readAllBytes());
             return objectReader.readTree(json).toPrettyString();
@@ -179,7 +177,7 @@ public final class LowkeyVaultManagementClientImpl
     }
 
     @Override
-    public byte[] compressBackup(@NonNull final String backup) throws IOException {
+    public byte[] compressBackup(final String backup) throws IOException {
         try (var byteArrayOutputStream = new ByteArrayOutputStream();
              var gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream)) {
             gzipOutputStream.write(backup.getBytes(StandardCharsets.UTF_8));
@@ -199,7 +197,7 @@ public final class LowkeyVaultManagementClientImpl
     String vaultModelAsString(
             final URI baseUri,
             final RecoveryLevel recoveryLevel,
-            final Integer recoverableDays) {
+            @Nullable final Integer recoverableDays) {
         try {
             return objectWriter.writeValueAsString(new VaultModel(baseUri, null, recoveryLevel, recoverableDays, null, null));
         } catch (final JsonProcessingException e) {
@@ -222,13 +220,13 @@ public final class LowkeyVaultManagementClientImpl
         return responseEntity;
     }
 
-    private boolean isSuccessful(final ResponseEntity responseEntity) {
+    private boolean isSuccessful(@Nullable final ResponseEntity responseEntity) {
         return Optional.ofNullable(responseEntity)
                 .map(ResponseEntity::isSuccessful)
                 .orElse(false);
     }
 
-    private ResponseEntity doSend(final HttpRequest request) {
+    private @Nullable ResponseEntity doSend(final HttpRequest request) {
         try {
             return doSendNotNull(request);
         } catch (final LowkeyVaultException e) {
@@ -238,6 +236,9 @@ public final class LowkeyVaultManagementClientImpl
 
     private ResponseEntity doSendNotNull(final HttpRequest request) {
         try (var response = instance.send(request).block()) {
+            if (response != null && response.getStatusCode() == HttpStatus.SC_BAD_REQUEST) {
+                throw new LowkeyVaultException("Bad request: " + response.getBodyAsString(StandardCharsets.UTF_8).block());
+            }
             return new ResponseEntity(Objects.requireNonNull(response), objectReader);
         } catch (final Exception e) {
             log.info("Call to container failed: {}", e.getMessage());

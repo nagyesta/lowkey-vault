@@ -31,8 +31,10 @@ public abstract class BaseKeyBackupRestoreControllerIntegrationTest {
     protected URI uri;
 
     protected void assertRestoredKeyMatchesExpectations(
-            final KeyVaultKeyModel actualBody, final ECPublicKey publicKey,
-            final String version, final Map<String, String> expectedTags) {
+            final KeyVaultKeyModel actualBody,
+            final ECPublicKey publicKey,
+            final String version,
+            final Map<String, String> expectedTags) {
         Assertions.assertEquals(new VersionedKeyEntityId(uri, KEY_NAME_1, version).asUri(uri).toString(), actualBody.getKey().getId());
         Assertions.assertEquals(KeyCurveName.P_256, actualBody.getKey().getCurveName());
         Assertions.assertEquals(KeyType.EC, actualBody.getKey().getKeyType());
@@ -43,18 +45,22 @@ public abstract class BaseKeyBackupRestoreControllerIntegrationTest {
         Assertions.assertArrayEquals(expectedY, actualBody.getKey().getY());
         //do not return private key material in response
         Assertions.assertNull(actualBody.getKey().getD());
-        Assertions.assertEquals(TIME_10_MINUTES_AGO, actualBody.getAttributes().getCreatedOn());
-        Assertions.assertEquals(NOW, actualBody.getAttributes().getUpdatedOn());
+        Assertions.assertEquals(TIME_10_MINUTES_AGO, actualBody.getAttributes().getCreated());
+        Assertions.assertEquals(NOW, actualBody.getAttributes().getUpdated());
         Assertions.assertEquals(TIME_IN_10_MINUTES, actualBody.getAttributes().getNotBefore());
-        Assertions.assertEquals(TIME_IN_10_MINUTES.plusDays(1), actualBody.getAttributes().getExpiresOn());
+        Assertions.assertEquals(TIME_IN_10_MINUTES.plusDays(1), actualBody.getAttributes().getExpiry());
         Assertions.assertEquals(RecoveryLevel.RECOVERABLE_AND_PURGEABLE, actualBody.getAttributes().getRecoveryLevel());
         Assertions.assertEquals(RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE, actualBody.getAttributes().getRecoverableDays());
         Assertions.assertTrue(actualBody.getAttributes().isEnabled());
         Assertions.assertEquals(expectedTags, actualBody.getTags());
     }
 
-    protected KeyPair addVersionToList(final URI baseUri, final String name, final String version,
-                                       final KeyBackupModel backupModel, final Map<String, String> tags) {
+    protected KeyPair addVersionToList(
+            final URI baseUri,
+            final String name,
+            final String version,
+            final KeyBackupModel backupModel,
+            final Map<String, String> tags) {
         final var keyPair = KeyGenUtil.generateEc(KeyCurveName.P_256);
         final var keyMaterial = new JsonWebKeyImportRequest();
         keyMaterial.setKeyType(KeyType.EC);
@@ -71,10 +77,10 @@ public abstract class BaseKeyBackupRestoreControllerIntegrationTest {
         listItem.setId(name);
         listItem.setVersion(version);
         final var propertiesModel = new KeyPropertiesModel();
-        propertiesModel.setCreatedOn(TIME_10_MINUTES_AGO);
-        propertiesModel.setUpdatedOn(NOW);
+        propertiesModel.setCreated(TIME_10_MINUTES_AGO);
+        propertiesModel.setUpdated(NOW);
         propertiesModel.setNotBefore(TIME_IN_10_MINUTES);
-        propertiesModel.setExpiresOn(TIME_IN_10_MINUTES.plusDays(1));
+        propertiesModel.setExpiry(TIME_IN_10_MINUTES.plusDays(1));
         propertiesModel.setRecoveryLevel(RecoveryLevel.RECOVERABLE_AND_PURGEABLE);
         propertiesModel.setRecoverableDays(RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE);
         listItem.setAttributes(propertiesModel);
@@ -85,7 +91,9 @@ public abstract class BaseKeyBackupRestoreControllerIntegrationTest {
         return keyPair;
     }
 
-    private byte[] normalize(final byte[] bytes, final int expectedLength) {
+    private byte[] normalize(
+            final byte[] bytes,
+            final int expectedLength) {
         if (expectedLength < bytes.length) {
             return Arrays.copyOfRange(bytes, bytes.length - expectedLength, bytes.length);
         } else {

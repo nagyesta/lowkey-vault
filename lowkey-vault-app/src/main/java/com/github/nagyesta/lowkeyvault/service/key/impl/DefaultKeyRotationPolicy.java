@@ -8,8 +8,7 @@ import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
 import java.time.Period;
 import java.util.Map;
 
-public class DefaultKeyRotationPolicy
-        extends KeyRotationPolicy {
+public class DefaultKeyRotationPolicy extends KeyRotationPolicy {
 
     private static final KeyLifetimeActionTrigger TRIGGER_30_DAYS_BEFORE_EXPIRY =
             new KeyLifetimeActionTrigger(Period.ofDays(30), LifetimeActionTriggerType.TIME_BEFORE_EXPIRY);

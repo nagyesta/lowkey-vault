@@ -2,7 +2,6 @@ package com.github.nagyesta.lowkeyvault.service.common.impl;
 
 import com.github.nagyesta.lowkeyvault.TestConstants;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
-import com.github.nagyesta.lowkeyvault.service.common.VersionedEntityMultiMap;
 import com.github.nagyesta.lowkeyvault.service.exception.NotFoundException;
 import com.github.nagyesta.lowkeyvault.service.key.ReadOnlyKeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.key.id.KeyEntityId;
@@ -21,8 +20,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.*;
@@ -52,49 +49,11 @@ class ConcurrentVersionedEntityMultiMapTest {
     private RsaKeyVaultKeyEntity key3Version2Mock;
     private AutoCloseable openMocks;
 
-    public static Stream<Arguments> nullProvider() {
-        final BiFunction<String, String, VersionedKeyEntityId> function = (i, v) -> VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
-        final var days = RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE;
-        final var level = RecoveryLevel.RECOVERABLE;
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null, false))
-                .add(Arguments.of(level, null, null, false))
-                .add(Arguments.of(null, days, null, false))
-                .add(Arguments.of(null, null, function, false))
-                .add(Arguments.of(null, days, function, false))
-                .add(Arguments.of(level, null, function, false))
-                .add(Arguments.of(level, days, null, false))
-                .add(Arguments.of(null, null, null, true))
-                .add(Arguments.of(level, null, null, true))
-                .add(Arguments.of(null, days, null, true))
-                .add(Arguments.of(null, null, function, true))
-                .add(Arguments.of(null, days, function, true))
-                .add(Arguments.of(level, null, function, true))
-                .add(Arguments.of(level, days, null, true))
-                .build();
-    }
-
     public static Stream<Arguments> recoveryProvider() {
         return Stream.<Arguments>builder()
                 .add(Arguments.of(RecoveryLevel.PURGEABLE, null))
                 .add(Arguments.of(RecoveryLevel.RECOVERABLE_AND_PURGEABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE))
                 .add(Arguments.of(RecoveryLevel.CUSTOMIZED_RECOVERABLE, RecoveryLevel.MIN_RECOVERABLE_DAYS_INCLUSIVE))
-                .build();
-    }
-
-    public static Stream<Arguments> moveToNullProvider() {
-        final var key = UNVERSIONED_KEY_ENTITY_ID_1;
-        final var dest = new ConcurrentVersionedEntityMultiMap<>(RecoveryLevel.RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE,
-                (i, v) -> new VersionedKeyEntityId(HTTPS_LOCALHOST_8443, i, v), false);
-        final UnaryOperator<KeyVaultKeyEntity<?, ?>> function = same -> same;
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null))
-                .add(Arguments.of(key, null, null))
-                .add(Arguments.of(null, dest, null))
-                .add(Arguments.of(null, null, function))
-                .add(Arguments.of(null, dest, function))
-                .add(Arguments.of(key, null, function))
-                .add(Arguments.of(key, dest, null))
                 .build();
     }
 
@@ -108,26 +67,6 @@ class ConcurrentVersionedEntityMultiMapTest {
     @AfterEach
     void tearDown() throws Exception {
         openMocks.close();
-    }
-
-
-    @ParameterizedTest
-    @MethodSource("nullProvider")
-    void testConstructorShouldThrowExceptionWhenCalledWithNulls(
-            final RecoveryLevel recoveryLevel,
-            final Integer recoverableDays,
-            final BiFunction<String, String, VersionedKeyEntityId> versionCreateFunction,
-            final boolean deleted) {
-        //given
-        putAllMocks();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new ConcurrentVersionedEntityMultiMap
-                        <KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity, KeyVaultKeyEntity<?, ?>>(
-                        recoveryLevel, recoverableDays, versionCreateFunction, deleted));
-
-        //then + exception
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")
@@ -202,18 +141,6 @@ class ConcurrentVersionedEntityMultiMapTest {
         Assertions.assertIterableEquals(List.of(KEY_VERSION_1, KEY_VERSION_2), actual);
     }
 
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testGetVersionsShouldThrowExceptionWhenCalledWithNull() {
-        //given
-        putAllMocks();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.getVersions(null));
-
-        //then + exception
-    }
-
     @Test
     void testGetVersionsShouldThrowExceptionWhenCalledWithNotFoundEntity() {
         //given
@@ -259,18 +186,6 @@ class ConcurrentVersionedEntityMultiMapTest {
         Assertions.assertFalse(actual);
     }
 
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testContainsNameShouldThrowExceptionWhenCalledWithNull() {
-        //given
-        putAllMocks();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.containsName(null));
-
-        //then + exception
-    }
-
     @Test
     void testContainsEntityShouldReturnTrueWhenCalledWithExistingKey() {
         //given
@@ -306,18 +221,6 @@ class ConcurrentVersionedEntityMultiMapTest {
         Assertions.assertFalse(actual);
     }
 
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testContainsEntityShouldThrowExceptionWhenCalledWithNull() {
-        //given
-        putAllMocks();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.containsEntity(null));
-
-        //then + exception
-    }
-
 
     @Test
     void testAssertContainsEntityShouldSucceedWhenCalledWithExistingKey() {
@@ -337,18 +240,6 @@ class ConcurrentVersionedEntityMultiMapTest {
 
         //when
         Assertions.assertThrows(NotFoundException.class, () -> underTest.assertContainsEntity(VERSIONED_KEY_ENTITY_ID_3_VERSION_3));
-
-        //then + exception
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testAssertContainsEntityShouldThrowExceptionWhenCalledWithNull() {
-        //given
-        putAllMocks();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.assertContainsEntity(null));
 
         //then + exception
     }
@@ -375,18 +266,6 @@ class ConcurrentVersionedEntityMultiMapTest {
         Assertions.assertEquals(VERSIONED_KEY_ENTITY_ID_3_VERSION_2, actual);
     }
 
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testGetLatestVersionOfEntityShouldThrowExceptionWhenCalledWithNull() {
-        //given
-        putAllMocks();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.getLatestVersionOfEntity(null));
-
-        //then + exception
-    }
-
     @Test
     void testGetReadOnlyEntityShouldReturnEntityWhenCalledWithExistingKey() {
         //given
@@ -410,52 +289,6 @@ class ConcurrentVersionedEntityMultiMapTest {
         //then + exception
     }
 
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testGetReadOnlyEntityShouldThrowExceptionWhenCalledWithNull() {
-        //given
-        putAllMocks();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.getReadOnlyEntity(null));
-
-        //then + exception
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testGetEntityShouldThrowExceptionWhenCalledWithNull() {
-        //given
-        putAllMocks();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.getEntity(null));
-
-        //then + exception
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testPutShouldThrowExceptionWhenCalledWithNullKey() {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.put(null, key1Version1Mock));
-
-        //then + exception
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testPutShouldThrowExceptionWhenCalledWithNullValue() {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.put(VERSIONED_KEY_ENTITY_ID_3_VERSION_3, null));
-
-        //then + exception
-    }
-
     @Test
     void testGetEntityWithTypeShouldReturnEntityWhenCalledWithValidInput() {
         //given
@@ -468,34 +301,11 @@ class ConcurrentVersionedEntityMultiMapTest {
         Assertions.assertSame(key1Version3Mock, actual);
     }
 
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testGetEntityWithTypeShouldThrowExceptionWhenCalledWithNull() {
-        //given
-        putAllMocks();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.getEntity(null, ReadOnlyKeyVaultKeyEntity.class));
-
-        //then + exception
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testGetEntityWithTypeShouldThrowExceptionWhenCalledWithNullType() {
-        //given
-        putAllMocks();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.getEntity(VERSIONED_KEY_ENTITY_ID_1_VERSION_3, null));
-
-        //then + exception
-    }
-
     @ParameterizedTest
     @MethodSource("recoveryProvider")
     void testGetRecoveryLevelAndDaysShouldReturnTheRecoveryLevelWhichWasSetPreviouslyWhenCalled(
-            final RecoveryLevel recoveryLevel, final Integer recoverableDays) {
+            final RecoveryLevel recoveryLevel,
+            final Integer recoverableDays) {
         //given
         underTest = new ConcurrentVersionedEntityMultiMap<>(recoveryLevel, recoverableDays,
                 (i, v) -> new VersionedKeyEntityId(HTTPS_LOCALHOST_8443, i, v), false);
@@ -526,7 +336,8 @@ class ConcurrentVersionedEntityMultiMapTest {
     @ParameterizedTest
     @MethodSource("recoveryProvider")
     void testMoveToShouldMoveItemsBasedOnRecoveryLevelWhenCalled(
-            final RecoveryLevel recoveryLevel, final Integer recoverableDays) {
+            final RecoveryLevel recoveryLevel,
+            final Integer recoverableDays) {
         //given
         underTest = new ConcurrentVersionedEntityMultiMap<>(recoveryLevel, recoverableDays,
                 (i, v) -> new VersionedKeyEntityId(HTTPS_LOCALHOST_8443, i, v), false);
@@ -557,24 +368,10 @@ class ConcurrentVersionedEntityMultiMapTest {
     }
 
     @ParameterizedTest
-    @MethodSource("moveToNullProvider")
-    void testMoveToShouldThrowExceptionWhenCalledWithNullType(
-            final KeyEntityId entityId,
-            final VersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity, KeyVaultKeyEntity<?, ?>> dest,
-            final UnaryOperator<KeyVaultKeyEntity<?, ?>> applyToAll) {
-        //given
-        putAllMocks();
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.moveTo(entityId, dest, applyToAll));
-
-        //then + exception
-    }
-
-    @ParameterizedTest
     @MethodSource("recoveryProvider")
     void testPurgeExpiredShouldRemoveItemsRegardlessRecoveryLevelWhenCalled(
-            final RecoveryLevel recoveryLevel, final Integer recoverableDays) {
+            final RecoveryLevel recoveryLevel,
+            final Integer recoverableDays) {
         //given
         underTest = new ConcurrentVersionedEntityMultiMap<>(recoveryLevel, recoverableDays,
                 (i, v) -> new VersionedKeyEntityId(HTTPS_LOCALHOST_8443, i, v), true);
@@ -679,31 +476,6 @@ class ConcurrentVersionedEntityMultiMapTest {
 
         //when
         Assertions.assertThrows(IllegalStateException.class, () -> underTest.purgeDeleted(UNVERSIONED_KEY_ENTITY_ID_3));
-
-        //then + exception
-    }
-
-    @Test
-    void testPurgeDeletedShouldThrowExceptionWhenCalledWithNull() {
-        //given
-        underTest = new ConcurrentVersionedEntityMultiMap<>(RecoveryLevel.RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE,
-                (i, v) -> new VersionedKeyEntityId(HTTPS_LOCALHOST_8443, i, v), true);
-        putAllMocks();
-
-        //when
-        //noinspection ConstantConditions
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.purgeDeleted(null));
-
-        //then + exception
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testForEachEntityShouldThrowExceptionWhenCalledWithNull() {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.forEachEntity(null));
 
         //then + exception
     }

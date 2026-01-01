@@ -2,16 +2,15 @@ package com.github.nagyesta.lowkeyvault.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
-import lombok.NonNull;
 import org.springframework.util.Assert;
 
 import java.net.URI;
 import java.time.Instant;
 
 public record TokenResponse(
-        @NonNull @JsonProperty("resource") URI resource,
-        @NonNull @JsonProperty("access_token") String accessToken,
-        @NonNull @JsonProperty("refresh_token") String refreshToken,
+        @JsonProperty("resource") URI resource,
+        @JsonProperty("access_token") String accessToken,
+        @JsonProperty("refresh_token") String refreshToken,
         @JsonProperty("expires_in") long expiresIn,
         @JsonProperty("expires_on") long expiresOn,
         @JsonProperty("token_type") String tokenType) {
@@ -29,8 +28,8 @@ public record TokenResponse(
     }
 
     private static long calculateExpiresIn(
-            @NonNull final Instant issuedAt,
-            @NonNull final Instant expiresOn) {
+            final Instant issuedAt,
+            final Instant expiresOn) {
         return expiresOn.getEpochSecond() - issuedAt.getEpochSecond();
     }
 }

@@ -163,7 +163,9 @@ class KeyStoreMergerTest {
         assertIterableEquals(expectedMerged.entrySet(), actual.entrySet());
     }
 
-    private static Map<String, Object> toMap(final KeyStore actualKeyStore, final String password) {
+    private static Map<String, Object> toMap(
+            final KeyStore actualKeyStore,
+            final String password) {
         final Map<String, Object> actual = new TreeMap<>();
         try {
             actualKeyStore.aliases().asIterator().forEachRemaining(alias -> {

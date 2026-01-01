@@ -13,7 +13,6 @@ import com.github.nagyesta.lowkeyvault.service.key.impl.KeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.secret.id.SecretEntityId;
 import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.springframework.util.Assert;
@@ -24,7 +23,7 @@ import java.security.cert.X509Certificate;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.Optional;
+import java.util.Objects;
 
 import static com.github.nagyesta.lowkeyvault.controller.common.util.CertificateRequestMapperUtil.convertPolicyToCertificateCreationInput;
 
@@ -51,9 +50,9 @@ public class KeyVaultCertificateEntity
      * @param vault The vault we need to use.
      */
     public KeyVaultCertificateEntity(
-            @NonNull final String name,
-            @NonNull final CertificateCreationInput input,
-            @org.springframework.lang.NonNull final VaultFake vault) {
+            final String name,
+            final CertificateCreationInput input,
+            final VaultFake vault) {
         super(vault);
         Assert.state(name.equals(input.getName()),
                 "Certificate name (" + name + ") did not match name from certificate creation input: " + input.getName());
@@ -65,11 +64,12 @@ public class KeyVaultCertificateEntity
         this.generator = new CertificateBackingEntityGenerator(vault);
         this.kid = generator.generateKeyPair(input);
         //reuse the generated key version to produce matching version numbers in all keys
-        this.id = new VersionedCertificateEntityId(vault.baseUri(), name, this.kid.version());
+        final var keyVersion = Objects.requireNonNull(this.kid.version());
+        this.id = new VersionedCertificateEntityId(vault.baseUri(), name, keyVersion);
         final var certificateGenerator = new CertificateGenerator(vault, this.kid);
         this.certificate = certificateGenerator.generateCertificate(input);
         this.csr = certificateGenerator.generateCertificateSigningRequest(name, this.certificate);
-        final var secretEntityId = new VersionedSecretEntityId(vault.baseUri(), input.getName(), this.kid.version());
+        final var secretEntityId = new VersionedSecretEntityId(vault.baseUri(), input.getName(), keyVersion);
         this.sid = generator.generateSecret(this.originalCertificatePolicy, this.certificate, this.kid, secretEntityId);
         this.originalCertificateContents = vault.secretVaultFake().getEntities().getReadOnlyEntity(this.sid).getValue();
         normalizeCoreTimeStamps(input, now());
@@ -84,18 +84,26 @@ public class KeyVaultCertificateEntity
      * @param vault The vault we need to use.
      */
     public KeyVaultCertificateEntity(
-            @NonNull final String name,
-            @NonNull final CertificateImportInput input,
-            @org.springframework.lang.NonNull final VaultFake vault) {
+            final String name,
+            final CertificateImportInput input,
+            final VaultFake vault) {
         super(vault);
-        final ReadOnlyCertificatePolicy policy = Optional.ofNullable(input.getCertificateData())
-                .orElseThrow(() -> new IllegalArgumentException("Certificate data must not be null."));
-        final ReadOnlyCertificatePolicy originalCertificateData = Optional.ofNullable(input.getParsedCertificateData())
-                .orElseThrow(() -> new IllegalArgumentException("Parsed certificate data must not be null."));
-        final var tempCertificate = Optional.ofNullable(input.getCertificate())
-                .orElseThrow(() -> new IllegalArgumentException("Certificate must not be null."));
-        final var keyImportRequest = Optional.ofNullable(input.getKeyData())
-                .orElseThrow(() -> new IllegalArgumentException("Key data must not be null."));
+        final var policy = input.getCertificateData();
+        if (policy == null) {
+            throw  new IllegalArgumentException("Certificate data must not be null.");
+        }
+        final var originalCertificateData = input.getParsedCertificateData();
+        if (originalCertificateData == null) {
+            throw  new IllegalArgumentException("Parsed certificate data must not be null.");
+        }
+        final var tempCertificate = input.getCertificate();
+        if (tempCertificate == null) {
+            throw new IllegalArgumentException("Certificate must not be null.");
+        }
+        final var keyImportRequest = input.getKeyData();
+        if (keyImportRequest == null) {
+            throw new IllegalArgumentException("Key data must not be null.");
+        }
         Assert.state(name.equals(policy.getName()),
                 "Certificate name (" + name + ") did not match name from certificate creation input: " + policy.getName());
         final var tempKid = new KeyEntityId(vault.baseUri(), name);
@@ -106,11 +114,12 @@ public class KeyVaultCertificateEntity
         this.generator = new CertificateBackingEntityGenerator(vault);
         this.kid = generator.importKeyPair(policy, keyImportRequest);
         //reuse the generated key version to produce matching version numbers in all keys
-        this.id = new VersionedCertificateEntityId(vault.baseUri(), name, this.kid.version());
+        final var version = Objects.requireNonNull(this.kid.version());
+        this.id = new VersionedCertificateEntityId(vault.baseUri(), name, version);
         final var certificateGenerator = new CertificateGenerator(vault, this.kid);
         this.certificate = tempCertificate;
         this.csr = certificateGenerator.generateCertificateSigningRequest(name, this.certificate);
-        final var secretEntityId = new VersionedSecretEntityId(vault.baseUri(), input.getName(), this.kid.version());
+        final var secretEntityId = new VersionedSecretEntityId(vault.baseUri(), input.getName(), version);
         this.sid = generator.generateSecret(this.originalCertificatePolicy, this.certificate, this.kid, secretEntityId);
         this.originalCertificateContents = vault.secretVaultFake().getEntities().getReadOnlyEntity(this.sid).getValue();
         normalizeCoreTimeStamps(policy, now());
@@ -125,10 +134,10 @@ public class KeyVaultCertificateEntity
      * @param vault The vault we are using.
      */
     public KeyVaultCertificateEntity(
-            @NonNull final ReadOnlyCertificatePolicy input,
-            @NonNull final VersionedKeyEntityId kid,
-            @NonNull final VersionedCertificateEntityId id,
-            @org.springframework.lang.NonNull final VaultFake vault) {
+            final ReadOnlyCertificatePolicy input,
+            final VersionedKeyEntityId kid,
+            final VersionedCertificateEntityId id,
+            final VaultFake vault) {
         super(vault);
         Assert.state(vault.keyVaultFake().getEntities().containsEntity(kid),
                 "Key must exist to be able to renew certificate using it. " + kid.asUriNoVersion(vault.baseUri()));
@@ -142,7 +151,7 @@ public class KeyVaultCertificateEntity
         final var certificateGenerator = new CertificateGenerator(vault, this.kid);
         this.certificate = certificateGenerator.generateCertificate(input);
         this.csr = certificateGenerator.generateCertificateSigningRequest(input.getName(), this.certificate);
-        final var secretEntityId = new VersionedSecretEntityId(vault.baseUri(), input.getName(), id.version());
+        final var secretEntityId = new VersionedSecretEntityId(vault.baseUri(), input.getName(), Objects.requireNonNull(id.version()));
         this.generator = new CertificateBackingEntityGenerator(vault);
         this.sid = generator.generateSecret(this.originalCertificatePolicy, this.certificate, this.kid, secretEntityId);
         this.originalCertificateContents = vault.secretVaultFake().getEntities().getReadOnlyEntity(this.sid).getValue();
@@ -158,16 +167,16 @@ public class KeyVaultCertificateEntity
      * @param vault The vault we need to use.
      */
     public KeyVaultCertificateEntity(
-            @NonNull final VersionedCertificateEntityId id,
-            @NonNull final CertificateRestoreInput input,
-            @org.springframework.lang.NonNull final VaultFake vault) {
+            final VersionedCertificateEntityId id,
+            final CertificateRestoreInput input,
+            final VaultFake vault) {
         super(vault);
         final ReadOnlyCertificatePolicy policy = input.getCertificateData();
         final ReadOnlyCertificatePolicy originalCertificateData = input.getParsedCertificateData();
         final var tempCertificate = input.getCertificate();
         final var keyImportRequest = input.getKeyData();
         final var tempKid = new VersionedKeyEntityId(vault.baseUri(), id.id(), input.getKeyVersion());
-        final var tempSid = new VersionedSecretEntityId(vault.baseUri(), id.id(), id.version());
+        final var tempSid = new VersionedSecretEntityId(vault.baseUri(), id.id(), Objects.requireNonNull(id.version()));
         assertNoNameCollisionWithNotManagedEntity(vault, tempKid, tempSid);
         this.issuancePolicy = new CertificatePolicy(policy);
         this.originalCertificatePolicy = new CertificatePolicy(originalCertificateData);
@@ -221,7 +230,7 @@ public class KeyVaultCertificateEntity
     }
 
     @Override
-    public void updateIssuancePolicy(@NonNull final ReadOnlyCertificatePolicy policy) {
+    public void updateIssuancePolicy(final ReadOnlyCertificatePolicy policy) {
         Assert.isTrue(this.id.id().equals(policy.getName()), "Updated policy must have the same name for: " + this.id);
         this.issuancePolicy = new CertificatePolicy(policy);
         this.updatedNow();
@@ -266,11 +275,7 @@ public class KeyVaultCertificateEntity
     @Override
     public byte[] getEncodedCertificateSigningRequest() {
         try {
-            byte[] encoded = null;
-            if (getCertificateSigningRequest() != null) {
-                encoded = getCertificateSigningRequest().getEncoded();
-            }
-            return encoded;
+            return getCertificateSigningRequest().getEncoded();
         } catch (final Exception e) {
             throw new CryptoException("Failed to obtain encoded certificate signing request: " + getId().toString(), e);
         }

@@ -7,7 +7,9 @@ public class LowkeyVaultException
         super(message);
     }
 
-    public LowkeyVaultException(final String message, final Throwable cause) {
+    public LowkeyVaultException(
+            final String message,
+            final Throwable cause) {
         super(message, cause);
     }
 }

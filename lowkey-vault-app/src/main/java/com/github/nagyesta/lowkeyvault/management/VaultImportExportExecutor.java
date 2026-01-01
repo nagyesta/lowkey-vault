@@ -1,9 +1,10 @@
 package com.github.nagyesta.lowkeyvault.management;
 
 import com.github.nagyesta.lowkeyvault.controller.VaultManagementController;
+import com.github.nagyesta.lowkeyvault.controller.v7_2.SecretBackupRestoreController;
 import com.github.nagyesta.lowkeyvault.controller.v7_3.CertificateBackupRestoreController;
 import com.github.nagyesta.lowkeyvault.controller.v7_3.KeyBackupRestoreController;
-import com.github.nagyesta.lowkeyvault.controller.v7_3.SecretBackupRestoreController;
+import com.github.nagyesta.lowkeyvault.model.common.ApiConstants;
 import com.github.nagyesta.lowkeyvault.model.common.backup.*;
 import com.github.nagyesta.lowkeyvault.model.management.VaultBackupModel;
 import com.github.nagyesta.lowkeyvault.model.management.VaultModel;
@@ -17,7 +18,6 @@ import com.github.nagyesta.lowkeyvault.service.secret.id.VersionedSecretEntityId
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultService;
 import com.github.nagyesta.lowkeyvault.template.backup.VaultImporter;
-import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -40,10 +40,10 @@ public class VaultImportExportExecutor {
 
     @Autowired
     public VaultImportExportExecutor(
-            @NonNull final VaultManagementController vaultManagementController,
-            @NonNull final KeyBackupRestoreController keyBackupRestoreController,
-            @NonNull final SecretBackupRestoreController secretBackupRestoreController,
-            @NonNull final CertificateBackupRestoreController certificateBackupRestoreController) {
+            final VaultManagementController vaultManagementController,
+            final KeyBackupRestoreController keyBackupRestoreController,
+            final SecretBackupRestoreController secretBackupRestoreController,
+            final CertificateBackupRestoreController certificateBackupRestoreController) {
         this.vaultManagementController = vaultManagementController;
         this.keyBackupRestoreController = keyBackupRestoreController;
         this.secretBackupRestoreController = secretBackupRestoreController;
@@ -51,20 +51,20 @@ public class VaultImportExportExecutor {
     }
 
     public void restoreVault(
-            @NonNull final VaultImporter vaultImporter,
-            @NonNull final URI baseUri,
-            @NonNull final VaultModel vault) {
+            final VaultImporter vaultImporter,
+            final URI baseUri,
+            final VaultModel vault) {
         vaultManagementController.createVault(vault);
         vaultImporter.getKeys().getOrDefault(baseUri, Collections.emptyList())
-                .forEach(key -> keyBackupRestoreController.restore(baseUri, key));
+                .forEach(key -> keyBackupRestoreController.restore(baseUri, ApiConstants.LATEST, key));
         vaultImporter.getSecrets().getOrDefault(baseUri, Collections.emptyList())
-                .forEach(secret -> secretBackupRestoreController.restore(baseUri, secret));
+                .forEach(secret -> secretBackupRestoreController.restore(baseUri, ApiConstants.LATEST, secret));
         vaultImporter.getCertificates().getOrDefault(baseUri, Collections.emptyList())
-                .forEach(certificate -> certificateBackupRestoreController.restore(baseUri, certificate));
+                .forEach(certificate -> certificateBackupRestoreController.restore(baseUri, ApiConstants.LATEST, certificate));
     }
 
-    public List<VaultBackupModel> backupVaultList(@NonNull final VaultService vaultService) {
-        return Optional.ofNullable(vaultManagementController.listVaults())
+    public List<VaultBackupModel> backupVaultList(final VaultService vaultService) {
+        return Optional.of(vaultManagementController.listVaults())
                 .map(ResponseEntity::getBody)
                 .orElse(Collections.emptyList()).stream()
                 .map(vaultModel -> backupVault(vaultService, vaultModel))
@@ -74,28 +74,37 @@ public class VaultImportExportExecutor {
     private KeyBackupList backupKey(
             final URI baseUri,
             final String name) {
-        return Optional.ofNullable(keyBackupRestoreController.backup(name, baseUri))
+        final var optionalList = Optional.of(keyBackupRestoreController.backup(name, baseUri, ApiConstants.LATEST))
                 .map(ResponseEntity::getBody)
-                .map(KeyBackupModel::getValue)
-                .orElseThrow(() -> new NotFoundException("Key not found: " + name));
+                .map(KeyBackupModel::getValue);
+        if (optionalList.isEmpty()) {
+            throw new NotFoundException("Key not found: " + name);
+        }
+        return optionalList.get();
     }
 
     private SecretBackupList backupSecret(
             final URI baseUri,
             final String name) {
-        return Optional.ofNullable(secretBackupRestoreController.backup(name, baseUri))
+        final var optionalList = Optional.of(secretBackupRestoreController.backup(name, baseUri, ApiConstants.LATEST))
                 .map(ResponseEntity::getBody)
-                .map(SecretBackupModel::getValue)
-                .orElseThrow(() -> new NotFoundException("Secret not found: " + name));
+                .map(SecretBackupModel::getValue);
+        if (optionalList.isEmpty()) {
+            throw new NotFoundException("Secret not found: " + name);
+        }
+        return optionalList.get();
     }
 
     private CertificateBackupList backupCertificate(
             final URI baseUri,
             final String name) {
-        return Optional.ofNullable(certificateBackupRestoreController.backup(name, baseUri))
+        final var optionalList = Optional.of(certificateBackupRestoreController.backup(name, baseUri, ApiConstants.LATEST))
                 .map(ResponseEntity::getBody)
-                .map(CertificateBackupModel::getValue)
-                .orElseThrow(() -> new NotFoundException("Certificate not found: " + name));
+                .map(CertificateBackupModel::getValue);
+        if (optionalList.isEmpty()) {
+            throw new NotFoundException("Certificate not found: " + name);
+        }
+        return optionalList.get();
     }
 
     private VaultBackupModel backupVault(

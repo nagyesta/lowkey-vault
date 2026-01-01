@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nagyesta.lowkeyvault.http.ApacheHttpClientProvider;
 import com.github.nagyesta.lowkeyvault.http.management.LowkeyVaultManagementClient;
 import com.github.nagyesta.lowkeyvault.http.management.VaultModel;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ public class ManagementTestContext {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private ApacheHttpClientProvider provider;
+    @Nullable
     private LowkeyVaultManagementClient client;
     private final Map<String, List<VaultModel>> vaultLists = new TreeMap<>();
 

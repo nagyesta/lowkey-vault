@@ -8,8 +8,10 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.Assert;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Data
@@ -18,10 +20,12 @@ import java.util.Optional;
 public class CertificateLifetimeActionTriggerModel {
 
     private static final int MONTHLY_LIMIT = 27;
+    @Nullable
     @Min(1)
     @Max(99)
     @JsonProperty("lifetime_percentage")
     private Integer lifetimePercentage;
+    @Nullable
     @Min(1)
     @JsonProperty("days_before_expiry")
     private Integer daysBeforeExpiry;
@@ -62,6 +66,6 @@ public class CertificateLifetimeActionTriggerModel {
 
     private int triggerParameter() {
         return Optional.ofNullable(lifetimePercentage)
-                .orElse(daysBeforeExpiry);
+                .orElseGet(() -> Objects.requireNonNull(daysBeforeExpiry));
     }
 }

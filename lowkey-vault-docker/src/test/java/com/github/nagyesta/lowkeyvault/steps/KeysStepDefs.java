@@ -12,6 +12,7 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.jspecify.annotations.Nullable;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -23,10 +24,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
 import java.security.SignatureException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import static com.azure.security.keyvault.keys.cryptography.models.EncryptionAlgorithm.*;
@@ -59,22 +57,30 @@ public class KeysStepDefs extends CommonAssertions {
 
     @Given("an EC key named {name} is prepared with {ecCurveName} and {hsm} HSM")
     public void anEcKeyNamedKeyNameIsPreparedWithCurveNameAndHsmSet(
-            final String keyName, final KeyCurveName curveName, final boolean hsm) {
+            final String keyName,
+            final KeyCurveName curveName,
+            final boolean hsm) {
         context.setCreateEcKeyOptions(new CreateEcKeyOptions(keyName)
                 .setCurveName(curveName)
                 .setHardwareProtected(hsm));
     }
 
     @Given("an OCT key named {name} is prepared with {octKeySize} bits size")
-    public void anOctKeyIsCreatedWithNameKeySizeAndHsmSet(final String keyName, final int keySize) {
+    public void anOctKeyIsCreatedWithNameKeySizeAndHsmSet(
+            final String keyName,
+            final int keySize) {
         context.setCreateOctKeyOptions(new CreateOctKeyOptions(keyName).setKeySize(keySize).setHardwareProtected(true));
     }
 
     @Given("an RSA key named {name} is prepared with {rsaKeySize} bits size {hsm} HSM")
-    public void anRsaKeyIsCreatedWithNameKeySizeAndHsmSet(final String keyName, final int keySize, final boolean hsm) {
+    public void anRsaKeyIsCreatedWithNameKeySizeAndHsmSet(
+            final String keyName,
+            final int keySize,
+            final boolean hsm) {
         context.setCreateRsaKeyOptions(new CreateRsaKeyOptions(keyName).setKeySize(keySize).setHardwareProtected(hsm));
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Given("{int} version of the EC key is created")
     public void ecKeyCreationRequestIsSentVersionsCountTimes(final int versionsCount) {
         final var createKeyOptions = context.getCreateEcKeyOptions();
@@ -84,6 +90,7 @@ public class KeysStepDefs extends CommonAssertions {
         });
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Given("{int} version of the OCT key is created")
     public void octKeyCreationRequestIsSentVersionsCountTimes(final int versionsCount) {
         final var createKeyOptions = context.getCreateOctKeyOptions();
@@ -93,6 +100,7 @@ public class KeysStepDefs extends CommonAssertions {
         });
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Given("{int} version of the RSA key is created")
     public void rsaKeyCreationRequestIsSentVersionsCountTimes(final int versionsCount) {
         final var createKeyOptions = context.getCreateRsaKeyOptions();
@@ -102,6 +110,7 @@ public class KeysStepDefs extends CommonAssertions {
         });
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @And("the EC key is created")
     public void ecKeyCreationRequestIsSent() {
         final var createKeyOptions = context.getCreateEcKeyOptions();
@@ -109,6 +118,7 @@ public class KeysStepDefs extends CommonAssertions {
         context.addCreatedEntity(createKeyOptions.getName(), ecKey);
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @And("the OCT key is created")
     public void octKeyCreationRequestIsSent() {
         final var createKeyOptions = context.getCreateOctKeyOptions();
@@ -116,6 +126,7 @@ public class KeysStepDefs extends CommonAssertions {
         context.addCreatedEntity(createKeyOptions.getName(), octKey);
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @And("the RSA key is created")
     public void rsaKeyCreationRequestIsSent() {
         final var createKeyOptions = context.getCreateRsaKeyOptions();
@@ -124,7 +135,10 @@ public class KeysStepDefs extends CommonAssertions {
     }
 
     @And("an EC key is imported with {name} as name and {ecCurveName} curve {hsm} HSM")
-    public void ecKeyImportedWithNameAndParameters(final String name, final KeyCurveName curveName, final boolean hsm) {
+    public void ecKeyImportedWithNameAndParameters(
+            final String name,
+            final KeyCurveName curveName,
+            final boolean hsm) {
         final var keyPair = KeyGenUtil.generateEc(curveName);
         context.setKeyPair(keyPair);
         final var key = JsonWebKey.fromEc(keyPair, BOUNCY_CASTLE_PROVIDER)
@@ -139,7 +153,10 @@ public class KeysStepDefs extends CommonAssertions {
     }
 
     @And("an RSA key is imported with {name} as name and {rsaKeySize} bits of key size {hsm} HSM")
-    public void rsaKeyImportedWithNameAndParameters(final String name, final int size, final boolean hsm) {
+    public void rsaKeyImportedWithNameAndParameters(
+            final String name,
+            final int size,
+            final boolean hsm) {
         final var keyPair = KeyGenUtil.generateRsa(size, null);
         context.setKeyPair(keyPair);
         final var key = JsonWebKey.fromRsa(keyPair)
@@ -154,7 +171,9 @@ public class KeysStepDefs extends CommonAssertions {
     }
 
     @And("an OCT key is imported with {name} as name and {octKeySize} bits of key size with HSM")
-    public void octKeyImportedWithNameAndParameters(final String name, final int size) {
+    public void octKeyImportedWithNameAndParameters(
+            final String name,
+            final int size) {
         final var secretKey = KeyGenUtil.generateAes(size);
         context.setSecretKey(secretKey);
         final var key = JsonWebKey.fromAes(secretKey)
@@ -185,28 +204,30 @@ public class KeysStepDefs extends CommonAssertions {
     }
 
     @Given("the key is set to expire {optionalInt} seconds after creation")
-    public void theKeyIsSetToExpireExpiresSecondsAfterCreation(final Integer expire) {
-        Optional.ofNullable(expire).ifPresent(e -> context.getCreateKeyOptions().setExpiresOn(NOW.plusSeconds(e)));
+    public void theKeyIsSetToExpireExpiresSecondsAfterCreation(@Nullable final Integer expire) {
+        Optional.ofNullable(expire)
+                .ifPresent(e -> Objects.requireNonNull(context.getCreateKeyOptions()).setExpiresOn(NOW.plusSeconds(e)));
     }
 
     @Given("the key is set to be not usable until {optionalInt} seconds after creation")
-    public void theKeyIsSetToBeNotUsableUntilNotBeforeSecondsAfterCreation(final Integer notBefore) {
-        Optional.ofNullable(notBefore).ifPresent(n -> context.getCreateKeyOptions().setNotBefore(NOW.plusSeconds(n)));
+    public void theKeyIsSetToBeNotUsableUntilNotBeforeSecondsAfterCreation(@Nullable final Integer notBefore) {
+        Optional.ofNullable(notBefore)
+                .ifPresent(n -> Objects.requireNonNull(context.getCreateKeyOptions()).setNotBefore(NOW.plusSeconds(n)));
     }
 
     @Given("the key is set to use {tagMap} as tags")
     public void theKeyIsSetToUseTagMapAsTags(final Map<String, String> tags) {
-        context.getCreateKeyOptions().setTags(tags);
+        Objects.requireNonNull(context.getCreateKeyOptions()).setTags(tags);
     }
 
     @Given("the key has {keyOperations} operations granted")
     public void theKeyHasOperationsOperationsGranted(final List<KeyOperation> keyOperations) {
-        context.getCreateKeyOptions().setKeyOperations(keyOperations.toArray(new KeyOperation[0]));
+        Objects.requireNonNull(context.getCreateKeyOptions()).setKeyOperations(keyOperations.toArray(new KeyOperation[0]));
     }
 
     @Given("the key is set to be {enabled}")
     public void theKeyIsSetToBeEnabledStatus(final boolean enabledStatus) {
-        context.getCreateKeyOptions().setEnabled(enabledStatus);
+        Objects.requireNonNull(context.getCreateKeyOptions()).setEnabled(enabledStatus);
     }
 
     @And("the key is deleted")
@@ -234,7 +255,10 @@ public class KeysStepDefs extends CommonAssertions {
 
     @Given("{int} EC keys with {name} prefix are created with {ecCurveName} and {hsm} HSM")
     public void ecKeysWithKeyNamePrefixAreCreatedWithBitsSizeAndHSM(
-            final int count, final String prefix, final KeyCurveName curveName, final boolean hsm) {
+            final int count,
+            final String prefix,
+            final KeyCurveName curveName,
+            final boolean hsm) {
         IntStream.range(0, count).forEach(i -> {
             anEcKeyNamedKeyNameIsPreparedWithCurveNameAndHsmSet(prefix + (i + 1), curveName, hsm);
             ecKeyCreationRequestIsSent();
@@ -243,7 +267,9 @@ public class KeysStepDefs extends CommonAssertions {
 
     @Given("{int} OCT keys with {name} prefix are created with {int} bits size")
     public void octKeysWithKeyNamePrefixAreCreatedWithBitsSizeAndHSM(
-            final int count, final String prefix, final int size) {
+            final int count,
+            final String prefix,
+            final int size) {
         IntStream.range(0, count).forEach(i -> {
             anOctKeyIsCreatedWithNameKeySizeAndHsmSet(prefix + (i + 1), size);
             octKeyCreationRequestIsSent();
@@ -252,7 +278,10 @@ public class KeysStepDefs extends CommonAssertions {
 
     @Given("{int} RSA keys with {name} prefix are created with {int} bits size {hsm} HSM")
     public void rsaKeysWithKeyNamePrefixAreCreatedWithBitsSizeAndHSM(
-            final int count, final String prefix, final int size, final boolean hsm) {
+            final int count,
+            final String prefix,
+            final int size,
+            final boolean hsm) {
         IntStream.range(0, count).forEach(i -> {
             anRsaKeyIsCreatedWithNameKeySizeAndHsmSet(prefix + (i + 1), size, hsm);
             rsaKeyCreationRequestIsSent();
@@ -261,7 +290,8 @@ public class KeysStepDefs extends CommonAssertions {
 
     @Given("{int} keys with {name} prefix are deleted")
     public void countKeysWithKeyNamePrefixAreDeleted(
-            final int count, final String prefix) {
+            final int count,
+            final String prefix) {
         final var deleted = IntStream.range(0, count).mapToObj(i -> {
             final var actual = context.getClient(context.getKeyServiceVersion())
                     .beginDeleteKey(prefix + (i + 1)).waitForCompletion().getValue();
@@ -303,12 +333,12 @@ public class KeysStepDefs extends CommonAssertions {
     }
 
     @When("the key is updated to expire {optionalInt} seconds after creation")
-    public void theKeyIsUpdatedToExpireExpiresSecondsAfterCreation(final Integer expire) {
+    public void theKeyIsUpdatedToExpireExpiresSecondsAfterCreation(@Nullable final Integer expire) {
         Optional.ofNullable(expire).ifPresent(e -> context.getUpdateProperties().setExpiresOn(NOW.plusSeconds(e)));
     }
 
     @When("the key is updated to be not usable until {optionalInt} seconds after creation")
-    public void theKeyIsUpdatedToBeNotUsableUntilNotBeforeSecondsAfterCreation(final Integer notBefore) {
+    public void theKeyIsUpdatedToBeNotUsableUntilNotBeforeSecondsAfterCreation(@Nullable final Integer notBefore) {
         Optional.ofNullable(notBefore).ifPresent(n -> context.getUpdateProperties().setNotBefore(NOW.plusSeconds(n)));
     }
 
@@ -336,7 +366,9 @@ public class KeysStepDefs extends CommonAssertions {
     }
 
     @When("the created key is used to encrypt {clearText} with {algorithm}")
-    public void theCreatedKeyIsUsedToEncryptClearTextWithAlgorithm(final byte[] text, final EncryptionAlgorithm algorithm) {
+    public void theCreatedKeyIsUsedToEncryptClearTextWithAlgorithm(
+            final byte[] text,
+            final EncryptionAlgorithm algorithm) {
         final var keyId = context.getLastResult().getKey().getId();
         context.setCryptographyClient(context.getProvider().getCryptoClient(keyId, context.getCryptoServiceVersion()));
         final var encryptResult = context.getCryptographyClient()
@@ -345,7 +377,9 @@ public class KeysStepDefs extends CommonAssertions {
     }
 
     @When("the created key is used to sign {clearText} with {signAlgorithm}")
-    public void theCreatedKeyIsUsedToSignClearTextWithAlgorithm(final byte[] text, final SignatureAlgorithm algorithm) {
+    public void theCreatedKeyIsUsedToSignClearTextWithAlgorithm(
+            final byte[] text,
+            final SignatureAlgorithm algorithm) {
         final var keyId = context.getLastResult().getKey().getId();
         context.setCryptographyClient(context.getProvider().getCryptoClient(keyId, context.getCryptoServiceVersion()));
         final var signResult = context.getCryptographyClient().signData(algorithm, text);
@@ -383,7 +417,9 @@ public class KeysStepDefs extends CommonAssertions {
     }
 
     @And("the signature of {clearText} is verified with {signAlgorithm}")
-    public void theSignValueIsVerifiedWithAlgorithm(final byte[] text, final SignatureAlgorithm algorithm) {
+    public void theSignValueIsVerifiedWithAlgorithm(
+            final byte[] text,
+            final SignatureAlgorithm algorithm) {
         final var keyId = context.getLastResult().getKey().getId();
         context.setCryptographyClient(context.getProvider().getCryptoClient(keyId, context.getCryptoServiceVersion()));
         final var verifyResult = context.getCryptographyClient().verifyData(algorithm, text, context.getSignatureResult());
@@ -391,7 +427,9 @@ public class KeysStepDefs extends CommonAssertions {
     }
 
     @And("the EC signature of {clearText} is verified using the original public key with {signAlgorithm}")
-    public void theEcSignValueIsVerifiedUsingOriginalPublicKeyWithAlgorithm(final byte[] text, final SignatureAlgorithm algorithm)
+    public void theEcSignValueIsVerifiedUsingOriginalPublicKeyWithAlgorithm(
+            final byte[] text,
+            final SignatureAlgorithm algorithm)
             throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         final var ecVerify = Signature.getInstance(getAsymmetricSignatureAlgorithm(algorithm), BOUNCY_CASTLE_PROVIDER);
         ecVerify.initVerify(context.getKeyPair().getPublic());
@@ -401,7 +439,9 @@ public class KeysStepDefs extends CommonAssertions {
     }
 
     @And("the RSA signature of {clearText} is verified using the original public key with {signAlgorithm}")
-    public void theRsaSignValueIsVerifiedUsingOriginalPublicKeyWithAlgorithm(final byte[] text, final SignatureAlgorithm algorithm)
+    public void theRsaSignValueIsVerifiedUsingOriginalPublicKeyWithAlgorithm(
+            final byte[] text,
+            final SignatureAlgorithm algorithm)
             throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         final var rsaVerify = Signature.getInstance(getAsymmetricSignatureAlgorithm(algorithm), BOUNCY_CASTLE_PROVIDER);
         rsaVerify.initVerify(context.getKeyPair().getPublic());
@@ -461,7 +501,9 @@ public class KeysStepDefs extends CommonAssertions {
         return "iv-parameter-val".getBytes(StandardCharsets.UTF_8);
     }
 
-    private EncryptParameters encryptParams(final EncryptionAlgorithm encryptionAlgorithm, final byte[] clearText) {
+    private @Nullable EncryptParameters encryptParams(
+            final EncryptionAlgorithm encryptionAlgorithm,
+            final byte[] clearText) {
         if (encryptionAlgorithm == EncryptionAlgorithm.RSA1_5) {
             return com.azure.security.keyvault.keys.cryptography.models.EncryptParameters.createRsa15Parameters(clearText);
         } else if (encryptionAlgorithm == EncryptionAlgorithm.RSA_OAEP) {
@@ -485,7 +527,9 @@ public class KeysStepDefs extends CommonAssertions {
         }
     }
 
-    private DecryptParameters decryptParams(final EncryptionAlgorithm encryptionAlgorithm, final EncryptResult encryptResult) {
+    private @Nullable DecryptParameters decryptParams(
+            final EncryptionAlgorithm encryptionAlgorithm,
+            final EncryptResult encryptResult) {
         if (encryptionAlgorithm == EncryptionAlgorithm.RSA1_5) {
             return DecryptParameters.createRsa15Parameters(encryptResult.getCipherText());
         } else if (encryptionAlgorithm == EncryptionAlgorithm.RSA_OAEP) {
@@ -550,7 +594,9 @@ public class KeysStepDefs extends CommonAssertions {
     }
 
     @And("the rotation policy is set to rotate after {int} days with expiry of {int} days")
-    public void theRotationPolicyIsSetToRotateAfterDaysWithExpiryDays(final int rotateDays, final int expiryDays) {
+    public void theRotationPolicyIsSetToRotateAfterDaysWithExpiryDays(
+            final int rotateDays,
+            final int expiryDays) {
         final var name = context.getLastResult().getName();
         final var action = new KeyRotationLifetimeAction(KeyRotationPolicyAction.ROTATE)
                 .setTimeAfterCreate("P" + rotateDays + "D");

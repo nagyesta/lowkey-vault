@@ -47,7 +47,9 @@ class ApacheHttpClientTest {
     @ParameterizedTest
     @MethodSource("validProvider")
     void testConstructorShouldConvertValuesWhenCalled(
-            final String body, final UnaryOperator<URI> hostOverrideFunction, final String expectedHost) throws IOException {
+            final String body,
+            final UnaryOperator<URI> hostOverrideFunction,
+            final String expectedHost) throws IOException {
         //given
         final var method = HttpMethod.POST;
         final var url = new URL("https://localhost");

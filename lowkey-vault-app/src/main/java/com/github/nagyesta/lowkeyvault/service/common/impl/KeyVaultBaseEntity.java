@@ -4,7 +4,7 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel
 import com.github.nagyesta.lowkeyvault.service.EntityId;
 import com.github.nagyesta.lowkeyvault.service.common.BaseVaultEntity;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
-import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.time.OffsetDateTime;
 import java.util.Collections;
@@ -21,7 +21,7 @@ public abstract class KeyVaultBaseEntity<V extends EntityId>
     private Optional<OffsetDateTime> scheduledPurgeDate;
     private boolean managed;
 
-    protected KeyVaultBaseEntity(@NonNull final VaultFake vault) {
+    protected KeyVaultBaseEntity(final VaultFake vault) {
         super();
         this.recoveryLevel = vault.getRecoveryLevel();
         this.recoverableDays = vault.getRecoverableDays();
@@ -57,7 +57,7 @@ public abstract class KeyVaultBaseEntity<V extends EntityId>
     }
 
     @Override
-    public void setDeletedDate(final OffsetDateTime deletedDate) {
+    public void setDeletedDate(@Nullable final OffsetDateTime deletedDate) {
         this.deletedDate = Optional.ofNullable(deletedDate);
     }
 
@@ -67,7 +67,7 @@ public abstract class KeyVaultBaseEntity<V extends EntityId>
     }
 
     @Override
-    public void setScheduledPurgeDate(final OffsetDateTime scheduledPurgeDate) {
+    public void setScheduledPurgeDate(@Nullable final OffsetDateTime scheduledPurgeDate) {
         this.scheduledPurgeDate = Optional.ofNullable(scheduledPurgeDate);
     }
 

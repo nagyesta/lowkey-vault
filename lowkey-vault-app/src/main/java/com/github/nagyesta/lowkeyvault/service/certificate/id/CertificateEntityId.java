@@ -2,12 +2,11 @@ package com.github.nagyesta.lowkeyvault.service.certificate.id;
 
 import com.github.nagyesta.lowkeyvault.service.BaseEntityId;
 import com.github.nagyesta.lowkeyvault.service.EntityId;
-import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
 
-public class CertificateEntityId
-        extends BaseEntityId implements EntityId {
+public class CertificateEntityId extends BaseEntityId implements EntityId {
 
     public CertificateEntityId(
             final URI vault,
@@ -16,17 +15,17 @@ public class CertificateEntityId
     }
 
     public CertificateEntityId(
-            @NonNull final URI vault,
-            @NonNull final String id,
-            final String version) {
+            final URI vault,
+            final String id,
+            @Nullable final String version) {
         super(vault, id, version, "certificate");
     }
 
-    public URI asPolicyUri(@NonNull final URI vaultUri) {
-        return URI.create(asUri(vaultUri).toString() + "/policy");
+    public URI asPolicyUri(final URI vaultUri) {
+        return URI.create(asUri(vaultUri) + "/policy");
     }
 
-    public URI asPendingOperationUri(@NonNull final URI vaultUri) {
-        return URI.create(asUriNoVersion(vaultUri).toString() + "/pending");
+    public URI asPendingOperationUri(final URI vaultUri) {
+        return URI.create(asUriNoVersion(vaultUri) + "/pending");
     }
 }

@@ -6,7 +6,7 @@ import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.util.Asn1ConverterUtil;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.Assert;
 
 import java.io.IOException;
@@ -23,18 +23,18 @@ public class EcKeyVaultKeyEntity
         extends KeyVaultKeyEntity<KeyPair, KeyCurveName> implements ReadOnlyEcKeyVaultKeyEntity {
 
     public EcKeyVaultKeyEntity(
-            @NonNull final VersionedKeyEntityId id,
-            @NonNull final VaultFake vault,
-            @NonNull final KeyCurveName keyParam,
+            final VersionedKeyEntityId id,
+            final VaultFake vault,
+            final KeyCurveName keyParam,
             final boolean hsm) {
         super(id, vault, generateEc(keyParam), keyParam, hsm);
     }
 
     public EcKeyVaultKeyEntity(
-            @NonNull final VersionedKeyEntityId id,
-            @NonNull final VaultFake vault,
-            @NonNull final KeyPair keyPair,
-            final KeyCurveName curveName,
+            final VersionedKeyEntityId id,
+            final VaultFake vault,
+            final KeyPair keyPair,
+            @Nullable final KeyCurveName curveName,
             final Boolean hsm) {
         super(id, vault, keyPair, KeyType.EC.validateOrDefault(curveName, KeyCurveName.class), hsm);
     }
@@ -81,7 +81,8 @@ public class EcKeyVaultKeyEntity
     @Override
     public byte[] encryptBytes(
             final byte[] clear,
-            final EncryptionAlgorithm encryptionAlgorithm, final byte[] iv) {
+            final EncryptionAlgorithm encryptionAlgorithm,
+            final byte @Nullable [] iv) {
         throw new UnsupportedOperationException("Encrypt is not supported for EC keys.");
     }
 
@@ -89,7 +90,7 @@ public class EcKeyVaultKeyEntity
     public byte[] decryptToBytes(
             final byte[] encrypted,
             final EncryptionAlgorithm encryptionAlgorithm,
-            final byte[] iv) {
+            final byte @Nullable [] iv) {
         throw new UnsupportedOperationException("Decrypt is not supported for EC keys.");
     }
 

@@ -26,6 +26,7 @@ import com.github.nagyesta.lowkeyvault.http.management.impl.LowkeyVaultManagemen
 import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.conn.ssl.TrustStrategy;
+import org.jspecify.annotations.Nullable;
 
 import javax.net.ssl.HostnameVerifier;
 import java.net.URI;
@@ -70,7 +71,7 @@ public record ApacheHttpClientProvider(
      */
     public ApacheHttpClientProvider(
             final String vaultUrl,
-            final UnaryOperator<URI> hostOverrideFunction) {
+            @Nullable final UnaryOperator<URI> hostOverrideFunction) {
         this(vaultUrl, hostOverrideFunction, null, null);
     }
 
@@ -91,9 +92,9 @@ public record ApacheHttpClientProvider(
      */
     public ApacheHttpClientProvider(
             final String vaultUrl,
-            final UnaryOperator<URI> hostOverrideFunction,
-            final TrustStrategy trustStrategy,
-            final HostnameVerifier hostnameVerifier) {
+            @Nullable final UnaryOperator<URI> hostOverrideFunction,
+            @Nullable final TrustStrategy trustStrategy,
+            @Nullable final HostnameVerifier hostnameVerifier) {
         this.vaultUrl = vaultUrl;
         this.hostOverrideFunction = Optional.ofNullable(hostOverrideFunction)
                 .orElse(override -> override);

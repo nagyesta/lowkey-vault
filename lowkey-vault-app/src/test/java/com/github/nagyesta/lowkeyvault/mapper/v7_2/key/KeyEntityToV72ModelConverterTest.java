@@ -1,6 +1,5 @@
 package com.github.nagyesta.lowkeyvault.mapper.v7_2.key;
 
-import com.github.nagyesta.lowkeyvault.mapper.common.registry.KeyConverterRegistry;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.KeyVaultKeyModel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
@@ -32,22 +31,19 @@ import static com.github.nagyesta.lowkeyvault.TestConstantsKeys.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOCALHOST_8443;
 import static com.github.nagyesta.lowkeyvault.TestConstantsUri.HTTPS_LOWKEY_VAULT;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class KeyEntityToV72ModelConverterTest {
 
-    @InjectMocks
-    private KeyEntityToV72ModelConverter underTest;
     @Mock
     private KeyEntityToV72PropertiesModelConverter propertiesModelConverter;
     @Mock
     private VaultFake vault;
     @Mock
     private KeyVaultFake keyVault;
-    @Mock
-    private KeyConverterRegistry registry;
+    @InjectMocks
+    private KeyEntityToV72ModelConverterImpl underTest;
 
     private AutoCloseable openMocks;
 
@@ -84,12 +80,8 @@ class KeyEntityToV72ModelConverterTest {
     @BeforeEach
     void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
-        //Use any as the converter supports both versions and the internal call might use the latest version
-        when(registry.propertiesConverter(anyString())).thenReturn(propertiesModelConverter);
-        when(registry.versionedEntityId(any(URI.class), anyString(), anyString())).thenCallRealMethod();
-        when(registry.entityId(any(URI.class), anyString())).thenCallRealMethod();
         when(vault.keyVaultFake()).thenReturn(keyVault);
-        when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultKeyEntity.class), any(URI.class))).thenReturn(PROPERTIES_MODEL);
+        when(propertiesModelConverter.convert(any(ReadOnlyKeyVaultKeyEntity.class))).thenReturn(PROPERTIES_MODEL);
     }
 
     @AfterEach
@@ -97,11 +89,36 @@ class KeyEntityToV72ModelConverterTest {
         openMocks.close();
     }
 
+    @Test
+    void testConvertShouldReturnNullWhenCalledWithNull() {
+        //given
+
+        //when
+        final var actual = underTest.convert(null, HTTPS_LOWKEY_VAULT);
+
+        //then
+        Assertions.assertNull(actual);
+    }
+
+    @Test
+    void testConvertDeletedShouldReturnNullWhenCalledWithNull() {
+        //given
+
+        //when
+        final var actual = underTest.convertDeleted(null, HTTPS_LOWKEY_VAULT);
+
+        //then
+        Assertions.assertNull(actual);
+    }
+
     @ParameterizedTest
     @MethodSource("validRsaInputProvider")
     void testConvertShouldConvertAllRsaFieldsWhenCalledWithRsaKeyEntity(
-            final VersionedKeyEntityId keyEntityId, final int keyParam, final URI baseUri,
-            final boolean hsm, final Map<String, String> tags) {
+            final VersionedKeyEntityId keyEntityId,
+            final int keyParam,
+            final URI baseUri,
+            final boolean hsm,
+            final Map<String, String> tags) {
 
         //given
         prepareVaultMock(baseUri);
@@ -124,14 +141,17 @@ class KeyEntityToV72ModelConverterTest {
         assertEcFieldsAreNull(actual);
         assertOctFieldsAreNull(actual);
 
-        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class), any(URI.class));
+        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class));
     }
 
     @ParameterizedTest
     @MethodSource("validEcInputProvider")
     void testConvertShouldConvertAllEcFieldsWhenCalledWithEcKeyEntity(
-            final VersionedKeyEntityId keyEntityId, final KeyCurveName keyParam, final URI baseUri,
-            final boolean hsm, final Map<String, String> tags) {
+            final VersionedKeyEntityId keyEntityId,
+            final KeyCurveName keyParam,
+            final URI baseUri,
+            final boolean hsm,
+            final Map<String, String> tags) {
 
         //given
         prepareVaultMock(baseUri);
@@ -155,14 +175,17 @@ class KeyEntityToV72ModelConverterTest {
         assertRsaFieldsAreNull(actual);
         assertOctFieldsAreNull(actual);
 
-        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class), any(URI.class));
+        verify(propertiesModelConverter).convert(any(ReadOnlyKeyVaultKeyEntity.class));
     }
 
     @ParameterizedTest
     @MethodSource("validOctInputProvider")
     void testConvertShouldConvertAllOctFieldsWhenCalledWithOctKeyEntity(
-            final VersionedKeyEntityId keyEntityId, final int keyParam, final URI baseUri,
-            final boolean hsm, final Map<String, String> tags) {
+            final VersionedKeyEntityId keyEntityId,
+            final int keyParam,
+            final URI baseUri,
+            final boolean hsm,
+            final Map<String, String> tags) {
 
         //given
         prepareVaultMock(baseUri);
@@ -201,27 +224,16 @@ class KeyEntityToV72ModelConverterTest {
         Assertions.assertNull(actual.getKey().getK());
     }
 
-    @Test
-    void testConstructorShouldThrowExceptionsWhenCalledWithNull() {
-        //given
-
-        //when
-        //noinspection ConstantConditions
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new KeyEntityToV72ModelConverter(null));
-
-        //then exception
-    }
-
     private void prepareVaultMock(final URI baseUri) {
         when(vault.baseUri()).thenReturn(baseUri);
         when(vault.matches(baseUri, uri -> uri)).thenReturn(true);
     }
 
-    private void assertCommonFieldsMatch(final Map<String, String> tags,
-                                         final ReadOnlyKeyVaultKeyEntity input,
-                                         final String expectedUri,
-                                         final KeyVaultKeyModel actual) {
+    private void assertCommonFieldsMatch(
+            final Map<String, String> tags,
+            final ReadOnlyKeyVaultKeyEntity input,
+            final String expectedUri,
+            final KeyVaultKeyModel actual) {
         Assertions.assertIterableEquals(tags.entrySet(), new TreeMap<>(actual.getTags()).entrySet());
         Assertions.assertEquals(PROPERTIES_MODEL, actual.getAttributes());
         Assertions.assertEquals(expectedUri, actual.getKey().getId());

@@ -7,6 +7,7 @@ import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.SignatureAlgorit
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Base64;
 import java.util.Optional;
@@ -20,15 +21,14 @@ public class KeySignParameters {
     @NotNull
     @JsonProperty("alg")
     private SignatureAlgorithm algorithm;
-
     @NotNull
     @NotBlank
     @JsonProperty("value")
     private String value;
 
     @JsonIgnore
-    public byte[] getValueAsBase64DecodedBytes() {
-        return Optional.ofNullable(value)
+    public byte @Nullable [] getValueAsBase64DecodedBytes() {
+        return Optional.of(value)
                 .map(DECODER::decode)
                 .orElse(null);
     }

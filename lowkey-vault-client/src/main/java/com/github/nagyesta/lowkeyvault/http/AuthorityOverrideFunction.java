@@ -1,5 +1,7 @@
 package com.github.nagyesta.lowkeyvault.http;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.URI;
 import java.util.Optional;
 import java.util.function.UnaryOperator;
@@ -24,7 +26,7 @@ public record AuthorityOverrideFunction(
     }
 
     private static void validate(
-            final String hostOrIpv4AddressWithPort,
+            @Nullable final String hostOrIpv4AddressWithPort,
             final String paramName) {
         if (hostOrIpv4AddressWithPort == null) {
             throw new IllegalArgumentException(paramName + " must not be null!");
@@ -46,7 +48,7 @@ public record AuthorityOverrideFunction(
 
     @Override
     public URI apply(final URI originalUri) {
-        return Optional.ofNullable(originalUri)
+        return Optional.of(originalUri)
                 .filter(uri -> uri.getAuthority().equals(vaultAuthority))
                 .map(URI::toString)
                 .map(uriAsString -> uriAsString.replaceFirst(Pattern.quote(vaultAuthority), containerAuthority))

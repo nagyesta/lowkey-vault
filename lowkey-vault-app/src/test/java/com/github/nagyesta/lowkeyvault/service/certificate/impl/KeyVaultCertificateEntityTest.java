@@ -3,8 +3,6 @@ package com.github.nagyesta.lowkeyvault.service.certificate.impl;
 import com.github.nagyesta.lowkeyvault.model.v7_2.common.constants.RecoveryLevel;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyCurveName;
 import com.github.nagyesta.lowkeyvault.model.v7_2.key.constants.KeyType;
-import com.github.nagyesta.lowkeyvault.model.v7_3.certificate.CertificateRestoreInput;
-import com.github.nagyesta.lowkeyvault.service.certificate.id.VersionedCertificateEntityId;
 import com.github.nagyesta.lowkeyvault.service.common.ReadOnlyVersionedEntityMultiMap;
 import com.github.nagyesta.lowkeyvault.service.exception.CryptoException;
 import com.github.nagyesta.lowkeyvault.service.key.KeyVaultFake;
@@ -21,13 +19,10 @@ import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
 import com.github.nagyesta.lowkeyvault.service.vault.impl.VaultFakeImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static com.github.nagyesta.lowkeyvault.TestConstants.*;
 import static com.github.nagyesta.lowkeyvault.TestConstantsCertificates.*;
@@ -40,85 +35,21 @@ import static org.mockito.Mockito.*;
 
 class KeyVaultCertificateEntityTest {
 
-    public static Stream<Arguments> nullProvider() {
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null))
-                .add(Arguments.of(CERT_NAME_1, null, null))
-                .add(Arguments.of(null, CertificateCreationInput.builder().build(), null))
-                .add(Arguments.of(null, null, mock(VaultFake.class)))
-                .add(Arguments.of(null, CertificateCreationInput.builder().build(), mock(VaultFake.class)))
-                .add(Arguments.of(CERT_NAME_1, null, mock(VaultFake.class)))
-                .add(Arguments.of(CERT_NAME_1, CertificateCreationInput.builder().build(), null))
-                .build();
-    }
-
-    public static Stream<Arguments> nullRenewalProvider() {
-        final var kid = VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
-        final var cid = VERSIONED_CERT_ENTITY_ID_1_VERSION_1;
-        final var vaultFake = mock(VaultFake.class);
-        final var input = CertificateCreationInput.builder().build();
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null, null))
-                .add(Arguments.of(input, null, null, null))
-                .add(Arguments.of(null, kid, null, null))
-                .add(Arguments.of(null, null, cid, null))
-                .add(Arguments.of(null, null, null, vaultFake))
-                .add(Arguments.of(null, kid, cid, vaultFake))
-                .add(Arguments.of(input, null, cid, vaultFake))
-                .add(Arguments.of(input, kid, null, vaultFake))
-                .add(Arguments.of(input, kid, cid, null))
-                .build();
-    }
-
-    public static Stream<Arguments> nullRestoreProvider() {
-        final var id = VERSIONED_CERT_ENTITY_ID_1_VERSION_1;
-        final var input = mock(CertificateRestoreInput.class);
-        final var vault = mock(VaultFake.class);
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null, null))
-                .add(Arguments.of(id, null, null))
-                .add(Arguments.of(null, input, null))
-                .add(Arguments.of(null, null, vault))
-                .add(Arguments.of(null, input, vault))
-                .add(Arguments.of(id, null, vault))
-                .add(Arguments.of(id, input, null))
-                .build();
-    }
-
-    @ParameterizedTest
-    @MethodSource("nullProvider")
-    void testConstructorShouldThrowExceptionWhenCalledWithNulls(
-            final String id, final CertificateCreationInput input, final VaultFake vault) {
-        //given
-
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new KeyVaultCertificateEntity(id, input, vault));
-
-        //then + exception
-    }
-
-    @ParameterizedTest
-    @MethodSource("nullRenewalProvider")
-    void testRenewalConstructorShouldThrowExceptionWhenCalledWithNulls(
-            final ReadOnlyCertificatePolicy input, final VersionedKeyEntityId kid,
-            final VersionedCertificateEntityId id, final VaultFake vault) {
-        //given
-
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new KeyVaultCertificateEntity(input, kid, id, vault));
-
-        //then + exception
-    }
-
     @SuppressWarnings("unchecked")
     @Test
     void testConstructorShouldThrowExceptionWhenCalledWithAlreadyUsedKeyName() {
         //given
         final var id = VERSIONED_CERT_ENTITY_ID_1_VERSION_1;
         final var name = id.id();
-        final var input = CertificateCreationInput.builder().name(name).build();
+        final var input = CertificateCreationInput.builder()
+                .name(name)
+                .certAuthorityType(CertAuthorityType.SELF_SIGNED)
+                .subject("CN=localhost")
+                .keyType(KeyType.EC)
+                .keyCurveName(KeyCurveName.P_521)
+                .validityStart(OffsetDateTime.now())
+                .contentType(CertContentType.PEM)
+                .build();
 
         final ReadOnlyVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> keyMap
                 = mock(ReadOnlyVersionedEntityMultiMap.class);
@@ -148,7 +79,15 @@ class KeyVaultCertificateEntityTest {
         //given
         final var id = VERSIONED_CERT_ENTITY_ID_1_VERSION_1;
         final var name = id.id();
-        final var input = CertificateCreationInput.builder().name(name).build();
+        final var input = CertificateCreationInput.builder()
+                .name(name)
+                .certAuthorityType(CertAuthorityType.SELF_SIGNED)
+                .subject("CN=localhost")
+                .keyType(KeyType.EC)
+                .keyCurveName(KeyCurveName.P_521)
+                .validityStart(OffsetDateTime.now())
+                .contentType(CertContentType.PEM)
+                .build();
 
         final ReadOnlyVersionedEntityMultiMap<SecretEntityId, VersionedSecretEntityId, ReadOnlyKeyVaultSecretEntity> secretMap
                 = mock(ReadOnlyVersionedEntityMultiMap.class);
@@ -316,39 +255,6 @@ class KeyVaultCertificateEntityTest {
     }
 
     @Test
-    void testGetEncodedCertificateSignRequestShouldReturnNullWhenCsrIsMissing() {
-        //given
-        final var input = CertificateCreationInput.builder()
-                .validityStart(NOW)
-                .subject("CN=" + LOCALHOST)
-                .upns(Set.of(LOOP_BACK_IP))
-                .name(CERT_NAME_1)
-                .dnsNames(Set.of(LOWKEY_VAULT))
-                .enableTransparency(false)
-                .certAuthorityType(UNKNOWN)
-                .contentType(CertContentType.PEM)
-                .certificateType(null)
-                .keyType(KeyType.EC)
-                .keyCurveName(KeyCurveName.P_521)
-                .extendedKeyUsage(Set.of("1.3.6.1.5.5.7.3.1", "1.3.6.1.5.5.7.3.2"))
-                .keyUsage(Set.of(KeyUsageEnum.DIGITAL_SIGNATURE))
-                .reuseKeyOnRenewal(true)
-                .validityMonths(VALIDITY_MONTHS_ONE_YEAR)
-                .exportablePrivateKey(true)
-                .build();
-
-        final VaultFake vault = new VaultFakeImpl(HTTPS_LOCALHOST_8443);
-        final var entity = spy(new KeyVaultCertificateEntity(CERT_NAME_1, input, vault));
-        doReturn(null).when(entity).getCertificateSigningRequest();
-
-        //when
-        final var actual = entity.getEncodedCertificateSigningRequest();
-
-        //then
-        Assertions.assertNull(actual);
-    }
-
-    @Test
     void testGetEncodedCertificateSignRequestShouldWrapExceptionWhenErrorIsCaught() {
         //given
         final var input = CertificateCreationInput.builder()
@@ -418,7 +324,15 @@ class KeyVaultCertificateEntityTest {
         //given
         final var kid = VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
         final var id = VERSIONED_CERT_ENTITY_ID_1_VERSION_1;
-        final var input = CertificateCreationInput.builder().name(id.id()).build();
+        final var input = CertificateCreationInput.builder()
+                .name(id.id())
+                .certAuthorityType(CertAuthorityType.SELF_SIGNED)
+                .subject("CN=localhost")
+                .keyType(KeyType.EC)
+                .keyCurveName(KeyCurveName.P_521)
+                .validityStart(OffsetDateTime.now())
+                .contentType(CertContentType.PEM)
+                .build();
 
         final ReadOnlyVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> keyMap
                 = mock(ReadOnlyVersionedEntityMultiMap.class);
@@ -446,7 +360,15 @@ class KeyVaultCertificateEntityTest {
         //given
         final var kid = VERSIONED_KEY_ENTITY_ID_1_VERSION_1;
         final var id = VERSIONED_CERT_ENTITY_ID_1_VERSION_1;
-        final var input = CertificateCreationInput.builder().name(id.id()).build();
+        final var input = CertificateCreationInput.builder()
+                .name(id.id())
+                .certAuthorityType(CertAuthorityType.SELF_SIGNED)
+                .subject("CN=localhost")
+                .keyType(KeyType.EC)
+                .keyCurveName(KeyCurveName.P_521)
+                .validityStart(OffsetDateTime.now())
+                .contentType(CertContentType.PEM)
+                .build();
 
         final ReadOnlyVersionedEntityMultiMap<KeyEntityId, VersionedKeyEntityId, ReadOnlyKeyVaultKeyEntity> keyMap
                 = mock(ReadOnlyVersionedEntityMultiMap.class);
@@ -474,17 +396,5 @@ class KeyVaultCertificateEntityTest {
         verify(keyMap).containsEntity(kid);
         verify(secretFake).getEntities();
         verify(secretMap).containsEntityMatching(eq(id.id()), any());
-    }
-
-    @ParameterizedTest
-    @MethodSource("nullRestoreProvider")
-    void testRestoreConstructorShouldThrowExceptionWhenCalledWithNull(
-            final VersionedCertificateEntityId id, final CertificateRestoreInput input, final VaultFake vault) {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new KeyVaultCertificateEntity(id, input, vault));
-
-        //then + exception
     }
 }

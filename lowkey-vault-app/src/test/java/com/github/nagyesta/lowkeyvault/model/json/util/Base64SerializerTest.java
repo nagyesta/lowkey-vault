@@ -50,7 +50,9 @@ class Base64SerializerTest {
 
     @ParameterizedTest
     @MethodSource("base64Provider")
-    void testSerializeShouldEncodeBase64WhenCalled(final byte[] input, final String expected) {
+    void testSerializeShouldEncodeBase64WhenCalled(
+            final byte[] input,
+            final String expected) {
         //given
         doReturn(generator).when(generator).writeString(output.capture());
 

@@ -54,24 +54,15 @@ class VaultFakeImplTest {
                 .add(Arguments.of(RecoveryLevel.RECOVERABLE, 42))
                 .add(Arguments.of(RecoveryLevel.PURGEABLE, 21))
                 .add(Arguments.of(RecoveryLevel.CUSTOMIZED_RECOVERABLE, WAIT_MILLIS))
-                .add(Arguments.of(null, WAIT_MILLIS))
                 .build();
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testConstructorShouldThrowExceptionWhenCalledWithNull() {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new VaultFakeImpl(null));
-
-        //then + exception
     }
 
     @ParameterizedTest
     @MethodSource("uriPairProvider")
-    void testMatchesShouldUseFullMatchWhenCalled(final URI self, final URI input, final UnaryOperator<URI> uriMapper) {
+    void testMatchesShouldUseFullMatchWhenCalled(
+            final URI self,
+            final URI input,
+            final UnaryOperator<URI> uriMapper) {
         //given
         final var underTest = new VaultFakeImpl(self);
 
@@ -85,7 +76,10 @@ class VaultFakeImplTest {
 
     @ParameterizedTest
     @MethodSource("uriPairProvider")
-    void testMatchesShouldUseFullMatchWithAnyOfTheAliasesWhenCalled(final URI self, final URI input, final UnaryOperator<URI> uriMapper) {
+    void testMatchesShouldUseFullMatchWithAnyOfTheAliasesWhenCalled(
+            final URI self,
+            final URI input,
+            final UnaryOperator<URI> uriMapper) {
         //given
         final var underTest = new VaultFakeImpl(HTTPS_AZURE_CLOUD);
         underTest.setAliases(Set.of(self, HTTPS_DEFAULT_LOWKEY_VAULT));
@@ -96,42 +90,6 @@ class VaultFakeImplTest {
         //then
         final var expected = uriMapper.apply(self).equals(uriMapper.apply(input));
         Assertions.assertEquals(expected, actual, "URI was expected to match alias: " + self);
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testMatchesShouldThrowExceptionWhenCalledWithNullUri() {
-        //given
-        final var underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.matches(null, uri -> uri));
-
-        //then + exception
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testMatchesShouldThrowExceptionWhenCalledWithNullMapper() {
-        //given
-        final var underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.matches(HTTPS_LOCALHOST, null));
-
-        //then + exception
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    void testSetAliasesShouldThrowExceptionWhenCalledWithNull() {
-        //given
-        final var underTest = new VaultFakeImpl(HTTPS_LOCALHOST);
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> underTest.setAliases(null));
-
-        //then + exception
     }
 
     @ParameterizedTest
@@ -240,7 +198,8 @@ class VaultFakeImplTest {
     @ParameterizedTest
     @MethodSource("invalidRecoveryParameterProvider")
     void testConstructorWithRecoveryShouldValidateThePairOfParametersWhenCalled(
-            final RecoveryLevel recoveryLevel, final Integer days) {
+            final RecoveryLevel recoveryLevel,
+            final Integer days) {
         //given
 
         //when

@@ -31,14 +31,6 @@ class UriUtilTest {
                 .build();
     }
 
-    public static Stream<Arguments> nullSource() {
-        return Stream.<Arguments>builder()
-                .add(Arguments.of(null, null))
-                .add(Arguments.of(HTTP_LOCALHOST, null))
-                .add(Arguments.of(null, PATH))
-                .build();
-    }
-
 
     @Test
     void testConstructorShouldThrowExceptionWhenCalled() throws NoSuchMethodException {
@@ -62,20 +54,12 @@ class UriUtilTest {
     }
 
     @ParameterizedTest
-    @MethodSource("nullSource")
-    void testUriBuilderForPathShouldThrowExceptionWhenCalledWithMalformedUri(final String baseUri, final String path) {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> UriUtil.uriBuilderForPath(baseUri, path));
-
-        //then + exception
-    }
-
-    @ParameterizedTest
     @MethodSource("validInputProvider")
     void testUriBuilderForPathShouldReturnUriWhenCalledWithValidInput(
-            final String baseUri, final String path, final Map<String, String> parameters, final String expected) {
+            final String baseUri,
+            final String path,
+            final Map<String, String> parameters,
+            final String expected) {
         //given
 
         //when

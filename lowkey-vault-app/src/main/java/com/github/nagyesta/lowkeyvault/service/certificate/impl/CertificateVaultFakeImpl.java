@@ -13,9 +13,10 @@ import com.github.nagyesta.lowkeyvault.service.key.id.VersionedKeyEntityId;
 import com.github.nagyesta.lowkeyvault.service.key.impl.KeyVaultKeyEntity;
 import com.github.nagyesta.lowkeyvault.service.secret.id.SecretEntityId;
 import com.github.nagyesta.lowkeyvault.service.vault.VaultFake;
-import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.time.OffsetDateTime;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.UnaryOperator;
@@ -28,9 +29,9 @@ public class CertificateVaultFakeImpl
     private final ConcurrentMap<String, LifetimeActionPolicy> lifetimeActionPolicies = new ConcurrentHashMap<>();
 
     public CertificateVaultFakeImpl(
-            @org.springframework.lang.NonNull final VaultFake vaultFake,
-            @org.springframework.lang.NonNull final RecoveryLevel recoveryLevel,
-            final Integer recoverableDays) {
+            final VaultFake vaultFake,
+            final RecoveryLevel recoveryLevel,
+            @Nullable final Integer recoverableDays) {
         super(vaultFake, recoveryLevel, recoverableDays);
     }
 
@@ -43,16 +44,16 @@ public class CertificateVaultFakeImpl
 
     @Override
     public VersionedCertificateEntityId createCertificateVersion(
-            @NonNull final String name,
-            @NonNull final CertificateCreationInput input) {
+            final String name,
+            final CertificateCreationInput input) {
         final var entity = new KeyVaultCertificateEntity(name, input, vaultFake());
         return addVersion(entity.getId(), entity);
     }
 
     @Override
     public VersionedCertificateEntityId importCertificateVersion(
-            @NonNull final String name,
-            @NonNull final CertificateImportInput input) {
+            final String name,
+            final CertificateImportInput input) {
         final var entity = new KeyVaultCertificateEntity(
                 name, input, vaultFake());
         return addVersion(entity.getId(), entity);
@@ -60,8 +61,8 @@ public class CertificateVaultFakeImpl
 
     @Override
     public void restoreCertificateVersion(
-            @NonNull final VersionedCertificateEntityId versionedEntityId,
-            @NonNull final CertificateRestoreInput input) {
+            final VersionedCertificateEntityId versionedEntityId,
+            final CertificateRestoreInput input) {
         final var entity = new KeyVaultCertificateEntity(versionedEntityId, input, vaultFake());
         addVersion(entity.getId(), entity);
     }
@@ -110,7 +111,7 @@ public class CertificateVaultFakeImpl
         if (input.isReuseKeyOnRenewal()) {
             id = new VersionedCertificateEntityId(vaultFake().baseUri(), input.getName());
         } else {
-            id = new VersionedCertificateEntityId(vaultFake().baseUri(), input.getName(), kid.version());
+            id = new VersionedCertificateEntityId(vaultFake().baseUri(), input.getName(), Objects.requireNonNull(kid.version()));
         }
         return id;
     }
@@ -143,34 +144,34 @@ public class CertificateVaultFakeImpl
     }
 
     @Override
-    public void delete(@NonNull final CertificateEntityId entityId) {
+    public void delete(final CertificateEntityId entityId) {
         super.delete(entityId);
         vaultFake().keyVaultFake().delete(toKeyEntityId(entityId));
         vaultFake().secretVaultFake().delete(toSecretEntityId(entityId));
     }
 
     @Override
-    public void recover(@NonNull final CertificateEntityId entityId) {
+    public void recover(final CertificateEntityId entityId) {
         super.recover(entityId);
         vaultFake().keyVaultFake().recover(toKeyEntityId(entityId));
         vaultFake().secretVaultFake().recover(toSecretEntityId(entityId));
     }
 
     @Override
-    public void purge(@NonNull final CertificateEntityId entityId) {
+    public void purge(final CertificateEntityId entityId) {
         super.purge(entityId);
         vaultFake().keyVaultFake().purge(toKeyEntityId(entityId));
         vaultFake().secretVaultFake().purge(toSecretEntityId(entityId));
     }
 
     @Override
-    public LifetimeActionPolicy lifetimeActionPolicy(@NonNull final CertificateEntityId certificateEntityId) {
+    public @Nullable LifetimeActionPolicy lifetimeActionPolicy(final CertificateEntityId certificateEntityId) {
         purgeDeletedPolicies();
         return lifetimeActionPolicies.get(certificateEntityId.id());
     }
 
     @Override
-    public void setLifetimeActionPolicy(@NonNull final LifetimeActionPolicy lifetimeActionPolicy) {
+    public void setLifetimeActionPolicy(final LifetimeActionPolicy lifetimeActionPolicy) {
         final var readOnlyEntity = latestReadOnlyCertificateVersion(lifetimeActionPolicy.getId());
         lifetimeActionPolicy.validate(readOnlyEntity.getIssuancePolicy().getValidityMonths());
         final var existingPolicy = lifetimeActionPolicy(lifetimeActionPolicy.getId());

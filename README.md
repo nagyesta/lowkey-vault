@@ -218,6 +218,7 @@ Lowkey Vault is far from supporting all Azure Key Vault features. The list suppo
 
 Used for metadata endpoints
 
+- Readiness/Liveness `/ping`
 - Managed Identity Token API
     - Simulating Managed Identity Token endpoint `GET /metadata/identity/oauth2/token?resource=<resource>`.
     - OpenID configuration `GET /metadata/identity/.well-known/openid-configuration`

@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.util.StreamUtils;
 
@@ -23,7 +24,7 @@ public final class ResourceUtils {
         }
     }
 
-    public static String loadResourceAsBase64String(final String resource) {
+    public static @Nullable String loadResourceAsBase64String(final String resource) {
         final var binaryData = loadResourceAsByteArray(resource);
         return Optional.ofNullable(binaryData)
                 .map(binary -> Base64.getEncoder().encodeToString(binary))

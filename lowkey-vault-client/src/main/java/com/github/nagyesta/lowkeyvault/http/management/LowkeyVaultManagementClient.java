@@ -1,6 +1,6 @@
 package com.github.nagyesta.lowkeyvault.http.management;
 
-import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.URI;
@@ -14,27 +14,27 @@ public interface LowkeyVaultManagementClient {
             int waitMillis, Supplier<T> exceptionProvider) throws T, InterruptedException;
 
     VaultModel createVault(
-            @NonNull URI baseUri,
-            @NonNull RecoveryLevel recoveryLevel,
-            @NonNull Integer recoverableDays);
+            URI baseUri,
+            RecoveryLevel recoveryLevel,
+            Integer recoverableDays);
 
     List<VaultModel> listVaults();
 
     List<VaultModel> listDeletedVaults();
 
-    boolean delete(@NonNull URI baseUri);
+    boolean delete(URI baseUri);
 
-    VaultModel recover(@NonNull URI baseUri);
+    VaultModel recover(URI baseUri);
 
-    VaultModel addAlias(@NonNull URI baseUri, @NonNull URI alias);
+    VaultModel addAlias(URI baseUri, URI alias);
 
-    VaultModel removeAlias(@NonNull URI baseUri, @NonNull URI alias);
+    VaultModel removeAlias(URI baseUri, URI alias);
 
-    boolean purge(@NonNull URI baseUri);
+    boolean purge(URI baseUri);
 
-    void timeShift(@NonNull TimeShiftContext context);
+    void timeShift(TimeShiftContext context);
 
-    String exportActive();
+    @Nullable String exportActive();
 
     String unpackBackup(byte[] backup) throws IOException;
 

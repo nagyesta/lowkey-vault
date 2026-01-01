@@ -16,6 +16,7 @@ import java.security.cert.Certificate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class CertificateBackingEntityGenerator {
@@ -29,7 +30,7 @@ public class CertificateBackingEntityGenerator {
     public VersionedKeyEntityId generateKeyPair(final ReadOnlyCertificatePolicy input) {
         final var now = OffsetDateTime.now(ZoneOffset.UTC);
         final var expiry = now.plusMonths(input.getValidityMonths());
-        return vaultFake.keyVaultFake().createKeyVersion(input.getName(), KeyCreateDetailedInput.builder()
+        return vaultFake.keyVaultFake().createKeyVersion(Objects.requireNonNull(input.getName()), KeyCreateDetailedInput.builder()
                 .key(input.toKeyCreationInput())
                 .keyOperations(determineKeyOperations(input))
                 .notBefore(now)
@@ -42,8 +43,10 @@ public class CertificateBackingEntityGenerator {
     public VersionedKeyEntityId importKeyPair(
             final ReadOnlyCertificatePolicy input,
             final JsonWebKeyImportRequest keyImportRequest) {
+        final var name = Objects.requireNonNull(input.getName());
+        final var vault = vaultFake.baseUri();
         return importKeyPair(
-                new VersionedKeyEntityId(vaultFake.baseUri(), input.getName()), input, keyImportRequest, true);
+                new VersionedKeyEntityId(vault, name), input, keyImportRequest, true);
     }
 
     public VersionedKeyEntityId importKeyPair(

@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -33,7 +32,7 @@ public class BaseUriExtractionFilter
     protected void doFilterInternal(
             final HttpServletRequest request,
             final HttpServletResponse response,
-            @NonNull final FilterChain filterChain) throws ServletException, IOException {
+            final FilterChain filterChain) throws ServletException, IOException {
         final var port = resolvePort(request.getServerPort());
         final var baseUri = URI.create(HTTPS + request.getServerName() + port);
         request.setAttribute(ApiConstants.REQUEST_BASE_URI, baseUri);
@@ -41,7 +40,7 @@ public class BaseUriExtractionFilter
     }
 
     @Override
-    protected boolean shouldNotFilter(@NonNull final HttpServletRequest request) {
+    protected boolean shouldNotFilter(final HttpServletRequest request) {
         return ApiConstants.NON_VAULT_URIS.stream()
                 .anyMatch(pattern -> antPathMatcher.matchStart(pattern, request.getRequestURI()));
     }

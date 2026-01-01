@@ -1,6 +1,5 @@
 package com.github.nagyesta.lowkeyvault.service.certificate;
 
-import lombok.NonNull;
 import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
@@ -24,8 +23,8 @@ public enum CertificateLifetimeActionTriggerType {
 
         @Override
         public long triggersAfterDays(
-                @NonNull final OffsetDateTime validityStart,
-                @NonNull final OffsetDateTime expiry,
+                final OffsetDateTime validityStart,
+                final OffsetDateTime expiry,
                 final int value) {
             return DAYS.between(validityStart, expiry) - value;
         }
@@ -43,8 +42,8 @@ public enum CertificateLifetimeActionTriggerType {
 
         @Override
         public long triggersAfterDays(
-                @NonNull final OffsetDateTime validityStart,
-                @NonNull final OffsetDateTime expiry,
+                final OffsetDateTime validityStart,
+                final OffsetDateTime expiry,
                 final int value) {
             return onePercentInDays(validityStart, expiry).multiply(BigDecimal.valueOf(value)).longValue();
         }
@@ -64,5 +63,5 @@ public enum CertificateLifetimeActionTriggerType {
 
     public abstract void validate(int validityMonths, int value);
 
-    public abstract long triggersAfterDays(@NonNull OffsetDateTime validityStart, @NonNull OffsetDateTime expiry, int value);
+    public abstract long triggersAfterDays(OffsetDateTime validityStart, OffsetDateTime expiry, int value);
 }

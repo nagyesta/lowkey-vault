@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.nagyesta.lowkeyvault.model.json.util.Base64Deserializer;
 import com.github.nagyesta.lowkeyvault.model.json.util.Base64Serializer;
 import lombok.Data;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
@@ -18,8 +19,10 @@ public class KeyVaultCertificateItemModel {
     @JsonDeserialize(using = Base64Deserializer.class)
     @JsonProperty("x5t")
     private byte[] thumbprint;
+    @Nullable
     @JsonProperty("attributes")
     private CertificatePropertiesModel attributes;
+    @Nullable
     @JsonProperty("tags")
     private Map<String, String> tags;
 

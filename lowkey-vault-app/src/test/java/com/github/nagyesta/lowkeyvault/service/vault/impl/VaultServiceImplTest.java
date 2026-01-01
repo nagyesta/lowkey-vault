@@ -81,20 +81,11 @@ class VaultServiceImplTest {
                 .build();
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testConstructorShouldThrowExceptionWhenCalledWithNull() {
-        //given
-
-        //when
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new VaultServiceImpl(null));
-
-        //then + exception
-    }
-
     @ParameterizedTest
     @MethodSource("valueProvider")
-    void testCreateShouldThrowExceptionWhenAlreadyExists(final List<URI> vaults, final URI duplicate) {
+    void testCreateShouldThrowExceptionWhenAlreadyExists(
+            final List<URI> vaults,
+            final URI duplicate) {
         //given
         final var underTest = new VaultServiceImpl(uri -> uri);
         vaults.forEach(underTest::create);
@@ -107,7 +98,10 @@ class VaultServiceImplTest {
 
     @ParameterizedTest
     @MethodSource("aliasValueProvider")
-    void testCreateShouldThrowExceptionWhenAlreadyExists(final List<URI> vaults, final URI baseUri, final Set<URI> duplicate) {
+    void testCreateShouldThrowExceptionWhenAlreadyExists(
+            final List<URI> vaults,
+            final URI baseUri,
+            final Set<URI> duplicate) {
         //given
         final var underTest = new VaultServiceImpl(uri -> uri);
         vaults.forEach(underTest::create);
@@ -134,7 +128,9 @@ class VaultServiceImplTest {
 
     @ParameterizedTest
     @MethodSource("valueProvider")
-    void testDeleteShouldReturnFalseWhenAlreadyDeleted(final List<URI> vaults, final URI delete) {
+    void testDeleteShouldReturnFalseWhenAlreadyDeleted(
+            final List<URI> vaults,
+            final URI delete) {
         //given
         final var underTest = new VaultServiceImpl(uri -> uri);
         vaults.forEach(underTest::create);
@@ -150,7 +146,9 @@ class VaultServiceImplTest {
 
     @ParameterizedTest
     @MethodSource("valueProvider")
-    void testRecoverShouldThrowExceptionWhenNotDeleted(final List<URI> vaults, final URI duplicate) {
+    void testRecoverShouldThrowExceptionWhenNotDeleted(
+            final List<URI> vaults,
+            final URI duplicate) {
         //given
         final var underTest = new VaultServiceImpl(uri -> uri);
         vaults.forEach(underTest::create);
@@ -163,7 +161,9 @@ class VaultServiceImplTest {
 
     @ParameterizedTest
     @MethodSource("valueProvider")
-    void testPurgeShouldThrowExceptionWhenNotDeleted(final List<URI> vaults, final URI duplicate) {
+    void testPurgeShouldThrowExceptionWhenNotDeleted(
+            final List<URI> vaults,
+            final URI duplicate) {
         //given
         final var underTest = new VaultServiceImpl(uri -> uri);
         vaults.forEach(underTest::create);
@@ -176,7 +176,9 @@ class VaultServiceImplTest {
 
     @ParameterizedTest
     @MethodSource("valueProvider")
-    void testFindByUriIncludeDeletedShouldReturnValueWhenItMatchesFully(final List<URI> vaults, final URI lookup) {
+    void testFindByUriIncludeDeletedShouldReturnValueWhenItMatchesFully(
+            final List<URI> vaults,
+            final URI lookup) {
         //given
         final var underTest = new VaultServiceImpl(uri -> uri);
         vaults.forEach(underTest::create);
@@ -192,7 +194,9 @@ class VaultServiceImplTest {
 
     @ParameterizedTest
     @MethodSource("missingValueProvider")
-    void testFindByUriIncludeDeletedShouldThrowExceptionWhenItemDoesNotMatchFully(final List<URI> vaults, final URI lookup) {
+    void testFindByUriIncludeDeletedShouldThrowExceptionWhenItemDoesNotMatchFully(
+            final List<URI> vaults,
+            final URI lookup) {
         //given
         final var underTest = new VaultServiceImpl(uri -> uri);
         vaults.forEach(underTest::create);
@@ -206,7 +210,9 @@ class VaultServiceImplTest {
 
     @ParameterizedTest
     @MethodSource("valueProvider")
-    void testFindByUriShouldReturnValueWhenItMatchesFully(final List<URI> vaults, final URI lookup) {
+    void testFindByUriShouldReturnValueWhenItMatchesFully(
+            final List<URI> vaults,
+            final URI lookup) {
         //given
         final var underTest = new VaultServiceImpl(uri -> uri);
         vaults.forEach(underTest::create);
@@ -221,7 +227,9 @@ class VaultServiceImplTest {
 
     @ParameterizedTest
     @MethodSource("valueProvider")
-    void testFindByUriShouldReturnValueWhenItMatchesFullyAfterRecovery(final List<URI> vaults, final URI lookup) {
+    void testFindByUriShouldReturnValueWhenItMatchesFullyAfterRecovery(
+            final List<URI> vaults,
+            final URI lookup) {
         //given
         final var underTest = new VaultServiceImpl(uri -> uri);
         vaults.forEach(uri -> underTest.create(uri, RecoveryLevel.RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE, null));
@@ -238,7 +246,9 @@ class VaultServiceImplTest {
 
     @ParameterizedTest
     @MethodSource("valueProvider")
-    void testFindByUriShouldNotReturnValueWhenItWasPurged(final List<URI> vaults, final URI lookup) {
+    void testFindByUriShouldNotReturnValueWhenItWasPurged(
+            final List<URI> vaults,
+            final URI lookup) {
         //given
         final var underTest = new VaultServiceImpl(uri -> uri);
         vaults.forEach(uri -> underTest.create(uri, RecoveryLevel.RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE, null));
@@ -253,7 +263,9 @@ class VaultServiceImplTest {
 
     @ParameterizedTest
     @MethodSource("missingValueProvider")
-    void testFindByUriShouldThrowExceptionWhenItemDoesNotMatchFully(final List<URI> vaults, final URI lookup) {
+    void testFindByUriShouldThrowExceptionWhenItemDoesNotMatchFully(
+            final List<URI> vaults,
+            final URI lookup) {
         //given
         final var underTest = new VaultServiceImpl(uri -> uri);
         vaults.forEach(underTest::create);
@@ -266,7 +278,9 @@ class VaultServiceImplTest {
 
     @ParameterizedTest
     @MethodSource("valueProvider")
-    void testFindByUriShouldThrowExceptionWhenItemIsDeleted(final List<URI> vaults, final URI lookup) {
+    void testFindByUriShouldThrowExceptionWhenItemIsDeleted(
+            final List<URI> vaults,
+            final URI lookup) {
         //given
         final var underTest = new VaultServiceImpl(uri -> uri);
         vaults.forEach(uri -> underTest
@@ -366,7 +380,11 @@ class VaultServiceImplTest {
     @ParameterizedTest
     @MethodSource("invalidAliasProvider")
     void testUpdateAliasShouldThrowExceptionWhenCalledWithInvalidInput(
-            final URI baseUri, final Set<URI> aliases, final URI add, final URI remove, final Class<Exception> expectedException) {
+            final URI baseUri,
+            final Set<URI> aliases,
+            final URI add,
+            final URI remove,
+            final Class<Exception> expectedException) {
         //given
         final var underTest = new VaultServiceImpl(uri -> uri);
         underTest.create(baseUri, RecoveryLevel.CUSTOMIZED_RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE, aliases);
@@ -380,7 +398,11 @@ class VaultServiceImplTest {
     @ParameterizedTest
     @MethodSource("validAliasProvider")
     void testUpdateAliasShouldAddAndRemoveAliasesWhenCalledWithValidInput(
-            final URI baseUri, final Set<URI> aliases, final URI add, final URI remove, final Set<URI> expected) {
+            final URI baseUri,
+            final Set<URI> aliases,
+            final URI add,
+            final URI remove,
+            final Set<URI> expected) {
         //given
         final var underTest = new VaultServiceImpl(uri -> uri);
         underTest.create(baseUri, RecoveryLevel.CUSTOMIZED_RECOVERABLE, RecoveryLevel.MAX_RECOVERABLE_DAYS_INCLUSIVE, aliases);

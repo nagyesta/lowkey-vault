@@ -26,11 +26,10 @@ public class KeyRotationPolicyModel {
     @NotNull(groups = {Restore.class, Update.class})
     @JsonProperty("attributes")
     private KeyRotationPolicyAttributes attributes;
-    @Valid
     @NotNull(groups = {Restore.class, Update.class})
     @Size(min = 1, max = 2, groups = {Restore.class, Update.class})
     @JsonProperty("lifetimeActions")
-    private List<KeyLifetimeActionModel> lifetimeActions;
+    private List<@Valid KeyLifetimeActionModel> lifetimeActions;
     @Nullable
     @JsonIgnore
     private KeyEntityId keyEntityId;

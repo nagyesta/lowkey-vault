@@ -170,7 +170,8 @@ public class AbstractLowkeyVaultContainerTest {
     protected void verifyTokenEndpointIsWorking(
             final String endpointUrl,
             final HttpClient httpClient) {
-        final var httpResponse = httpClient.send(new HttpRequest(HttpMethod.GET, endpointUrl + "?resource=https://localhost"))
+        final var httpResponse = httpClient.send(new HttpRequest(HttpMethod.GET, endpointUrl
+                        + "?api-version=2018-02-01&resource=https://localhost"))
                 .doOnError(Assertions::fail)
                 .doOnSuccess(response -> Assertions.assertEquals(SUCCESS, response.getStatusCode()))
                 .single()

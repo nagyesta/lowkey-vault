@@ -39,9 +39,8 @@ public class CertificatePolicyModel {
     @JsonProperty("attributes")
     private CertificatePropertiesModel attributes;
     @Nullable
-    @Valid
     @Size(max = 1) //only one can be set on the UI
     @JsonProperty("lifetime_actions")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<CertificateLifetimeActionModel> lifetimeActions;
+    private List<@Valid CertificateLifetimeActionModel> lifetimeActions;
 }

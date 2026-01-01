@@ -15,11 +15,10 @@ import java.util.List;
 public class SecretBackupList
         implements BackupListContainer<SecretBackupListItem> {
 
-    @Valid
     @NotNull
     @Size(min = 1)
     @JsonProperty("versions")
-    private List<SecretBackupListItem> versions = List.of();
+    private List<@Valid SecretBackupListItem> versions = List.of();
 
     public void setVersions(final List<SecretBackupListItem> versions) {
         this.versions = List.copyOf(versions);

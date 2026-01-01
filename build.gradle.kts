@@ -94,8 +94,10 @@ versioner.apply()
 
 sonar {
     properties {
+        property("sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/report.xml")
+        property("sonar.junit.reportPaths", "build/test-results/test")
+        property("sonar.sources", "src/main/java")
         property("sonar.exclusions", "**/*.md,.github/**,.idea/**")
-        //no jacoco report because there are no sources
         property("sonar.organization", rootProject.extra.get("sonarOrganization") as String)
         property("sonar.projectKey", rootProject.extra.get("sonarProjectKey") as String)
     }
@@ -105,7 +107,6 @@ subprojects {
     if (project.name != "lowkey-vault-docker") {
         apply(plugin = "java")
         apply(plugin = "org.gradle.jacoco")
-        apply(plugin = "org.sonarqube")
         apply(plugin = "org.gradle.checkstyle")
         apply(plugin = "org.gradle.signing")
         apply(plugin = "org.sonatype.gradle.plugins.scan")
@@ -126,17 +127,6 @@ subprojects {
 
         jacoco {
             toolVersion = rootProject.libs.versions.jacoco.get()
-        }
-
-        sonar {
-            properties {
-                property("sonar.coverage.jacoco.xmlReportPaths", layout.buildDirectory.file("reports/jacoco/report.xml").get().asFile.path)
-                property("sonar.junit.reportPaths", layout.buildDirectory.dir("test-results/test").get().asFile.path)
-                property("sonar.sources", "src/main/java")
-                property("sonar.exclusions", "**/*.md,.github/**,.idea/**")
-                property("sonar.organization", rootProject.extra.get("sonarOrganization") as String)
-                property("sonar.projectKey", rootProject.extra.get("sonarProjectKey") as String)
-            }
         }
 
         tasks.withType(SonarTask::class).forEach {

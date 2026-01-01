@@ -133,14 +133,6 @@ tasks.test {
     finalizedBy(dockerStop)
 }
 
-sonar {
-    properties {
-        //no jacoco report because there are no sources
-        property("sonar.organization", rootProject.extra.get("sonarOrganization") as String)
-        property("sonar.projectKey", rootProject.extra.get("sonarProjectKey") as String)
-    }
-}
-
 abortMission {
     toolVersion = libs.versions.abortMission.get()
 }

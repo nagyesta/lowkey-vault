@@ -13,9 +13,8 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class VaultBackupListModel {
 
-    @Valid
     @NotNull
     @Size(min = 1)
     @JsonProperty("vaults")
-    private List<VaultBackupModel> vaults;
+    private List<@Valid VaultBackupModel> vaults;
 }

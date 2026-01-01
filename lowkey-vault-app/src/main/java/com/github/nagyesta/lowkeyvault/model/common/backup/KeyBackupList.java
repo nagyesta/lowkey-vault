@@ -21,11 +21,10 @@ import java.util.List;
 public class KeyBackupList
         implements BackupListContainer<KeyBackupListItem> {
 
-    @Valid
     @NotNull
     @Size(min = 1)
     @JsonProperty("versions")
-    private List<KeyBackupListItem> versions = List.of();
+    private List<@Valid KeyBackupListItem> versions = List.of();
     @Nullable
     @Setter
     @Valid

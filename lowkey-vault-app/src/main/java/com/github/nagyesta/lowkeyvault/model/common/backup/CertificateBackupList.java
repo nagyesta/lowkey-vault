@@ -12,11 +12,10 @@ import java.util.List;
 @EqualsAndHashCode
 public class CertificateBackupList implements BackupListContainer<CertificateBackupListItem> {
 
-    @Valid
     @NotNull
     @Size(min = 1)
     @JsonProperty("versions")
-    private List<CertificateBackupListItem> versions = List.of();
+    private List<@Valid CertificateBackupListItem> versions = List.of();
 
     @Override
     public List<CertificateBackupListItem> getVersions() {

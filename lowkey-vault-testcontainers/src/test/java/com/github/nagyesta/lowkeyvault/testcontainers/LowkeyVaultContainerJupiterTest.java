@@ -33,7 +33,7 @@ class LowkeyVaultContainerJupiterTest extends AbstractLowkeyVaultContainerTest {
 
     @Test
     void testContainerShouldStartUpWhenCalledWithValidNames() {
-        //given + when test container is created
+        //given + when the test container is created
 
         //then
         verifyConnectionIsWorking(underTest, VAULT_NAME);
@@ -41,7 +41,7 @@ class LowkeyVaultContainerJupiterTest extends AbstractLowkeyVaultContainerTest {
 
     @Test
     void testContainerShouldStartUpWhenCalledWithValidNamesUsingAlias() {
-        //given + when test container is created
+        //given + when the test container is created
 
         //then
         final var endpoint = URI.create("https://" + ALIAS);
@@ -50,7 +50,7 @@ class LowkeyVaultContainerJupiterTest extends AbstractLowkeyVaultContainerTest {
 
     @Test
     void testContainerShouldProvideTokenEndpointWhenCalledWithValidParameters() {
-        //given test container is created
+        //given, the test container is created
 
         //when
         final var endpoint = underTest.getTokenEndpointUrl();
@@ -63,7 +63,7 @@ class LowkeyVaultContainerJupiterTest extends AbstractLowkeyVaultContainerTest {
 
     @Test
     void testContainerShouldProvideDefaultKeyStoreWhenRequested() throws Exception {
-        //given test container is created
+        //given, the test container is created
 
         //when
         final var password = underTest.getDefaultKeyStorePassword();

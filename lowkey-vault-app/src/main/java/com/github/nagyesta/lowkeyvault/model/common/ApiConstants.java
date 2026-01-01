@@ -57,6 +57,14 @@ public final class ApiConstants {
      */
     public static final String LATEST = V_7_6;
     /**
+     * The token API version: 2018-02-01.
+     */
+    public static final String TOKEN_VERSION_2018_02_01 = "2018-02-01";
+    /**
+     * The token API version: 2019-11-01.
+     */
+    public static final String TOKEN_VERSION_2019_11_01 = "2019-11-01";
+    /**
      * API version parameter name.
      */
     public static final String API_VERSION_NAME = "api-version";

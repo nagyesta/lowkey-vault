@@ -21,15 +21,12 @@ public class VaultBackupModel {
     @JsonProperty("attributes")
     private VaultModel attributes;
     @Nullable
-    @Valid
     @JsonProperty("keys")
-    private Map<String, KeyBackupList> keys;
+    private Map<String, @Valid KeyBackupList> keys;
     @Nullable
-    @Valid
     @JsonProperty("secrets")
-    private Map<String, SecretBackupList> secrets;
+    private Map<String, @Valid SecretBackupList> secrets;
     @Nullable
-    @Valid
     @JsonProperty("certificates")
-    private Map<String, CertificateBackupList> certificates;
+    private Map<String, @Valid CertificateBackupList> certificates;
 }

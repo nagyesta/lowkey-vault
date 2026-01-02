@@ -1,5 +1,6 @@
 package com.github.nagyesta.lowkeyvault;
 
+import com.github.nagyesta.lowkeyvault.context.OptionalQueryApiVersionResolver;
 import org.springframework.stereotype.Component;
 import org.springframework.web.accept.ApiVersionParser;
 import org.springframework.web.servlet.config.annotation.ApiVersionConfigurer;
@@ -14,9 +15,10 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void configureApiVersioning(final ApiVersionConfigurer configurer) {
-        configurer.useQueryParam(API_VERSION_NAME)
-                .addSupportedVersions(TOKEN_VERSION_2018_02_01, TOKEN_VERSION_2019_11_01, V_7_2, V_7_3, V_7_4, V_7_5, V_7_6)
+        configurer.useVersionResolver(new OptionalQueryApiVersionResolver())
+                .addSupportedVersions(V_7_2, V_7_3, V_7_4, V_7_5, V_7_6)
                 .setDefaultVersion(V_7_6)
                 .setVersionParser(IDENTITY_VERSION_PARSER);
     }
+
 }

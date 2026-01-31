@@ -138,7 +138,7 @@ tasks.register<Exec>("regenerateCertJks") {
             "-keystore", "keystore.jks",
             "-storeType", "JKS",
             "-storepass", "changeit",
-            "-ext", "SAN=dns:lowkey-vault.local,dns:lowkey-vault,dns:*.localhost,dns:*.lowkey-vault,dns:*.lowkey-vault.local,dns:*.default.svc.cluster.local,dns:localhost,ip:127.0.0.1")
+            "-ext", "SAN=dns:lowkey-vault.local,dns:lowkey-vault,dns:*.localhost,dns:*.lowkey-vault,dns:*.lowkey-vault.local,dns:*.default.svc.cluster.local,dns:host.docker.internal,dns:localhost,ip:127.0.0.1")
 
     doFirst {
         file("${project.projectDir}/src/main/resources/cert/keystore.jks").delete()

@@ -1,6 +1,6 @@
 [versions]
 springBoot = "4.0.2"
-spring = "7.0.3"
+spring = "7.0.4"
 snakeYaml = "2.5"
 mapstruct = "1.6.3"
 tomcat = "11.0.18"

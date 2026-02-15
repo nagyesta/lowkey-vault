@@ -66,6 +66,7 @@ val copyLegalDocs = tasks.register<Copy>("copyLegalDocs") {
     rename("artifacts.json", "dependency-licenses.json")
     rename("bom.json", "SBOM.json")
 }.get()
+tasks.cyclonedxDirectBom.get().dependsOn(":lowkey-vault-client:jar")
 copyLegalDocs.dependsOn(tasks.licensee)
 copyLegalDocs.dependsOn(tasks.cyclonedxDirectBom)
 tasks.javadoc.get().dependsOn(copyLegalDocs)

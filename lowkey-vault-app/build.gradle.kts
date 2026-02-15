@@ -46,7 +46,6 @@ dependencies {
 
 licensee {
     allow("Apache-2.0")
-    allow("EPL-1.0")
     allow("EPL-2.0")
     allowUrl("https://repository.jboss.org/licenses/apache-2.0.txt")
     allowUrl("https://www.bouncycastle.org/licence.html")

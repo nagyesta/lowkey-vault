@@ -25,7 +25,7 @@ jupiter = "6.0.3"
 abortMission = "7.0.57"
 checkstyle = "12.3.1"
 jacoco = "0.8.14"
-jackson = { strictly = "3.1.1" }
+jackson = { strictly = "3.1.2" }
 jacksonAnnotations = { strictly = "2.21" }
 openApiUi = "3.0.2"
 

@@ -1,0 +1,34 @@
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.4.xsd"
+              xsi:schemaLocation="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.4.xsd                                   https://dependency-check.github.io/DependencyCheck/dependency-suppression.1.4.xsd"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <suppress>
+        <notes>ClassUtils.getClass(...) is not used.</notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.commons/commons-lang3@.*$</packageUrl>
+        <vulnerabilityName>CVE-2025-48924</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes>org.codehaus.plexus.util.Expand is not used.</notes>
+        <packageUrl regex="true">^pkg:maven/org\.codehaus\.plexus/plexus-utils@.+$</packageUrl>
+        <vulnerabilityName>CVE-2025-67030</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes>Transitive dependency, not relevant for the intended use-case.</notes>
+        <packageUrl regex="true">^pkg:maven/commons-beanutils/commons-beanutils@.+$</packageUrl>
+        <vulnerabilityName>CVE-2025-48734</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes>Transitive dependency, not relevant for the intended use-case.</notes>
+        <packageUrl regex="true">^pkg:maven/io\.netty/netty-.+@.+$</packageUrl>
+        <vulnerabilityName>CVE-2026-33871</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes>Transitive dependency, not relevant for the intended use-case.</notes>
+        <packageUrl regex="true">^pkg:maven/io\.netty/netty-.+@.+$</packageUrl>
+        <vulnerabilityName>CVE-2026-33870</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes>Transitive dependency, not relevant for the intended use-case.</notes>
+        <packageUrl regex="true">^pkg:maven/io\.netty/netty-.+@.+$</packageUrl>
+        <vulnerabilityName>CVE-2025-67735</vulnerabilityName>
+    </suppress>
+</suppressions>

@@ -20,7 +20,7 @@ on:
       - "renovate.json"
       - ".whitesource"
       - "gradle/libs.versions.toml"
-      - "config/ossindex/exclusions.txt"
+      - "config/dependency-check/**"
       - ".idea/**"
       - ".gitignore"
       - ".qlty/**"

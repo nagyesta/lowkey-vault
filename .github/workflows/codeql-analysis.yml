@@ -19,6 +19,7 @@ on:
       - "renovate.json"
       - ".whitesource"
       - "gradle/libs.versions.toml"
+      - "config/dependency-check/**"
       - "lowkey-vault-docker/src/docker/Dockerfile"
       - ".idea/**"
       - ".gitignore"
@@ -59,6 +60,3 @@ jobs:
         run: ./gradlew build -x test -x dockerBuild -x dockerRun -x dockerStop
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # v4.35.2
-      - name: Check dependencies with Gradle
-        if: ${{ github.repository_owner == 'nagyesta' }}
-        run: ./gradlew ossIndexAudit -PossIndexUsername=${{ secrets.OSS_INDEX_USER }} -PossIndexPassword=${{ secrets.OSS_INDEX_PASSWORD }} --info

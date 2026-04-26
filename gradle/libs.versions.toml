@@ -30,7 +30,6 @@ jacksonAnnotations = { strictly = "2.21" }
 openApiUi = "3.0.3"
 
 abortMissionPlugin = "5.2.45"
-indexScanPlugin = "3.1.5"
 lombokPlugin = "9.4.0"
 springBootPlugin = "4.0.6"
 gitVersionerPlugin = "1.6.7"
@@ -137,7 +136,6 @@ spring-boot = { id = "org.springframework.boot", version.ref = "springBootPlugin
 lombok = { id = "io.freefair.lombok", version.ref = "lombokPlugin" }
 abort-mission = { id = "com.github.nagyesta.abort-mission-gradle-plugin", version.ref = "abortMissionPlugin" }
 versioner = { id = "io.toolebox.git-versioner", version.ref = "gitVersionerPlugin" }
-index-scan = { id = "org.sonatype.gradle.plugins.scan", version.ref = "indexScanPlugin" }
 owasp-dependencycheck = { id = "org.owasp.dependencycheck", version.ref = "owaspPlugin" }
 cyclonedx-bom = { id = "org.cyclonedx.bom", version.ref = "cycloneDxBomPlugin" }
 licensee-plugin = { id = "app.cash.licensee", version.ref = "licenseePlugin" }

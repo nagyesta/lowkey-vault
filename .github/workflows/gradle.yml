@@ -24,7 +24,7 @@ on:
       - "gradle/wrapper/gradle-wrapper.jar"
       - "gradlew"
       - "gradlew.bat"
-      - "config/ossindex/exclusions.txt"
+      - "config/dependency-check/**"
       - ".idea/**"
       - ".gitignore"
       - ".qlty/**"

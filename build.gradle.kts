@@ -1,6 +1,10 @@
+import groovy.util.Node
+import groovy.xml.XmlNodePrinter
+import groovy.xml.XmlParser
 import org.cyclonedx.Version
 import org.sonarqube.gradle.SonarTask
-import org.sonatype.gradle.plugins.scan.ossindex.OutputFormat
+import java.io.FileWriter
+import java.io.PrintWriter
 import java.util.*
 
 plugins {
@@ -9,15 +13,12 @@ plugins {
     checkstyle
     alias(libs.plugins.sonar.qube)
     alias(libs.plugins.versioner)
-    alias(libs.plugins.index.scan)
     alias(libs.plugins.owasp.dependencycheck)
     alias(libs.plugins.nexus.publish.plugin)
     alias(libs.plugins.cyclonedx.bom)
 }
 
 group = "com.github.nagyesta.lowkey-vault"
-
-apply("config/ossindex/ossIndexAudit.gradle.kts")
 
 buildscript {
     fun optionalPropertyString(name: String): String {
@@ -42,6 +43,10 @@ buildscript {
         set("gitUser", optionalPropertyString("githubUser"))
         set("ossrhUser", optionalPropertyString("ossrhUsername"))
         set("ossrhPass", optionalPropertyString("ossrhPassword"))
+        set("nvdApiKey", optionalPropertyString("nvdApiKey"))
+        set("suppressedCveId", optionalPropertyString("suppressedCveId"))
+        set("suppressedCveArtifact", optionalPropertyString("suppressedCveArtifact"))
+        set("suppressedCveReason", optionalPropertyString("suppressedCveReason"))
         set("ossIndexUser", optionalPropertyString("ossIndexUsername"))
         set("ossIndexPass", optionalPropertyString("ossIndexPassword"))
         set("keyToolDir", optionalPropertyString("keyToolDir"))
@@ -103,13 +108,46 @@ sonar {
     }
 }
 
+tasks.register<DefaultTask>("suppressCve") {
+    group = "owasp depedency-check"
+    description = "Adds a CVE suppression to the dependency-check suppression file."
+    inputs.file(file("config/dependency-check/suppressions.xml"))
+    outputs.file(file("config/dependency-check/suppressions.xml"))
+    inputs.property("suppressedCveId", project.ext.get("suppressedCveId"))
+    inputs.property("suppressedCveArtifact", project.ext.get("suppressedCveArtifact"))
+    inputs.property("suppressedCveReason", project.ext.get("suppressedCveReason"))
+
+    val suppressionFile = file("config/dependency-check/suppressions.xml")
+    val suppressedCveId = project.ext.get("suppressedCveId") as String
+    val suppressedArtifact = project.ext.get("suppressedCveArtifact") as String
+    val suppressionReason = project.ext.get("suppressedCveReason") as String
+    doLast {
+        //Parse the suppression file as XML and add a new xml element to it
+        val xmlParser = XmlParser()
+        val root = xmlParser.parse(suppressionFile)
+
+        //Create new suppression element
+        val newSuppression = Node(null, "suppress")
+        Node(newSuppression, "notes").setValue(suppressionReason)
+        Node(newSuppression, "packageUrl", mapOf(Pair("regex", "true"))).setValue(suppressedArtifact)
+        Node(newSuppression, "vulnerabilityName").setValue(suppressedCveId)
+
+        //Add to root
+        root.append(newSuppression)
+
+        //Write back to file
+        val xmlNodePrinter = XmlNodePrinter(PrintWriter(FileWriter(suppressionFile)))
+        xmlNodePrinter.isPreserveWhitespace = true
+        xmlNodePrinter.print(root)
+    }
+}
+
 subprojects {
     if (project.name != "lowkey-vault-docker") {
         apply(plugin = "java")
         apply(plugin = "org.gradle.jacoco")
         apply(plugin = "org.gradle.checkstyle")
         apply(plugin = "org.gradle.signing")
-        apply(plugin = "org.sonatype.gradle.plugins.scan")
         apply(plugin = "org.owasp.dependencycheck")
         apply(plugin = "org.cyclonedx.bom")
 
@@ -212,18 +250,6 @@ subprojects {
             enabled = false
         }
 
-
-        ossIndexAudit {
-            username = rootProject.extra.get("ossIndexUser").toString()
-            password = rootProject.extra.get("ossIndexPass").toString()
-            isPrintBanner = false
-            isColorEnabled = true
-            isShowAll = false
-            outputFormat = OutputFormat.DEFAULT
-            @Suppress("UNCHECKED_CAST")
-            excludeVulnerabilityIds = rootProject.extra.get("ossIndexExclusions") as MutableSet<String>
-        }
-
         tasks.cyclonedxDirectBom {
             if (project.name.endsWith("app")) {
                 projectType.set(org.cyclonedx.model.Component.Type.APPLICATION)
@@ -253,15 +279,25 @@ subprojects {
     }
 }
 
-ossIndexAudit {
-    username = rootProject.extra.get("ossIndexUser").toString()
-    password = rootProject.extra.get("ossIndexPass").toString()
-    isPrintBanner = false
-    isColorEnabled = true
-    isShowAll = false
-    outputFormat = OutputFormat.DEFAULT
-    @Suppress("UNCHECKED_CAST")
-    excludeVulnerabilityIds = rootProject.extra.get("ossIndexExclusions") as MutableSet<String>
+
+allprojects {
+    if (project.name != "lowkey-vault-docker") {
+        dependencyCheck {
+            nvd.apiKey.set(rootProject.extra.get("nvdApiKey").toString())
+            analyzers.ossIndex.enabled.set(true)
+            analyzers.ossIndex.username = rootProject.extra.get("ossIndexUser").toString()
+            analyzers.ossIndex.password = rootProject.extra.get("ossIndexPass").toString()
+            analyzers.ossIndex.url = "https://api.guide.sonatype.com"
+            analyzers.retirejs.enabled.set(false)
+            cache.ossIndex.set(true)
+            cache.central.set(true)
+            cache.nodeAudit.set(true)
+            failBuildOnCVSS.set(1.0f)
+            failOnError.set(true)
+            outputDirectory.set(layout.buildDirectory.dir("reports/dependency-check"))
+            setSuppressionFile(rootProject.layout.projectDirectory.file("config/dependency-check/suppressions.xml").toString())
+        }
+    }
 }
 
 checkstyle {

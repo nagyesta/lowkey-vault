@@ -29,7 +29,7 @@ jackson = { strictly = "3.1.2" }
 jacksonAnnotations = { strictly = "2.21" }
 openApiUi = "3.0.3"
 
-abortMissionPlugin = "5.2.45"
+abortMissionPlugin = "5.2.51"
 lombokPlugin = "9.4.0"
 springBootPlugin = "4.0.6"
 gitVersionerPlugin = "1.6.7"

@@ -48,5 +48,4 @@ jobs:
           -PossIndexUsername=${{ secrets.OSS_INDEX_USER }} 
           -PossIndexPassword=${{ secrets.OSS_INDEX_PASSWORD }} 
           --no-parallel 
-          --info
 

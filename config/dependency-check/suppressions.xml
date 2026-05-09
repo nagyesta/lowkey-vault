@@ -31,7 +31,52 @@
   </suppress>
   <suppress>
     <notes>This code path is not used from the transitive depeendency.</notes>
-    <packageUrl regex="true">^pkg:maven/io\.netty/netty-codec-http@.+$</packageUrl>
-    <vulnerabilityName>CVE-2026-4141</vulnerabilityName>
+    <packageUrl regex="true">^pkg:maven/io\.netty/netty-.+@.+$</packageUrl>
+    <vulnerabilityName>CVE-2026-41417</vulnerabilityName>
+  </suppress>
+  <suppress>
+    <notes>Transitive dependency, not relevant for the intended use-case.</notes>
+    <packageUrl regex="true">^pkg:maven/io\.netty/netty-.+@.+$</packageUrl>
+    <vulnerabilityName>CVE-2026-42577</vulnerabilityName>
+  </suppress>
+  <suppress>
+    <notes>Transitive dependency, not relevant for the intended use-case.</notes>
+    <packageUrl regex="true">^pkg:maven/io\.netty/netty-.+@.+$</packageUrl>
+    <vulnerabilityName>CVE-2026-42578</vulnerabilityName>
+  </suppress>
+  <suppress>
+    <notes>Transitive dependency, not relevant for the intended use-case.</notes>
+    <packageUrl regex="true">^pkg:maven/io\.netty/netty-.+@.+$</packageUrl>
+    <vulnerabilityName>CVE-2026-42587</vulnerabilityName>
+  </suppress>
+  <suppress>
+    <notes>Transitive dependency, not relevant for the intended use-case.</notes>
+    <packageUrl regex="true">^pkg:maven/io\.netty/netty-.+@.+$</packageUrl>
+    <vulnerabilityName>CVE-2026-42579</vulnerabilityName>
+  </suppress>
+  <suppress>
+    <notes>Transitive dependency, not relevant for the intended use-case.</notes>
+    <packageUrl regex="true">^pkg:maven/io\.netty/netty-.+@.+$</packageUrl>
+    <vulnerabilityName>CVE-2026-42580</vulnerabilityName>
+  </suppress>
+  <suppress>
+    <notes>Transitive dependency, not relevant for the intended use-case.</notes>
+    <packageUrl regex="true">^pkg:maven/io\.netty/netty-.+@.+$</packageUrl>
+    <vulnerabilityName>CVE-2026-42584</vulnerabilityName>
+  </suppress>
+  <suppress>
+    <notes>Transitive dependency, not relevant for the intended use-case.</notes>
+    <packageUrl regex="true">^pkg:maven/io\.netty/netty-.+@.+$</packageUrl>
+    <vulnerabilityName>CVE-2026-42583</vulnerabilityName>
+  </suppress>
+  <suppress>
+    <notes>Transitive dependency, not relevant for the intended use-case.</notes>
+    <packageUrl regex="true">^pkg:maven/io\.netty/netty-.+@.+$</packageUrl>
+    <vulnerabilityName>CVE-2026-42581</vulnerabilityName>
+  </suppress>
+  <suppress>
+    <notes>Transitive dependency, not relevant for the intended use-case.</notes>
+    <packageUrl regex="true">^pkg:maven/io\.netty/netty-.+@.+$</packageUrl>
+    <vulnerabilityName>CVE-2026-42585</vulnerabilityName>
   </suppress>
 </suppressions>

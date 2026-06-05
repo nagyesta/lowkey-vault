@@ -284,12 +284,14 @@ allprojects {
     if (project.name != "lowkey-vault-docker") {
         dependencyCheck {
             nvd.apiKey.set(rootProject.extra.get("nvdApiKey").toString())
-            analyzers.ossIndex.enabled.set(true)
-            analyzers.ossIndex.username = rootProject.extra.get("ossIndexUser").toString()
-            analyzers.ossIndex.password = rootProject.extra.get("ossIndexPass").toString()
-            analyzers.ossIndex.url = "https://api.guide.sonatype.com"
+            if (rootProject.extra.get("ossIndexUser") != "" && rootProject.extra.get("ossIndexPass") != "") {
+                analyzers.ossIndex.enabled.set(true)
+                analyzers.ossIndex.username = rootProject.extra.get("ossIndexUser").toString()
+                analyzers.ossIndex.password = rootProject.extra.get("ossIndexPass").toString()
+                analyzers.ossIndex.url = "https://api.guide.sonatype.com"
+                cache.ossIndex.set(true)
+            }
             analyzers.retirejs.enabled.set(false)
-            cache.ossIndex.set(true)
             cache.central.set(true)
             cache.nodeAudit.set(true)
             failBuildOnCVSS.set(1.0f)

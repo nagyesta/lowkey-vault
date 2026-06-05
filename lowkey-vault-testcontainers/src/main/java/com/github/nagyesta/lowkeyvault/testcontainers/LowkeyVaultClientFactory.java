@@ -2,9 +2,13 @@ package com.github.nagyesta.lowkeyvault.testcontainers;
 
 import com.azure.core.credential.BasicAuthenticationCredential;
 import com.azure.security.keyvault.certificates.CertificateClientBuilder;
+import com.azure.security.keyvault.certificates.CertificateServiceVersion;
 import com.azure.security.keyvault.keys.KeyClientBuilder;
+import com.azure.security.keyvault.keys.KeyServiceVersion;
 import com.azure.security.keyvault.keys.cryptography.CryptographyClientBuilder;
+import com.azure.security.keyvault.keys.cryptography.CryptographyServiceVersion;
 import com.azure.security.keyvault.secrets.SecretClientBuilder;
+import com.azure.security.keyvault.secrets.SecretServiceVersion;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nagyesta.lowkeyvault.http.ApacheHttpClient;
 import com.github.nagyesta.lowkeyvault.http.AuthorityOverrideFunction;
@@ -42,6 +46,7 @@ public class LowkeyVaultClientFactory {
         return new SecretClientBuilder()
                 .vaultUrl(vaultUri.toString())
                 .credential(getBasicAuthenticationCredential())
+                .serviceVersion(SecretServiceVersion.V7_6)
                 .disableChallengeResourceVerification()
                 .httpClient(getApacheHttpClient(vaultUri.getAuthority()));
     }
@@ -58,6 +63,7 @@ public class LowkeyVaultClientFactory {
         return new KeyClientBuilder()
                 .vaultUrl(vaultUri.toString())
                 .credential(getBasicAuthenticationCredential())
+                .serviceVersion(KeyServiceVersion.V7_6)
                 .disableChallengeResourceVerification()
                 .httpClient(getApacheHttpClient(vaultUri.getAuthority()));
     }
@@ -73,6 +79,7 @@ public class LowkeyVaultClientFactory {
     public CryptographyClientBuilder getCryptoClientBuilderFor(final URI vaultUri) {
         return new CryptographyClientBuilder()
                 .credential(getBasicAuthenticationCredential())
+                .serviceVersion(CryptographyServiceVersion.V7_6)
                 .disableChallengeResourceVerification()
                 .httpClient(getApacheHttpClient(vaultUri.getAuthority()));
     }
@@ -89,6 +96,7 @@ public class LowkeyVaultClientFactory {
         return new CertificateClientBuilder()
                 .vaultUrl(vaultUri.toString())
                 .credential(getBasicAuthenticationCredential())
+                .serviceVersion(CertificateServiceVersion.V7_6)
                 .disableChallengeResourceVerification()
                 .httpClient(getApacheHttpClient(vaultUri.getAuthority()));
     }

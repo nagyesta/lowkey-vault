@@ -5,11 +5,13 @@ import com.azure.core.http.HttpMethod;
 import com.azure.core.http.HttpRequest;
 import com.azure.core.util.Context;
 import com.azure.security.keyvault.certificates.CertificateClientBuilder;
+import com.azure.security.keyvault.certificates.CertificateServiceVersion;
 import com.azure.security.keyvault.certificates.models.CertificateContentType;
 import com.azure.security.keyvault.certificates.models.CertificateKeyCurveName;
 import com.azure.security.keyvault.certificates.models.CertificateKeyType;
 import com.azure.security.keyvault.certificates.models.CertificatePolicy;
 import com.azure.security.keyvault.keys.KeyClientBuilder;
+import com.azure.security.keyvault.keys.KeyServiceVersion;
 import com.azure.security.keyvault.keys.cryptography.CryptographyClientBuilder;
 import com.azure.security.keyvault.keys.cryptography.models.DecryptParameters;
 import com.azure.security.keyvault.keys.cryptography.models.EncryptParameters;
@@ -17,6 +19,7 @@ import com.azure.security.keyvault.keys.models.CreateOctKeyOptions;
 import com.azure.security.keyvault.keys.models.KeyOperation;
 import com.azure.security.keyvault.keys.models.KeyVaultKey;
 import com.azure.security.keyvault.secrets.SecretClientBuilder;
+import com.azure.security.keyvault.secrets.SecretServiceVersion;
 import com.github.nagyesta.lowkeyvault.http.ApacheHttpClient;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Assertions;
@@ -141,7 +144,10 @@ public class AbstractLowkeyVaultContainerTest {
         final var keyOptions = new CreateOctKeyOptions(NAME)
                 .setHardwareProtected(true)
                 .setKeyOperations(KeyOperation.ENCRYPT, KeyOperation.WRAP_KEY, KeyOperation.DECRYPT, KeyOperation.UNWRAP_KEY);
-        final var key = keyClientBuilder.buildClient().createOctKey(keyOptions);
+        final var key = keyClientBuilder
+                .serviceVersion(KeyServiceVersion.V7_6)
+                .buildClient()
+                .createOctKey(keyOptions);
         Assertions.assertNotNull(key);
         Assertions.assertNotNull(key.getId());
         return key;
@@ -149,7 +155,10 @@ public class AbstractLowkeyVaultContainerTest {
 
     private static void verifySecretCanBeSet(
             final SecretClientBuilder secretClientBuilder) {
-        final var secret = secretClientBuilder.buildClient().setSecret(NAME, VALUE);
+        final var secret = secretClientBuilder
+                .serviceVersion(SecretServiceVersion.V7_6)
+                .buildClient()
+                .setSecret(NAME, VALUE);
         Assertions.assertNotNull(secret);
         Assertions.assertNotNull(secret.getId());
     }
@@ -161,7 +170,9 @@ public class AbstractLowkeyVaultContainerTest {
                 .setKeyType(CertificateKeyType.EC)
                 .setKeyCurveName(CertificateKeyCurveName.P_256)
                 .setContentType(CertificateContentType.PKCS12);
-        final var cert = certificateClientBuilder.buildClient()
+        final var cert = certificateClientBuilder
+                .serviceVersion(CertificateServiceVersion.V7_6)
+                .buildClient()
                 .beginCreateCertificate(CERT_EXAMPLE_COM, policy).waitForCompletion().getValue();
         Assertions.assertNotNull(cert);
         Assertions.assertNotNull(cert.getId());

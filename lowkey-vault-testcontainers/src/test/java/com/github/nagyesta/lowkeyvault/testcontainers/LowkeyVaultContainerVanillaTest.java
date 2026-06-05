@@ -1,9 +1,12 @@
 package com.github.nagyesta.lowkeyvault.testcontainers;
 
 import com.azure.core.credential.BasicAuthenticationCredential;
+import com.azure.security.keyvault.certificates.CertificateServiceVersion;
 import com.azure.security.keyvault.certificates.models.CertificateProperties;
+import com.azure.security.keyvault.keys.KeyServiceVersion;
 import com.azure.security.keyvault.keys.models.KeyProperties;
 import com.azure.security.keyvault.secrets.SecretClientBuilder;
+import com.azure.security.keyvault.secrets.SecretServiceVersion;
 import com.azure.security.keyvault.secrets.models.SecretProperties;
 import com.github.nagyesta.lowkeyvault.http.ApacheHttpClient;
 import com.github.nagyesta.lowkeyvault.http.AuthorityOverrideFunction;
@@ -201,18 +204,21 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
             final var clientFactory = underTest.getClientFactory();
             verifyConnectivity(clientFactory);
             final var actualSecretNames = clientFactory.getSecretClientBuilderForDefaultVault()
+                    .serviceVersion(SecretServiceVersion.V7_6)
                     .buildClient()
                     .listPropertiesOfSecrets()
                     .stream()
                     .map(SecretProperties::getName)
                     .toList();
             final var actualKeyNames = clientFactory.getKeyClientBuilderForDefaultVault()
+                    .serviceVersion(KeyServiceVersion.V7_6)
                     .buildClient()
                     .listPropertiesOfKeys()
                     .stream()
                     .map(KeyProperties::getName)
                     .toList();
             final var actualCertificateNames = clientFactory.getCertificateClientBuilderForDefaultVault()
+                    .serviceVersion(CertificateServiceVersion.V7_6)
                     .buildClient()
                     .listPropertiesOfCertificates()
                     .stream()
@@ -632,6 +638,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
             assertEquals("false", actualCRV);
             final var secretClient = new SecretClientBuilder()
                     .vaultUrl(actualUrl)
+                    .serviceVersion(SecretServiceVersion.V7_6)
                     .disableChallengeResourceVerification()
                     .credential(new BasicAuthenticationCredential(underTest.getUsername(), underTest.getPassword()))
                     .buildClient();

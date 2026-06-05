@@ -111,7 +111,7 @@ public record ApacheHttpClientProvider(
     }
 
     public KeyAsyncClient getKeyAsyncClient() {
-        return getKeyAsyncClient(KeyServiceVersion.V7_4);
+        return getKeyAsyncClient(KeyServiceVersion.V7_6);
     }
 
     public KeyAsyncClient getKeyAsyncClient(final KeyServiceVersion version) {
@@ -119,7 +119,7 @@ public record ApacheHttpClientProvider(
     }
 
     public KeyClient getKeyClient() {
-        return getKeyClient(KeyServiceVersion.V7_4);
+        return getKeyClient(KeyServiceVersion.V7_6);
     }
 
     public KeyClient getKeyClient(final KeyServiceVersion version) {
@@ -127,7 +127,7 @@ public record ApacheHttpClientProvider(
     }
 
     public CertificateAsyncClient getCertificateAsyncClient() {
-        return getCertificateAsyncClient(CertificateServiceVersion.V7_4);
+        return getCertificateAsyncClient(CertificateServiceVersion.V7_6);
     }
 
     public CertificateAsyncClient getCertificateAsyncClient(final CertificateServiceVersion version) {
@@ -135,7 +135,7 @@ public record ApacheHttpClientProvider(
     }
 
     public CertificateClient getCertificateClient() {
-        return getCertificateClient(CertificateServiceVersion.V7_4);
+        return getCertificateClient(CertificateServiceVersion.V7_6);
     }
 
     public CertificateClient getCertificateClient(final CertificateServiceVersion version) {
@@ -143,7 +143,7 @@ public record ApacheHttpClientProvider(
     }
 
     public SecretAsyncClient getSecretAsyncClient() {
-        return getSecretAsyncClient(SecretServiceVersion.V7_4);
+        return getSecretAsyncClient(SecretServiceVersion.V7_6);
     }
 
     public SecretAsyncClient getSecretAsyncClient(final SecretServiceVersion version) {
@@ -151,7 +151,7 @@ public record ApacheHttpClientProvider(
     }
 
     public SecretClient getSecretClient() {
-        return getSecretClient(SecretServiceVersion.V7_4);
+        return getSecretClient(SecretServiceVersion.V7_6);
     }
 
     public SecretClient getSecretClient(final SecretServiceVersion version) {
@@ -159,7 +159,7 @@ public record ApacheHttpClientProvider(
     }
 
     public CryptographyAsyncClient getCryptoAsyncClient(final String webKeyId) {
-        return getCryptoAsyncClient(webKeyId, CryptographyServiceVersion.V7_4);
+        return getCryptoAsyncClient(webKeyId, CryptographyServiceVersion.V7_6);
     }
 
     public CryptographyAsyncClient getCryptoAsyncClient(
@@ -169,7 +169,7 @@ public record ApacheHttpClientProvider(
     }
 
     public CryptographyClient getCryptoClient(final String webKeyId) {
-        return getCryptoClient(webKeyId, CryptographyServiceVersion.V7_4);
+        return getCryptoClient(webKeyId, CryptographyServiceVersion.V7_6);
     }
 
     public CryptographyClient getCryptoClient(

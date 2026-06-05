@@ -41,7 +41,14 @@ jobs:
           key: gradle-build-dependency-check
           restore-keys: |
             gradle-build-dependency-check
-      - name: Check dependencies with Gradle
+      - name: Check dependencies with Gradle (if not scheduled)
+        if: ${{ github.event_name != 'schedule' }}
+        run: >
+          ./gradlew dependencyCheckAnalyze 
+          -PnvdApiKey=${{ secrets.NVD_API_KEY }} 
+          --no-parallel
+      - name: Check dependencies with Gradle (if scheduled)
+        if: ${{ github.event_name == 'schedule' }}
         run: >
           ./gradlew dependencyCheckAnalyze 
           -PnvdApiKey=${{ secrets.NVD_API_KEY }} 

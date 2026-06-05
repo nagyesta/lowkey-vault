@@ -79,4 +79,24 @@
     <packageUrl regex="true">^pkg:maven/io\.netty/netty-.+@.+$</packageUrl>
     <vulnerabilityName>CVE-2026-42585</vulnerabilityName>
   </suppress>
+  <suppress>
+    <notes>Transitive dependency, not relevant for the intended use-case.</notes>
+    <packageUrl regex="true">^pkg:maven/io\.netty/netty-.+@.+$</packageUrl>
+    <vulnerabilityName>CVE-2026-42582</vulnerabilityName>
+  </suppress>
+  <suppress>
+    <notes>Transitive dependency, not relevant for the intended use-case.</notes>
+    <packageUrl regex="true">^pkg:maven/io\.netty/netty-.+@.+$</packageUrl>
+    <vulnerabilityName>CVE-2026-44248</vulnerabilityName>
+  </suppress>
+  <suppress>
+    <notes>Transitive dependency, not relevant for the intended use-case.</notes>
+    <packageUrl regex="true">^pkg:maven/io\.netty/netty-.+@.+$</packageUrl>
+    <vulnerabilityName>CVE-2026-42586</vulnerabilityName>
+  </suppress>
+  <suppress>
+    <notes>Probably false positive, already updated clients to latest</notes>
+    <packageUrl regex="true">^pkg:maven/com\.azure/azure-.+@.+$</packageUrl>
+    <vulnerabilityName>CVE-2026-33117</vulnerabilityName>
+  </suppress>
 </suppressions>

@@ -22,20 +22,21 @@ Feature: Secret creation
         And the secret recovery settings are default
 
         Examples:
-            | api | secretName                | enabledStatus | contentType      | secretValue                                  | expires | notBefore | tagMap            |
-            | 7.2 | 72-createSecret1          | enabled       | text/plain       | abc123                                       | null    | null      | null              |
-            | 7.3 | 73-createSecret1          | enabled       | text/plain       | abc123                                       | null    | null      | null              |
-            | 7.3 | 73-createSecret2          | enabled       | text/plain       | The quick brown fox jumps over the lazy dog. | null    | null      | null              |
-            | 7.3 | 73-create-secret-1        | enabled       | text/plain       | abc123                                       | null    | null      | null              |
-            | 7.3 | 73-create-secret-2        | enabled       | text/plain       | The quick brown fox jumps over the lazy dog. | null    | null      | null              |
-            | 7.3 | 73-createSecret3          | enabled       | text/plain       | Lorem ipsum                                  | null    | null      | null              |
-            | 7.3 | 73-create-secret-3        | enabled       | text/plain       | Lorem ipsum                                  | null    | null      | null              |
-            | 7.3 | 73-createSecretMap1       | enabled       | text/plain       | 123 XYZ                                      | null    | null      | aKey:aValue,b1:b2 |
-            | 7.3 | 73-createSecretMap2       | enabled       | text/plain       | 123 XYZ                                      | null    | null      | aKey:aValue       |
-            | 7.3 | 73-createSecretXml        | enabled       | application/xml  | <?xml version="1.0"?><none/>                 | null    | null      | null              |
-            | 7.3 | 73-createSecretJson       | enabled       | application/json | {"value":true}                               | null    | null      | null              |
-            | 7.3 | 73-createSecretDates      | enabled       | text/plain       | Only sometimes.                              | 4321    | 1234      | null              |
-            | 7.3 | 73-createSecretNotEnabled | not enabled   | text/plain       | Not enabled                                  | null    | null      | null              |
-            | 7.4 | 74-createSecretDates      | enabled       | text/plain       | Only sometimes.                              | 4321    | 1234      | null              |
-            | 7.5 | 75-createSecretDates      | enabled       | text/plain       | Only sometimes.                              | 4321    | 1234      | null              |
-            | 7.6 | 76-createSecretDates      | enabled       | text/plain       | Only sometimes.                              | 4321    | 1234      | null              |
+            | api        | secretName                   | enabledStatus | contentType      | secretValue                                  | expires | notBefore | tagMap            |
+            | 7.2        | 72-createSecret1             | enabled       | text/plain       | abc123                                       | null    | null      | null              |
+            | 7.3        | 73-createSecret1             | enabled       | text/plain       | abc123                                       | null    | null      | null              |
+            | 7.3        | 73-createSecret2             | enabled       | text/plain       | The quick brown fox jumps over the lazy dog. | null    | null      | null              |
+            | 7.3        | 73-create-secret-1           | enabled       | text/plain       | abc123                                       | null    | null      | null              |
+            | 7.3        | 73-create-secret-2           | enabled       | text/plain       | The quick brown fox jumps over the lazy dog. | null    | null      | null              |
+            | 7.3        | 73-createSecret3             | enabled       | text/plain       | Lorem ipsum                                  | null    | null      | null              |
+            | 7.3        | 73-create-secret-3           | enabled       | text/plain       | Lorem ipsum                                  | null    | null      | null              |
+            | 7.3        | 73-createSecretMap1          | enabled       | text/plain       | 123 XYZ                                      | null    | null      | aKey:aValue,b1:b2 |
+            | 7.3        | 73-createSecretMap2          | enabled       | text/plain       | 123 XYZ                                      | null    | null      | aKey:aValue       |
+            | 7.3        | 73-createSecretXml           | enabled       | application/xml  | <?xml version="1.0"?><none/>                 | null    | null      | null              |
+            | 7.3        | 73-createSecretJson          | enabled       | application/json | {"value":true}                               | null    | null      | null              |
+            | 7.3        | 73-createSecretDates         | enabled       | text/plain       | Only sometimes.                              | 4321    | 1234      | null              |
+            | 7.3        | 73-createSecretNotEnabled    | not enabled   | text/plain       | Not enabled                                  | null    | null      | null              |
+            | 7.4        | 74-createSecretDates         | enabled       | text/plain       | Only sometimes.                              | 4321    | 1234      | null              |
+            | 7.5        | 75-createSecretDates         | enabled       | text/plain       | Only sometimes.                              | 4321    | 1234      | null              |
+            | 7.6        | 76-createSecretDates         | enabled       | text/plain       | Only sometimes.                              | 4321    | 1234      | null              |
+            | 2025-07-01 | 2025-07-01-createSecretDates | enabled       | text/plain       | Only sometimes.                              | 4321    | 1234      | null              |

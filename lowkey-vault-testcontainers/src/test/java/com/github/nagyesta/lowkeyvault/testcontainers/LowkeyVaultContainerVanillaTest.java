@@ -204,21 +204,21 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
             final var clientFactory = underTest.getClientFactory();
             verifyConnectivity(clientFactory);
             final var actualSecretNames = clientFactory.getSecretClientBuilderForDefaultVault()
-                    .serviceVersion(SecretServiceVersion.V7_6)
+                    .serviceVersion(SecretServiceVersion.V2025_07_01)
                     .buildClient()
                     .listPropertiesOfSecrets()
                     .stream()
                     .map(SecretProperties::getName)
                     .toList();
             final var actualKeyNames = clientFactory.getKeyClientBuilderForDefaultVault()
-                    .serviceVersion(KeyServiceVersion.V7_6)
+                    .serviceVersion(KeyServiceVersion.V2025_07_01)
                     .buildClient()
                     .listPropertiesOfKeys()
                     .stream()
                     .map(KeyProperties::getName)
                     .toList();
             final var actualCertificateNames = clientFactory.getCertificateClientBuilderForDefaultVault()
-                    .serviceVersion(CertificateServiceVersion.V7_6)
+                    .serviceVersion(CertificateServiceVersion.V2025_07_01)
                     .buildClient()
                     .listPropertiesOfCertificates()
                     .stream()
@@ -638,7 +638,7 @@ class LowkeyVaultContainerVanillaTest extends AbstractLowkeyVaultContainerTest {
             assertEquals("false", actualCRV);
             final var secretClient = new SecretClientBuilder()
                     .vaultUrl(actualUrl)
-                    .serviceVersion(SecretServiceVersion.V7_6)
+                    .serviceVersion(SecretServiceVersion.V2025_07_01)
                     .disableChallengeResourceVerification()
                     .credential(new BasicAuthenticationCredential(underTest.getUsername(), underTest.getPassword()))
                     .buildClient();

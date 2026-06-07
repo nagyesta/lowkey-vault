@@ -11,13 +11,14 @@ Feature: Key list
         And the list of keys should contain 0 managed items
 
         Examples:
-            | api | index | count | keyName           |
-            | 7.2 | 01    | 1     | listRsaKey        |
-            | 7.3 | 02    | 1     | listRsaKey        |
-            | 7.3 | 03    | 2     | list-rsa-key-name |
-            | 7.4 | 04    | 2     | list-rsa-key-name |
-            | 7.5 | 05    | 2     | list-rsa-key-name |
-            | 7.6 | 06    | 2     | list-rsa-key-name |
+            | api        | index | count | keyName           |
+            | 7.2        | 01    | 1     | listRsaKey        |
+            | 7.3        | 02    | 1     | listRsaKey        |
+            | 7.3        | 03    | 2     | list-rsa-key-name |
+            | 7.4        | 04    | 2     | list-rsa-key-name |
+            | 7.5        | 05    | 2     | list-rsa-key-name |
+            | 7.6        | 06    | 2     | list-rsa-key-name |
+            | 2025-07-01 | 07    | 2     | list-rsa-key-name |
 
     @Key @KeyCreate @KeyList @EC @CreateVault
     Scenario Outline: EC_LIST_01 EC keys are created with the key client then all are listed
@@ -30,16 +31,18 @@ Feature: Key list
         And the list of keys should contain 0 managed items
 
         Examples:
-            | api | index | count | keyName          |
-            | 7.2 | 01    | 1     | listEcKey        |
-            | 7.3 | 02    | 1     | listEcKey        |
-            | 7.3 | 03    | 2     | list-ec-key-name |
-            | 7.3 | 04    | 3     | listEcKey        |
-            | 7.3 | 05    | 5     | list-ec-key-name |
-            | 7.3 | 06    | 25    | listEcKey        |
-            | 7.3 | 07    | 42    | list-ec-key-name |
-            | 7.4 | 08    | 2     | list-ec-key-name |
-            | 7.6 | 10    | 2     | list-ec-key-name |
+            | api        | index | count | keyName          |
+            | 7.2        | 01    | 1     | listEcKey        |
+            | 7.3        | 02    | 1     | listEcKey        |
+            | 7.3        | 03    | 2     | list-ec-key-name |
+            | 7.3        | 04    | 3     | listEcKey        |
+            | 7.3        | 05    | 5     | list-ec-key-name |
+            | 7.3        | 06    | 25    | listEcKey        |
+            | 7.3        | 07    | 42    | list-ec-key-name |
+            | 7.4        | 08    | 2     | list-ec-key-name |
+            | 7.5        | 09    | 2     | list-ec-key-name |
+            | 7.6        | 10    | 2     | list-ec-key-name |
+            | 2025-07-01 | 11    | 2     | list-ec-key-name |
 
     @Key @KeyCreate @KeyList @OCT @CreateVault
     Scenario Outline: OCT_LIST_01 OCT keys are created with the key client then all are listed
@@ -52,13 +55,15 @@ Feature: Key list
         And the list of keys should contain 0 managed items
 
         Examples:
-            | api | index | count | keyName           |
-            | 7.2 | 01    | 1     | listOctKey        |
-            | 7.3 | 02    | 1     | listOctKey        |
-            | 7.3 | 03    | 2     | list-oct-key-name |
-            | 7.3 | 04    | 3     | listOctKey        |
-            | 7.3 | 05    | 5     | list-oct-key-name |
-            | 7.3 | 06    | 25    | listOctKey        |
-            | 7.3 | 07    | 42    | list-oct-key-name |
-            | 7.4 | 08    | 2     | list-oct-key-name |
-            | 7.5 | 09    | 2     | list-oct-key-name |
+            | api        | index | count | keyName           |
+            | 7.2        | 01    | 1     | listOctKey        |
+            | 7.3        | 02    | 1     | listOctKey        |
+            | 7.3        | 03    | 2     | list-oct-key-name |
+            | 7.3        | 04    | 3     | listOctKey        |
+            | 7.3        | 05    | 5     | list-oct-key-name |
+            | 7.3        | 06    | 25    | listOctKey        |
+            | 7.3        | 07    | 42    | list-oct-key-name |
+            | 7.4        | 08    | 2     | list-oct-key-name |
+            | 7.5        | 09    | 2     | list-oct-key-name |
+            | 7.6        | 10    | 2     | list-oct-key-name |
+            | 2025-07-01 | 11    | 2     | list-oct-key-name |

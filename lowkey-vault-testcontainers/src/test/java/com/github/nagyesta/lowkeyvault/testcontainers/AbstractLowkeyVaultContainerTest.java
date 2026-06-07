@@ -145,7 +145,7 @@ public class AbstractLowkeyVaultContainerTest {
                 .setHardwareProtected(true)
                 .setKeyOperations(KeyOperation.ENCRYPT, KeyOperation.WRAP_KEY, KeyOperation.DECRYPT, KeyOperation.UNWRAP_KEY);
         final var key = keyClientBuilder
-                .serviceVersion(KeyServiceVersion.V7_6)
+                .serviceVersion(KeyServiceVersion.V2025_07_01)
                 .buildClient()
                 .createOctKey(keyOptions);
         Assertions.assertNotNull(key);
@@ -156,7 +156,7 @@ public class AbstractLowkeyVaultContainerTest {
     private static void verifySecretCanBeSet(
             final SecretClientBuilder secretClientBuilder) {
         final var secret = secretClientBuilder
-                .serviceVersion(SecretServiceVersion.V7_6)
+                .serviceVersion(SecretServiceVersion.V2025_07_01)
                 .buildClient()
                 .setSecret(NAME, VALUE);
         Assertions.assertNotNull(secret);
@@ -171,7 +171,7 @@ public class AbstractLowkeyVaultContainerTest {
                 .setKeyCurveName(CertificateKeyCurveName.P_256)
                 .setContentType(CertificateContentType.PKCS12);
         final var cert = certificateClientBuilder
-                .serviceVersion(CertificateServiceVersion.V7_6)
+                .serviceVersion(CertificateServiceVersion.V2025_07_01)
                 .buildClient()
                 .beginCreateCertificate(CERT_EXAMPLE_COM, policy).waitForCompletion().getValue();
         Assertions.assertNotNull(cert);

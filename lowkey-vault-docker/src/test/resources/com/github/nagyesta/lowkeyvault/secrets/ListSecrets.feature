@@ -11,14 +11,15 @@ Feature: Secret list
         And the list of secrets should contain 0 managed items
 
         Examples:
-            | api | index | count | secretName       |
-            | 7.2 | 01    | 1     | listSecret       |
-            | 7.3 | 02    | 1     | listSecret       |
-            | 7.3 | 03    | 2     | list-secret-name |
-            | 7.3 | 04    | 3     | listSecret       |
-            | 7.3 | 05    | 5     | list-secret-name |
-            | 7.3 | 06    | 25    | listSecret       |
-            | 7.3 | 07    | 42    | list-secret-name |
-            | 7.4 | 08    | 5     | list-secret-name |
-            | 7.5 | 09    | 5     | list-secret-name |
-            | 7.6 | 10    | 5     | list-secret-name |
+            | api        | index | count | secretName       |
+            | 7.2        | 01    | 1     | listSecret       |
+            | 7.3        | 02    | 1     | listSecret       |
+            | 7.3        | 03    | 2     | list-secret-name |
+            | 7.3        | 04    | 3     | listSecret       |
+            | 7.3        | 05    | 5     | list-secret-name |
+            | 7.3        | 06    | 25    | listSecret       |
+            | 7.3        | 07    | 42    | list-secret-name |
+            | 7.4        | 08    | 5     | list-secret-name |
+            | 7.5        | 09    | 5     | list-secret-name |
+            | 7.6        | 10    | 5     | list-secret-name |
+            | 2025-07-01 | 11    | 5     | list-secret-name |

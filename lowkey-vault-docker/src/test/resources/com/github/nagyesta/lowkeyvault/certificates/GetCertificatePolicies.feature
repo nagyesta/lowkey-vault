@@ -13,12 +13,13 @@ Feature: Get certificate policy
         And the lifetime action triggers EmailContacts when 80 percent lifetime reached
 
         Examples:
-            | api | certName                | fileName            | subject        | validity |
-            | 7.3 | 73-policyRsaCert2048Pem | rsa-localhost.pem   | CN=localhost   | 360      |
-            | 7.3 | 73-policyRsaCert4096Pem | rsa-example-com.pem | CN=example.com | 12       |
-            | 7.4 | 74-policyRsaCert2048Pem | rsa-localhost.pem   | CN=localhost   | 360      |
-            | 7.5 | 75-policyRsaCert2048Pem | rsa-localhost.pem   | CN=localhost   | 360      |
-            | 7.6 | 76-policyRsaCert2048Pem | rsa-localhost.pem   | CN=localhost   | 360      |
+            | api        | certName                        | fileName            | subject        | validity |
+            | 7.3        | 73-policyRsaCert2048Pem         | rsa-localhost.pem   | CN=localhost   | 360      |
+            | 7.3        | 73-policyRsaCert4096Pem         | rsa-example-com.pem | CN=example.com | 12       |
+            | 7.4        | 74-policyRsaCert2048Pem         | rsa-localhost.pem   | CN=localhost   | 360      |
+            | 7.5        | 75-policyRsaCert2048Pem         | rsa-localhost.pem   | CN=localhost   | 360      |
+            | 7.6        | 76-policyRsaCert2048Pem         | rsa-localhost.pem   | CN=localhost   | 360      |
+            | 2025-07-01 | 2025-07-01-policyRsaCert2048Pem | rsa-localhost.pem   | CN=localhost   | 360      |
 
     @Certificate @CertificateImport @CertificateGetPolicy @EC
     Scenario Outline: EC_CERT_GET_POLICY_01 Policy data of EC certificates can be accessed with the certificate client
@@ -31,8 +32,9 @@ Feature: Get certificate policy
         And the lifetime action triggers EmailContacts when 80 percent lifetime reached
 
         Examples:
-            | api | certName          | fileName               | subject         | validity |
-            | 7.3 | 73-policyEc521Pem | ec521-ec-localhost.pem | CN=ec.localhost | 12       |
-            | 7.4 | 74-policyEc521Pem | ec521-ec-localhost.pem | CN=ec.localhost | 12       |
-            | 7.5 | 75-policyEc521Pem | ec521-ec-localhost.pem | CN=ec.localhost | 12       |
-            | 7.6 | 76-policyEc521Pem | ec521-ec-localhost.pem | CN=ec.localhost | 12       |
+            | api        | certName                  | fileName               | subject         | validity |
+            | 7.3        | 73-policyEc521Pem         | ec521-ec-localhost.pem | CN=ec.localhost | 12       |
+            | 7.4        | 74-policyEc521Pem         | ec521-ec-localhost.pem | CN=ec.localhost | 12       |
+            | 7.5        | 75-policyEc521Pem         | ec521-ec-localhost.pem | CN=ec.localhost | 12       |
+            | 7.6        | 76-policyEc521Pem         | ec521-ec-localhost.pem | CN=ec.localhost | 12       |
+            | 2025-07-01 | 2025-07-01-policyEc521Pem | ec521-ec-localhost.pem | CN=ec.localhost | 12       |

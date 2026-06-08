@@ -15,14 +15,15 @@ Feature: Secret backup and restore
         And the created secret exists with value: abc123
 
         Examples:
-            | api | index | count | secretName            |
-            | 7.2 | 01    | 1     | 72-backupSecret       |
-            | 7.3 | 02    | 1     | 73-backupSecret       |
-            | 7.3 | 03    | 2     | 73-backup-secret-name |
-            | 7.3 | 04    | 3     | 73-backupSecret       |
-            | 7.3 | 05    | 5     | 73-backup-secret-name |
-            | 7.3 | 06    | 25    | 73-backupSecret       |
-            | 7.3 | 07    | 42    | 73-backup-secret-name |
-            | 7.4 | 08    | 5     | 74-backup-secret-name |
-            | 7.5 | 09    | 5     | 75-backup-secret-name |
-            | 7.6 | 10    | 5     | 76-backup-secret-name |
+            | api        | index | count | secretName                    |
+            | 7.2        | 01    | 1     | 72-backupSecret               |
+            | 7.3        | 02    | 1     | 73-backupSecret               |
+            | 7.3        | 03    | 2     | 73-backup-secret-name         |
+            | 7.3        | 04    | 3     | 73-backupSecret               |
+            | 7.3        | 05    | 5     | 73-backup-secret-name         |
+            | 7.3        | 06    | 25    | 73-backupSecret               |
+            | 7.3        | 07    | 42    | 73-backup-secret-name         |
+            | 7.4        | 08    | 5     | 74-backup-secret-name         |
+            | 7.5        | 09    | 5     | 75-backup-secret-name         |
+            | 7.6        | 10    | 5     | 76-backup-secret-name         |
+            | 2025-07-01 | 11    | 5     | 2025-07-01-backup-secret-name |

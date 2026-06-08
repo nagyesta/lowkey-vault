@@ -16,21 +16,23 @@ Feature: Certificate creation
         And the lifetime action triggers AutoRenew when 80 percent lifetime reached
 
         Examples:
-            | api | hsm     | certName                    | keySize | enabledStatus | type   | subject        |
-            | 7.3 | without | 73-createRsaCert2048Pem     | 2048    | enabled       | PEM    | CN=localhost   |
-            | 7.3 | without | 73-createRsaCert4096Pem     | 4096    | enabled       | PEM    | CN=localhost   |
-            | 7.3 | without | 73-createRsaCert2048Pkcs    | 2048    | enabled       | PKCS12 | CN=example.com |
-            | 7.3 | without | 73-createRsaCert4096Pkcs    | 4096    | enabled       | PKCS12 | CN=example.com |
-            | 7.3 | with    | 73-createRsaCert2048PemHsm  | 2048    | enabled       | PEM    | CN=localhost   |
-            | 7.3 | with    | 73-createRsaCert4096PemHsm  | 4096    | enabled       | PEM    | CN=localhost   |
-            | 7.3 | with    | 73-createRsaCert2048PkcsHsm | 2048    | enabled       | PKCS12 | CN=example.com |
-            | 7.3 | with    | 73-createRsaCert4096PkcsHsm | 4096    | enabled       | PKCS12 | CN=example.com |
-            | 7.4 | without | 74-createRsaCert2048Pem     | 2048    | enabled       | PEM    | CN=localhost   |
-            | 7.4 | with    | 74-createRsaCert2048PemHsm  | 2048    | enabled       | PEM    | CN=localhost   |
-            | 7.5 | without | 75-createRsaCert2048Pem     | 2048    | enabled       | PEM    | CN=localhost   |
-            | 7.5 | with    | 75-createRsaCert2048PemHsm  | 2048    | enabled       | PEM    | CN=localhost   |
-            | 7.6 | without | 76-createRsaCert2048Pem     | 2048    | enabled       | PEM    | CN=localhost   |
-            | 7.6 | with    | 76-createRsaCert2048PemHsm  | 2048    | enabled       | PEM    | CN=localhost   |
+            | api        | hsm     | certName                           | keySize | enabledStatus | type   | subject        |
+            | 7.3        | without | 73-createRsaCert2048Pem            | 2048    | enabled       | PEM    | CN=localhost   |
+            | 7.3        | without | 73-createRsaCert4096Pem            | 4096    | enabled       | PEM    | CN=localhost   |
+            | 7.3        | without | 73-createRsaCert2048Pkcs           | 2048    | enabled       | PKCS12 | CN=example.com |
+            | 7.3        | without | 73-createRsaCert4096Pkcs           | 4096    | enabled       | PKCS12 | CN=example.com |
+            | 7.3        | with    | 73-createRsaCert2048PemHsm         | 2048    | enabled       | PEM    | CN=localhost   |
+            | 7.3        | with    | 73-createRsaCert4096PemHsm         | 4096    | enabled       | PEM    | CN=localhost   |
+            | 7.3        | with    | 73-createRsaCert2048PkcsHsm        | 2048    | enabled       | PKCS12 | CN=example.com |
+            | 7.3        | with    | 73-createRsaCert4096PkcsHsm        | 4096    | enabled       | PKCS12 | CN=example.com |
+            | 7.4        | without | 74-createRsaCert2048Pem            | 2048    | enabled       | PEM    | CN=localhost   |
+            | 7.4        | with    | 74-createRsaCert2048PemHsm         | 2048    | enabled       | PEM    | CN=localhost   |
+            | 7.5        | without | 75-createRsaCert2048Pem            | 2048    | enabled       | PEM    | CN=localhost   |
+            | 7.5        | with    | 75-createRsaCert2048PemHsm         | 2048    | enabled       | PEM    | CN=localhost   |
+            | 7.6        | without | 76-createRsaCert2048Pem            | 2048    | enabled       | PEM    | CN=localhost   |
+            | 7.6        | with    | 76-createRsaCert2048PemHsm         | 2048    | enabled       | PEM    | CN=localhost   |
+            | 2025-07-01 | without | 2025-07-01-createRsaCert2048Pem    | 2048    | enabled       | PEM    | CN=localhost   |
+            | 2025-07-01 | with    | 2025-07-01-createRsaCert2048PemHsm | 2048    | enabled       | PEM    | CN=localhost   |
 
     @Certificate @CertificateCreate @EC
     Scenario Outline: EC_CERT_CREATE_01 Single versions of EC certificates can be created with the certificate client
@@ -47,29 +49,31 @@ Feature: Certificate creation
         And the lifetime action triggers AutoRenew when 80 percent lifetime reached
 
         Examples:
-            | api | hsm     | certName                    | curveName | enabledStatus | type   | subject        |
-            | 7.3 | without | 73-createEcCertP256Pem      | P-256     | enabled       | PEM    | CN=localhost   |
-            | 7.3 | without | 73-createEcCertP256KPem     | P-256K    | enabled       | PEM    | CN=localhost   |
-            | 7.3 | without | 73-createEcCertP384Pem      | P-384     | enabled       | PEM    | CN=localhost   |
-            | 7.3 | without | 73-createEcCertP521Pem      | P-521     | enabled       | PEM    | CN=localhost   |
-            | 7.3 | without | 73-createEcCertP256Pkcs     | P-256     | enabled       | PKCS12 | CN=example.com |
-            | 7.3 | without | 73-createEcCertP256KPkcs    | P-256K    | enabled       | PKCS12 | CN=example.com |
-            | 7.3 | without | 73-createEcCertP384Pkcs     | P-384     | enabled       | PKCS12 | CN=example.com |
-            | 7.3 | without | 73-createEcCertP521Pkcs     | P-521     | enabled       | PKCS12 | CN=example.com |
-            | 7.3 | with    | 73-createEcCertP256PemHsm   | P-256     | enabled       | PEM    | CN=localhost   |
-            | 7.3 | with    | 73-createEcCertP256KPemHsm  | P-256K    | enabled       | PEM    | CN=localhost   |
-            | 7.3 | with    | 73-createEcCertP384PemHsm   | P-384     | enabled       | PEM    | CN=localhost   |
-            | 7.3 | with    | 73-createEcCertP521PemHsm   | P-521     | enabled       | PEM    | CN=localhost   |
-            | 7.3 | with    | 73-createEcCertP256PkcsHsm  | P-256     | enabled       | PKCS12 | CN=example.com |
-            | 7.3 | with    | 73-createEcCertP256KPkcsHsm | P-256K    | enabled       | PKCS12 | CN=example.com |
-            | 7.3 | with    | 73-createEcCertP384PkcsHsm  | P-384     | enabled       | PKCS12 | CN=example.com |
-            | 7.3 | with    | 73-createEcCertP521PkcsHsm  | P-521     | enabled       | PKCS12 | CN=example.com |
-            | 7.4 | without | 74-createEcCertP256Pem      | P-256     | enabled       | PEM    | CN=localhost   |
-            | 7.4 | with    | 74-createEcCertP256PemHsm   | P-256     | enabled       | PEM    | CN=localhost   |
-            | 7.5 | without | 75-createEcCertP256Pem      | P-256     | enabled       | PEM    | CN=localhost   |
-            | 7.5 | with    | 75-createEcCertP256PemHsm   | P-256     | enabled       | PEM    | CN=localhost   |
-            | 7.6 | without | 76-createEcCertP256Pem      | P-256     | enabled       | PEM    | CN=localhost   |
-            | 7.6 | with    | 76-createEcCertP256PemHsm   | P-256     | enabled       | PEM    | CN=localhost   |
+            | api        | hsm     | certName                          | curveName | enabledStatus | type   | subject        |
+            | 7.3        | without | 73-createEcCertP256Pem            | P-256     | enabled       | PEM    | CN=localhost   |
+            | 7.3        | without | 73-createEcCertP256KPem           | P-256K    | enabled       | PEM    | CN=localhost   |
+            | 7.3        | without | 73-createEcCertP384Pem            | P-384     | enabled       | PEM    | CN=localhost   |
+            | 7.3        | without | 73-createEcCertP521Pem            | P-521     | enabled       | PEM    | CN=localhost   |
+            | 7.3        | without | 73-createEcCertP256Pkcs           | P-256     | enabled       | PKCS12 | CN=example.com |
+            | 7.3        | without | 73-createEcCertP256KPkcs          | P-256K    | enabled       | PKCS12 | CN=example.com |
+            | 7.3        | without | 73-createEcCertP384Pkcs           | P-384     | enabled       | PKCS12 | CN=example.com |
+            | 7.3        | without | 73-createEcCertP521Pkcs           | P-521     | enabled       | PKCS12 | CN=example.com |
+            | 7.3        | with    | 73-createEcCertP256PemHsm         | P-256     | enabled       | PEM    | CN=localhost   |
+            | 7.3        | with    | 73-createEcCertP256KPemHsm        | P-256K    | enabled       | PEM    | CN=localhost   |
+            | 7.3        | with    | 73-createEcCertP384PemHsm         | P-384     | enabled       | PEM    | CN=localhost   |
+            | 7.3        | with    | 73-createEcCertP521PemHsm         | P-521     | enabled       | PEM    | CN=localhost   |
+            | 7.3        | with    | 73-createEcCertP256PkcsHsm        | P-256     | enabled       | PKCS12 | CN=example.com |
+            | 7.3        | with    | 73-createEcCertP256KPkcsHsm       | P-256K    | enabled       | PKCS12 | CN=example.com |
+            | 7.3        | with    | 73-createEcCertP384PkcsHsm        | P-384     | enabled       | PKCS12 | CN=example.com |
+            | 7.3        | with    | 73-createEcCertP521PkcsHsm        | P-521     | enabled       | PKCS12 | CN=example.com |
+            | 7.4        | without | 74-createEcCertP256Pem            | P-256     | enabled       | PEM    | CN=localhost   |
+            | 7.4        | with    | 74-createEcCertP256PemHsm         | P-256     | enabled       | PEM    | CN=localhost   |
+            | 7.5        | without | 75-createEcCertP256Pem            | P-256     | enabled       | PEM    | CN=localhost   |
+            | 7.5        | with    | 75-createEcCertP256PemHsm         | P-256     | enabled       | PEM    | CN=localhost   |
+            | 7.6        | without | 76-createEcCertP256Pem            | P-256     | enabled       | PEM    | CN=localhost   |
+            | 7.6        | with    | 76-createEcCertP256PemHsm         | P-256     | enabled       | PEM    | CN=localhost   |
+            | 2025-07-01 | without | 2025-07-01-createEcCertP256Pem    | P-256     | enabled       | PEM    | CN=localhost   |
+            | 2025-07-01 | with    | 2025-07-01-createEcCertP256PemHsm | P-256     | enabled       | PEM    | CN=localhost   |
 
     @Certificate @CertificateCreate @RSA
     Scenario Outline: RSA_CERT_CREATE_02 Single versions of RSA certificates can be created using lifetime actions
@@ -87,13 +91,14 @@ Feature: Certificate creation
         And the downloaded <type> certificate store has a certificate with CN=localhost as subject
 
         Examples:
-            | api | certName                       | triggerValue | triggerType        | action        | type   |
-            | 7.3 | 73-createRsaCertPemAction      | 20           | days before expiry | EmailContacts | PEM    |
-            | 7.3 | 73-createRsaCertPkcsAction     | 75           | percent lifetime   | AutoRenew     | PKCS12 |
-            | 7.3 | 73-createRsaCertPemRenewAction | 75           | percent lifetime   | AutoRenew     | PEM    |
-            | 7.4 | 74-createRsaCertPemAction      | 20           | days before expiry | EmailContacts | PEM    |
-            | 7.5 | 75-createRsaCertPemAction      | 20           | days before expiry | EmailContacts | PEM    |
-            | 7.6 | 76-createRsaCertPemAction      | 20           | days before expiry | EmailContacts | PEM    |
+            | api        | certName                          | triggerValue | triggerType        | action        | type   |
+            | 7.3        | 73-createRsaCertPemAction         | 20           | days before expiry | EmailContacts | PEM    |
+            | 7.3        | 73-createRsaCertPkcsAction        | 75           | percent lifetime   | AutoRenew     | PKCS12 |
+            | 7.3        | 73-createRsaCertPemRenewAction    | 75           | percent lifetime   | AutoRenew     | PEM    |
+            | 7.4        | 74-createRsaCertPemAction         | 20           | days before expiry | EmailContacts | PEM    |
+            | 7.5        | 75-createRsaCertPemAction         | 20           | days before expiry | EmailContacts | PEM    |
+            | 7.6        | 76-createRsaCertPemAction         | 20           | days before expiry | EmailContacts | PEM    |
+            | 2025-07-01 | 2025-07-01-createRsaCertPemAction | 20           | days before expiry | EmailContacts | PEM    |
 
     @Certificate @CertificateCreate @EC
     Scenario Outline: EC_CERT_CREATE_02 Single versions of EC certificates can be created using lifetime actions
@@ -111,12 +116,13 @@ Feature: Certificate creation
         And the downloaded <type> certificate store has a certificate with CN=localhost as subject
 
         Examples:
-            | api | certName                  | triggerValue | triggerType        | action        | type   |
-            | 7.3 | 73-createEcCertPemAction  | 10           | days before expiry | EmailContacts | PEM    |
-            | 7.3 | 73-createEcCertPkcsAction | 80           | percent lifetime   | AutoRenew     | PKCS12 |
-            | 7.4 | 74-createEcCertPemAction  | 10           | days before expiry | EmailContacts | PEM    |
-            | 7.5 | 75-createEcCertPemAction  | 10           | days before expiry | EmailContacts | PEM    |
-            | 7.6 | 76-createEcCertPemAction  | 10           | days before expiry | EmailContacts | PEM    |
+            | api        | certName                         | triggerValue | triggerType        | action        | type   |
+            | 7.3        | 73-createEcCertPemAction         | 10           | days before expiry | EmailContacts | PEM    |
+            | 7.3        | 73-createEcCertPkcsAction        | 80           | percent lifetime   | AutoRenew     | PKCS12 |
+            | 7.4        | 74-createEcCertPemAction         | 10           | days before expiry | EmailContacts | PEM    |
+            | 7.5        | 75-createEcCertPemAction         | 10           | days before expiry | EmailContacts | PEM    |
+            | 7.6        | 76-createEcCertPemAction         | 10           | days before expiry | EmailContacts | PEM    |
+            | 2025-07-01 | 2025-07-01-createEcCertPemAction | 10           | days before expiry | EmailContacts | PEM    |
 
     @Certificate @CertificateCreate @RSA
     Scenario Outline: RSA_CERT_CREATE_03 Two versions of the same RSA certificates can be created using the same name
@@ -134,12 +140,13 @@ Feature: Certificate creation
         And the downloaded <type> certificate store has a certificate with CN=localhost as subject
 
         Examples:
-            | api | certName                   | type   |
-            | 7.3 | 73-createRsaCertPemDouble  | PEM    |
-            | 7.3 | 73-createRsaCertPkcsDouble | PKCS12 |
-            | 7.4 | 74-createRsaCertPemDouble  | PEM    |
-            | 7.5 | 75-createRsaCertPemDouble  | PEM    |
-            | 7.6 | 76-createRsaCertPemDouble  | PEM    |
+            | api        | certName                          | type   |
+            | 7.3        | 73-createRsaCertPemDouble         | PEM    |
+            | 7.3        | 73-createRsaCertPkcsDouble        | PKCS12 |
+            | 7.4        | 74-createRsaCertPemDouble         | PEM    |
+            | 7.5        | 75-createRsaCertPemDouble         | PEM    |
+            | 7.6        | 76-createRsaCertPemDouble         | PEM    |
+            | 2025-07-01 | 2025-07-01-createRsaCertPemDouble | PEM    |
 
     @Certificate @CertificateCreate @EC
     Scenario Outline: EC_CERT_CREATE_03 Two versions of the same EC certificates can be created using the same name
@@ -157,9 +164,10 @@ Feature: Certificate creation
         And the downloaded <type> certificate store has a certificate with CN=localhost as subject
 
         Examples:
-            | api | certName                  | type   |
-            | 7.3 | 73-createEcCertPemDouble  | PEM    |
-            | 7.3 | 73-createEcCertPkcsDouble | PKCS12 |
-            | 7.4 | 74-createEcCertPemDouble  | PEM    |
-            | 7.5 | 75-createEcCertPemDouble  | PEM    |
-            | 7.6 | 76-createEcCertPemDouble  | PEM    |
+            | api        | certName                         | type   |
+            | 7.3        | 73-createEcCertPemDouble         | PEM    |
+            | 7.3        | 73-createEcCertPkcsDouble        | PKCS12 |
+            | 7.4        | 74-createEcCertPemDouble         | PEM    |
+            | 7.5        | 75-createEcCertPemDouble         | PEM    |
+            | 7.6        | 76-createEcCertPemDouble         | PEM    |
+            | 2025-07-01 | 2025-07-01-createEcCertPemDouble | PEM    |

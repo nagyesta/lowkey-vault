@@ -1,0 +1,54 @@
+{
+  "rotationPolicy": {
+    "attributes": {
+      "created": 1649503106,
+      "expiryTime": "P120D",
+      "updated": 1649503106
+    },
+    "id": "https://keys-backup-jsonBackupOct-192-2025-07-01.localhost:8443/keys/jsonBackupOct-192-2025-07-01/rotationpolicy",
+    "lifetimeActions": [
+      {
+        "action": {
+          "type": "notify"
+        },
+        "trigger": {
+          "timeBeforeExpiry": "P30D"
+        }
+      },
+      {
+        "action": {
+          "type": "rotate"
+        },
+        "trigger": {
+          "timeAfterCreate": "P100D"
+        }
+      }
+    ]
+  },
+  "versions": [
+    {
+      "attributes": {
+        "created": 1649503106,
+        "enabled": true,
+        "exp": 1659871879,
+        "recoverableDays": 90,
+        "recoveryLevel": "Recoverable+Purgeable",
+        "updated": 1649503106
+      },
+      "entityId": "jsonBackupOct-192-2025-07-01",
+      "entityVersion": "55ccab8f94b244ab97d82899340c22dd",
+      "keyMaterial": {
+        "k": "fp2J-nnMUBZVxCDFdKDxjDJX0F_BIM8P",
+        "key_ops": [
+          "encrypt",
+          "wrapKey"
+        ],
+        "kid": "https://keys-backup-jsonBackupOct-192-2025-07-01.localhost:8443/keys/jsonBackupOct-192-2025-07-01/55ccab8f94b244ab97d82899340c22dd",
+        "kty": "oct-HSM"
+      },
+      "managed": false,
+      "tags": {},
+      "vaultBaseUri": "https://keys-backup-jsonBackupOct-192-2025-07-01.localhost:8443"
+    }
+  ]
+}

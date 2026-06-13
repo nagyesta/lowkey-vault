@@ -99,4 +99,9 @@
     <packageUrl regex="true">^pkg:maven/com\.azure/azure-.+@.+$</packageUrl>
     <vulnerabilityName>CVE-2026-33117</vulnerabilityName>
   </suppress>
+  <suppress>
+    <notes>Transitive dependency, not relevant for the intended use-case.</notes>
+    <packageUrl regex="true">^pkg:maven/io\.projectreactor\.netty/reactor-netty-http@.+$</packageUrl>
+    <vulnerabilityName>CVE-2026-41715</vulnerabilityName>
+  </suppress>
 </suppressions>

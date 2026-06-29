@@ -3,13 +3,6 @@ name: "DependencyCheck"
 on:
   push:
     branches: ["main"]
-  pull_request:
-    # The branches below must be a subset of the branches above
-    branches: ["main"]
-    paths:
-      - "gradle/**"
-      - "config/dependency-check/**"
-      - ".release-trigger"
   workflow_dispatch:
   schedule:
     # * is a special character in YAML, so we have to quote this string

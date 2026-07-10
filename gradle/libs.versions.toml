@@ -22,7 +22,7 @@ mysqlDriver = "9.7.0"
 cucumber = "7.34.4"
 mockitoCore = "5.23.0"
 jupiter = "6.1.1"
-abortMission = "7.1.44"
+abortMission = "7.1.50"
 checkstyle = "12.3.1"
 jacoco = "0.8.15"
 jackson = { strictly = "3.2.0" }

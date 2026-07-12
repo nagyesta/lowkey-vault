@@ -15,6 +15,8 @@
 [![last_commit](https://img.shields.io/github/last-commit/nagyesta/lowkey-vault?logo=git)](https://img.shields.io/github/last-commit/nagyesta/lowkey-vault?logo=git)
 [![badge-abort-mission-armed-green](https://raw.githubusercontent.com/nagyesta/abort-mission/wiki_assets/.github/assets/badge-abort-mission-armed-green.svg)](https://github.com/nagyesta/abort-mission)
 
+[<img src="https://raw.githubusercontent.com/snyk-labs/secure-developer-sample-repo/main/Scanned_By_Snyk.png" alt="Scanned By Snyk Badge" width="10%" style="display: inline-block;">](https://snyk.io/?utm_source=open-source&utm_medium=pg-ptr&utm_campaign=ref-2501-osp&utm_content=pg-cta)
+
 Lowkey Vault is a test double (fake object) aspiring to be compatible
 with [Azure Key Vault](https://azure.microsoft.com/en-us/services/key-vault/) REST APIs. The project aims to provide a low footprint
 alternative for the cases when using a real Key Vault is not practical or impossible.

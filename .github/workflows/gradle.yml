@@ -28,6 +28,8 @@ on:
       - ".idea/**"
       - ".gitignore"
       - ".qlty/**"
+      - "config/snyk/**"
+      - ".snyk"
 
 permissions: read-all
 

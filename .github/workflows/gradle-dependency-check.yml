@@ -32,6 +32,7 @@ jobs:
           cp ./config/snyk/snyk.json ~/.config/configstore/snyk.json
       - name: Monitor changes with Snyk to continuously check for vulnerabilities
         uses: snyk/actions/gradle@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
+        if: ${{ github.event_name != 'pull_request' }}
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:

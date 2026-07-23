@@ -13,6 +13,7 @@ public final class VaultUriUtil {
     private static final String PORT = "\\d+";
     private static final String COLON = ":";
     private static final String PORT_PLACEHOLDER = "<port>";
+    @SuppressWarnings("java:S6418") //ignoring false-positive
     private static final String AUTHORITY_REGEX = "^" + HOST_NAME + "(" + COLON + PORT + "|" + COLON + PORT_PLACEHOLDER + ")?$";
 
     private VaultUriUtil() {

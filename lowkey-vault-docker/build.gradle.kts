@@ -143,3 +143,4 @@ tasks.register("publish") {
     dependsOn("build")
     dependsOn(dockerPush)
 }
+tasks.named("sonarResolver").get().dependsOn("processResources", ":lowkey-vault-client:jar")

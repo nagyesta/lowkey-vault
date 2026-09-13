@@ -22,14 +22,14 @@ mysqlDriver = "26.7.0"
 cucumber = "7.34.7"
 mockitoCore = "5.23.0"
 jupiter = "6.1.3"
-abortMission = "7.1.80"
+abortMission = "7.1.105"
 checkstyle = "12.3.1"
 jacoco = "0.8.15"
 jackson = { strictly = "3.2.2" }
 jacksonAnnotations = { strictly = "2.22" }
 openApiUi = "3.1.1"
 
-abortMissionPlugin = "5.2.80"
+abortMissionPlugin = "5.2.84"
 lombokPlugin = "9.5.0"
 springBootPlugin = "4.1.1"
 gitVersionerPlugin = "1.6.7"

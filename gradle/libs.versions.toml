@@ -30,7 +30,7 @@ jacksonAnnotations = { strictly = "2.22" }
 openApiUi = "3.1.1"
 
 abortMissionPlugin = "5.2.84"
-lombokPlugin = "9.5.0"
+lombokPlugin = "9.7.0"
 springBootPlugin = "4.1.1"
 gitVersionerPlugin = "1.6.7"
 owaspPlugin = "13.0.0"

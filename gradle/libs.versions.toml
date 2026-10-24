@@ -1,6 +1,6 @@
 [versions]
-springBoot = "4.1.1"
-spring = "7.0.9"
+springBoot = "4.1.2"
+spring = "7.0.10"
 snakeYaml = "2.7"
 mapstruct = "1.6.3"
 tomcat = "11.0.27"
@@ -31,7 +31,7 @@ openApiUi = "3.1.1"
 
 abortMissionPlugin = "5.2.92"
 lombokPlugin = "9.8.2"
-springBootPlugin = "4.1.1"
+springBootPlugin = "4.1.2"
 gitVersionerPlugin = "1.6.7"
 owaspPlugin = "13.0.0"
 cycloneDxBomPlugin = "3.5.1"

@@ -33,7 +33,11 @@ public enum ApiVersion implements Comparable<ApiVersion> {
     /**
      * The version of the v2025-07-01 API.
      */
-    V_2025_07_01("2025-07-01");
+    V_2025_07_01("2025-07-01"),
+    /**
+     * The version of the v2026-04-01 API.
+     */
+    V_2026_04_01("2026-04-01");
 
     private final String value;
 

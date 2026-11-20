@@ -27,7 +27,7 @@ checkstyle = "12.3.1"
 jacoco = "0.8.16"
 jackson = { strictly = "3.3.0" }
 jacksonAnnotations = { strictly = "2.23" }
-openApiUi = "3.2.0"
+openApiUi = "3.2.1"
 
 abortMissionPlugin = "5.2.98"
 lombokPlugin = "9.8.3"

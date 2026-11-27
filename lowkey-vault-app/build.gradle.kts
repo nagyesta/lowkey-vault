@@ -54,6 +54,7 @@ licensee {
     allowUrl("https://asm.ow2.io/license.html")
     allowUrl("https://opensource.org/license/mit")
     allowUrl("https://github.com/webjars/webjars-locator-lite/blob/main/LICENSE.md")
+    allowUrl("http://www.apache.org/licenses/")
     ignoreDependencies("org.apache.tomcat", "tomcat-servlet-api")
 }
 
